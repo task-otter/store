@@ -179,8 +179,6 @@ tasks:
       macOS uses Homebrew to uninstall actionlint.
       Linux removes the binary from /usr/local/bin.
       Windows uses Scoop to uninstall actionlint.
-    aliases:
-      - uninstall
     prompt:
       - This will remove actionlint from this machine.
       - Continue?

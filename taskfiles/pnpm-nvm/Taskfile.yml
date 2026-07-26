@@ -125,8 +125,6 @@ tasks:
     summary: |
       Run corepack disable pnpm to remove the Corepack-managed pnpm shim
       from the active Node.js runtime.
-    aliases:
-      - uninstall
     prompt:
       - This will disable the pnpm shim provided by Corepack.
       - Continue?

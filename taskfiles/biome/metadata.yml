@@ -1,0 +1,29 @@
+---
+schema: taskotter.dev/taskfile-metadata/v1
+module: biome
+taskfile: Taskfile.yml
+exported_tasks:
+  - cache:clean
+  - check
+  - check:write
+  - ci
+  - config:init
+  - fix
+  - fmt
+  - fmt:check
+  - help
+  - init
+  - install
+  - install:undo
+  - lint
+  - lint:fix
+  - upgrade
+  - version
+variants:
+  - bun
+  - node/fnm/npm
+  - node/fnm/pnpm
+  - node/fnm/yarn
+  - node/nvm/npm
+  - node/nvm/pnpm
+  - node/nvm/yarn

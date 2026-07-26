@@ -50,8 +50,6 @@ tasks:
     run: once
     desc: Remove dotenv-linter from the current operating system
     summary: Remove the dotenv-linter binary previously installed with cargo install.
-    aliases:
-      - uninstall
     prompt:
       - This will remove dotenv-linter from this machine.
       - Continue?

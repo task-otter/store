@@ -51,8 +51,6 @@ tasks:
       macOS uses Homebrew Cask to uninstall Docker Desktop.
       Linux removes docker-ce and related packages via apt or dnf.
       Windows uses winget to uninstall Docker Desktop.
-    aliases:
-      - uninstall
     prompt:
       - This will remove Docker from this machine.
       - Continue?

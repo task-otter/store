@@ -1,0 +1,185 @@
+---
+version: "3"
+
+output:
+  group:
+    begin: "::group::{{.TASK}}"
+    end: "::endgroup::"
+    error_only: false
+
+silent: true
+
+includes:
+  pnpm:
+    taskfile: ../../../../pnpm-nvm/Taskfile.yml
+
+vars:
+  DEPCHECK_LINT_SKIP_PATTERN: ""
+  PROJECT_PATH: ""
+  DEPCHECK_DEFAULT_PROJECT_PATH: "."
+  TARGETS: ""
+  IGNORE_PACKAGES: ""
+  EXTRA_ARGS: ""
+  VERSION: ""
+
+tasks:
+  default:
+    run: once
+    desc: Show available Depcheck tasks
+    cmds:
+      - task --list
+
+  install:
+    run: once
+    desc: Install Depcheck as a local devDependency
+    summary: |
+      Install depcheck as a local devDependency. Pass VERSION=x.y.z to pin a
+      specific release instead of the package manager's default resolution.
+    status:
+      - >-
+        node -e "const installed = require('./node_modules/depcheck/package.json');
+        const requested = '{{if .VERSION_OVERRIDE}}{{.VERSION_OVERRIDE}}{{else}}{{.VERSION}}{{end}}';
+        process.exit(!requested || installed.version === requested ? 0 : 1)"
+    cmds:
+      - task: pnpm:add
+        vars:
+          PACKAGES: >-
+            depcheck{{if .VERSION_OVERRIDE}}@{{.VERSION_OVERRIDE}}
+            {{- else if .VERSION}}@{{.VERSION}}{{end}}
+          EXTRA_ARGS: >-
+            {{if .EXTRA_ARGS_OVERRIDE}}{{.EXTRA_ARGS_OVERRIDE}}
+            {{- else}}{{.EXTRA_ARGS}}{{end}}{{if .CLI_ARGS}} {{.CLI_ARGS}}{{end}}
+
+  install:undo:
+    run: once
+    desc: Remove the locally installed Depcheck devDependency
+    summary: Remove depcheck from local devDependencies via the active package manager.
+    prompt:
+      - This will remove depcheck from local devDependencies.
+      - Continue?
+    cmds:
+      - task: pnpm:remove
+        vars:
+          PACKAGES: depcheck
+          EXTRA_ARGS: "{{if .EXTRA_ARGS_OVERRIDE}}{{.EXTRA_ARGS_OVERRIDE}}{{else}}{{.EXTRA_ARGS}}{{end}}"
+
+  upgrade:
+    run: once
+    desc: Upgrade Depcheck to the latest release
+    summary: Reinstall depcheck at the latest version as a local devDependency.
+    cmds:
+      - task: pnpm:add
+        vars:
+          PACKAGES: depcheck@latest
+          EXTRA_ARGS: "{{if .EXTRA_ARGS_OVERRIDE}}{{.EXTRA_ARGS_OVERRIDE}}{{else}}{{.EXTRA_ARGS}}{{end}}"
+
+  lint:
+    run: once
+    desc: Run Depcheck
+    summary: Depcheck reports unused and missing dependencies; review findings before removing packages.
+    cmds:
+      - task: pnpm:exec
+        vars:
+          BINARY: depcheck
+          ARGS: >-
+            {{if .DEPCHECK_LINT_SKIP_PATTERN_OVERRIDE}}--ignore-patterns="{{.DEPCHECK_LINT_SKIP_PATTERN_OVERRIDE}}"
+            {{else if .DEPCHECK_LINT_SKIP_PATTERN}}--ignore-patterns="{{.DEPCHECK_LINT_SKIP_PATTERN}}" {{end}}
+            {{if .DEPCHECK_PROJECT_PATH_OVERRIDE}}{{.DEPCHECK_PROJECT_PATH_OVERRIDE}}
+            {{else}}{{if .DEPCHECK_TARGETS_OVERRIDE}}{{.DEPCHECK_TARGETS_OVERRIDE}}
+            {{else}}{{if .PROJECT_PATH}}{{.PROJECT_PATH}}
+            {{else}}{{if .TARGETS}}{{.TARGETS}}
+            {{else}}{{.DEPCHECK_DEFAULT_PROJECT_PATH}}{{end}}{{end}}{{end}}{{end}}
+          EXTRA_ARGS: >-
+            {{if .EXTRA_ARGS_OVERRIDE}}{{.EXTRA_ARGS_OVERRIDE}}
+            {{else}}{{if .EXTRA_ARGS}}{{.EXTRA_ARGS}}{{end}}{{end}}{{if .CLI_ARGS}} {{.CLI_ARGS}}{{end}}
+      - echo "✅ depcheck passed"
+
+  json:
+    run: once
+    desc: Run Depcheck and print JSON output
+    cmds:
+      - task: pnpm:exec
+        vars:
+          BINARY: depcheck
+          ARGS: >-
+            {{if .DEPCHECK_LINT_SKIP_PATTERN_OVERRIDE}}--ignore-patterns="{{.DEPCHECK_LINT_SKIP_PATTERN_OVERRIDE}}"
+            {{else if .DEPCHECK_LINT_SKIP_PATTERN}}--ignore-patterns="{{.DEPCHECK_LINT_SKIP_PATTERN}}" {{end}}
+            {{if .DEPCHECK_PROJECT_PATH_OVERRIDE}}{{.DEPCHECK_PROJECT_PATH_OVERRIDE}}
+            {{else}}{{if .DEPCHECK_TARGETS_OVERRIDE}}{{.DEPCHECK_TARGETS_OVERRIDE}}
+            {{else}}{{if .PROJECT_PATH}}{{.PROJECT_PATH}}
+            {{else}}{{if .TARGETS}}{{.TARGETS}}
+            {{else}}{{.DEPCHECK_DEFAULT_PROJECT_PATH}}{{end}}{{end}}{{end}}{{end}}
+            --json
+          EXTRA_ARGS: >-
+            {{if .EXTRA_ARGS_OVERRIDE}}{{.EXTRA_ARGS_OVERRIDE}}
+            {{else}}{{if .EXTRA_ARGS}}{{.EXTRA_ARGS}}{{end}}{{end}}{{if .CLI_ARGS}} {{.CLI_ARGS}}{{end}}
+
+  ignores:
+    run: once
+    desc: Run Depcheck while ignoring packages from IGNORE_PACKAGES
+    summary: Set IGNORE_PACKAGES as a comma-separated list, for example IGNORE_PACKAGES="@types/*,eslint-*".
+    cmds:
+      - task: pnpm:exec
+        vars:
+          BINARY: depcheck
+          ARGS: >-
+            {{if .DEPCHECK_LINT_SKIP_PATTERN_OVERRIDE}}--ignore-patterns="{{.DEPCHECK_LINT_SKIP_PATTERN_OVERRIDE}}"
+            {{else if .DEPCHECK_LINT_SKIP_PATTERN}}--ignore-patterns="{{.DEPCHECK_LINT_SKIP_PATTERN}}" {{end}}
+            {{if .DEPCHECK_PROJECT_PATH_OVERRIDE}}{{.DEPCHECK_PROJECT_PATH_OVERRIDE}}
+            {{else}}{{if .DEPCHECK_TARGETS_OVERRIDE}}{{.DEPCHECK_TARGETS_OVERRIDE}}
+            {{else}}{{if .PROJECT_PATH}}{{.PROJECT_PATH}}
+            {{else}}{{if .TARGETS}}{{.TARGETS}}
+            {{else}}{{.DEPCHECK_DEFAULT_PROJECT_PATH}}{{end}}{{end}}{{end}}{{end}}
+            --ignores="{{if .IGNORE_PACKAGES_OVERRIDE}}{{.IGNORE_PACKAGES_OVERRIDE}}{{else}}{{.IGNORE_PACKAGES}}{{end}}"
+          EXTRA_ARGS: >-
+            {{if .EXTRA_ARGS_OVERRIDE}}{{.EXTRA_ARGS_OVERRIDE}}
+            {{else}}{{if .EXTRA_ARGS}}{{.EXTRA_ARGS}}{{end}}{{end}}{{if .CLI_ARGS}} {{.CLI_ARGS}}{{end}}
+
+  skip-missing:
+    run: once
+    desc: Run Depcheck while ignoring missing dependency reports
+    cmds:
+      - task: pnpm:exec
+        vars:
+          BINARY: depcheck
+          ARGS: >-
+            {{if .DEPCHECK_LINT_SKIP_PATTERN_OVERRIDE}}--ignore-patterns="{{.DEPCHECK_LINT_SKIP_PATTERN_OVERRIDE}}"
+            {{else if .DEPCHECK_LINT_SKIP_PATTERN}}--ignore-patterns="{{.DEPCHECK_LINT_SKIP_PATTERN}}" {{end}}
+            {{if .DEPCHECK_PROJECT_PATH_OVERRIDE}}{{.DEPCHECK_PROJECT_PATH_OVERRIDE}}
+            {{else}}{{if .DEPCHECK_TARGETS_OVERRIDE}}{{.DEPCHECK_TARGETS_OVERRIDE}}
+            {{else}}{{if .PROJECT_PATH}}{{.PROJECT_PATH}}
+            {{else}}{{if .TARGETS}}{{.TARGETS}}
+            {{else}}{{.DEPCHECK_DEFAULT_PROJECT_PATH}}{{end}}{{end}}{{end}}{{end}}
+            --skip-missing=true
+          EXTRA_ARGS: >-
+            {{if .EXTRA_ARGS_OVERRIDE}}{{.EXTRA_ARGS_OVERRIDE}}
+            {{else}}{{if .EXTRA_ARGS}}{{.EXTRA_ARGS}}{{end}}{{end}}{{if .CLI_ARGS}} {{.CLI_ARGS}}{{end}}
+
+  ci:
+    run: once
+    desc: Run Depcheck with CI failure on dependency findings
+    summary: Depcheck exits non-zero when unused or missing dependencies are found.
+    cmds:
+      - task: lint
+      - echo "✅ depcheck ci passed"
+
+  version:
+    run: once
+    desc: Show the locally resolved Depcheck version
+    cmds:
+      - task: pnpm:exec
+        vars:
+          BINARY: depcheck
+          ARGS: "--version"
+
+  help:
+    run: once
+    desc: Show Depcheck CLI help
+    cmds:
+      - task: pnpm:exec
+        vars:
+          BINARY: depcheck
+          ARGS: "--help"
+          EXTRA_ARGS: >-
+            {{if .EXTRA_ARGS_OVERRIDE}}{{.EXTRA_ARGS_OVERRIDE}}
+            {{- else}}{{.EXTRA_ARGS}}{{end}}{{if .CLI_ARGS}} {{.CLI_ARGS}}{{end}}

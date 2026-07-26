@@ -1,0 +1,360 @@
+---
+version: "3"
+
+output:
+  group:
+    begin: "::group::{{.TASK}}"
+    end: "::endgroup::"
+    error_only: false
+
+silent: true
+
+includes:
+  bun:
+    taskfile: ../../bun/Taskfile.yml
+
+  skipfiles:
+    taskfile: ../../internal/skipfiles/Taskfile.yml
+    internal: true
+
+vars:
+  KNIP_LINT_SKIP_PATTERN: ""
+  EXTRA_ARGS: ""
+  CONFIG: ""
+  VERSION: ""
+  KNIP_INTERNAL_LINT_SKIP_PATTERN: >-
+    {{if .KNIP_LINT_SKIP_PATTERN_OVERRIDE}}{{.KNIP_LINT_SKIP_PATTERN_OVERRIDE}}
+    {{- else}}{{.KNIP_LINT_SKIP_PATTERN}}{{end}}
+  KNIP_INTERNAL_CONFIG: >-
+    {{if .CONFIG_OVERRIDE}}{{.CONFIG_OVERRIDE}}
+    {{- else}}{{.CONFIG}}{{end}}
+  KNIP_INTERNAL_SKIP_CONFIG: ".taskotter-knip-bun-skip.json"
+
+tasks:
+  default:
+    run: once
+    desc: Show available Knip tasks
+    cmds:
+      - task --list
+
+  install:
+    run: once
+    desc: Install Knip as a local devDependency
+    summary: |
+      Install knip as a local devDependency. Pass VERSION=x.y.z to pin a
+      specific release instead of the package manager's default resolution.
+    status:
+      - >-
+        node -e "const installed = require('./node_modules/knip/package.json');
+        const requested = '{{if .VERSION_OVERRIDE}}{{.VERSION_OVERRIDE}}{{else}}{{.VERSION}}{{end}}';
+        process.exit(!requested || installed.version === requested ? 0 : 1)"
+    cmds:
+      - task: bun:add
+        vars:
+          PACKAGES: >-
+            knip{{if .VERSION_OVERRIDE}}@{{.VERSION_OVERRIDE}}
+            {{- else if .VERSION}}@{{.VERSION}}{{end}}
+          EXTRA_ARGS: >-
+            {{if .EXTRA_ARGS_OVERRIDE}}{{.EXTRA_ARGS_OVERRIDE}}
+            {{- else}}{{.EXTRA_ARGS}}{{end}}{{if .CLI_ARGS}} {{.CLI_ARGS}}{{end}}
+
+  install:undo:
+    run: once
+    desc: Remove the locally installed Knip devDependency
+    summary: Remove knip from local devDependencies via the active package manager.
+    prompt:
+      - This will remove knip from local devDependencies.
+      - Continue?
+    cmds:
+      - task: bun:remove
+        vars:
+          PACKAGES: knip
+          EXTRA_ARGS: "{{if .EXTRA_ARGS_OVERRIDE}}{{.EXTRA_ARGS_OVERRIDE}}{{else}}{{.EXTRA_ARGS}}{{end}}"
+
+  upgrade:
+    run: once
+    desc: Upgrade Knip to the latest release
+    summary: Reinstall knip at the latest version as a local devDependency.
+    cmds:
+      - task: bun:add
+        vars:
+          PACKAGES: knip@latest
+          EXTRA_ARGS: "{{if .EXTRA_ARGS_OVERRIDE}}{{.EXTRA_ARGS_OVERRIDE}}{{else}}{{.EXTRA_ARGS}}{{end}}"
+
+  init:
+    run: once
+    desc: Create a starter knip.json configuration file
+    summary: |
+      Knip has no scaffolding command, so this writes a minimal knip.json that
+      references the Knip JSON schema. Knip auto-detects entry points and
+      project files by default; edit knip.json to customize. Skipped when a
+      knip.json or knip.jsonc already exists.
+    status:
+      - test -f knip.json || test -f knip.jsonc
+    cmds:
+      - >-
+        printf '%s\n' '{' '  "$schema": "https://unpkg.com/knip@5/schema.json"' '}' > knip.json
+      - echo "✅ created knip.json"
+
+  config:init:
+    run: once
+    desc: Alias for knip:init
+    cmds:
+      - task: init
+
+  lint:
+    run: once
+    desc: Run Knip for unused files, exports, and dependencies
+    summary: Knip may report framework-specific false positives; review results before deleting files or dependencies.
+    cmds:
+      - task: skipfiles:prepare-overlay
+        vars:
+          SKIPFILES_TOOL: knip
+          SKIPFILES_PATTERN: "{{.KNIP_INTERNAL_LINT_SKIP_PATTERN}}"
+          SKIPFILES_SOURCE_CONFIG: "{{.KNIP_INTERNAL_CONFIG}}"
+          SKIPFILES_OUTPUT: "{{.KNIP_INTERNAL_SKIP_CONFIG}}"
+          SKIPFILES_JS_RUNTIME: bun
+      - defer:
+          task: skipfiles:cleanup
+          vars:
+            SKIPFILES_OUTPUT: "{{.KNIP_INTERNAL_SKIP_CONFIG}}"
+      - task: bun:exec
+        vars:
+          BINARY: knip
+          ARGS: >-
+            {{if .KNIP_INTERNAL_LINT_SKIP_PATTERN}}--config
+            "{{.KNIP_INTERNAL_SKIP_CONFIG}}"
+            {{else if .CONFIG_OVERRIDE}}--config "{{.CONFIG_OVERRIDE}}"
+            {{else}}{{if .CONFIG}}--config "{{.CONFIG}}" {{end}}{{end}}
+          EXTRA_ARGS: >-
+            {{if .EXTRA_ARGS_OVERRIDE}}{{.EXTRA_ARGS_OVERRIDE}}
+            {{- else}}{{.EXTRA_ARGS}}{{end}}{{if .CLI_ARGS}} {{.CLI_ARGS}}{{end}}
+      - echo "✅ knip passed"
+
+  production:
+    run: once
+    desc: Run Knip against production dependency usage
+    summary: Knip may report framework-specific false positives; review results before deleting files or dependencies.
+    cmds:
+      - task: skipfiles:prepare-overlay
+        vars:
+          SKIPFILES_TOOL: knip
+          SKIPFILES_PATTERN: "{{.KNIP_INTERNAL_LINT_SKIP_PATTERN}}"
+          SKIPFILES_SOURCE_CONFIG: "{{.KNIP_INTERNAL_CONFIG}}"
+          SKIPFILES_OUTPUT: "{{.KNIP_INTERNAL_SKIP_CONFIG}}"
+          SKIPFILES_JS_RUNTIME: bun
+      - defer:
+          task: skipfiles:cleanup
+          vars:
+            SKIPFILES_OUTPUT: "{{.KNIP_INTERNAL_SKIP_CONFIG}}"
+      - task: bun:exec
+        vars:
+          BINARY: knip
+          ARGS: >-
+            --production
+            {{if .KNIP_INTERNAL_LINT_SKIP_PATTERN}}--config
+            "{{.KNIP_INTERNAL_SKIP_CONFIG}}"
+            {{else if .CONFIG_OVERRIDE}}--config "{{.CONFIG_OVERRIDE}}"
+            {{else}}{{if .CONFIG}}--config "{{.CONFIG}}" {{end}}{{end}}
+          EXTRA_ARGS: >-
+            {{if .EXTRA_ARGS_OVERRIDE}}{{.EXTRA_ARGS_OVERRIDE}}
+            {{- else}}{{.EXTRA_ARGS}}{{end}}{{if .CLI_ARGS}} {{.CLI_ARGS}}{{end}}
+
+  dependencies:
+    run: once
+    desc: Report unused production dependencies with Knip
+    summary: Review Knip dependency results before removing packages.
+    cmds:
+      - task: skipfiles:prepare-overlay
+        vars:
+          SKIPFILES_TOOL: knip
+          SKIPFILES_PATTERN: "{{.KNIP_INTERNAL_LINT_SKIP_PATTERN}}"
+          SKIPFILES_SOURCE_CONFIG: "{{.KNIP_INTERNAL_CONFIG}}"
+          SKIPFILES_OUTPUT: "{{.KNIP_INTERNAL_SKIP_CONFIG}}"
+          SKIPFILES_JS_RUNTIME: bun
+      - defer:
+          task: skipfiles:cleanup
+          vars:
+            SKIPFILES_OUTPUT: "{{.KNIP_INTERNAL_SKIP_CONFIG}}"
+      - task: bun:exec
+        vars:
+          BINARY: knip
+          ARGS: >-
+            --dependencies
+            {{if .KNIP_INTERNAL_LINT_SKIP_PATTERN}}--config
+            "{{.KNIP_INTERNAL_SKIP_CONFIG}}"
+            {{else if .CONFIG_OVERRIDE}}--config "{{.CONFIG_OVERRIDE}}"
+            {{else}}{{if .CONFIG}}--config "{{.CONFIG}}" {{end}}{{end}}
+          EXTRA_ARGS: >-
+            {{if .EXTRA_ARGS_OVERRIDE}}{{.EXTRA_ARGS_OVERRIDE}}
+            {{- else}}{{.EXTRA_ARGS}}{{end}}{{if .CLI_ARGS}} {{.CLI_ARGS}}{{end}}
+
+  dev-dependencies:
+    run: once
+    desc: Report unused development dependencies with Knip
+    summary: Review Knip dependency results before removing packages.
+    cmds:
+      - task: skipfiles:prepare-overlay
+        vars:
+          SKIPFILES_TOOL: knip
+          SKIPFILES_PATTERN: "{{.KNIP_INTERNAL_LINT_SKIP_PATTERN}}"
+          SKIPFILES_SOURCE_CONFIG: "{{.KNIP_INTERNAL_CONFIG}}"
+          SKIPFILES_OUTPUT: "{{.KNIP_INTERNAL_SKIP_CONFIG}}"
+          SKIPFILES_JS_RUNTIME: bun
+      - defer:
+          task: skipfiles:cleanup
+          vars:
+            SKIPFILES_OUTPUT: "{{.KNIP_INTERNAL_SKIP_CONFIG}}"
+      - task: bun:exec
+        vars:
+          BINARY: knip
+          ARGS: >-
+            --devDependencies
+            {{if .KNIP_INTERNAL_LINT_SKIP_PATTERN}}--config
+            "{{.KNIP_INTERNAL_SKIP_CONFIG}}"
+            {{else if .CONFIG_OVERRIDE}}--config "{{.CONFIG_OVERRIDE}}"
+            {{else}}{{if .CONFIG}}--config "{{.CONFIG}}" {{end}}{{end}}
+          EXTRA_ARGS: >-
+            {{if .EXTRA_ARGS_OVERRIDE}}{{.EXTRA_ARGS_OVERRIDE}}
+            {{- else}}{{.EXTRA_ARGS}}{{end}}{{if .CLI_ARGS}} {{.CLI_ARGS}}{{end}}
+
+  files:
+    run: once
+    desc: Report unused files with Knip
+    summary: Review Knip file results before deleting files.
+    cmds:
+      - task: skipfiles:prepare-overlay
+        vars:
+          SKIPFILES_TOOL: knip
+          SKIPFILES_PATTERN: "{{.KNIP_INTERNAL_LINT_SKIP_PATTERN}}"
+          SKIPFILES_SOURCE_CONFIG: "{{.KNIP_INTERNAL_CONFIG}}"
+          SKIPFILES_OUTPUT: "{{.KNIP_INTERNAL_SKIP_CONFIG}}"
+          SKIPFILES_JS_RUNTIME: bun
+      - defer:
+          task: skipfiles:cleanup
+          vars:
+            SKIPFILES_OUTPUT: "{{.KNIP_INTERNAL_SKIP_CONFIG}}"
+      - task: bun:exec
+        vars:
+          BINARY: knip
+          ARGS: >-
+            --files
+            {{if .KNIP_INTERNAL_LINT_SKIP_PATTERN}}--config
+            "{{.KNIP_INTERNAL_SKIP_CONFIG}}"
+            {{else if .CONFIG_OVERRIDE}}--config "{{.CONFIG_OVERRIDE}}"
+            {{else}}{{if .CONFIG}}--config "{{.CONFIG}}" {{end}}{{end}}
+          EXTRA_ARGS: >-
+            {{if .EXTRA_ARGS_OVERRIDE}}{{.EXTRA_ARGS_OVERRIDE}}
+            {{- else}}{{.EXTRA_ARGS}}{{end}}{{if .CLI_ARGS}} {{.CLI_ARGS}}{{end}}
+
+  exports:
+    run: once
+    desc: Report unused exports with Knip
+    summary: Review Knip export results before deleting code.
+    cmds:
+      - task: skipfiles:prepare-overlay
+        vars:
+          SKIPFILES_TOOL: knip
+          SKIPFILES_PATTERN: "{{.KNIP_INTERNAL_LINT_SKIP_PATTERN}}"
+          SKIPFILES_SOURCE_CONFIG: "{{.KNIP_INTERNAL_CONFIG}}"
+          SKIPFILES_OUTPUT: "{{.KNIP_INTERNAL_SKIP_CONFIG}}"
+          SKIPFILES_JS_RUNTIME: bun
+      - defer:
+          task: skipfiles:cleanup
+          vars:
+            SKIPFILES_OUTPUT: "{{.KNIP_INTERNAL_SKIP_CONFIG}}"
+      - task: bun:exec
+        vars:
+          BINARY: knip
+          ARGS: >-
+            --exports
+            {{if .KNIP_INTERNAL_LINT_SKIP_PATTERN}}--config
+            "{{.KNIP_INTERNAL_SKIP_CONFIG}}"
+            {{else if .CONFIG_OVERRIDE}}--config "{{.CONFIG_OVERRIDE}}"
+            {{else}}{{if .CONFIG}}--config "{{.CONFIG}}" {{end}}{{end}}
+          EXTRA_ARGS: >-
+            {{if .EXTRA_ARGS_OVERRIDE}}{{.EXTRA_ARGS_OVERRIDE}}
+            {{- else}}{{.EXTRA_ARGS}}{{end}}{{if .CLI_ARGS}} {{.CLI_ARGS}}{{end}}
+
+  lint:fix:
+    run: once
+    desc: Run Knip fix mode when supported by the installed version
+    summary: Knip fixes can update project files; dependency removals should still be reviewed manually.
+    cmds:
+      - task: skipfiles:prepare-overlay
+        vars:
+          SKIPFILES_TOOL: knip
+          SKIPFILES_PATTERN: "{{.KNIP_INTERNAL_LINT_SKIP_PATTERN}}"
+          SKIPFILES_SOURCE_CONFIG: "{{.KNIP_INTERNAL_CONFIG}}"
+          SKIPFILES_OUTPUT: "{{.KNIP_INTERNAL_SKIP_CONFIG}}"
+          SKIPFILES_JS_RUNTIME: bun
+      - defer:
+          task: skipfiles:cleanup
+          vars:
+            SKIPFILES_OUTPUT: "{{.KNIP_INTERNAL_SKIP_CONFIG}}"
+      - task: bun:exec
+        vars:
+          BINARY: knip
+          ARGS: >-
+            --fix
+            {{if .KNIP_INTERNAL_LINT_SKIP_PATTERN}}--config
+            "{{.KNIP_INTERNAL_SKIP_CONFIG}}"
+            {{else if .CONFIG_OVERRIDE}}--config "{{.CONFIG_OVERRIDE}}"
+            {{else}}{{if .CONFIG}}--config "{{.CONFIG}}" {{end}}{{end}}
+          EXTRA_ARGS: >-
+            {{if .EXTRA_ARGS_OVERRIDE}}{{.EXTRA_ARGS_OVERRIDE}}
+            {{- else}}{{.EXTRA_ARGS}}{{end}}{{if .CLI_ARGS}} {{.CLI_ARGS}}{{end}}
+
+  ci:
+    run: once
+    desc: Run Knip production checks for CI
+    summary: Knip may report framework-specific false positives; tune configuration before enforcing broadly.
+    cmds:
+      - task: skipfiles:prepare-overlay
+        vars:
+          SKIPFILES_TOOL: knip
+          SKIPFILES_PATTERN: "{{.KNIP_INTERNAL_LINT_SKIP_PATTERN}}"
+          SKIPFILES_SOURCE_CONFIG: "{{.KNIP_INTERNAL_CONFIG}}"
+          SKIPFILES_OUTPUT: "{{.KNIP_INTERNAL_SKIP_CONFIG}}"
+          SKIPFILES_JS_RUNTIME: bun
+      - defer:
+          task: skipfiles:cleanup
+          vars:
+            SKIPFILES_OUTPUT: "{{.KNIP_INTERNAL_SKIP_CONFIG}}"
+      - task: bun:exec
+        vars:
+          BINARY: knip
+          ARGS: >-
+            --production
+            {{if .KNIP_INTERNAL_LINT_SKIP_PATTERN}}--config
+            "{{.KNIP_INTERNAL_SKIP_CONFIG}}"
+            {{else if .CONFIG_OVERRIDE}}--config "{{.CONFIG_OVERRIDE}}"
+            {{else}}{{if .CONFIG}}--config "{{.CONFIG}}" {{end}}{{end}}
+          EXTRA_ARGS: >-
+            {{if .EXTRA_ARGS_OVERRIDE}}{{.EXTRA_ARGS_OVERRIDE}}
+            {{- else}}{{.EXTRA_ARGS}}{{end}}{{if .CLI_ARGS}} {{.CLI_ARGS}}{{end}}
+      - echo "✅ knip passed"
+
+  version:
+    run: once
+    desc: Show the locally resolved Knip version
+    cmds:
+      - task: bun:exec
+        vars:
+          {
+            PM: "{{if .PM_OVERRIDE}}{{.PM_OVERRIDE}}{{else}}{{.PM}}{{end}}",
+            BINARY: knip,
+            ARGS: "--version",
+          }
+
+  help:
+    run: once
+    desc: Show Knip CLI help
+    cmds:
+      - task: bun:exec
+        vars:
+          BINARY: knip
+          ARGS: "--help"
+          EXTRA_ARGS: >-
+            {{if .EXTRA_ARGS_OVERRIDE}}{{.EXTRA_ARGS_OVERRIDE}}
+            {{- else}}{{.EXTRA_ARGS}}{{end}}{{if .CLI_ARGS}} {{.CLI_ARGS}}{{end}}

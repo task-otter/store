@@ -61,8 +61,6 @@ tasks:
       macOS removes the Homebrew formula from hashicorp/tap.
       Linux removes the vault package via apt-get or dnf.
       Windows uses winget to uninstall Hashicorp.Vault.
-    aliases:
-      - uninstall
     prompt:
       - This will remove the Vault CLI from this machine.
       - Continue?

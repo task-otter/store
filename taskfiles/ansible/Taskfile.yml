@@ -57,8 +57,6 @@ tasks:
     desc: Remove Ansible and ansible-lint from the current operating system
     summary: |
       Uninstall ansible and ansible-lint via uv tool uninstall on macOS and Linux.
-    aliases:
-      - uninstall
     prompt:
       - This will remove Ansible and ansible-lint from this machine.
       - Continue?

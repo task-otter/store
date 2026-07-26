@@ -242,7 +242,13 @@ func RepoRoot(t testT) string {
 func assertReadme(t testT, module string, expectedTasks []string) {
 	t.Helper()
 
-	path := filepath.Join(moduleDir(t, module), "README.md")
+	// Nested tool families (e.g. "biome/node/fnm/npm") share a single README at
+	// the family root; flat modules keep their own. Resolve accordingly.
+	readmeModule := module
+	if index := strings.IndexByte(readmeModule, '/'); index >= 0 {
+		readmeModule = readmeModule[:index]
+	}
+	path := filepath.Join(moduleDir(t, readmeModule), "README.md")
 	content, err := os.ReadFile(path)
 	if err != nil {
 		t.Fatalf("%s must have README.md: %v", module, err)

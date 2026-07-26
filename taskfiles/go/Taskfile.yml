@@ -74,8 +74,6 @@ tasks:
       /usr/local/go directly (the official package installer's location).
       Linux removes INSTALL_DIR_UNIX/go (default /usr/local/go).
       Windows uses the Programs and Features uninstaller via PowerShell.
-    aliases:
-      - uninstall
     prompt:
       - This will remove Go from this machine.
       - Continue?

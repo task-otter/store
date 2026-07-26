@@ -62,8 +62,6 @@ tasks:
     run: once
     desc: Remove Corepack installed through npm
     summary: Run npm uninstall --global corepack to remove the Corepack package installed by the install task.
-    aliases:
-      - uninstall
     prompt:
       - This will remove Corepack installed through npm.
       - Continue?

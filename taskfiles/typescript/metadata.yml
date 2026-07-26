@@ -1,0 +1,36 @@
+---
+schema: taskotter.dev/taskfile-metadata/v1
+module: typescript
+taskfile: Taskfile.yml
+exported_tasks:
+  - build
+  - build:clean
+  - build:watch
+  - ci
+  - clean
+  - clean:all
+  - config:diagnostics
+  - config:files
+  - config:init
+  - config:show
+  - config:trace
+  - dev
+  - emit:dts
+  - install
+  - install:undo
+  - run
+  - start
+  - tsserver:info
+  - typecheck
+  - typecheck:files
+  - typecheck:watch
+  - upgrade
+  - version
+variants:
+  - bun
+  - node/fnm/npm
+  - node/fnm/pnpm
+  - node/fnm/yarn
+  - node/nvm/npm
+  - node/nvm/pnpm
+  - node/nvm/yarn

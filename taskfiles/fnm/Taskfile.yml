@@ -42,8 +42,6 @@ tasks:
       Undo the fnm installation for the current platform.
       On Linux and macOS this removes the fnm install directory and any standalone binary.
       On Windows this runs winget uninstall.
-    aliases:
-      - uninstall
     prompt:
       - This will remove fnm from this machine.
       - Node.js versions managed by fnm may also become unavailable.
@@ -66,8 +64,6 @@ tasks:
     summary: >-
       Install the Node.js version provided through VERSION.
       If VERSION is not provided, install the latest LTS version.
-    aliases:
-      - node:uninstall:undo
     deps:
       - install
     cmds:
@@ -82,8 +78,6 @@ tasks:
     run: once
     desc: Uninstall a Node.js version managed by fnm
     summary: Remove the Node.js version provided through VERSION from the local fnm installation.
-    aliases:
-      - node:install:undo
     deps:
       - install
     requires:
@@ -125,8 +119,6 @@ tasks:
     summary: >-
       Show all Node.js versions installed and managed by fnm on the current machine.
       Fails clearly if fnm is not installed.
-    aliases:
-      - list
     cmds:
       - task: _ls:unix
       - task: _ls:windows
@@ -137,9 +129,6 @@ tasks:
     summary: >-
       Print the currently active Node.js and npm versions available through fnm on the current platform.
       Fails clearly if fnm is not installed.
-    aliases:
-      - node:current
-      - node:active
     cmds:
       - task: _node:version:unix
       - task: _node:version:windows

@@ -1,0 +1,137 @@
+---
+version: "3"
+
+output:
+  group:
+    begin: "::group::{{.TASK}}"
+    end: "::endgroup::"
+    error_only: false
+
+silent: true
+
+includes:
+  npm:
+    taskfile: ../../../../npm-fnm/Taskfile.yml
+
+vars:
+  COLLECTION: "."
+  ENV: ""
+  EXTRA_ARGS: ""
+  VERSION: ""
+
+tasks:
+  default:
+    run: once
+    desc: Show available Bruno tasks
+    cmds:
+      - task --list
+
+  install:
+    run: once
+    desc: Install @usebruno/cli as a local devDependency
+    summary: |
+      Install @usebruno/cli as a local devDependency. Pass VERSION=x.y.z to
+      pin a specific release instead of the package manager's default
+      resolution.
+    status:
+      - >-
+        node -e "const installed = require('./node_modules/@usebruno/cli/package.json');
+        const requested = '{{if .VERSION_OVERRIDE}}{{.VERSION_OVERRIDE}}{{else}}{{.VERSION}}{{end}}';
+        process.exit(!requested || installed.version === requested ? 0 : 1)"
+    cmds:
+      - task: npm:add
+        vars:
+          PACKAGES: >-
+            @usebruno/cli{{if .VERSION_OVERRIDE}}@{{.VERSION_OVERRIDE}}
+            {{- else if .VERSION}}@{{.VERSION}}{{end}}
+          EXTRA_ARGS: >-
+            {{if .EXTRA_ARGS_OVERRIDE}}{{.EXTRA_ARGS_OVERRIDE}}
+            {{- else}}{{.EXTRA_ARGS}}{{end}}{{if .CLI_ARGS}} {{.CLI_ARGS}}{{end}}
+
+  install:undo:
+    run: once
+    desc: Remove the locally installed Bruno CLI devDependency
+    summary: Remove @usebruno/cli from local devDependencies via the active package manager.
+    prompt:
+      - This will remove @usebruno/cli from local devDependencies.
+      - Continue?
+    cmds:
+      - task: npm:remove
+        vars:
+          PACKAGES: "@usebruno/cli"
+          EXTRA_ARGS: "{{if .EXTRA_ARGS_OVERRIDE}}{{.EXTRA_ARGS_OVERRIDE}}{{else}}{{.EXTRA_ARGS}}{{end}}"
+
+  upgrade:
+    run: once
+    desc: Upgrade the Bruno CLI to the latest release
+    summary: Reinstall @usebruno/cli at the latest version as a local devDependency.
+    cmds:
+      - task: npm:add
+        vars:
+          PACKAGES: "@usebruno/cli@latest"
+          EXTRA_ARGS: "{{if .EXTRA_ARGS_OVERRIDE}}{{.EXTRA_ARGS_OVERRIDE}}{{else}}{{.EXTRA_ARGS}}{{end}}"
+
+  run:
+    run: once
+    desc: Run a Bruno collection (COLLECTION=path)
+    summary: |
+      Run all requests in the Bruno collection at COLLECTION (default: current
+      directory). Pass ENV to activate a named Bruno environment, and EXTRA_ARGS
+      for additional bru flags. Pass CLI arguments after -- to override all
+      variables directly.
+    cmds:
+      - task: npm:exec
+        vars:
+          BINARY: bru
+          ARGS: >-
+            run
+            {{if .COLLECTION_OVERRIDE}}{{.COLLECTION_OVERRIDE}}
+            {{- else}}{{.COLLECTION}}{{end}}
+            {{- if .ENV_OVERRIDE}} --env "{{.ENV_OVERRIDE}}"
+            {{- else}}{{if .ENV}} --env "{{.ENV}}"{{end}}{{end}}
+          EXTRA_ARGS: >-
+            {{if .EXTRA_ARGS_OVERRIDE}}{{.EXTRA_ARGS_OVERRIDE}}
+            {{- else}}{{.EXTRA_ARGS}}{{end}}{{if .CLI_ARGS}} {{.CLI_ARGS}}{{end}}
+
+  ci:
+    run: once
+    desc: Run Bruno collection in CI mode with --bail (COLLECTION=path)
+    summary: |
+      Run all requests in the Bruno collection and stop immediately on the first
+      failure via --bail. Pass ENV to activate a named Bruno environment.
+      Intended for CI pipelines where a single failure should abort the run.
+    cmds:
+      - task: npm:exec
+        vars:
+          BINARY: bru
+          ARGS: >-
+            run
+            {{if .COLLECTION_OVERRIDE}}{{.COLLECTION_OVERRIDE}}
+            {{- else}}{{.COLLECTION}}{{end}}
+            {{- if .ENV_OVERRIDE}} --env "{{.ENV_OVERRIDE}}"
+            {{- else}}{{if .ENV}} --env "{{.ENV}}"{{end}}{{end}}
+            --bail
+          EXTRA_ARGS: >-
+            {{if .EXTRA_ARGS_OVERRIDE}}{{.EXTRA_ARGS_OVERRIDE}}
+            {{- else}}{{.EXTRA_ARGS}}{{end}}{{if .CLI_ARGS}} {{.CLI_ARGS}}{{end}}
+
+  version:
+    run: once
+    desc: Show the locally resolved Bruno CLI version
+    cmds:
+      - task: npm:exec
+        vars:
+          BINARY: bru
+          ARGS: "--version"
+
+  help:
+    run: once
+    desc: Show Bruno CLI help
+    cmds:
+      - task: npm:exec
+        vars:
+          BINARY: bru
+          ARGS: "--help"
+          EXTRA_ARGS: >-
+            {{if .EXTRA_ARGS_OVERRIDE}}{{.EXTRA_ARGS_OVERRIDE}}
+            {{- else}}{{.EXTRA_ARGS}}{{end}}{{if .CLI_ARGS}} {{.CLI_ARGS}}{{end}}

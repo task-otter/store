@@ -62,8 +62,6 @@ tasks:
     run: once
     desc: Remove shfmt from the global Go bin
     summary: Remove the shfmt binary previously installed in the global Go bin.
-    aliases:
-      - uninstall
     prompt:
       - This will remove shfmt from the global Go bin.
       - Continue?

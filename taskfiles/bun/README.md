@@ -37,17 +37,17 @@ Installs are **idempotent**: the internal install task has a `status` check that
 
 ## Public Tasks
 
-| Task             | Aliases     | Variables                                        | Description                                                                                |
-| ---------------- | ----------- | ------------------------------------------------ | ------------------------------------------------------------------------------------------ |
-| `add`            | —           | Required `PACKAGES`; optional `EXTRA_ARGS`       | Add packages as devDependencies with `bun add -d`.                                         |
-| `remove`         | —           | Required `PACKAGES`; optional `EXTRA_ARGS`       | Remove globally-installed packages with `bun remove -g`.                                   |
-| `exec`           | —           | Required `BINARY`; optional `ARGS`, `EXTRA_ARGS` | Execute a local project binary via `bun x`.                                                |
-| `install`        | —           | Optional `VERSION`                               | Install Bun for the current operating system. Pass `VERSION=1.x.y` for a specific release. |
-| `install:undo`   | `uninstall` | —                                                | Remove Bun from the current operating system.                                              |
-| `version`        | —           | —                                                | Show the installed Bun version and revision. Auto-installs Bun if missing.                 |
-| `upgrade`        | —           | —                                                | Upgrade Bun to the latest stable release. Auto-installs Bun if missing.                    |
-| `upgrade:canary` | —           | —                                                | Switch Bun to the latest canary (pre-release) build. Auto-installs Bun if missing.         |
-| `upgrade:stable` | —           | —                                                | Switch Bun back from canary to the latest stable release. Auto-installs Bun if missing.    |
+| Task             | Variables                                        | Description                                                                                |
+| ---------------- | ------------------------------------------------ | ------------------------------------------------------------------------------------------ |
+| `add`            | Required `PACKAGES`; optional `EXTRA_ARGS`       | Add packages as devDependencies with `bun add -d`.                                         |
+| `remove`         | Required `PACKAGES`; optional `EXTRA_ARGS`       | Remove globally-installed packages with `bun remove -g`.                                   |
+| `exec`           | Required `BINARY`; optional `ARGS`, `EXTRA_ARGS` | Execute a local project binary via `bun x`.                                                |
+| `install`        | Optional `VERSION`                               | Install Bun for the current operating system. Pass `VERSION=1.x.y` for a specific release. |
+| `install:undo`   | —                                                | Remove Bun from the current operating system.                                              |
+| `version`        | —                                                | Show the installed Bun version and revision. Auto-installs Bun if missing.                 |
+| `upgrade`        | —                                                | Upgrade Bun to the latest stable release. Auto-installs Bun if missing.                    |
+| `upgrade:canary` | —                                                | Switch Bun to the latest canary (pre-release) build. Auto-installs Bun if missing.         |
+| `upgrade:stable` | —                                                | Switch Bun back from canary to the latest stable release. Auto-installs Bun if missing.    |
 
 ---
 
@@ -73,8 +73,6 @@ All other tasks call `install` automatically, so this is only needed if you want
 
 ```bash
 task install:undo
-# or
-task uninstall
 ```
 
 On Linux and macOS this removes `~/.bun` entirely and reports any shell profile files that may still reference Bun's PATH so you can clean them manually.

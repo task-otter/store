@@ -104,8 +104,6 @@ tasks:
       from the global Go bin. macOS uses Homebrew to uninstall protoc. Linux
       removes protoc from /usr/local/bin and bundled includes from
       /usr/local/include/google/protobuf. Windows uses Scoop to uninstall protoc.
-    aliases:
-      - uninstall
     prompt:
       - This will remove protoc and all proto plugins from this machine.
       - Continue?

@@ -48,8 +48,6 @@ tasks:
     run: once
     desc: Remove the Rust toolchain installed by rustup
     summary: Remove the entire rustup-managed Rust toolchain via `rustup self uninstall`.
-    aliases:
-      - uninstall
     prompt:
       - This will remove the Rust toolchain and rustup from this machine.
       - Continue?

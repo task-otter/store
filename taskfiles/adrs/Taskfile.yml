@@ -44,8 +44,6 @@ tasks:
     run: once
     desc: Remove adrs from the current operating system
     summary: Remove the adrs binary previously installed with cargo install.
-    aliases:
-      - uninstall
     prompt:
       - This will remove adrs from this machine.
       - Continue?

@@ -62,8 +62,6 @@ tasks:
     run: once
     desc: Remove protolint from the global Go bin
     summary: Remove the protolint binary previously installed in the global Go bin.
-    aliases:
-      - uninstall
     prompt:
       - This will remove protolint from the global Go bin.
       - Continue?

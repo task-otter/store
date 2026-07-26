@@ -128,8 +128,6 @@ tasks:
     summary: |
       Run corepack disable yarn to remove the Corepack-managed Yarn shim
       from the active Node.js runtime.
-    aliases:
-      - uninstall
     prompt:
       - This will disable the Yarn shim provided by Corepack.
       - Continue?

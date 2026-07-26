@@ -1,0 +1,23 @@
+---
+schema: taskotter.dev/taskfile-metadata/v1
+module: depcheck
+taskfile: Taskfile.yml
+exported_tasks:
+  - ci
+  - help
+  - ignores
+  - install
+  - install:undo
+  - json
+  - lint
+  - skip-missing
+  - upgrade
+  - version
+variants:
+  - bun
+  - node/fnm/npm
+  - node/fnm/pnpm
+  - node/fnm/yarn
+  - node/nvm/npm
+  - node/nvm/pnpm
+  - node/nvm/yarn

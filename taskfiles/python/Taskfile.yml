@@ -50,8 +50,6 @@ tasks:
       Remove the Python version installed by this Taskfile via
       uv python uninstall. Other Python installations on the system, if any,
       are left untouched.
-    aliases:
-      - uninstall
     prompt:
       - This will remove the uv-managed Python from this machine.
       - Continue?

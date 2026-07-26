@@ -31,9 +31,9 @@ task go:lint
 | --- | --- | ---: | --- |
 | Node runtimes | `fnm`, `nvm`, `bun` | 3 | [`fnm`](taskfiles/fnm/README.md) |
 | Package managers | `npm-{fnm,nvm}`, `pnpm-{fnm,nvm}`, `yarn-{fnm,nvm}`, `corepack-{fnm,nvm}` | 8 | [`npm-fnm`](taskfiles/npm-fnm/README.md) |
-| JS lint/format/check | `biome`, `bruno`, `depcheck`, `eslint`, `knip`, `prettier`, `stylelint`, `typescript` — each with 7 variants | 56 | [`eslint-npm-fnm`](taskfiles/eslint-npm-fnm/README.md) |
+| JS lint/format/check | `biome`, `bruno`, `depcheck`, `eslint`, `knip`, `prettier`, `stylelint`, `typescript` — each a nested family with 7 leaves (`bun`, `node/{fnm,nvm}/{npm,pnpm,yarn}`) | 56 | [`eslint`](taskfiles/eslint/README.md) |
 | Languages & runtimes | `go`, `python`, `uv`, `cargo`, `proto`, `staticcheck` | 6 | [`go`](taskfiles/go/README.md) |
-| CI & infra | `actionlint`, `bash-exec`, `bencher`, `shellcheck`, `shfmt`, `yamllint`, `zizmor`, `hadolint`, `buf`, `docker`, `git`, `gh`, `jq`, `vault`, `ansible`, `sqlfluff`, `dotenv-linter`, `htmlhint-{npm,pnpm}-{fnm,nvm}`, `djlint`, `jsonlint`, `rumdl`, `protolint`, `spectral-{npm,pnpm}-{fnm,nvm}`, `adrs` | 30 | [`actionlint`](taskfiles/actionlint/README.md) |
+| CI & infra | `actionlint`, `bash-exec`, `bencher`, `shellcheck`, `shfmt`, `yamllint`, `zizmor`, `hadolint`, `buf`, `docker`, `git`, `gh`, `jq`, `vault`, `ansible`, `sqlfluff`, `dotenv-linter`, `htmlhint`, `djlint`, `jsonlint`, `rumdl`, `protolint`, `spectral`, `adrs` | 30 | [`actionlint`](taskfiles/actionlint/README.md) |
 
 **103 modules** total. Per-module docs: `taskfiles/<name>/README.md`. Each module's
 `metadata.yml` is a self-contained, machine-readable list of the tasks it exports.
@@ -46,14 +46,20 @@ character. For example, `**/generated/**` skips generated files in any folder.
 
 ### Choosing a variant
 
-For JavaScript tools, pick a module that matches your package manager and Node runtime:
+Each JavaScript tool is a nested family. Include the family once
+(`{tool}: taskfiles/{tool}/Taskfile.yml`), then invoke the leaf that matches your
+runtime and package manager through its namespace:
 
 ```
-{tool}-{pm}-{fnm|nvm}   →  eslint-npm-fnm, prettier-yarn-nvm, typescript-pnpm-fnm
-{tool}-bun              →  eslint-bun, prettier-bun
+task {tool}:bun:{task}                        # Bun runtime + Bun as package manager
+task {tool}:node:{fnm|nvm}:{npm|pnpm|yarn}:{task}
 ```
 
-Package-manager modules follow the same pattern: `npm-fnm`, `pnpm-nvm`, `yarn-fnm`, etc.
+For example: `task eslint:node:fnm:npm:lint`, `task prettier:bun:fmt:check`,
+`task typescript:node:nvm:pnpm:build`. (`htmlhint` and `spectral` omit the `bun`
+and `yarn` leaves.)
+
+Package-manager modules follow the flat pattern: `npm-fnm`, `pnpm-nvm`, `yarn-fnm`, etc.
 
 ## Dependencies
 
@@ -63,13 +69,13 @@ Modules compose via Taskfile `includes:`. A JS tool variant typically depends on
 flowchart BT
   fnm --> corepack_fnm["corepack-fnm"]
   corepack_fnm --> npm_fnm["npm-fnm"]
-  npm_fnm --> eslint_npm_fnm["eslint-npm-fnm"]
+  npm_fnm --> eslint_fnm_npm["eslint:node:fnm:npm"]
 
   nvm --> corepack_nvm["corepack-nvm"]
   corepack_nvm --> npm_nvm["npm-nvm"]
-  npm_nvm --> eslint_npm_nvm["eslint-npm-nvm"]
+  npm_nvm --> eslint_nvm_npm["eslint:node:nvm:npm"]
 
-  bun --> eslint_bun["eslint-bun"]
+  bun --> eslint_bun["eslint:bun"]
 
   uv --> python
   go --> staticcheck

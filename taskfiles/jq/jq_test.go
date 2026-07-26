@@ -56,7 +56,3 @@ func TestInstallDryRunUsesPlatformPackageManager(t *testing.T) {
 		t.Skip("install dry-run is covered on macOS and Linux")
 	}
 }
-
-func TestUninstallAliasDryRun(t *testing.T) {
-	tasktest.DryRun(t, "jq", "--yes", "uninstall")
-}

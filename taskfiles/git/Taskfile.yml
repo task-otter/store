@@ -64,8 +64,6 @@ tasks:
       macOS uses Homebrew to uninstall git.
       Linux removes git via apt-get or dnf.
       Windows uses winget to uninstall git.
-    aliases:
-      - uninstall
     prompt:
       - This will remove git from this machine.
       - Continue?

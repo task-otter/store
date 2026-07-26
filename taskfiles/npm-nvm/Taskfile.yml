@@ -147,8 +147,6 @@ tasks:
       npm ships bundled with Node.js and cannot be removed independently of
       it. This task prints the commands that remove the Node.js installation
       providing npm, via nvm.
-    aliases:
-      - uninstall
     cmds:
       - echo 'npm ships bundled with Node.js and cannot be removed independently.'
       - "echo 'Remove Node.js instead: task nvm:install:undo.'"
@@ -456,8 +454,6 @@ tasks:
       different tree if upstream package ranges have changed. Use only when the
       lock file is corrupt or conflicted, then audit the new lock file carefully.
       Run task install after to restore dependencies and regenerate package-lock.json.
-    aliases:
-      - reset:deps
     prompt:
       - "WARNING: This will permanently delete node_modules AND package-lock.json."
       - Regenerating the lockfile may produce a different dependency tree.

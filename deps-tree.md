@@ -36,16 +36,8 @@ Modules with no `includes:` dependencies.
 
 ### Depth 1
 
-- `biome-bun` → `bun`, `internal/skipfiles`
-- `bruno-bun` → `bun`
 - `corepack-fnm` → `fnm`
 - `corepack-nvm` → `nvm`
-- `depcheck-bun` → `bun`
-- `eslint-bun` → `bun`
-- `knip-bun` → `bun`, `internal/skipfiles`
-- `prettier-bun` → `bun`
-- `stylelint-bun` → `bun`
-- `typescript-bun` → `bun`
 
 ### Depth 2
 
@@ -55,147 +47,6 @@ Modules with no `includes:` dependencies.
 - `pnpm-nvm` → `corepack-nvm`, `nvm`
 - `yarn-fnm` → `corepack-fnm`, `fnm`
 - `yarn-nvm` → `corepack-nvm`, `nvm`
-
-### Depth 3
-
-- `biome-npm-fnm` → `internal/skipfiles`, `npm-fnm`
-- `biome-npm-nvm` → `internal/skipfiles`, `npm-nvm`
-- `biome-pnpm-fnm` → `internal/skipfiles`, `pnpm-fnm`
-- `biome-pnpm-nvm` → `internal/skipfiles`, `pnpm-nvm`
-- `biome-yarn-fnm` → `internal/skipfiles`, `yarn-fnm`
-- `biome-yarn-nvm` → `internal/skipfiles`, `yarn-nvm`
-- `bruno-npm-fnm` → `npm-fnm`
-- `bruno-npm-nvm` → `npm-nvm`
-- `bruno-pnpm-fnm` → `pnpm-fnm`
-- `bruno-pnpm-nvm` → `pnpm-nvm`
-- `bruno-yarn-fnm` → `yarn-fnm`
-- `bruno-yarn-nvm` → `yarn-nvm`
-- `depcheck-npm-fnm` → `npm-fnm`
-- `depcheck-npm-nvm` → `npm-nvm`
-- `depcheck-pnpm-fnm` → `pnpm-fnm`
-- `depcheck-pnpm-nvm` → `pnpm-nvm`
-- `depcheck-yarn-fnm` → `yarn-fnm`
-- `depcheck-yarn-nvm` → `yarn-nvm`
-- `eslint-npm-fnm` → `npm-fnm`
-- `eslint-npm-nvm` → `npm-nvm`
-- `eslint-pnpm-fnm` → `pnpm-fnm`
-- `eslint-pnpm-nvm` → `pnpm-nvm`
-- `eslint-yarn-fnm` → `yarn-fnm`
-- `eslint-yarn-nvm` → `yarn-nvm`
-- `knip-npm-fnm` → `internal/skipfiles`, `npm-fnm`
-- `knip-npm-nvm` → `internal/skipfiles`, `npm-nvm`
-- `knip-pnpm-fnm` → `internal/skipfiles`, `pnpm-fnm`
-- `knip-pnpm-nvm` → `internal/skipfiles`, `pnpm-nvm`
-- `knip-yarn-fnm` → `internal/skipfiles`, `yarn-fnm`
-- `knip-yarn-nvm` → `internal/skipfiles`, `yarn-nvm`
-- `prettier-npm-fnm` → `npm-fnm`
-- `prettier-npm-nvm` → `npm-nvm`
-- `prettier-pnpm-fnm` → `pnpm-fnm`
-- `prettier-pnpm-nvm` → `pnpm-nvm`
-- `prettier-yarn-fnm` → `yarn-fnm`
-- `prettier-yarn-nvm` → `yarn-nvm`
-- `stylelint-npm-fnm` → `npm-fnm`
-- `stylelint-npm-nvm` → `npm-nvm`
-- `stylelint-pnpm-fnm` → `pnpm-fnm`
-- `stylelint-pnpm-nvm` → `pnpm-nvm`
-- `stylelint-yarn-fnm` → `yarn-fnm`
-- `stylelint-yarn-nvm` → `yarn-nvm`
-- `typescript-npm-fnm` → `npm-fnm`
-- `typescript-npm-nvm` → `npm-nvm`
-- `typescript-pnpm-fnm` → `pnpm-fnm`
-- `typescript-pnpm-nvm` → `pnpm-nvm`
-- `typescript-yarn-fnm` → `yarn-fnm`
-- `typescript-yarn-nvm` → `yarn-nvm`
-
-### JS tool stacks
-
-**`npm-fnm` stack** — 8 modules (`biome-npm-fnm`, …)
-
-```
-biome-npm-fnm
-    ├── internal/skipfiles
-    └── npm-fnm
-        ├── corepack-fnm
-        │   └── fnm
-        └── fnm
-```
-
-`biome-npm-fnm`, `bruno-npm-fnm`, `depcheck-npm-fnm`, `eslint-npm-fnm`, `knip-npm-fnm`, `prettier-npm-fnm`, `stylelint-npm-fnm`, `typescript-npm-fnm`
-
-**`npm-nvm` stack** — 8 modules (`biome-npm-nvm`, …)
-
-```
-biome-npm-nvm
-    ├── internal/skipfiles
-    └── npm-nvm
-        ├── corepack-nvm
-        │   └── nvm
-        └── nvm
-```
-
-`biome-npm-nvm`, `bruno-npm-nvm`, `depcheck-npm-nvm`, `eslint-npm-nvm`, `knip-npm-nvm`, `prettier-npm-nvm`, `stylelint-npm-nvm`, `typescript-npm-nvm`
-
-**`pnpm-fnm` stack** — 8 modules (`biome-pnpm-fnm`, …)
-
-```
-biome-pnpm-fnm
-    ├── internal/skipfiles
-    └── pnpm-fnm
-        ├── corepack-fnm
-        │   └── fnm
-        └── fnm
-```
-
-`biome-pnpm-fnm`, `bruno-pnpm-fnm`, `depcheck-pnpm-fnm`, `eslint-pnpm-fnm`, `knip-pnpm-fnm`, `prettier-pnpm-fnm`, `stylelint-pnpm-fnm`, `typescript-pnpm-fnm`
-
-**`pnpm-nvm` stack** — 8 modules (`biome-pnpm-nvm`, …)
-
-```
-biome-pnpm-nvm
-    ├── internal/skipfiles
-    └── pnpm-nvm
-        ├── corepack-nvm
-        │   └── nvm
-        └── nvm
-```
-
-`biome-pnpm-nvm`, `bruno-pnpm-nvm`, `depcheck-pnpm-nvm`, `eslint-pnpm-nvm`, `knip-pnpm-nvm`, `prettier-pnpm-nvm`, `stylelint-pnpm-nvm`, `typescript-pnpm-nvm`
-
-**`yarn-fnm` stack** — 8 modules (`biome-yarn-fnm`, …)
-
-```
-biome-yarn-fnm
-    ├── internal/skipfiles
-    └── yarn-fnm
-        ├── corepack-fnm
-        │   └── fnm
-        └── fnm
-```
-
-`biome-yarn-fnm`, `bruno-yarn-fnm`, `depcheck-yarn-fnm`, `eslint-yarn-fnm`, `knip-yarn-fnm`, `prettier-yarn-fnm`, `stylelint-yarn-fnm`, `typescript-yarn-fnm`
-
-**`yarn-nvm` stack** — 8 modules (`biome-yarn-nvm`, …)
-
-```
-biome-yarn-nvm
-    ├── internal/skipfiles
-    └── yarn-nvm
-        ├── corepack-nvm
-        │   └── nvm
-        └── nvm
-```
-
-`biome-yarn-nvm`, `bruno-yarn-nvm`, `depcheck-yarn-nvm`, `eslint-yarn-nvm`, `knip-yarn-nvm`, `prettier-yarn-nvm`, `stylelint-yarn-nvm`, `typescript-yarn-nvm`
-
-**`bun` stack** — 8 modules (`biome-bun`, …)
-
-```
-biome-bun
-    ├── bun
-    └── internal/skipfiles
-```
-
-`biome-bun`, `bruno-bun`, `depcheck-bun`, `eslint-bun`, `knip-bun`, `prettier-bun`, `stylelint-bun`, `typescript-bun`
 
 **`bun`**
 
@@ -289,17 +140,25 @@ yarn-nvm
 
 - `actionlint` → `internal/skipfiles`
 - `ansible` → `internal/skipfiles`, `uv`
+- `biome/bun` → `bun`, `internal/skipfiles`
+- `bruno/bun` → `bun`
 - `buf` → `internal/skipfiles`
 - `cargo` → `internal/skipfiles`
+- `depcheck/bun` → `bun`
 - `djlint` → `uv`
+- `eslint/bun` → `bun`
 - `gh` → `jq`
 - `go` → `internal/skipfiles`
 - `hadolint` → `internal/skipfiles`
 - `jsonlint` → `internal/skipfiles`, `uv`
+- `knip/bun` → `bun`, `internal/skipfiles`
+- `prettier/bun` → `bun`
 - `python` → `uv`
 - `rumdl` → `uv`
 - `shellcheck` → `internal/skipfiles`
 - `sqlfluff` → `internal/skipfiles`, `uv`
+- `stylelint/bun` → `bun`
+- `typescript/bun` → `bun`
 - `vault` → `jq`
 - `yamllint` → `internal/skipfiles`, `uv`
 - `zizmor` → `internal/skipfiles`
@@ -316,14 +175,62 @@ yarn-nvm
 
 ### Depth 3
 
-- `htmlhint-npm-fnm` → `npm-fnm`
-- `htmlhint-npm-nvm` → `npm-nvm`
-- `htmlhint-pnpm-fnm` → `pnpm-fnm`
-- `htmlhint-pnpm-nvm` → `pnpm-nvm`
-- `spectral-npm-fnm` → `npm-fnm`
-- `spectral-npm-nvm` → `npm-nvm`
-- `spectral-pnpm-fnm` → `pnpm-fnm`
-- `spectral-pnpm-nvm` → `pnpm-nvm`
+- `biome/node/fnm/npm` → `internal/skipfiles`, `npm-fnm`
+- `biome/node/fnm/pnpm` → `internal/skipfiles`, `pnpm-fnm`
+- `biome/node/fnm/yarn` → `internal/skipfiles`, `yarn-fnm`
+- `biome/node/nvm/npm` → `internal/skipfiles`, `npm-nvm`
+- `biome/node/nvm/pnpm` → `internal/skipfiles`, `pnpm-nvm`
+- `biome/node/nvm/yarn` → `internal/skipfiles`, `yarn-nvm`
+- `bruno/node/fnm/npm` → `npm-fnm`
+- `bruno/node/fnm/pnpm` → `pnpm-fnm`
+- `bruno/node/fnm/yarn` → `yarn-fnm`
+- `bruno/node/nvm/npm` → `npm-nvm`
+- `bruno/node/nvm/pnpm` → `pnpm-nvm`
+- `bruno/node/nvm/yarn` → `yarn-nvm`
+- `depcheck/node/fnm/npm` → `npm-fnm`
+- `depcheck/node/fnm/pnpm` → `pnpm-fnm`
+- `depcheck/node/fnm/yarn` → `yarn-fnm`
+- `depcheck/node/nvm/npm` → `npm-nvm`
+- `depcheck/node/nvm/pnpm` → `pnpm-nvm`
+- `depcheck/node/nvm/yarn` → `yarn-nvm`
+- `eslint/node/fnm/npm` → `npm-fnm`
+- `eslint/node/fnm/pnpm` → `pnpm-fnm`
+- `eslint/node/fnm/yarn` → `yarn-fnm`
+- `eslint/node/nvm/npm` → `npm-nvm`
+- `eslint/node/nvm/pnpm` → `pnpm-nvm`
+- `eslint/node/nvm/yarn` → `yarn-nvm`
+- `htmlhint/node/fnm/npm` → `npm-fnm`
+- `htmlhint/node/fnm/pnpm` → `pnpm-fnm`
+- `htmlhint/node/nvm/npm` → `npm-nvm`
+- `htmlhint/node/nvm/pnpm` → `pnpm-nvm`
+- `knip/node/fnm/npm` → `internal/skipfiles`, `npm-fnm`
+- `knip/node/fnm/pnpm` → `internal/skipfiles`, `pnpm-fnm`
+- `knip/node/fnm/yarn` → `internal/skipfiles`, `yarn-fnm`
+- `knip/node/nvm/npm` → `internal/skipfiles`, `npm-nvm`
+- `knip/node/nvm/pnpm` → `internal/skipfiles`, `pnpm-nvm`
+- `knip/node/nvm/yarn` → `internal/skipfiles`, `yarn-nvm`
+- `prettier/node/fnm/npm` → `npm-fnm`
+- `prettier/node/fnm/pnpm` → `pnpm-fnm`
+- `prettier/node/fnm/yarn` → `yarn-fnm`
+- `prettier/node/nvm/npm` → `npm-nvm`
+- `prettier/node/nvm/pnpm` → `pnpm-nvm`
+- `prettier/node/nvm/yarn` → `yarn-nvm`
+- `spectral/node/fnm/npm` → `npm-fnm`
+- `spectral/node/fnm/pnpm` → `pnpm-fnm`
+- `spectral/node/nvm/npm` → `npm-nvm`
+- `spectral/node/nvm/pnpm` → `pnpm-nvm`
+- `stylelint/node/fnm/npm` → `npm-fnm`
+- `stylelint/node/fnm/pnpm` → `pnpm-fnm`
+- `stylelint/node/fnm/yarn` → `yarn-fnm`
+- `stylelint/node/nvm/npm` → `npm-nvm`
+- `stylelint/node/nvm/pnpm` → `pnpm-nvm`
+- `stylelint/node/nvm/yarn` → `yarn-nvm`
+- `typescript/node/fnm/npm` → `npm-fnm`
+- `typescript/node/fnm/pnpm` → `pnpm-fnm`
+- `typescript/node/fnm/yarn` → `yarn-fnm`
+- `typescript/node/nvm/npm` → `npm-nvm`
+- `typescript/node/nvm/pnpm` → `pnpm-nvm`
+- `typescript/node/nvm/yarn` → `yarn-nvm`
 
 **`actionlint`**
 
@@ -348,6 +255,147 @@ ansible
     └── uv
 ```
 
+**`biome/bun`**
+
+```
+biome/bun
+    ├── bun
+    └── internal/skipfiles
+```
+
+**`biome/node/fnm/npm`**
+
+```
+biome/node/fnm/npm
+    ├── internal/skipfiles
+    └── npm-fnm
+        ├── corepack-fnm
+        │   └── fnm
+        └── fnm
+```
+
+**`biome/node/fnm/pnpm`**
+
+```
+biome/node/fnm/pnpm
+    ├── internal/skipfiles
+    └── pnpm-fnm
+        ├── corepack-fnm
+        │   └── fnm
+        └── fnm
+```
+
+**`biome/node/fnm/yarn`**
+
+```
+biome/node/fnm/yarn
+    ├── internal/skipfiles
+    └── yarn-fnm
+        ├── corepack-fnm
+        │   └── fnm
+        └── fnm
+```
+
+**`biome/node/nvm/npm`**
+
+```
+biome/node/nvm/npm
+    ├── internal/skipfiles
+    └── npm-nvm
+        ├── corepack-nvm
+        │   └── nvm
+        └── nvm
+```
+
+**`biome/node/nvm/pnpm`**
+
+```
+biome/node/nvm/pnpm
+    ├── internal/skipfiles
+    └── pnpm-nvm
+        ├── corepack-nvm
+        │   └── nvm
+        └── nvm
+```
+
+**`biome/node/nvm/yarn`**
+
+```
+biome/node/nvm/yarn
+    ├── internal/skipfiles
+    └── yarn-nvm
+        ├── corepack-nvm
+        │   └── nvm
+        └── nvm
+```
+
+**`bruno/bun`**
+
+```
+bruno/bun
+    └── bun
+```
+
+**`bruno/node/fnm/npm`**
+
+```
+bruno/node/fnm/npm
+    └── npm-fnm
+        ├── corepack-fnm
+        │   └── fnm
+        └── fnm
+```
+
+**`bruno/node/fnm/pnpm`**
+
+```
+bruno/node/fnm/pnpm
+    └── pnpm-fnm
+        ├── corepack-fnm
+        │   └── fnm
+        └── fnm
+```
+
+**`bruno/node/fnm/yarn`**
+
+```
+bruno/node/fnm/yarn
+    └── yarn-fnm
+        ├── corepack-fnm
+        │   └── fnm
+        └── fnm
+```
+
+**`bruno/node/nvm/npm`**
+
+```
+bruno/node/nvm/npm
+    └── npm-nvm
+        ├── corepack-nvm
+        │   └── nvm
+        └── nvm
+```
+
+**`bruno/node/nvm/pnpm`**
+
+```
+bruno/node/nvm/pnpm
+    └── pnpm-nvm
+        ├── corepack-nvm
+        │   └── nvm
+        └── nvm
+```
+
+**`bruno/node/nvm/yarn`**
+
+```
+bruno/node/nvm/yarn
+    └── yarn-nvm
+        ├── corepack-nvm
+        │   └── nvm
+        └── nvm
+```
+
 **`buf`**
 
 ```
@@ -360,6 +408,73 @@ buf
 ```
 cargo
     └── internal/skipfiles
+```
+
+**`depcheck/bun`**
+
+```
+depcheck/bun
+    └── bun
+```
+
+**`depcheck/node/fnm/npm`**
+
+```
+depcheck/node/fnm/npm
+    └── npm-fnm
+        ├── corepack-fnm
+        │   └── fnm
+        └── fnm
+```
+
+**`depcheck/node/fnm/pnpm`**
+
+```
+depcheck/node/fnm/pnpm
+    └── pnpm-fnm
+        ├── corepack-fnm
+        │   └── fnm
+        └── fnm
+```
+
+**`depcheck/node/fnm/yarn`**
+
+```
+depcheck/node/fnm/yarn
+    └── yarn-fnm
+        ├── corepack-fnm
+        │   └── fnm
+        └── fnm
+```
+
+**`depcheck/node/nvm/npm`**
+
+```
+depcheck/node/nvm/npm
+    └── npm-nvm
+        ├── corepack-nvm
+        │   └── nvm
+        └── nvm
+```
+
+**`depcheck/node/nvm/pnpm`**
+
+```
+depcheck/node/nvm/pnpm
+    └── pnpm-nvm
+        ├── corepack-nvm
+        │   └── nvm
+        └── nvm
+```
+
+**`depcheck/node/nvm/yarn`**
+
+```
+depcheck/node/nvm/yarn
+    └── yarn-nvm
+        ├── corepack-nvm
+        │   └── nvm
+        └── nvm
 ```
 
 **`djlint`**
@@ -376,6 +491,73 @@ dotenv-linter
     ├── cargo
     │   └── internal/skipfiles
     └── internal/skipfiles
+```
+
+**`eslint/bun`**
+
+```
+eslint/bun
+    └── bun
+```
+
+**`eslint/node/fnm/npm`**
+
+```
+eslint/node/fnm/npm
+    └── npm-fnm
+        ├── corepack-fnm
+        │   └── fnm
+        └── fnm
+```
+
+**`eslint/node/fnm/pnpm`**
+
+```
+eslint/node/fnm/pnpm
+    └── pnpm-fnm
+        ├── corepack-fnm
+        │   └── fnm
+        └── fnm
+```
+
+**`eslint/node/fnm/yarn`**
+
+```
+eslint/node/fnm/yarn
+    └── yarn-fnm
+        ├── corepack-fnm
+        │   └── fnm
+        └── fnm
+```
+
+**`eslint/node/nvm/npm`**
+
+```
+eslint/node/nvm/npm
+    └── npm-nvm
+        ├── corepack-nvm
+        │   └── nvm
+        └── nvm
+```
+
+**`eslint/node/nvm/pnpm`**
+
+```
+eslint/node/nvm/pnpm
+    └── pnpm-nvm
+        ├── corepack-nvm
+        │   └── nvm
+        └── nvm
+```
+
+**`eslint/node/nvm/yarn`**
+
+```
+eslint/node/nvm/yarn
+    └── yarn-nvm
+        ├── corepack-nvm
+        │   └── nvm
+        └── nvm
 ```
 
 **`gh`**
@@ -407,40 +589,40 @@ hadolint
     └── internal/skipfiles
 ```
 
-**`htmlhint-npm-fnm`**
+**`htmlhint/node/fnm/npm`**
 
 ```
-htmlhint-npm-fnm
+htmlhint/node/fnm/npm
     └── npm-fnm
         ├── corepack-fnm
         │   └── fnm
         └── fnm
 ```
 
-**`htmlhint-npm-nvm`**
+**`htmlhint/node/fnm/pnpm`**
 
 ```
-htmlhint-npm-nvm
-    └── npm-nvm
-        ├── corepack-nvm
-        │   └── nvm
-        └── nvm
-```
-
-**`htmlhint-pnpm-fnm`**
-
-```
-htmlhint-pnpm-fnm
+htmlhint/node/fnm/pnpm
     └── pnpm-fnm
         ├── corepack-fnm
         │   └── fnm
         └── fnm
 ```
 
-**`htmlhint-pnpm-nvm`**
+**`htmlhint/node/nvm/npm`**
 
 ```
-htmlhint-pnpm-nvm
+htmlhint/node/nvm/npm
+    └── npm-nvm
+        ├── corepack-nvm
+        │   └── nvm
+        └── nvm
+```
+
+**`htmlhint/node/nvm/pnpm`**
+
+```
+htmlhint/node/nvm/pnpm
     └── pnpm-nvm
         ├── corepack-nvm
         │   └── nvm
@@ -453,6 +635,147 @@ htmlhint-pnpm-nvm
 jsonlint
     ├── internal/skipfiles
     └── uv
+```
+
+**`knip/bun`**
+
+```
+knip/bun
+    ├── bun
+    └── internal/skipfiles
+```
+
+**`knip/node/fnm/npm`**
+
+```
+knip/node/fnm/npm
+    ├── internal/skipfiles
+    └── npm-fnm
+        ├── corepack-fnm
+        │   └── fnm
+        └── fnm
+```
+
+**`knip/node/fnm/pnpm`**
+
+```
+knip/node/fnm/pnpm
+    ├── internal/skipfiles
+    └── pnpm-fnm
+        ├── corepack-fnm
+        │   └── fnm
+        └── fnm
+```
+
+**`knip/node/fnm/yarn`**
+
+```
+knip/node/fnm/yarn
+    ├── internal/skipfiles
+    └── yarn-fnm
+        ├── corepack-fnm
+        │   └── fnm
+        └── fnm
+```
+
+**`knip/node/nvm/npm`**
+
+```
+knip/node/nvm/npm
+    ├── internal/skipfiles
+    └── npm-nvm
+        ├── corepack-nvm
+        │   └── nvm
+        └── nvm
+```
+
+**`knip/node/nvm/pnpm`**
+
+```
+knip/node/nvm/pnpm
+    ├── internal/skipfiles
+    └── pnpm-nvm
+        ├── corepack-nvm
+        │   └── nvm
+        └── nvm
+```
+
+**`knip/node/nvm/yarn`**
+
+```
+knip/node/nvm/yarn
+    ├── internal/skipfiles
+    └── yarn-nvm
+        ├── corepack-nvm
+        │   └── nvm
+        └── nvm
+```
+
+**`prettier/bun`**
+
+```
+prettier/bun
+    └── bun
+```
+
+**`prettier/node/fnm/npm`**
+
+```
+prettier/node/fnm/npm
+    └── npm-fnm
+        ├── corepack-fnm
+        │   └── fnm
+        └── fnm
+```
+
+**`prettier/node/fnm/pnpm`**
+
+```
+prettier/node/fnm/pnpm
+    └── pnpm-fnm
+        ├── corepack-fnm
+        │   └── fnm
+        └── fnm
+```
+
+**`prettier/node/fnm/yarn`**
+
+```
+prettier/node/fnm/yarn
+    └── yarn-fnm
+        ├── corepack-fnm
+        │   └── fnm
+        └── fnm
+```
+
+**`prettier/node/nvm/npm`**
+
+```
+prettier/node/nvm/npm
+    └── npm-nvm
+        ├── corepack-nvm
+        │   └── nvm
+        └── nvm
+```
+
+**`prettier/node/nvm/pnpm`**
+
+```
+prettier/node/nvm/pnpm
+    └── pnpm-nvm
+        ├── corepack-nvm
+        │   └── nvm
+        └── nvm
+```
+
+**`prettier/node/nvm/yarn`**
+
+```
+prettier/node/nvm/yarn
+    └── yarn-nvm
+        ├── corepack-nvm
+        │   └── nvm
+        └── nvm
 ```
 
 **`proto`**
@@ -502,40 +825,40 @@ shfmt
     └── internal/skipfiles
 ```
 
-**`spectral-npm-fnm`**
+**`spectral/node/fnm/npm`**
 
 ```
-spectral-npm-fnm
+spectral/node/fnm/npm
     └── npm-fnm
         ├── corepack-fnm
         │   └── fnm
         └── fnm
 ```
 
-**`spectral-npm-nvm`**
+**`spectral/node/fnm/pnpm`**
 
 ```
-spectral-npm-nvm
-    └── npm-nvm
-        ├── corepack-nvm
-        │   └── nvm
-        └── nvm
-```
-
-**`spectral-pnpm-fnm`**
-
-```
-spectral-pnpm-fnm
+spectral/node/fnm/pnpm
     └── pnpm-fnm
         ├── corepack-fnm
         │   └── fnm
         └── fnm
 ```
 
-**`spectral-pnpm-nvm`**
+**`spectral/node/nvm/npm`**
 
 ```
-spectral-pnpm-nvm
+spectral/node/nvm/npm
+    └── npm-nvm
+        ├── corepack-nvm
+        │   └── nvm
+        └── nvm
+```
+
+**`spectral/node/nvm/pnpm`**
+
+```
+spectral/node/nvm/pnpm
     └── pnpm-nvm
         ├── corepack-nvm
         │   └── nvm
@@ -556,6 +879,140 @@ sqlfluff
 staticcheck
     └── go
         └── internal/skipfiles
+```
+
+**`stylelint/bun`**
+
+```
+stylelint/bun
+    └── bun
+```
+
+**`stylelint/node/fnm/npm`**
+
+```
+stylelint/node/fnm/npm
+    └── npm-fnm
+        ├── corepack-fnm
+        │   └── fnm
+        └── fnm
+```
+
+**`stylelint/node/fnm/pnpm`**
+
+```
+stylelint/node/fnm/pnpm
+    └── pnpm-fnm
+        ├── corepack-fnm
+        │   └── fnm
+        └── fnm
+```
+
+**`stylelint/node/fnm/yarn`**
+
+```
+stylelint/node/fnm/yarn
+    └── yarn-fnm
+        ├── corepack-fnm
+        │   └── fnm
+        └── fnm
+```
+
+**`stylelint/node/nvm/npm`**
+
+```
+stylelint/node/nvm/npm
+    └── npm-nvm
+        ├── corepack-nvm
+        │   └── nvm
+        └── nvm
+```
+
+**`stylelint/node/nvm/pnpm`**
+
+```
+stylelint/node/nvm/pnpm
+    └── pnpm-nvm
+        ├── corepack-nvm
+        │   └── nvm
+        └── nvm
+```
+
+**`stylelint/node/nvm/yarn`**
+
+```
+stylelint/node/nvm/yarn
+    └── yarn-nvm
+        ├── corepack-nvm
+        │   └── nvm
+        └── nvm
+```
+
+**`typescript/bun`**
+
+```
+typescript/bun
+    └── bun
+```
+
+**`typescript/node/fnm/npm`**
+
+```
+typescript/node/fnm/npm
+    └── npm-fnm
+        ├── corepack-fnm
+        │   └── fnm
+        └── fnm
+```
+
+**`typescript/node/fnm/pnpm`**
+
+```
+typescript/node/fnm/pnpm
+    └── pnpm-fnm
+        ├── corepack-fnm
+        │   └── fnm
+        └── fnm
+```
+
+**`typescript/node/fnm/yarn`**
+
+```
+typescript/node/fnm/yarn
+    └── yarn-fnm
+        ├── corepack-fnm
+        │   └── fnm
+        └── fnm
+```
+
+**`typescript/node/nvm/npm`**
+
+```
+typescript/node/nvm/npm
+    └── npm-nvm
+        ├── corepack-nvm
+        │   └── nvm
+        └── nvm
+```
+
+**`typescript/node/nvm/pnpm`**
+
+```
+typescript/node/nvm/pnpm
+    └── pnpm-nvm
+        ├── corepack-nvm
+        │   └── nvm
+        └── nvm
+```
+
+**`typescript/node/nvm/yarn`**
+
+```
+typescript/node/nvm/yarn
+    └── yarn-nvm
+        ├── corepack-nvm
+        │   └── nvm
+        └── nvm
 ```
 
 **`vault`**
@@ -589,102 +1046,102 @@ For each module, modules that depend on it (direct dependents only).
 - `ansible` — *(none)*
 - `bash-exec` — *(none)*
 - `bencher` — *(none)*
-- `biome-bun` — *(none)*
-- `biome-npm-fnm` — *(none)*
-- `biome-npm-nvm` — *(none)*
-- `biome-pnpm-fnm` — *(none)*
-- `biome-pnpm-nvm` — *(none)*
-- `biome-yarn-fnm` — *(none)*
-- `biome-yarn-nvm` — *(none)*
-- `bruno-bun` — *(none)*
-- `bruno-npm-fnm` — *(none)*
-- `bruno-npm-nvm` — *(none)*
-- `bruno-pnpm-fnm` — *(none)*
-- `bruno-pnpm-nvm` — *(none)*
-- `bruno-yarn-fnm` — *(none)*
-- `bruno-yarn-nvm` — *(none)*
+- `biome/bun` — *(none)*
+- `biome/node/fnm/npm` — *(none)*
+- `biome/node/fnm/pnpm` — *(none)*
+- `biome/node/fnm/yarn` — *(none)*
+- `biome/node/nvm/npm` — *(none)*
+- `biome/node/nvm/pnpm` — *(none)*
+- `biome/node/nvm/yarn` — *(none)*
+- `bruno/bun` — *(none)*
+- `bruno/node/fnm/npm` — *(none)*
+- `bruno/node/fnm/pnpm` — *(none)*
+- `bruno/node/fnm/yarn` — *(none)*
+- `bruno/node/nvm/npm` — *(none)*
+- `bruno/node/nvm/pnpm` — *(none)*
+- `bruno/node/nvm/yarn` — *(none)*
 - `buf` — *(none)*
-- `bun` ← `biome-bun`, `bruno-bun`, `depcheck-bun`, `eslint-bun`, `knip-bun`, `prettier-bun`, `stylelint-bun`, `typescript-bun`
+- `bun` ← `biome/bun`, `bruno/bun`, `depcheck/bun`, `eslint/bun`, `knip/bun`, `prettier/bun`, `stylelint/bun`, `typescript/bun`
 - `cargo` ← `adrs`, `dotenv-linter`
 - `corepack-fnm` ← `npm-fnm`, `pnpm-fnm`, `yarn-fnm`
 - `corepack-nvm` ← `npm-nvm`, `pnpm-nvm`, `yarn-nvm`
-- `depcheck-bun` — *(none)*
-- `depcheck-npm-fnm` — *(none)*
-- `depcheck-npm-nvm` — *(none)*
-- `depcheck-pnpm-fnm` — *(none)*
-- `depcheck-pnpm-nvm` — *(none)*
-- `depcheck-yarn-fnm` — *(none)*
-- `depcheck-yarn-nvm` — *(none)*
+- `depcheck/bun` — *(none)*
+- `depcheck/node/fnm/npm` — *(none)*
+- `depcheck/node/fnm/pnpm` — *(none)*
+- `depcheck/node/fnm/yarn` — *(none)*
+- `depcheck/node/nvm/npm` — *(none)*
+- `depcheck/node/nvm/pnpm` — *(none)*
+- `depcheck/node/nvm/yarn` — *(none)*
 - `djlint` — *(none)*
 - `docker` — *(none)*
 - `dotenv-linter` — *(none)*
-- `eslint-bun` — *(none)*
-- `eslint-npm-fnm` — *(none)*
-- `eslint-npm-nvm` — *(none)*
-- `eslint-pnpm-fnm` — *(none)*
-- `eslint-pnpm-nvm` — *(none)*
-- `eslint-yarn-fnm` — *(none)*
-- `eslint-yarn-nvm` — *(none)*
+- `eslint/bun` — *(none)*
+- `eslint/node/fnm/npm` — *(none)*
+- `eslint/node/fnm/pnpm` — *(none)*
+- `eslint/node/fnm/yarn` — *(none)*
+- `eslint/node/nvm/npm` — *(none)*
+- `eslint/node/nvm/pnpm` — *(none)*
+- `eslint/node/nvm/yarn` — *(none)*
 - `fnm` ← `corepack-fnm`, `npm-fnm`, `pnpm-fnm`, `yarn-fnm`
 - `gh` ← `git`
 - `git` — *(none)*
 - `go` ← `proto`, `protolint`, `shfmt`, `staticcheck`
 - `hadolint` — *(none)*
-- `htmlhint-npm-fnm` — *(none)*
-- `htmlhint-npm-nvm` — *(none)*
-- `htmlhint-pnpm-fnm` — *(none)*
-- `htmlhint-pnpm-nvm` — *(none)*
-- `internal/skipfiles` ← `actionlint`, `ansible`, `biome-bun`, `biome-npm-fnm`, `biome-npm-nvm`, `biome-pnpm-fnm`, `biome-pnpm-nvm`, `biome-yarn-fnm`, `biome-yarn-nvm`, `buf`, `cargo`, `dotenv-linter`, `go`, `hadolint`, `jsonlint`, `knip-bun`, `knip-npm-fnm`, `knip-npm-nvm`, `knip-pnpm-fnm`, `knip-pnpm-nvm`, `knip-yarn-fnm`, `knip-yarn-nvm`, `protolint`, `shellcheck`, `shfmt`, `sqlfluff`, `yamllint`, `zizmor`
+- `htmlhint/node/fnm/npm` — *(none)*
+- `htmlhint/node/fnm/pnpm` — *(none)*
+- `htmlhint/node/nvm/npm` — *(none)*
+- `htmlhint/node/nvm/pnpm` — *(none)*
+- `internal/skipfiles` ← `actionlint`, `ansible`, `biome/bun`, `biome/node/fnm/npm`, `biome/node/fnm/pnpm`, `biome/node/fnm/yarn`, `biome/node/nvm/npm`, `biome/node/nvm/pnpm`, `biome/node/nvm/yarn`, `buf`, `cargo`, `dotenv-linter`, `go`, `hadolint`, `jsonlint`, `knip/bun`, `knip/node/fnm/npm`, `knip/node/fnm/pnpm`, `knip/node/fnm/yarn`, `knip/node/nvm/npm`, `knip/node/nvm/pnpm`, `knip/node/nvm/yarn`, `protolint`, `shellcheck`, `shfmt`, `sqlfluff`, `yamllint`, `zizmor`
 - `jq` ← `gh`, `vault`
 - `jsonlint` — *(none)*
-- `knip-bun` — *(none)*
-- `knip-npm-fnm` — *(none)*
-- `knip-npm-nvm` — *(none)*
-- `knip-pnpm-fnm` — *(none)*
-- `knip-pnpm-nvm` — *(none)*
-- `knip-yarn-fnm` — *(none)*
-- `knip-yarn-nvm` — *(none)*
-- `npm-fnm` ← `biome-npm-fnm`, `bruno-npm-fnm`, `depcheck-npm-fnm`, `eslint-npm-fnm`, `htmlhint-npm-fnm`, `knip-npm-fnm`, `prettier-npm-fnm`, `spectral-npm-fnm`, `stylelint-npm-fnm`, `typescript-npm-fnm`
-- `npm-nvm` ← `biome-npm-nvm`, `bruno-npm-nvm`, `depcheck-npm-nvm`, `eslint-npm-nvm`, `htmlhint-npm-nvm`, `knip-npm-nvm`, `prettier-npm-nvm`, `spectral-npm-nvm`, `stylelint-npm-nvm`, `typescript-npm-nvm`
+- `knip/bun` — *(none)*
+- `knip/node/fnm/npm` — *(none)*
+- `knip/node/fnm/pnpm` — *(none)*
+- `knip/node/fnm/yarn` — *(none)*
+- `knip/node/nvm/npm` — *(none)*
+- `knip/node/nvm/pnpm` — *(none)*
+- `knip/node/nvm/yarn` — *(none)*
+- `npm-fnm` ← `biome/node/fnm/npm`, `bruno/node/fnm/npm`, `depcheck/node/fnm/npm`, `eslint/node/fnm/npm`, `htmlhint/node/fnm/npm`, `knip/node/fnm/npm`, `prettier/node/fnm/npm`, `spectral/node/fnm/npm`, `stylelint/node/fnm/npm`, `typescript/node/fnm/npm`
+- `npm-nvm` ← `biome/node/nvm/npm`, `bruno/node/nvm/npm`, `depcheck/node/nvm/npm`, `eslint/node/nvm/npm`, `htmlhint/node/nvm/npm`, `knip/node/nvm/npm`, `prettier/node/nvm/npm`, `spectral/node/nvm/npm`, `stylelint/node/nvm/npm`, `typescript/node/nvm/npm`
 - `nvm` ← `corepack-nvm`, `npm-nvm`, `pnpm-nvm`, `yarn-nvm`
-- `pnpm-fnm` ← `biome-pnpm-fnm`, `bruno-pnpm-fnm`, `depcheck-pnpm-fnm`, `eslint-pnpm-fnm`, `htmlhint-pnpm-fnm`, `knip-pnpm-fnm`, `prettier-pnpm-fnm`, `spectral-pnpm-fnm`, `stylelint-pnpm-fnm`, `typescript-pnpm-fnm`
-- `pnpm-nvm` ← `biome-pnpm-nvm`, `bruno-pnpm-nvm`, `depcheck-pnpm-nvm`, `eslint-pnpm-nvm`, `htmlhint-pnpm-nvm`, `knip-pnpm-nvm`, `prettier-pnpm-nvm`, `spectral-pnpm-nvm`, `stylelint-pnpm-nvm`, `typescript-pnpm-nvm`
-- `prettier-bun` — *(none)*
-- `prettier-npm-fnm` — *(none)*
-- `prettier-npm-nvm` — *(none)*
-- `prettier-pnpm-fnm` — *(none)*
-- `prettier-pnpm-nvm` — *(none)*
-- `prettier-yarn-fnm` — *(none)*
-- `prettier-yarn-nvm` — *(none)*
+- `pnpm-fnm` ← `biome/node/fnm/pnpm`, `bruno/node/fnm/pnpm`, `depcheck/node/fnm/pnpm`, `eslint/node/fnm/pnpm`, `htmlhint/node/fnm/pnpm`, `knip/node/fnm/pnpm`, `prettier/node/fnm/pnpm`, `spectral/node/fnm/pnpm`, `stylelint/node/fnm/pnpm`, `typescript/node/fnm/pnpm`
+- `pnpm-nvm` ← `biome/node/nvm/pnpm`, `bruno/node/nvm/pnpm`, `depcheck/node/nvm/pnpm`, `eslint/node/nvm/pnpm`, `htmlhint/node/nvm/pnpm`, `knip/node/nvm/pnpm`, `prettier/node/nvm/pnpm`, `spectral/node/nvm/pnpm`, `stylelint/node/nvm/pnpm`, `typescript/node/nvm/pnpm`
+- `prettier/bun` — *(none)*
+- `prettier/node/fnm/npm` — *(none)*
+- `prettier/node/fnm/pnpm` — *(none)*
+- `prettier/node/fnm/yarn` — *(none)*
+- `prettier/node/nvm/npm` — *(none)*
+- `prettier/node/nvm/pnpm` — *(none)*
+- `prettier/node/nvm/yarn` — *(none)*
 - `proto` — *(none)*
 - `protolint` — *(none)*
 - `python` — *(none)*
 - `rumdl` — *(none)*
 - `shellcheck` — *(none)*
 - `shfmt` — *(none)*
-- `spectral-npm-fnm` — *(none)*
-- `spectral-npm-nvm` — *(none)*
-- `spectral-pnpm-fnm` — *(none)*
-- `spectral-pnpm-nvm` — *(none)*
+- `spectral/node/fnm/npm` — *(none)*
+- `spectral/node/fnm/pnpm` — *(none)*
+- `spectral/node/nvm/npm` — *(none)*
+- `spectral/node/nvm/pnpm` — *(none)*
 - `sqlfluff` — *(none)*
 - `staticcheck` — *(none)*
-- `stylelint-bun` — *(none)*
-- `stylelint-npm-fnm` — *(none)*
-- `stylelint-npm-nvm` — *(none)*
-- `stylelint-pnpm-fnm` — *(none)*
-- `stylelint-pnpm-nvm` — *(none)*
-- `stylelint-yarn-fnm` — *(none)*
-- `stylelint-yarn-nvm` — *(none)*
-- `typescript-bun` — *(none)*
-- `typescript-npm-fnm` — *(none)*
-- `typescript-npm-nvm` — *(none)*
-- `typescript-pnpm-fnm` — *(none)*
-- `typescript-pnpm-nvm` — *(none)*
-- `typescript-yarn-fnm` — *(none)*
-- `typescript-yarn-nvm` — *(none)*
+- `stylelint/bun` — *(none)*
+- `stylelint/node/fnm/npm` — *(none)*
+- `stylelint/node/fnm/pnpm` — *(none)*
+- `stylelint/node/fnm/yarn` — *(none)*
+- `stylelint/node/nvm/npm` — *(none)*
+- `stylelint/node/nvm/pnpm` — *(none)*
+- `stylelint/node/nvm/yarn` — *(none)*
+- `typescript/bun` — *(none)*
+- `typescript/node/fnm/npm` — *(none)*
+- `typescript/node/fnm/pnpm` — *(none)*
+- `typescript/node/fnm/yarn` — *(none)*
+- `typescript/node/nvm/npm` — *(none)*
+- `typescript/node/nvm/pnpm` — *(none)*
+- `typescript/node/nvm/yarn` — *(none)*
 - `uv` ← `ansible`, `djlint`, `jsonlint`, `python`, `rumdl`, `sqlfluff`, `yamllint`
 - `vault` — *(none)*
 - `yamllint` — *(none)*
-- `yarn-fnm` ← `biome-yarn-fnm`, `bruno-yarn-fnm`, `depcheck-yarn-fnm`, `eslint-yarn-fnm`, `knip-yarn-fnm`, `prettier-yarn-fnm`, `stylelint-yarn-fnm`, `typescript-yarn-fnm`
-- `yarn-nvm` ← `biome-yarn-nvm`, `bruno-yarn-nvm`, `depcheck-yarn-nvm`, `eslint-yarn-nvm`, `knip-yarn-nvm`, `prettier-yarn-nvm`, `stylelint-yarn-nvm`, `typescript-yarn-nvm`
+- `yarn-fnm` ← `biome/node/fnm/yarn`, `bruno/node/fnm/yarn`, `depcheck/node/fnm/yarn`, `eslint/node/fnm/yarn`, `knip/node/fnm/yarn`, `prettier/node/fnm/yarn`, `stylelint/node/fnm/yarn`, `typescript/node/fnm/yarn`
+- `yarn-nvm` ← `biome/node/nvm/yarn`, `bruno/node/nvm/yarn`, `depcheck/node/nvm/yarn`, `eslint/node/nvm/yarn`, `knip/node/nvm/yarn`, `prettier/node/nvm/yarn`, `stylelint/node/nvm/yarn`, `typescript/node/nvm/yarn`
 - `zizmor` — *(none)*

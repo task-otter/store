@@ -20,79 +20,79 @@ type skipPatternModule struct {
 var skipPatternModules = []skipPatternModule{
 	{name: "actionlint", vars: []string{"ACTIONLINT_LINT_SKIP_PATTERN"}},
 	{name: "ansible", vars: []string{"ANSIBLE_LINT_SKIP_PATTERN"}},
-	{name: "biome-bun", vars: []string{"BIOME_LINT_SKIP_PATTERN", "BIOME_FMT_SKIP_PATTERN"}},
-	{name: "biome-npm-fnm", vars: []string{"BIOME_LINT_SKIP_PATTERN", "BIOME_FMT_SKIP_PATTERN"}},
-	{name: "biome-npm-nvm", vars: []string{"BIOME_LINT_SKIP_PATTERN", "BIOME_FMT_SKIP_PATTERN"}},
-	{name: "biome-pnpm-fnm", vars: []string{"BIOME_LINT_SKIP_PATTERN", "BIOME_FMT_SKIP_PATTERN"}},
-	{name: "biome-pnpm-nvm", vars: []string{"BIOME_LINT_SKIP_PATTERN", "BIOME_FMT_SKIP_PATTERN"}},
-	{name: "biome-yarn-fnm", vars: []string{"BIOME_LINT_SKIP_PATTERN", "BIOME_FMT_SKIP_PATTERN"}},
-	{name: "biome-yarn-nvm", vars: []string{"BIOME_LINT_SKIP_PATTERN", "BIOME_FMT_SKIP_PATTERN"}},
+	{name: "biome/bun", vars: []string{"BIOME_LINT_SKIP_PATTERN", "BIOME_FMT_SKIP_PATTERN"}},
+	{name: "biome/node/fnm/npm", vars: []string{"BIOME_LINT_SKIP_PATTERN", "BIOME_FMT_SKIP_PATTERN"}},
+	{name: "biome/node/nvm/npm", vars: []string{"BIOME_LINT_SKIP_PATTERN", "BIOME_FMT_SKIP_PATTERN"}},
+	{name: "biome/node/fnm/pnpm", vars: []string{"BIOME_LINT_SKIP_PATTERN", "BIOME_FMT_SKIP_PATTERN"}},
+	{name: "biome/node/nvm/pnpm", vars: []string{"BIOME_LINT_SKIP_PATTERN", "BIOME_FMT_SKIP_PATTERN"}},
+	{name: "biome/node/fnm/yarn", vars: []string{"BIOME_LINT_SKIP_PATTERN", "BIOME_FMT_SKIP_PATTERN"}},
+	{name: "biome/node/nvm/yarn", vars: []string{"BIOME_LINT_SKIP_PATTERN", "BIOME_FMT_SKIP_PATTERN"}},
 	{name: "buf", vars: []string{"BUF_LINT_SKIP_PATTERN", "BUF_FMT_SKIP_PATTERN"}},
 	{name: "cargo", vars: []string{"CARGO_LINT_SKIP_PATTERN", "CARGO_FMT_SKIP_PATTERN"}},
-	{name: "depcheck-bun", vars: []string{"DEPCHECK_LINT_SKIP_PATTERN"}},
-	{name: "depcheck-npm-fnm", vars: []string{"DEPCHECK_LINT_SKIP_PATTERN"}},
-	{name: "depcheck-npm-nvm", vars: []string{"DEPCHECK_LINT_SKIP_PATTERN"}},
-	{name: "depcheck-pnpm-fnm", vars: []string{"DEPCHECK_LINT_SKIP_PATTERN"}},
-	{name: "depcheck-pnpm-nvm", vars: []string{"DEPCHECK_LINT_SKIP_PATTERN"}},
-	{name: "depcheck-yarn-fnm", vars: []string{"DEPCHECK_LINT_SKIP_PATTERN"}},
-	{name: "depcheck-yarn-nvm", vars: []string{"DEPCHECK_LINT_SKIP_PATTERN"}},
+	{name: "depcheck/bun", vars: []string{"DEPCHECK_LINT_SKIP_PATTERN"}},
+	{name: "depcheck/node/fnm/npm", vars: []string{"DEPCHECK_LINT_SKIP_PATTERN"}},
+	{name: "depcheck/node/nvm/npm", vars: []string{"DEPCHECK_LINT_SKIP_PATTERN"}},
+	{name: "depcheck/node/fnm/pnpm", vars: []string{"DEPCHECK_LINT_SKIP_PATTERN"}},
+	{name: "depcheck/node/nvm/pnpm", vars: []string{"DEPCHECK_LINT_SKIP_PATTERN"}},
+	{name: "depcheck/node/fnm/yarn", vars: []string{"DEPCHECK_LINT_SKIP_PATTERN"}},
+	{name: "depcheck/node/nvm/yarn", vars: []string{"DEPCHECK_LINT_SKIP_PATTERN"}},
 	{name: "djlint", vars: []string{"DJLINT_LINT_SKIP_PATTERN", "DJLINT_FMT_SKIP_PATTERN"}},
 	{name: "dotenv-linter", vars: []string{"DOTENV_LINTER_LINT_SKIP_PATTERN"}},
-	{name: "eslint-bun", vars: []string{"ESLINT_LINT_SKIP_PATTERN"}},
-	{name: "eslint-npm-fnm", vars: []string{"ESLINT_LINT_SKIP_PATTERN"}},
-	{name: "eslint-npm-nvm", vars: []string{"ESLINT_LINT_SKIP_PATTERN"}},
-	{name: "eslint-pnpm-fnm", vars: []string{"ESLINT_LINT_SKIP_PATTERN"}},
-	{name: "eslint-pnpm-nvm", vars: []string{"ESLINT_LINT_SKIP_PATTERN"}},
-	{name: "eslint-yarn-fnm", vars: []string{"ESLINT_LINT_SKIP_PATTERN"}},
-	{name: "eslint-yarn-nvm", vars: []string{"ESLINT_LINT_SKIP_PATTERN"}},
+	{name: "eslint/bun", vars: []string{"ESLINT_LINT_SKIP_PATTERN"}},
+	{name: "eslint/node/fnm/npm", vars: []string{"ESLINT_LINT_SKIP_PATTERN"}},
+	{name: "eslint/node/nvm/npm", vars: []string{"ESLINT_LINT_SKIP_PATTERN"}},
+	{name: "eslint/node/fnm/pnpm", vars: []string{"ESLINT_LINT_SKIP_PATTERN"}},
+	{name: "eslint/node/nvm/pnpm", vars: []string{"ESLINT_LINT_SKIP_PATTERN"}},
+	{name: "eslint/node/fnm/yarn", vars: []string{"ESLINT_LINT_SKIP_PATTERN"}},
+	{name: "eslint/node/nvm/yarn", vars: []string{"ESLINT_LINT_SKIP_PATTERN"}},
 	{name: "go", vars: []string{"GO_LINT_SKIP_PATTERN", "GO_FMT_SKIP_PATTERN"}},
 	{name: "hadolint", vars: []string{"HADOLINT_LINT_SKIP_PATTERN"}},
-	{name: "htmlhint-npm-fnm", vars: []string{"HTMLHINT_LINT_SKIP_PATTERN"}},
-	{name: "htmlhint-npm-nvm", vars: []string{"HTMLHINT_LINT_SKIP_PATTERN"}},
-	{name: "htmlhint-pnpm-fnm", vars: []string{"HTMLHINT_LINT_SKIP_PATTERN"}},
-	{name: "htmlhint-pnpm-nvm", vars: []string{"HTMLHINT_LINT_SKIP_PATTERN"}},
+	{name: "htmlhint/node/fnm/npm", vars: []string{"HTMLHINT_LINT_SKIP_PATTERN"}},
+	{name: "htmlhint/node/nvm/npm", vars: []string{"HTMLHINT_LINT_SKIP_PATTERN"}},
+	{name: "htmlhint/node/fnm/pnpm", vars: []string{"HTMLHINT_LINT_SKIP_PATTERN"}},
+	{name: "htmlhint/node/nvm/pnpm", vars: []string{"HTMLHINT_LINT_SKIP_PATTERN"}},
 	{name: "jsonlint", vars: []string{"JSONLINT_LINT_SKIP_PATTERN"}},
-	{name: "knip-bun", vars: []string{"KNIP_LINT_SKIP_PATTERN"}},
-	{name: "knip-npm-fnm", vars: []string{"KNIP_LINT_SKIP_PATTERN"}},
-	{name: "knip-npm-nvm", vars: []string{"KNIP_LINT_SKIP_PATTERN"}},
-	{name: "knip-pnpm-fnm", vars: []string{"KNIP_LINT_SKIP_PATTERN"}},
-	{name: "knip-pnpm-nvm", vars: []string{"KNIP_LINT_SKIP_PATTERN"}},
-	{name: "knip-yarn-fnm", vars: []string{"KNIP_LINT_SKIP_PATTERN"}},
-	{name: "knip-yarn-nvm", vars: []string{"KNIP_LINT_SKIP_PATTERN"}},
-	{name: "prettier-bun", vars: []string{"PRETTIER_FMT_SKIP_PATTERN"}},
-	{name: "prettier-npm-fnm", vars: []string{"PRETTIER_FMT_SKIP_PATTERN"}},
-	{name: "prettier-npm-nvm", vars: []string{"PRETTIER_FMT_SKIP_PATTERN"}},
-	{name: "prettier-pnpm-fnm", vars: []string{"PRETTIER_FMT_SKIP_PATTERN"}},
-	{name: "prettier-pnpm-nvm", vars: []string{"PRETTIER_FMT_SKIP_PATTERN"}},
-	{name: "prettier-yarn-fnm", vars: []string{"PRETTIER_FMT_SKIP_PATTERN"}},
-	{name: "prettier-yarn-nvm", vars: []string{"PRETTIER_FMT_SKIP_PATTERN"}},
+	{name: "knip/bun", vars: []string{"KNIP_LINT_SKIP_PATTERN"}},
+	{name: "knip/node/fnm/npm", vars: []string{"KNIP_LINT_SKIP_PATTERN"}},
+	{name: "knip/node/nvm/npm", vars: []string{"KNIP_LINT_SKIP_PATTERN"}},
+	{name: "knip/node/fnm/pnpm", vars: []string{"KNIP_LINT_SKIP_PATTERN"}},
+	{name: "knip/node/nvm/pnpm", vars: []string{"KNIP_LINT_SKIP_PATTERN"}},
+	{name: "knip/node/fnm/yarn", vars: []string{"KNIP_LINT_SKIP_PATTERN"}},
+	{name: "knip/node/nvm/yarn", vars: []string{"KNIP_LINT_SKIP_PATTERN"}},
+	{name: "prettier/bun", vars: []string{"PRETTIER_FMT_SKIP_PATTERN"}},
+	{name: "prettier/node/fnm/npm", vars: []string{"PRETTIER_FMT_SKIP_PATTERN"}},
+	{name: "prettier/node/nvm/npm", vars: []string{"PRETTIER_FMT_SKIP_PATTERN"}},
+	{name: "prettier/node/fnm/pnpm", vars: []string{"PRETTIER_FMT_SKIP_PATTERN"}},
+	{name: "prettier/node/nvm/pnpm", vars: []string{"PRETTIER_FMT_SKIP_PATTERN"}},
+	{name: "prettier/node/fnm/yarn", vars: []string{"PRETTIER_FMT_SKIP_PATTERN"}},
+	{name: "prettier/node/nvm/yarn", vars: []string{"PRETTIER_FMT_SKIP_PATTERN"}},
 	{name: "protolint", vars: []string{"PROTOLINT_LINT_SKIP_PATTERN"}},
 	{name: "rumdl", vars: []string{"RUMDL_LINT_SKIP_PATTERN", "RUMDL_FMT_SKIP_PATTERN"}},
 	{name: "shellcheck", vars: []string{"SHELLCHECK_LINT_SKIP_PATTERN"}},
 	{name: "shfmt", vars: []string{"SHFMT_FMT_SKIP_PATTERN"}},
-	{name: "spectral-npm-fnm", vars: []string{"SPECTRAL_LINT_SKIP_PATTERN"}},
-	{name: "spectral-npm-nvm", vars: []string{"SPECTRAL_LINT_SKIP_PATTERN"}},
-	{name: "spectral-pnpm-fnm", vars: []string{"SPECTRAL_LINT_SKIP_PATTERN"}},
-	{name: "spectral-pnpm-nvm", vars: []string{"SPECTRAL_LINT_SKIP_PATTERN"}},
+	{name: "spectral/node/fnm/npm", vars: []string{"SPECTRAL_LINT_SKIP_PATTERN"}},
+	{name: "spectral/node/nvm/npm", vars: []string{"SPECTRAL_LINT_SKIP_PATTERN"}},
+	{name: "spectral/node/fnm/pnpm", vars: []string{"SPECTRAL_LINT_SKIP_PATTERN"}},
+	{name: "spectral/node/nvm/pnpm", vars: []string{"SPECTRAL_LINT_SKIP_PATTERN"}},
 	{name: "sqlfluff", vars: []string{"SQLFLUFF_LINT_SKIP_PATTERN"}},
 	{name: "staticcheck", vars: []string{"STATICCHECK_LINT_SKIP_PATTERN"}},
-	{name: "stylelint-bun", vars: []string{"STYLELINT_LINT_SKIP_PATTERN"}},
-	{name: "stylelint-npm-fnm", vars: []string{"STYLELINT_LINT_SKIP_PATTERN"}},
-	{name: "stylelint-npm-nvm", vars: []string{"STYLELINT_LINT_SKIP_PATTERN"}},
-	{name: "stylelint-pnpm-fnm", vars: []string{"STYLELINT_LINT_SKIP_PATTERN"}},
-	{name: "stylelint-pnpm-nvm", vars: []string{"STYLELINT_LINT_SKIP_PATTERN"}},
-	{name: "stylelint-yarn-fnm", vars: []string{"STYLELINT_LINT_SKIP_PATTERN"}},
-	{name: "stylelint-yarn-nvm", vars: []string{"STYLELINT_LINT_SKIP_PATTERN"}},
+	{name: "stylelint/bun", vars: []string{"STYLELINT_LINT_SKIP_PATTERN"}},
+	{name: "stylelint/node/fnm/npm", vars: []string{"STYLELINT_LINT_SKIP_PATTERN"}},
+	{name: "stylelint/node/nvm/npm", vars: []string{"STYLELINT_LINT_SKIP_PATTERN"}},
+	{name: "stylelint/node/fnm/pnpm", vars: []string{"STYLELINT_LINT_SKIP_PATTERN"}},
+	{name: "stylelint/node/nvm/pnpm", vars: []string{"STYLELINT_LINT_SKIP_PATTERN"}},
+	{name: "stylelint/node/fnm/yarn", vars: []string{"STYLELINT_LINT_SKIP_PATTERN"}},
+	{name: "stylelint/node/nvm/yarn", vars: []string{"STYLELINT_LINT_SKIP_PATTERN"}},
 	{name: "yamllint", vars: []string{"YAMLLINT_LINT_SKIP_PATTERN"}},
 	{name: "zizmor", vars: []string{"ZIZMOR_LINT_SKIP_PATTERN"}},
 }
 
 var sharedSkipfilesConsumers = []string{
-	"actionlint", "ansible", "biome-bun", "biome-npm-fnm", "biome-npm-nvm",
-	"biome-pnpm-fnm", "biome-pnpm-nvm", "biome-yarn-fnm", "biome-yarn-nvm",
-	"buf", "cargo", "dotenv-linter", "go", "hadolint", "jsonlint", "knip-bun",
-	"knip-npm-fnm", "knip-npm-nvm", "knip-pnpm-fnm", "knip-pnpm-nvm",
-	"knip-yarn-fnm", "knip-yarn-nvm", "protolint", "shellcheck", "shfmt",
+	"actionlint", "ansible", "biome/bun", "biome/node/fnm/npm", "biome/node/nvm/npm",
+	"biome/node/fnm/pnpm", "biome/node/nvm/pnpm", "biome/node/fnm/yarn", "biome/node/nvm/yarn",
+	"buf", "cargo", "dotenv-linter", "go", "hadolint", "jsonlint", "knip/bun",
+	"knip/node/fnm/npm", "knip/node/nvm/npm", "knip/node/fnm/pnpm", "knip/node/nvm/pnpm",
+	"knip/node/fnm/yarn", "knip/node/nvm/yarn", "protolint", "shellcheck", "shfmt",
 	"sqlfluff", "yamllint", "zizmor",
 }
 
@@ -106,7 +106,13 @@ func TestSkipPatternContract(t *testing.T) {
 		t.Run(module.name, func(t *testing.T) {
 			taskfile := tasktest.LoadTaskfile(t, module.name)
 			taskfileContent := readFile(t, filepath.Join(root, "taskfiles", module.name, "Taskfile.yml"))
-			readmeContent := readFile(t, filepath.Join(root, "taskfiles", module.name, "README.md"))
+			// Tool families keep a single README at the tool root; flat modules
+			// keep their own. Resolve the documentation module accordingly.
+			docModule := module.name
+			if index := strings.IndexByte(docModule, '/'); index >= 0 {
+				docModule = docModule[:index]
+			}
+			readmeContent := readFile(t, filepath.Join(root, "taskfiles", docModule, "README.md"))
 
 			for _, variable := range module.vars {
 				value, exists := taskfile.Vars[variable]
@@ -140,10 +146,7 @@ func TestSkipPatternVariantParity(t *testing.T) {
 	root := tasktest.RepoRoot(t)
 	for family, variables := range families {
 		t.Run(family, func(t *testing.T) {
-			paths, err := filepath.Glob(filepath.Join(root, "taskfiles", family+"-*", "Taskfile.yml"))
-			if err != nil {
-				t.Fatalf("glob variants: %v", err)
-			}
+			paths := variantLeaves(t, root, family)
 			if len(paths) < 2 {
 				t.Fatalf("found %d variants, want at least 2", len(paths))
 			}
@@ -166,10 +169,10 @@ func TestSkipPatternRepresentativeDryRuns(t *testing.T) {
 		args     []string
 		expected []string
 	}{
-		{module: "eslint-bun", args: []string{"lint", "ESLINT_LINT_SKIP_PATTERN=" + pattern}, expected: []string{"--ignore-pattern", pattern}},
-		{module: "prettier-bun", args: []string{"fmt:check", "PRETTIER_FMT_SKIP_PATTERN=" + pattern}, expected: []string{"!" + pattern}},
-		{module: "biome-bun", args: []string{"ci", "BIOME_LINT_SKIP_PATTERN=" + pattern}, expected: []string{"skipfiles:prepare-overlay"}},
-		{module: "knip-bun", args: []string{"lint", "KNIP_LINT_SKIP_PATTERN=" + pattern}, expected: []string{"skipfiles:prepare-overlay"}},
+		{module: "eslint/bun", args: []string{"lint", "ESLINT_LINT_SKIP_PATTERN=" + pattern}, expected: []string{"--ignore-pattern", pattern}},
+		{module: "prettier/bun", args: []string{"fmt:check", "PRETTIER_FMT_SKIP_PATTERN=" + pattern}, expected: []string{"!" + pattern}},
+		{module: "biome/bun", args: []string{"ci", "BIOME_LINT_SKIP_PATTERN=" + pattern}, expected: []string{"skipfiles:prepare-overlay"}},
+		{module: "knip/bun", args: []string{"lint", "KNIP_LINT_SKIP_PATTERN=" + pattern}, expected: []string{"skipfiles:prepare-overlay"}},
 		{module: "actionlint", args: []string{"lint", "ACTIONLINT_LINT_SKIP_PATTERN=" + pattern}, expected: []string{"internal/skipfiles/Taskfile.yml", pattern}},
 		{module: "ansible", args: []string{"syntax:check", "PLAYBOOK_OVERRIDE=site.yml", "ANSIBLE_LINT_SKIP_PATTERN=" + pattern}, expected: []string{"internal/skipfiles/Taskfile.yml", pattern}},
 		{module: "buf", args: []string{"breaking", "BUF_LINT_SKIP_PATTERN=" + pattern}, expected: []string{"internal/skipfiles/Taskfile.yml", pattern}},
@@ -373,7 +376,7 @@ func TestSharedSkipfilesTaskfileContract(t *testing.T) {
 	}
 	for _, module := range sharedSkipfilesConsumers {
 		content := readFile(t, filepath.Join(root, "taskfiles", module, "Taskfile.yml"))
-		if !strings.Contains(content, "taskfile: ../internal/skipfiles/Taskfile.yml") ||
+		if !strings.Contains(content, "internal/skipfiles/Taskfile.yml") ||
 			!strings.Contains(content, "internal: true") {
 			t.Errorf("%s does not include the shared skipfiles Taskfile internally", module)
 		}
@@ -616,6 +619,24 @@ printf '%s\n' "$@" >"$TASKOTTER_GO_ANALYSIS_LOG"
 	if _, err := os.Stat(logPath); !os.IsNotExist(err) {
 		t.Fatalf("govulncheck ran even though every Go package was skipped")
 	}
+}
+
+// variantLeaves returns every concrete leaf Taskfile of a nested tool family
+// (the bun leaf plus each node/<vm>/<pm> leaf), excluding aggregators.
+func variantLeaves(t *testing.T, root, family string) []string {
+	t.Helper()
+	var paths []string
+	for _, pattern := range []string{
+		filepath.Join(root, "taskfiles", family, "bun", "Taskfile.yml"),
+		filepath.Join(root, "taskfiles", family, "node", "*", "*", "Taskfile.yml"),
+	} {
+		matches, err := filepath.Glob(pattern)
+		if err != nil {
+			t.Fatalf("glob variant leaves: %v", err)
+		}
+		paths = append(paths, matches...)
+	}
+	return paths
 }
 
 func readFile(t *testing.T, path string) string {

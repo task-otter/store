@@ -1,0 +1,23 @@
+---
+schema: taskotter.dev/taskfile-metadata/v1
+module: prettier
+taskfile: Taskfile.yml
+exported_tasks:
+  - ci
+  - config:init
+  - fix
+  - fmt
+  - fmt:check
+  - help
+  - install
+  - install:undo
+  - upgrade
+  - version
+variants:
+  - bun
+  - node/fnm/npm
+  - node/fnm/pnpm
+  - node/fnm/yarn
+  - node/nvm/npm
+  - node/nvm/pnpm
+  - node/nvm/yarn

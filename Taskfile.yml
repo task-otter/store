@@ -15,98 +15,44 @@ includes:
   ansible: taskfiles/ansible/Taskfile.yml
   bash-exec: taskfiles/bash-exec/Taskfile.yml
   bencher: taskfiles/bencher/Taskfile.yml
-  biome-bun: taskfiles/biome-bun/Taskfile.yml
-  biome-npm-fnm: taskfiles/biome-npm-fnm/Taskfile.yml
-  biome-npm-nvm: taskfiles/biome-npm-nvm/Taskfile.yml
-  biome-pnpm-fnm: taskfiles/biome-pnpm-fnm/Taskfile.yml
-  biome-pnpm-nvm: taskfiles/biome-pnpm-nvm/Taskfile.yml
-  biome-yarn-fnm: taskfiles/biome-yarn-fnm/Taskfile.yml
-  biome-yarn-nvm: taskfiles/biome-yarn-nvm/Taskfile.yml
-  bruno-bun: taskfiles/bruno-bun/Taskfile.yml
-  bruno-npm-fnm: taskfiles/bruno-npm-fnm/Taskfile.yml
-  bruno-npm-nvm: taskfiles/bruno-npm-nvm/Taskfile.yml
-  bruno-pnpm-fnm: taskfiles/bruno-pnpm-fnm/Taskfile.yml
-  bruno-pnpm-nvm: taskfiles/bruno-pnpm-nvm/Taskfile.yml
-  bruno-yarn-fnm: taskfiles/bruno-yarn-fnm/Taskfile.yml
-  bruno-yarn-nvm: taskfiles/bruno-yarn-nvm/Taskfile.yml
+  biome: taskfiles/biome/Taskfile.yml
+  bruno: taskfiles/bruno/Taskfile.yml
   buf: taskfiles/buf/Taskfile.yml
   bun: taskfiles/bun/Taskfile.yml
   cargo: taskfiles/cargo/Taskfile.yml
   corepack-fnm: taskfiles/corepack-fnm/Taskfile.yml
   corepack-nvm: taskfiles/corepack-nvm/Taskfile.yml
-  depcheck-bun: taskfiles/depcheck-bun/Taskfile.yml
-  depcheck-npm-fnm: taskfiles/depcheck-npm-fnm/Taskfile.yml
-  depcheck-npm-nvm: taskfiles/depcheck-npm-nvm/Taskfile.yml
-  depcheck-pnpm-fnm: taskfiles/depcheck-pnpm-fnm/Taskfile.yml
-  depcheck-pnpm-nvm: taskfiles/depcheck-pnpm-nvm/Taskfile.yml
-  depcheck-yarn-fnm: taskfiles/depcheck-yarn-fnm/Taskfile.yml
-  depcheck-yarn-nvm: taskfiles/depcheck-yarn-nvm/Taskfile.yml
+  depcheck: taskfiles/depcheck/Taskfile.yml
   djlint: taskfiles/djlint/Taskfile.yml
   docker: taskfiles/docker/Taskfile.yml
   dotenv-linter: taskfiles/dotenv-linter/Taskfile.yml
-  eslint-bun: taskfiles/eslint-bun/Taskfile.yml
-  eslint-npm-fnm: taskfiles/eslint-npm-fnm/Taskfile.yml
-  eslint-npm-nvm: taskfiles/eslint-npm-nvm/Taskfile.yml
-  eslint-pnpm-fnm: taskfiles/eslint-pnpm-fnm/Taskfile.yml
-  eslint-pnpm-nvm: taskfiles/eslint-pnpm-nvm/Taskfile.yml
-  eslint-yarn-fnm: taskfiles/eslint-yarn-fnm/Taskfile.yml
-  eslint-yarn-nvm: taskfiles/eslint-yarn-nvm/Taskfile.yml
+  eslint: taskfiles/eslint/Taskfile.yml
   fnm: taskfiles/fnm/Taskfile.yml
   gh: taskfiles/gh/Taskfile.yml
   git: taskfiles/git/Taskfile.yml
   go: taskfiles/go/Taskfile.yml
   hadolint: taskfiles/hadolint/Taskfile.yml
-  htmlhint-npm-fnm: taskfiles/htmlhint-npm-fnm/Taskfile.yml
-  htmlhint-npm-nvm: taskfiles/htmlhint-npm-nvm/Taskfile.yml
-  htmlhint-pnpm-fnm: taskfiles/htmlhint-pnpm-fnm/Taskfile.yml
-  htmlhint-pnpm-nvm: taskfiles/htmlhint-pnpm-nvm/Taskfile.yml
+  htmlhint: taskfiles/htmlhint/Taskfile.yml
   jq: taskfiles/jq/Taskfile.yml
   jsonlint: taskfiles/jsonlint/Taskfile.yml
-  knip-bun: taskfiles/knip-bun/Taskfile.yml
-  knip-npm-fnm: taskfiles/knip-npm-fnm/Taskfile.yml
-  knip-npm-nvm: taskfiles/knip-npm-nvm/Taskfile.yml
-  knip-pnpm-fnm: taskfiles/knip-pnpm-fnm/Taskfile.yml
-  knip-pnpm-nvm: taskfiles/knip-pnpm-nvm/Taskfile.yml
-  knip-yarn-fnm: taskfiles/knip-yarn-fnm/Taskfile.yml
-  knip-yarn-nvm: taskfiles/knip-yarn-nvm/Taskfile.yml
+  knip: taskfiles/knip/Taskfile.yml
   npm-fnm: taskfiles/npm-fnm/Taskfile.yml
   npm-nvm: taskfiles/npm-nvm/Taskfile.yml
   nvm: taskfiles/nvm/Taskfile.yml
   pnpm-fnm: taskfiles/pnpm-fnm/Taskfile.yml
   pnpm-nvm: taskfiles/pnpm-nvm/Taskfile.yml
-  prettier-bun: taskfiles/prettier-bun/Taskfile.yml
-  prettier-npm-fnm: taskfiles/prettier-npm-fnm/Taskfile.yml
-  prettier-npm-nvm: taskfiles/prettier-npm-nvm/Taskfile.yml
-  prettier-pnpm-fnm: taskfiles/prettier-pnpm-fnm/Taskfile.yml
-  prettier-pnpm-nvm: taskfiles/prettier-pnpm-nvm/Taskfile.yml
-  prettier-yarn-fnm: taskfiles/prettier-yarn-fnm/Taskfile.yml
-  prettier-yarn-nvm: taskfiles/prettier-yarn-nvm/Taskfile.yml
+  prettier: taskfiles/prettier/Taskfile.yml
   proto: taskfiles/proto/Taskfile.yml
   protolint: taskfiles/protolint/Taskfile.yml
   python: taskfiles/python/Taskfile.yml
   rumdl: taskfiles/rumdl/Taskfile.yml
   shellcheck: taskfiles/shellcheck/Taskfile.yml
   shfmt: taskfiles/shfmt/Taskfile.yml
-  spectral-npm-fnm: taskfiles/spectral-npm-fnm/Taskfile.yml
-  spectral-npm-nvm: taskfiles/spectral-npm-nvm/Taskfile.yml
-  spectral-pnpm-fnm: taskfiles/spectral-pnpm-fnm/Taskfile.yml
-  spectral-pnpm-nvm: taskfiles/spectral-pnpm-nvm/Taskfile.yml
+  spectral: taskfiles/spectral/Taskfile.yml
   sqlfluff: taskfiles/sqlfluff/Taskfile.yml
   staticcheck: taskfiles/staticcheck/Taskfile.yml
-  stylelint-bun: taskfiles/stylelint-bun/Taskfile.yml
-  stylelint-npm-fnm: taskfiles/stylelint-npm-fnm/Taskfile.yml
-  stylelint-npm-nvm: taskfiles/stylelint-npm-nvm/Taskfile.yml
-  stylelint-pnpm-fnm: taskfiles/stylelint-pnpm-fnm/Taskfile.yml
-  stylelint-pnpm-nvm: taskfiles/stylelint-pnpm-nvm/Taskfile.yml
-  stylelint-yarn-fnm: taskfiles/stylelint-yarn-fnm/Taskfile.yml
-  stylelint-yarn-nvm: taskfiles/stylelint-yarn-nvm/Taskfile.yml
-  typescript-bun: taskfiles/typescript-bun/Taskfile.yml
-  typescript-npm-fnm: taskfiles/typescript-npm-fnm/Taskfile.yml
-  typescript-npm-nvm: taskfiles/typescript-npm-nvm/Taskfile.yml
-  typescript-pnpm-fnm: taskfiles/typescript-pnpm-fnm/Taskfile.yml
-  typescript-pnpm-nvm: taskfiles/typescript-pnpm-nvm/Taskfile.yml
-  typescript-yarn-fnm: taskfiles/typescript-yarn-fnm/Taskfile.yml
-  typescript-yarn-nvm: taskfiles/typescript-yarn-nvm/Taskfile.yml
+  stylelint: taskfiles/stylelint/Taskfile.yml
+  typescript: taskfiles/typescript/Taskfile.yml
   uv: taskfiles/uv/Taskfile.yml
   vault: taskfiles/vault/Taskfile.yml
   yamllint: taskfiles/yamllint/Taskfile.yml

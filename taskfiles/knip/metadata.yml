@@ -1,0 +1,28 @@
+---
+schema: taskotter.dev/taskfile-metadata/v1
+module: knip
+taskfile: Taskfile.yml
+exported_tasks:
+  - ci
+  - config:init
+  - dependencies
+  - dev-dependencies
+  - exports
+  - files
+  - help
+  - init
+  - install
+  - install:undo
+  - lint
+  - lint:fix
+  - production
+  - upgrade
+  - version
+variants:
+  - bun
+  - node/fnm/npm
+  - node/fnm/pnpm
+  - node/fnm/yarn
+  - node/nvm/npm
+  - node/nvm/pnpm
+  - node/nvm/yarn

@@ -1,0 +1,23 @@
+---
+schema: taskotter.dev/taskfile-metadata/v1
+module: stylelint
+taskfile: Taskfile.yml
+exported_tasks:
+  - cache:clean
+  - ci
+  - config:init
+  - help
+  - install
+  - install:undo
+  - lint
+  - lint:fix
+  - upgrade
+  - version
+variants:
+  - bun
+  - node/fnm/npm
+  - node/fnm/pnpm
+  - node/fnm/yarn
+  - node/nvm/npm
+  - node/nvm/pnpm
+  - node/nvm/yarn

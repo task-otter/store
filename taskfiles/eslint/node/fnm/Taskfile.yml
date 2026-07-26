@@ -1,0 +1,6 @@
+---
+version: "3"
+includes:
+  npm: npm/Taskfile.yml
+  pnpm: pnpm/Taskfile.yml
+  yarn: yarn/Taskfile.yml

@@ -326,46 +326,16 @@ func TestUndoPairsExist(t *testing.T) {
 			t.Fatalf("undo task %q for %q is missing", undo, task)
 		}
 	}
-	for _, p := range []struct{ task, undoAlias, undoTarget string }{
-		{"node:install", "node:install:undo", "node:uninstall"},
-		{"node:uninstall", "node:uninstall:undo", "node:install"},
+	for _, p := range []struct{ task, undoTarget string }{
+		{"node:install", "node:uninstall"},
+		{"node:uninstall", "node:install"},
 	} {
 		if _, ok := tf.Tasks[p.task]; !ok {
 			t.Fatalf("task %q is missing", p.task)
 		}
-		target, ok := tf.Tasks[p.undoTarget]
-		if !ok {
+		if _, ok := tf.Tasks[p.undoTarget]; !ok {
 			t.Fatalf("undo target %q is missing for task %q", p.undoTarget, p.task)
 		}
-		if !tasktestutil.HasAlias(target, p.undoAlias) {
-			t.Fatalf("task %q is missing alias %q (undo of %q)", p.undoTarget, p.undoAlias, p.task)
-		}
-	}
-}
-
-func TestAliasesDryRun(t *testing.T) {
-	root := tasktestutil.ModuleRoot(t)
-	for _, tc := range []struct {
-		alias string
-		args  []string
-	}{
-		{"list", nil},
-		{"uninstall", nil},
-		{"node:install:undo", []string{"VERSION=24.0.0"}},
-		{"node:uninstall:undo", []string{"VERSION=24.0.0"}},
-		{"node:current", nil},
-		{"node:active", nil},
-	} {
-		tc := tc
-		t.Run(tc.alias, func(t *testing.T) {
-			t.Parallel()
-			args := append([]string{"--dry", "--yes", tc.alias}, tc.args...)
-			result := tasktestutil.RunTask(t, root, dryRunEnv(t), args...)
-			tasktestutil.AssertExitCode(t, result, 0)
-			out := strings.ToLower(result.Combined())
-			tasktestutil.AssertNotContains(t, out, "task not found")
-			tasktestutil.AssertNotContains(t, out, "unknown task")
-		})
 	}
 }
 

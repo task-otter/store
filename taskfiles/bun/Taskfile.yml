@@ -50,8 +50,6 @@ tasks:
       On Windows, runs the official uninstall script if present; otherwise removes
       the .bun directory directly. Detects Bun by directory presence, not by PATH,
       so it works even if bun is not yet in PATH after a fresh install.
-    aliases:
-      - uninstall
     prompt:
       - This will remove Bun from this machine.
       - Continue?

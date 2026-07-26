@@ -44,8 +44,6 @@ tasks:
       Undo the NVM installation for the current platform.
       On Windows this runs the nvm-windows uninstaller.
       On Linux, macOS, and WSL this removes the local nvm-sh directory.
-    aliases:
-      - uninstall
     prompt:
       - This will remove NVM from this machine.
       - Node.js versions managed by NVM may also become unavailable.
@@ -70,8 +68,6 @@ tasks:
     summary: >-
       Install the Node.js version provided through VERSION.
       If VERSION is not provided, install the latest LTS version for the current platform.
-    aliases:
-      - node:uninstall:undo
     deps:
       - install
     cmds:
@@ -86,8 +82,6 @@ tasks:
     run: once
     desc: Uninstall a Node.js version managed by NVM
     summary: Remove the Node.js version provided through VERSION from the local NVM installation.
-    aliases:
-      - node:install:undo
     deps:
       - install
     requires:
@@ -127,8 +121,6 @@ tasks:
     run: once
     desc: List Node.js versions installed through NVM
     summary: Show all Node.js versions installed and managed by NVM on the current machine.
-    aliases:
-      - list
     deps:
       - install
     cmds:
@@ -141,9 +133,6 @@ tasks:
     summary: >-
       Print the currently active Node.js and npm versions available through
       the current platform-specific NVM setup.
-    aliases:
-      - node:current
-      - node:active
     deps:
       - install
     cmds:

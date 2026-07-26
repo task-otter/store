@@ -51,8 +51,6 @@ tasks:
     summary: |
       Remove the Staticcheck binary installed under GOBIN, falling back to
       GOPATH/bin when GOBIN is unset.
-    aliases:
-      - uninstall
     prompt:
       - This will remove Staticcheck from this machine.
       - Continue?

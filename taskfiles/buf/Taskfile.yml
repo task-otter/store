@@ -257,8 +257,6 @@ tasks:
       macOS uses Homebrew to uninstall Buf.
       Linux removes the binary from /usr/local/bin.
       Windows uses Scoop to uninstall Buf.
-    aliases:
-      - uninstall
     prompt:
       - This will remove Buf from this machine.
       - Continue?

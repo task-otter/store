@@ -292,34 +292,6 @@ func TestUndoPairsExist(t *testing.T) {
 			t.Fatalf("undo task %q for %q is missing", undo, task)
 		}
 	}
-	undoTask, ok := tf.Tasks["install:undo"]
-	if !ok {
-		t.Fatal("task install:undo is missing")
-	}
-	if !tasktestutil.HasAlias(undoTask, "uninstall") {
-		t.Fatal("task install:undo is missing alias uninstall")
-	}
-}
-
-func TestAliasesDryRun(t *testing.T) {
-	root := tasktestutil.ModuleRoot(t)
-	for _, tc := range []struct {
-		alias string
-		args  []string
-	}{
-		{"uninstall", nil},
-	} {
-		tc := tc
-		t.Run(tc.alias, func(t *testing.T) {
-			t.Parallel()
-			args := append([]string{"--dry", "--yes", tc.alias}, tc.args...)
-			result := tasktestutil.RunTask(t, root, bunDryRunEnv(t), args...)
-			tasktestutil.AssertExitCode(t, result, 0)
-			out := strings.ToLower(result.Combined())
-			tasktestutil.AssertNotContains(t, out, "task not found")
-			tasktestutil.AssertNotContains(t, out, "unknown task")
-		})
-	}
 }
 
 func TestReferencedScriptsExist(t *testing.T) {
