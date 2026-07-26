@@ -2,8 +2,4 @@
 schema: taskotter.dev/taskfile-metadata/v1
 module: bash-exec
 taskfile: Taskfile.yml
-exported_tasks:
-  - check
-  - exec
-  - run
-  - version
+exported_tasks: [check, exec, run, version]

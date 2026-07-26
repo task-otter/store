@@ -99,3 +99,10 @@ tasks:
     deps:
       - fmt:check
       - lint
+
+  ci:fix:
+    run: once
+    desc: Run CI Fixing
+    deps:
+      - fmt
+      - lint:fix
