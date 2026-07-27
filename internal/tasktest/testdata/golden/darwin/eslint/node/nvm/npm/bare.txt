@@ -7,6 +7,8 @@ task: "cache:clean" started
 task: [cache:clean] if [ -d .cache/eslint ]; then rm -rf .cache/eslint; fi
 
 === task: ci ===
+task: "_run" finished
+task: "_run" started
 task: "ci" finished
 task: "ci" started
 task: "npm:_npm:unix" finished
@@ -15,7 +17,7 @@ task: "npm:_npm:windows" not for current platform - ignored
 task: "npm:exec" finished
 task: "npm:exec" started
 task: [ci] echo "✅ eslint passed"
-task: [npm:_npm:unix] bash -c 'export NVM_DIR="$HOME/.nvm"; . "$NVM_DIR/nvm.sh"; if [ -f .node-version ] || [ -f .nvmrc ]; then nvm use; fi; command -v corepack >/dev/null 2>&1 || { echo "corepack is not available. Run: task manager:setup"; exit 1; }; corepack npm exec -- eslint   --cache --cache-location .cache/eslint/  --max-warnings=0  src/**/*.{js,jsx,ts,tsx} '
+task: [npm:_npm:unix] bash -c 'export NVM_DIR="$HOME/.nvm"; . "$NVM_DIR/nvm.sh"; if [ -f .node-version ] || [ -f .nvmrc ]; then nvm use; fi; command -v corepack >/dev/null 2>&1 || { echo "corepack is not available. Run: task manager:setup"; exit 1; }; corepack npm exec -- eslint --cache --cache-location .cache/eslint/ --max-warnings=0 src/**/*.{js,jsx,ts,tsx} '
 
 === task: config:init ===
 task: "config:init" finished
@@ -67,6 +69,8 @@ task: "npm:remove" started
 task: [npm:_npm:unix] bash -c 'export NVM_DIR="$HOME/.nvm"; . "$NVM_DIR/nvm.sh"; if [ -f .node-version ] || [ -f .nvmrc ]; then nvm use; fi; command -v corepack >/dev/null 2>&1 || { echo "corepack is not available. Run: task manager:setup"; exit 1; }; corepack npm uninstall -g eslint '
 
 === task: lint ===
+task: "_run" finished
+task: "_run" started
 task: "lint" finished
 task: "lint" started
 task: "npm:_npm:unix" finished
@@ -75,9 +79,11 @@ task: "npm:_npm:windows" not for current platform - ignored
 task: "npm:exec" finished
 task: "npm:exec" started
 task: [lint] echo "✅ eslint passed"
-task: [npm:_npm:unix] bash -c 'export NVM_DIR="$HOME/.nvm"; . "$NVM_DIR/nvm.sh"; if [ -f .node-version ] || [ -f .nvmrc ]; then nvm use; fi; command -v corepack >/dev/null 2>&1 || { echo "corepack is not available. Run: task manager:setup"; exit 1; }; corepack npm exec -- eslint   --cache --cache-location .cache/eslint/   src/**/*.{js,jsx,ts,tsx} '
+task: [npm:_npm:unix] bash -c 'export NVM_DIR="$HOME/.nvm"; . "$NVM_DIR/nvm.sh"; if [ -f .node-version ] || [ -f .nvmrc ]; then nvm use; fi; command -v corepack >/dev/null 2>&1 || { echo "corepack is not available. Run: task manager:setup"; exit 1; }; corepack npm exec -- eslint --cache --cache-location .cache/eslint/ src/**/*.{js,jsx,ts,tsx} '
 
 === task: lint:fix ===
+task: "_run" finished
+task: "_run" started
 task: "lint:fix" finished
 task: "lint:fix" started
 task: "npm:_npm:unix" finished
@@ -86,7 +92,7 @@ task: "npm:_npm:windows" not for current platform - ignored
 task: "npm:exec" finished
 task: "npm:exec" started
 task: [lint:fix] echo "✅ eslint fixes applied"
-task: [npm:_npm:unix] bash -c 'export NVM_DIR="$HOME/.nvm"; . "$NVM_DIR/nvm.sh"; if [ -f .node-version ] || [ -f .nvmrc ]; then nvm use; fi; command -v corepack >/dev/null 2>&1 || { echo "corepack is not available. Run: task manager:setup"; exit 1; }; corepack npm exec -- eslint   --cache --cache-location .cache/eslint/  --fix  src/**/*.{js,jsx,ts,tsx} '
+task: [npm:_npm:unix] bash -c 'export NVM_DIR="$HOME/.nvm"; . "$NVM_DIR/nvm.sh"; if [ -f .node-version ] || [ -f .nvmrc ]; then nvm use; fi; command -v corepack >/dev/null 2>&1 || { echo "corepack is not available. Run: task manager:setup"; exit 1; }; corepack npm exec -- eslint --cache --cache-location .cache/eslint/ --fix src/**/*.{js,jsx,ts,tsx} '
 
 === task: upgrade ===
 task: "npm:_npm:unix" finished

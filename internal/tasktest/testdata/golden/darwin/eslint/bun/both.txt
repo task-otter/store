@@ -26,6 +26,8 @@ task: "cache:clean" started
 task: [cache:clean] if [ -d .cache/eslint ]; then rm -rf .cache/eslint; fi
 
 === task: ci ===
+task: "_run" finished
+task: "_run" started
 task: "bun:_bun:unix" finished
 task: "bun:_bun:unix" started
 task: "bun:_bun:windows" not for current platform - ignored
@@ -38,7 +40,7 @@ task: "bun:install" started
 task: "ci" finished
 task: "ci" started
 task: Task "bun:_install:unix" is up to date
-task: [bun:_bun:unix] bash -lc 'export BUN_INSTALL="$HOME/.bun"; export PATH="$BUN_INSTALL/bin:$PATH"; bun x eslint --config "OVR-CONFIG"  --cache --cache-location .cache/eslint/   --max-warnings=0 --ignore-pattern "OVR-ESLINT_LINT_SKIP_PATTERN"  OVR-ESLINT_TARGETS  OVR-EXTRA_ARGS'
+task: [bun:_bun:unix] bash -lc 'export BUN_INSTALL="$HOME/.bun"; export PATH="$BUN_INSTALL/bin:$PATH"; bun x eslint --config "OVR-CONFIG" --cache --cache-location .cache/eslint/ --max-warnings=0 --ignore-pattern "OVR-ESLINT_LINT_SKIP_PATTERN" OVR-ESLINT_TARGETS OVR-EXTRA_ARGS'
 task: [ci] echo "✅ eslint passed"
 task: status command bun_bin="$HOME/.bun/bin/bun"; if [ ! -x "$bun_bin" ]; then bun_bin="$(command -v bun 2>/dev/null)"; fi; [ -n "$bun_bin" ] && [ -x "$bun_bin" ] && { [ -z "" ] || [ "$("$bun_bin" --version)" = "" ]; } exited zero
 
@@ -116,6 +118,8 @@ task: [bun:_bun:unix] bash -lc 'export BUN_INSTALL="$HOME/.bun"; export PATH="$B
 task: status command bun_bin="$HOME/.bun/bin/bun"; if [ ! -x "$bun_bin" ]; then bun_bin="$(command -v bun 2>/dev/null)"; fi; [ -n "$bun_bin" ] && [ -x "$bun_bin" ] && { [ -z "" ] || [ "$("$bun_bin" --version)" = "" ]; } exited zero
 
 === task: lint ===
+task: "_run" finished
+task: "_run" started
 task: "bun:_bun:unix" finished
 task: "bun:_bun:unix" started
 task: "bun:_bun:windows" not for current platform - ignored
@@ -128,11 +132,13 @@ task: "bun:install" started
 task: "lint" finished
 task: "lint" started
 task: Task "bun:_install:unix" is up to date
-task: [bun:_bun:unix] bash -lc 'export BUN_INSTALL="$HOME/.bun"; export PATH="$BUN_INSTALL/bin:$PATH"; bun x eslint --config "OVR-CONFIG"  --cache --cache-location .cache/eslint/   --ignore-pattern "OVR-ESLINT_LINT_SKIP_PATTERN"  OVR-ESLINT_TARGETS  OVR-EXTRA_ARGS'
+task: [bun:_bun:unix] bash -lc 'export BUN_INSTALL="$HOME/.bun"; export PATH="$BUN_INSTALL/bin:$PATH"; bun x eslint --config "OVR-CONFIG" --cache --cache-location .cache/eslint/ --ignore-pattern "OVR-ESLINT_LINT_SKIP_PATTERN" OVR-ESLINT_TARGETS OVR-EXTRA_ARGS'
 task: [lint] echo "✅ eslint passed"
 task: status command bun_bin="$HOME/.bun/bin/bun"; if [ ! -x "$bun_bin" ]; then bun_bin="$(command -v bun 2>/dev/null)"; fi; [ -n "$bun_bin" ] && [ -x "$bun_bin" ] && { [ -z "" ] || [ "$("$bun_bin" --version)" = "" ]; } exited zero
 
 === task: lint:fix ===
+task: "_run" finished
+task: "_run" started
 task: "bun:_bun:unix" finished
 task: "bun:_bun:unix" started
 task: "bun:_bun:windows" not for current platform - ignored
@@ -145,7 +151,7 @@ task: "bun:install" started
 task: "lint:fix" finished
 task: "lint:fix" started
 task: Task "bun:_install:unix" is up to date
-task: [bun:_bun:unix] bash -lc 'export BUN_INSTALL="$HOME/.bun"; export PATH="$BUN_INSTALL/bin:$PATH"; bun x eslint --config "OVR-CONFIG"  --cache --cache-location .cache/eslint/   --fix --ignore-pattern "OVR-ESLINT_LINT_SKIP_PATTERN"  OVR-ESLINT_TARGETS  OVR-EXTRA_ARGS'
+task: [bun:_bun:unix] bash -lc 'export BUN_INSTALL="$HOME/.bun"; export PATH="$BUN_INSTALL/bin:$PATH"; bun x eslint --config "OVR-CONFIG" --cache --cache-location .cache/eslint/ --fix --ignore-pattern "OVR-ESLINT_LINT_SKIP_PATTERN" OVR-ESLINT_TARGETS OVR-EXTRA_ARGS'
 task: [lint:fix] echo "✅ eslint fixes applied"
 task: status command bun_bin="$HOME/.bun/bin/bun"; if [ ! -x "$bun_bin" ]; then bun_bin="$(command -v bun 2>/dev/null)"; fi; [ -n "$bun_bin" ] && [ -x "$bun_bin" ] && { [ -z "" ] || [ "$("$bun_bin" --version)" = "" ]; } exited zero
 

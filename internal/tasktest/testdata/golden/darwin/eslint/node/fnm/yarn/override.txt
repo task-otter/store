@@ -17,6 +17,8 @@ task: "cache:clean" started
 task: [cache:clean] if [ -d .cache/eslint ]; then rm -rf .cache/eslint; fi
 
 === task: ci ===
+task: "_run" finished
+task: "_run" started
 task: "ci" finished
 task: "ci" started
 task: "yarn:_exec:unix" finished
@@ -25,7 +27,7 @@ task: "yarn:_exec:windows" not for current platform - ignored
 task: "yarn:exec" finished
 task: "yarn:exec" started
 task: [ci] echo "✅ eslint passed"
-task: [yarn:_exec:unix] bash -c "eslint --config "OVR-CONFIG"  --cache --cache-location .cache/eslint/   --max-warnings=0 --ignore-pattern "OVR-ESLINT_LINT_SKIP_PATTERN"  OVR-ESLINT_TARGETS  OVR-EXTRA_ARGS"
+task: [yarn:_exec:unix] bash -c "eslint --config "OVR-CONFIG" --cache --cache-location .cache/eslint/ --max-warnings=0 --ignore-pattern "OVR-ESLINT_LINT_SKIP_PATTERN" OVR-ESLINT_TARGETS OVR-EXTRA_ARGS"
 
 === task: config:init ===
 task: "config:init" finished
@@ -77,6 +79,8 @@ task: "yarn:remove" started
 task: [yarn:_yarn:unix] bash -c 'export PATH="$HOME/.local/share/fnm:$HOME/.local/bin:$PATH"; if [ -f .node-version ] || [ -f .nvmrc ]; then fnm use; fi; command -v corepack >/dev/null 2>&1 || { echo "corepack is not available. Run: task manager:setup"; exit 1; }; corepack yarn global remove eslint OVR-EXTRA_ARGS'
 
 === task: lint ===
+task: "_run" finished
+task: "_run" started
 task: "lint" finished
 task: "lint" started
 task: "yarn:_exec:unix" finished
@@ -85,9 +89,11 @@ task: "yarn:_exec:windows" not for current platform - ignored
 task: "yarn:exec" finished
 task: "yarn:exec" started
 task: [lint] echo "✅ eslint passed"
-task: [yarn:_exec:unix] bash -c "eslint --config "OVR-CONFIG"  --cache --cache-location .cache/eslint/   --ignore-pattern "OVR-ESLINT_LINT_SKIP_PATTERN"  OVR-ESLINT_TARGETS  OVR-EXTRA_ARGS"
+task: [yarn:_exec:unix] bash -c "eslint --config "OVR-CONFIG" --cache --cache-location .cache/eslint/ --ignore-pattern "OVR-ESLINT_LINT_SKIP_PATTERN" OVR-ESLINT_TARGETS OVR-EXTRA_ARGS"
 
 === task: lint:fix ===
+task: "_run" finished
+task: "_run" started
 task: "lint:fix" finished
 task: "lint:fix" started
 task: "yarn:_exec:unix" finished
@@ -96,7 +102,7 @@ task: "yarn:_exec:windows" not for current platform - ignored
 task: "yarn:exec" finished
 task: "yarn:exec" started
 task: [lint:fix] echo "✅ eslint fixes applied"
-task: [yarn:_exec:unix] bash -c "eslint --config "OVR-CONFIG"  --cache --cache-location .cache/eslint/   --fix --ignore-pattern "OVR-ESLINT_LINT_SKIP_PATTERN"  OVR-ESLINT_TARGETS  OVR-EXTRA_ARGS"
+task: [yarn:_exec:unix] bash -c "eslint --config "OVR-CONFIG" --cache --cache-location .cache/eslint/ --fix --ignore-pattern "OVR-ESLINT_LINT_SKIP_PATTERN" OVR-ESLINT_TARGETS OVR-EXTRA_ARGS"
 
 === task: upgrade ===
 task: "upgrade" finished

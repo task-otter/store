@@ -7,6 +7,8 @@ task: "cache:clean" started
 task: [cache:clean] if [ -d .cache/eslint ]; then rm -rf .cache/eslint; fi
 
 === task: ci ===
+task: "_run" finished
+task: "_run" started
 task: "ci" finished
 task: "ci" started
 task: "pnpm:_exec:unix" finished
@@ -15,7 +17,7 @@ task: "pnpm:_exec:windows" not for current platform - ignored
 task: "pnpm:exec" finished
 task: "pnpm:exec" started
 task: [ci] echo "✅ eslint passed"
-task: [pnpm:_exec:unix] bash -c "eslint   --cache --cache-location .cache/eslint/  --max-warnings=0  src/**/*.{js,jsx,ts,tsx} "
+task: [pnpm:_exec:unix] bash -c "eslint --cache --cache-location .cache/eslint/ --max-warnings=0 src/**/*.{js,jsx,ts,tsx} "
 
 === task: config:init ===
 task: "config:init" finished
@@ -67,6 +69,8 @@ task: "pnpm:remove" started
 task: [pnpm:_pnpm:unix] bash -c 'export NVM_DIR="$HOME/.nvm"; . "$NVM_DIR/nvm.sh"; if [ -f .node-version ] || [ -f .nvmrc ]; then nvm use; fi; command -v corepack >/dev/null 2>&1 || { echo "corepack is not available. Run: task manager:setup"; exit 1; }; corepack pnpm remove -g eslint '
 
 === task: lint ===
+task: "_run" finished
+task: "_run" started
 task: "lint" finished
 task: "lint" started
 task: "pnpm:_exec:unix" finished
@@ -75,9 +79,11 @@ task: "pnpm:_exec:windows" not for current platform - ignored
 task: "pnpm:exec" finished
 task: "pnpm:exec" started
 task: [lint] echo "✅ eslint passed"
-task: [pnpm:_exec:unix] bash -c "eslint   --cache --cache-location .cache/eslint/   src/**/*.{js,jsx,ts,tsx} "
+task: [pnpm:_exec:unix] bash -c "eslint --cache --cache-location .cache/eslint/ src/**/*.{js,jsx,ts,tsx} "
 
 === task: lint:fix ===
+task: "_run" finished
+task: "_run" started
 task: "lint:fix" finished
 task: "lint:fix" started
 task: "pnpm:_exec:unix" finished
@@ -86,7 +92,7 @@ task: "pnpm:_exec:windows" not for current platform - ignored
 task: "pnpm:exec" finished
 task: "pnpm:exec" started
 task: [lint:fix] echo "✅ eslint fixes applied"
-task: [pnpm:_exec:unix] bash -c "eslint   --cache --cache-location .cache/eslint/  --fix  src/**/*.{js,jsx,ts,tsx} "
+task: [pnpm:_exec:unix] bash -c "eslint --cache --cache-location .cache/eslint/ --fix src/**/*.{js,jsx,ts,tsx} "
 
 === task: upgrade ===
 task: "pnpm:_pnpm:unix" finished
