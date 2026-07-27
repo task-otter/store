@@ -1,0 +1,116 @@
+# module: rumdl
+# case:   override
+# vars:
+#   EXTRA_ARGS_OVERRIDE=OVR-EXTRA_ARGS
+#   RUMDL_FMT_SKIP_PATTERN_OVERRIDE=OVR-RUMDL_FMT_SKIP_PATTERN
+#   RUMDL_LINT_SKIP_PATTERN_OVERRIDE=OVR-RUMDL_LINT_SKIP_PATTERN
+#   RUMDL_VERSION_OVERRIDE=OVR-RUMDL_VERSION
+#   TARGETS_OVERRIDE=OVR-TARGETS
+#   UV_LOAD_OVERRIDE=OVR-UV_LOAD
+
+=== task: fix ===
+task: "_install:unix" started
+task: "_install:windows" not for current platform - ignored
+task: "fix" finished
+task: "fix" started
+task: "install" finished
+task: "install" started
+task: "uv:_install:unix" started
+task: "uv:_install:windows" not for current platform - ignored
+task: "uv:install" finished
+task: "uv:install" started
+task: Task "_install:unix" is up to date
+task: Task "uv:_install:unix" is up to date
+task: [fix] bash -lc 'export PATH="$HOME/.local/bin:$PATH"; rumdl check --fix --exclude "OVR-RUMDL_LINT_SKIP_PATTERN"  OVR-TARGETS OVR-EXTRA_ARGS'
+task: [fix] rumdl check --fix --exclude "OVR-RUMDL_LINT_SKIP_PATTERN"  OVR-TARGETS OVR-EXTRA_ARGS not for current platform - ignored
+task: status command bash -lc 'export PATH="$HOME/.local/bin:$PATH"; command -v rumdl >/dev/null 2>&1 && { [ -z "" ] || rumdl --version | grep -Fq ""; }' exited zero
+task: status command uv_bin="$HOME/.local/bin/uv"; if [ ! -x "$uv_bin" ]; then uv_bin="$(command -v uv 2>/dev/null)"; fi; [ -n "$uv_bin" ] && [ -x "$uv_bin" ] && { [ -z "" ] || "$uv_bin" --version | grep -Fqx "uv "; } exited zero
+
+=== task: fmt ===
+task: "_install:unix" started
+task: "_install:windows" not for current platform - ignored
+task: "fmt" finished
+task: "fmt" started
+task: "install" finished
+task: "install" started
+task: "uv:_install:unix" started
+task: "uv:_install:windows" not for current platform - ignored
+task: "uv:install" finished
+task: "uv:install" started
+task: Task "_install:unix" is up to date
+task: Task "uv:_install:unix" is up to date
+task: [fmt] bash -lc 'export PATH="$HOME/.local/bin:$PATH"; rumdl fmt --exclude "OVR-RUMDL_FMT_SKIP_PATTERN"  OVR-TARGETS OVR-EXTRA_ARGS'
+task: [fmt] rumdl fmt --exclude "OVR-RUMDL_FMT_SKIP_PATTERN"  OVR-TARGETS OVR-EXTRA_ARGS not for current platform - ignored
+task: status command bash -lc 'export PATH="$HOME/.local/bin:$PATH"; command -v rumdl >/dev/null 2>&1 && { [ -z "" ] || rumdl --version | grep -Fq ""; }' exited zero
+task: status command uv_bin="$HOME/.local/bin/uv"; if [ ! -x "$uv_bin" ]; then uv_bin="$(command -v uv 2>/dev/null)"; fi; [ -n "$uv_bin" ] && [ -x "$uv_bin" ] && { [ -z "" ] || "$uv_bin" --version | grep -Fqx "uv "; } exited zero
+
+=== task: install ===
+task: "_install:unix" started
+task: "_install:windows" not for current platform - ignored
+task: "install" finished
+task: "install" started
+task: "uv:_install:unix" started
+task: "uv:_install:windows" not for current platform - ignored
+task: "uv:install" finished
+task: "uv:install" started
+task: Task "_install:unix" is up to date
+task: Task "uv:_install:unix" is up to date
+task: status command bash -lc 'export PATH="$HOME/.local/bin:$PATH"; command -v rumdl >/dev/null 2>&1 && { [ -z "" ] || rumdl --version | grep -Fq ""; }' exited zero
+task: status command uv_bin="$HOME/.local/bin/uv"; if [ ! -x "$uv_bin" ]; then uv_bin="$(command -v uv 2>/dev/null)"; fi; [ -n "$uv_bin" ] && [ -x "$uv_bin" ] && { [ -z "" ] || "$uv_bin" --version | grep -Fqx "uv "; } exited zero
+
+=== task: install:undo ===
+task: "_install:undo:unix" finished
+task: "_install:undo:unix" started
+task: "_install:undo:windows" not for current platform - ignored
+task: "install:undo" finished
+task: "install:undo" started
+task: [_install:undo:unix] bash -lc 'export PATH="$HOME/.local/bin:$PATH"; uv tool uninstall rumdl'
+task: [_install:undo:unix] echo 'Removing rumdl...'
+task: [_install:undo:unix] echo 'rumdl removed.'
+task: status command bash -lc 'export PATH="$HOME/.local/bin:$PATH"; ! command -v rumdl >/dev/null 2>&1' exited non-zero: exit status 1
+
+=== task: lint ===
+task: "_install:unix" started
+task: "_install:windows" not for current platform - ignored
+task: "install" finished
+task: "install" started
+task: "lint" finished
+task: "lint" started
+task: "uv:_install:unix" started
+task: "uv:_install:windows" not for current platform - ignored
+task: "uv:install" finished
+task: "uv:install" started
+task: Task "_install:unix" is up to date
+task: Task "uv:_install:unix" is up to date
+task: [lint] bash -lc 'export PATH="$HOME/.local/bin:$PATH"; rumdl check --exclude "OVR-RUMDL_LINT_SKIP_PATTERN"  OVR-TARGETS OVR-EXTRA_ARGS && echo "✅ rumdl passed" || { echo "❌ rumdl failed"; exit 1; }'
+task: [lint] rumdl check --exclude "OVR-RUMDL_LINT_SKIP_PATTERN"  OVR-TARGETS OVR-EXTRA_ARGS not for current platform - ignored
+task: status command bash -lc 'export PATH="$HOME/.local/bin:$PATH"; command -v rumdl >/dev/null 2>&1 && { [ -z "" ] || rumdl --version | grep -Fq ""; }' exited zero
+task: status command uv_bin="$HOME/.local/bin/uv"; if [ ! -x "$uv_bin" ]; then uv_bin="$(command -v uv 2>/dev/null)"; fi; [ -n "$uv_bin" ] && [ -x "$uv_bin" ] && { [ -z "" ] || "$uv_bin" --version | grep -Fqx "uv "; } exited zero
+
+=== task: upgrade ===
+task: "_upgrade:unix" finished
+task: "_upgrade:unix" started
+task: "_upgrade:windows" not for current platform - ignored
+task: "upgrade" finished
+task: "upgrade" started
+task: [_upgrade:unix] bash -lc 'export PATH="$HOME/.local/bin:$PATH"; uv tool install --force "rumdl"'
+task: [_upgrade:unix] echo 'Upgrading rumdl via uv...'
+task: [_upgrade:unix] echo 'rumdl upgraded.'
+
+=== task: version ===
+task: "_install:unix" started
+task: "_install:windows" not for current platform - ignored
+task: "install" finished
+task: "install" started
+task: "uv:_install:unix" started
+task: "uv:_install:windows" not for current platform - ignored
+task: "uv:install" finished
+task: "uv:install" started
+task: "version" finished
+task: "version" started
+task: Task "_install:unix" is up to date
+task: Task "uv:_install:unix" is up to date
+task: [version] bash -lc 'export PATH="$HOME/.local/bin:$PATH"; rumdl --version'
+task: [version] rumdl --version not for current platform - ignored
+task: status command bash -lc 'export PATH="$HOME/.local/bin:$PATH"; command -v rumdl >/dev/null 2>&1 && { [ -z "" ] || rumdl --version | grep -Fq ""; }' exited zero
+task: status command uv_bin="$HOME/.local/bin/uv"; if [ ! -x "$uv_bin" ]; then uv_bin="$(command -v uv 2>/dev/null)"; fi; [ -n "$uv_bin" ] && [ -x "$uv_bin" ] && { [ -z "" ] || "$uv_bin" --version | grep -Fqx "uv "; } exited zero

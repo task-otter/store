@@ -1,0 +1,296 @@
+# module: git
+# case:   bare
+
+=== task: add ===
+task: "add" finished
+task: "add" started
+task: [add] git add . 
+
+=== task: add:all ===
+task: "add:all" finished
+task: "add:all" started
+task: [add:all] git add --all
+
+=== task: auth:setup ===
+task: "auth:setup" finished
+task: "auth:setup" started
+task: "gh:_install:auto:unix" started
+task: "gh:_install:auto:windows" not for current platform - ignored
+task: "gh:auth:setup-git" finished
+task: "gh:auth:setup-git" started
+task: "gh:install" finished
+task: "gh:install" started
+task: Task "gh:_install:auto:unix" is up to date
+task: [gh:auth:setup-git] gh auth setup-git
+task: status command command -v gh >/dev/null 2>&1 && { [ -z "" ] || gh --version | grep -Fqx "gh version "; } exited zero
+
+=== task: branch:create ===
+task: "branch:create" finished
+task: "branch:create" started
+task: [branch:create] git switch -c  
+
+=== task: branch:delete ===
+task: "branch:delete" finished
+task: "branch:delete" started
+task: [branch:delete] git branch -d  
+
+=== task: branch:list ===
+task: "branch:list" finished
+task: "branch:list" started
+task: [branch:list] git branch -a 
+
+=== task: branch:rename ===
+task: "branch:rename" finished
+task: "branch:rename" started
+task: [branch:rename] git branch -m 
+
+=== task: branch:switch ===
+task: "branch:switch" finished
+task: "branch:switch" started
+task: [branch:switch] git switch  
+
+=== task: clean ===
+task: "clean" finished
+task: "clean" started
+task: [clean] git clean -fd 
+
+=== task: clone ===
+task: "clone" finished
+task: "clone" started
+task: "gh:_install:auto:unix" started
+task: "gh:_install:auto:windows" not for current platform - ignored
+task: "gh:install" finished
+task: "gh:install" started
+task: Task "gh:_install:auto:unix" is up to date
+task: [clone] gh repo clone  . 
+task: status command command -v gh >/dev/null 2>&1 && { [ -z "" ] || gh --version | grep -Fqx "gh version "; } exited zero
+
+=== task: commit ===
+task: "commit" finished
+task: "commit" started
+task: [commit] git commit -m "" 
+
+=== task: commit:amend ===
+task: "commit:amend" finished
+task: "commit:amend" started
+task: [commit:amend] git commit --amend --no-edit 
+
+=== task: config:list ===
+task: "config:list" finished
+task: "config:list" started
+task: [config:list] git config --list 
+
+=== task: config:user ===
+task: "config:user" finished
+task: "config:user" started
+task: [config:user] git config --global user.email ""
+task: [config:user] git config --global user.name ""
+
+=== task: diff ===
+task: "diff" finished
+task: "diff" started
+task: [diff] git diff . 
+
+=== task: diff:staged ===
+task: "diff:staged" finished
+task: "diff:staged" started
+task: [diff:staged] git diff --staged 
+
+=== task: fetch ===
+task: "fetch" finished
+task: "fetch" started
+task: [fetch] git fetch origin --prune 
+
+=== task: help ===
+task: "help" finished
+task: "help" started
+task: [help] git help
+
+=== task: init ===
+task: "init" finished
+task: "init" started
+task: [init] git init 
+
+=== task: install ===
+task: "_install:linux" not for current platform - ignored
+task: "_install:macos" started
+task: "_install:windows" not for current platform - ignored
+task: "install" finished
+task: "install" started
+task: Task "_install:macos" is up to date
+task: status command command -v git >/dev/null 2>&1 && { [ -z "" ] || git --version | grep -Fqx "git version "; } exited zero
+
+=== task: install:undo ===
+task: "_install:undo:linux" not for current platform - ignored
+task: "_install:undo:macos" finished
+task: "_install:undo:macos" started
+task: "_install:undo:windows" not for current platform - ignored
+task: "install:undo" finished
+task: "install:undo" started
+task: [_install:undo:macos] brew uninstall git
+task: [_install:undo:macos] echo 'Removing git via Homebrew...'
+task: [_install:undo:macos] echo 'git removed.'
+task: status command ! command -v git >/dev/null 2>&1 exited non-zero: exit status 1
+
+=== task: log ===
+task: "log" finished
+task: "log" started
+task: [log] git log --format="%C(yellow)%h%Creset %C(blue)%ad%Creset %s %C(green)<%an>%Creset" --date=short 
+
+=== task: log:graph ===
+task: "log:graph" finished
+task: "log:graph" started
+task: [log:graph] git log --oneline --graph --decorate --all 
+
+=== task: pr:create ===
+task: "gh:_install:auto:unix" started
+task: "gh:_install:auto:windows" not for current platform - ignored
+task: "gh:install" finished
+task: "gh:install" started
+task: "pr:create" finished
+task: "pr:create" started
+task: Task "gh:_install:auto:unix" is up to date
+task: [pr:create] gh pr create --title "" --base "main" 
+task: [pr:create] git push origin HEAD 
+task: status command command -v gh >/dev/null 2>&1 && { [ -z "" ] || gh --version | grep -Fqx "gh version "; } exited zero
+
+=== task: pr:open ===
+task: "gh:_install:auto:unix" started
+task: "gh:_install:auto:windows" not for current platform - ignored
+task: "gh:install" finished
+task: "gh:install" started
+task: "pr:open" finished
+task: "pr:open" started
+task: Task "gh:_install:auto:unix" is up to date
+task: [pr:open] gh pr view --web
+task: status command command -v gh >/dev/null 2>&1 && { [ -z "" ] || gh --version | grep -Fqx "gh version "; } exited zero
+
+=== task: pull ===
+task: "pull" finished
+task: "pull" started
+task: [pull] git pull origin 
+
+=== task: push ===
+task: "push" finished
+task: "push" started
+task: [push] git push origin HEAD 
+
+=== task: push:force ===
+task: "push:force" finished
+task: "push:force" started
+task: [push:force] git push origin HEAD --force-with-lease 
+
+=== task: release:create ===
+task: "gh:_install:auto:unix" started
+task: "gh:_install:auto:windows" not for current platform - ignored
+task: "gh:install" finished
+task: "gh:install" started
+task: "release:create" finished
+task: "release:create" started
+task: Task "gh:_install:auto:unix" is up to date
+task: [release:create] gh release create   
+task: [release:create] git push origin 
+task: [release:create] git tag -a  -m ""
+task: status command command -v gh >/dev/null 2>&1 && { [ -z "" ] || gh --version | grep -Fqx "gh version "; } exited zero
+
+=== task: remote:add ===
+task: "remote:add" finished
+task: "remote:add" started
+task: [remote:add] git remote add  
+
+=== task: remote:list ===
+task: "remote:list" finished
+task: "remote:list" started
+task: [remote:list] git remote -v
+
+=== task: remote:remove ===
+task: "remote:remove" finished
+task: "remote:remove" started
+task: [remote:remove] git remote remove 
+
+=== task: remote:set-url ===
+task: "remote:set-url" finished
+task: "remote:set-url" started
+task: [remote:set-url] git remote set-url  
+
+=== task: reset:hard ===
+task: "reset:hard" finished
+task: "reset:hard" started
+task: [reset:hard] git reset --hard  
+
+=== task: reset:soft ===
+task: "reset:soft" finished
+task: "reset:soft" started
+task: [reset:soft] git reset --soft  
+
+=== task: stash ===
+task: "stash" finished
+task: "stash" started
+task: [stash] git stash push  
+
+=== task: stash:drop ===
+--- exit: exit status 1
+template: :1: unexpected "{" in command
+
+=== task: stash:list ===
+task: "stash:list" finished
+task: "stash:list" started
+task: [stash:list] git stash list
+
+=== task: stash:pop ===
+--- exit: exit status 1
+template: :1: unexpected "{" in command
+
+=== task: status ===
+task: "status" finished
+task: "status" started
+task: [status] git status
+
+=== task: sync ===
+task: "gh:_install:auto:unix" started
+task: "gh:_install:auto:windows" not for current platform - ignored
+task: "gh:install" finished
+task: "gh:install" started
+task: "sync" finished
+task: "sync" started
+task: Task "gh:_install:auto:unix" is up to date
+task: [sync] gh repo sync  
+task: status command command -v gh >/dev/null 2>&1 && { [ -z "" ] || gh --version | grep -Fqx "gh version "; } exited zero
+
+=== task: tag:create ===
+task: "tag:create" finished
+task: "tag:create" started
+task: [tag:create] git tag -a  -m "" 
+
+=== task: tag:delete ===
+task: "tag:delete" finished
+task: "tag:delete" started
+task: [tag:delete] git push origin --delete 
+task: [tag:delete] git tag -d 
+
+=== task: tag:list ===
+task: "tag:list" finished
+task: "tag:list" started
+task: [tag:list] git tag --sort=-v:refname 
+
+=== task: tag:push ===
+task: "tag:push" finished
+task: "tag:push" started
+task: [tag:push] git push origin --tags 
+
+=== task: upgrade ===
+task: "_upgrade:linux" not for current platform - ignored
+task: "_upgrade:macos" finished
+task: "_upgrade:macos" started
+task: "_upgrade:windows" not for current platform - ignored
+task: "upgrade" finished
+task: "upgrade" started
+task: [_upgrade:macos] brew install git
+task: [_upgrade:macos] echo 'Upgrading git via Homebrew...'
+task: [_upgrade:macos] echo 'git upgraded.'
+task: [_upgrade:macos] if condition not met - skipped
+
+=== task: version ===
+task: "version" finished
+task: "version" started
+task: [version] git --version

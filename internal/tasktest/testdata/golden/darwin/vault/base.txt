@@ -1,0 +1,316 @@
+# module: vault
+# case:   base
+# vars:
+#   APPROLE_MOUNT=BASE-APPROLE_MOUNT
+#   EXTRA_ARGS=BASE-EXTRA_ARGS
+#   FILE=BASE-FILE
+#   KEYS_FILE=BASE-KEYS_FILE
+#   KV_MOUNT=BASE-KV_MOUNT
+#   ROLE_ID=BASE-ROLE_ID
+#   ROOT_TOKEN=BASE-ROOT_TOKEN
+#   SECRET_ID=BASE-SECRET_ID
+#   SECRET_PATH=BASE-SECRET_PATH
+#   SECRET_VERSION=BASE-SECRET_VERSION
+#   SHARES=BASE-SHARES
+#   SNAPSHOT_FILE=BASE-SNAPSHOT_FILE
+#   THRESHOLD=BASE-THRESHOLD
+#   VAULT_ADDR=BASE-VAULT_ADDR
+#   VAULT_FILE=BASE-VAULT_FILE
+#   VERSION=BASE-VERSION
+
+=== task: health ===
+task: "health" finished
+task: "health" started
+task: "jq:_install:linux" not for current platform - ignored
+task: "jq:_install:macos" finished
+task: "jq:_install:macos" started
+task: "jq:_install:windows" not for current platform - ignored
+task: "jq:install" finished
+task: "jq:install" started
+task: [health] curl -s "BASE-VAULT_ADDR/v1/sys/health" | jq .
+task: [jq:_install:macos] brew install "jq@BASE-VERSION"
+task: [jq:_install:macos] echo 'Installing jq via Homebrew...'
+task: [jq:_install:macos] echo 'jq installed.'
+task: status command command -v jq >/dev/null 2>&1 && { [ -z "BASE-VERSION" ] || [ "$(jq --version)" = "jq-BASE-VERSION" ]; } exited non-zero: exit status 1
+
+=== task: init ===
+
+  -address="BASE-VAULT_ADDR" \
+  -format=json > "$TMP"
+  -key-shares=BASE-SHARES \
+  -key-threshold=BASE-THRESHOLD \
+  echo "KEYS_FILE already exists: $KF. Move or remove it before running init again." >&2
+  exit 1
+TMP="${KF}.tmp.$$"
+chmod 600 "$TMP"
+echo "Vault initialized. Unseal keys and root token saved to $KF"
+fi
+if [ -e "$KF" ]; then
+mv "$TMP" "$KF"
+task: "_install:linux" not for current platform - ignored
+task: "_install:macos" finished
+task: "_install:macos" started
+task: "_install:windows" not for current platform - ignored
+task: "init" finished
+task: "init" started
+task: "install" finished
+task: "install" started
+task: [_install:macos] brew install "hashicorp/tap/vault@BASE-VERSION"
+task: [_install:macos] brew tap hashicorp/tap
+task: [_install:macos] echo 'Installing Vault CLI via Homebrew...'
+task: [_install:macos] echo 'Vault CLI installed.'
+task: [init] KF="BASE-KEYS_FILE"
+task: status command command -v vault >/dev/null 2>&1 && { [ -z "BASE-VERSION" ] || vault version | grep -Fq "vBASE-VERSION"; } exited non-zero: exit status 1
+trap 'rm -f "$TMP"' EXIT
+trap - EXIT
+vault operator init \
+
+=== task: install ===
+task: "_install:linux" not for current platform - ignored
+task: "_install:macos" finished
+task: "_install:macos" started
+task: "_install:windows" not for current platform - ignored
+task: "install" finished
+task: "install" started
+task: [_install:macos] brew install "hashicorp/tap/vault@BASE-VERSION"
+task: [_install:macos] brew tap hashicorp/tap
+task: [_install:macos] echo 'Installing Vault CLI via Homebrew...'
+task: [_install:macos] echo 'Vault CLI installed.'
+task: status command command -v vault >/dev/null 2>&1 && { [ -z "BASE-VERSION" ] || vault version | grep -Fq "vBASE-VERSION"; } exited non-zero: exit status 1
+
+=== task: install:undo ===
+task: "_install:undo:linux" not for current platform - ignored
+task: "_install:undo:macos" finished
+task: "_install:undo:macos" started
+task: "_install:undo:windows" not for current platform - ignored
+task: "install:undo" finished
+task: "install:undo" started
+task: [_install:undo:macos] brew uninstall hashicorp/tap/vault
+task: [_install:undo:macos] echo 'Removing Vault CLI via Homebrew...'
+task: [_install:undo:macos] echo 'Vault CLI removed.'
+task: status command ! command -v vault >/dev/null 2>&1 exited non-zero: exit status 1
+
+=== task: kv:get ===
+--- exit: exit status 201
+task: "kv:get" started
+task: Failed to run task "kv:get": task: precondition not met
+task: KV_MOUNT must be set. Pass KV_MOUNT=<mount> on the command line.
+
+=== task: login ===
+--- exit: exit status 201
+task: "login" started
+task: Failed to run task "login": task: precondition not met
+task: KEYS_FILE not found. Run task init first to generate BASE-KEYS_FILE.
+
+=== task: login:approle ===
+
+    "auth/${VAULT_LOGIN_APPROLE_MOUNT}/login" \
+    -
+    -address="BASE-VAULT_ADDR" \
+    -address="BASE-VAULT_ADDR" \
+    -field=token \
+    -method=token \
+    -no-print \
+    role_id="$VAULT_LOGIN_ROLE_ID" \
+    secret_id=- \
+  | vault login \
+  | vault write \
+task: "_install:linux" not for current platform - ignored
+task: "_install:macos" finished
+task: "_install:macos" started
+task: "_install:windows" not for current platform - ignored
+task: "install" finished
+task: "install" started
+task: "login:approle" finished
+task: "login:approle" started
+task: [_install:macos] brew install "hashicorp/tap/vault@BASE-VERSION"
+task: [_install:macos] brew tap hashicorp/tap
+task: [_install:macos] echo 'Installing Vault CLI via Homebrew...'
+task: [_install:macos] echo 'Vault CLI installed.'
+task: [login:approle] printf '%s' "$VAULT_LOGIN_SECRET_ID" \
+task: status command command -v vault >/dev/null 2>&1 && { [ -z "BASE-VERSION" ] || vault version | grep -Fq "vBASE-VERSION"; } exited non-zero: exit status 1
+
+=== task: login:root-token ===
+
+  | vault login -address="BASE-VAULT_ADDR" -method=token -no-print -
+task: "_install:linux" not for current platform - ignored
+task: "_install:macos" finished
+task: "_install:macos" started
+task: "_install:windows" not for current platform - ignored
+task: "install" finished
+task: "install" started
+task: "login:root-token" finished
+task: "login:root-token" started
+task: [_install:macos] brew install "hashicorp/tap/vault@BASE-VERSION"
+task: [_install:macos] brew tap hashicorp/tap
+task: [_install:macos] echo 'Installing Vault CLI via Homebrew...'
+task: [_install:macos] echo 'Vault CLI installed.'
+task: [login:root-token] printf '%s' "$VAULT_LOGIN_ROOT_TOKEN" \
+task: status command command -v vault >/dev/null 2>&1 && { [ -z "BASE-VERSION" ] || vault version | grep -Fq "vBASE-VERSION"; } exited non-zero: exit status 1
+
+=== task: peers ===
+task: "_install:linux" not for current platform - ignored
+task: "_install:macos" finished
+task: "_install:macos" started
+task: "_install:windows" not for current platform - ignored
+task: "install" finished
+task: "install" started
+task: "peers" finished
+task: "peers" started
+task: [_install:macos] brew install "hashicorp/tap/vault@BASE-VERSION"
+task: [_install:macos] brew tap hashicorp/tap
+task: [_install:macos] echo 'Installing Vault CLI via Homebrew...'
+task: [_install:macos] echo 'Vault CLI installed.'
+task: [peers] vault operator raft list-peers -address="BASE-VAULT_ADDR"
+task: status command command -v vault >/dev/null 2>&1 && { [ -z "BASE-VERSION" ] || vault version | grep -Fq "vBASE-VERSION"; } exited non-zero: exit status 1
+
+=== task: restore ===
+--- exit: exit status 201
+task: "restore" started
+task: Failed to run task "restore": task: precondition not met
+task: Snapshot file not found. Pass FILE=path/to/snapshot, or VAULT_FILE=path/to/snapshot from the root include.
+
+=== task: root-token ===
+--- exit: exit status 201
+task: "jq:_install:linux" not for current platform - ignored
+task: "jq:_install:macos" finished
+task: "jq:_install:macos" started
+task: "jq:_install:windows" not for current platform - ignored
+task: "jq:install" finished
+task: "jq:install" started
+task: "root-token" started
+task: Failed to run task "root-token": task: precondition not met
+task: KEYS_FILE not found. Run task init first to generate BASE-KEYS_FILE.
+task: [jq:_install:macos] brew install "jq@BASE-VERSION"
+task: [jq:_install:macos] echo 'Installing jq via Homebrew...'
+task: [jq:_install:macos] echo 'jq installed.'
+task: status command command -v jq >/dev/null 2>&1 && { [ -z "BASE-VERSION" ] || [ "$(jq --version)" = "jq-BASE-VERSION" ]; } exited non-zero: exit status 1
+
+=== task: seal ===
+task: "_install:linux" not for current platform - ignored
+task: "_install:macos" finished
+task: "_install:macos" started
+task: "_install:windows" not for current platform - ignored
+task: "install" finished
+task: "install" started
+task: "seal" finished
+task: "seal" started
+task: [_install:macos] brew install "hashicorp/tap/vault@BASE-VERSION"
+task: [_install:macos] brew tap hashicorp/tap
+task: [_install:macos] echo 'Installing Vault CLI via Homebrew...'
+task: [_install:macos] echo 'Vault CLI installed.'
+task: [seal] vault operator seal -address="BASE-VAULT_ADDR"
+task: status command command -v vault >/dev/null 2>&1 && { [ -z "BASE-VERSION" ] || vault version | grep -Fq "vBASE-VERSION"; } exited non-zero: exit status 1
+
+=== task: snapshot ===
+task: "_install:linux" not for current platform - ignored
+task: "_install:macos" finished
+task: "_install:macos" started
+task: "_install:windows" not for current platform - ignored
+task: "install" finished
+task: "install" started
+task: "snapshot" finished
+task: "snapshot" started
+task: [_install:macos] brew install "hashicorp/tap/vault@BASE-VERSION"
+task: [_install:macos] brew tap hashicorp/tap
+task: [_install:macos] echo 'Installing Vault CLI via Homebrew...'
+task: [_install:macos] echo 'Vault CLI installed.'
+task: [snapshot] vault operator raft snapshot save -address="BASE-VAULT_ADDR" "BASE-FILE"
+task: status command command -v vault >/dev/null 2>&1 && { [ -z "BASE-VERSION" ] || vault version | grep -Fq "vBASE-VERSION"; } exited non-zero: exit status 1
+
+=== task: status ===
+task: "_install:linux" not for current platform - ignored
+task: "_install:macos" finished
+task: "_install:macos" started
+task: "_install:windows" not for current platform - ignored
+task: "install" finished
+task: "install" started
+task: "status" finished
+task: "status" started
+task: [_install:macos] brew install "hashicorp/tap/vault@BASE-VERSION"
+task: [_install:macos] brew tap hashicorp/tap
+task: [_install:macos] echo 'Installing Vault CLI via Homebrew...'
+task: [_install:macos] echo 'Vault CLI installed.'
+task: [status] vault status -address="BASE-VAULT_ADDR" || true
+task: status command command -v vault >/dev/null 2>&1 && { [ -z "BASE-VERSION" ] || vault version | grep -Fq "vBASE-VERSION"; } exited non-zero: exit status 1
+
+=== task: token:issue:approle ===
+
+    "auth/${VAULT_LOGIN_APPROLE_MOUNT}/login" \
+    -address="BASE-VAULT_ADDR" \
+    -field=token \
+    role_id="$VAULT_LOGIN_ROLE_ID" \
+    secret_id=-
+  | vault write \
+task: "_install:linux" not for current platform - ignored
+task: "_install:macos" finished
+task: "_install:macos" started
+task: "_install:windows" not for current platform - ignored
+task: "install" finished
+task: "install" started
+task: "token:issue:approle" finished
+task: "token:issue:approle" started
+task: [_install:macos] brew install "hashicorp/tap/vault@BASE-VERSION"
+task: [_install:macos] brew tap hashicorp/tap
+task: [_install:macos] echo 'Installing Vault CLI via Homebrew...'
+task: [_install:macos] echo 'Vault CLI installed.'
+task: [token:issue:approle] printf '%s' "$VAULT_LOGIN_SECRET_ID" \
+task: status command command -v vault >/dev/null 2>&1 && { [ -z "BASE-VERSION" ] || vault version | grep -Fq "vBASE-VERSION"; } exited non-zero: exit status 1
+
+=== task: token:revoke-self ===
+--- exit: exit status 201
+task: "token:revoke-self" started
+task: Failed to run task "token:revoke-self": task: precondition not met
+task: VAULT_TOKEN environment variable must be set.
+
+=== task: unseal ===
+--- exit: exit status 201
+task: "unseal" started
+task: Failed to run task "unseal": task: precondition not met
+task: KEYS_FILE not found. Run task init first to generate BASE-KEYS_FILE.
+
+=== task: upgrade ===
+task: "_upgrade:linux" not for current platform - ignored
+task: "_upgrade:macos" finished
+task: "_upgrade:macos" started
+task: "_upgrade:windows" not for current platform - ignored
+task: "upgrade" finished
+task: "upgrade" started
+task: [_upgrade:macos] brew update
+task: [_upgrade:macos] brew upgrade hashicorp/tap/vault
+task: [_upgrade:macos] echo 'Upgrading Vault CLI via Homebrew...'
+task: [_upgrade:macos] echo 'Vault CLI upgraded.'
+task: [_upgrade:macos] if condition not met - skipped
+
+=== task: verify ===
+task: "_install:linux" not for current platform - ignored
+task: "_install:macos" finished
+task: "_install:macos" started
+task: "_install:windows" not for current platform - ignored
+task: "install" finished
+task: "install" started
+task: "verify" finished
+task: "verify" started
+task: [_install:macos] brew install "hashicorp/tap/vault@BASE-VERSION"
+task: [_install:macos] brew tap hashicorp/tap
+task: [_install:macos] echo 'Installing Vault CLI via Homebrew...'
+task: [_install:macos] echo 'Vault CLI installed.'
+task: [verify] vault status -address="BASE-VAULT_ADDR"
+task: [verify] vault version
+task: status command command -v vault >/dev/null 2>&1 && { [ -z "BASE-VERSION" ] || vault version | grep -Fq "vBASE-VERSION"; } exited non-zero: exit status 1
+
+=== task: version ===
+task: "_install:linux" not for current platform - ignored
+task: "_install:macos" finished
+task: "_install:macos" started
+task: "_install:windows" not for current platform - ignored
+task: "install" finished
+task: "install" started
+task: "version" finished
+task: "version" started
+task: [_install:macos] brew install "hashicorp/tap/vault@BASE-VERSION"
+task: [_install:macos] brew tap hashicorp/tap
+task: [_install:macos] echo 'Installing Vault CLI via Homebrew...'
+task: [_install:macos] echo 'Vault CLI installed.'
+task: [version] vault version
+task: status command command -v vault >/dev/null 2>&1 && { [ -z "BASE-VERSION" ] || vault version | grep -Fq "vBASE-VERSION"; } exited non-zero: exit status 1

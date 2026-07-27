@@ -1,0 +1,740 @@
+# module: cargo
+# case:   both
+# vars:
+#   CARGO_BIN_UNIX=BASE-CARGO_BIN_UNIX
+#   CARGO_FMT_SKIP_PATTERN=BASE-CARGO_FMT_SKIP_PATTERN
+#   CARGO_LINT_SKIP_PATTERN=BASE-CARGO_LINT_SKIP_PATTERN
+#   EXTRA_ARGS=BASE-EXTRA_ARGS
+#   RUSTUP_INSTALL_URL=BASE-RUSTUP_INSTALL_URL
+#   RUSTUP_INSTALL_URL_WINDOWS=BASE-RUSTUP_INSTALL_URL_WINDOWS
+#   RUST_TOOLCHAIN=BASE-RUST_TOOLCHAIN
+#   CARGO_BIN_UNIX_OVERRIDE=OVR-CARGO_BIN_UNIX
+#   CARGO_FMT_SKIP_PATTERN_OVERRIDE=OVR-CARGO_FMT_SKIP_PATTERN
+#   CARGO_LINT_SKIP_PATTERN_OVERRIDE=OVR-CARGO_LINT_SKIP_PATTERN
+#   EXTRA_ARGS_OVERRIDE=OVR-EXTRA_ARGS
+#   RUSTUP_INSTALL_URL_OVERRIDE=OVR-RUSTUP_INSTALL_URL
+#   RUSTUP_INSTALL_URL_WINDOWS_OVERRIDE=OVR-RUSTUP_INSTALL_URL_WINDOWS
+#   RUST_TOOLCHAIN_OVERRIDE=OVR-RUST_TOOLCHAIN
+
+=== task: build ===
+
+
+
+
+
+      filter "SKIPFILES_PATTERN=$skip_pattern" SKIPFILES_MATCHING=true |
+      value=$0; sub(/^[^=]*=[[:space:]]*/, "", value); gsub(/["'"'"']/, "", value); print value; exit
+      value=$0; sub(/^[^=]*=[[:space:]]*/, "", value); gsub(/["'"'"']/, "", value); print value; exit
+    *" $package_name "*) ;;
+    *" $package_name "*) ;;
+    *) set -- "$@" --package "$package_name" ;;
+    *) skipped_packages="$skipped_packages $package_name" ;;
+    /^\[/ { in_package=0 }
+    /^\[/ { in_package=0 }
+    /^\[package\][[:space:]]*$/ { in_package=1; next }
+    /^\[package\][[:space:]]*$/ { in_package=1; next }
+    OVR-EXTRA_ARGS
+    OVR-EXTRA_ARGS
+    in_package && /^[[:space:]]*name[[:space:]]*=/ {
+    in_package && /^[[:space:]]*name[[:space:]]*=/ {
+    package_dir="$(dirname "$package_dir")"
+    task --silent --taskfile "$REPO/taskfiles/cargo/../internal/skipfiles/Taskfile.yml" \
+    tr '\0' '
+    }
+    }
+  "$cargo" +BASE-RUST_TOOLCHAIN build \
+  "$cargo" +BASE-RUST_TOOLCHAIN build \
+  ' "$manifest")"
+  ' "$package_dir/Cargo.toml")"
+  OVR-EXTRA_ARGS
+  [ -f "$package_dir/Cargo.toml" ] || continue
+  [ -n "$package_name" ] || continue
+  [ -n "$package_name" ] || continue
+  case " $skipped_packages " in
+  case " $skipped_packages " in
+  done
+  echo 'No matching Cargo packages found'
+  esac
+  esac
+  exit
+  exit
+  exit 0
+  find . -type f -name '*.rs' ! -path './target/*' ! -path './.git/*' -print0 |
+  package_dir="$(dirname "$source_file")"
+  package_name="$(awk '
+  package_name="$(awk '
+  while [ "$package_dir" != '/' ] && [ ! -f "$package_dir/Cargo.toml" ]; do
+"$cargo" +BASE-RUST_TOOLCHAIN build "$@" \
+'
+)
+done < <(
+done < <(find . -type f -name Cargo.toml ! -path './target/*' ! -path './.git/*' | sort)
+fi
+fi
+fi
+if [ "$#" -eq 0 ]; then
+if [ -z "$skip_pattern" ]; then
+if [ -z "${skipped_packages# }" ]; then
+set --
+skip_pattern=''
+skipped_packages=''
+task: "_cargo:unix" finished
+task: "_cargo:unix" started
+task: "_cargo:windows" not for current platform - ignored
+task: "_install:unix" finished
+task: "_install:unix" started
+task: "_install:windows" not for current platform - ignored
+task: "build" finished
+task: "build" started
+task: "install" finished
+task: "install" started
+task: [_cargo:unix] cargo="$(command -v cargo || echo "BASE-CARGO_BIN_UNIX/cargo")"
+task: [_install:unix] curl --proto '=https' --tlsv1.2 -sSf "BASE-RUSTUP_INSTALL_URL" | sh -s -- -y --default-toolchain BASE-RUST_TOOLCHAIN
+task: [_install:unix] echo 'Installing the Rust toolchain via rustup...'
+task: [_install:unix] echo 'Rust installed. Restart your shell if cargo is not yet in PATH.'
+task: status command command -v cargo >/dev/null 2>&1 && { [ -z "BASE-RUST_TOOLCHAIN" ] || rustup show 2>/dev/null | grep -Fq "BASE-RUST_TOOLCHAIN"; } exited non-zero: exit status 1
+while IFS= read -r manifest; do
+while IFS= read -r source_file; do
+
+=== task: check ===
+
+
+
+
+
+      filter "SKIPFILES_PATTERN=$skip_pattern" SKIPFILES_MATCHING=true |
+      value=$0; sub(/^[^=]*=[[:space:]]*/, "", value); gsub(/["'"'"']/, "", value); print value; exit
+      value=$0; sub(/^[^=]*=[[:space:]]*/, "", value); gsub(/["'"'"']/, "", value); print value; exit
+    *" $package_name "*) ;;
+    *" $package_name "*) ;;
+    *) set -- "$@" --package "$package_name" ;;
+    *) skipped_packages="$skipped_packages $package_name" ;;
+    /^\[/ { in_package=0 }
+    /^\[/ { in_package=0 }
+    /^\[package\][[:space:]]*$/ { in_package=1; next }
+    /^\[package\][[:space:]]*$/ { in_package=1; next }
+    OVR-EXTRA_ARGS
+    OVR-EXTRA_ARGS
+    in_package && /^[[:space:]]*name[[:space:]]*=/ {
+    in_package && /^[[:space:]]*name[[:space:]]*=/ {
+    package_dir="$(dirname "$package_dir")"
+    task --silent --taskfile "$REPO/taskfiles/cargo/../internal/skipfiles/Taskfile.yml" \
+    tr '\0' '
+    }
+    }
+  "$cargo" +BASE-RUST_TOOLCHAIN check \
+  "$cargo" +BASE-RUST_TOOLCHAIN check \
+  ' "$manifest")"
+  ' "$package_dir/Cargo.toml")"
+  OVR-EXTRA_ARGS
+  [ -f "$package_dir/Cargo.toml" ] || continue
+  [ -n "$package_name" ] || continue
+  [ -n "$package_name" ] || continue
+  case " $skipped_packages " in
+  case " $skipped_packages " in
+  done
+  echo 'No matching Cargo packages found'
+  esac
+  esac
+  exit
+  exit
+  exit 0
+  find . -type f -name '*.rs' ! -path './target/*' ! -path './.git/*' -print0 |
+  package_dir="$(dirname "$source_file")"
+  package_name="$(awk '
+  package_name="$(awk '
+  while [ "$package_dir" != '/' ] && [ ! -f "$package_dir/Cargo.toml" ]; do
+"$cargo" +BASE-RUST_TOOLCHAIN check "$@" \
+'
+)
+done < <(
+done < <(find . -type f -name Cargo.toml ! -path './target/*' ! -path './.git/*' | sort)
+fi
+fi
+fi
+if [ "$#" -eq 0 ]; then
+if [ -z "$skip_pattern" ]; then
+if [ -z "${skipped_packages# }" ]; then
+set --
+skip_pattern=''
+skipped_packages=''
+task: "_cargo:unix" finished
+task: "_cargo:unix" started
+task: "_cargo:windows" not for current platform - ignored
+task: "_install:unix" finished
+task: "_install:unix" started
+task: "_install:windows" not for current platform - ignored
+task: "check" finished
+task: "check" started
+task: "install" finished
+task: "install" started
+task: [_cargo:unix] cargo="$(command -v cargo || echo "BASE-CARGO_BIN_UNIX/cargo")"
+task: [_install:unix] curl --proto '=https' --tlsv1.2 -sSf "BASE-RUSTUP_INSTALL_URL" | sh -s -- -y --default-toolchain BASE-RUST_TOOLCHAIN
+task: [_install:unix] echo 'Installing the Rust toolchain via rustup...'
+task: [_install:unix] echo 'Rust installed. Restart your shell if cargo is not yet in PATH.'
+task: status command command -v cargo >/dev/null 2>&1 && { [ -z "BASE-RUST_TOOLCHAIN" ] || rustup show 2>/dev/null | grep -Fq "BASE-RUST_TOOLCHAIN"; } exited non-zero: exit status 1
+while IFS= read -r manifest; do
+while IFS= read -r source_file; do
+
+=== task: fmt ===
+
+
+
+
+
+      filter "SKIPFILES_PATTERN=$skip_pattern" SKIPFILES_MATCHING=true |
+      value=$0; sub(/^[^=]*=[[:space:]]*/, "", value); gsub(/["'"'"']/, "", value); print value; exit
+      value=$0; sub(/^[^=]*=[[:space:]]*/, "", value); gsub(/["'"'"']/, "", value); print value; exit
+    *" $package_name "*) ;;
+    *" $package_name "*) ;;
+    *) set -- "$@" --package "$package_name" ;;
+    *) skipped_packages="$skipped_packages $package_name" ;;
+    /^\[/ { in_package=0 }
+    /^\[/ { in_package=0 }
+    /^\[package\][[:space:]]*$/ { in_package=1; next }
+    /^\[package\][[:space:]]*$/ { in_package=1; next }
+    OVR-EXTRA_ARGS
+    OVR-EXTRA_ARGS
+    in_package && /^[[:space:]]*name[[:space:]]*=/ {
+    in_package && /^[[:space:]]*name[[:space:]]*=/ {
+    package_dir="$(dirname "$package_dir")"
+    task --silent --taskfile "$REPO/taskfiles/cargo/../internal/skipfiles/Taskfile.yml" \
+    tr '\0' '
+    }
+    }
+  "$cargo" +BASE-RUST_TOOLCHAIN fmt \
+  "$cargo" +BASE-RUST_TOOLCHAIN fmt \
+  ' "$manifest")"
+  ' "$package_dir/Cargo.toml")"
+  OVR-EXTRA_ARGS
+  [ -f "$package_dir/Cargo.toml" ] || continue
+  [ -n "$package_name" ] || continue
+  [ -n "$package_name" ] || continue
+  case " $skipped_packages " in
+  case " $skipped_packages " in
+  done
+  echo 'No matching Cargo packages found'
+  esac
+  esac
+  exit
+  exit
+  exit 0
+  find . -type f -name '*.rs' ! -path './target/*' ! -path './.git/*' -print0 |
+  package_dir="$(dirname "$source_file")"
+  package_name="$(awk '
+  package_name="$(awk '
+  while [ "$package_dir" != '/' ] && [ ! -f "$package_dir/Cargo.toml" ]; do
+"$cargo" +BASE-RUST_TOOLCHAIN fmt "$@" \
+'
+)
+done < <(
+done < <(find . -type f -name Cargo.toml ! -path './target/*' ! -path './.git/*' | sort)
+fi
+fi
+fi
+if [ "$#" -eq 0 ]; then
+if [ -z "$skip_pattern" ]; then
+if [ -z "${skipped_packages# }" ]; then
+set --
+skip_pattern='OVR-CARGO_FMT_SKIP_PATTERN'
+skipped_packages=''
+task: "_cargo:unix" finished
+task: "_cargo:unix" started
+task: "_cargo:windows" not for current platform - ignored
+task: "_install:unix" finished
+task: "_install:unix" started
+task: "_install:windows" not for current platform - ignored
+task: "fmt" finished
+task: "fmt" started
+task: "install" finished
+task: "install" started
+task: [_cargo:unix] cargo="$(command -v cargo || echo "BASE-CARGO_BIN_UNIX/cargo")"
+task: [_install:unix] curl --proto '=https' --tlsv1.2 -sSf "BASE-RUSTUP_INSTALL_URL" | sh -s -- -y --default-toolchain BASE-RUST_TOOLCHAIN
+task: [_install:unix] echo 'Installing the Rust toolchain via rustup...'
+task: [_install:unix] echo 'Rust installed. Restart your shell if cargo is not yet in PATH.'
+task: status command command -v cargo >/dev/null 2>&1 && { [ -z "BASE-RUST_TOOLCHAIN" ] || rustup show 2>/dev/null | grep -Fq "BASE-RUST_TOOLCHAIN"; } exited non-zero: exit status 1
+while IFS= read -r manifest; do
+while IFS= read -r source_file; do
+
+=== task: fmt:check ===
+
+
+
+
+
+      filter "SKIPFILES_PATTERN=$skip_pattern" SKIPFILES_MATCHING=true |
+      value=$0; sub(/^[^=]*=[[:space:]]*/, "", value); gsub(/["'"'"']/, "", value); print value; exit
+      value=$0; sub(/^[^=]*=[[:space:]]*/, "", value); gsub(/["'"'"']/, "", value); print value; exit
+    *" $package_name "*) ;;
+    *" $package_name "*) ;;
+    *) set -- "$@" --package "$package_name" ;;
+    *) skipped_packages="$skipped_packages $package_name" ;;
+    /^\[/ { in_package=0 }
+    /^\[/ { in_package=0 }
+    /^\[package\][[:space:]]*$/ { in_package=1; next }
+    /^\[package\][[:space:]]*$/ { in_package=1; next }
+    OVR-EXTRA_ARGS
+    OVR-EXTRA_ARGS
+    in_package && /^[[:space:]]*name[[:space:]]*=/ {
+    in_package && /^[[:space:]]*name[[:space:]]*=/ {
+    package_dir="$(dirname "$package_dir")"
+    task --silent --taskfile "$REPO/taskfiles/cargo/../internal/skipfiles/Taskfile.yml" \
+    tr '\0' '
+    }
+    }
+  "$cargo" +BASE-RUST_TOOLCHAIN fmt --check \
+  "$cargo" +BASE-RUST_TOOLCHAIN fmt --check \
+  ' "$manifest")"
+  ' "$package_dir/Cargo.toml")"
+  OVR-EXTRA_ARGS
+  [ -f "$package_dir/Cargo.toml" ] || continue
+  [ -n "$package_name" ] || continue
+  [ -n "$package_name" ] || continue
+  case " $skipped_packages " in
+  case " $skipped_packages " in
+  done
+  echo 'No matching Cargo packages found'
+  esac
+  esac
+  exit
+  exit
+  exit 0
+  find . -type f -name '*.rs' ! -path './target/*' ! -path './.git/*' -print0 |
+  package_dir="$(dirname "$source_file")"
+  package_name="$(awk '
+  package_name="$(awk '
+  while [ "$package_dir" != '/' ] && [ ! -f "$package_dir/Cargo.toml" ]; do
+"$cargo" +BASE-RUST_TOOLCHAIN fmt --check "$@" \
+'
+)
+done < <(
+done < <(find . -type f -name Cargo.toml ! -path './target/*' ! -path './.git/*' | sort)
+fi
+fi
+fi
+if [ "$#" -eq 0 ]; then
+if [ -z "$skip_pattern" ]; then
+if [ -z "${skipped_packages# }" ]; then
+set --
+skip_pattern='OVR-CARGO_FMT_SKIP_PATTERN'
+skipped_packages=''
+task: "_cargo:unix" finished
+task: "_cargo:unix" started
+task: "_cargo:windows" not for current platform - ignored
+task: "_install:unix" finished
+task: "_install:unix" started
+task: "_install:windows" not for current platform - ignored
+task: "fmt:check" finished
+task: "fmt:check" started
+task: "install" finished
+task: "install" started
+task: [_cargo:unix] cargo="$(command -v cargo || echo "BASE-CARGO_BIN_UNIX/cargo")"
+task: [_install:unix] curl --proto '=https' --tlsv1.2 -sSf "BASE-RUSTUP_INSTALL_URL" | sh -s -- -y --default-toolchain BASE-RUST_TOOLCHAIN
+task: [_install:unix] echo 'Installing the Rust toolchain via rustup...'
+task: [_install:unix] echo 'Rust installed. Restart your shell if cargo is not yet in PATH.'
+task: status command command -v cargo >/dev/null 2>&1 && { [ -z "BASE-RUST_TOOLCHAIN" ] || rustup show 2>/dev/null | grep -Fq "BASE-RUST_TOOLCHAIN"; } exited non-zero: exit status 1
+while IFS= read -r manifest; do
+while IFS= read -r source_file; do
+
+=== task: install ===
+task: "_install:unix" finished
+task: "_install:unix" started
+task: "_install:windows" not for current platform - ignored
+task: "install" finished
+task: "install" started
+task: [_install:unix] curl --proto '=https' --tlsv1.2 -sSf "BASE-RUSTUP_INSTALL_URL" | sh -s -- -y --default-toolchain BASE-RUST_TOOLCHAIN
+task: [_install:unix] echo 'Installing the Rust toolchain via rustup...'
+task: [_install:unix] echo 'Rust installed. Restart your shell if cargo is not yet in PATH.'
+task: status command command -v cargo >/dev/null 2>&1 && { [ -z "BASE-RUST_TOOLCHAIN" ] || rustup show 2>/dev/null | grep -Fq "BASE-RUST_TOOLCHAIN"; } exited non-zero: exit status 1
+
+=== task: install:undo ===
+
+"$rustup" self uninstall -y
+task: "_install:undo:unix" finished
+task: "_install:undo:unix" started
+task: "_install:undo:windows" not for current platform - ignored
+task: "install:undo" finished
+task: "install:undo" started
+task: [_install:undo:unix] echo 'Rust toolchain removed.'
+task: [_install:undo:unix] rustup="$(command -v rustup || echo "BASE-CARGO_BIN_UNIX/rustup")"
+task: status command ! command -v rustup >/dev/null 2>&1 && ! test -x "BASE-CARGO_BIN_UNIX/rustup" exited non-zero: exit status 1
+
+=== task: lint ===
+
+
+
+
+
+      filter "SKIPFILES_PATTERN=$skip_pattern" SKIPFILES_MATCHING=true |
+      value=$0; sub(/^[^=]*=[[:space:]]*/, "", value); gsub(/["'"'"']/, "", value); print value; exit
+      value=$0; sub(/^[^=]*=[[:space:]]*/, "", value); gsub(/["'"'"']/, "", value); print value; exit
+    *" $package_name "*) ;;
+    *" $package_name "*) ;;
+    *) set -- "$@" --package "$package_name" ;;
+    *) skipped_packages="$skipped_packages $package_name" ;;
+    /^\[/ { in_package=0 }
+    /^\[/ { in_package=0 }
+    /^\[package\][[:space:]]*$/ { in_package=1; next }
+    /^\[package\][[:space:]]*$/ { in_package=1; next }
+    OVR-EXTRA_ARGS
+    OVR-EXTRA_ARGS
+    in_package && /^[[:space:]]*name[[:space:]]*=/ {
+    in_package && /^[[:space:]]*name[[:space:]]*=/ {
+    package_dir="$(dirname "$package_dir")"
+    task --silent --taskfile "$REPO/taskfiles/cargo/../internal/skipfiles/Taskfile.yml" \
+    tr '\0' '
+    }
+    }
+  "$cargo" +BASE-RUST_TOOLCHAIN clippy \
+  "$cargo" +BASE-RUST_TOOLCHAIN clippy \
+  ' "$manifest")"
+  ' "$package_dir/Cargo.toml")"
+  OVR-EXTRA_ARGS
+  [ -f "$package_dir/Cargo.toml" ] || continue
+  [ -n "$package_name" ] || continue
+  [ -n "$package_name" ] || continue
+  case " $skipped_packages " in
+  case " $skipped_packages " in
+  done
+  echo 'No matching Cargo packages found'
+  esac
+  esac
+  exit
+  exit
+  exit 0
+  find . -type f -name '*.rs' ! -path './target/*' ! -path './.git/*' -print0 |
+  package_dir="$(dirname "$source_file")"
+  package_name="$(awk '
+  package_name="$(awk '
+  while [ "$package_dir" != '/' ] && [ ! -f "$package_dir/Cargo.toml" ]; do
+"$cargo" +BASE-RUST_TOOLCHAIN clippy "$@" \
+'
+)
+done < <(
+done < <(find . -type f -name Cargo.toml ! -path './target/*' ! -path './.git/*' | sort)
+fi
+fi
+fi
+if [ "$#" -eq 0 ]; then
+if [ -z "$skip_pattern" ]; then
+if [ -z "${skipped_packages# }" ]; then
+set --
+skip_pattern='OVR-CARGO_LINT_SKIP_PATTERN'
+skipped_packages=''
+task: "_cargo:unix" finished
+task: "_cargo:unix" started
+task: "_cargo:windows" not for current platform - ignored
+task: "_install:unix" finished
+task: "_install:unix" started
+task: "_install:windows" not for current platform - ignored
+task: "install" finished
+task: "install" started
+task: "lint" finished
+task: "lint" started
+task: [_cargo:unix] cargo="$(command -v cargo || echo "BASE-CARGO_BIN_UNIX/cargo")"
+task: [_install:unix] curl --proto '=https' --tlsv1.2 -sSf "BASE-RUSTUP_INSTALL_URL" | sh -s -- -y --default-toolchain BASE-RUST_TOOLCHAIN
+task: [_install:unix] echo 'Installing the Rust toolchain via rustup...'
+task: [_install:unix] echo 'Rust installed. Restart your shell if cargo is not yet in PATH.'
+task: status command command -v cargo >/dev/null 2>&1 && { [ -z "BASE-RUST_TOOLCHAIN" ] || rustup show 2>/dev/null | grep -Fq "BASE-RUST_TOOLCHAIN"; } exited non-zero: exit status 1
+while IFS= read -r manifest; do
+while IFS= read -r source_file; do
+
+=== task: lint:fix ===
+
+
+
+
+
+      filter "SKIPFILES_PATTERN=$skip_pattern" SKIPFILES_MATCHING=true |
+      value=$0; sub(/^[^=]*=[[:space:]]*/, "", value); gsub(/["'"'"']/, "", value); print value; exit
+      value=$0; sub(/^[^=]*=[[:space:]]*/, "", value); gsub(/["'"'"']/, "", value); print value; exit
+    *" $package_name "*) ;;
+    *" $package_name "*) ;;
+    *) set -- "$@" --package "$package_name" ;;
+    *) skipped_packages="$skipped_packages $package_name" ;;
+    /^\[/ { in_package=0 }
+    /^\[/ { in_package=0 }
+    /^\[package\][[:space:]]*$/ { in_package=1; next }
+    /^\[package\][[:space:]]*$/ { in_package=1; next }
+    OVR-EXTRA_ARGS
+    OVR-EXTRA_ARGS
+    in_package && /^[[:space:]]*name[[:space:]]*=/ {
+    in_package && /^[[:space:]]*name[[:space:]]*=/ {
+    package_dir="$(dirname "$package_dir")"
+    task --silent --taskfile "$REPO/taskfiles/cargo/../internal/skipfiles/Taskfile.yml" \
+    tr '\0' '
+    }
+    }
+  "$cargo" +BASE-RUST_TOOLCHAIN clippy --fix \
+  "$cargo" +BASE-RUST_TOOLCHAIN clippy --fix \
+  ' "$manifest")"
+  ' "$package_dir/Cargo.toml")"
+  OVR-EXTRA_ARGS
+  [ -f "$package_dir/Cargo.toml" ] || continue
+  [ -n "$package_name" ] || continue
+  [ -n "$package_name" ] || continue
+  case " $skipped_packages " in
+  case " $skipped_packages " in
+  done
+  echo 'No matching Cargo packages found'
+  esac
+  esac
+  exit
+  exit
+  exit 0
+  find . -type f -name '*.rs' ! -path './target/*' ! -path './.git/*' -print0 |
+  package_dir="$(dirname "$source_file")"
+  package_name="$(awk '
+  package_name="$(awk '
+  while [ "$package_dir" != '/' ] && [ ! -f "$package_dir/Cargo.toml" ]; do
+"$cargo" +BASE-RUST_TOOLCHAIN clippy --fix "$@" \
+'
+)
+done < <(
+done < <(find . -type f -name Cargo.toml ! -path './target/*' ! -path './.git/*' | sort)
+fi
+fi
+fi
+if [ "$#" -eq 0 ]; then
+if [ -z "$skip_pattern" ]; then
+if [ -z "${skipped_packages# }" ]; then
+set --
+skip_pattern='OVR-CARGO_LINT_SKIP_PATTERN'
+skipped_packages=''
+task: "_cargo:unix" finished
+task: "_cargo:unix" started
+task: "_cargo:windows" not for current platform - ignored
+task: "_install:unix" finished
+task: "_install:unix" started
+task: "_install:windows" not for current platform - ignored
+task: "install" finished
+task: "install" started
+task: "lint:fix" finished
+task: "lint:fix" started
+task: [_cargo:unix] cargo="$(command -v cargo || echo "BASE-CARGO_BIN_UNIX/cargo")"
+task: [_install:unix] curl --proto '=https' --tlsv1.2 -sSf "BASE-RUSTUP_INSTALL_URL" | sh -s -- -y --default-toolchain BASE-RUST_TOOLCHAIN
+task: [_install:unix] echo 'Installing the Rust toolchain via rustup...'
+task: [_install:unix] echo 'Rust installed. Restart your shell if cargo is not yet in PATH.'
+task: status command command -v cargo >/dev/null 2>&1 && { [ -z "BASE-RUST_TOOLCHAIN" ] || rustup show 2>/dev/null | grep -Fq "BASE-RUST_TOOLCHAIN"; } exited non-zero: exit status 1
+while IFS= read -r manifest; do
+while IFS= read -r source_file; do
+
+=== task: test ===
+
+
+
+
+
+      filter "SKIPFILES_PATTERN=$skip_pattern" SKIPFILES_MATCHING=true |
+      value=$0; sub(/^[^=]*=[[:space:]]*/, "", value); gsub(/["'"'"']/, "", value); print value; exit
+      value=$0; sub(/^[^=]*=[[:space:]]*/, "", value); gsub(/["'"'"']/, "", value); print value; exit
+    *" $package_name "*) ;;
+    *" $package_name "*) ;;
+    *) set -- "$@" --package "$package_name" ;;
+    *) skipped_packages="$skipped_packages $package_name" ;;
+    /^\[/ { in_package=0 }
+    /^\[/ { in_package=0 }
+    /^\[package\][[:space:]]*$/ { in_package=1; next }
+    /^\[package\][[:space:]]*$/ { in_package=1; next }
+    OVR-EXTRA_ARGS
+    OVR-EXTRA_ARGS
+    in_package && /^[[:space:]]*name[[:space:]]*=/ {
+    in_package && /^[[:space:]]*name[[:space:]]*=/ {
+    package_dir="$(dirname "$package_dir")"
+    task --silent --taskfile "$REPO/taskfiles/cargo/../internal/skipfiles/Taskfile.yml" \
+    tr '\0' '
+    }
+    }
+  "$cargo" +BASE-RUST_TOOLCHAIN test \
+  "$cargo" +BASE-RUST_TOOLCHAIN test \
+  ' "$manifest")"
+  ' "$package_dir/Cargo.toml")"
+  OVR-EXTRA_ARGS
+  [ -f "$package_dir/Cargo.toml" ] || continue
+  [ -n "$package_name" ] || continue
+  [ -n "$package_name" ] || continue
+  case " $skipped_packages " in
+  case " $skipped_packages " in
+  done
+  echo 'No matching Cargo packages found'
+  esac
+  esac
+  exit
+  exit
+  exit 0
+  find . -type f -name '*.rs' ! -path './target/*' ! -path './.git/*' -print0 |
+  package_dir="$(dirname "$source_file")"
+  package_name="$(awk '
+  package_name="$(awk '
+  while [ "$package_dir" != '/' ] && [ ! -f "$package_dir/Cargo.toml" ]; do
+"$cargo" +BASE-RUST_TOOLCHAIN test "$@" \
+'
+)
+done < <(
+done < <(find . -type f -name Cargo.toml ! -path './target/*' ! -path './.git/*' | sort)
+fi
+fi
+fi
+if [ "$#" -eq 0 ]; then
+if [ -z "$skip_pattern" ]; then
+if [ -z "${skipped_packages# }" ]; then
+set --
+skip_pattern=''
+skipped_packages=''
+task: "_cargo:unix" finished
+task: "_cargo:unix" started
+task: "_cargo:windows" not for current platform - ignored
+task: "_install:unix" finished
+task: "_install:unix" started
+task: "_install:windows" not for current platform - ignored
+task: "install" finished
+task: "install" started
+task: "test" finished
+task: "test" started
+task: [_cargo:unix] cargo="$(command -v cargo || echo "BASE-CARGO_BIN_UNIX/cargo")"
+task: [_install:unix] curl --proto '=https' --tlsv1.2 -sSf "BASE-RUSTUP_INSTALL_URL" | sh -s -- -y --default-toolchain BASE-RUST_TOOLCHAIN
+task: [_install:unix] echo 'Installing the Rust toolchain via rustup...'
+task: [_install:unix] echo 'Rust installed. Restart your shell if cargo is not yet in PATH.'
+task: status command command -v cargo >/dev/null 2>&1 && { [ -z "BASE-RUST_TOOLCHAIN" ] || rustup show 2>/dev/null | grep -Fq "BASE-RUST_TOOLCHAIN"; } exited non-zero: exit status 1
+while IFS= read -r manifest; do
+while IFS= read -r source_file; do
+
+=== task: upgrade ===
+
+"$rustup" update BASE-RUST_TOOLCHAIN
+task: "_install:unix" finished
+task: "_install:unix" started
+task: "_install:windows" not for current platform - ignored
+task: "_upgrade:unix" finished
+task: "_upgrade:unix" started
+task: "_upgrade:windows" not for current platform - ignored
+task: "install" finished
+task: "install" started
+task: "upgrade" finished
+task: "upgrade" started
+task: [_install:unix] curl --proto '=https' --tlsv1.2 -sSf "BASE-RUSTUP_INSTALL_URL" | sh -s -- -y --default-toolchain BASE-RUST_TOOLCHAIN
+task: [_install:unix] echo 'Installing the Rust toolchain via rustup...'
+task: [_install:unix] echo 'Rust installed. Restart your shell if cargo is not yet in PATH.'
+task: [_upgrade:unix] rustup="$(command -v rustup || echo "BASE-CARGO_BIN_UNIX/rustup")"
+task: status command command -v cargo >/dev/null 2>&1 && { [ -z "BASE-RUST_TOOLCHAIN" ] || rustup show 2>/dev/null | grep -Fq "BASE-RUST_TOOLCHAIN"; } exited non-zero: exit status 1
+
+=== task: verify ===
+
+"$cargo" --version
+"$rustc" --version
+"$rustup" show
+rustc="$(command -v rustc || echo "BASE-CARGO_BIN_UNIX/rustc")"
+rustup="$(command -v rustup || echo "BASE-CARGO_BIN_UNIX/rustup")"
+task: "_install:unix" finished
+task: "_install:unix" started
+task: "_install:windows" not for current platform - ignored
+task: "_verify:unix" finished
+task: "_verify:unix" started
+task: "_verify:windows" not for current platform - ignored
+task: "install" finished
+task: "install" started
+task: "verify" finished
+task: "verify" started
+task: [_install:unix] curl --proto '=https' --tlsv1.2 -sSf "BASE-RUSTUP_INSTALL_URL" | sh -s -- -y --default-toolchain BASE-RUST_TOOLCHAIN
+task: [_install:unix] echo 'Installing the Rust toolchain via rustup...'
+task: [_install:unix] echo 'Rust installed. Restart your shell if cargo is not yet in PATH.'
+task: [_verify:unix] cargo="$(command -v cargo || echo "BASE-CARGO_BIN_UNIX/cargo")"
+task: status command command -v cargo >/dev/null 2>&1 && { [ -z "BASE-RUST_TOOLCHAIN" ] || rustup show 2>/dev/null | grep -Fq "BASE-RUST_TOOLCHAIN"; } exited non-zero: exit status 1
+
+=== task: version ===
+
+
+
+
+
+      filter "SKIPFILES_PATTERN=$skip_pattern" SKIPFILES_MATCHING=true |
+      value=$0; sub(/^[^=]*=[[:space:]]*/, "", value); gsub(/["'"'"']/, "", value); print value; exit
+      value=$0; sub(/^[^=]*=[[:space:]]*/, "", value); gsub(/["'"'"']/, "", value); print value; exit
+    *" $package_name "*) ;;
+    *" $package_name "*) ;;
+    *) set -- "$@" --package "$package_name" ;;
+    *) skipped_packages="$skipped_packages $package_name" ;;
+    /^\[/ { in_package=0 }
+    /^\[/ { in_package=0 }
+    /^\[package\][[:space:]]*$/ { in_package=1; next }
+    /^\[package\][[:space:]]*$/ { in_package=1; next }
+    OVR-EXTRA_ARGS
+    OVR-EXTRA_ARGS
+    in_package && /^[[:space:]]*name[[:space:]]*=/ {
+    in_package && /^[[:space:]]*name[[:space:]]*=/ {
+    package_dir="$(dirname "$package_dir")"
+    task --silent --taskfile "$REPO/taskfiles/cargo/../internal/skipfiles/Taskfile.yml" \
+    tr '\0' '
+    }
+    }
+  "$cargo" +BASE-RUST_TOOLCHAIN --version \
+  "$cargo" +BASE-RUST_TOOLCHAIN --version \
+  ' "$manifest")"
+  ' "$package_dir/Cargo.toml")"
+  OVR-EXTRA_ARGS
+  [ -f "$package_dir/Cargo.toml" ] || continue
+  [ -n "$package_name" ] || continue
+  [ -n "$package_name" ] || continue
+  case " $skipped_packages " in
+  case " $skipped_packages " in
+  done
+  echo 'No matching Cargo packages found'
+  esac
+  esac
+  exit
+  exit
+  exit 0
+  find . -type f -name '*.rs' ! -path './target/*' ! -path './.git/*' -print0 |
+  package_dir="$(dirname "$source_file")"
+  package_name="$(awk '
+  package_name="$(awk '
+  while [ "$package_dir" != '/' ] && [ ! -f "$package_dir/Cargo.toml" ]; do
+"$cargo" +BASE-RUST_TOOLCHAIN --version "$@" \
+'
+)
+done < <(
+done < <(find . -type f -name Cargo.toml ! -path './target/*' ! -path './.git/*' | sort)
+fi
+fi
+fi
+if [ "$#" -eq 0 ]; then
+if [ -z "$skip_pattern" ]; then
+if [ -z "${skipped_packages# }" ]; then
+set --
+skip_pattern=''
+skipped_packages=''
+task: "_cargo:unix" finished
+task: "_cargo:unix" started
+task: "_cargo:windows" not for current platform - ignored
+task: "_install:unix" finished
+task: "_install:unix" started
+task: "_install:windows" not for current platform - ignored
+task: "install" finished
+task: "install" started
+task: "version" finished
+task: "version" started
+task: [_cargo:unix] cargo="$(command -v cargo || echo "BASE-CARGO_BIN_UNIX/cargo")"
+task: [_install:unix] curl --proto '=https' --tlsv1.2 -sSf "BASE-RUSTUP_INSTALL_URL" | sh -s -- -y --default-toolchain BASE-RUST_TOOLCHAIN
+task: [_install:unix] echo 'Installing the Rust toolchain via rustup...'
+task: [_install:unix] echo 'Rust installed. Restart your shell if cargo is not yet in PATH.'
+task: status command command -v cargo >/dev/null 2>&1 && { [ -z "BASE-RUST_TOOLCHAIN" ] || rustup show 2>/dev/null | grep -Fq "BASE-RUST_TOOLCHAIN"; } exited non-zero: exit status 1
+while IFS= read -r manifest; do
+while IFS= read -r source_file; do
+
+=== task: which ===
+' "BASE-CARGO_BIN_UNIX/cargo"
+task: "_install:unix" finished
+task: "_install:unix" started
+task: "_install:windows" not for current platform - ignored
+task: "_which:unix" finished
+task: "_which:unix" started
+task: "_which:windows" not for current platform - ignored
+task: "install" finished
+task: "install" started
+task: "which" finished
+task: "which" started
+task: [_install:unix] curl --proto '=https' --tlsv1.2 -sSf "BASE-RUSTUP_INSTALL_URL" | sh -s -- -y --default-toolchain BASE-RUST_TOOLCHAIN
+task: [_install:unix] echo 'Installing the Rust toolchain via rustup...'
+task: [_install:unix] echo 'Rust installed. Restart your shell if cargo is not yet in PATH.'
+task: [_which:unix] command -v cargo || printf '%s
+task: status command command -v cargo >/dev/null 2>&1 && { [ -z "BASE-RUST_TOOLCHAIN" ] || rustup show 2>/dev/null | grep -Fq "BASE-RUST_TOOLCHAIN"; } exited non-zero: exit status 1

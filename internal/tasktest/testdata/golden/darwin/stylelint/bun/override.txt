@@ -1,0 +1,154 @@
+# module: stylelint/bun
+# case:   override
+# vars:
+#   ALLOW_EMPTY_INPUT_OVERRIDE=true
+#   CACHE_OVERRIDE=true
+#   CONFIG_OVERRIDE=OVR-CONFIG
+#   EXTRA_ARGS_OVERRIDE=OVR-EXTRA_ARGS
+#   STYLELINT_DEFAULT_ALLOW_EMPTY_INPUT_OVERRIDE=true
+#   STYLELINT_DEFAULT_CACHE_OVERRIDE=true
+#   STYLELINT_LINT_SKIP_PATTERN_OVERRIDE=OVR-STYLELINT_LINT_SKIP_PATTERN
+#   STYLELINT_TARGETS_OVERRIDE=OVR-STYLELINT_TARGETS
+#   TARGETS_OVERRIDE=OVR-TARGETS
+#   VERSION_OVERRIDE=OVR-VERSION
+
+=== task: cache:clean ===
+task: "cache:clean" finished
+task: "cache:clean" started
+task: [cache:clean] if [ -d .cache/stylelint ]; then rm -rf .cache/stylelint; fi
+
+=== task: ci ===
+task: "bun:_bun:unix" finished
+task: "bun:_bun:unix" started
+task: "bun:_bun:windows" not for current platform - ignored
+task: "bun:_install:unix" started
+task: "bun:_install:windows" not for current platform - ignored
+task: "bun:exec" finished
+task: "bun:exec" started
+task: "bun:install" finished
+task: "bun:install" started
+task: "ci" finished
+task: "ci" started
+task: Task "bun:_install:unix" is up to date
+task: [bun:_bun:unix] bash -lc 'export BUN_INSTALL="$HOME/.bun"; export PATH="$BUN_INSTALL/bin:$PATH"; bun x stylelint OVR-STYLELINT_TARGETS  --max-warnings=0 --ignore-pattern "OVR-STYLELINT_LINT_SKIP_PATTERN"  --config "OVR-CONFIG"  --cache --cache-location .cache/stylelint/   --allow-empty-input   OVR-EXTRA_ARGS '
+task: [ci] echo "✅ stylelint passed"
+task: status command bun_bin="$HOME/.bun/bin/bun"; if [ ! -x "$bun_bin" ]; then bun_bin="$(command -v bun 2>/dev/null)"; fi; [ -n "$bun_bin" ] && [ -x "$bun_bin" ] && { [ -z "" ] || [ "$("$bun_bin" --version)" = "" ]; } exited zero
+
+=== task: config:init ===
+
+  config_file=".stylelintrc.json"
+  echo "$config_file already exists."
+  echo "Created $config_file."
+  printf '%s
+' '{' '  "extends": "stylelint-config-standard"' '}' > "$config_file"
+else
+fi
+fi
+if [ -e "$config_file" ]; then
+if [ -z "$config_file" ]; then
+task: "config:init" finished
+task: "config:init" started
+task: [config:init] config_file="OVR-CONFIG"
+
+=== task: help ===
+task: "bun:_bun:unix" finished
+task: "bun:_bun:unix" started
+task: "bun:_bun:windows" not for current platform - ignored
+task: "bun:_install:unix" started
+task: "bun:_install:windows" not for current platform - ignored
+task: "bun:exec" finished
+task: "bun:exec" started
+task: "bun:install" finished
+task: "bun:install" started
+task: "help" finished
+task: "help" started
+task: Task "bun:_install:unix" is up to date
+task: [bun:_bun:unix] bash -lc 'export BUN_INSTALL="$HOME/.bun"; export PATH="$BUN_INSTALL/bin:$PATH"; bun x stylelint --help OVR-EXTRA_ARGS'
+task: status command bun_bin="$HOME/.bun/bin/bun"; if [ ! -x "$bun_bin" ]; then bun_bin="$(command -v bun 2>/dev/null)"; fi; [ -n "$bun_bin" ] && [ -x "$bun_bin" ] && { [ -z "" ] || [ "$("$bun_bin" --version)" = "" ]; } exited zero
+
+=== task: install ===
+task: "install" started
+task: Task "install" is up to date
+task: status command node -e "const installed = require('./node_modules/stylelint/package.json'); const requested = 'OVR-VERSION'; process.exit(!requested || installed.version === requested ? 0 : 1)" exited zero
+
+=== task: install:undo ===
+task: "bun:_bun:unix" finished
+task: "bun:_bun:unix" started
+task: "bun:_bun:windows" not for current platform - ignored
+task: "bun:_install:unix" started
+task: "bun:_install:windows" not for current platform - ignored
+task: "bun:install" finished
+task: "bun:install" started
+task: "bun:remove" finished
+task: "bun:remove" started
+task: "install:undo" finished
+task: "install:undo" started
+task: Task "bun:_install:unix" is up to date
+task: [bun:_bun:unix] bash -lc 'export BUN_INSTALL="$HOME/.bun"; export PATH="$BUN_INSTALL/bin:$PATH"; bun remove -g stylelint stylelint-config-standard OVR-EXTRA_ARGS'
+task: status command bun_bin="$HOME/.bun/bin/bun"; if [ ! -x "$bun_bin" ]; then bun_bin="$(command -v bun 2>/dev/null)"; fi; [ -n "$bun_bin" ] && [ -x "$bun_bin" ] && { [ -z "" ] || [ "$("$bun_bin" --version)" = "" ]; } exited zero
+
+=== task: lint ===
+task: "bun:_bun:unix" finished
+task: "bun:_bun:unix" started
+task: "bun:_bun:windows" not for current platform - ignored
+task: "bun:_install:unix" started
+task: "bun:_install:windows" not for current platform - ignored
+task: "bun:exec" finished
+task: "bun:exec" started
+task: "bun:install" finished
+task: "bun:install" started
+task: "lint" finished
+task: "lint" started
+task: Task "bun:_install:unix" is up to date
+task: [bun:_bun:unix] bash -lc 'export BUN_INSTALL="$HOME/.bun"; export PATH="$BUN_INSTALL/bin:$PATH"; bun x stylelint OVR-STYLELINT_TARGETS  --ignore-pattern "OVR-STYLELINT_LINT_SKIP_PATTERN"  --config "OVR-CONFIG"  --cache --cache-location .cache/stylelint/   --allow-empty-input   OVR-EXTRA_ARGS '
+task: [lint] echo "✅ stylelint passed"
+task: status command bun_bin="$HOME/.bun/bin/bun"; if [ ! -x "$bun_bin" ]; then bun_bin="$(command -v bun 2>/dev/null)"; fi; [ -n "$bun_bin" ] && [ -x "$bun_bin" ] && { [ -z "" ] || [ "$("$bun_bin" --version)" = "" ]; } exited zero
+
+=== task: lint:fix ===
+task: "bun:_bun:unix" finished
+task: "bun:_bun:unix" started
+task: "bun:_bun:windows" not for current platform - ignored
+task: "bun:_install:unix" started
+task: "bun:_install:windows" not for current platform - ignored
+task: "bun:exec" finished
+task: "bun:exec" started
+task: "bun:install" finished
+task: "bun:install" started
+task: "lint:fix" finished
+task: "lint:fix" started
+task: Task "bun:_install:unix" is up to date
+task: [bun:_bun:unix] bash -lc 'export BUN_INSTALL="$HOME/.bun"; export PATH="$BUN_INSTALL/bin:$PATH"; bun x stylelint OVR-STYLELINT_TARGETS  --fix --ignore-pattern "OVR-STYLELINT_LINT_SKIP_PATTERN"  --config "OVR-CONFIG"  --cache --cache-location .cache/stylelint/   --allow-empty-input   OVR-EXTRA_ARGS '
+task: [lint:fix] echo "✅ stylelint fixes applied"
+task: status command bun_bin="$HOME/.bun/bin/bun"; if [ ! -x "$bun_bin" ]; then bun_bin="$(command -v bun 2>/dev/null)"; fi; [ -n "$bun_bin" ] && [ -x "$bun_bin" ] && { [ -z "" ] || [ "$("$bun_bin" --version)" = "" ]; } exited zero
+
+=== task: upgrade ===
+task: "bun:_bun:unix" finished
+task: "bun:_bun:unix" started
+task: "bun:_bun:windows" not for current platform - ignored
+task: "bun:_install:unix" started
+task: "bun:_install:windows" not for current platform - ignored
+task: "bun:add" finished
+task: "bun:add" started
+task: "bun:install" finished
+task: "bun:install" started
+task: "upgrade" finished
+task: "upgrade" started
+task: Task "bun:_install:unix" is up to date
+task: [bun:_bun:unix] bash -lc 'export BUN_INSTALL="$HOME/.bun"; export PATH="$BUN_INSTALL/bin:$PATH"; bun add -g stylelint@latest stylelint-config-standard@latest OVR-EXTRA_ARGS'
+task: status command bun_bin="$HOME/.bun/bin/bun"; if [ ! -x "$bun_bin" ]; then bun_bin="$(command -v bun 2>/dev/null)"; fi; [ -n "$bun_bin" ] && [ -x "$bun_bin" ] && { [ -z "" ] || [ "$("$bun_bin" --version)" = "" ]; } exited zero
+
+=== task: version ===
+task: "bun:_bun:unix" finished
+task: "bun:_bun:unix" started
+task: "bun:_bun:windows" not for current platform - ignored
+task: "bun:_install:unix" started
+task: "bun:_install:windows" not for current platform - ignored
+task: "bun:exec" finished
+task: "bun:exec" started
+task: "bun:install" finished
+task: "bun:install" started
+task: "version" finished
+task: "version" started
+task: Task "bun:_install:unix" is up to date
+task: [bun:_bun:unix] bash -lc 'export BUN_INSTALL="$HOME/.bun"; export PATH="$BUN_INSTALL/bin:$PATH"; bun x stylelint --version '
+task: status command bun_bin="$HOME/.bun/bin/bun"; if [ ! -x "$bun_bin" ]; then bun_bin="$(command -v bun 2>/dev/null)"; fi; [ -n "$bun_bin" ] && [ -x "$bun_bin" ] && { [ -z "" ] || [ "$("$bun_bin" --version)" = "" ]; } exited zero

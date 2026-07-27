@@ -1,0 +1,1110 @@
+# module: go
+# case:   base
+# vars:
+#   GOLANGCI_LINT_VERSION=BASE-GOLANGCI_LINT_VERSION
+#   GOSEC_VERSION=BASE-GOSEC_VERSION
+#   GOVULNCHECK_VERSION=BASE-GOVULNCHECK_VERSION
+#   GO_COVER_PROFILE=BASE-GO_COVER_PROFILE
+#   GO_DOWNLOAD_BASE_URL=BASE-GO_DOWNLOAD_BASE_URL
+#   GO_FMT_SKIP_PATTERN=BASE-GO_FMT_SKIP_PATTERN
+#   GO_FUZZTIME=BASE-GO_FUZZTIME
+#   GO_INTERNAL_SKIP_CONFIG=BASE-GO_INTERNAL_SKIP_CONFIG
+#   GO_LINT_SKIP_PATTERN=BASE-GO_LINT_SKIP_PATTERN
+#   GO_VERSION=BASE-GO_VERSION
+#   GO_VERSION_URL=BASE-GO_VERSION_URL
+#   INSTALL_DIR_UNIX=BASE-INSTALL_DIR_UNIX
+
+=== task: bench ===
+    gopath=\"$(go env GOPATH)\"
+  fi
+  gobin=\"$(go env GOBIN)\"
+  gobin=\"${gopath:-$HOME/go}/bin\"
+  gopath=\"${GOPATH:-}\"
+  if [ -z \"$gopath\" ] && command -v go >/dev/null 2>&1; then
+" result: "$HOME/go/bin"
+fi
+fi
+if [ -z \"$gobin\" ] && command -v go >/dev/null 2>&1; then
+if [ -z \"$gobin\" ]; then
+printf '%s' \"$gobin\"
+task: "bench" finished
+task: "bench" started
+task: [bench] go test -run '^$' -bench . -benchmem ./...
+task: dynamic variable: "gobin=\"${GOBIN:-}\"
+
+=== task: config:skip ===
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+                $index += 1
+                $index += 2
+                $normalizedPattern[$index + 2] -eq '/') {
+                [void]$builder.Append('(?:.*/)?')
+                [void]$builder.Append('.*')
+            $minimum = $current
+            $normalizedPattern[$index + 1] -eq '*') {
+            $parent | Add-Member -MemberType NoteProperty -Name $name -Value $value
+            $pathsProperty.Value = @($paths + $pathRegex)
+            $value = [pscustomobject]@{}
+            ($minimum -eq 0 -or $current -lt $minimum)) {
+            (Get-YamlIndent $items[$index]) -le $baseIndent) {
+            [void]$builder.Append('[^/]*')
+            if (($index + 2) -lt $normalizedPattern.Length -and
+            position += 1
+            position += 2
+            regex = regex "(?:.*/)?"
+            regex = regex ".*"
+            return $index
+            return $value
+            throw "$name must be an object"
+            }
+            } else {
+          if (substr(glob, position + 2, 1) == "/") {
+          print spaces(exclusions_child + 2) "- " quoted_regex
+          print spaces(exclusions_child) "paths:"
+          print spaces(linters_child + 2) "paths:"
+          print spaces(linters_child + 4) "- " quoted_regex
+          print spaces(linters_child) "exclusions:"
+          regex = regex "[^/]*"
+          }
+          } else {
+        "      - $quotedRegex"
+        $current = Get-YamlIndent $items[$index]
+        $emptyPaths = $true
+        $exclusions | Add-Member -MemberType NoteProperty -Name 'paths' -Value @($pathRegex)
+        $lines.Add('')
+        $paths = @($pathsProperty.Value)
+        $pathsIndex = $index
+        $pathsIndex = $index
+        $property = $parent.PSObject.Properties[$name]
+        %s
+        '    paths:',
+        '  exclusions:',
+        'linters:',
+        'version: "2"',
+        (' ' * $lintersIndent) + 'exclusions:',
+        (' ' * $pathsIndent) + 'paths:',
+        (' ' * ($lintersIndent + 2)) + 'paths:',
+        (' ' * ($lintersIndent + 4)) + "- $quotedRegex"
+        (' ' * ($pathsIndent + 2)) + "- $quotedRegex"
+        Set-Content -LiteralPath $output -Encoding UTF8
+        [void]$builder.Append('[^/]')
+        [void]$builder.Append([regex]::Escape([string]$character))
+        break
+        break
+        break
+        break
+        empty_paths = 1
+        exit 2
+        exit 2
+        exit 2
+        fail("linters must be a YAML mapping")
+        fail("linters.exclusions must be a YAML mapping")
+        fail("linters.exclusions.paths must be a block YAML sequence")
+        if ($current -gt $baseIndent -and
+        if ($null -eq $property) {
+        if ($pathRegex -notin $paths) {
+        if ($property.Value -isnot [pscustomobject]) {
+        if (($index + 1) -lt $normalizedPattern.Length -and
+        if (-not (Test-YamlIgnorable $items[$index]) -and
+        if (Test-YamlIgnorable $items[$index]) { continue }
+        if (cursor <= total) print lines[cursor]
+        if (cursor <= total) print lines[cursor]
+        if (cursor == exclusions_end) {
+        if (cursor == linters_end) {
+        if (following == "*") {
+        paths = cursor
+        paths = cursor
+        regex = regex "[^/]"
+        regex = regex "\\" character
+        regex = regex character
+        return $property.Value
+        return cursor
+        throw 'linters.exclusions.paths must be a block YAML sequence'
+        throw 'linters.exclusions.paths must be an array'
+        }
+        }
+        }
+        }
+        }
+        }
+        }
+        }
+        }
+        } else {
+        } else {
+      - |-
+      break
+      break
+      character = substr(glob, position, 1)
+      current = indentation(lines[cursor])
+      exclusions = cursor
+      exit
+      exit
+      exit
+      following = substr(glob, position + 1, 1)
+      for (cursor = 1; cursor <= total + 1; cursor++) {
+      for (cursor = 1; cursor <= total + 1; cursor++) {
+      for (cursor = 1; cursor <= total; cursor++) print lines[cursor]
+      if (!ignorable(lines[cursor]) && indentation(lines[cursor]) <= base_indent) {
+      if (character == "*") {
+      if (current > base_indent && (minimum == 0 || current < minimum)) minimum = current
+      if (cursor == paths) print spaces(exclusions_child + 2) "- " quoted_regex
+      if (ignorable(lines[cursor])) continue
+      if (indentation(lines[cursor]) != 0) continue
+      if (indentation(lines[cursor]) != exclusions_child) continue
+      if (indentation(lines[cursor]) != linters_child) continue
+      if (kind == 0) continue
+      if (kind == 0) continue
+      if (kind == 2) lines[cursor] = "linters:"
+      if (kind == 2) lines[cursor] = spaces(linters_child) "exclusions:"
+      if (kind == 3) {
+      if (kind == 3) {
+      if (total > 0 && lines[total] !~ /^ *$/) print ""
+      if (value ~ /^paths:/) {
+      if (value ~ /^paths:[ ]*(#.*)?$/) {
+      if (value ~ /^paths:[ ]*\[\][ ]*(#.*)?$/) {
+      kind = mapping_key_kind(lines[cursor], "exclusions")
+      kind = mapping_key_kind(lines[cursor], "linters")
+      linters = cursor
+      print "      - " quoted_regex
+      print "    paths:"
+      print "  exclusions:"
+      print "linters:"
+      print lines[cursor]
+      value = trimmed(lines[cursor])
+      }
+      }
+      }
+      }
+      }
+      }
+      }
+      }
+      }
+      } else if (character == "?") {
+      } else if (index(".+()[]{}^$|\\", character) > 0) {
+      } else {
+    "$path_regex" >"$output"
+    $character = $normalizedPattern[$index]
+    $config = Get-Content -LiteralPath $sourceConfig -Raw | ConvertFrom-Json
+    $config | ConvertTo-Json -Depth 100 |
+    $configDir = (Get-Location).Path
+    $configDir = Split-Path -Parent $sourceConfig
+    $escapedKey = [regex]::Escape($key)
+    $exclusions = Get-Or-AddObjectProperty $linters 'exclusions'
+    $exclusionsIndex = $index
+    $kind = Get-YamlMappingKeyKind $lines[$index] 'exclusions'
+    $kind = Get-YamlMappingKeyKind $lines[$index] 'linters'
+    $lines | Set-Content -LiteralPath $output -Encoding UTF8
+    $lines | Set-Content -LiteralPath $output -Encoding UTF8
+    $lines.Add("      - $quotedRegex")
+    $lines.Add('    paths:')
+    $lines.Add('  exclusions:')
+    $lines.Add('linters:')
+    $lines.Insert($pathsIndex + 1, (' ' * ($pathsIndent + 2)) + "- $quotedRegex")
+    $lines.InsertRange($exclusionsEnd, [string[]]@(
+    $lines.InsertRange($lintersEnd, [string[]]@(
+    $linters = Get-Or-AddObjectProperty $config 'linters'
+    $lintersIndex = $index
+    $minimum = 0
+    $pathsProperty = $exclusions.PSObject.Properties['paths']
+    $sourceConfig = (Resolve-Path -LiteralPath $sourceConfig).Path
+    $value = $line.Trim()
+    $value = $lines[$index].Trim()
+    'Convert the JSON config to YAML or add the exclusion to linters.exclusions.paths.' >&2
+    'GO_LINT_SKIP_PATTERN requires a YAML golangci-lint config on macOS and Linux.' \
+    ) | Set-Content -LiteralPath $output -Encoding UTF8
+    ))
+    ))
+    -not (Test-Path -LiteralPath $sourceConfig -PathType Leaf)) {
+    @(
+    Remove-Item -LiteralPath $output -Force -ErrorAction SilentlyContinue
+    Select-Object -First 1
+    Where-Object { $_ -notmatch '^\s*(?:#.*)?$' } |
+    [System.Collections.Generic.List[string]]$items,
+    [System.Collections.Generic.List[string]]$items,
+    [int]$baseIndent
+    [int]$baseIndent
+    [int]$finish,
+    [int]$start,
+    [int]$start,
+    break
+    break
+    empty_paths = 0
+    exclusions = 0
+    exclusions_child = child_indent(exclusions, exclusions_end, linters_child)
+    exclusions_end = block_end(exclusions, linters_child, total)
+    exit 0
+    exit 0
+    exit 0
+    exit 0
+    exit 0
+    failed = 1
+    for ($index = $start + 1; $index -lt $finish; $index++) {
+    for ($index = $start + 1; $index -lt $items.Count; $index++) {
+    for (cursor = 1; cursor <= total; cursor++) {
+    for (cursor = 1; cursor <= total; cursor++) {
+    for (cursor = exclusions + 1; cursor < exclusions_end; cursor++) {
+    for (cursor = linters + 1; cursor < linters_end; cursor++) {
+    for (cursor = start + 1; cursor < finish; cursor++) {
+    for (cursor = start + 1; cursor <= total; cursor++) {
+    for (position = 1; position <= length(glob); position++) {
+    function Get-Or-AddObjectProperty([object]$parent, [string]$name) {
+    glob = $0
+    gopath=\"$(go env GOPATH)\"
+    gsub(/\047/, "\047\047", regex)
+    gsub(/\\/, "/", glob)
+    if ($character -eq '*') {
+    if ($emptyPaths) { $lines[$pathsIndex] = (' ' * $pathsIndent) + 'paths:' }
+    if ($kind -eq 0) { continue }
+    if ($kind -eq 0) { continue }
+    if ($kind -eq 2) { $lines[$index] = 'linters:' }
+    if ($kind -eq 2) { $lines[$index] = (' ' * $lintersIndent) + 'exclusions:' }
+    if ($kind -eq 3) { throw 'linters must be a YAML mapping' }
+    if ($kind -eq 3) { throw 'linters.exclusions must be a YAML mapping' }
+    if ($lines.Count -gt 0 -and -not [string]::IsNullOrWhiteSpace($lines[$lines.Count - 1])) {
+    if ($minimum -eq 0) { return $baseIndent + 2 }
+    if ($null -eq $pathsProperty) {
+    if ($value -match "^${escapedKey}:") { return 3 }
+    if ($value -match "^${escapedKey}:\s*(?:#.*)?$") { return 1 }
+    if ($value -match "^${escapedKey}:\s*\{\}\s*(?:#.*)?$") { return 2 }
+    if ($value -match '^paths:') {
+    if ($value -match '^paths:\s*(?:#.*)?$') {
+    if ($value -match '^paths:\s*\[\]\s*(?:#.*)?$') {
+    if ((Get-YamlIndent $lines[$index]) -ne $lintersIndent) { continue }
+    if ((Get-YamlIndent $lines[$index]) -ne $pathsIndent) { continue }
+    if ((Get-YamlIndent $lines[$index]) -ne 0) { continue }
+    if (empty_paths) lines[paths] = spaces(exclusions_child) "paths:"
+    if (exclusions == 0) {
+    if (linters == 0) {
+    if (paths == 0) {
+    if (result ~ ("^" key ":")) return 3
+    if (result ~ ("^" key ":[ ]*(#.*)?$")) return 1
+    if (result ~ ("^" key ":[ ]*\\{\\}[ ]*(#.*)?$")) return 2
+    lines[NR] = $0
+    linters = 0
+    linters_child = child_indent(linters, linters_end, 0)
+    linters_end = block_end(linters, 0, total)
+    match(value, /^ */)
+    minimum = 0
+    paths = 0
+    paths:
+    print "prepare golangci-lint overlay: " message > "/dev/stderr"
+    printf "%s$", regex
+    quoted_regex = "\047" regex "\047"
+    regex = "^"
+    regex = ENVIRON["GO_SKIP_REGEX"]
+    result = trimmed(value)
+    result = value
+    return $items.Count
+    return $line -match '^\s*(?:#.*)?$'
+    return $line.Length - $line.TrimStart([char]' ').Length
+    return $minimum
+    return 0
+    return 0
+    return RLENGTH
+    return minimum == 0 ? base_indent + 2 : minimum
+    return result
+    return sprintf("%*s", count, "")
+    return total + 1
+    return value ~ /^ *($|#)/
+    sub(/ *$/, "", result)
+    sub(/^ */, "", result)
+    total = NR
+    }
+    }
+    }
+    }
+    }
+    }
+    }
+    }
+    }
+    }
+    }
+    }
+    }
+    }
+    }
+    }
+    }
+    }
+    }
+    } else {
+    } else {
+    } elseif ($character -eq '?') {
+    } elseif ($pathsProperty.Value -is [string]) {
+  /^[[:space:]]*(#.*)?$/ { next }
+  END {
+  config_dir="$(dirname "$source_config")"
+  exclusions:
+  exit 0
+  exit 0
+  exit 2
+  fi
+  function block_end(start, base_indent, total, cursor) {
+  function child_indent(start, finish, base_indent, cursor, current, minimum) {
+  function fail(message) {
+  function ignorable(value) {
+  function indentation(value) {
+  function mapping_key_kind(value, key, result) {
+  function spaces(count) {
+  function trimmed(value, result) {
+  gobin=\"$(go env GOBIN)\"
+  gobin=\"${gopath:-$HOME/go}/bin\"
+  gopath=\"${GOPATH:-}\"
+  if [ -z \"$gopath\" ] && command -v go >/dev/null 2>&1; then
+  printf "version: \"2\"
+  printf '%s
+  rm -f "$output"
+  {
+  {
+  { sub(/^[[:space:]]*/, ""); print substr($0, 1, 1); exit }
+  }
+  }
+  }
+  }
+  }
+  }
+  }
+  }
+  }
+  }
+  }
+ not for current platform - ignored
+" \
+" result: "$HOME/go/bin"
+# Nothing to skip: drop the overlay a previous run left behind so the
+# next task falls back to the project config instead of a stale one.
+$ErrorActionPreference = 'Stop'
+$builder = [System.Text.StringBuilder]::new('^')
+$emptyPaths = $false
+$exclusionsEnd = Get-YamlBlockEnd $lines $exclusionsIndex $lintersIndent
+$exclusionsIndex = -1
+$firstContent = Get-Content -LiteralPath $sourceConfig |
+$lines = [System.Collections.Generic.List[string]]::new()
+$lines | Set-Content -LiteralPath $output -Encoding UTF8
+$lintersEnd = Get-YamlBlockEnd $lines $lintersIndex 0
+$lintersIndent = Get-YamlChildIndent $lines $lintersIndex $lintersEnd 0
+$lintersIndex = -1
+$normalizedPattern = $pattern.Replace('\', '/')
+$output = Join-Path $configDir 'BASE-GO_INTERNAL_SKIP_CONFIG'
+$pathRegex = $builder.ToString()
+$pathsIndent = Get-YamlChildIndent $lines $exclusionsIndex $exclusionsEnd $lintersIndent
+$pathsIndex = -1
+$pattern = $env:GO_SKIP_PATTERN
+$quotedRegex = "'" + $pathRegex.Replace("'", "''") + "'"
+$sourceConfig = (& '$HOME/go/bin/golangci-lint' config path 2>$null | Select-Object -First 1)
+' "$source_config" >"$output"
+' "$source_config")"
+' \
+')"
+) {
+) {
+POWERSHELL
+[void]$builder.Append('$')
+awk '
+config_dir=.
+export GO_SKIP_REGEX="$path_regex"
+fi
+fi
+fi
+fi
+fi
+fi
+first_content="$(awk '
+for ($index = $exclusionsIndex + 1; $index -lt $exclusionsEnd; $index++) {
+for ($index = $lintersIndex + 1; $index -lt $lintersEnd; $index++) {
+for ($index = 0; $index -lt $lines.Count; $index++) {
+for ($index = 0; $index -lt $normalizedPattern.Length; $index++) {
+foreach ($line in (Get-Content -LiteralPath $sourceConfig)) { $lines.Add($line) }
+function Get-YamlBlockEnd(
+function Get-YamlChildIndent(
+function Get-YamlIndent([string]$line) {
+function Get-YamlMappingKeyKind([string]$line, [string]$key) {
+function Test-YamlIgnorable([string]$line) {
+if ($LASTEXITCODE -ne 0) { $sourceConfig = '' }
+if ($exclusionsIndex -lt 0) {
+if ($firstContent.TrimStart().StartsWith('{')) {
+if ($lintersIndex -lt 0) {
+if ($pathsIndex -lt 0) {
+if ($sourceConfig) {
+if ([string]::IsNullOrWhiteSpace($pattern)) {
+if ([string]::IsNullOrWhiteSpace($sourceConfig) -or
+if [ -z \"$gobin\" ] && command -v go >/dev/null 2>&1; then
+if [ -z \"$gobin\" ]; then
+if [[ "$first_content" == '{' ]]; then
+if [[ -n "$source_config" ]]; then
+if [[ -z "$pattern" ]]; then
+if [[ -z "$source_config" || ! -f "$source_config" ]]; then
+linters:
+output="$config_dir/BASE-GO_INTERNAL_SKIP_CONFIG"
+path_regex="$(printf '%s' "$pattern" | awk '
+printf '%s' \"$gobin\"
+source_config="$("$HOME/go/bin/golangci-lint" config path 2>/dev/null || true)"
+task: "config:skip" finished
+task: "config:skip" started
+task: [config:skip] pattern="$GO_SKIP_PATTERN"
+task: [config:skip] powershell -NoProfile -ExecutionPolicy Bypass -Command - <<'POWERSHELL'
+task: dynamic variable: "gobin=\"${GOBIN:-}\"
+}
+}
+}
+}
+}
+}
+}
+}
+}
+}
+}
+}
+}
+}
+}
+}
+} else {
+} else {
+
+=== task: coverage ===
+
+
+
+
+
+
+          '^(?<file>.+):\d+\.\d+,\d+\.\d+\s+(?<statements>\d+)\s+(?<count>\d+)$') {
+          Package=$package; Covered=[int64]0; Total=[int64]0
+        $packages[$package].Covered += $statements;
+        $packages[$package]=[PSCustomObject]@{
+        'F1', [System.Globalization.CultureInfo]::InvariantCulture
+        Package=$_.Package;
+        Percentage=100.0 * $_.Covered / $_.Total
+        break
+        return;
+        slash = position
+        };
+      $file=$Matches['file'].Replace('\', '/');
+      $package=$file.Substring(0, $slash);
+      $packages[$package].Total += $statements;
+      $percentage=$_.Percentage.ToString(
+      $slash=$file.LastIndexOf('/');
+      $statements=[int64]$Matches['statements'];
+      ).PadLeft(5);
+      Write-Output ($percentage + '%  ' + $_.Package);
+      [PSCustomObject]@{
+      if ($_ -notmatch
+      if ($slash -lt 1) { return };
+      if (-not $packages.ContainsKey($package)) {
+      if ([int64]$Matches['count'] -gt 0) {
+      if (substr(file, position, 1) == "/") {
+      if (total[package] == 0) { continue }
+      percentage = 100 * covered[package] / total[package]
+      printf "%.12f %.1f %s
+      }
+      };
+      };
+      };
+      };
+    *> $coverageLog;
+    ./...
+    ForEach-Object {
+    ForEach-Object {
+    ForEach-Object {
+    Get-Content -LiteralPath $coverageLog;
+    Select-Object -Skip 1 |
+    Sort-Object Percentage, Package |
+    Where-Object { $_.Total -gt 0 } |
+    exit $coverageStatus;
+    file = $1
+    for (package in total) {
+    for (position = length(file); position > 0; position--) {
+    gopath=\"$(go env GOPATH)\"
+    if (($3 + 0) > 0) { covered[package] += statements }
+    if (slash == 0) { next }
+    package = substr(file, 1, slash - 1)
+    slash = 0
+    statements = $2 + 0
+    sub(/:[[:digit:]]+\.[[:digit:]]+,[[:digit:]]+\.[[:digit:]]+$/, "", file)
+    total[package] += statements
+    }
+    }
+    } |
+    };
+    };
+  $coverageStatus=$LASTEXITCODE;
+  $packages.Values |
+  $packages=@{};
+  & go test -covermode atomic -coverprofile 'BASE-GO_COVER_PROFILE'
+  ./... \
+  >"$coverage_log" 2>&1 || coverage_status=$?
+  END {
+  Get-Content -LiteralPath 'BASE-GO_COVER_PROFILE' |
+  NR == 1 { next }
+  Remove-Item -LiteralPath $coverageLog -Force -ErrorAction SilentlyContinue;
+  cat "$coverage_log"
+  exit "$coverage_status"
+  fi
+  gobin=\"$(go env GOBIN)\"
+  gobin=\"${gopath:-$HOME/go}/bin\"
+  gopath=\"${GOPATH:-}\"
+  if ($coverageStatus -ne 0) {
+  if [ -z \"$gopath\" ] && command -v go >/dev/null 2>&1; then
+  {
+  }
+  }
+  };
+" result: "$HOME/go/bin"
+", $2, $3 }' "$coverage_sorted"
+", percentage, percentage, package
+' 'BASE-GO_COVER_PROFILE' >"$coverage_rows"
+LC_ALL=C sort -k1,1n -k3,3 "$coverage_rows" >"$coverage_sorted"
+awk '
+awk '{ printf "%5.1f%%  %s
+coverage_rows="$(mktemp)"
+coverage_sorted="$(mktemp)"
+coverage_status=0
+fi
+fi
+fi
+go test -covermode atomic -coverprofile 'BASE-GO_COVER_PROFILE' \
+if [ "$coverage_status" -ne 0 ]; then
+if [ -z \"$gobin\" ] && command -v go >/dev/null 2>&1; then
+if [ -z \"$gobin\" ]; then
+printf '%s' \"$gobin\"
+task: "coverage" finished
+task: "coverage" started
+task: [coverage] coverage_log="$(mktemp)"
+task: [coverage] powershell -NoProfile -ExecutionPolicy Bypass -Command "$ErrorActionPreference='Stop'; $coverageLog=[System.IO.Path]::GetTempFileName(); try {
+task: dynamic variable: "gobin=\"${GOBIN:-}\"
+trap 'rm -f "$coverage_log" "$coverage_rows" "$coverage_sorted"' EXIT
+} finally {
+}" not for current platform - ignored
+
+=== task: fmt ===
+--- exit: exit status 201
+    gopath=\"$(go env GOPATH)\"
+  fi
+  gobin=\"$(go env GOBIN)\"
+  gobin=\"${gopath:-$HOME/go}/bin\"
+  gopath=\"${GOPATH:-}\"
+  if [ -z \"$gopath\" ] && command -v go >/dev/null 2>&1; then
+" result: "$HOME/go/bin"
+fi
+fi
+if [ -z \"$gobin\" ] && command -v go >/dev/null 2>&1; then
+if [ -z \"$gobin\" ]; then
+printf '%s' \"$gobin\"
+task: "_install:macos:brew" started
+task: "_install:macos:pkg" started
+task: "fmt" started
+task: "golangci-lint:fmt" started
+task: "install" started
+task: "install:golangci-lint" started
+task: Failed to run task "fmt": task: Failed to run task "golangci-lint:fmt": task: Failed to run task "install:golangci-lint": task: Failed to run task "install": task: Failed to run task "_install:macos:pkg": task: precondition not met
+task: GO_VERSION must use the official Go release format, for example go1.26.2.
+task: Task "_install:macos:brew" is up to date
+task: dynamic variable: "gobin=\"${GOBIN:-}\"
+task: dynamic variable: "uname -m" result: "arm64"
+task: status command [ -n "BASE-GO_VERSION" ] || command -v go >/dev/null 2>&1 exited zero
+
+=== task: fmt:check ===
+--- exit: exit status 201
+    gopath=\"$(go env GOPATH)\"
+  fi
+  gobin=\"$(go env GOBIN)\"
+  gobin=\"${gopath:-$HOME/go}/bin\"
+  gopath=\"${GOPATH:-}\"
+  if [ -z \"$gopath\" ] && command -v go >/dev/null 2>&1; then
+" result: "$HOME/go/bin"
+fi
+fi
+if [ -z \"$gobin\" ] && command -v go >/dev/null 2>&1; then
+if [ -z \"$gobin\" ]; then
+printf '%s' \"$gobin\"
+task: "_install:macos:brew" started
+task: "_install:macos:pkg" started
+task: "fmt:check" started
+task: "golangci-lint:fmt:check" started
+task: "install" started
+task: "install:golangci-lint" started
+task: Failed to run task "fmt:check": task: Failed to run task "golangci-lint:fmt:check": task: Failed to run task "install:golangci-lint": task: Failed to run task "install": task: Failed to run task "_install:macos:pkg": task: precondition not met
+task: GO_VERSION must use the official Go release format, for example go1.26.2.
+task: Task "_install:macos:brew" is up to date
+task: dynamic variable: "gobin=\"${GOBIN:-}\"
+task: dynamic variable: "uname -m" result: "arm64"
+task: status command [ -n "BASE-GO_VERSION" ] || command -v go >/dev/null 2>&1 exited zero
+
+=== task: fuzz ===
+    gopath=\"$(go env GOPATH)\"
+  fi
+  gobin=\"$(go env GOBIN)\"
+  gobin=\"${gopath:-$HOME/go}/bin\"
+  gopath=\"${GOPATH:-}\"
+  if [ -z \"$gopath\" ] && command -v go >/dev/null 2>&1; then
+" result: "$HOME/go/bin"
+fi
+fi
+if [ -z \"$gobin\" ] && command -v go >/dev/null 2>&1; then
+if [ -z \"$gobin\" ]; then
+printf '%s' \"$gobin\"
+task: "fuzz" finished
+task: "fuzz" started
+task: [fuzz] go test -run '^$' -fuzztime 'BASE-GO_FUZZTIME' -fuzz . .
+task: dynamic variable: "gobin=\"${GOBIN:-}\"
+
+=== task: golangci-lint:fmt ===
+--- exit: exit status 201
+    gopath=\"$(go env GOPATH)\"
+  fi
+  gobin=\"$(go env GOBIN)\"
+  gobin=\"${gopath:-$HOME/go}/bin\"
+  gopath=\"${GOPATH:-}\"
+  if [ -z \"$gopath\" ] && command -v go >/dev/null 2>&1; then
+" result: "$HOME/go/bin"
+fi
+fi
+if [ -z \"$gobin\" ] && command -v go >/dev/null 2>&1; then
+if [ -z \"$gobin\" ]; then
+printf '%s' \"$gobin\"
+task: "_install:macos:brew" started
+task: "_install:macos:pkg" started
+task: "golangci-lint:fmt" started
+task: "install" started
+task: "install:golangci-lint" started
+task: Failed to run task "golangci-lint:fmt": task: Failed to run task "install:golangci-lint": task: Failed to run task "install": task: Failed to run task "_install:macos:pkg": task: precondition not met
+task: GO_VERSION must use the official Go release format, for example go1.26.2.
+task: Task "_install:macos:brew" is up to date
+task: dynamic variable: "gobin=\"${GOBIN:-}\"
+task: dynamic variable: "uname -m" result: "arm64"
+task: status command [ -n "BASE-GO_VERSION" ] || command -v go >/dev/null 2>&1 exited zero
+
+=== task: golangci-lint:fmt:check ===
+--- exit: exit status 201
+    gopath=\"$(go env GOPATH)\"
+  fi
+  gobin=\"$(go env GOBIN)\"
+  gobin=\"${gopath:-$HOME/go}/bin\"
+  gopath=\"${GOPATH:-}\"
+  if [ -z \"$gopath\" ] && command -v go >/dev/null 2>&1; then
+" result: "$HOME/go/bin"
+fi
+fi
+if [ -z \"$gobin\" ] && command -v go >/dev/null 2>&1; then
+if [ -z \"$gobin\" ]; then
+printf '%s' \"$gobin\"
+task: "_install:macos:brew" started
+task: "_install:macos:pkg" started
+task: "golangci-lint:fmt:check" started
+task: "install" started
+task: "install:golangci-lint" started
+task: Failed to run task "golangci-lint:fmt:check": task: Failed to run task "install:golangci-lint": task: Failed to run task "install": task: Failed to run task "_install:macos:pkg": task: precondition not met
+task: GO_VERSION must use the official Go release format, for example go1.26.2.
+task: Task "_install:macos:brew" is up to date
+task: dynamic variable: "gobin=\"${GOBIN:-}\"
+task: dynamic variable: "uname -m" result: "arm64"
+task: status command [ -n "BASE-GO_VERSION" ] || command -v go >/dev/null 2>&1 exited zero
+
+=== task: golangci-lint:lint ===
+--- exit: exit status 201
+    gopath=\"$(go env GOPATH)\"
+  fi
+  gobin=\"$(go env GOBIN)\"
+  gobin=\"${gopath:-$HOME/go}/bin\"
+  gopath=\"${GOPATH:-}\"
+  if [ -z \"$gopath\" ] && command -v go >/dev/null 2>&1; then
+" result: "$HOME/go/bin"
+fi
+fi
+if [ -z \"$gobin\" ] && command -v go >/dev/null 2>&1; then
+if [ -z \"$gobin\" ]; then
+printf '%s' \"$gobin\"
+task: "_install:macos:brew" started
+task: "_install:macos:pkg" started
+task: "golangci-lint:lint" started
+task: "install" started
+task: "install:golangci-lint" started
+task: Failed to run task "golangci-lint:lint": task: Failed to run task "install:golangci-lint": task: Failed to run task "install": task: Failed to run task "_install:macos:pkg": task: precondition not met
+task: GO_VERSION must use the official Go release format, for example go1.26.2.
+task: Task "_install:macos:brew" is up to date
+task: dynamic variable: "gobin=\"${GOBIN:-}\"
+task: dynamic variable: "uname -m" result: "arm64"
+task: status command [ -n "BASE-GO_VERSION" ] || command -v go >/dev/null 2>&1 exited zero
+
+=== task: golangci-lint:lint:fix ===
+--- exit: exit status 201
+    gopath=\"$(go env GOPATH)\"
+  fi
+  gobin=\"$(go env GOBIN)\"
+  gobin=\"${gopath:-$HOME/go}/bin\"
+  gopath=\"${GOPATH:-}\"
+  if [ -z \"$gopath\" ] && command -v go >/dev/null 2>&1; then
+" result: "$HOME/go/bin"
+fi
+fi
+if [ -z \"$gobin\" ] && command -v go >/dev/null 2>&1; then
+if [ -z \"$gobin\" ]; then
+printf '%s' \"$gobin\"
+task: "_install:macos:brew" started
+task: "_install:macos:pkg" started
+task: "golangci-lint:lint:fix" started
+task: "install" started
+task: "install:golangci-lint" started
+task: Failed to run task "golangci-lint:lint:fix": task: Failed to run task "install:golangci-lint": task: Failed to run task "install": task: Failed to run task "_install:macos:pkg": task: precondition not met
+task: GO_VERSION must use the official Go release format, for example go1.26.2.
+task: Task "_install:macos:brew" is up to date
+task: dynamic variable: "gobin=\"${GOBIN:-}\"
+task: dynamic variable: "uname -m" result: "arm64"
+task: status command [ -n "BASE-GO_VERSION" ] || command -v go >/dev/null 2>&1 exited zero
+
+=== task: gosec:lint ===
+--- exit: exit status 201
+    gopath=\"$(go env GOPATH)\"
+  fi
+  gobin=\"$(go env GOBIN)\"
+  gobin=\"${gopath:-$HOME/go}/bin\"
+  gopath=\"${GOPATH:-}\"
+  if [ -z \"$gopath\" ] && command -v go >/dev/null 2>&1; then
+" result: "$HOME/go/bin"
+fi
+fi
+if [ -z \"$gobin\" ] && command -v go >/dev/null 2>&1; then
+if [ -z \"$gobin\" ]; then
+printf '%s' \"$gobin\"
+task: "_install:macos:brew" started
+task: "_install:macos:pkg" started
+task: "gosec:lint" started
+task: "install" started
+task: "install:gosec" started
+task: Failed to run task "gosec:lint": task: Failed to run task "install:gosec": task: Failed to run task "install": task: Failed to run task "_install:macos:pkg": task: precondition not met
+task: GO_VERSION must use the official Go release format, for example go1.26.2.
+task: Task "_install:macos:brew" is up to date
+task: dynamic variable: "gobin=\"${GOBIN:-}\"
+task: dynamic variable: "uname -m" result: "arm64"
+task: status command [ -n "BASE-GO_VERSION" ] || command -v go >/dev/null 2>&1 exited zero
+
+=== task: govulncheck:lint ===
+--- exit: exit status 201
+    gopath=\"$(go env GOPATH)\"
+  fi
+  gobin=\"$(go env GOBIN)\"
+  gobin=\"${gopath:-$HOME/go}/bin\"
+  gopath=\"${GOPATH:-}\"
+  if [ -z \"$gopath\" ] && command -v go >/dev/null 2>&1; then
+" result: "$HOME/go/bin"
+fi
+fi
+if [ -z \"$gobin\" ] && command -v go >/dev/null 2>&1; then
+if [ -z \"$gobin\" ]; then
+printf '%s' \"$gobin\"
+task: "_install:macos:brew" started
+task: "_install:macos:pkg" started
+task: "govulncheck:lint" started
+task: "install" started
+task: "install:govulncheck" started
+task: Failed to run task "govulncheck:lint": task: Failed to run task "install:govulncheck": task: Failed to run task "install": task: Failed to run task "_install:macos:pkg": task: precondition not met
+task: GO_VERSION must use the official Go release format, for example go1.26.2.
+task: Task "_install:macos:brew" is up to date
+task: dynamic variable: "gobin=\"${GOBIN:-}\"
+task: dynamic variable: "uname -m" result: "arm64"
+task: status command [ -n "BASE-GO_VERSION" ] || command -v go >/dev/null 2>&1 exited zero
+
+=== task: install ===
+--- exit: exit status 201
+    gopath=\"$(go env GOPATH)\"
+  fi
+  gobin=\"$(go env GOBIN)\"
+  gobin=\"${gopath:-$HOME/go}/bin\"
+  gopath=\"${GOPATH:-}\"
+  if [ -z \"$gopath\" ] && command -v go >/dev/null 2>&1; then
+" result: "$HOME/go/bin"
+fi
+fi
+if [ -z \"$gobin\" ] && command -v go >/dev/null 2>&1; then
+if [ -z \"$gobin\" ]; then
+printf '%s' \"$gobin\"
+task: "_install:macos:brew" started
+task: "_install:macos:pkg" started
+task: "install" started
+task: Failed to run task "install": task: Failed to run task "_install:macos:pkg": task: precondition not met
+task: GO_VERSION must use the official Go release format, for example go1.26.2.
+task: Task "_install:macos:brew" is up to date
+task: dynamic variable: "gobin=\"${GOBIN:-}\"
+task: dynamic variable: "uname -m" result: "arm64"
+task: status command [ -n "BASE-GO_VERSION" ] || command -v go >/dev/null 2>&1 exited zero
+
+=== task: install:golangci-lint ===
+--- exit: exit status 201
+    gopath=\"$(go env GOPATH)\"
+  fi
+  gobin=\"$(go env GOBIN)\"
+  gobin=\"${gopath:-$HOME/go}/bin\"
+  gopath=\"${GOPATH:-}\"
+  if [ -z \"$gopath\" ] && command -v go >/dev/null 2>&1; then
+" result: "$HOME/go/bin"
+fi
+fi
+if [ -z \"$gobin\" ] && command -v go >/dev/null 2>&1; then
+if [ -z \"$gobin\" ]; then
+printf '%s' \"$gobin\"
+task: "_install:macos:brew" started
+task: "_install:macos:pkg" started
+task: "install" started
+task: "install:golangci-lint" started
+task: Failed to run task "install:golangci-lint": task: Failed to run task "install": task: Failed to run task "_install:macos:pkg": task: precondition not met
+task: GO_VERSION must use the official Go release format, for example go1.26.2.
+task: Task "_install:macos:brew" is up to date
+task: dynamic variable: "gobin=\"${GOBIN:-}\"
+task: dynamic variable: "uname -m" result: "arm64"
+task: status command [ -n "BASE-GO_VERSION" ] || command -v go >/dev/null 2>&1 exited zero
+
+=== task: install:gosec ===
+--- exit: exit status 201
+    gopath=\"$(go env GOPATH)\"
+  fi
+  gobin=\"$(go env GOBIN)\"
+  gobin=\"${gopath:-$HOME/go}/bin\"
+  gopath=\"${GOPATH:-}\"
+  if [ -z \"$gopath\" ] && command -v go >/dev/null 2>&1; then
+" result: "$HOME/go/bin"
+fi
+fi
+if [ -z \"$gobin\" ] && command -v go >/dev/null 2>&1; then
+if [ -z \"$gobin\" ]; then
+printf '%s' \"$gobin\"
+task: "_install:macos:brew" started
+task: "_install:macos:pkg" started
+task: "install" started
+task: "install:gosec" started
+task: Failed to run task "install:gosec": task: Failed to run task "install": task: Failed to run task "_install:macos:pkg": task: precondition not met
+task: GO_VERSION must use the official Go release format, for example go1.26.2.
+task: Task "_install:macos:brew" is up to date
+task: dynamic variable: "gobin=\"${GOBIN:-}\"
+task: dynamic variable: "uname -m" result: "arm64"
+task: status command [ -n "BASE-GO_VERSION" ] || command -v go >/dev/null 2>&1 exited zero
+
+=== task: install:govulncheck ===
+--- exit: exit status 201
+    gopath=\"$(go env GOPATH)\"
+  fi
+  gobin=\"$(go env GOBIN)\"
+  gobin=\"${gopath:-$HOME/go}/bin\"
+  gopath=\"${GOPATH:-}\"
+  if [ -z \"$gopath\" ] && command -v go >/dev/null 2>&1; then
+" result: "$HOME/go/bin"
+fi
+fi
+if [ -z \"$gobin\" ] && command -v go >/dev/null 2>&1; then
+if [ -z \"$gobin\" ]; then
+printf '%s' \"$gobin\"
+task: "_install:macos:brew" started
+task: "_install:macos:pkg" started
+task: "install" started
+task: "install:govulncheck" started
+task: Failed to run task "install:govulncheck": task: Failed to run task "install": task: Failed to run task "_install:macos:pkg": task: precondition not met
+task: GO_VERSION must use the official Go release format, for example go1.26.2.
+task: Task "_install:macos:brew" is up to date
+task: dynamic variable: "gobin=\"${GOBIN:-}\"
+task: dynamic variable: "uname -m" result: "arm64"
+task: status command [ -n "BASE-GO_VERSION" ] || command -v go >/dev/null 2>&1 exited zero
+
+=== task: install:undo ===
+
+    gopath=\"$(go env GOPATH)\"
+  brew uninstall go
+  echo 'Removing Go from BASE-INSTALL_DIR_UNIX/go...'
+  echo 'Removing Go via Homebrew...'
+  fi
+  gobin=\"$(go env GOBIN)\"
+  gobin=\"${gopath:-$HOME/go}/bin\"
+  gopath=\"${GOPATH:-}\"
+  if [ -z \"$gopath\" ] && command -v go >/dev/null 2>&1; then
+  rm -rf "BASE-INSTALL_DIR_UNIX/go"
+" result: "$HOME/go/bin"
+elif [ -d "BASE-INSTALL_DIR_UNIX/go" ]; then
+fi
+fi
+fi
+if [ -z \"$gobin\" ] && command -v go >/dev/null 2>&1; then
+if [ -z \"$gobin\" ]; then
+printf '%s' \"$gobin\"
+task: "_install:undo:linux" not for current platform - ignored
+task: "_install:undo:macos" finished
+task: "_install:undo:macos" started
+task: "_install:undo:windows" not for current platform - ignored
+task: "install:undo" finished
+task: "install:undo" started
+task: [_install:undo:macos] echo 'Go removed.'
+task: [_install:undo:macos] if command -v brew >/dev/null 2>&1 && brew list go >/dev/null 2>&1; then
+task: dynamic variable: "gobin=\"${GOBIN:-}\"
+task: status command ! command -v go >/dev/null 2>&1 && ! test -d "BASE-INSTALL_DIR_UNIX/go" exited non-zero: exit status 1
+
+=== task: lint ===
+--- unstable: output varies between runs; not pinned
+
+=== task: lint:fix ===
+--- exit: exit status 201
+    gopath=\"$(go env GOPATH)\"
+  fi
+  gobin=\"$(go env GOBIN)\"
+  gobin=\"${gopath:-$HOME/go}/bin\"
+  gopath=\"${GOPATH:-}\"
+  if [ -z \"$gopath\" ] && command -v go >/dev/null 2>&1; then
+" result: "$HOME/go/bin"
+fi
+fi
+if [ -z \"$gobin\" ] && command -v go >/dev/null 2>&1; then
+if [ -z \"$gobin\" ]; then
+printf '%s' \"$gobin\"
+task: "_install:macos:brew" started
+task: "_install:macos:pkg" started
+task: "golangci-lint:lint:fix" started
+task: "install" started
+task: "install:golangci-lint" started
+task: "lint:fix" started
+task: Failed to run task "lint:fix": task: Failed to run task "golangci-lint:lint:fix": task: Failed to run task "install:golangci-lint": task: Failed to run task "install": task: Failed to run task "_install:macos:pkg": task: precondition not met
+task: GO_VERSION must use the official Go release format, for example go1.26.2.
+task: Task "_install:macos:brew" is up to date
+task: dynamic variable: "gobin=\"${GOBIN:-}\"
+task: dynamic variable: "uname -m" result: "arm64"
+task: status command [ -n "BASE-GO_VERSION" ] || command -v go >/dev/null 2>&1 exited zero
+
+=== task: test ===
+    gopath=\"$(go env GOPATH)\"
+  fi
+  gobin=\"$(go env GOBIN)\"
+  gobin=\"${gopath:-$HOME/go}/bin\"
+  gopath=\"${GOPATH:-}\"
+  if [ -z \"$gopath\" ] && command -v go >/dev/null 2>&1; then
+" result: "$HOME/go/bin"
+fi
+fi
+if [ -z \"$gobin\" ] && command -v go >/dev/null 2>&1; then
+if [ -z \"$gobin\" ]; then
+printf '%s' \"$gobin\"
+task: "test" finished
+task: "test" started
+task: [test] go test ./...
+task: dynamic variable: "gobin=\"${GOBIN:-}\"
+
+=== task: upgrade ===
+--- exit: exit status 201
+    gopath=\"$(go env GOPATH)\"
+  fi
+  gobin=\"$(go env GOBIN)\"
+  gobin=\"${gopath:-$HOME/go}/bin\"
+  gopath=\"${GOPATH:-}\"
+  if [ -z \"$gopath\" ] && command -v go >/dev/null 2>&1; then
+" result: "$HOME/go/bin"
+fi
+fi
+if [ -z \"$gobin\" ] && command -v go >/dev/null 2>&1; then
+if [ -z \"$gobin\" ]; then
+printf '%s' \"$gobin\"
+task: "_install:macos:pkg" started
+task: "_upgrade:macos:brew" started
+task: "upgrade" started
+task: Failed to run task "upgrade": task: Failed to run task "_install:macos:pkg": task: precondition not met
+task: GO_VERSION must use the official Go release format, for example go1.26.2.
+task: Task "_upgrade:macos:brew" is up to date
+task: dynamic variable: "gobin=\"${GOBIN:-}\"
+task: dynamic variable: "uname -m" result: "arm64"
+task: status command test -n "BASE-GO_VERSION" exited zero
+
+=== task: verify ===
+--- exit: exit status 201
+    gopath=\"$(go env GOPATH)\"
+  fi
+  gobin=\"$(go env GOBIN)\"
+  gobin=\"${gopath:-$HOME/go}/bin\"
+  gopath=\"${GOPATH:-}\"
+  if [ -z \"$gopath\" ] && command -v go >/dev/null 2>&1; then
+" result: "$HOME/go/bin"
+fi
+fi
+if [ -z \"$gobin\" ] && command -v go >/dev/null 2>&1; then
+if [ -z \"$gobin\" ]; then
+printf '%s' \"$gobin\"
+task: "_install:macos:brew" started
+task: "_install:macos:pkg" started
+task: "install" started
+task: "verify" started
+task: Failed to run task "verify": task: Failed to run task "install": task: Failed to run task "_install:macos:pkg": task: precondition not met
+task: GO_VERSION must use the official Go release format, for example go1.26.2.
+task: Task "_install:macos:brew" is up to date
+task: dynamic variable: "gobin=\"${GOBIN:-}\"
+task: dynamic variable: "uname -m" result: "arm64"
+task: status command [ -n "BASE-GO_VERSION" ] || command -v go >/dev/null 2>&1 exited zero
+
+=== task: version ===
+--- exit: exit status 201
+    gopath=\"$(go env GOPATH)\"
+  fi
+  gobin=\"$(go env GOBIN)\"
+  gobin=\"${gopath:-$HOME/go}/bin\"
+  gopath=\"${GOPATH:-}\"
+  if [ -z \"$gopath\" ] && command -v go >/dev/null 2>&1; then
+" result: "$HOME/go/bin"
+fi
+fi
+if [ -z \"$gobin\" ] && command -v go >/dev/null 2>&1; then
+if [ -z \"$gobin\" ]; then
+printf '%s' \"$gobin\"
+task: "_install:macos:brew" started
+task: "_install:macos:pkg" started
+task: "install" started
+task: "version" started
+task: Failed to run task "version": task: Failed to run task "install": task: Failed to run task "_install:macos:pkg": task: precondition not met
+task: GO_VERSION must use the official Go release format, for example go1.26.2.
+task: Task "_install:macos:brew" is up to date
+task: dynamic variable: "gobin=\"${GOBIN:-}\"
+task: dynamic variable: "uname -m" result: "arm64"
+task: status command [ -n "BASE-GO_VERSION" ] || command -v go >/dev/null 2>&1 exited zero
+
+=== task: which ===
+--- exit: exit status 201
+    gopath=\"$(go env GOPATH)\"
+  fi
+  gobin=\"$(go env GOBIN)\"
+  gobin=\"${gopath:-$HOME/go}/bin\"
+  gopath=\"${GOPATH:-}\"
+  if [ -z \"$gopath\" ] && command -v go >/dev/null 2>&1; then
+" result: "$HOME/go/bin"
+fi
+fi
+if [ -z \"$gobin\" ] && command -v go >/dev/null 2>&1; then
+if [ -z \"$gobin\" ]; then
+printf '%s' \"$gobin\"
+task: "_install:macos:brew" started
+task: "_install:macos:pkg" started
+task: "install" started
+task: "which" started
+task: Failed to run task "which": task: Failed to run task "install": task: Failed to run task "_install:macos:pkg": task: precondition not met
+task: GO_VERSION must use the official Go release format, for example go1.26.2.
+task: Task "_install:macos:brew" is up to date
+task: dynamic variable: "gobin=\"${GOBIN:-}\"
+task: dynamic variable: "uname -m" result: "arm64"
+task: status command [ -n "BASE-GO_VERSION" ] || command -v go >/dev/null 2>&1 exited zero

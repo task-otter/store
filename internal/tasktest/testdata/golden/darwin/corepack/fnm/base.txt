@@ -1,0 +1,97 @@
+# module: corepack/fnm
+# case:   base
+# vars:
+#   COREPACK_VERSION=BASE-COREPACK_VERSION
+#   FNM_INSTALL_DIR=BASE-FNM_INSTALL_DIR
+#   NODE_VERSION=BASE-NODE_VERSION
+
+=== task: cache:clean ===
+task: "_corepack:unix" finished
+task: "_corepack:unix" started
+task: "_corepack:windows" not for current platform - ignored
+task: "cache:clean" finished
+task: "cache:clean" started
+task: [_corepack:unix] bash -c 'export PATH="BASE-FNM_INSTALL_DIR:$HOME/.local/bin:$PATH"; if [ -f .node-version ] || [ -f .nvmrc ]; then fnm use; fi; command -v corepack >/dev/null 2>&1 || { echo "corepack is not available. Run the install task for this Corepack Taskfile."; exit 1; }; corepack cache clean'
+
+=== task: disable ===
+task: "_corepack:unix" finished
+task: "_corepack:unix" started
+task: "_corepack:windows" not for current platform - ignored
+task: "disable" finished
+task: "disable" started
+task: [_corepack:unix] bash -c 'export PATH="BASE-FNM_INSTALL_DIR:$HOME/.local/bin:$PATH"; if [ -f .node-version ] || [ -f .nvmrc ]; then fnm use; fi; command -v corepack >/dev/null 2>&1 || { echo "corepack is not available. Run the install task for this Corepack Taskfile."; exit 1; }; corepack disable'
+
+=== task: enable ===
+task: "_corepack:unix" finished
+task: "_corepack:unix" started
+task: "_corepack:windows" not for current platform - ignored
+task: "enable" finished
+task: "enable" started
+task: [_corepack:unix] bash -c 'export PATH="BASE-FNM_INSTALL_DIR:$HOME/.local/bin:$PATH"; if [ -f .node-version ] || [ -f .nvmrc ]; then fnm use; fi; command -v corepack >/dev/null 2>&1 || { echo "corepack is not available. Run the install task for this Corepack Taskfile."; exit 1; }; corepack enable'
+
+=== task: install ===
+task: "_install:unix" finished
+task: "_install:unix" started
+task: "_install:windows" not for current platform - ignored
+task: "install" finished
+task: "install" started
+task: [_install:unix] bash -c 'export PATH="BASE-FNM_INSTALL_DIR:$HOME/.local/bin:$PATH"; if [ -f .node-version ] || [ -f .nvmrc ]; then fnm use; fi; npm install --global "corepack@BASE-COREPACK_VERSION"'
+task: status command bash -c 'export PATH="BASE-FNM_INSTALL_DIR:$HOME/.local/bin:$PATH"; if [ -f .node-version ] || [ -f .nvmrc ]; then fnm use; fi; command -v corepack >/dev/null 2>&1 && corepack --version | grep -Fqx "BASE-COREPACK_VERSION"' exited non-zero: exit status 1
+task: status command test -f "BASE-FNM_INSTALL_DIR/fnm" || command -v fnm >/dev/null 2>&1 || test -f "$HOME/.local/bin/fnm" exited zero
+
+=== task: install:undo ===
+task: "_install:undo:unix" finished
+task: "_install:undo:unix" started
+task: "_install:undo:windows" not for current platform - ignored
+task: "install:undo" finished
+task: "install:undo" started
+task: [_install:undo:unix] bash -c 'export PATH="BASE-FNM_INSTALL_DIR:$HOME/.local/bin:$PATH"; if [ -f .node-version ] || [ -f .nvmrc ]; then fnm use; fi; npm uninstall --global corepack'
+task: status command bash -c 'export PATH="BASE-FNM_INSTALL_DIR:$HOME/.local/bin:$PATH"; if [ -f .node-version ] || [ -f .nvmrc ]; then fnm use; fi; ! command -v corepack >/dev/null 2>&1' exited non-zero: exit status 1
+task: status command test -f "BASE-FNM_INSTALL_DIR/fnm" || command -v fnm >/dev/null 2>&1 || test -f "$HOME/.local/bin/fnm" exited zero
+
+=== task: node:setup ===
+
+task: "_node:setup:unix" finished
+task: "_node:setup:unix" started
+task: "_node:setup:windows" not for current platform - ignored
+task: "node:setup" finished
+task: "node:setup" started
+task: [_node:setup:unix] if [ -n "$NODE_VERSION" ]; then task fnm:node:install VERSION="$NODE_VERSION"; else task fnm:node:install; fi
+
+=== task: setup ===
+task: "_corepack:unix" finished
+task: "_corepack:unix" started
+task: "_corepack:windows" not for current platform - ignored
+task: "_install:unix" finished
+task: "_install:unix" started
+task: "_install:windows" not for current platform - ignored
+task: "enable" finished
+task: "enable" started
+task: "install" finished
+task: "install" started
+task: "setup" finished
+task: "setup" started
+task: [_corepack:unix] bash -c 'export PATH="BASE-FNM_INSTALL_DIR:$HOME/.local/bin:$PATH"; if [ -f .node-version ] || [ -f .nvmrc ]; then fnm use; fi; command -v corepack >/dev/null 2>&1 || { echo "corepack is not available. Run the install task for this Corepack Taskfile."; exit 1; }; corepack enable'
+task: [_install:unix] bash -c 'export PATH="BASE-FNM_INSTALL_DIR:$HOME/.local/bin:$PATH"; if [ -f .node-version ] || [ -f .nvmrc ]; then fnm use; fi; npm install --global "corepack@BASE-COREPACK_VERSION"'
+task: status command bash -c 'export PATH="BASE-FNM_INSTALL_DIR:$HOME/.local/bin:$PATH"; if [ -f .node-version ] || [ -f .nvmrc ]; then fnm use; fi; command -v corepack >/dev/null 2>&1 && corepack --version | grep -Fqx "BASE-COREPACK_VERSION"' exited non-zero: exit status 1
+task: status command test -f "BASE-FNM_INSTALL_DIR/fnm" || command -v fnm >/dev/null 2>&1 || test -f "$HOME/.local/bin/fnm" exited zero
+
+=== task: upgrade ===
+task: "_upgrade:unix" finished
+task: "_upgrade:unix" started
+task: "_upgrade:windows" not for current platform - ignored
+task: "upgrade" finished
+task: "upgrade" started
+task: [_upgrade:unix] bash -c 'export PATH="BASE-FNM_INSTALL_DIR:$HOME/.local/bin:$PATH"; if [ -f .node-version ] || [ -f .nvmrc ]; then fnm use; fi; npm install --global "corepack@BASE-COREPACK_VERSION"'
+
+=== task: use ===
+--- exit: exit status 206
+task: Task "use" cancelled because it is missing required variables: PACKAGE_MANAGER, VERSION
+
+=== task: version ===
+task: "_corepack:unix" finished
+task: "_corepack:unix" started
+task: "_corepack:windows" not for current platform - ignored
+task: "version" finished
+task: "version" started
+task: [_corepack:unix] bash -c 'export PATH="BASE-FNM_INSTALL_DIR:$HOME/.local/bin:$PATH"; if [ -f .node-version ] || [ -f .nvmrc ]; then fnm use; fi; command -v corepack >/dev/null 2>&1 || { echo "corepack is not available. Run the install task for this Corepack Taskfile."; exit 1; }; corepack --version'

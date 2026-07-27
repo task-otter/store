@@ -1,0 +1,263 @@
+# module: buf
+# case:   base
+# vars:
+#   AGAINST=BASE-AGAINST
+#   BUF_FMT_SKIP_PATTERN=BASE-BUF_FMT_SKIP_PATTERN
+#   BUF_LINT_SKIP_PATTERN=BASE-BUF_LINT_SKIP_PATTERN
+#   BUF_VERSION=BASE-BUF_VERSION
+#   CONFIG=BASE-CONFIG
+#   EXTRA_ARGS=BASE-EXTRA_ARGS
+#   INPUT=BASE-INPUT
+
+=== task: breaking ===
+
+    "$input" \
+    BASE-EXTRA_ARGS
+  "$input" \
+  BASE-EXTRA_ARGS
+  buf breaking --against "BASE-AGAINST" \
+  exit
+  filter "SKIPFILES_PATTERN=$skip_pattern" SKIPFILES_MATCHING=true |
+  find "$scan_input" -type f -name '*.proto' -print0
+  printf '%s\000' "$scan_input"
+  set -- "$@" --exclude-path "$path"
+  tr '\0' '
+' >"$matched_files"
+buf breaking "$@" --against "BASE-AGAINST" \
+done <"$matched_files"
+elif [ -f "$scan_input" ]; then
+fi
+fi | task --silent --taskfile "$REPO/taskfiles/buf/../internal/skipfiles/Taskfile.yml" \
+if [ -d "$scan_input" ]; then
+if [ -n "" ]; then scan_input=.; fi
+if [ -z "$skip_pattern" ]; then
+matched_files="$(mktemp)"
+scan_input="$input"
+set --
+skip_pattern='BASE-BUF_LINT_SKIP_PATTERN'
+task: "_buf:unix" finished
+task: "_buf:unix" started
+task: "_buf:windows" not for current platform - ignored
+task: "_install:linux" not for current platform - ignored
+task: "_install:macos" finished
+task: "_install:macos" started
+task: "_install:windows" not for current platform - ignored
+task: "breaking" finished
+task: "breaking" started
+task: "install" finished
+task: "install" started
+task: [_buf:unix] input='BASE-INPUT'
+task: [_install:macos] brew install bufbuild/buf/buf
+task: [_install:macos] echo 'Buf installed.'
+task: [_install:macos] echo 'Installing Buf via Homebrew...'
+task: [breaking] echo "✅ buf breaking check passed"
+task: status command command -v buf >/dev/null 2>&1 && buf --version | grep -Fqx "BASE-BUF_VERSION" exited non-zero: exit status 1
+trap 'rm -f "$matched_files"' EXIT
+while IFS= read -r path; do
+
+=== task: fmt ===
+
+    "$input" \
+    BASE-EXTRA_ARGS
+  "$input" \
+  BASE-EXTRA_ARGS
+  buf format --write  \
+  exit
+  filter "SKIPFILES_PATTERN=$skip_pattern" SKIPFILES_MATCHING=true |
+  find "$scan_input" -type f -name '*.proto' -print0
+  printf '%s\000' "$scan_input"
+  set -- "$@" --exclude-path "$path"
+  tr '\0' '
+' >"$matched_files"
+buf format --write "$@"  \
+done <"$matched_files"
+elif [ -f "$scan_input" ]; then
+fi
+fi | task --silent --taskfile "$REPO/taskfiles/buf/../internal/skipfiles/Taskfile.yml" \
+if [ -d "$scan_input" ]; then
+if [ -n "" ]; then scan_input=.; fi
+if [ -z "$skip_pattern" ]; then
+matched_files="$(mktemp)"
+scan_input="$input"
+set --
+skip_pattern='BASE-BUF_FMT_SKIP_PATTERN'
+task: "_buf:unix" finished
+task: "_buf:unix" started
+task: "_buf:windows" not for current platform - ignored
+task: "_install:linux" not for current platform - ignored
+task: "_install:macos" finished
+task: "_install:macos" started
+task: "_install:windows" not for current platform - ignored
+task: "fmt" finished
+task: "fmt" started
+task: "install" finished
+task: "install" started
+task: [_buf:unix] input='BASE-INPUT'
+task: [_install:macos] brew install bufbuild/buf/buf
+task: [_install:macos] echo 'Buf installed.'
+task: [_install:macos] echo 'Installing Buf via Homebrew...'
+task: status command command -v buf >/dev/null 2>&1 && buf --version | grep -Fqx "BASE-BUF_VERSION" exited non-zero: exit status 1
+trap 'rm -f "$matched_files"' EXIT
+while IFS= read -r path; do
+
+=== task: fmt:check ===
+
+    "$input" \
+    BASE-EXTRA_ARGS
+  "$input" \
+  BASE-EXTRA_ARGS
+  buf format --diff  \
+  exit
+  filter "SKIPFILES_PATTERN=$skip_pattern" SKIPFILES_MATCHING=true |
+  find "$scan_input" -type f -name '*.proto' -print0
+  printf '%s\000' "$scan_input"
+  set -- "$@" --exclude-path "$path"
+  tr '\0' '
+' >"$matched_files"
+buf format --diff "$@"  \
+done <"$matched_files"
+elif [ -f "$scan_input" ]; then
+fi
+fi | task --silent --taskfile "$REPO/taskfiles/buf/../internal/skipfiles/Taskfile.yml" \
+if [ -d "$scan_input" ]; then
+if [ -n "" ]; then scan_input=.; fi
+if [ -z "$skip_pattern" ]; then
+matched_files="$(mktemp)"
+scan_input="$input"
+set --
+skip_pattern='BASE-BUF_FMT_SKIP_PATTERN'
+task: "_buf:unix" finished
+task: "_buf:unix" started
+task: "_buf:windows" not for current platform - ignored
+task: "_install:linux" not for current platform - ignored
+task: "_install:macos" finished
+task: "_install:macos" started
+task: "_install:windows" not for current platform - ignored
+task: "fmt:check" finished
+task: "fmt:check" started
+task: "install" finished
+task: "install" started
+task: [_buf:unix] input='BASE-INPUT'
+task: [_install:macos] brew install bufbuild/buf/buf
+task: [_install:macos] echo 'Buf installed.'
+task: [_install:macos] echo 'Installing Buf via Homebrew...'
+task: [fmt:check] echo "✅ buf format check passed"
+task: status command command -v buf >/dev/null 2>&1 && buf --version | grep -Fqx "BASE-BUF_VERSION" exited non-zero: exit status 1
+trap 'rm -f "$matched_files"' EXIT
+while IFS= read -r path; do
+
+=== task: generate ===
+task: "_install:linux" not for current platform - ignored
+task: "_install:macos" finished
+task: "_install:macos" started
+task: "_install:windows" not for current platform - ignored
+task: "generate" finished
+task: "generate" started
+task: "install" finished
+task: "install" started
+task: [_install:macos] brew install bufbuild/buf/buf
+task: [_install:macos] echo 'Buf installed.'
+task: [_install:macos] echo 'Installing Buf via Homebrew...'
+task: [generate] buf generate  "BASE-INPUT" BASE-EXTRA_ARGS && echo "✅ buf generate passed" || { echo "❌ buf generate failed"; exit 1; }
+task: status command command -v buf >/dev/null 2>&1 && buf --version | grep -Fqx "BASE-BUF_VERSION" exited non-zero: exit status 1
+
+=== task: install ===
+task: "_install:linux" not for current platform - ignored
+task: "_install:macos" finished
+task: "_install:macos" started
+task: "_install:windows" not for current platform - ignored
+task: "install" finished
+task: "install" started
+task: [_install:macos] brew install bufbuild/buf/buf
+task: [_install:macos] echo 'Buf installed.'
+task: [_install:macos] echo 'Installing Buf via Homebrew...'
+task: status command command -v buf >/dev/null 2>&1 && buf --version | grep -Fqx "BASE-BUF_VERSION" exited non-zero: exit status 1
+
+=== task: install:undo ===
+task: "_install:undo:linux" not for current platform - ignored
+task: "_install:undo:macos" finished
+task: "_install:undo:macos" started
+task: "_install:undo:windows" not for current platform - ignored
+task: "install:undo" finished
+task: "install:undo" started
+task: [_install:undo:macos] brew uninstall bufbuild/buf/buf
+task: [_install:undo:macos] echo 'Buf removed.'
+task: [_install:undo:macos] echo 'Removing Buf via Homebrew...'
+task: status command ! command -v buf >/dev/null 2>&1 exited non-zero: exit status 1
+
+=== task: lint ===
+
+    "$input" \
+    BASE-EXTRA_ARGS
+  "$input" \
+  BASE-EXTRA_ARGS
+  buf lint --config "BASE-CONFIG" \
+  exit
+  filter "SKIPFILES_PATTERN=$skip_pattern" SKIPFILES_MATCHING=true |
+  find "$scan_input" -type f -name '*.proto' -print0
+  printf '%s\000' "$scan_input"
+  set -- "$@" --exclude-path "$path"
+  tr '\0' '
+' >"$matched_files"
+buf lint "$@" --config "BASE-CONFIG" \
+done <"$matched_files"
+elif [ -f "$scan_input" ]; then
+fi
+fi | task --silent --taskfile "$REPO/taskfiles/buf/../internal/skipfiles/Taskfile.yml" \
+if [ -d "$scan_input" ]; then
+if [ -n "" ]; then scan_input=.; fi
+if [ -z "$skip_pattern" ]; then
+matched_files="$(mktemp)"
+scan_input="$input"
+set --
+skip_pattern='BASE-BUF_LINT_SKIP_PATTERN'
+task: "_buf:unix" finished
+task: "_buf:unix" started
+task: "_buf:windows" not for current platform - ignored
+task: "_install:linux" not for current platform - ignored
+task: "_install:macos" finished
+task: "_install:macos" started
+task: "_install:windows" not for current platform - ignored
+task: "install" finished
+task: "install" started
+task: "lint" finished
+task: "lint" started
+task: [_buf:unix] input='BASE-INPUT'
+task: [_install:macos] brew install bufbuild/buf/buf
+task: [_install:macos] echo 'Buf installed.'
+task: [_install:macos] echo 'Installing Buf via Homebrew...'
+task: [lint] echo "✅ buf lint passed"
+task: status command command -v buf >/dev/null 2>&1 && buf --version | grep -Fqx "BASE-BUF_VERSION" exited non-zero: exit status 1
+trap 'rm -f "$matched_files"' EXIT
+while IFS= read -r path; do
+
+=== task: upgrade ===
+
+  brew install bufbuild/buf/buf
+  brew upgrade bufbuild/buf/buf
+else
+fi
+task: "_upgrade:linux" not for current platform - ignored
+task: "_upgrade:macos" finished
+task: "_upgrade:macos" started
+task: "_upgrade:windows" not for current platform - ignored
+task: "upgrade" finished
+task: "upgrade" started
+task: [_upgrade:macos] echo 'Buf upgraded.'
+task: [_upgrade:macos] echo 'Upgrading Buf via Homebrew...'
+task: [_upgrade:macos] if brew list bufbuild/buf/buf >/dev/null 2>&1; then
+
+=== task: version ===
+task: "_install:linux" not for current platform - ignored
+task: "_install:macos" finished
+task: "_install:macos" started
+task: "_install:windows" not for current platform - ignored
+task: "install" finished
+task: "install" started
+task: "version" finished
+task: "version" started
+task: [_install:macos] brew install bufbuild/buf/buf
+task: [_install:macos] echo 'Buf installed.'
+task: [_install:macos] echo 'Installing Buf via Homebrew...'
+task: [version] buf --version
+task: status command command -v buf >/dev/null 2>&1 && buf --version | grep -Fqx "BASE-BUF_VERSION" exited non-zero: exit status 1

@@ -1,0 +1,137 @@
+# module: rumdl
+# case:   both
+# vars:
+#   EXTRA_ARGS=BASE-EXTRA_ARGS
+#   RUMDL_FMT_SKIP_PATTERN=BASE-RUMDL_FMT_SKIP_PATTERN
+#   RUMDL_LINT_SKIP_PATTERN=BASE-RUMDL_LINT_SKIP_PATTERN
+#   RUMDL_VERSION=BASE-RUMDL_VERSION
+#   TARGETS=BASE-TARGETS
+#   UV_LOAD=BASE-UV_LOAD
+#   EXTRA_ARGS_OVERRIDE=OVR-EXTRA_ARGS
+#   RUMDL_FMT_SKIP_PATTERN_OVERRIDE=OVR-RUMDL_FMT_SKIP_PATTERN
+#   RUMDL_LINT_SKIP_PATTERN_OVERRIDE=OVR-RUMDL_LINT_SKIP_PATTERN
+#   RUMDL_VERSION_OVERRIDE=OVR-RUMDL_VERSION
+#   TARGETS_OVERRIDE=OVR-TARGETS
+#   UV_LOAD_OVERRIDE=OVR-UV_LOAD
+
+=== task: fix ===
+task: "_install:unix" finished
+task: "_install:unix" started
+task: "_install:windows" not for current platform - ignored
+task: "fix" finished
+task: "fix" started
+task: "install" finished
+task: "install" started
+task: "uv:_install:unix" started
+task: "uv:_install:windows" not for current platform - ignored
+task: "uv:install" finished
+task: "uv:install" started
+task: Task "uv:_install:unix" is up to date
+task: [_install:unix] bash -lc 'BASE-UV_LOAD; uv tool install --force "rumdl==BASE-RUMDL_VERSION"'
+task: [_install:unix] echo 'Installing rumdl via uv...'
+task: [_install:unix] echo 'rumdl installed.'
+task: [fix] bash -lc 'BASE-UV_LOAD; rumdl check --fix --exclude "OVR-RUMDL_LINT_SKIP_PATTERN"  OVR-TARGETS OVR-EXTRA_ARGS'
+task: [fix] rumdl check --fix --exclude "OVR-RUMDL_LINT_SKIP_PATTERN"  OVR-TARGETS OVR-EXTRA_ARGS not for current platform - ignored
+task: status command bash -lc 'BASE-UV_LOAD; command -v rumdl >/dev/null 2>&1 && { [ -z "BASE-RUMDL_VERSION" ] || rumdl --version | grep -Fq "BASE-RUMDL_VERSION"; }' exited non-zero: exit status 1
+task: status command uv_bin="$HOME/.local/bin/uv"; if [ ! -x "$uv_bin" ]; then uv_bin="$(command -v uv 2>/dev/null)"; fi; [ -n "$uv_bin" ] && [ -x "$uv_bin" ] && { [ -z "" ] || "$uv_bin" --version | grep -Fqx "uv "; } exited zero
+
+=== task: fmt ===
+task: "_install:unix" finished
+task: "_install:unix" started
+task: "_install:windows" not for current platform - ignored
+task: "fmt" finished
+task: "fmt" started
+task: "install" finished
+task: "install" started
+task: "uv:_install:unix" started
+task: "uv:_install:windows" not for current platform - ignored
+task: "uv:install" finished
+task: "uv:install" started
+task: Task "uv:_install:unix" is up to date
+task: [_install:unix] bash -lc 'BASE-UV_LOAD; uv tool install --force "rumdl==BASE-RUMDL_VERSION"'
+task: [_install:unix] echo 'Installing rumdl via uv...'
+task: [_install:unix] echo 'rumdl installed.'
+task: [fmt] bash -lc 'BASE-UV_LOAD; rumdl fmt --exclude "OVR-RUMDL_FMT_SKIP_PATTERN"  OVR-TARGETS OVR-EXTRA_ARGS'
+task: [fmt] rumdl fmt --exclude "OVR-RUMDL_FMT_SKIP_PATTERN"  OVR-TARGETS OVR-EXTRA_ARGS not for current platform - ignored
+task: status command bash -lc 'BASE-UV_LOAD; command -v rumdl >/dev/null 2>&1 && { [ -z "BASE-RUMDL_VERSION" ] || rumdl --version | grep -Fq "BASE-RUMDL_VERSION"; }' exited non-zero: exit status 1
+task: status command uv_bin="$HOME/.local/bin/uv"; if [ ! -x "$uv_bin" ]; then uv_bin="$(command -v uv 2>/dev/null)"; fi; [ -n "$uv_bin" ] && [ -x "$uv_bin" ] && { [ -z "" ] || "$uv_bin" --version | grep -Fqx "uv "; } exited zero
+
+=== task: install ===
+task: "_install:unix" finished
+task: "_install:unix" started
+task: "_install:windows" not for current platform - ignored
+task: "install" finished
+task: "install" started
+task: "uv:_install:unix" started
+task: "uv:_install:windows" not for current platform - ignored
+task: "uv:install" finished
+task: "uv:install" started
+task: Task "uv:_install:unix" is up to date
+task: [_install:unix] bash -lc 'BASE-UV_LOAD; uv tool install --force "rumdl==BASE-RUMDL_VERSION"'
+task: [_install:unix] echo 'Installing rumdl via uv...'
+task: [_install:unix] echo 'rumdl installed.'
+task: status command bash -lc 'BASE-UV_LOAD; command -v rumdl >/dev/null 2>&1 && { [ -z "BASE-RUMDL_VERSION" ] || rumdl --version | grep -Fq "BASE-RUMDL_VERSION"; }' exited non-zero: exit status 1
+task: status command uv_bin="$HOME/.local/bin/uv"; if [ ! -x "$uv_bin" ]; then uv_bin="$(command -v uv 2>/dev/null)"; fi; [ -n "$uv_bin" ] && [ -x "$uv_bin" ] && { [ -z "" ] || "$uv_bin" --version | grep -Fqx "uv "; } exited zero
+
+=== task: install:undo ===
+task: "_install:undo:unix" finished
+task: "_install:undo:unix" started
+task: "_install:undo:windows" not for current platform - ignored
+task: "install:undo" finished
+task: "install:undo" started
+task: [_install:undo:unix] bash -lc 'BASE-UV_LOAD; uv tool uninstall rumdl'
+task: [_install:undo:unix] echo 'Removing rumdl...'
+task: [_install:undo:unix] echo 'rumdl removed.'
+task: status command bash -lc 'BASE-UV_LOAD; ! command -v rumdl >/dev/null 2>&1' exited non-zero: exit status 1
+
+=== task: lint ===
+task: "_install:unix" finished
+task: "_install:unix" started
+task: "_install:windows" not for current platform - ignored
+task: "install" finished
+task: "install" started
+task: "lint" finished
+task: "lint" started
+task: "uv:_install:unix" started
+task: "uv:_install:windows" not for current platform - ignored
+task: "uv:install" finished
+task: "uv:install" started
+task: Task "uv:_install:unix" is up to date
+task: [_install:unix] bash -lc 'BASE-UV_LOAD; uv tool install --force "rumdl==BASE-RUMDL_VERSION"'
+task: [_install:unix] echo 'Installing rumdl via uv...'
+task: [_install:unix] echo 'rumdl installed.'
+task: [lint] bash -lc 'BASE-UV_LOAD; rumdl check --exclude "OVR-RUMDL_LINT_SKIP_PATTERN"  OVR-TARGETS OVR-EXTRA_ARGS && echo "✅ rumdl passed" || { echo "❌ rumdl failed"; exit 1; }'
+task: [lint] rumdl check --exclude "OVR-RUMDL_LINT_SKIP_PATTERN"  OVR-TARGETS OVR-EXTRA_ARGS not for current platform - ignored
+task: status command bash -lc 'BASE-UV_LOAD; command -v rumdl >/dev/null 2>&1 && { [ -z "BASE-RUMDL_VERSION" ] || rumdl --version | grep -Fq "BASE-RUMDL_VERSION"; }' exited non-zero: exit status 1
+task: status command uv_bin="$HOME/.local/bin/uv"; if [ ! -x "$uv_bin" ]; then uv_bin="$(command -v uv 2>/dev/null)"; fi; [ -n "$uv_bin" ] && [ -x "$uv_bin" ] && { [ -z "" ] || "$uv_bin" --version | grep -Fqx "uv "; } exited zero
+
+=== task: upgrade ===
+task: "_upgrade:unix" finished
+task: "_upgrade:unix" started
+task: "_upgrade:windows" not for current platform - ignored
+task: "upgrade" finished
+task: "upgrade" started
+task: [_upgrade:unix] bash -lc 'BASE-UV_LOAD; uv tool install --force "rumdl==BASE-RUMDL_VERSION"'
+task: [_upgrade:unix] echo 'Upgrading rumdl via uv...'
+task: [_upgrade:unix] echo 'rumdl upgraded.'
+
+=== task: version ===
+task: "_install:unix" finished
+task: "_install:unix" started
+task: "_install:windows" not for current platform - ignored
+task: "install" finished
+task: "install" started
+task: "uv:_install:unix" started
+task: "uv:_install:windows" not for current platform - ignored
+task: "uv:install" finished
+task: "uv:install" started
+task: "version" finished
+task: "version" started
+task: Task "uv:_install:unix" is up to date
+task: [_install:unix] bash -lc 'BASE-UV_LOAD; uv tool install --force "rumdl==BASE-RUMDL_VERSION"'
+task: [_install:unix] echo 'Installing rumdl via uv...'
+task: [_install:unix] echo 'rumdl installed.'
+task: [version] bash -lc 'BASE-UV_LOAD; rumdl --version'
+task: [version] rumdl --version not for current platform - ignored
+task: status command bash -lc 'BASE-UV_LOAD; command -v rumdl >/dev/null 2>&1 && { [ -z "BASE-RUMDL_VERSION" ] || rumdl --version | grep -Fq "BASE-RUMDL_VERSION"; }' exited non-zero: exit status 1
+task: status command uv_bin="$HOME/.local/bin/uv"; if [ ! -x "$uv_bin" ]; then uv_bin="$(command -v uv 2>/dev/null)"; fi; [ -n "$uv_bin" ] && [ -x "$uv_bin" ] && { [ -z "" ] || "$uv_bin" --version | grep -Fqx "uv "; } exited zero

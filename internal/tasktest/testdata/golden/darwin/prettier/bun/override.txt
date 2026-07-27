@@ -1,0 +1,191 @@
+# module: prettier/bun
+# case:   override
+# vars:
+#   CONFIG_OVERRIDE=OVR-CONFIG
+#   EXTRA_ARGS_OVERRIDE=OVR-EXTRA_ARGS
+#   IGNORE_PATH_OVERRIDE=OVR-IGNORE_PATH
+#   PRETTIER_DEFAULT_IGNORE_PATH_OVERRIDE=OVR-PRETTIER_DEFAULT_IGNORE_PATH
+#   PRETTIER_DEFAULT_TARGETS_OVERRIDE=OVR-PRETTIER_DEFAULT_TARGETS
+#   PRETTIER_FMT_SKIP_PATTERN_OVERRIDE=OVR-PRETTIER_FMT_SKIP_PATTERN
+#   PRETTIER_TARGETS_OVERRIDE=OVR-PRETTIER_TARGETS
+#   TARGETS_OVERRIDE=OVR-TARGETS
+#   VERSION_OVERRIDE=OVR-VERSION
+
+=== task: ci ===
+  echo \"--ignore-path OVR-IGNORE_PATH\"
+" result: ""
+fi
+task: "_exec:ignore" finished
+task: "_exec:ignore" started
+task: "bun:_bun:unix" finished
+task: "bun:_bun:unix" started
+task: "bun:_bun:windows" not for current platform - ignored
+task: "bun:_install:unix" started
+task: "bun:_install:windows" not for current platform - ignored
+task: "bun:exec" finished
+task: "bun:exec" started
+task: "bun:install" finished
+task: "bun:install" started
+task: "ci" finished
+task: "ci" started
+task: "fmt:check" finished
+task: "fmt:check" started
+task: Task "bun:_install:unix" is up to date
+task: [bun:_bun:unix] bash -lc 'export BUN_INSTALL="$HOME/.bun"; export PATH="$BUN_INSTALL/bin:$PATH"; bun x prettier OVR-PRETTIER_TARGETS  "!OVR-PRETTIER_FMT_SKIP_PATTERN" --check --config "OVR-CONFIG"   OVR-EXTRA_ARGS '
+task: [fmt:check] echo "✅ prettier passed"
+task: dynamic variable: "if [ -n \"OVR-IGNORE_PATH\" ] && [ -f \"OVR-IGNORE_PATH\" ]; then
+task: status command bun_bin="$HOME/.bun/bin/bun"; if [ ! -x "$bun_bin" ]; then bun_bin="$(command -v bun 2>/dev/null)"; fi; [ -n "$bun_bin" ] && [ -x "$bun_bin" ] && { [ -z "" ] || [ "$("$bun_bin" --version)" = "" ]; } exited zero
+
+=== task: config:init ===
+' > "OVR-CONFIG"
+' >> "OVR-CONFIG"
+' >> "OVR-CONFIG"
+' >> "OVR-CONFIG"
+task: "config:init" finished
+task: "config:init" started
+task: [config:init] echo 'Created OVR-CONFIG.'
+task: [config:init] printf '  "semi": true
+task: [config:init] printf '  "singleQuote": true,
+task: [config:init] printf '{
+task: [config:init] printf '}
+task: status command test -f "OVR-CONFIG" exited non-zero: exit status 1
+
+=== task: fix ===
+  echo \"--ignore-path OVR-IGNORE_PATH\"
+" result: ""
+fi
+task: "_exec:ignore" finished
+task: "_exec:ignore" started
+task: "bun:_bun:unix" finished
+task: "bun:_bun:unix" started
+task: "bun:_bun:windows" not for current platform - ignored
+task: "bun:_install:unix" started
+task: "bun:_install:windows" not for current platform - ignored
+task: "bun:exec" finished
+task: "bun:exec" started
+task: "bun:install" finished
+task: "bun:install" started
+task: "fix" finished
+task: "fix" started
+task: "fmt" finished
+task: "fmt" started
+task: Task "bun:_install:unix" is up to date
+task: [bun:_bun:unix] bash -lc 'export BUN_INSTALL="$HOME/.bun"; export PATH="$BUN_INSTALL/bin:$PATH"; bun x prettier OVR-PRETTIER_TARGETS  "!OVR-PRETTIER_FMT_SKIP_PATTERN" --write --config "OVR-CONFIG"   OVR-EXTRA_ARGS '
+task: [fmt] echo "✅ prettier fixes applied"
+task: dynamic variable: "if [ -n \"OVR-IGNORE_PATH\" ] && [ -f \"OVR-IGNORE_PATH\" ]; then
+task: status command bun_bin="$HOME/.bun/bin/bun"; if [ ! -x "$bun_bin" ]; then bun_bin="$(command -v bun 2>/dev/null)"; fi; [ -n "$bun_bin" ] && [ -x "$bun_bin" ] && { [ -z "" ] || [ "$("$bun_bin" --version)" = "" ]; } exited zero
+
+=== task: fmt ===
+  echo \"--ignore-path OVR-IGNORE_PATH\"
+" result: ""
+fi
+task: "_exec:ignore" finished
+task: "_exec:ignore" started
+task: "bun:_bun:unix" finished
+task: "bun:_bun:unix" started
+task: "bun:_bun:windows" not for current platform - ignored
+task: "bun:_install:unix" started
+task: "bun:_install:windows" not for current platform - ignored
+task: "bun:exec" finished
+task: "bun:exec" started
+task: "bun:install" finished
+task: "bun:install" started
+task: "fmt" finished
+task: "fmt" started
+task: Task "bun:_install:unix" is up to date
+task: [bun:_bun:unix] bash -lc 'export BUN_INSTALL="$HOME/.bun"; export PATH="$BUN_INSTALL/bin:$PATH"; bun x prettier OVR-PRETTIER_TARGETS  "!OVR-PRETTIER_FMT_SKIP_PATTERN" --write --config "OVR-CONFIG"   OVR-EXTRA_ARGS '
+task: [fmt] echo "✅ prettier fixes applied"
+task: dynamic variable: "if [ -n \"OVR-IGNORE_PATH\" ] && [ -f \"OVR-IGNORE_PATH\" ]; then
+task: status command bun_bin="$HOME/.bun/bin/bun"; if [ ! -x "$bun_bin" ]; then bun_bin="$(command -v bun 2>/dev/null)"; fi; [ -n "$bun_bin" ] && [ -x "$bun_bin" ] && { [ -z "" ] || [ "$("$bun_bin" --version)" = "" ]; } exited zero
+
+=== task: fmt:check ===
+  echo \"--ignore-path OVR-IGNORE_PATH\"
+" result: ""
+fi
+task: "_exec:ignore" finished
+task: "_exec:ignore" started
+task: "bun:_bun:unix" finished
+task: "bun:_bun:unix" started
+task: "bun:_bun:windows" not for current platform - ignored
+task: "bun:_install:unix" started
+task: "bun:_install:windows" not for current platform - ignored
+task: "bun:exec" finished
+task: "bun:exec" started
+task: "bun:install" finished
+task: "bun:install" started
+task: "fmt:check" finished
+task: "fmt:check" started
+task: Task "bun:_install:unix" is up to date
+task: [bun:_bun:unix] bash -lc 'export BUN_INSTALL="$HOME/.bun"; export PATH="$BUN_INSTALL/bin:$PATH"; bun x prettier OVR-PRETTIER_TARGETS  "!OVR-PRETTIER_FMT_SKIP_PATTERN" --check --config "OVR-CONFIG"   OVR-EXTRA_ARGS '
+task: [fmt:check] echo "✅ prettier passed"
+task: dynamic variable: "if [ -n \"OVR-IGNORE_PATH\" ] && [ -f \"OVR-IGNORE_PATH\" ]; then
+task: status command bun_bin="$HOME/.bun/bin/bun"; if [ ! -x "$bun_bin" ]; then bun_bin="$(command -v bun 2>/dev/null)"; fi; [ -n "$bun_bin" ] && [ -x "$bun_bin" ] && { [ -z "" ] || [ "$("$bun_bin" --version)" = "" ]; } exited zero
+
+=== task: help ===
+task: "bun:_bun:unix" finished
+task: "bun:_bun:unix" started
+task: "bun:_bun:windows" not for current platform - ignored
+task: "bun:_install:unix" started
+task: "bun:_install:windows" not for current platform - ignored
+task: "bun:exec" finished
+task: "bun:exec" started
+task: "bun:install" finished
+task: "bun:install" started
+task: "help" finished
+task: "help" started
+task: Task "bun:_install:unix" is up to date
+task: [bun:_bun:unix] bash -lc 'export BUN_INSTALL="$HOME/.bun"; export PATH="$BUN_INSTALL/bin:$PATH"; bun x prettier --help OVR-EXTRA_ARGS'
+task: status command bun_bin="$HOME/.bun/bin/bun"; if [ ! -x "$bun_bin" ]; then bun_bin="$(command -v bun 2>/dev/null)"; fi; [ -n "$bun_bin" ] && [ -x "$bun_bin" ] && { [ -z "" ] || [ "$("$bun_bin" --version)" = "" ]; } exited zero
+
+=== task: install ===
+task: "install" started
+task: Task "install" is up to date
+task: status command node -e "const installed = require('./node_modules/prettier/package.json'); const requested = 'OVR-VERSION'; process.exit(!requested || installed.version === requested ? 0 : 1)" exited zero
+
+=== task: install:undo ===
+task: "bun:_bun:unix" finished
+task: "bun:_bun:unix" started
+task: "bun:_bun:windows" not for current platform - ignored
+task: "bun:_install:unix" started
+task: "bun:_install:windows" not for current platform - ignored
+task: "bun:install" finished
+task: "bun:install" started
+task: "bun:remove" finished
+task: "bun:remove" started
+task: "install:undo" finished
+task: "install:undo" started
+task: Task "bun:_install:unix" is up to date
+task: [bun:_bun:unix] bash -lc 'export BUN_INSTALL="$HOME/.bun"; export PATH="$BUN_INSTALL/bin:$PATH"; bun remove -g prettier OVR-EXTRA_ARGS'
+task: status command bun_bin="$HOME/.bun/bin/bun"; if [ ! -x "$bun_bin" ]; then bun_bin="$(command -v bun 2>/dev/null)"; fi; [ -n "$bun_bin" ] && [ -x "$bun_bin" ] && { [ -z "" ] || [ "$("$bun_bin" --version)" = "" ]; } exited zero
+
+=== task: upgrade ===
+task: "bun:_bun:unix" finished
+task: "bun:_bun:unix" started
+task: "bun:_bun:windows" not for current platform - ignored
+task: "bun:_install:unix" started
+task: "bun:_install:windows" not for current platform - ignored
+task: "bun:add" finished
+task: "bun:add" started
+task: "bun:install" finished
+task: "bun:install" started
+task: "upgrade" finished
+task: "upgrade" started
+task: Task "bun:_install:unix" is up to date
+task: [bun:_bun:unix] bash -lc 'export BUN_INSTALL="$HOME/.bun"; export PATH="$BUN_INSTALL/bin:$PATH"; bun add -g prettier@latest OVR-EXTRA_ARGS'
+task: status command bun_bin="$HOME/.bun/bin/bun"; if [ ! -x "$bun_bin" ]; then bun_bin="$(command -v bun 2>/dev/null)"; fi; [ -n "$bun_bin" ] && [ -x "$bun_bin" ] && { [ -z "" ] || [ "$("$bun_bin" --version)" = "" ]; } exited zero
+
+=== task: version ===
+task: "bun:_bun:unix" finished
+task: "bun:_bun:unix" started
+task: "bun:_bun:windows" not for current platform - ignored
+task: "bun:_install:unix" started
+task: "bun:_install:windows" not for current platform - ignored
+task: "bun:exec" finished
+task: "bun:exec" started
+task: "bun:install" finished
+task: "bun:install" started
+task: "version" finished
+task: "version" started
+task: Task "bun:_install:unix" is up to date
+task: [bun:_bun:unix] bash -lc 'export BUN_INSTALL="$HOME/.bun"; export PATH="$BUN_INSTALL/bin:$PATH"; bun x prettier --version '
+task: status command bun_bin="$HOME/.bun/bin/bun"; if [ ! -x "$bun_bin" ]; then bun_bin="$(command -v bun 2>/dev/null)"; fi; [ -n "$bun_bin" ] && [ -x "$bun_bin" ] && { [ -z "" ] || [ "$("$bun_bin" --version)" = "" ]; } exited zero

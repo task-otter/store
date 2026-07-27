@@ -1,0 +1,127 @@
+# module: uv
+# case:   bare
+
+=== task: install ===
+task: "_install:unix" started
+task: "_install:windows" not for current platform - ignored
+task: "install" finished
+task: "install" started
+task: Task "_install:unix" is up to date
+task: status command uv_bin="$HOME/.local/bin/uv"; if [ ! -x "$uv_bin" ]; then uv_bin="$(command -v uv 2>/dev/null)"; fi; [ -n "$uv_bin" ] && [ -x "$uv_bin" ] && { [ -z "" ] || "$uv_bin" --version | grep -Fqx "uv "; } exited zero
+
+=== task: install:undo ===
+task: "_install:undo:unix" finished
+task: "_install:undo:unix" started
+task: "_install:undo:windows" not for current platform - ignored
+task: "install:undo" finished
+task: "install:undo" started
+task: [_install:undo:unix] bash -lc 'export PATH="$HOME/.local/bin:$PATH"; uv self uninstall'
+task: [_install:undo:unix] echo 'Removing uv...'
+task: [_install:undo:unix] echo 'uv removed.'
+task: status command ! test -f "$HOME/.local/bin/uv" && ! command -v uv >/dev/null 2>&1 exited non-zero: exit status 1
+
+=== task: pip:install ===
+task: "_install:unix" started
+task: "_install:windows" not for current platform - ignored
+task: "_uv:unix" finished
+task: "_uv:unix" started
+task: "_uv:windows" not for current platform - ignored
+task: "install" finished
+task: "install" started
+task: "pip:install" finished
+task: "pip:install" started
+task: Task "_install:unix" is up to date
+task: [_uv:unix] bash -lc 'export PATH="$HOME/.local/bin:$PATH"; uv pip install -r "requirements.txt" '
+task: status command uv_bin="$HOME/.local/bin/uv"; if [ ! -x "$uv_bin" ]; then uv_bin="$(command -v uv 2>/dev/null)"; fi; [ -n "$uv_bin" ] && [ -x "$uv_bin" ] && { [ -z "" ] || "$uv_bin" --version | grep -Fqx "uv "; } exited zero
+
+=== task: python:install ===
+--- exit: exit status 201
+task: "_install:unix" started
+task: "_install:windows" not for current platform - ignored
+task: "install" finished
+task: "install" started
+task: "python:install" started
+task: Failed to run task "python:install": task: precondition not met
+task: PYTHON_VERSION is required. Pass PYTHON_VERSION=3.12 when running this task.
+task: Task "_install:unix" is up to date
+task: status command uv_bin="$HOME/.local/bin/uv"; if [ ! -x "$uv_bin" ]; then uv_bin="$(command -v uv 2>/dev/null)"; fi; [ -n "$uv_bin" ] && [ -x "$uv_bin" ] && { [ -z "" ] || "$uv_bin" --version | grep -Fqx "uv "; } exited zero
+
+=== task: run ===
+--- exit: exit status 201
+task: "_install:unix" started
+task: "_install:windows" not for current platform - ignored
+task: "install" finished
+task: "install" started
+task: "run" started
+task: FILE is required. Pass FILE=path/to/script.py when running this task.
+task: Failed to run task "run": task: precondition not met
+task: Task "_install:unix" is up to date
+task: status command uv_bin="$HOME/.local/bin/uv"; if [ ! -x "$uv_bin" ]; then uv_bin="$(command -v uv 2>/dev/null)"; fi; [ -n "$uv_bin" ] && [ -x "$uv_bin" ] && { [ -z "" ] || "$uv_bin" --version | grep -Fqx "uv "; } exited zero
+
+=== task: tool:install ===
+--- exit: exit status 201
+task: "_install:unix" started
+task: "_install:windows" not for current platform - ignored
+task: "install" finished
+task: "install" started
+task: "tool:install" started
+task: Failed to run task "tool:install": task: precondition not met
+task: TOOL is required. Pass TOOL=name when running this task.
+task: Task "_install:unix" is up to date
+task: status command uv_bin="$HOME/.local/bin/uv"; if [ ! -x "$uv_bin" ]; then uv_bin="$(command -v uv 2>/dev/null)"; fi; [ -n "$uv_bin" ] && [ -x "$uv_bin" ] && { [ -z "" ] || "$uv_bin" --version | grep -Fqx "uv "; } exited zero
+
+=== task: tool:upgrade ===
+--- exit: exit status 201
+task: "_install:unix" started
+task: "_install:windows" not for current platform - ignored
+task: "install" finished
+task: "install" started
+task: "tool:upgrade" started
+task: Failed to run task "tool:upgrade": task: precondition not met
+task: TOOL is required. Pass TOOL=name when running this task.
+task: Task "_install:unix" is up to date
+task: status command uv_bin="$HOME/.local/bin/uv"; if [ ! -x "$uv_bin" ]; then uv_bin="$(command -v uv 2>/dev/null)"; fi; [ -n "$uv_bin" ] && [ -x "$uv_bin" ] && { [ -z "" ] || "$uv_bin" --version | grep -Fqx "uv "; } exited zero
+
+=== task: upgrade ===
+task: "_install:unix" started
+task: "_install:windows" not for current platform - ignored
+task: "_upgrade:unix" finished
+task: "_upgrade:unix" started
+task: "_upgrade:windows" not for current platform - ignored
+task: "install" finished
+task: "install" started
+task: "upgrade" finished
+task: "upgrade" started
+task: Task "_install:unix" is up to date
+task: [_upgrade:unix] bash -lc 'export PATH="$HOME/.local/bin:$PATH"; uv self update'
+task: [_upgrade:unix] echo 'Upgrading uv...'
+task: [_upgrade:unix] echo 'uv upgraded.'
+task: status command uv_bin="$HOME/.local/bin/uv"; if [ ! -x "$uv_bin" ]; then uv_bin="$(command -v uv 2>/dev/null)"; fi; [ -n "$uv_bin" ] && [ -x "$uv_bin" ] && { [ -z "" ] || "$uv_bin" --version | grep -Fqx "uv "; } exited zero
+
+=== task: venv ===
+task: "_install:unix" started
+task: "_install:windows" not for current platform - ignored
+task: "_uv:unix" finished
+task: "_uv:unix" started
+task: "_uv:windows" not for current platform - ignored
+task: "install" finished
+task: "install" started
+task: "venv" finished
+task: "venv" started
+task: Task "_install:unix" is up to date
+task: [_uv:unix] bash -lc 'export PATH="$HOME/.local/bin:$PATH"; uv venv ".venv" '
+task: status command uv_bin="$HOME/.local/bin/uv"; if [ ! -x "$uv_bin" ]; then uv_bin="$(command -v uv 2>/dev/null)"; fi; [ -n "$uv_bin" ] && [ -x "$uv_bin" ] && { [ -z "" ] || "$uv_bin" --version | grep -Fqx "uv "; } exited zero
+
+=== task: version ===
+task: "_install:unix" started
+task: "_install:windows" not for current platform - ignored
+task: "_version:unix" finished
+task: "_version:unix" started
+task: "_version:windows" not for current platform - ignored
+task: "install" finished
+task: "install" started
+task: "version" finished
+task: "version" started
+task: Task "_install:unix" is up to date
+task: [_version:unix] bash -lc 'export PATH="$HOME/.local/bin:$PATH"; uv --version'
+task: status command uv_bin="$HOME/.local/bin/uv"; if [ ! -x "$uv_bin" ]; then uv_bin="$(command -v uv 2>/dev/null)"; fi; [ -n "$uv_bin" ] && [ -x "$uv_bin" ] && { [ -z "" ] || "$uv_bin" --version | grep -Fqx "uv "; } exited zero

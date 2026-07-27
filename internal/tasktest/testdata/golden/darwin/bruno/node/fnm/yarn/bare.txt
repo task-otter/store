@@ -1,0 +1,67 @@
+# module: bruno/node/fnm/yarn
+# case:   bare
+
+=== task: ci ===
+task: "ci" finished
+task: "ci" started
+task: "yarn:_exec:unix" finished
+task: "yarn:_exec:unix" started
+task: "yarn:_exec:windows" not for current platform - ignored
+task: "yarn:exec" finished
+task: "yarn:exec" started
+task: [yarn:_exec:unix] bash -c "bru run . --bail "
+
+=== task: help ===
+task: "help" finished
+task: "help" started
+task: "yarn:_exec:unix" finished
+task: "yarn:_exec:unix" started
+task: "yarn:_exec:windows" not for current platform - ignored
+task: "yarn:exec" finished
+task: "yarn:exec" started
+task: [yarn:_exec:unix] bash -c "bru --help "
+
+=== task: install ===
+task: "install" started
+task: Task "install" is up to date
+task: status command node -e "const installed = require('./node_modules/@usebruno/cli/package.json'); const requested = ''; process.exit(!requested || installed.version === requested ? 0 : 1)" exited zero
+
+=== task: install:undo ===
+task: "install:undo" finished
+task: "install:undo" started
+task: "yarn:_yarn:unix" finished
+task: "yarn:_yarn:unix" started
+task: "yarn:_yarn:windows" not for current platform - ignored
+task: "yarn:remove" finished
+task: "yarn:remove" started
+task: [yarn:_yarn:unix] bash -c 'export PATH="$HOME/.local/share/fnm:$HOME/.local/bin:$PATH"; if [ -f .node-version ] || [ -f .nvmrc ]; then fnm use; fi; command -v corepack >/dev/null 2>&1 || { echo "corepack is not available. Run: task manager:setup"; exit 1; }; corepack yarn global remove @usebruno/cli '
+
+=== task: run ===
+task: "run" finished
+task: "run" started
+task: "yarn:_exec:unix" finished
+task: "yarn:_exec:unix" started
+task: "yarn:_exec:windows" not for current platform - ignored
+task: "yarn:exec" finished
+task: "yarn:exec" started
+task: [yarn:_exec:unix] bash -c "bru run . "
+
+=== task: upgrade ===
+task: "upgrade" finished
+task: "upgrade" started
+task: "yarn:_yarn:unix" finished
+task: "yarn:_yarn:unix" started
+task: "yarn:_yarn:windows" not for current platform - ignored
+task: "yarn:add" finished
+task: "yarn:add" started
+task: [yarn:_yarn:unix] bash -c 'export PATH="$HOME/.local/share/fnm:$HOME/.local/bin:$PATH"; if [ -f .node-version ] || [ -f .nvmrc ]; then fnm use; fi; command -v corepack >/dev/null 2>&1 || { echo "corepack is not available. Run: task manager:setup"; exit 1; }; corepack yarn global add @usebruno/cli@latest '
+
+=== task: version ===
+task: "version" finished
+task: "version" started
+task: "yarn:_exec:unix" finished
+task: "yarn:_exec:unix" started
+task: "yarn:_exec:windows" not for current platform - ignored
+task: "yarn:exec" finished
+task: "yarn:exec" started
+task: [yarn:_exec:unix] bash -c "bru --version "

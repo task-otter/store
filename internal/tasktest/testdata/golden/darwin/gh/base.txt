@@ -1,0 +1,3324 @@
+# module: gh
+# case:   base
+# vars:
+#   BASE=BASE-BASE
+#   CLONE_DIR=BASE-CLONE_DIR
+#   DATA=BASE-DATA
+#   DOWNLOAD_DIR=BASE-DOWNLOAD_DIR
+#   MERGE_METHOD=BASE-MERGE_METHOD
+#   PAT_TOKEN=BASE-PAT_TOKEN
+#   VERSION=BASE-VERSION
+#   VISIBILITY=BASE-VISIBILITY
+
+=== task: alias:delete ===
+--- exit: exit status 206
+task: Task "alias:delete" cancelled because it is missing required variables: ALIAS_NAME
+
+=== task: alias:list ===
+
+      | sudo tee /etc/apt/keyrings/githubcli-archive-keyring.gpg > /dev/null
+      | sudo tee /etc/apt/sources.list.d/github-cli.list > /dev/null
+    _key="signed-by=/etc/apt/keyrings/githubcli-archive-keyring.gpg"
+    brew install "gh${VERSION:+@$VERSION}"
+    brew install "gh${VERSION:+@$VERSION}"
+    echo "deb [arch=$(dpkg --print-architecture) $_key] https://cli.github.com/packages stable main" \
+    echo 'Arch Linux detected. Installing gh via pacman...'
+    echo 'CentOS/RHEL detected. Installing gh via yum...'
+    echo 'Debian/Ubuntu detected. Installing gh via apt...'
+    echo 'ERROR: Homebrew is required to install gh on macOS.'
+    echo 'ERROR: No supported package manager detected.'
+    echo 'Fedora/RHEL detected. Installing gh via dnf...'
+    echo 'Homebrew detected. Installing gh via brew...'
+    echo 'Install Homebrew from https://brew.sh and then re-run: task install'
+    echo 'See https://cli.github.com/manual/installation'
+    echo 'macOS detected. Installing gh via Homebrew...'
+    echo 'openSUSE detected. Installing gh via zypper...'
+    echo 'snap detected. Installing gh via snap...'
+    exit 1
+    exit 1
+    sudo apt-get install -y "gh${VERSION:+=$VERSION}"
+    sudo apt-get install -y wget
+    sudo apt-get update
+    sudo apt-get update
+    sudo chmod go+r /etc/apt/keyrings/githubcli-archive-keyring.gpg
+    sudo dnf config-manager --add-repo https://cli.github.com/packages/rpm/gh-cli.repo
+    sudo dnf install -y "gh${VERSION:+-$VERSION}" --repo gh-cli
+    sudo dnf install -y 'dnf-command(config-manager)'
+    sudo mkdir -p -m 755 /etc/apt/keyrings
+    sudo pacman -S --noconfirm github-cli
+    sudo snap install gh
+    sudo yum install -y "gh${VERSION:+-$VERSION}"
+    sudo yum-config-manager --add-repo https://cli.github.com/packages/rpm/gh-cli.repo
+    sudo zypper addrepo https://cli.github.com/packages/rpm/gh-cli.repo
+    sudo zypper install -y "gh${VERSION:+-$VERSION}"
+    sudo zypper ref
+    wget -qO- https://cli.github.com/packages/githubcli-archive-keyring.gpg \
+  echo "ERROR: Unsupported OS: $OS"
+  echo 'See https://cli.github.com/manual/installation'
+  elif command -v brew >/dev/null 2>&1; then
+  elif command -v dnf >/dev/null 2>&1; then
+  elif command -v pacman >/dev/null 2>&1; then
+  elif command -v snap >/dev/null 2>&1; then
+  elif command -v yum >/dev/null 2>&1; then
+  elif command -v zypper >/dev/null 2>&1; then
+  else
+  else
+  exit 1
+  fi
+  fi
+  if command -v apt-get >/dev/null 2>&1; then
+  if command -v brew >/dev/null 2>&1; then
+OS="$(uname -s)"
+elif [ "$OS" = "Linux" ]; then
+else
+fi
+if [ "$OS" = "Darwin" ]; then
+task: "_install:auto:unix" finished
+task: "_install:auto:unix" started
+task: "_install:auto:windows" not for current platform - ignored
+task: "alias:list" finished
+task: "alias:list" started
+task: "install" finished
+task: "install" started
+task: [_install:auto:unix] VERSION="BASE-VERSION"
+task: [alias:list] gh alias list
+task: status command command -v gh >/dev/null 2>&1 && { [ -z "BASE-VERSION" ] || gh --version | grep -Fqx "gh version BASE-VERSION"; } exited non-zero: exit status 1
+
+=== task: alias:set ===
+--- exit: exit status 206
+task: Task "alias:set" cancelled because it is missing required variables: ALIAS_NAME, ALIAS_COMMAND
+
+=== task: api:delete:danger ===
+--- exit: exit status 206
+task: Task "api:delete:danger" cancelled because it is missing required variables: ENDPOINT
+
+=== task: api:get ===
+--- exit: exit status 206
+task: Task "api:get" cancelled because it is missing required variables: ENDPOINT
+
+=== task: api:patch ===
+--- exit: exit status 206
+task: Task "api:patch" cancelled because it is missing required variables: ENDPOINT
+
+=== task: api:post ===
+--- exit: exit status 206
+task: Task "api:post" cancelled because it is missing required variables: ENDPOINT
+
+=== task: auth:login ===
+
+      | sudo tee /etc/apt/keyrings/githubcli-archive-keyring.gpg > /dev/null
+      | sudo tee /etc/apt/sources.list.d/github-cli.list > /dev/null
+    _key="signed-by=/etc/apt/keyrings/githubcli-archive-keyring.gpg"
+    brew install "gh${VERSION:+@$VERSION}"
+    brew install "gh${VERSION:+@$VERSION}"
+    echo "deb [arch=$(dpkg --print-architecture) $_key] https://cli.github.com/packages stable main" \
+    echo 'Arch Linux detected. Installing gh via pacman...'
+    echo 'CentOS/RHEL detected. Installing gh via yum...'
+    echo 'Debian/Ubuntu detected. Installing gh via apt...'
+    echo 'ERROR: Homebrew is required to install gh on macOS.'
+    echo 'ERROR: No supported package manager detected.'
+    echo 'Fedora/RHEL detected. Installing gh via dnf...'
+    echo 'Homebrew detected. Installing gh via brew...'
+    echo 'Install Homebrew from https://brew.sh and then re-run: task install'
+    echo 'See https://cli.github.com/manual/installation'
+    echo 'macOS detected. Installing gh via Homebrew...'
+    echo 'openSUSE detected. Installing gh via zypper...'
+    echo 'snap detected. Installing gh via snap...'
+    exit 1
+    exit 1
+    sudo apt-get install -y "gh${VERSION:+=$VERSION}"
+    sudo apt-get install -y wget
+    sudo apt-get update
+    sudo apt-get update
+    sudo chmod go+r /etc/apt/keyrings/githubcli-archive-keyring.gpg
+    sudo dnf config-manager --add-repo https://cli.github.com/packages/rpm/gh-cli.repo
+    sudo dnf install -y "gh${VERSION:+-$VERSION}" --repo gh-cli
+    sudo dnf install -y 'dnf-command(config-manager)'
+    sudo mkdir -p -m 755 /etc/apt/keyrings
+    sudo pacman -S --noconfirm github-cli
+    sudo snap install gh
+    sudo yum install -y "gh${VERSION:+-$VERSION}"
+    sudo yum-config-manager --add-repo https://cli.github.com/packages/rpm/gh-cli.repo
+    sudo zypper addrepo https://cli.github.com/packages/rpm/gh-cli.repo
+    sudo zypper install -y "gh${VERSION:+-$VERSION}"
+    sudo zypper ref
+    wget -qO- https://cli.github.com/packages/githubcli-archive-keyring.gpg \
+  echo "ERROR: Unsupported OS: $OS"
+  echo 'See https://cli.github.com/manual/installation'
+  elif command -v brew >/dev/null 2>&1; then
+  elif command -v dnf >/dev/null 2>&1; then
+  elif command -v pacman >/dev/null 2>&1; then
+  elif command -v snap >/dev/null 2>&1; then
+  elif command -v yum >/dev/null 2>&1; then
+  elif command -v zypper >/dev/null 2>&1; then
+  else
+  else
+  exit 1
+  fi
+  fi
+  if command -v apt-get >/dev/null 2>&1; then
+  if command -v brew >/dev/null 2>&1; then
+OS="$(uname -s)"
+elif [ "$OS" = "Linux" ]; then
+else
+fi
+if [ "$OS" = "Darwin" ]; then
+task: "_install:auto:unix" finished
+task: "_install:auto:unix" started
+task: "_install:auto:windows" not for current platform - ignored
+task: "auth:login" finished
+task: "auth:login" started
+task: "install" finished
+task: "install" started
+task: [_install:auto:unix] VERSION="BASE-VERSION"
+task: [auth:login] gh auth login
+task: status command command -v gh >/dev/null 2>&1 && { [ -z "BASE-VERSION" ] || gh --version | grep -Fqx "gh version BASE-VERSION"; } exited non-zero: exit status 1
+
+=== task: auth:login:ssh ===
+
+      | sudo tee /etc/apt/keyrings/githubcli-archive-keyring.gpg > /dev/null
+      | sudo tee /etc/apt/sources.list.d/github-cli.list > /dev/null
+    _key="signed-by=/etc/apt/keyrings/githubcli-archive-keyring.gpg"
+    brew install "gh${VERSION:+@$VERSION}"
+    brew install "gh${VERSION:+@$VERSION}"
+    echo "deb [arch=$(dpkg --print-architecture) $_key] https://cli.github.com/packages stable main" \
+    echo 'Arch Linux detected. Installing gh via pacman...'
+    echo 'CentOS/RHEL detected. Installing gh via yum...'
+    echo 'Debian/Ubuntu detected. Installing gh via apt...'
+    echo 'ERROR: Homebrew is required to install gh on macOS.'
+    echo 'ERROR: No supported package manager detected.'
+    echo 'Fedora/RHEL detected. Installing gh via dnf...'
+    echo 'Homebrew detected. Installing gh via brew...'
+    echo 'Install Homebrew from https://brew.sh and then re-run: task install'
+    echo 'See https://cli.github.com/manual/installation'
+    echo 'macOS detected. Installing gh via Homebrew...'
+    echo 'openSUSE detected. Installing gh via zypper...'
+    echo 'snap detected. Installing gh via snap...'
+    exit 1
+    exit 1
+    sudo apt-get install -y "gh${VERSION:+=$VERSION}"
+    sudo apt-get install -y wget
+    sudo apt-get update
+    sudo apt-get update
+    sudo chmod go+r /etc/apt/keyrings/githubcli-archive-keyring.gpg
+    sudo dnf config-manager --add-repo https://cli.github.com/packages/rpm/gh-cli.repo
+    sudo dnf install -y "gh${VERSION:+-$VERSION}" --repo gh-cli
+    sudo dnf install -y 'dnf-command(config-manager)'
+    sudo mkdir -p -m 755 /etc/apt/keyrings
+    sudo pacman -S --noconfirm github-cli
+    sudo snap install gh
+    sudo yum install -y "gh${VERSION:+-$VERSION}"
+    sudo yum-config-manager --add-repo https://cli.github.com/packages/rpm/gh-cli.repo
+    sudo zypper addrepo https://cli.github.com/packages/rpm/gh-cli.repo
+    sudo zypper install -y "gh${VERSION:+-$VERSION}"
+    sudo zypper ref
+    wget -qO- https://cli.github.com/packages/githubcli-archive-keyring.gpg \
+  echo "ERROR: Unsupported OS: $OS"
+  echo 'See https://cli.github.com/manual/installation'
+  elif command -v brew >/dev/null 2>&1; then
+  elif command -v dnf >/dev/null 2>&1; then
+  elif command -v pacman >/dev/null 2>&1; then
+  elif command -v snap >/dev/null 2>&1; then
+  elif command -v yum >/dev/null 2>&1; then
+  elif command -v zypper >/dev/null 2>&1; then
+  else
+  else
+  exit 1
+  fi
+  fi
+  if command -v apt-get >/dev/null 2>&1; then
+  if command -v brew >/dev/null 2>&1; then
+OS="$(uname -s)"
+elif [ "$OS" = "Linux" ]; then
+else
+fi
+if [ "$OS" = "Darwin" ]; then
+task: "_install:auto:unix" finished
+task: "_install:auto:unix" started
+task: "_install:auto:windows" not for current platform - ignored
+task: "auth:login:ssh" finished
+task: "auth:login:ssh" started
+task: "install" finished
+task: "install" started
+task: [_install:auto:unix] VERSION="BASE-VERSION"
+task: [auth:login:ssh] gh auth login --git-protocol ssh
+task: status command command -v gh >/dev/null 2>&1 && { [ -z "BASE-VERSION" ] || gh --version | grep -Fqx "gh version BASE-VERSION"; } exited non-zero: exit status 1
+
+=== task: auth:login:web ===
+
+      | sudo tee /etc/apt/keyrings/githubcli-archive-keyring.gpg > /dev/null
+      | sudo tee /etc/apt/sources.list.d/github-cli.list > /dev/null
+    _key="signed-by=/etc/apt/keyrings/githubcli-archive-keyring.gpg"
+    brew install "gh${VERSION:+@$VERSION}"
+    brew install "gh${VERSION:+@$VERSION}"
+    echo "deb [arch=$(dpkg --print-architecture) $_key] https://cli.github.com/packages stable main" \
+    echo 'Arch Linux detected. Installing gh via pacman...'
+    echo 'CentOS/RHEL detected. Installing gh via yum...'
+    echo 'Debian/Ubuntu detected. Installing gh via apt...'
+    echo 'ERROR: Homebrew is required to install gh on macOS.'
+    echo 'ERROR: No supported package manager detected.'
+    echo 'Fedora/RHEL detected. Installing gh via dnf...'
+    echo 'Homebrew detected. Installing gh via brew...'
+    echo 'Install Homebrew from https://brew.sh and then re-run: task install'
+    echo 'See https://cli.github.com/manual/installation'
+    echo 'macOS detected. Installing gh via Homebrew...'
+    echo 'openSUSE detected. Installing gh via zypper...'
+    echo 'snap detected. Installing gh via snap...'
+    exit 1
+    exit 1
+    sudo apt-get install -y "gh${VERSION:+=$VERSION}"
+    sudo apt-get install -y wget
+    sudo apt-get update
+    sudo apt-get update
+    sudo chmod go+r /etc/apt/keyrings/githubcli-archive-keyring.gpg
+    sudo dnf config-manager --add-repo https://cli.github.com/packages/rpm/gh-cli.repo
+    sudo dnf install -y "gh${VERSION:+-$VERSION}" --repo gh-cli
+    sudo dnf install -y 'dnf-command(config-manager)'
+    sudo mkdir -p -m 755 /etc/apt/keyrings
+    sudo pacman -S --noconfirm github-cli
+    sudo snap install gh
+    sudo yum install -y "gh${VERSION:+-$VERSION}"
+    sudo yum-config-manager --add-repo https://cli.github.com/packages/rpm/gh-cli.repo
+    sudo zypper addrepo https://cli.github.com/packages/rpm/gh-cli.repo
+    sudo zypper install -y "gh${VERSION:+-$VERSION}"
+    sudo zypper ref
+    wget -qO- https://cli.github.com/packages/githubcli-archive-keyring.gpg \
+  echo "ERROR: Unsupported OS: $OS"
+  echo 'See https://cli.github.com/manual/installation'
+  elif command -v brew >/dev/null 2>&1; then
+  elif command -v dnf >/dev/null 2>&1; then
+  elif command -v pacman >/dev/null 2>&1; then
+  elif command -v snap >/dev/null 2>&1; then
+  elif command -v yum >/dev/null 2>&1; then
+  elif command -v zypper >/dev/null 2>&1; then
+  else
+  else
+  exit 1
+  fi
+  fi
+  if command -v apt-get >/dev/null 2>&1; then
+  if command -v brew >/dev/null 2>&1; then
+OS="$(uname -s)"
+elif [ "$OS" = "Linux" ]; then
+else
+fi
+if [ "$OS" = "Darwin" ]; then
+task: "_install:auto:unix" finished
+task: "_install:auto:unix" started
+task: "_install:auto:windows" not for current platform - ignored
+task: "auth:login:web" finished
+task: "auth:login:web" started
+task: "install" finished
+task: "install" started
+task: [_install:auto:unix] VERSION="BASE-VERSION"
+task: [auth:login:web] gh auth login --web
+task: status command command -v gh >/dev/null 2>&1 && { [ -z "BASE-VERSION" ] || gh --version | grep -Fqx "gh version BASE-VERSION"; } exited non-zero: exit status 1
+
+=== task: auth:logout ===
+
+      | sudo tee /etc/apt/keyrings/githubcli-archive-keyring.gpg > /dev/null
+      | sudo tee /etc/apt/sources.list.d/github-cli.list > /dev/null
+    _key="signed-by=/etc/apt/keyrings/githubcli-archive-keyring.gpg"
+    brew install "gh${VERSION:+@$VERSION}"
+    brew install "gh${VERSION:+@$VERSION}"
+    echo "deb [arch=$(dpkg --print-architecture) $_key] https://cli.github.com/packages stable main" \
+    echo 'Arch Linux detected. Installing gh via pacman...'
+    echo 'CentOS/RHEL detected. Installing gh via yum...'
+    echo 'Debian/Ubuntu detected. Installing gh via apt...'
+    echo 'ERROR: Homebrew is required to install gh on macOS.'
+    echo 'ERROR: No supported package manager detected.'
+    echo 'Fedora/RHEL detected. Installing gh via dnf...'
+    echo 'Homebrew detected. Installing gh via brew...'
+    echo 'Install Homebrew from https://brew.sh and then re-run: task install'
+    echo 'See https://cli.github.com/manual/installation'
+    echo 'macOS detected. Installing gh via Homebrew...'
+    echo 'openSUSE detected. Installing gh via zypper...'
+    echo 'snap detected. Installing gh via snap...'
+    exit 1
+    exit 1
+    sudo apt-get install -y "gh${VERSION:+=$VERSION}"
+    sudo apt-get install -y wget
+    sudo apt-get update
+    sudo apt-get update
+    sudo chmod go+r /etc/apt/keyrings/githubcli-archive-keyring.gpg
+    sudo dnf config-manager --add-repo https://cli.github.com/packages/rpm/gh-cli.repo
+    sudo dnf install -y "gh${VERSION:+-$VERSION}" --repo gh-cli
+    sudo dnf install -y 'dnf-command(config-manager)'
+    sudo mkdir -p -m 755 /etc/apt/keyrings
+    sudo pacman -S --noconfirm github-cli
+    sudo snap install gh
+    sudo yum install -y "gh${VERSION:+-$VERSION}"
+    sudo yum-config-manager --add-repo https://cli.github.com/packages/rpm/gh-cli.repo
+    sudo zypper addrepo https://cli.github.com/packages/rpm/gh-cli.repo
+    sudo zypper install -y "gh${VERSION:+-$VERSION}"
+    sudo zypper ref
+    wget -qO- https://cli.github.com/packages/githubcli-archive-keyring.gpg \
+  echo "ERROR: Unsupported OS: $OS"
+  echo 'See https://cli.github.com/manual/installation'
+  elif command -v brew >/dev/null 2>&1; then
+  elif command -v dnf >/dev/null 2>&1; then
+  elif command -v pacman >/dev/null 2>&1; then
+  elif command -v snap >/dev/null 2>&1; then
+  elif command -v yum >/dev/null 2>&1; then
+  elif command -v zypper >/dev/null 2>&1; then
+  else
+  else
+  exit 1
+  fi
+  fi
+  if command -v apt-get >/dev/null 2>&1; then
+  if command -v brew >/dev/null 2>&1; then
+OS="$(uname -s)"
+elif [ "$OS" = "Linux" ]; then
+else
+fi
+if [ "$OS" = "Darwin" ]; then
+task: "_install:auto:unix" finished
+task: "_install:auto:unix" started
+task: "_install:auto:windows" not for current platform - ignored
+task: "auth:logout" finished
+task: "auth:logout" started
+task: "install" finished
+task: "install" started
+task: [_install:auto:unix] VERSION="BASE-VERSION"
+task: [auth:logout] gh auth logout
+task: status command command -v gh >/dev/null 2>&1 && { [ -z "BASE-VERSION" ] || gh --version | grep -Fqx "gh version BASE-VERSION"; } exited non-zero: exit status 1
+
+=== task: auth:refresh ===
+
+      | sudo tee /etc/apt/keyrings/githubcli-archive-keyring.gpg > /dev/null
+      | sudo tee /etc/apt/sources.list.d/github-cli.list > /dev/null
+    _key="signed-by=/etc/apt/keyrings/githubcli-archive-keyring.gpg"
+    brew install "gh${VERSION:+@$VERSION}"
+    brew install "gh${VERSION:+@$VERSION}"
+    echo "deb [arch=$(dpkg --print-architecture) $_key] https://cli.github.com/packages stable main" \
+    echo 'Arch Linux detected. Installing gh via pacman...'
+    echo 'CentOS/RHEL detected. Installing gh via yum...'
+    echo 'Debian/Ubuntu detected. Installing gh via apt...'
+    echo 'ERROR: Homebrew is required to install gh on macOS.'
+    echo 'ERROR: No supported package manager detected.'
+    echo 'Fedora/RHEL detected. Installing gh via dnf...'
+    echo 'Homebrew detected. Installing gh via brew...'
+    echo 'Install Homebrew from https://brew.sh and then re-run: task install'
+    echo 'See https://cli.github.com/manual/installation'
+    echo 'macOS detected. Installing gh via Homebrew...'
+    echo 'openSUSE detected. Installing gh via zypper...'
+    echo 'snap detected. Installing gh via snap...'
+    exit 1
+    exit 1
+    sudo apt-get install -y "gh${VERSION:+=$VERSION}"
+    sudo apt-get install -y wget
+    sudo apt-get update
+    sudo apt-get update
+    sudo chmod go+r /etc/apt/keyrings/githubcli-archive-keyring.gpg
+    sudo dnf config-manager --add-repo https://cli.github.com/packages/rpm/gh-cli.repo
+    sudo dnf install -y "gh${VERSION:+-$VERSION}" --repo gh-cli
+    sudo dnf install -y 'dnf-command(config-manager)'
+    sudo mkdir -p -m 755 /etc/apt/keyrings
+    sudo pacman -S --noconfirm github-cli
+    sudo snap install gh
+    sudo yum install -y "gh${VERSION:+-$VERSION}"
+    sudo yum-config-manager --add-repo https://cli.github.com/packages/rpm/gh-cli.repo
+    sudo zypper addrepo https://cli.github.com/packages/rpm/gh-cli.repo
+    sudo zypper install -y "gh${VERSION:+-$VERSION}"
+    sudo zypper ref
+    wget -qO- https://cli.github.com/packages/githubcli-archive-keyring.gpg \
+  echo "ERROR: Unsupported OS: $OS"
+  echo 'See https://cli.github.com/manual/installation'
+  elif command -v brew >/dev/null 2>&1; then
+  elif command -v dnf >/dev/null 2>&1; then
+  elif command -v pacman >/dev/null 2>&1; then
+  elif command -v snap >/dev/null 2>&1; then
+  elif command -v yum >/dev/null 2>&1; then
+  elif command -v zypper >/dev/null 2>&1; then
+  else
+  else
+  exit 1
+  fi
+  fi
+  if command -v apt-get >/dev/null 2>&1; then
+  if command -v brew >/dev/null 2>&1; then
+OS="$(uname -s)"
+elif [ "$OS" = "Linux" ]; then
+else
+fi
+if [ "$OS" = "Darwin" ]; then
+task: "_install:auto:unix" finished
+task: "_install:auto:unix" started
+task: "_install:auto:windows" not for current platform - ignored
+task: "auth:refresh" finished
+task: "auth:refresh" started
+task: "install" finished
+task: "install" started
+task: [_install:auto:unix] VERSION="BASE-VERSION"
+task: [auth:refresh] gh auth refresh
+task: status command command -v gh >/dev/null 2>&1 && { [ -z "BASE-VERSION" ] || gh --version | grep -Fqx "gh version BASE-VERSION"; } exited non-zero: exit status 1
+
+=== task: auth:setup-git ===
+
+      | sudo tee /etc/apt/keyrings/githubcli-archive-keyring.gpg > /dev/null
+      | sudo tee /etc/apt/sources.list.d/github-cli.list > /dev/null
+    _key="signed-by=/etc/apt/keyrings/githubcli-archive-keyring.gpg"
+    brew install "gh${VERSION:+@$VERSION}"
+    brew install "gh${VERSION:+@$VERSION}"
+    echo "deb [arch=$(dpkg --print-architecture) $_key] https://cli.github.com/packages stable main" \
+    echo 'Arch Linux detected. Installing gh via pacman...'
+    echo 'CentOS/RHEL detected. Installing gh via yum...'
+    echo 'Debian/Ubuntu detected. Installing gh via apt...'
+    echo 'ERROR: Homebrew is required to install gh on macOS.'
+    echo 'ERROR: No supported package manager detected.'
+    echo 'Fedora/RHEL detected. Installing gh via dnf...'
+    echo 'Homebrew detected. Installing gh via brew...'
+    echo 'Install Homebrew from https://brew.sh and then re-run: task install'
+    echo 'See https://cli.github.com/manual/installation'
+    echo 'macOS detected. Installing gh via Homebrew...'
+    echo 'openSUSE detected. Installing gh via zypper...'
+    echo 'snap detected. Installing gh via snap...'
+    exit 1
+    exit 1
+    sudo apt-get install -y "gh${VERSION:+=$VERSION}"
+    sudo apt-get install -y wget
+    sudo apt-get update
+    sudo apt-get update
+    sudo chmod go+r /etc/apt/keyrings/githubcli-archive-keyring.gpg
+    sudo dnf config-manager --add-repo https://cli.github.com/packages/rpm/gh-cli.repo
+    sudo dnf install -y "gh${VERSION:+-$VERSION}" --repo gh-cli
+    sudo dnf install -y 'dnf-command(config-manager)'
+    sudo mkdir -p -m 755 /etc/apt/keyrings
+    sudo pacman -S --noconfirm github-cli
+    sudo snap install gh
+    sudo yum install -y "gh${VERSION:+-$VERSION}"
+    sudo yum-config-manager --add-repo https://cli.github.com/packages/rpm/gh-cli.repo
+    sudo zypper addrepo https://cli.github.com/packages/rpm/gh-cli.repo
+    sudo zypper install -y "gh${VERSION:+-$VERSION}"
+    sudo zypper ref
+    wget -qO- https://cli.github.com/packages/githubcli-archive-keyring.gpg \
+  echo "ERROR: Unsupported OS: $OS"
+  echo 'See https://cli.github.com/manual/installation'
+  elif command -v brew >/dev/null 2>&1; then
+  elif command -v dnf >/dev/null 2>&1; then
+  elif command -v pacman >/dev/null 2>&1; then
+  elif command -v snap >/dev/null 2>&1; then
+  elif command -v yum >/dev/null 2>&1; then
+  elif command -v zypper >/dev/null 2>&1; then
+  else
+  else
+  exit 1
+  fi
+  fi
+  if command -v apt-get >/dev/null 2>&1; then
+  if command -v brew >/dev/null 2>&1; then
+OS="$(uname -s)"
+elif [ "$OS" = "Linux" ]; then
+else
+fi
+if [ "$OS" = "Darwin" ]; then
+task: "_install:auto:unix" finished
+task: "_install:auto:unix" started
+task: "_install:auto:windows" not for current platform - ignored
+task: "auth:setup-git" finished
+task: "auth:setup-git" started
+task: "install" finished
+task: "install" started
+task: [_install:auto:unix] VERSION="BASE-VERSION"
+task: [auth:setup-git] gh auth setup-git
+task: status command command -v gh >/dev/null 2>&1 && { [ -z "BASE-VERSION" ] || gh --version | grep -Fqx "gh version BASE-VERSION"; } exited non-zero: exit status 1
+
+=== task: auth:status ===
+
+      | sudo tee /etc/apt/keyrings/githubcli-archive-keyring.gpg > /dev/null
+      | sudo tee /etc/apt/sources.list.d/github-cli.list > /dev/null
+    _key="signed-by=/etc/apt/keyrings/githubcli-archive-keyring.gpg"
+    brew install "gh${VERSION:+@$VERSION}"
+    brew install "gh${VERSION:+@$VERSION}"
+    echo "deb [arch=$(dpkg --print-architecture) $_key] https://cli.github.com/packages stable main" \
+    echo 'Arch Linux detected. Installing gh via pacman...'
+    echo 'CentOS/RHEL detected. Installing gh via yum...'
+    echo 'Debian/Ubuntu detected. Installing gh via apt...'
+    echo 'ERROR: Homebrew is required to install gh on macOS.'
+    echo 'ERROR: No supported package manager detected.'
+    echo 'Fedora/RHEL detected. Installing gh via dnf...'
+    echo 'Homebrew detected. Installing gh via brew...'
+    echo 'Install Homebrew from https://brew.sh and then re-run: task install'
+    echo 'See https://cli.github.com/manual/installation'
+    echo 'macOS detected. Installing gh via Homebrew...'
+    echo 'openSUSE detected. Installing gh via zypper...'
+    echo 'snap detected. Installing gh via snap...'
+    exit 1
+    exit 1
+    sudo apt-get install -y "gh${VERSION:+=$VERSION}"
+    sudo apt-get install -y wget
+    sudo apt-get update
+    sudo apt-get update
+    sudo chmod go+r /etc/apt/keyrings/githubcli-archive-keyring.gpg
+    sudo dnf config-manager --add-repo https://cli.github.com/packages/rpm/gh-cli.repo
+    sudo dnf install -y "gh${VERSION:+-$VERSION}" --repo gh-cli
+    sudo dnf install -y 'dnf-command(config-manager)'
+    sudo mkdir -p -m 755 /etc/apt/keyrings
+    sudo pacman -S --noconfirm github-cli
+    sudo snap install gh
+    sudo yum install -y "gh${VERSION:+-$VERSION}"
+    sudo yum-config-manager --add-repo https://cli.github.com/packages/rpm/gh-cli.repo
+    sudo zypper addrepo https://cli.github.com/packages/rpm/gh-cli.repo
+    sudo zypper install -y "gh${VERSION:+-$VERSION}"
+    sudo zypper ref
+    wget -qO- https://cli.github.com/packages/githubcli-archive-keyring.gpg \
+  echo "ERROR: Unsupported OS: $OS"
+  echo 'See https://cli.github.com/manual/installation'
+  elif command -v brew >/dev/null 2>&1; then
+  elif command -v dnf >/dev/null 2>&1; then
+  elif command -v pacman >/dev/null 2>&1; then
+  elif command -v snap >/dev/null 2>&1; then
+  elif command -v yum >/dev/null 2>&1; then
+  elif command -v zypper >/dev/null 2>&1; then
+  else
+  else
+  exit 1
+  fi
+  fi
+  if command -v apt-get >/dev/null 2>&1; then
+  if command -v brew >/dev/null 2>&1; then
+OS="$(uname -s)"
+elif [ "$OS" = "Linux" ]; then
+else
+fi
+if [ "$OS" = "Darwin" ]; then
+task: "_install:auto:unix" finished
+task: "_install:auto:unix" started
+task: "_install:auto:windows" not for current platform - ignored
+task: "auth:status" finished
+task: "auth:status" started
+task: "install" finished
+task: "install" started
+task: [_install:auto:unix] VERSION="BASE-VERSION"
+task: [auth:status] gh auth status
+task: status command command -v gh >/dev/null 2>&1 && { [ -z "BASE-VERSION" ] || gh --version | grep -Fqx "gh version BASE-VERSION"; } exited non-zero: exit status 1
+
+=== task: browse ===
+
+      | sudo tee /etc/apt/keyrings/githubcli-archive-keyring.gpg > /dev/null
+      | sudo tee /etc/apt/sources.list.d/github-cli.list > /dev/null
+    _key="signed-by=/etc/apt/keyrings/githubcli-archive-keyring.gpg"
+    brew install "gh${VERSION:+@$VERSION}"
+    brew install "gh${VERSION:+@$VERSION}"
+    echo "deb [arch=$(dpkg --print-architecture) $_key] https://cli.github.com/packages stable main" \
+    echo 'Arch Linux detected. Installing gh via pacman...'
+    echo 'CentOS/RHEL detected. Installing gh via yum...'
+    echo 'Debian/Ubuntu detected. Installing gh via apt...'
+    echo 'ERROR: Homebrew is required to install gh on macOS.'
+    echo 'ERROR: No supported package manager detected.'
+    echo 'Fedora/RHEL detected. Installing gh via dnf...'
+    echo 'Homebrew detected. Installing gh via brew...'
+    echo 'Install Homebrew from https://brew.sh and then re-run: task install'
+    echo 'See https://cli.github.com/manual/installation'
+    echo 'macOS detected. Installing gh via Homebrew...'
+    echo 'openSUSE detected. Installing gh via zypper...'
+    echo 'snap detected. Installing gh via snap...'
+    exit 1
+    exit 1
+    sudo apt-get install -y "gh${VERSION:+=$VERSION}"
+    sudo apt-get install -y wget
+    sudo apt-get update
+    sudo apt-get update
+    sudo chmod go+r /etc/apt/keyrings/githubcli-archive-keyring.gpg
+    sudo dnf config-manager --add-repo https://cli.github.com/packages/rpm/gh-cli.repo
+    sudo dnf install -y "gh${VERSION:+-$VERSION}" --repo gh-cli
+    sudo dnf install -y 'dnf-command(config-manager)'
+    sudo mkdir -p -m 755 /etc/apt/keyrings
+    sudo pacman -S --noconfirm github-cli
+    sudo snap install gh
+    sudo yum install -y "gh${VERSION:+-$VERSION}"
+    sudo yum-config-manager --add-repo https://cli.github.com/packages/rpm/gh-cli.repo
+    sudo zypper addrepo https://cli.github.com/packages/rpm/gh-cli.repo
+    sudo zypper install -y "gh${VERSION:+-$VERSION}"
+    sudo zypper ref
+    wget -qO- https://cli.github.com/packages/githubcli-archive-keyring.gpg \
+  echo "ERROR: Unsupported OS: $OS"
+  echo 'See https://cli.github.com/manual/installation'
+  elif command -v brew >/dev/null 2>&1; then
+  elif command -v dnf >/dev/null 2>&1; then
+  elif command -v pacman >/dev/null 2>&1; then
+  elif command -v snap >/dev/null 2>&1; then
+  elif command -v yum >/dev/null 2>&1; then
+  elif command -v zypper >/dev/null 2>&1; then
+  else
+  else
+  exit 1
+  fi
+  fi
+  if command -v apt-get >/dev/null 2>&1; then
+  if command -v brew >/dev/null 2>&1; then
+OS="$(uname -s)"
+elif [ "$OS" = "Linux" ]; then
+else
+fi
+if [ "$OS" = "Darwin" ]; then
+task: "_install:auto:unix" finished
+task: "_install:auto:unix" started
+task: "_install:auto:windows" not for current platform - ignored
+task: "browse" finished
+task: "browse" started
+task: "install" finished
+task: "install" started
+task: [_install:auto:unix] VERSION="BASE-VERSION"
+task: [browse] gh browse
+task: status command command -v gh >/dev/null 2>&1 && { [ -z "BASE-VERSION" ] || gh --version | grep -Fqx "gh version BASE-VERSION"; } exited non-zero: exit status 1
+
+=== task: config:get ===
+--- exit: exit status 206
+task: Task "config:get" cancelled because it is missing required variables: CONFIG_KEY
+
+=== task: config:list ===
+
+      | sudo tee /etc/apt/keyrings/githubcli-archive-keyring.gpg > /dev/null
+      | sudo tee /etc/apt/sources.list.d/github-cli.list > /dev/null
+    _key="signed-by=/etc/apt/keyrings/githubcli-archive-keyring.gpg"
+    brew install "gh${VERSION:+@$VERSION}"
+    brew install "gh${VERSION:+@$VERSION}"
+    echo "deb [arch=$(dpkg --print-architecture) $_key] https://cli.github.com/packages stable main" \
+    echo 'Arch Linux detected. Installing gh via pacman...'
+    echo 'CentOS/RHEL detected. Installing gh via yum...'
+    echo 'Debian/Ubuntu detected. Installing gh via apt...'
+    echo 'ERROR: Homebrew is required to install gh on macOS.'
+    echo 'ERROR: No supported package manager detected.'
+    echo 'Fedora/RHEL detected. Installing gh via dnf...'
+    echo 'Homebrew detected. Installing gh via brew...'
+    echo 'Install Homebrew from https://brew.sh and then re-run: task install'
+    echo 'See https://cli.github.com/manual/installation'
+    echo 'macOS detected. Installing gh via Homebrew...'
+    echo 'openSUSE detected. Installing gh via zypper...'
+    echo 'snap detected. Installing gh via snap...'
+    exit 1
+    exit 1
+    sudo apt-get install -y "gh${VERSION:+=$VERSION}"
+    sudo apt-get install -y wget
+    sudo apt-get update
+    sudo apt-get update
+    sudo chmod go+r /etc/apt/keyrings/githubcli-archive-keyring.gpg
+    sudo dnf config-manager --add-repo https://cli.github.com/packages/rpm/gh-cli.repo
+    sudo dnf install -y "gh${VERSION:+-$VERSION}" --repo gh-cli
+    sudo dnf install -y 'dnf-command(config-manager)'
+    sudo mkdir -p -m 755 /etc/apt/keyrings
+    sudo pacman -S --noconfirm github-cli
+    sudo snap install gh
+    sudo yum install -y "gh${VERSION:+-$VERSION}"
+    sudo yum-config-manager --add-repo https://cli.github.com/packages/rpm/gh-cli.repo
+    sudo zypper addrepo https://cli.github.com/packages/rpm/gh-cli.repo
+    sudo zypper install -y "gh${VERSION:+-$VERSION}"
+    sudo zypper ref
+    wget -qO- https://cli.github.com/packages/githubcli-archive-keyring.gpg \
+  echo "ERROR: Unsupported OS: $OS"
+  echo 'See https://cli.github.com/manual/installation'
+  elif command -v brew >/dev/null 2>&1; then
+  elif command -v dnf >/dev/null 2>&1; then
+  elif command -v pacman >/dev/null 2>&1; then
+  elif command -v snap >/dev/null 2>&1; then
+  elif command -v yum >/dev/null 2>&1; then
+  elif command -v zypper >/dev/null 2>&1; then
+  else
+  else
+  exit 1
+  fi
+  fi
+  if command -v apt-get >/dev/null 2>&1; then
+  if command -v brew >/dev/null 2>&1; then
+OS="$(uname -s)"
+elif [ "$OS" = "Linux" ]; then
+else
+fi
+if [ "$OS" = "Darwin" ]; then
+task: "_install:auto:unix" finished
+task: "_install:auto:unix" started
+task: "_install:auto:windows" not for current platform - ignored
+task: "config:list" finished
+task: "config:list" started
+task: "install" finished
+task: "install" started
+task: [_install:auto:unix] VERSION="BASE-VERSION"
+task: [config:list] gh config list
+task: status command command -v gh >/dev/null 2>&1 && { [ -z "BASE-VERSION" ] || gh --version | grep -Fqx "gh version BASE-VERSION"; } exited non-zero: exit status 1
+
+=== task: config:set ===
+--- exit: exit status 206
+task: Task "config:set" cancelled because it is missing required variables: CONFIG_KEY, CONFIG_VALUE
+
+=== task: doctor ===
+
+      | sudo tee /etc/apt/keyrings/githubcli-archive-keyring.gpg > /dev/null
+      | sudo tee /etc/apt/sources.list.d/github-cli.list > /dev/null
+    _key="signed-by=/etc/apt/keyrings/githubcli-archive-keyring.gpg"
+    brew install "gh${VERSION:+@$VERSION}"
+    brew install "gh${VERSION:+@$VERSION}"
+    echo "deb [arch=$(dpkg --print-architecture) $_key] https://cli.github.com/packages stable main" \
+    echo 'Arch Linux detected. Installing gh via pacman...'
+    echo 'CentOS/RHEL detected. Installing gh via yum...'
+    echo 'Debian/Ubuntu detected. Installing gh via apt...'
+    echo 'ERROR: Homebrew is required to install gh on macOS.'
+    echo 'ERROR: No supported package manager detected.'
+    echo 'Fedora/RHEL detected. Installing gh via dnf...'
+    echo 'Homebrew detected. Installing gh via brew...'
+    echo 'Install Homebrew from https://brew.sh and then re-run: task install'
+    echo 'See https://cli.github.com/manual/installation'
+    echo 'macOS detected. Installing gh via Homebrew...'
+    echo 'openSUSE detected. Installing gh via zypper...'
+    echo 'snap detected. Installing gh via snap...'
+    exit 1
+    exit 1
+    sudo apt-get install -y "gh${VERSION:+=$VERSION}"
+    sudo apt-get install -y wget
+    sudo apt-get update
+    sudo apt-get update
+    sudo chmod go+r /etc/apt/keyrings/githubcli-archive-keyring.gpg
+    sudo dnf config-manager --add-repo https://cli.github.com/packages/rpm/gh-cli.repo
+    sudo dnf install -y "gh${VERSION:+-$VERSION}" --repo gh-cli
+    sudo dnf install -y 'dnf-command(config-manager)'
+    sudo mkdir -p -m 755 /etc/apt/keyrings
+    sudo pacman -S --noconfirm github-cli
+    sudo snap install gh
+    sudo yum install -y "gh${VERSION:+-$VERSION}"
+    sudo yum-config-manager --add-repo https://cli.github.com/packages/rpm/gh-cli.repo
+    sudo zypper addrepo https://cli.github.com/packages/rpm/gh-cli.repo
+    sudo zypper install -y "gh${VERSION:+-$VERSION}"
+    sudo zypper ref
+    wget -qO- https://cli.github.com/packages/githubcli-archive-keyring.gpg \
+  echo "ERROR: Unsupported OS: $OS"
+  echo 'See https://cli.github.com/manual/installation'
+  elif command -v brew >/dev/null 2>&1; then
+  elif command -v dnf >/dev/null 2>&1; then
+  elif command -v pacman >/dev/null 2>&1; then
+  elif command -v snap >/dev/null 2>&1; then
+  elif command -v yum >/dev/null 2>&1; then
+  elif command -v zypper >/dev/null 2>&1; then
+  else
+  else
+  exit 1
+  fi
+  fi
+  if command -v apt-get >/dev/null 2>&1; then
+  if command -v brew >/dev/null 2>&1; then
+OS="$(uname -s)"
+elif [ "$OS" = "Linux" ]; then
+else
+fi
+if [ "$OS" = "Darwin" ]; then
+task: "_doctor:unix" finished
+task: "_doctor:unix" started
+task: "_doctor:windows" not for current platform - ignored
+task: "_install:auto:unix" finished
+task: "_install:auto:unix" started
+task: "_install:auto:windows" not for current platform - ignored
+task: "doctor" finished
+task: "doctor" started
+task: "install" finished
+task: "install" started
+task: [_doctor:unix] gh doctor
+task: [_install:auto:unix] VERSION="BASE-VERSION"
+task: status command command -v gh >/dev/null 2>&1 && { [ -z "BASE-VERSION" ] || gh --version | grep -Fqx "gh version BASE-VERSION"; } exited non-zero: exit status 1
+
+=== task: extension:install ===
+--- exit: exit status 206
+task: Task "extension:install" cancelled because it is missing required variables: EXTENSION
+
+=== task: extension:list ===
+
+      | sudo tee /etc/apt/keyrings/githubcli-archive-keyring.gpg > /dev/null
+      | sudo tee /etc/apt/sources.list.d/github-cli.list > /dev/null
+    _key="signed-by=/etc/apt/keyrings/githubcli-archive-keyring.gpg"
+    brew install "gh${VERSION:+@$VERSION}"
+    brew install "gh${VERSION:+@$VERSION}"
+    echo "deb [arch=$(dpkg --print-architecture) $_key] https://cli.github.com/packages stable main" \
+    echo 'Arch Linux detected. Installing gh via pacman...'
+    echo 'CentOS/RHEL detected. Installing gh via yum...'
+    echo 'Debian/Ubuntu detected. Installing gh via apt...'
+    echo 'ERROR: Homebrew is required to install gh on macOS.'
+    echo 'ERROR: No supported package manager detected.'
+    echo 'Fedora/RHEL detected. Installing gh via dnf...'
+    echo 'Homebrew detected. Installing gh via brew...'
+    echo 'Install Homebrew from https://brew.sh and then re-run: task install'
+    echo 'See https://cli.github.com/manual/installation'
+    echo 'macOS detected. Installing gh via Homebrew...'
+    echo 'openSUSE detected. Installing gh via zypper...'
+    echo 'snap detected. Installing gh via snap...'
+    exit 1
+    exit 1
+    sudo apt-get install -y "gh${VERSION:+=$VERSION}"
+    sudo apt-get install -y wget
+    sudo apt-get update
+    sudo apt-get update
+    sudo chmod go+r /etc/apt/keyrings/githubcli-archive-keyring.gpg
+    sudo dnf config-manager --add-repo https://cli.github.com/packages/rpm/gh-cli.repo
+    sudo dnf install -y "gh${VERSION:+-$VERSION}" --repo gh-cli
+    sudo dnf install -y 'dnf-command(config-manager)'
+    sudo mkdir -p -m 755 /etc/apt/keyrings
+    sudo pacman -S --noconfirm github-cli
+    sudo snap install gh
+    sudo yum install -y "gh${VERSION:+-$VERSION}"
+    sudo yum-config-manager --add-repo https://cli.github.com/packages/rpm/gh-cli.repo
+    sudo zypper addrepo https://cli.github.com/packages/rpm/gh-cli.repo
+    sudo zypper install -y "gh${VERSION:+-$VERSION}"
+    sudo zypper ref
+    wget -qO- https://cli.github.com/packages/githubcli-archive-keyring.gpg \
+  echo "ERROR: Unsupported OS: $OS"
+  echo 'See https://cli.github.com/manual/installation'
+  elif command -v brew >/dev/null 2>&1; then
+  elif command -v dnf >/dev/null 2>&1; then
+  elif command -v pacman >/dev/null 2>&1; then
+  elif command -v snap >/dev/null 2>&1; then
+  elif command -v yum >/dev/null 2>&1; then
+  elif command -v zypper >/dev/null 2>&1; then
+  else
+  else
+  exit 1
+  fi
+  fi
+  if command -v apt-get >/dev/null 2>&1; then
+  if command -v brew >/dev/null 2>&1; then
+OS="$(uname -s)"
+elif [ "$OS" = "Linux" ]; then
+else
+fi
+if [ "$OS" = "Darwin" ]; then
+task: "_install:auto:unix" finished
+task: "_install:auto:unix" started
+task: "_install:auto:windows" not for current platform - ignored
+task: "extension:list" finished
+task: "extension:list" started
+task: "install" finished
+task: "install" started
+task: [_install:auto:unix] VERSION="BASE-VERSION"
+task: [extension:list] gh extension list
+task: status command command -v gh >/dev/null 2>&1 && { [ -z "BASE-VERSION" ] || gh --version | grep -Fqx "gh version BASE-VERSION"; } exited non-zero: exit status 1
+
+=== task: extension:remove ===
+--- exit: exit status 206
+task: Task "extension:remove" cancelled because it is missing required variables: EXTENSION
+
+=== task: extension:upgrade ===
+--- exit: exit status 206
+task: Task "extension:upgrade" cancelled because it is missing required variables: EXTENSION
+
+=== task: gist:create ===
+--- exit: exit status 206
+task: Task "gist:create" cancelled because it is missing required variables: FILE
+
+=== task: gist:delete:danger ===
+--- exit: exit status 206
+task: Task "gist:delete:danger" cancelled because it is missing required variables: GIST_ID
+
+=== task: gist:list ===
+
+      | sudo tee /etc/apt/keyrings/githubcli-archive-keyring.gpg > /dev/null
+      | sudo tee /etc/apt/sources.list.d/github-cli.list > /dev/null
+    _key="signed-by=/etc/apt/keyrings/githubcli-archive-keyring.gpg"
+    brew install "gh${VERSION:+@$VERSION}"
+    brew install "gh${VERSION:+@$VERSION}"
+    echo "deb [arch=$(dpkg --print-architecture) $_key] https://cli.github.com/packages stable main" \
+    echo 'Arch Linux detected. Installing gh via pacman...'
+    echo 'CentOS/RHEL detected. Installing gh via yum...'
+    echo 'Debian/Ubuntu detected. Installing gh via apt...'
+    echo 'ERROR: Homebrew is required to install gh on macOS.'
+    echo 'ERROR: No supported package manager detected.'
+    echo 'Fedora/RHEL detected. Installing gh via dnf...'
+    echo 'Homebrew detected. Installing gh via brew...'
+    echo 'Install Homebrew from https://brew.sh and then re-run: task install'
+    echo 'See https://cli.github.com/manual/installation'
+    echo 'macOS detected. Installing gh via Homebrew...'
+    echo 'openSUSE detected. Installing gh via zypper...'
+    echo 'snap detected. Installing gh via snap...'
+    exit 1
+    exit 1
+    sudo apt-get install -y "gh${VERSION:+=$VERSION}"
+    sudo apt-get install -y wget
+    sudo apt-get update
+    sudo apt-get update
+    sudo chmod go+r /etc/apt/keyrings/githubcli-archive-keyring.gpg
+    sudo dnf config-manager --add-repo https://cli.github.com/packages/rpm/gh-cli.repo
+    sudo dnf install -y "gh${VERSION:+-$VERSION}" --repo gh-cli
+    sudo dnf install -y 'dnf-command(config-manager)'
+    sudo mkdir -p -m 755 /etc/apt/keyrings
+    sudo pacman -S --noconfirm github-cli
+    sudo snap install gh
+    sudo yum install -y "gh${VERSION:+-$VERSION}"
+    sudo yum-config-manager --add-repo https://cli.github.com/packages/rpm/gh-cli.repo
+    sudo zypper addrepo https://cli.github.com/packages/rpm/gh-cli.repo
+    sudo zypper install -y "gh${VERSION:+-$VERSION}"
+    sudo zypper ref
+    wget -qO- https://cli.github.com/packages/githubcli-archive-keyring.gpg \
+  echo "ERROR: Unsupported OS: $OS"
+  echo 'See https://cli.github.com/manual/installation'
+  elif command -v brew >/dev/null 2>&1; then
+  elif command -v dnf >/dev/null 2>&1; then
+  elif command -v pacman >/dev/null 2>&1; then
+  elif command -v snap >/dev/null 2>&1; then
+  elif command -v yum >/dev/null 2>&1; then
+  elif command -v zypper >/dev/null 2>&1; then
+  else
+  else
+  exit 1
+  fi
+  fi
+  if command -v apt-get >/dev/null 2>&1; then
+  if command -v brew >/dev/null 2>&1; then
+OS="$(uname -s)"
+elif [ "$OS" = "Linux" ]; then
+else
+fi
+if [ "$OS" = "Darwin" ]; then
+task: "_install:auto:unix" finished
+task: "_install:auto:unix" started
+task: "_install:auto:windows" not for current platform - ignored
+task: "gist:list" finished
+task: "gist:list" started
+task: "install" finished
+task: "install" started
+task: [_install:auto:unix] VERSION="BASE-VERSION"
+task: [gist:list] gh gist list
+task: status command command -v gh >/dev/null 2>&1 && { [ -z "BASE-VERSION" ] || gh --version | grep -Fqx "gh version BASE-VERSION"; } exited non-zero: exit status 1
+
+=== task: gist:view ===
+--- exit: exit status 206
+task: Task "gist:view" cancelled because it is missing required variables: GIST_ID
+
+=== task: help ===
+
+      | sudo tee /etc/apt/keyrings/githubcli-archive-keyring.gpg > /dev/null
+      | sudo tee /etc/apt/sources.list.d/github-cli.list > /dev/null
+    _key="signed-by=/etc/apt/keyrings/githubcli-archive-keyring.gpg"
+    brew install "gh${VERSION:+@$VERSION}"
+    brew install "gh${VERSION:+@$VERSION}"
+    echo "deb [arch=$(dpkg --print-architecture) $_key] https://cli.github.com/packages stable main" \
+    echo 'Arch Linux detected. Installing gh via pacman...'
+    echo 'CentOS/RHEL detected. Installing gh via yum...'
+    echo 'Debian/Ubuntu detected. Installing gh via apt...'
+    echo 'ERROR: Homebrew is required to install gh on macOS.'
+    echo 'ERROR: No supported package manager detected.'
+    echo 'Fedora/RHEL detected. Installing gh via dnf...'
+    echo 'Homebrew detected. Installing gh via brew...'
+    echo 'Install Homebrew from https://brew.sh and then re-run: task install'
+    echo 'See https://cli.github.com/manual/installation'
+    echo 'macOS detected. Installing gh via Homebrew...'
+    echo 'openSUSE detected. Installing gh via zypper...'
+    echo 'snap detected. Installing gh via snap...'
+    exit 1
+    exit 1
+    sudo apt-get install -y "gh${VERSION:+=$VERSION}"
+    sudo apt-get install -y wget
+    sudo apt-get update
+    sudo apt-get update
+    sudo chmod go+r /etc/apt/keyrings/githubcli-archive-keyring.gpg
+    sudo dnf config-manager --add-repo https://cli.github.com/packages/rpm/gh-cli.repo
+    sudo dnf install -y "gh${VERSION:+-$VERSION}" --repo gh-cli
+    sudo dnf install -y 'dnf-command(config-manager)'
+    sudo mkdir -p -m 755 /etc/apt/keyrings
+    sudo pacman -S --noconfirm github-cli
+    sudo snap install gh
+    sudo yum install -y "gh${VERSION:+-$VERSION}"
+    sudo yum-config-manager --add-repo https://cli.github.com/packages/rpm/gh-cli.repo
+    sudo zypper addrepo https://cli.github.com/packages/rpm/gh-cli.repo
+    sudo zypper install -y "gh${VERSION:+-$VERSION}"
+    sudo zypper ref
+    wget -qO- https://cli.github.com/packages/githubcli-archive-keyring.gpg \
+  echo "ERROR: Unsupported OS: $OS"
+  echo 'See https://cli.github.com/manual/installation'
+  elif command -v brew >/dev/null 2>&1; then
+  elif command -v dnf >/dev/null 2>&1; then
+  elif command -v pacman >/dev/null 2>&1; then
+  elif command -v snap >/dev/null 2>&1; then
+  elif command -v yum >/dev/null 2>&1; then
+  elif command -v zypper >/dev/null 2>&1; then
+  else
+  else
+  exit 1
+  fi
+  fi
+  if command -v apt-get >/dev/null 2>&1; then
+  if command -v brew >/dev/null 2>&1; then
+OS="$(uname -s)"
+elif [ "$OS" = "Linux" ]; then
+else
+fi
+if [ "$OS" = "Darwin" ]; then
+task: "_install:auto:unix" finished
+task: "_install:auto:unix" started
+task: "_install:auto:windows" not for current platform - ignored
+task: "help" finished
+task: "help" started
+task: "install" finished
+task: "install" started
+task: [_install:auto:unix] VERSION="BASE-VERSION"
+task: [help] gh help
+task: status command command -v gh >/dev/null 2>&1 && { [ -z "BASE-VERSION" ] || gh --version | grep -Fqx "gh version BASE-VERSION"; } exited non-zero: exit status 1
+
+=== task: install ===
+
+      | sudo tee /etc/apt/keyrings/githubcli-archive-keyring.gpg > /dev/null
+      | sudo tee /etc/apt/sources.list.d/github-cli.list > /dev/null
+    _key="signed-by=/etc/apt/keyrings/githubcli-archive-keyring.gpg"
+    brew install "gh${VERSION:+@$VERSION}"
+    brew install "gh${VERSION:+@$VERSION}"
+    echo "deb [arch=$(dpkg --print-architecture) $_key] https://cli.github.com/packages stable main" \
+    echo 'Arch Linux detected. Installing gh via pacman...'
+    echo 'CentOS/RHEL detected. Installing gh via yum...'
+    echo 'Debian/Ubuntu detected. Installing gh via apt...'
+    echo 'ERROR: Homebrew is required to install gh on macOS.'
+    echo 'ERROR: No supported package manager detected.'
+    echo 'Fedora/RHEL detected. Installing gh via dnf...'
+    echo 'Homebrew detected. Installing gh via brew...'
+    echo 'Install Homebrew from https://brew.sh and then re-run: task install'
+    echo 'See https://cli.github.com/manual/installation'
+    echo 'macOS detected. Installing gh via Homebrew...'
+    echo 'openSUSE detected. Installing gh via zypper...'
+    echo 'snap detected. Installing gh via snap...'
+    exit 1
+    exit 1
+    sudo apt-get install -y "gh${VERSION:+=$VERSION}"
+    sudo apt-get install -y wget
+    sudo apt-get update
+    sudo apt-get update
+    sudo chmod go+r /etc/apt/keyrings/githubcli-archive-keyring.gpg
+    sudo dnf config-manager --add-repo https://cli.github.com/packages/rpm/gh-cli.repo
+    sudo dnf install -y "gh${VERSION:+-$VERSION}" --repo gh-cli
+    sudo dnf install -y 'dnf-command(config-manager)'
+    sudo mkdir -p -m 755 /etc/apt/keyrings
+    sudo pacman -S --noconfirm github-cli
+    sudo snap install gh
+    sudo yum install -y "gh${VERSION:+-$VERSION}"
+    sudo yum-config-manager --add-repo https://cli.github.com/packages/rpm/gh-cli.repo
+    sudo zypper addrepo https://cli.github.com/packages/rpm/gh-cli.repo
+    sudo zypper install -y "gh${VERSION:+-$VERSION}"
+    sudo zypper ref
+    wget -qO- https://cli.github.com/packages/githubcli-archive-keyring.gpg \
+  echo "ERROR: Unsupported OS: $OS"
+  echo 'See https://cli.github.com/manual/installation'
+  elif command -v brew >/dev/null 2>&1; then
+  elif command -v dnf >/dev/null 2>&1; then
+  elif command -v pacman >/dev/null 2>&1; then
+  elif command -v snap >/dev/null 2>&1; then
+  elif command -v yum >/dev/null 2>&1; then
+  elif command -v zypper >/dev/null 2>&1; then
+  else
+  else
+  exit 1
+  fi
+  fi
+  if command -v apt-get >/dev/null 2>&1; then
+  if command -v brew >/dev/null 2>&1; then
+OS="$(uname -s)"
+elif [ "$OS" = "Linux" ]; then
+else
+fi
+if [ "$OS" = "Darwin" ]; then
+task: "_install:auto:unix" finished
+task: "_install:auto:unix" started
+task: "_install:auto:windows" not for current platform - ignored
+task: "install" finished
+task: "install" started
+task: [_install:auto:unix] VERSION="BASE-VERSION"
+task: status command command -v gh >/dev/null 2>&1 && { [ -z "BASE-VERSION" ] || gh --version | grep -Fqx "gh version BASE-VERSION"; } exited non-zero: exit status 1
+
+=== task: install:undo ===
+
+    brew uninstall gh
+    brew uninstall gh
+    echo 'ERROR: Homebrew is required to remove gh on macOS.'
+    echo 'ERROR: No supported package manager detected.'
+    echo 'Removing gh via Homebrew...'
+    echo 'Removing gh via Homebrew...'
+    echo 'Removing gh via apt...'
+    echo 'Removing gh via dnf...'
+    echo 'Removing gh via pacman...'
+    echo 'Removing gh via snap...'
+    echo 'Removing gh via yum...'
+    echo 'Removing gh via zypper...'
+    exit 1
+    exit 1
+    sudo apt-get remove -y gh
+    sudo dnf remove -y gh
+    sudo pacman -R --noconfirm github-cli
+    sudo snap remove gh
+    sudo yum remove -y gh
+    sudo zypper remove -y gh
+  echo "ERROR: Unsupported OS: $OS"
+  elif command -v brew >/dev/null 2>&1; then
+  elif command -v dnf >/dev/null 2>&1; then
+  elif command -v pacman >/dev/null 2>&1; then
+  elif command -v snap >/dev/null 2>&1; then
+  elif command -v yum >/dev/null 2>&1; then
+  elif command -v zypper >/dev/null 2>&1; then
+  else
+  else
+  exit 1
+  fi
+  fi
+  if command -v apt-get >/dev/null 2>&1; then
+  if command -v brew >/dev/null 2>&1; then
+echo 'gh removed.'
+elif [ "$OS" = "Linux" ]; then
+else
+fi
+if [ "$OS" = "Darwin" ]; then
+task: "_uninstall:auto:unix" finished
+task: "_uninstall:auto:unix" started
+task: "_uninstall:auto:windows" not for current platform - ignored
+task: "install:undo" finished
+task: "install:undo" started
+task: [_uninstall:auto:unix] OS="$(uname -s)"
+task: status command ! command -v gh >/dev/null 2>&1 exited non-zero: exit status 1
+
+=== task: issue:assign ===
+--- exit: exit status 206
+task: Task "issue:assign" cancelled because it is missing required variables: ISSUE_NUMBER, ASSIGNEE
+
+=== task: issue:close ===
+--- exit: exit status 206
+task: Task "issue:close" cancelled because it is missing required variables: ISSUE_NUMBER
+
+=== task: issue:comment ===
+--- exit: exit status 206
+task: Task "issue:comment" cancelled because it is missing required variables: ISSUE_NUMBER, ISSUE_BODY
+
+=== task: issue:create ===
+
+      | sudo tee /etc/apt/keyrings/githubcli-archive-keyring.gpg > /dev/null
+      | sudo tee /etc/apt/sources.list.d/github-cli.list > /dev/null
+    _key="signed-by=/etc/apt/keyrings/githubcli-archive-keyring.gpg"
+    brew install "gh${VERSION:+@$VERSION}"
+    brew install "gh${VERSION:+@$VERSION}"
+    echo "deb [arch=$(dpkg --print-architecture) $_key] https://cli.github.com/packages stable main" \
+    echo 'Arch Linux detected. Installing gh via pacman...'
+    echo 'CentOS/RHEL detected. Installing gh via yum...'
+    echo 'Debian/Ubuntu detected. Installing gh via apt...'
+    echo 'ERROR: Homebrew is required to install gh on macOS.'
+    echo 'ERROR: No supported package manager detected.'
+    echo 'Fedora/RHEL detected. Installing gh via dnf...'
+    echo 'Homebrew detected. Installing gh via brew...'
+    echo 'Install Homebrew from https://brew.sh and then re-run: task install'
+    echo 'See https://cli.github.com/manual/installation'
+    echo 'macOS detected. Installing gh via Homebrew...'
+    echo 'openSUSE detected. Installing gh via zypper...'
+    echo 'snap detected. Installing gh via snap...'
+    exit 1
+    exit 1
+    sudo apt-get install -y "gh${VERSION:+=$VERSION}"
+    sudo apt-get install -y wget
+    sudo apt-get update
+    sudo apt-get update
+    sudo chmod go+r /etc/apt/keyrings/githubcli-archive-keyring.gpg
+    sudo dnf config-manager --add-repo https://cli.github.com/packages/rpm/gh-cli.repo
+    sudo dnf install -y "gh${VERSION:+-$VERSION}" --repo gh-cli
+    sudo dnf install -y 'dnf-command(config-manager)'
+    sudo mkdir -p -m 755 /etc/apt/keyrings
+    sudo pacman -S --noconfirm github-cli
+    sudo snap install gh
+    sudo yum install -y "gh${VERSION:+-$VERSION}"
+    sudo yum-config-manager --add-repo https://cli.github.com/packages/rpm/gh-cli.repo
+    sudo zypper addrepo https://cli.github.com/packages/rpm/gh-cli.repo
+    sudo zypper install -y "gh${VERSION:+-$VERSION}"
+    sudo zypper ref
+    wget -qO- https://cli.github.com/packages/githubcli-archive-keyring.gpg \
+  echo "ERROR: Unsupported OS: $OS"
+  echo 'See https://cli.github.com/manual/installation'
+  elif command -v brew >/dev/null 2>&1; then
+  elif command -v dnf >/dev/null 2>&1; then
+  elif command -v pacman >/dev/null 2>&1; then
+  elif command -v snap >/dev/null 2>&1; then
+  elif command -v yum >/dev/null 2>&1; then
+  elif command -v zypper >/dev/null 2>&1; then
+  else
+  else
+  exit 1
+  fi
+  fi
+  if command -v apt-get >/dev/null 2>&1; then
+  if command -v brew >/dev/null 2>&1; then
+OS="$(uname -s)"
+elif [ "$OS" = "Linux" ]; then
+else
+fi
+if [ "$OS" = "Darwin" ]; then
+task: "_install:auto:unix" finished
+task: "_install:auto:unix" started
+task: "_install:auto:windows" not for current platform - ignored
+task: "install" finished
+task: "install" started
+task: "issue:create" finished
+task: "issue:create" started
+task: [_install:auto:unix] VERSION="BASE-VERSION"
+task: [issue:create] gh issue create  
+task: status command command -v gh >/dev/null 2>&1 && { [ -z "BASE-VERSION" ] || gh --version | grep -Fqx "gh version BASE-VERSION"; } exited non-zero: exit status 1
+
+=== task: issue:label ===
+--- exit: exit status 206
+task: Task "issue:label" cancelled because it is missing required variables: ISSUE_NUMBER, LABEL
+
+=== task: issue:list ===
+
+      | sudo tee /etc/apt/keyrings/githubcli-archive-keyring.gpg > /dev/null
+      | sudo tee /etc/apt/sources.list.d/github-cli.list > /dev/null
+    _key="signed-by=/etc/apt/keyrings/githubcli-archive-keyring.gpg"
+    brew install "gh${VERSION:+@$VERSION}"
+    brew install "gh${VERSION:+@$VERSION}"
+    echo "deb [arch=$(dpkg --print-architecture) $_key] https://cli.github.com/packages stable main" \
+    echo 'Arch Linux detected. Installing gh via pacman...'
+    echo 'CentOS/RHEL detected. Installing gh via yum...'
+    echo 'Debian/Ubuntu detected. Installing gh via apt...'
+    echo 'ERROR: Homebrew is required to install gh on macOS.'
+    echo 'ERROR: No supported package manager detected.'
+    echo 'Fedora/RHEL detected. Installing gh via dnf...'
+    echo 'Homebrew detected. Installing gh via brew...'
+    echo 'Install Homebrew from https://brew.sh and then re-run: task install'
+    echo 'See https://cli.github.com/manual/installation'
+    echo 'macOS detected. Installing gh via Homebrew...'
+    echo 'openSUSE detected. Installing gh via zypper...'
+    echo 'snap detected. Installing gh via snap...'
+    exit 1
+    exit 1
+    sudo apt-get install -y "gh${VERSION:+=$VERSION}"
+    sudo apt-get install -y wget
+    sudo apt-get update
+    sudo apt-get update
+    sudo chmod go+r /etc/apt/keyrings/githubcli-archive-keyring.gpg
+    sudo dnf config-manager --add-repo https://cli.github.com/packages/rpm/gh-cli.repo
+    sudo dnf install -y "gh${VERSION:+-$VERSION}" --repo gh-cli
+    sudo dnf install -y 'dnf-command(config-manager)'
+    sudo mkdir -p -m 755 /etc/apt/keyrings
+    sudo pacman -S --noconfirm github-cli
+    sudo snap install gh
+    sudo yum install -y "gh${VERSION:+-$VERSION}"
+    sudo yum-config-manager --add-repo https://cli.github.com/packages/rpm/gh-cli.repo
+    sudo zypper addrepo https://cli.github.com/packages/rpm/gh-cli.repo
+    sudo zypper install -y "gh${VERSION:+-$VERSION}"
+    sudo zypper ref
+    wget -qO- https://cli.github.com/packages/githubcli-archive-keyring.gpg \
+  echo "ERROR: Unsupported OS: $OS"
+  echo 'See https://cli.github.com/manual/installation'
+  elif command -v brew >/dev/null 2>&1; then
+  elif command -v dnf >/dev/null 2>&1; then
+  elif command -v pacman >/dev/null 2>&1; then
+  elif command -v snap >/dev/null 2>&1; then
+  elif command -v yum >/dev/null 2>&1; then
+  elif command -v zypper >/dev/null 2>&1; then
+  else
+  else
+  exit 1
+  fi
+  fi
+  if command -v apt-get >/dev/null 2>&1; then
+  if command -v brew >/dev/null 2>&1; then
+OS="$(uname -s)"
+elif [ "$OS" = "Linux" ]; then
+else
+fi
+if [ "$OS" = "Darwin" ]; then
+task: "_install:auto:unix" finished
+task: "_install:auto:unix" started
+task: "_install:auto:windows" not for current platform - ignored
+task: "install" finished
+task: "install" started
+task: "issue:list" finished
+task: "issue:list" started
+task: [_install:auto:unix] VERSION="BASE-VERSION"
+task: [issue:list] gh issue list
+task: status command command -v gh >/dev/null 2>&1 && { [ -z "BASE-VERSION" ] || gh --version | grep -Fqx "gh version BASE-VERSION"; } exited non-zero: exit status 1
+
+=== task: issue:reopen ===
+--- exit: exit status 206
+task: Task "issue:reopen" cancelled because it is missing required variables: ISSUE_NUMBER
+
+=== task: issue:view ===
+--- exit: exit status 206
+task: Task "issue:view" cancelled because it is missing required variables: ISSUE_NUMBER
+
+=== task: open ===
+
+      | sudo tee /etc/apt/keyrings/githubcli-archive-keyring.gpg > /dev/null
+      | sudo tee /etc/apt/sources.list.d/github-cli.list > /dev/null
+    _key="signed-by=/etc/apt/keyrings/githubcli-archive-keyring.gpg"
+    brew install "gh${VERSION:+@$VERSION}"
+    brew install "gh${VERSION:+@$VERSION}"
+    echo "deb [arch=$(dpkg --print-architecture) $_key] https://cli.github.com/packages stable main" \
+    echo 'Arch Linux detected. Installing gh via pacman...'
+    echo 'CentOS/RHEL detected. Installing gh via yum...'
+    echo 'Debian/Ubuntu detected. Installing gh via apt...'
+    echo 'ERROR: Homebrew is required to install gh on macOS.'
+    echo 'ERROR: No supported package manager detected.'
+    echo 'Fedora/RHEL detected. Installing gh via dnf...'
+    echo 'Homebrew detected. Installing gh via brew...'
+    echo 'Install Homebrew from https://brew.sh and then re-run: task install'
+    echo 'See https://cli.github.com/manual/installation'
+    echo 'macOS detected. Installing gh via Homebrew...'
+    echo 'openSUSE detected. Installing gh via zypper...'
+    echo 'snap detected. Installing gh via snap...'
+    exit 1
+    exit 1
+    sudo apt-get install -y "gh${VERSION:+=$VERSION}"
+    sudo apt-get install -y wget
+    sudo apt-get update
+    sudo apt-get update
+    sudo chmod go+r /etc/apt/keyrings/githubcli-archive-keyring.gpg
+    sudo dnf config-manager --add-repo https://cli.github.com/packages/rpm/gh-cli.repo
+    sudo dnf install -y "gh${VERSION:+-$VERSION}" --repo gh-cli
+    sudo dnf install -y 'dnf-command(config-manager)'
+    sudo mkdir -p -m 755 /etc/apt/keyrings
+    sudo pacman -S --noconfirm github-cli
+    sudo snap install gh
+    sudo yum install -y "gh${VERSION:+-$VERSION}"
+    sudo yum-config-manager --add-repo https://cli.github.com/packages/rpm/gh-cli.repo
+    sudo zypper addrepo https://cli.github.com/packages/rpm/gh-cli.repo
+    sudo zypper install -y "gh${VERSION:+-$VERSION}"
+    sudo zypper ref
+    wget -qO- https://cli.github.com/packages/githubcli-archive-keyring.gpg \
+  echo "ERROR: Unsupported OS: $OS"
+  echo 'See https://cli.github.com/manual/installation'
+  elif command -v brew >/dev/null 2>&1; then
+  elif command -v dnf >/dev/null 2>&1; then
+  elif command -v pacman >/dev/null 2>&1; then
+  elif command -v snap >/dev/null 2>&1; then
+  elif command -v yum >/dev/null 2>&1; then
+  elif command -v zypper >/dev/null 2>&1; then
+  else
+  else
+  exit 1
+  fi
+  fi
+  if command -v apt-get >/dev/null 2>&1; then
+  if command -v brew >/dev/null 2>&1; then
+OS="$(uname -s)"
+elif [ "$OS" = "Linux" ]; then
+else
+fi
+if [ "$OS" = "Darwin" ]; then
+task: "_install:auto:unix" finished
+task: "_install:auto:unix" started
+task: "_install:auto:windows" not for current platform - ignored
+task: "install" finished
+task: "install" started
+task: "open" finished
+task: "open" started
+task: [_install:auto:unix] VERSION="BASE-VERSION"
+task: [open] gh repo view --web
+task: status command command -v gh >/dev/null 2>&1 && { [ -z "BASE-VERSION" ] || gh --version | grep -Fqx "gh version BASE-VERSION"; } exited non-zero: exit status 1
+
+=== task: pr:checkout ===
+--- exit: exit status 206
+task: Task "pr:checkout" cancelled because it is missing required variables: PR_NUMBER
+
+=== task: pr:close ===
+--- exit: exit status 206
+task: Task "pr:close" cancelled because it is missing required variables: PR_NUMBER
+
+=== task: pr:comment ===
+--- exit: exit status 206
+task: Task "pr:comment" cancelled because it is missing required variables: PR_NUMBER, PR_BODY
+
+=== task: pr:create ===
+
+      | sudo tee /etc/apt/keyrings/githubcli-archive-keyring.gpg > /dev/null
+      | sudo tee /etc/apt/sources.list.d/github-cli.list > /dev/null
+    _key="signed-by=/etc/apt/keyrings/githubcli-archive-keyring.gpg"
+    brew install "gh${VERSION:+@$VERSION}"
+    brew install "gh${VERSION:+@$VERSION}"
+    echo "deb [arch=$(dpkg --print-architecture) $_key] https://cli.github.com/packages stable main" \
+    echo 'Arch Linux detected. Installing gh via pacman...'
+    echo 'CentOS/RHEL detected. Installing gh via yum...'
+    echo 'Debian/Ubuntu detected. Installing gh via apt...'
+    echo 'ERROR: Homebrew is required to install gh on macOS.'
+    echo 'ERROR: No supported package manager detected.'
+    echo 'Fedora/RHEL detected. Installing gh via dnf...'
+    echo 'Homebrew detected. Installing gh via brew...'
+    echo 'Install Homebrew from https://brew.sh and then re-run: task install'
+    echo 'See https://cli.github.com/manual/installation'
+    echo 'macOS detected. Installing gh via Homebrew...'
+    echo 'openSUSE detected. Installing gh via zypper...'
+    echo 'snap detected. Installing gh via snap...'
+    exit 1
+    exit 1
+    sudo apt-get install -y "gh${VERSION:+=$VERSION}"
+    sudo apt-get install -y wget
+    sudo apt-get update
+    sudo apt-get update
+    sudo chmod go+r /etc/apt/keyrings/githubcli-archive-keyring.gpg
+    sudo dnf config-manager --add-repo https://cli.github.com/packages/rpm/gh-cli.repo
+    sudo dnf install -y "gh${VERSION:+-$VERSION}" --repo gh-cli
+    sudo dnf install -y 'dnf-command(config-manager)'
+    sudo mkdir -p -m 755 /etc/apt/keyrings
+    sudo pacman -S --noconfirm github-cli
+    sudo snap install gh
+    sudo yum install -y "gh${VERSION:+-$VERSION}"
+    sudo yum-config-manager --add-repo https://cli.github.com/packages/rpm/gh-cli.repo
+    sudo zypper addrepo https://cli.github.com/packages/rpm/gh-cli.repo
+    sudo zypper install -y "gh${VERSION:+-$VERSION}"
+    sudo zypper ref
+    wget -qO- https://cli.github.com/packages/githubcli-archive-keyring.gpg \
+  echo "ERROR: Unsupported OS: $OS"
+  echo 'See https://cli.github.com/manual/installation'
+  elif command -v brew >/dev/null 2>&1; then
+  elif command -v dnf >/dev/null 2>&1; then
+  elif command -v pacman >/dev/null 2>&1; then
+  elif command -v snap >/dev/null 2>&1; then
+  elif command -v yum >/dev/null 2>&1; then
+  elif command -v zypper >/dev/null 2>&1; then
+  else
+  else
+  exit 1
+  fi
+  fi
+  if command -v apt-get >/dev/null 2>&1; then
+  if command -v brew >/dev/null 2>&1; then
+OS="$(uname -s)"
+elif [ "$OS" = "Linux" ]; then
+else
+fi
+if [ "$OS" = "Darwin" ]; then
+task: "_install:auto:unix" finished
+task: "_install:auto:unix" started
+task: "_install:auto:windows" not for current platform - ignored
+task: "install" finished
+task: "install" started
+task: "pr:create" finished
+task: "pr:create" started
+task: [_install:auto:unix] VERSION="BASE-VERSION"
+task: [pr:create] gh pr create   --base BASE-BASE 
+task: status command command -v gh >/dev/null 2>&1 && { [ -z "BASE-VERSION" ] || gh --version | grep -Fqx "gh version BASE-VERSION"; } exited non-zero: exit status 1
+
+=== task: pr:diff ===
+
+      | sudo tee /etc/apt/keyrings/githubcli-archive-keyring.gpg > /dev/null
+      | sudo tee /etc/apt/sources.list.d/github-cli.list > /dev/null
+    _key="signed-by=/etc/apt/keyrings/githubcli-archive-keyring.gpg"
+    brew install "gh${VERSION:+@$VERSION}"
+    brew install "gh${VERSION:+@$VERSION}"
+    echo "deb [arch=$(dpkg --print-architecture) $_key] https://cli.github.com/packages stable main" \
+    echo 'Arch Linux detected. Installing gh via pacman...'
+    echo 'CentOS/RHEL detected. Installing gh via yum...'
+    echo 'Debian/Ubuntu detected. Installing gh via apt...'
+    echo 'ERROR: Homebrew is required to install gh on macOS.'
+    echo 'ERROR: No supported package manager detected.'
+    echo 'Fedora/RHEL detected. Installing gh via dnf...'
+    echo 'Homebrew detected. Installing gh via brew...'
+    echo 'Install Homebrew from https://brew.sh and then re-run: task install'
+    echo 'See https://cli.github.com/manual/installation'
+    echo 'macOS detected. Installing gh via Homebrew...'
+    echo 'openSUSE detected. Installing gh via zypper...'
+    echo 'snap detected. Installing gh via snap...'
+    exit 1
+    exit 1
+    sudo apt-get install -y "gh${VERSION:+=$VERSION}"
+    sudo apt-get install -y wget
+    sudo apt-get update
+    sudo apt-get update
+    sudo chmod go+r /etc/apt/keyrings/githubcli-archive-keyring.gpg
+    sudo dnf config-manager --add-repo https://cli.github.com/packages/rpm/gh-cli.repo
+    sudo dnf install -y "gh${VERSION:+-$VERSION}" --repo gh-cli
+    sudo dnf install -y 'dnf-command(config-manager)'
+    sudo mkdir -p -m 755 /etc/apt/keyrings
+    sudo pacman -S --noconfirm github-cli
+    sudo snap install gh
+    sudo yum install -y "gh${VERSION:+-$VERSION}"
+    sudo yum-config-manager --add-repo https://cli.github.com/packages/rpm/gh-cli.repo
+    sudo zypper addrepo https://cli.github.com/packages/rpm/gh-cli.repo
+    sudo zypper install -y "gh${VERSION:+-$VERSION}"
+    sudo zypper ref
+    wget -qO- https://cli.github.com/packages/githubcli-archive-keyring.gpg \
+  echo "ERROR: Unsupported OS: $OS"
+  echo 'See https://cli.github.com/manual/installation'
+  elif command -v brew >/dev/null 2>&1; then
+  elif command -v dnf >/dev/null 2>&1; then
+  elif command -v pacman >/dev/null 2>&1; then
+  elif command -v snap >/dev/null 2>&1; then
+  elif command -v yum >/dev/null 2>&1; then
+  elif command -v zypper >/dev/null 2>&1; then
+  else
+  else
+  exit 1
+  fi
+  fi
+  if command -v apt-get >/dev/null 2>&1; then
+  if command -v brew >/dev/null 2>&1; then
+OS="$(uname -s)"
+elif [ "$OS" = "Linux" ]; then
+else
+fi
+if [ "$OS" = "Darwin" ]; then
+task: "_install:auto:unix" finished
+task: "_install:auto:unix" started
+task: "_install:auto:windows" not for current platform - ignored
+task: "install" finished
+task: "install" started
+task: "pr:diff" finished
+task: "pr:diff" started
+task: [_install:auto:unix] VERSION="BASE-VERSION"
+task: [pr:diff] gh pr diff 
+task: status command command -v gh >/dev/null 2>&1 && { [ -z "BASE-VERSION" ] || gh --version | grep -Fqx "gh version BASE-VERSION"; } exited non-zero: exit status 1
+
+=== task: pr:list ===
+
+      | sudo tee /etc/apt/keyrings/githubcli-archive-keyring.gpg > /dev/null
+      | sudo tee /etc/apt/sources.list.d/github-cli.list > /dev/null
+    _key="signed-by=/etc/apt/keyrings/githubcli-archive-keyring.gpg"
+    brew install "gh${VERSION:+@$VERSION}"
+    brew install "gh${VERSION:+@$VERSION}"
+    echo "deb [arch=$(dpkg --print-architecture) $_key] https://cli.github.com/packages stable main" \
+    echo 'Arch Linux detected. Installing gh via pacman...'
+    echo 'CentOS/RHEL detected. Installing gh via yum...'
+    echo 'Debian/Ubuntu detected. Installing gh via apt...'
+    echo 'ERROR: Homebrew is required to install gh on macOS.'
+    echo 'ERROR: No supported package manager detected.'
+    echo 'Fedora/RHEL detected. Installing gh via dnf...'
+    echo 'Homebrew detected. Installing gh via brew...'
+    echo 'Install Homebrew from https://brew.sh and then re-run: task install'
+    echo 'See https://cli.github.com/manual/installation'
+    echo 'macOS detected. Installing gh via Homebrew...'
+    echo 'openSUSE detected. Installing gh via zypper...'
+    echo 'snap detected. Installing gh via snap...'
+    exit 1
+    exit 1
+    sudo apt-get install -y "gh${VERSION:+=$VERSION}"
+    sudo apt-get install -y wget
+    sudo apt-get update
+    sudo apt-get update
+    sudo chmod go+r /etc/apt/keyrings/githubcli-archive-keyring.gpg
+    sudo dnf config-manager --add-repo https://cli.github.com/packages/rpm/gh-cli.repo
+    sudo dnf install -y "gh${VERSION:+-$VERSION}" --repo gh-cli
+    sudo dnf install -y 'dnf-command(config-manager)'
+    sudo mkdir -p -m 755 /etc/apt/keyrings
+    sudo pacman -S --noconfirm github-cli
+    sudo snap install gh
+    sudo yum install -y "gh${VERSION:+-$VERSION}"
+    sudo yum-config-manager --add-repo https://cli.github.com/packages/rpm/gh-cli.repo
+    sudo zypper addrepo https://cli.github.com/packages/rpm/gh-cli.repo
+    sudo zypper install -y "gh${VERSION:+-$VERSION}"
+    sudo zypper ref
+    wget -qO- https://cli.github.com/packages/githubcli-archive-keyring.gpg \
+  echo "ERROR: Unsupported OS: $OS"
+  echo 'See https://cli.github.com/manual/installation'
+  elif command -v brew >/dev/null 2>&1; then
+  elif command -v dnf >/dev/null 2>&1; then
+  elif command -v pacman >/dev/null 2>&1; then
+  elif command -v snap >/dev/null 2>&1; then
+  elif command -v yum >/dev/null 2>&1; then
+  elif command -v zypper >/dev/null 2>&1; then
+  else
+  else
+  exit 1
+  fi
+  fi
+  if command -v apt-get >/dev/null 2>&1; then
+  if command -v brew >/dev/null 2>&1; then
+OS="$(uname -s)"
+elif [ "$OS" = "Linux" ]; then
+else
+fi
+if [ "$OS" = "Darwin" ]; then
+task: "_install:auto:unix" finished
+task: "_install:auto:unix" started
+task: "_install:auto:windows" not for current platform - ignored
+task: "install" finished
+task: "install" started
+task: "pr:list" finished
+task: "pr:list" started
+task: [_install:auto:unix] VERSION="BASE-VERSION"
+task: [pr:list] gh pr list
+task: status command command -v gh >/dev/null 2>&1 && { [ -z "BASE-VERSION" ] || gh --version | grep -Fqx "gh version BASE-VERSION"; } exited non-zero: exit status 1
+
+=== task: pr:merge ===
+--- exit: exit status 206
+task: Task "pr:merge" cancelled because it is missing required variables: PR_NUMBER
+
+=== task: pr:ready ===
+
+      | sudo tee /etc/apt/keyrings/githubcli-archive-keyring.gpg > /dev/null
+      | sudo tee /etc/apt/sources.list.d/github-cli.list > /dev/null
+    _key="signed-by=/etc/apt/keyrings/githubcli-archive-keyring.gpg"
+    brew install "gh${VERSION:+@$VERSION}"
+    brew install "gh${VERSION:+@$VERSION}"
+    echo "deb [arch=$(dpkg --print-architecture) $_key] https://cli.github.com/packages stable main" \
+    echo 'Arch Linux detected. Installing gh via pacman...'
+    echo 'CentOS/RHEL detected. Installing gh via yum...'
+    echo 'Debian/Ubuntu detected. Installing gh via apt...'
+    echo 'ERROR: Homebrew is required to install gh on macOS.'
+    echo 'ERROR: No supported package manager detected.'
+    echo 'Fedora/RHEL detected. Installing gh via dnf...'
+    echo 'Homebrew detected. Installing gh via brew...'
+    echo 'Install Homebrew from https://brew.sh and then re-run: task install'
+    echo 'See https://cli.github.com/manual/installation'
+    echo 'macOS detected. Installing gh via Homebrew...'
+    echo 'openSUSE detected. Installing gh via zypper...'
+    echo 'snap detected. Installing gh via snap...'
+    exit 1
+    exit 1
+    sudo apt-get install -y "gh${VERSION:+=$VERSION}"
+    sudo apt-get install -y wget
+    sudo apt-get update
+    sudo apt-get update
+    sudo chmod go+r /etc/apt/keyrings/githubcli-archive-keyring.gpg
+    sudo dnf config-manager --add-repo https://cli.github.com/packages/rpm/gh-cli.repo
+    sudo dnf install -y "gh${VERSION:+-$VERSION}" --repo gh-cli
+    sudo dnf install -y 'dnf-command(config-manager)'
+    sudo mkdir -p -m 755 /etc/apt/keyrings
+    sudo pacman -S --noconfirm github-cli
+    sudo snap install gh
+    sudo yum install -y "gh${VERSION:+-$VERSION}"
+    sudo yum-config-manager --add-repo https://cli.github.com/packages/rpm/gh-cli.repo
+    sudo zypper addrepo https://cli.github.com/packages/rpm/gh-cli.repo
+    sudo zypper install -y "gh${VERSION:+-$VERSION}"
+    sudo zypper ref
+    wget -qO- https://cli.github.com/packages/githubcli-archive-keyring.gpg \
+  echo "ERROR: Unsupported OS: $OS"
+  echo 'See https://cli.github.com/manual/installation'
+  elif command -v brew >/dev/null 2>&1; then
+  elif command -v dnf >/dev/null 2>&1; then
+  elif command -v pacman >/dev/null 2>&1; then
+  elif command -v snap >/dev/null 2>&1; then
+  elif command -v yum >/dev/null 2>&1; then
+  elif command -v zypper >/dev/null 2>&1; then
+  else
+  else
+  exit 1
+  fi
+  fi
+  if command -v apt-get >/dev/null 2>&1; then
+  if command -v brew >/dev/null 2>&1; then
+OS="$(uname -s)"
+elif [ "$OS" = "Linux" ]; then
+else
+fi
+if [ "$OS" = "Darwin" ]; then
+task: "_install:auto:unix" finished
+task: "_install:auto:unix" started
+task: "_install:auto:windows" not for current platform - ignored
+task: "install" finished
+task: "install" started
+task: "pr:ready" finished
+task: "pr:ready" started
+task: [_install:auto:unix] VERSION="BASE-VERSION"
+task: [pr:ready] gh pr ready 
+task: status command command -v gh >/dev/null 2>&1 && { [ -z "BASE-VERSION" ] || gh --version | grep -Fqx "gh version BASE-VERSION"; } exited non-zero: exit status 1
+
+=== task: pr:review ===
+
+      | sudo tee /etc/apt/keyrings/githubcli-archive-keyring.gpg > /dev/null
+      | sudo tee /etc/apt/sources.list.d/github-cli.list > /dev/null
+    _key="signed-by=/etc/apt/keyrings/githubcli-archive-keyring.gpg"
+    brew install "gh${VERSION:+@$VERSION}"
+    brew install "gh${VERSION:+@$VERSION}"
+    echo "deb [arch=$(dpkg --print-architecture) $_key] https://cli.github.com/packages stable main" \
+    echo 'Arch Linux detected. Installing gh via pacman...'
+    echo 'CentOS/RHEL detected. Installing gh via yum...'
+    echo 'Debian/Ubuntu detected. Installing gh via apt...'
+    echo 'ERROR: Homebrew is required to install gh on macOS.'
+    echo 'ERROR: No supported package manager detected.'
+    echo 'Fedora/RHEL detected. Installing gh via dnf...'
+    echo 'Homebrew detected. Installing gh via brew...'
+    echo 'Install Homebrew from https://brew.sh and then re-run: task install'
+    echo 'See https://cli.github.com/manual/installation'
+    echo 'macOS detected. Installing gh via Homebrew...'
+    echo 'openSUSE detected. Installing gh via zypper...'
+    echo 'snap detected. Installing gh via snap...'
+    exit 1
+    exit 1
+    sudo apt-get install -y "gh${VERSION:+=$VERSION}"
+    sudo apt-get install -y wget
+    sudo apt-get update
+    sudo apt-get update
+    sudo chmod go+r /etc/apt/keyrings/githubcli-archive-keyring.gpg
+    sudo dnf config-manager --add-repo https://cli.github.com/packages/rpm/gh-cli.repo
+    sudo dnf install -y "gh${VERSION:+-$VERSION}" --repo gh-cli
+    sudo dnf install -y 'dnf-command(config-manager)'
+    sudo mkdir -p -m 755 /etc/apt/keyrings
+    sudo pacman -S --noconfirm github-cli
+    sudo snap install gh
+    sudo yum install -y "gh${VERSION:+-$VERSION}"
+    sudo yum-config-manager --add-repo https://cli.github.com/packages/rpm/gh-cli.repo
+    sudo zypper addrepo https://cli.github.com/packages/rpm/gh-cli.repo
+    sudo zypper install -y "gh${VERSION:+-$VERSION}"
+    sudo zypper ref
+    wget -qO- https://cli.github.com/packages/githubcli-archive-keyring.gpg \
+  echo "ERROR: Unsupported OS: $OS"
+  echo 'See https://cli.github.com/manual/installation'
+  elif command -v brew >/dev/null 2>&1; then
+  elif command -v dnf >/dev/null 2>&1; then
+  elif command -v pacman >/dev/null 2>&1; then
+  elif command -v snap >/dev/null 2>&1; then
+  elif command -v yum >/dev/null 2>&1; then
+  elif command -v zypper >/dev/null 2>&1; then
+  else
+  else
+  exit 1
+  fi
+  fi
+  if command -v apt-get >/dev/null 2>&1; then
+  if command -v brew >/dev/null 2>&1; then
+OS="$(uname -s)"
+elif [ "$OS" = "Linux" ]; then
+else
+fi
+if [ "$OS" = "Darwin" ]; then
+task: "_install:auto:unix" finished
+task: "_install:auto:unix" started
+task: "_install:auto:windows" not for current platform - ignored
+task: "install" finished
+task: "install" started
+task: "pr:review" finished
+task: "pr:review" started
+task: [_install:auto:unix] VERSION="BASE-VERSION"
+task: [pr:review] gh pr review 
+task: status command command -v gh >/dev/null 2>&1 && { [ -z "BASE-VERSION" ] || gh --version | grep -Fqx "gh version BASE-VERSION"; } exited non-zero: exit status 1
+
+=== task: pr:status ===
+
+      | sudo tee /etc/apt/keyrings/githubcli-archive-keyring.gpg > /dev/null
+      | sudo tee /etc/apt/sources.list.d/github-cli.list > /dev/null
+    _key="signed-by=/etc/apt/keyrings/githubcli-archive-keyring.gpg"
+    brew install "gh${VERSION:+@$VERSION}"
+    brew install "gh${VERSION:+@$VERSION}"
+    echo "deb [arch=$(dpkg --print-architecture) $_key] https://cli.github.com/packages stable main" \
+    echo 'Arch Linux detected. Installing gh via pacman...'
+    echo 'CentOS/RHEL detected. Installing gh via yum...'
+    echo 'Debian/Ubuntu detected. Installing gh via apt...'
+    echo 'ERROR: Homebrew is required to install gh on macOS.'
+    echo 'ERROR: No supported package manager detected.'
+    echo 'Fedora/RHEL detected. Installing gh via dnf...'
+    echo 'Homebrew detected. Installing gh via brew...'
+    echo 'Install Homebrew from https://brew.sh and then re-run: task install'
+    echo 'See https://cli.github.com/manual/installation'
+    echo 'macOS detected. Installing gh via Homebrew...'
+    echo 'openSUSE detected. Installing gh via zypper...'
+    echo 'snap detected. Installing gh via snap...'
+    exit 1
+    exit 1
+    sudo apt-get install -y "gh${VERSION:+=$VERSION}"
+    sudo apt-get install -y wget
+    sudo apt-get update
+    sudo apt-get update
+    sudo chmod go+r /etc/apt/keyrings/githubcli-archive-keyring.gpg
+    sudo dnf config-manager --add-repo https://cli.github.com/packages/rpm/gh-cli.repo
+    sudo dnf install -y "gh${VERSION:+-$VERSION}" --repo gh-cli
+    sudo dnf install -y 'dnf-command(config-manager)'
+    sudo mkdir -p -m 755 /etc/apt/keyrings
+    sudo pacman -S --noconfirm github-cli
+    sudo snap install gh
+    sudo yum install -y "gh${VERSION:+-$VERSION}"
+    sudo yum-config-manager --add-repo https://cli.github.com/packages/rpm/gh-cli.repo
+    sudo zypper addrepo https://cli.github.com/packages/rpm/gh-cli.repo
+    sudo zypper install -y "gh${VERSION:+-$VERSION}"
+    sudo zypper ref
+    wget -qO- https://cli.github.com/packages/githubcli-archive-keyring.gpg \
+  echo "ERROR: Unsupported OS: $OS"
+  echo 'See https://cli.github.com/manual/installation'
+  elif command -v brew >/dev/null 2>&1; then
+  elif command -v dnf >/dev/null 2>&1; then
+  elif command -v pacman >/dev/null 2>&1; then
+  elif command -v snap >/dev/null 2>&1; then
+  elif command -v yum >/dev/null 2>&1; then
+  elif command -v zypper >/dev/null 2>&1; then
+  else
+  else
+  exit 1
+  fi
+  fi
+  if command -v apt-get >/dev/null 2>&1; then
+  if command -v brew >/dev/null 2>&1; then
+OS="$(uname -s)"
+elif [ "$OS" = "Linux" ]; then
+else
+fi
+if [ "$OS" = "Darwin" ]; then
+task: "_install:auto:unix" finished
+task: "_install:auto:unix" started
+task: "_install:auto:windows" not for current platform - ignored
+task: "install" finished
+task: "install" started
+task: "pr:status" finished
+task: "pr:status" started
+task: [_install:auto:unix] VERSION="BASE-VERSION"
+task: [pr:status] gh pr status
+task: status command command -v gh >/dev/null 2>&1 && { [ -z "BASE-VERSION" ] || gh --version | grep -Fqx "gh version BASE-VERSION"; } exited non-zero: exit status 1
+
+=== task: pr:view ===
+
+      | sudo tee /etc/apt/keyrings/githubcli-archive-keyring.gpg > /dev/null
+      | sudo tee /etc/apt/sources.list.d/github-cli.list > /dev/null
+    _key="signed-by=/etc/apt/keyrings/githubcli-archive-keyring.gpg"
+    brew install "gh${VERSION:+@$VERSION}"
+    brew install "gh${VERSION:+@$VERSION}"
+    echo "deb [arch=$(dpkg --print-architecture) $_key] https://cli.github.com/packages stable main" \
+    echo 'Arch Linux detected. Installing gh via pacman...'
+    echo 'CentOS/RHEL detected. Installing gh via yum...'
+    echo 'Debian/Ubuntu detected. Installing gh via apt...'
+    echo 'ERROR: Homebrew is required to install gh on macOS.'
+    echo 'ERROR: No supported package manager detected.'
+    echo 'Fedora/RHEL detected. Installing gh via dnf...'
+    echo 'Homebrew detected. Installing gh via brew...'
+    echo 'Install Homebrew from https://brew.sh and then re-run: task install'
+    echo 'See https://cli.github.com/manual/installation'
+    echo 'macOS detected. Installing gh via Homebrew...'
+    echo 'openSUSE detected. Installing gh via zypper...'
+    echo 'snap detected. Installing gh via snap...'
+    exit 1
+    exit 1
+    sudo apt-get install -y "gh${VERSION:+=$VERSION}"
+    sudo apt-get install -y wget
+    sudo apt-get update
+    sudo apt-get update
+    sudo chmod go+r /etc/apt/keyrings/githubcli-archive-keyring.gpg
+    sudo dnf config-manager --add-repo https://cli.github.com/packages/rpm/gh-cli.repo
+    sudo dnf install -y "gh${VERSION:+-$VERSION}" --repo gh-cli
+    sudo dnf install -y 'dnf-command(config-manager)'
+    sudo mkdir -p -m 755 /etc/apt/keyrings
+    sudo pacman -S --noconfirm github-cli
+    sudo snap install gh
+    sudo yum install -y "gh${VERSION:+-$VERSION}"
+    sudo yum-config-manager --add-repo https://cli.github.com/packages/rpm/gh-cli.repo
+    sudo zypper addrepo https://cli.github.com/packages/rpm/gh-cli.repo
+    sudo zypper install -y "gh${VERSION:+-$VERSION}"
+    sudo zypper ref
+    wget -qO- https://cli.github.com/packages/githubcli-archive-keyring.gpg \
+  echo "ERROR: Unsupported OS: $OS"
+  echo 'See https://cli.github.com/manual/installation'
+  elif command -v brew >/dev/null 2>&1; then
+  elif command -v dnf >/dev/null 2>&1; then
+  elif command -v pacman >/dev/null 2>&1; then
+  elif command -v snap >/dev/null 2>&1; then
+  elif command -v yum >/dev/null 2>&1; then
+  elif command -v zypper >/dev/null 2>&1; then
+  else
+  else
+  exit 1
+  fi
+  fi
+  if command -v apt-get >/dev/null 2>&1; then
+  if command -v brew >/dev/null 2>&1; then
+OS="$(uname -s)"
+elif [ "$OS" = "Linux" ]; then
+else
+fi
+if [ "$OS" = "Darwin" ]; then
+task: "_install:auto:unix" finished
+task: "_install:auto:unix" started
+task: "_install:auto:windows" not for current platform - ignored
+task: "install" finished
+task: "install" started
+task: "pr:view" finished
+task: "pr:view" started
+task: [_install:auto:unix] VERSION="BASE-VERSION"
+task: [pr:view] gh pr view 
+task: status command command -v gh >/dev/null 2>&1 && { [ -z "BASE-VERSION" ] || gh --version | grep -Fqx "gh version BASE-VERSION"; } exited non-zero: exit status 1
+
+=== task: project:create ===
+--- exit: exit status 206
+task: Task "project:create" cancelled because it is missing required variables: PROJECT_TITLE
+
+=== task: project:list ===
+
+      | sudo tee /etc/apt/keyrings/githubcli-archive-keyring.gpg > /dev/null
+      | sudo tee /etc/apt/sources.list.d/github-cli.list > /dev/null
+    _key="signed-by=/etc/apt/keyrings/githubcli-archive-keyring.gpg"
+    brew install "gh${VERSION:+@$VERSION}"
+    brew install "gh${VERSION:+@$VERSION}"
+    echo "deb [arch=$(dpkg --print-architecture) $_key] https://cli.github.com/packages stable main" \
+    echo 'Arch Linux detected. Installing gh via pacman...'
+    echo 'CentOS/RHEL detected. Installing gh via yum...'
+    echo 'Debian/Ubuntu detected. Installing gh via apt...'
+    echo 'ERROR: Homebrew is required to install gh on macOS.'
+    echo 'ERROR: No supported package manager detected.'
+    echo 'Fedora/RHEL detected. Installing gh via dnf...'
+    echo 'Homebrew detected. Installing gh via brew...'
+    echo 'Install Homebrew from https://brew.sh and then re-run: task install'
+    echo 'See https://cli.github.com/manual/installation'
+    echo 'macOS detected. Installing gh via Homebrew...'
+    echo 'openSUSE detected. Installing gh via zypper...'
+    echo 'snap detected. Installing gh via snap...'
+    exit 1
+    exit 1
+    sudo apt-get install -y "gh${VERSION:+=$VERSION}"
+    sudo apt-get install -y wget
+    sudo apt-get update
+    sudo apt-get update
+    sudo chmod go+r /etc/apt/keyrings/githubcli-archive-keyring.gpg
+    sudo dnf config-manager --add-repo https://cli.github.com/packages/rpm/gh-cli.repo
+    sudo dnf install -y "gh${VERSION:+-$VERSION}" --repo gh-cli
+    sudo dnf install -y 'dnf-command(config-manager)'
+    sudo mkdir -p -m 755 /etc/apt/keyrings
+    sudo pacman -S --noconfirm github-cli
+    sudo snap install gh
+    sudo yum install -y "gh${VERSION:+-$VERSION}"
+    sudo yum-config-manager --add-repo https://cli.github.com/packages/rpm/gh-cli.repo
+    sudo zypper addrepo https://cli.github.com/packages/rpm/gh-cli.repo
+    sudo zypper install -y "gh${VERSION:+-$VERSION}"
+    sudo zypper ref
+    wget -qO- https://cli.github.com/packages/githubcli-archive-keyring.gpg \
+  echo "ERROR: Unsupported OS: $OS"
+  echo 'See https://cli.github.com/manual/installation'
+  elif command -v brew >/dev/null 2>&1; then
+  elif command -v dnf >/dev/null 2>&1; then
+  elif command -v pacman >/dev/null 2>&1; then
+  elif command -v snap >/dev/null 2>&1; then
+  elif command -v yum >/dev/null 2>&1; then
+  elif command -v zypper >/dev/null 2>&1; then
+  else
+  else
+  exit 1
+  fi
+  fi
+  if command -v apt-get >/dev/null 2>&1; then
+  if command -v brew >/dev/null 2>&1; then
+OS="$(uname -s)"
+elif [ "$OS" = "Linux" ]; then
+else
+fi
+if [ "$OS" = "Darwin" ]; then
+task: "_install:auto:unix" finished
+task: "_install:auto:unix" started
+task: "_install:auto:windows" not for current platform - ignored
+task: "install" finished
+task: "install" started
+task: "project:list" finished
+task: "project:list" started
+task: [_install:auto:unix] VERSION="BASE-VERSION"
+task: [project:list] gh project list 
+task: status command command -v gh >/dev/null 2>&1 && { [ -z "BASE-VERSION" ] || gh --version | grep -Fqx "gh version BASE-VERSION"; } exited non-zero: exit status 1
+
+=== task: project:view ===
+--- exit: exit status 206
+task: Task "project:view" cancelled because it is missing required variables: PROJECT_NUMBER
+
+=== task: release:create ===
+--- exit: exit status 206
+task: Task "release:create" cancelled because it is missing required variables: TAG
+
+=== task: release:delete:danger ===
+--- exit: exit status 206
+task: Task "release:delete:danger" cancelled because it is missing required variables: TAG
+
+=== task: release:download ===
+
+      | sudo tee /etc/apt/keyrings/githubcli-archive-keyring.gpg > /dev/null
+      | sudo tee /etc/apt/sources.list.d/github-cli.list > /dev/null
+    _key="signed-by=/etc/apt/keyrings/githubcli-archive-keyring.gpg"
+    brew install "gh${VERSION:+@$VERSION}"
+    brew install "gh${VERSION:+@$VERSION}"
+    echo "deb [arch=$(dpkg --print-architecture) $_key] https://cli.github.com/packages stable main" \
+    echo 'Arch Linux detected. Installing gh via pacman...'
+    echo 'CentOS/RHEL detected. Installing gh via yum...'
+    echo 'Debian/Ubuntu detected. Installing gh via apt...'
+    echo 'ERROR: Homebrew is required to install gh on macOS.'
+    echo 'ERROR: No supported package manager detected.'
+    echo 'Fedora/RHEL detected. Installing gh via dnf...'
+    echo 'Homebrew detected. Installing gh via brew...'
+    echo 'Install Homebrew from https://brew.sh and then re-run: task install'
+    echo 'See https://cli.github.com/manual/installation'
+    echo 'macOS detected. Installing gh via Homebrew...'
+    echo 'openSUSE detected. Installing gh via zypper...'
+    echo 'snap detected. Installing gh via snap...'
+    exit 1
+    exit 1
+    sudo apt-get install -y "gh${VERSION:+=$VERSION}"
+    sudo apt-get install -y wget
+    sudo apt-get update
+    sudo apt-get update
+    sudo chmod go+r /etc/apt/keyrings/githubcli-archive-keyring.gpg
+    sudo dnf config-manager --add-repo https://cli.github.com/packages/rpm/gh-cli.repo
+    sudo dnf install -y "gh${VERSION:+-$VERSION}" --repo gh-cli
+    sudo dnf install -y 'dnf-command(config-manager)'
+    sudo mkdir -p -m 755 /etc/apt/keyrings
+    sudo pacman -S --noconfirm github-cli
+    sudo snap install gh
+    sudo yum install -y "gh${VERSION:+-$VERSION}"
+    sudo yum-config-manager --add-repo https://cli.github.com/packages/rpm/gh-cli.repo
+    sudo zypper addrepo https://cli.github.com/packages/rpm/gh-cli.repo
+    sudo zypper install -y "gh${VERSION:+-$VERSION}"
+    sudo zypper ref
+    wget -qO- https://cli.github.com/packages/githubcli-archive-keyring.gpg \
+  echo "ERROR: Unsupported OS: $OS"
+  echo 'See https://cli.github.com/manual/installation'
+  elif command -v brew >/dev/null 2>&1; then
+  elif command -v dnf >/dev/null 2>&1; then
+  elif command -v pacman >/dev/null 2>&1; then
+  elif command -v snap >/dev/null 2>&1; then
+  elif command -v yum >/dev/null 2>&1; then
+  elif command -v zypper >/dev/null 2>&1; then
+  else
+  else
+  exit 1
+  fi
+  fi
+  if command -v apt-get >/dev/null 2>&1; then
+  if command -v brew >/dev/null 2>&1; then
+OS="$(uname -s)"
+elif [ "$OS" = "Linux" ]; then
+else
+fi
+if [ "$OS" = "Darwin" ]; then
+task: "_install:auto:unix" finished
+task: "_install:auto:unix" started
+task: "_install:auto:windows" not for current platform - ignored
+task: "install" finished
+task: "install" started
+task: "release:download" finished
+task: "release:download" started
+task: [_install:auto:unix] VERSION="BASE-VERSION"
+task: [release:download] gh release download   --dir BASE-DOWNLOAD_DIR
+task: status command command -v gh >/dev/null 2>&1 && { [ -z "BASE-VERSION" ] || gh --version | grep -Fqx "gh version BASE-VERSION"; } exited non-zero: exit status 1
+
+=== task: release:download:all ===
+
+
+      | sudo tee /etc/apt/keyrings/githubcli-archive-keyring.gpg > /dev/null
+      | sudo tee /etc/apt/sources.list.d/github-cli.list > /dev/null
+    _key="signed-by=/etc/apt/keyrings/githubcli-archive-keyring.gpg"
+    brew install "gh${VERSION:+@$VERSION}"
+    brew install "gh${VERSION:+@$VERSION}"
+    echo "deb [arch=$(dpkg --print-architecture) $_key] https://cli.github.com/packages stable main" \
+    echo 'Arch Linux detected. Installing gh via pacman...'
+    echo 'CentOS/RHEL detected. Installing gh via yum...'
+    echo 'Debian/Ubuntu detected. Installing gh via apt...'
+    echo 'ERROR: Homebrew is required to install gh on macOS.'
+    echo 'ERROR: No supported package manager detected.'
+    echo 'Fedora/RHEL detected. Installing gh via dnf...'
+    echo 'Homebrew detected. Installing gh via brew...'
+    echo 'Install Homebrew from https://brew.sh and then re-run: task install'
+    echo 'See https://cli.github.com/manual/installation'
+    echo 'macOS detected. Installing gh via Homebrew...'
+    echo 'openSUSE detected. Installing gh via zypper...'
+    echo 'snap detected. Installing gh via snap...'
+    exit 1
+    exit 1
+    sudo apt-get install -y "gh${VERSION:+=$VERSION}"
+    sudo apt-get install -y wget
+    sudo apt-get update
+    sudo apt-get update
+    sudo chmod go+r /etc/apt/keyrings/githubcli-archive-keyring.gpg
+    sudo dnf config-manager --add-repo https://cli.github.com/packages/rpm/gh-cli.repo
+    sudo dnf install -y "gh${VERSION:+-$VERSION}" --repo gh-cli
+    sudo dnf install -y 'dnf-command(config-manager)'
+    sudo mkdir -p -m 755 /etc/apt/keyrings
+    sudo pacman -S --noconfirm github-cli
+    sudo snap install gh
+    sudo yum install -y "gh${VERSION:+-$VERSION}"
+    sudo yum-config-manager --add-repo https://cli.github.com/packages/rpm/gh-cli.repo
+    sudo zypper addrepo https://cli.github.com/packages/rpm/gh-cli.repo
+    sudo zypper install -y "gh${VERSION:+-$VERSION}"
+    sudo zypper ref
+    wget -qO- https://cli.github.com/packages/githubcli-archive-keyring.gpg \
+  dest="${BASE_DIR}/${tag}"
+  echo "ERROR: Unsupported OS: $OS"
+  echo 'See https://cli.github.com/manual/installation'
+  elif command -v brew >/dev/null 2>&1; then
+  elif command -v dnf >/dev/null 2>&1; then
+  elif command -v pacman >/dev/null 2>&1; then
+  elif command -v snap >/dev/null 2>&1; then
+  elif command -v yum >/dev/null 2>&1; then
+  elif command -v zypper >/dev/null 2>&1; then
+  else
+  else
+  exit 1
+  fi
+  fi
+  gh release download "$tag" $REPO_FLAG --dir "$dest" || true
+  if command -v apt-get >/dev/null 2>&1; then
+  if command -v brew >/dev/null 2>&1; then
+  mkdir -p "$dest"
+BASE_DIR="BASE-DOWNLOAD_DIR"
+OS="$(uname -s)"
+done
+elif [ "$OS" = "Linux" ]; then
+else
+fi
+for tag in $(gh release list $REPO_FLAG --json tagName --jq '.[].tagName'); do
+if [ "$OS" = "Darwin" ]; then
+task: "_install:auto:unix" finished
+task: "_install:auto:unix" started
+task: "_install:auto:windows" not for current platform - ignored
+task: "_release:download:all:unix" finished
+task: "_release:download:all:unix" started
+task: "_release:download:all:windows" not for current platform - ignored
+task: "install" finished
+task: "install" started
+task: "jq:_install:linux" not for current platform - ignored
+task: "jq:_install:macos" finished
+task: "jq:_install:macos" started
+task: "jq:_install:windows" not for current platform - ignored
+task: "jq:install" finished
+task: "jq:install" started
+task: "release:download:all" finished
+task: "release:download:all" started
+task: [_install:auto:unix] VERSION="BASE-VERSION"
+task: [_release:download:all:unix] REPO_FLAG=""
+task: [jq:_install:macos] brew install "jq@BASE-VERSION"
+task: [jq:_install:macos] echo 'Installing jq via Homebrew...'
+task: [jq:_install:macos] echo 'jq installed.'
+task: status command command -v gh >/dev/null 2>&1 && { [ -z "BASE-VERSION" ] || gh --version | grep -Fqx "gh version BASE-VERSION"; } exited non-zero: exit status 1
+task: status command command -v jq >/dev/null 2>&1 && { [ -z "BASE-VERSION" ] || [ "$(jq --version)" = "jq-BASE-VERSION" ]; } exited non-zero: exit status 1
+
+=== task: release:list ===
+
+      | sudo tee /etc/apt/keyrings/githubcli-archive-keyring.gpg > /dev/null
+      | sudo tee /etc/apt/sources.list.d/github-cli.list > /dev/null
+    _key="signed-by=/etc/apt/keyrings/githubcli-archive-keyring.gpg"
+    brew install "gh${VERSION:+@$VERSION}"
+    brew install "gh${VERSION:+@$VERSION}"
+    echo "deb [arch=$(dpkg --print-architecture) $_key] https://cli.github.com/packages stable main" \
+    echo 'Arch Linux detected. Installing gh via pacman...'
+    echo 'CentOS/RHEL detected. Installing gh via yum...'
+    echo 'Debian/Ubuntu detected. Installing gh via apt...'
+    echo 'ERROR: Homebrew is required to install gh on macOS.'
+    echo 'ERROR: No supported package manager detected.'
+    echo 'Fedora/RHEL detected. Installing gh via dnf...'
+    echo 'Homebrew detected. Installing gh via brew...'
+    echo 'Install Homebrew from https://brew.sh and then re-run: task install'
+    echo 'See https://cli.github.com/manual/installation'
+    echo 'macOS detected. Installing gh via Homebrew...'
+    echo 'openSUSE detected. Installing gh via zypper...'
+    echo 'snap detected. Installing gh via snap...'
+    exit 1
+    exit 1
+    sudo apt-get install -y "gh${VERSION:+=$VERSION}"
+    sudo apt-get install -y wget
+    sudo apt-get update
+    sudo apt-get update
+    sudo chmod go+r /etc/apt/keyrings/githubcli-archive-keyring.gpg
+    sudo dnf config-manager --add-repo https://cli.github.com/packages/rpm/gh-cli.repo
+    sudo dnf install -y "gh${VERSION:+-$VERSION}" --repo gh-cli
+    sudo dnf install -y 'dnf-command(config-manager)'
+    sudo mkdir -p -m 755 /etc/apt/keyrings
+    sudo pacman -S --noconfirm github-cli
+    sudo snap install gh
+    sudo yum install -y "gh${VERSION:+-$VERSION}"
+    sudo yum-config-manager --add-repo https://cli.github.com/packages/rpm/gh-cli.repo
+    sudo zypper addrepo https://cli.github.com/packages/rpm/gh-cli.repo
+    sudo zypper install -y "gh${VERSION:+-$VERSION}"
+    sudo zypper ref
+    wget -qO- https://cli.github.com/packages/githubcli-archive-keyring.gpg \
+  echo "ERROR: Unsupported OS: $OS"
+  echo 'See https://cli.github.com/manual/installation'
+  elif command -v brew >/dev/null 2>&1; then
+  elif command -v dnf >/dev/null 2>&1; then
+  elif command -v pacman >/dev/null 2>&1; then
+  elif command -v snap >/dev/null 2>&1; then
+  elif command -v yum >/dev/null 2>&1; then
+  elif command -v zypper >/dev/null 2>&1; then
+  else
+  else
+  exit 1
+  fi
+  fi
+  if command -v apt-get >/dev/null 2>&1; then
+  if command -v brew >/dev/null 2>&1; then
+OS="$(uname -s)"
+elif [ "$OS" = "Linux" ]; then
+else
+fi
+if [ "$OS" = "Darwin" ]; then
+task: "_install:auto:unix" finished
+task: "_install:auto:unix" started
+task: "_install:auto:windows" not for current platform - ignored
+task: "install" finished
+task: "install" started
+task: "release:list" finished
+task: "release:list" started
+task: [_install:auto:unix] VERSION="BASE-VERSION"
+task: [release:list] gh release list 
+task: status command command -v gh >/dev/null 2>&1 && { [ -z "BASE-VERSION" ] || gh --version | grep -Fqx "gh version BASE-VERSION"; } exited non-zero: exit status 1
+
+=== task: release:upload ===
+--- exit: exit status 206
+task: Task "release:upload" cancelled because it is missing required variables: TAG, ASSET
+
+=== task: release:view ===
+
+      | sudo tee /etc/apt/keyrings/githubcli-archive-keyring.gpg > /dev/null
+      | sudo tee /etc/apt/sources.list.d/github-cli.list > /dev/null
+    _key="signed-by=/etc/apt/keyrings/githubcli-archive-keyring.gpg"
+    brew install "gh${VERSION:+@$VERSION}"
+    brew install "gh${VERSION:+@$VERSION}"
+    echo "deb [arch=$(dpkg --print-architecture) $_key] https://cli.github.com/packages stable main" \
+    echo 'Arch Linux detected. Installing gh via pacman...'
+    echo 'CentOS/RHEL detected. Installing gh via yum...'
+    echo 'Debian/Ubuntu detected. Installing gh via apt...'
+    echo 'ERROR: Homebrew is required to install gh on macOS.'
+    echo 'ERROR: No supported package manager detected.'
+    echo 'Fedora/RHEL detected. Installing gh via dnf...'
+    echo 'Homebrew detected. Installing gh via brew...'
+    echo 'Install Homebrew from https://brew.sh and then re-run: task install'
+    echo 'See https://cli.github.com/manual/installation'
+    echo 'macOS detected. Installing gh via Homebrew...'
+    echo 'openSUSE detected. Installing gh via zypper...'
+    echo 'snap detected. Installing gh via snap...'
+    exit 1
+    exit 1
+    sudo apt-get install -y "gh${VERSION:+=$VERSION}"
+    sudo apt-get install -y wget
+    sudo apt-get update
+    sudo apt-get update
+    sudo chmod go+r /etc/apt/keyrings/githubcli-archive-keyring.gpg
+    sudo dnf config-manager --add-repo https://cli.github.com/packages/rpm/gh-cli.repo
+    sudo dnf install -y "gh${VERSION:+-$VERSION}" --repo gh-cli
+    sudo dnf install -y 'dnf-command(config-manager)'
+    sudo mkdir -p -m 755 /etc/apt/keyrings
+    sudo pacman -S --noconfirm github-cli
+    sudo snap install gh
+    sudo yum install -y "gh${VERSION:+-$VERSION}"
+    sudo yum-config-manager --add-repo https://cli.github.com/packages/rpm/gh-cli.repo
+    sudo zypper addrepo https://cli.github.com/packages/rpm/gh-cli.repo
+    sudo zypper install -y "gh${VERSION:+-$VERSION}"
+    sudo zypper ref
+    wget -qO- https://cli.github.com/packages/githubcli-archive-keyring.gpg \
+  echo "ERROR: Unsupported OS: $OS"
+  echo 'See https://cli.github.com/manual/installation'
+  elif command -v brew >/dev/null 2>&1; then
+  elif command -v dnf >/dev/null 2>&1; then
+  elif command -v pacman >/dev/null 2>&1; then
+  elif command -v snap >/dev/null 2>&1; then
+  elif command -v yum >/dev/null 2>&1; then
+  elif command -v zypper >/dev/null 2>&1; then
+  else
+  else
+  exit 1
+  fi
+  fi
+  if command -v apt-get >/dev/null 2>&1; then
+  if command -v brew >/dev/null 2>&1; then
+OS="$(uname -s)"
+elif [ "$OS" = "Linux" ]; then
+else
+fi
+if [ "$OS" = "Darwin" ]; then
+task: "_install:auto:unix" finished
+task: "_install:auto:unix" started
+task: "_install:auto:windows" not for current platform - ignored
+task: "install" finished
+task: "install" started
+task: "release:view" finished
+task: "release:view" started
+task: [_install:auto:unix] VERSION="BASE-VERSION"
+task: [release:view] gh release view  
+task: status command command -v gh >/dev/null 2>&1 && { [ -z "BASE-VERSION" ] || gh --version | grep -Fqx "gh version BASE-VERSION"; } exited non-zero: exit status 1
+
+=== task: repo:archive ===
+--- exit: exit status 206
+task: Task "repo:archive" cancelled because it is missing required variables: REPO
+
+=== task: repo:clone ===
+--- exit: exit status 206
+task: Task "repo:clone" cancelled because it is missing required variables: REPO
+
+=== task: repo:create ===
+--- exit: exit status 206
+task: Task "repo:create" cancelled because it is missing required variables: REPO
+
+=== task: repo:delete:danger ===
+--- exit: exit status 206
+task: Task "repo:delete:danger" cancelled because it is missing required variables: REPO
+
+=== task: repo:fork ===
+
+      | sudo tee /etc/apt/keyrings/githubcli-archive-keyring.gpg > /dev/null
+      | sudo tee /etc/apt/sources.list.d/github-cli.list > /dev/null
+    _key="signed-by=/etc/apt/keyrings/githubcli-archive-keyring.gpg"
+    brew install "gh${VERSION:+@$VERSION}"
+    brew install "gh${VERSION:+@$VERSION}"
+    echo "deb [arch=$(dpkg --print-architecture) $_key] https://cli.github.com/packages stable main" \
+    echo 'Arch Linux detected. Installing gh via pacman...'
+    echo 'CentOS/RHEL detected. Installing gh via yum...'
+    echo 'Debian/Ubuntu detected. Installing gh via apt...'
+    echo 'ERROR: Homebrew is required to install gh on macOS.'
+    echo 'ERROR: No supported package manager detected.'
+    echo 'Fedora/RHEL detected. Installing gh via dnf...'
+    echo 'Homebrew detected. Installing gh via brew...'
+    echo 'Install Homebrew from https://brew.sh and then re-run: task install'
+    echo 'See https://cli.github.com/manual/installation'
+    echo 'macOS detected. Installing gh via Homebrew...'
+    echo 'openSUSE detected. Installing gh via zypper...'
+    echo 'snap detected. Installing gh via snap...'
+    exit 1
+    exit 1
+    sudo apt-get install -y "gh${VERSION:+=$VERSION}"
+    sudo apt-get install -y wget
+    sudo apt-get update
+    sudo apt-get update
+    sudo chmod go+r /etc/apt/keyrings/githubcli-archive-keyring.gpg
+    sudo dnf config-manager --add-repo https://cli.github.com/packages/rpm/gh-cli.repo
+    sudo dnf install -y "gh${VERSION:+-$VERSION}" --repo gh-cli
+    sudo dnf install -y 'dnf-command(config-manager)'
+    sudo mkdir -p -m 755 /etc/apt/keyrings
+    sudo pacman -S --noconfirm github-cli
+    sudo snap install gh
+    sudo yum install -y "gh${VERSION:+-$VERSION}"
+    sudo yum-config-manager --add-repo https://cli.github.com/packages/rpm/gh-cli.repo
+    sudo zypper addrepo https://cli.github.com/packages/rpm/gh-cli.repo
+    sudo zypper install -y "gh${VERSION:+-$VERSION}"
+    sudo zypper ref
+    wget -qO- https://cli.github.com/packages/githubcli-archive-keyring.gpg \
+  echo "ERROR: Unsupported OS: $OS"
+  echo 'See https://cli.github.com/manual/installation'
+  elif command -v brew >/dev/null 2>&1; then
+  elif command -v dnf >/dev/null 2>&1; then
+  elif command -v pacman >/dev/null 2>&1; then
+  elif command -v snap >/dev/null 2>&1; then
+  elif command -v yum >/dev/null 2>&1; then
+  elif command -v zypper >/dev/null 2>&1; then
+  else
+  else
+  exit 1
+  fi
+  fi
+  if command -v apt-get >/dev/null 2>&1; then
+  if command -v brew >/dev/null 2>&1; then
+OS="$(uname -s)"
+elif [ "$OS" = "Linux" ]; then
+else
+fi
+if [ "$OS" = "Darwin" ]; then
+task: "_install:auto:unix" finished
+task: "_install:auto:unix" started
+task: "_install:auto:windows" not for current platform - ignored
+task: "install" finished
+task: "install" started
+task: "repo:fork" finished
+task: "repo:fork" started
+task: [_install:auto:unix] VERSION="BASE-VERSION"
+task: [repo:fork] gh repo fork  --clone
+task: status command command -v gh >/dev/null 2>&1 && { [ -z "BASE-VERSION" ] || gh --version | grep -Fqx "gh version BASE-VERSION"; } exited non-zero: exit status 1
+
+=== task: repo:list ===
+
+      | sudo tee /etc/apt/keyrings/githubcli-archive-keyring.gpg > /dev/null
+      | sudo tee /etc/apt/sources.list.d/github-cli.list > /dev/null
+    _key="signed-by=/etc/apt/keyrings/githubcli-archive-keyring.gpg"
+    brew install "gh${VERSION:+@$VERSION}"
+    brew install "gh${VERSION:+@$VERSION}"
+    echo "deb [arch=$(dpkg --print-architecture) $_key] https://cli.github.com/packages stable main" \
+    echo 'Arch Linux detected. Installing gh via pacman...'
+    echo 'CentOS/RHEL detected. Installing gh via yum...'
+    echo 'Debian/Ubuntu detected. Installing gh via apt...'
+    echo 'ERROR: Homebrew is required to install gh on macOS.'
+    echo 'ERROR: No supported package manager detected.'
+    echo 'Fedora/RHEL detected. Installing gh via dnf...'
+    echo 'Homebrew detected. Installing gh via brew...'
+    echo 'Install Homebrew from https://brew.sh and then re-run: task install'
+    echo 'See https://cli.github.com/manual/installation'
+    echo 'macOS detected. Installing gh via Homebrew...'
+    echo 'openSUSE detected. Installing gh via zypper...'
+    echo 'snap detected. Installing gh via snap...'
+    exit 1
+    exit 1
+    sudo apt-get install -y "gh${VERSION:+=$VERSION}"
+    sudo apt-get install -y wget
+    sudo apt-get update
+    sudo apt-get update
+    sudo chmod go+r /etc/apt/keyrings/githubcli-archive-keyring.gpg
+    sudo dnf config-manager --add-repo https://cli.github.com/packages/rpm/gh-cli.repo
+    sudo dnf install -y "gh${VERSION:+-$VERSION}" --repo gh-cli
+    sudo dnf install -y 'dnf-command(config-manager)'
+    sudo mkdir -p -m 755 /etc/apt/keyrings
+    sudo pacman -S --noconfirm github-cli
+    sudo snap install gh
+    sudo yum install -y "gh${VERSION:+-$VERSION}"
+    sudo yum-config-manager --add-repo https://cli.github.com/packages/rpm/gh-cli.repo
+    sudo zypper addrepo https://cli.github.com/packages/rpm/gh-cli.repo
+    sudo zypper install -y "gh${VERSION:+-$VERSION}"
+    sudo zypper ref
+    wget -qO- https://cli.github.com/packages/githubcli-archive-keyring.gpg \
+  echo "ERROR: Unsupported OS: $OS"
+  echo 'See https://cli.github.com/manual/installation'
+  elif command -v brew >/dev/null 2>&1; then
+  elif command -v dnf >/dev/null 2>&1; then
+  elif command -v pacman >/dev/null 2>&1; then
+  elif command -v snap >/dev/null 2>&1; then
+  elif command -v yum >/dev/null 2>&1; then
+  elif command -v zypper >/dev/null 2>&1; then
+  else
+  else
+  exit 1
+  fi
+  fi
+  if command -v apt-get >/dev/null 2>&1; then
+  if command -v brew >/dev/null 2>&1; then
+OS="$(uname -s)"
+elif [ "$OS" = "Linux" ]; then
+else
+fi
+if [ "$OS" = "Darwin" ]; then
+task: "_install:auto:unix" finished
+task: "_install:auto:unix" started
+task: "_install:auto:windows" not for current platform - ignored
+task: "install" finished
+task: "install" started
+task: "repo:list" finished
+task: "repo:list" started
+task: [_install:auto:unix] VERSION="BASE-VERSION"
+task: [repo:list] gh repo list 
+task: status command command -v gh >/dev/null 2>&1 && { [ -z "BASE-VERSION" ] || gh --version | grep -Fqx "gh version BASE-VERSION"; } exited non-zero: exit status 1
+
+=== task: repo:sync ===
+
+      | sudo tee /etc/apt/keyrings/githubcli-archive-keyring.gpg > /dev/null
+      | sudo tee /etc/apt/sources.list.d/github-cli.list > /dev/null
+    _key="signed-by=/etc/apt/keyrings/githubcli-archive-keyring.gpg"
+    brew install "gh${VERSION:+@$VERSION}"
+    brew install "gh${VERSION:+@$VERSION}"
+    echo "deb [arch=$(dpkg --print-architecture) $_key] https://cli.github.com/packages stable main" \
+    echo 'Arch Linux detected. Installing gh via pacman...'
+    echo 'CentOS/RHEL detected. Installing gh via yum...'
+    echo 'Debian/Ubuntu detected. Installing gh via apt...'
+    echo 'ERROR: Homebrew is required to install gh on macOS.'
+    echo 'ERROR: No supported package manager detected.'
+    echo 'Fedora/RHEL detected. Installing gh via dnf...'
+    echo 'Homebrew detected. Installing gh via brew...'
+    echo 'Install Homebrew from https://brew.sh and then re-run: task install'
+    echo 'See https://cli.github.com/manual/installation'
+    echo 'macOS detected. Installing gh via Homebrew...'
+    echo 'openSUSE detected. Installing gh via zypper...'
+    echo 'snap detected. Installing gh via snap...'
+    exit 1
+    exit 1
+    sudo apt-get install -y "gh${VERSION:+=$VERSION}"
+    sudo apt-get install -y wget
+    sudo apt-get update
+    sudo apt-get update
+    sudo chmod go+r /etc/apt/keyrings/githubcli-archive-keyring.gpg
+    sudo dnf config-manager --add-repo https://cli.github.com/packages/rpm/gh-cli.repo
+    sudo dnf install -y "gh${VERSION:+-$VERSION}" --repo gh-cli
+    sudo dnf install -y 'dnf-command(config-manager)'
+    sudo mkdir -p -m 755 /etc/apt/keyrings
+    sudo pacman -S --noconfirm github-cli
+    sudo snap install gh
+    sudo yum install -y "gh${VERSION:+-$VERSION}"
+    sudo yum-config-manager --add-repo https://cli.github.com/packages/rpm/gh-cli.repo
+    sudo zypper addrepo https://cli.github.com/packages/rpm/gh-cli.repo
+    sudo zypper install -y "gh${VERSION:+-$VERSION}"
+    sudo zypper ref
+    wget -qO- https://cli.github.com/packages/githubcli-archive-keyring.gpg \
+  echo "ERROR: Unsupported OS: $OS"
+  echo 'See https://cli.github.com/manual/installation'
+  elif command -v brew >/dev/null 2>&1; then
+  elif command -v dnf >/dev/null 2>&1; then
+  elif command -v pacman >/dev/null 2>&1; then
+  elif command -v snap >/dev/null 2>&1; then
+  elif command -v yum >/dev/null 2>&1; then
+  elif command -v zypper >/dev/null 2>&1; then
+  else
+  else
+  exit 1
+  fi
+  fi
+  if command -v apt-get >/dev/null 2>&1; then
+  if command -v brew >/dev/null 2>&1; then
+OS="$(uname -s)"
+elif [ "$OS" = "Linux" ]; then
+else
+fi
+if [ "$OS" = "Darwin" ]; then
+task: "_install:auto:unix" finished
+task: "_install:auto:unix" started
+task: "_install:auto:windows" not for current platform - ignored
+task: "install" finished
+task: "install" started
+task: "repo:sync" finished
+task: "repo:sync" started
+task: [_install:auto:unix] VERSION="BASE-VERSION"
+task: [repo:sync] gh repo sync 
+task: status command command -v gh >/dev/null 2>&1 && { [ -z "BASE-VERSION" ] || gh --version | grep -Fqx "gh version BASE-VERSION"; } exited non-zero: exit status 1
+
+=== task: repo:view ===
+
+      | sudo tee /etc/apt/keyrings/githubcli-archive-keyring.gpg > /dev/null
+      | sudo tee /etc/apt/sources.list.d/github-cli.list > /dev/null
+    _key="signed-by=/etc/apt/keyrings/githubcli-archive-keyring.gpg"
+    brew install "gh${VERSION:+@$VERSION}"
+    brew install "gh${VERSION:+@$VERSION}"
+    echo "deb [arch=$(dpkg --print-architecture) $_key] https://cli.github.com/packages stable main" \
+    echo 'Arch Linux detected. Installing gh via pacman...'
+    echo 'CentOS/RHEL detected. Installing gh via yum...'
+    echo 'Debian/Ubuntu detected. Installing gh via apt...'
+    echo 'ERROR: Homebrew is required to install gh on macOS.'
+    echo 'ERROR: No supported package manager detected.'
+    echo 'Fedora/RHEL detected. Installing gh via dnf...'
+    echo 'Homebrew detected. Installing gh via brew...'
+    echo 'Install Homebrew from https://brew.sh and then re-run: task install'
+    echo 'See https://cli.github.com/manual/installation'
+    echo 'macOS detected. Installing gh via Homebrew...'
+    echo 'openSUSE detected. Installing gh via zypper...'
+    echo 'snap detected. Installing gh via snap...'
+    exit 1
+    exit 1
+    sudo apt-get install -y "gh${VERSION:+=$VERSION}"
+    sudo apt-get install -y wget
+    sudo apt-get update
+    sudo apt-get update
+    sudo chmod go+r /etc/apt/keyrings/githubcli-archive-keyring.gpg
+    sudo dnf config-manager --add-repo https://cli.github.com/packages/rpm/gh-cli.repo
+    sudo dnf install -y "gh${VERSION:+-$VERSION}" --repo gh-cli
+    sudo dnf install -y 'dnf-command(config-manager)'
+    sudo mkdir -p -m 755 /etc/apt/keyrings
+    sudo pacman -S --noconfirm github-cli
+    sudo snap install gh
+    sudo yum install -y "gh${VERSION:+-$VERSION}"
+    sudo yum-config-manager --add-repo https://cli.github.com/packages/rpm/gh-cli.repo
+    sudo zypper addrepo https://cli.github.com/packages/rpm/gh-cli.repo
+    sudo zypper install -y "gh${VERSION:+-$VERSION}"
+    sudo zypper ref
+    wget -qO- https://cli.github.com/packages/githubcli-archive-keyring.gpg \
+  echo "ERROR: Unsupported OS: $OS"
+  echo 'See https://cli.github.com/manual/installation'
+  elif command -v brew >/dev/null 2>&1; then
+  elif command -v dnf >/dev/null 2>&1; then
+  elif command -v pacman >/dev/null 2>&1; then
+  elif command -v snap >/dev/null 2>&1; then
+  elif command -v yum >/dev/null 2>&1; then
+  elif command -v zypper >/dev/null 2>&1; then
+  else
+  else
+  exit 1
+  fi
+  fi
+  if command -v apt-get >/dev/null 2>&1; then
+  if command -v brew >/dev/null 2>&1; then
+OS="$(uname -s)"
+elif [ "$OS" = "Linux" ]; then
+else
+fi
+if [ "$OS" = "Darwin" ]; then
+task: "_install:auto:unix" finished
+task: "_install:auto:unix" started
+task: "_install:auto:windows" not for current platform - ignored
+task: "install" finished
+task: "install" started
+task: "repo:view" finished
+task: "repo:view" started
+task: [_install:auto:unix] VERSION="BASE-VERSION"
+task: [repo:view] gh repo view 
+task: status command command -v gh >/dev/null 2>&1 && { [ -z "BASE-VERSION" ] || gh --version | grep -Fqx "gh version BASE-VERSION"; } exited non-zero: exit status 1
+
+=== task: run:cancel ===
+--- exit: exit status 206
+task: Task "run:cancel" cancelled because it is missing required variables: RUN_ID
+
+=== task: run:list ===
+
+      | sudo tee /etc/apt/keyrings/githubcli-archive-keyring.gpg > /dev/null
+      | sudo tee /etc/apt/sources.list.d/github-cli.list > /dev/null
+    _key="signed-by=/etc/apt/keyrings/githubcli-archive-keyring.gpg"
+    brew install "gh${VERSION:+@$VERSION}"
+    brew install "gh${VERSION:+@$VERSION}"
+    echo "deb [arch=$(dpkg --print-architecture) $_key] https://cli.github.com/packages stable main" \
+    echo 'Arch Linux detected. Installing gh via pacman...'
+    echo 'CentOS/RHEL detected. Installing gh via yum...'
+    echo 'Debian/Ubuntu detected. Installing gh via apt...'
+    echo 'ERROR: Homebrew is required to install gh on macOS.'
+    echo 'ERROR: No supported package manager detected.'
+    echo 'Fedora/RHEL detected. Installing gh via dnf...'
+    echo 'Homebrew detected. Installing gh via brew...'
+    echo 'Install Homebrew from https://brew.sh and then re-run: task install'
+    echo 'See https://cli.github.com/manual/installation'
+    echo 'macOS detected. Installing gh via Homebrew...'
+    echo 'openSUSE detected. Installing gh via zypper...'
+    echo 'snap detected. Installing gh via snap...'
+    exit 1
+    exit 1
+    sudo apt-get install -y "gh${VERSION:+=$VERSION}"
+    sudo apt-get install -y wget
+    sudo apt-get update
+    sudo apt-get update
+    sudo chmod go+r /etc/apt/keyrings/githubcli-archive-keyring.gpg
+    sudo dnf config-manager --add-repo https://cli.github.com/packages/rpm/gh-cli.repo
+    sudo dnf install -y "gh${VERSION:+-$VERSION}" --repo gh-cli
+    sudo dnf install -y 'dnf-command(config-manager)'
+    sudo mkdir -p -m 755 /etc/apt/keyrings
+    sudo pacman -S --noconfirm github-cli
+    sudo snap install gh
+    sudo yum install -y "gh${VERSION:+-$VERSION}"
+    sudo yum-config-manager --add-repo https://cli.github.com/packages/rpm/gh-cli.repo
+    sudo zypper addrepo https://cli.github.com/packages/rpm/gh-cli.repo
+    sudo zypper install -y "gh${VERSION:+-$VERSION}"
+    sudo zypper ref
+    wget -qO- https://cli.github.com/packages/githubcli-archive-keyring.gpg \
+  echo "ERROR: Unsupported OS: $OS"
+  echo 'See https://cli.github.com/manual/installation'
+  elif command -v brew >/dev/null 2>&1; then
+  elif command -v dnf >/dev/null 2>&1; then
+  elif command -v pacman >/dev/null 2>&1; then
+  elif command -v snap >/dev/null 2>&1; then
+  elif command -v yum >/dev/null 2>&1; then
+  elif command -v zypper >/dev/null 2>&1; then
+  else
+  else
+  exit 1
+  fi
+  fi
+  if command -v apt-get >/dev/null 2>&1; then
+  if command -v brew >/dev/null 2>&1; then
+OS="$(uname -s)"
+elif [ "$OS" = "Linux" ]; then
+else
+fi
+if [ "$OS" = "Darwin" ]; then
+task: "_install:auto:unix" finished
+task: "_install:auto:unix" started
+task: "_install:auto:windows" not for current platform - ignored
+task: "install" finished
+task: "install" started
+task: "run:list" finished
+task: "run:list" started
+task: [_install:auto:unix] VERSION="BASE-VERSION"
+task: [run:list] gh run list
+task: status command command -v gh >/dev/null 2>&1 && { [ -z "BASE-VERSION" ] || gh --version | grep -Fqx "gh version BASE-VERSION"; } exited non-zero: exit status 1
+
+=== task: run:logs ===
+--- exit: exit status 206
+task: Task "run:logs" cancelled because it is missing required variables: RUN_ID
+
+=== task: run:rerun ===
+--- exit: exit status 206
+task: Task "run:rerun" cancelled because it is missing required variables: RUN_ID
+
+=== task: run:view ===
+--- exit: exit status 206
+task: Task "run:view" cancelled because it is missing required variables: RUN_ID
+
+=== task: search:issues ===
+--- exit: exit status 206
+task: Task "search:issues" cancelled because it is missing required variables: QUERY
+
+=== task: search:prs ===
+--- exit: exit status 206
+task: Task "search:prs" cancelled because it is missing required variables: QUERY
+
+=== task: search:repos ===
+--- exit: exit status 206
+task: Task "search:repos" cancelled because it is missing required variables: QUERY
+
+=== task: secret:delete:danger ===
+--- exit: exit status 206
+task: Task "secret:delete:danger" cancelled because it is missing required variables: SECRET_NAME
+
+=== task: secret:list ===
+
+      | sudo tee /etc/apt/keyrings/githubcli-archive-keyring.gpg > /dev/null
+      | sudo tee /etc/apt/sources.list.d/github-cli.list > /dev/null
+    _key="signed-by=/etc/apt/keyrings/githubcli-archive-keyring.gpg"
+    brew install "gh${VERSION:+@$VERSION}"
+    brew install "gh${VERSION:+@$VERSION}"
+    echo "deb [arch=$(dpkg --print-architecture) $_key] https://cli.github.com/packages stable main" \
+    echo 'Arch Linux detected. Installing gh via pacman...'
+    echo 'CentOS/RHEL detected. Installing gh via yum...'
+    echo 'Debian/Ubuntu detected. Installing gh via apt...'
+    echo 'ERROR: Homebrew is required to install gh on macOS.'
+    echo 'ERROR: No supported package manager detected.'
+    echo 'Fedora/RHEL detected. Installing gh via dnf...'
+    echo 'Homebrew detected. Installing gh via brew...'
+    echo 'Install Homebrew from https://brew.sh and then re-run: task install'
+    echo 'See https://cli.github.com/manual/installation'
+    echo 'macOS detected. Installing gh via Homebrew...'
+    echo 'openSUSE detected. Installing gh via zypper...'
+    echo 'snap detected. Installing gh via snap...'
+    exit 1
+    exit 1
+    sudo apt-get install -y "gh${VERSION:+=$VERSION}"
+    sudo apt-get install -y wget
+    sudo apt-get update
+    sudo apt-get update
+    sudo chmod go+r /etc/apt/keyrings/githubcli-archive-keyring.gpg
+    sudo dnf config-manager --add-repo https://cli.github.com/packages/rpm/gh-cli.repo
+    sudo dnf install -y "gh${VERSION:+-$VERSION}" --repo gh-cli
+    sudo dnf install -y 'dnf-command(config-manager)'
+    sudo mkdir -p -m 755 /etc/apt/keyrings
+    sudo pacman -S --noconfirm github-cli
+    sudo snap install gh
+    sudo yum install -y "gh${VERSION:+-$VERSION}"
+    sudo yum-config-manager --add-repo https://cli.github.com/packages/rpm/gh-cli.repo
+    sudo zypper addrepo https://cli.github.com/packages/rpm/gh-cli.repo
+    sudo zypper install -y "gh${VERSION:+-$VERSION}"
+    sudo zypper ref
+    wget -qO- https://cli.github.com/packages/githubcli-archive-keyring.gpg \
+  echo "ERROR: Unsupported OS: $OS"
+  echo 'See https://cli.github.com/manual/installation'
+  elif command -v brew >/dev/null 2>&1; then
+  elif command -v dnf >/dev/null 2>&1; then
+  elif command -v pacman >/dev/null 2>&1; then
+  elif command -v snap >/dev/null 2>&1; then
+  elif command -v yum >/dev/null 2>&1; then
+  elif command -v zypper >/dev/null 2>&1; then
+  else
+  else
+  exit 1
+  fi
+  fi
+  if command -v apt-get >/dev/null 2>&1; then
+  if command -v brew >/dev/null 2>&1; then
+OS="$(uname -s)"
+elif [ "$OS" = "Linux" ]; then
+else
+fi
+if [ "$OS" = "Darwin" ]; then
+task: "_install:auto:unix" finished
+task: "_install:auto:unix" started
+task: "_install:auto:windows" not for current platform - ignored
+task: "install" finished
+task: "install" started
+task: "secret:list" finished
+task: "secret:list" started
+task: [_install:auto:unix] VERSION="BASE-VERSION"
+task: [secret:list] gh secret list 
+task: status command command -v gh >/dev/null 2>&1 && { [ -z "BASE-VERSION" ] || gh --version | grep -Fqx "gh version BASE-VERSION"; } exited non-zero: exit status 1
+
+=== task: secret:set ===
+--- exit: exit status 206
+task: Task "secret:set" cancelled because it is missing required variables: SECRET_NAME, SECRET_VALUE
+
+=== task: ssh-key:add ===
+--- exit: exit status 206
+task: Task "ssh-key:add" cancelled because it is missing required variables: SSH_KEY_FILE
+
+=== task: ssh-key:delete:danger ===
+--- exit: exit status 206
+task: Task "ssh-key:delete:danger" cancelled because it is missing required variables: SSH_KEY_ID
+
+=== task: ssh-key:list ===
+
+      | sudo tee /etc/apt/keyrings/githubcli-archive-keyring.gpg > /dev/null
+      | sudo tee /etc/apt/sources.list.d/github-cli.list > /dev/null
+    _key="signed-by=/etc/apt/keyrings/githubcli-archive-keyring.gpg"
+    brew install "gh${VERSION:+@$VERSION}"
+    brew install "gh${VERSION:+@$VERSION}"
+    echo "deb [arch=$(dpkg --print-architecture) $_key] https://cli.github.com/packages stable main" \
+    echo 'Arch Linux detected. Installing gh via pacman...'
+    echo 'CentOS/RHEL detected. Installing gh via yum...'
+    echo 'Debian/Ubuntu detected. Installing gh via apt...'
+    echo 'ERROR: Homebrew is required to install gh on macOS.'
+    echo 'ERROR: No supported package manager detected.'
+    echo 'Fedora/RHEL detected. Installing gh via dnf...'
+    echo 'Homebrew detected. Installing gh via brew...'
+    echo 'Install Homebrew from https://brew.sh and then re-run: task install'
+    echo 'See https://cli.github.com/manual/installation'
+    echo 'macOS detected. Installing gh via Homebrew...'
+    echo 'openSUSE detected. Installing gh via zypper...'
+    echo 'snap detected. Installing gh via snap...'
+    exit 1
+    exit 1
+    sudo apt-get install -y "gh${VERSION:+=$VERSION}"
+    sudo apt-get install -y wget
+    sudo apt-get update
+    sudo apt-get update
+    sudo chmod go+r /etc/apt/keyrings/githubcli-archive-keyring.gpg
+    sudo dnf config-manager --add-repo https://cli.github.com/packages/rpm/gh-cli.repo
+    sudo dnf install -y "gh${VERSION:+-$VERSION}" --repo gh-cli
+    sudo dnf install -y 'dnf-command(config-manager)'
+    sudo mkdir -p -m 755 /etc/apt/keyrings
+    sudo pacman -S --noconfirm github-cli
+    sudo snap install gh
+    sudo yum install -y "gh${VERSION:+-$VERSION}"
+    sudo yum-config-manager --add-repo https://cli.github.com/packages/rpm/gh-cli.repo
+    sudo zypper addrepo https://cli.github.com/packages/rpm/gh-cli.repo
+    sudo zypper install -y "gh${VERSION:+-$VERSION}"
+    sudo zypper ref
+    wget -qO- https://cli.github.com/packages/githubcli-archive-keyring.gpg \
+  echo "ERROR: Unsupported OS: $OS"
+  echo 'See https://cli.github.com/manual/installation'
+  elif command -v brew >/dev/null 2>&1; then
+  elif command -v dnf >/dev/null 2>&1; then
+  elif command -v pacman >/dev/null 2>&1; then
+  elif command -v snap >/dev/null 2>&1; then
+  elif command -v yum >/dev/null 2>&1; then
+  elif command -v zypper >/dev/null 2>&1; then
+  else
+  else
+  exit 1
+  fi
+  fi
+  if command -v apt-get >/dev/null 2>&1; then
+  if command -v brew >/dev/null 2>&1; then
+OS="$(uname -s)"
+elif [ "$OS" = "Linux" ]; then
+else
+fi
+if [ "$OS" = "Darwin" ]; then
+task: "_install:auto:unix" finished
+task: "_install:auto:unix" started
+task: "_install:auto:windows" not for current platform - ignored
+task: "install" finished
+task: "install" started
+task: "ssh-key:list" finished
+task: "ssh-key:list" started
+task: [_install:auto:unix] VERSION="BASE-VERSION"
+task: [ssh-key:list] gh ssh-key list
+task: status command command -v gh >/dev/null 2>&1 && { [ -z "BASE-VERSION" ] || gh --version | grep -Fqx "gh version BASE-VERSION"; } exited non-zero: exit status 1
+
+=== task: upgrade ===
+
+
+      | sudo tee /etc/apt/keyrings/githubcli-archive-keyring.gpg > /dev/null
+      | sudo tee /etc/apt/sources.list.d/github-cli.list > /dev/null
+    _key="signed-by=/etc/apt/keyrings/githubcli-archive-keyring.gpg"
+    brew install "gh${VERSION:+@$VERSION}"
+    brew install "gh${VERSION:+@$VERSION}"
+    brew upgrade gh
+    echo "deb [arch=$(dpkg --print-architecture) $_key] https://cli.github.com/packages stable main" \
+    echo 'Arch Linux detected. Installing gh via pacman...'
+    echo 'CentOS/RHEL detected. Installing gh via yum...'
+    echo 'Debian/Ubuntu detected. Installing gh via apt...'
+    echo 'ERROR: Could not detect a supported package manager for upgrade.'
+    echo 'ERROR: Homebrew is required to install gh on macOS.'
+    echo 'ERROR: No supported package manager detected.'
+    echo 'Fedora/RHEL detected. Installing gh via dnf...'
+    echo 'Homebrew detected. Installing gh via brew...'
+    echo 'Install Homebrew from https://brew.sh and then re-run: task install'
+    echo 'See https://cli.github.com/manual/installation'
+    echo 'See https://cli.github.com/manual/installation'
+    echo 'macOS detected. Installing gh via Homebrew...'
+    echo 'openSUSE detected. Installing gh via zypper...'
+    echo 'snap detected. Installing gh via snap...'
+    exit 1
+    exit 1
+    exit 1
+    sudo apt-get install --only-upgrade -y gh
+    sudo apt-get install -y "gh${VERSION:+=$VERSION}"
+    sudo apt-get install -y wget
+    sudo apt-get update
+    sudo apt-get update
+    sudo chmod go+r /etc/apt/keyrings/githubcli-archive-keyring.gpg
+    sudo dnf config-manager --add-repo https://cli.github.com/packages/rpm/gh-cli.repo
+    sudo dnf install -y "gh${VERSION:+-$VERSION}" --repo gh-cli
+    sudo dnf install -y 'dnf-command(config-manager)'
+    sudo dnf upgrade -y gh
+    sudo mkdir -p -m 755 /etc/apt/keyrings
+    sudo pacman -S --noconfirm github-cli
+    sudo snap install gh
+    sudo snap refresh gh
+    sudo yum install -y "gh${VERSION:+-$VERSION}"
+    sudo yum-config-manager --add-repo https://cli.github.com/packages/rpm/gh-cli.repo
+    sudo zypper addrepo https://cli.github.com/packages/rpm/gh-cli.repo
+    sudo zypper install -y "gh${VERSION:+-$VERSION}"
+    sudo zypper ref
+    wget -qO- https://cli.github.com/packages/githubcli-archive-keyring.gpg \
+  brew upgrade gh
+  echo "ERROR: Unsupported OS: $OS"
+  echo 'See https://cli.github.com/manual/installation'
+  elif command -v brew >/dev/null 2>&1; then
+  elif command -v brew >/dev/null 2>&1; then
+  elif command -v dnf >/dev/null 2>&1; then
+  elif command -v dnf >/dev/null 2>&1; then
+  elif command -v pacman >/dev/null 2>&1; then
+  elif command -v snap >/dev/null 2>&1 && snap list gh >/dev/null 2>&1; then
+  elif command -v snap >/dev/null 2>&1; then
+  elif command -v yum >/dev/null 2>&1; then
+  elif command -v zypper >/dev/null 2>&1; then
+  else
+  else
+  else
+  exit 1
+  fi
+  fi
+  fi
+  if command -v apt-get >/dev/null 2>&1; then
+  if command -v apt-get >/dev/null 2>&1; then
+  if command -v brew >/dev/null 2>&1; then
+OS="$(uname -s)"
+elif [ "$OS" = "Linux" ]; then
+elif [ "$OS" = "Linux" ]; then
+else
+fi
+fi
+if [ "$OS" = "Darwin" ]; then
+if [ "$OS" = "Darwin" ]; then
+task: "_install:auto:unix" finished
+task: "_install:auto:unix" started
+task: "_install:auto:windows" not for current platform - ignored
+task: "_upgrade:auto:unix" finished
+task: "_upgrade:auto:unix" started
+task: "_upgrade:auto:windows" not for current platform - ignored
+task: "install" finished
+task: "install" started
+task: "upgrade" finished
+task: "upgrade" started
+task: [_install:auto:unix] VERSION="BASE-VERSION"
+task: [_upgrade:auto:unix] OS="$(uname -s)"
+task: status command command -v gh >/dev/null 2>&1 && { [ -z "BASE-VERSION" ] || gh --version | grep -Fqx "gh version BASE-VERSION"; } exited non-zero: exit status 1
+
+=== task: variable:delete:danger ===
+--- exit: exit status 206
+task: Task "variable:delete:danger" cancelled because it is missing required variables: VARIABLE_NAME
+
+=== task: variable:list ===
+
+      | sudo tee /etc/apt/keyrings/githubcli-archive-keyring.gpg > /dev/null
+      | sudo tee /etc/apt/sources.list.d/github-cli.list > /dev/null
+    _key="signed-by=/etc/apt/keyrings/githubcli-archive-keyring.gpg"
+    brew install "gh${VERSION:+@$VERSION}"
+    brew install "gh${VERSION:+@$VERSION}"
+    echo "deb [arch=$(dpkg --print-architecture) $_key] https://cli.github.com/packages stable main" \
+    echo 'Arch Linux detected. Installing gh via pacman...'
+    echo 'CentOS/RHEL detected. Installing gh via yum...'
+    echo 'Debian/Ubuntu detected. Installing gh via apt...'
+    echo 'ERROR: Homebrew is required to install gh on macOS.'
+    echo 'ERROR: No supported package manager detected.'
+    echo 'Fedora/RHEL detected. Installing gh via dnf...'
+    echo 'Homebrew detected. Installing gh via brew...'
+    echo 'Install Homebrew from https://brew.sh and then re-run: task install'
+    echo 'See https://cli.github.com/manual/installation'
+    echo 'macOS detected. Installing gh via Homebrew...'
+    echo 'openSUSE detected. Installing gh via zypper...'
+    echo 'snap detected. Installing gh via snap...'
+    exit 1
+    exit 1
+    sudo apt-get install -y "gh${VERSION:+=$VERSION}"
+    sudo apt-get install -y wget
+    sudo apt-get update
+    sudo apt-get update
+    sudo chmod go+r /etc/apt/keyrings/githubcli-archive-keyring.gpg
+    sudo dnf config-manager --add-repo https://cli.github.com/packages/rpm/gh-cli.repo
+    sudo dnf install -y "gh${VERSION:+-$VERSION}" --repo gh-cli
+    sudo dnf install -y 'dnf-command(config-manager)'
+    sudo mkdir -p -m 755 /etc/apt/keyrings
+    sudo pacman -S --noconfirm github-cli
+    sudo snap install gh
+    sudo yum install -y "gh${VERSION:+-$VERSION}"
+    sudo yum-config-manager --add-repo https://cli.github.com/packages/rpm/gh-cli.repo
+    sudo zypper addrepo https://cli.github.com/packages/rpm/gh-cli.repo
+    sudo zypper install -y "gh${VERSION:+-$VERSION}"
+    sudo zypper ref
+    wget -qO- https://cli.github.com/packages/githubcli-archive-keyring.gpg \
+  echo "ERROR: Unsupported OS: $OS"
+  echo 'See https://cli.github.com/manual/installation'
+  elif command -v brew >/dev/null 2>&1; then
+  elif command -v dnf >/dev/null 2>&1; then
+  elif command -v pacman >/dev/null 2>&1; then
+  elif command -v snap >/dev/null 2>&1; then
+  elif command -v yum >/dev/null 2>&1; then
+  elif command -v zypper >/dev/null 2>&1; then
+  else
+  else
+  exit 1
+  fi
+  fi
+  if command -v apt-get >/dev/null 2>&1; then
+  if command -v brew >/dev/null 2>&1; then
+OS="$(uname -s)"
+elif [ "$OS" = "Linux" ]; then
+else
+fi
+if [ "$OS" = "Darwin" ]; then
+task: "_install:auto:unix" finished
+task: "_install:auto:unix" started
+task: "_install:auto:windows" not for current platform - ignored
+task: "install" finished
+task: "install" started
+task: "variable:list" finished
+task: "variable:list" started
+task: [_install:auto:unix] VERSION="BASE-VERSION"
+task: [variable:list] gh variable list 
+task: status command command -v gh >/dev/null 2>&1 && { [ -z "BASE-VERSION" ] || gh --version | grep -Fqx "gh version BASE-VERSION"; } exited non-zero: exit status 1
+
+=== task: variable:set ===
+--- exit: exit status 206
+task: Task "variable:set" cancelled because it is missing required variables: VARIABLE_NAME, VARIABLE_VALUE
+
+=== task: verify ===
+
+
+      | sudo tee /etc/apt/keyrings/githubcli-archive-keyring.gpg > /dev/null
+      | sudo tee /etc/apt/sources.list.d/github-cli.list > /dev/null
+    _key="signed-by=/etc/apt/keyrings/githubcli-archive-keyring.gpg"
+    brew install "gh${VERSION:+@$VERSION}"
+    brew install "gh${VERSION:+@$VERSION}"
+    echo "deb [arch=$(dpkg --print-architecture) $_key] https://cli.github.com/packages stable main" \
+    echo 'Arch Linux detected. Installing gh via pacman...'
+    echo 'CentOS/RHEL detected. Installing gh via yum...'
+    echo 'Debian/Ubuntu detected. Installing gh via apt...'
+    echo 'ERROR: Homebrew is required to install gh on macOS.'
+    echo 'ERROR: No supported package manager detected.'
+    echo 'Fedora/RHEL detected. Installing gh via dnf...'
+    echo 'Homebrew detected. Installing gh via brew...'
+    echo 'Install Homebrew from https://brew.sh and then re-run: task install'
+    echo 'See https://cli.github.com/manual/installation'
+    echo 'macOS detected. Installing gh via Homebrew...'
+    echo 'openSUSE detected. Installing gh via zypper...'
+    echo 'snap detected. Installing gh via snap...'
+    exit 1
+    exit 1
+    sudo apt-get install -y "gh${VERSION:+=$VERSION}"
+    sudo apt-get install -y wget
+    sudo apt-get update
+    sudo apt-get update
+    sudo chmod go+r /etc/apt/keyrings/githubcli-archive-keyring.gpg
+    sudo dnf config-manager --add-repo https://cli.github.com/packages/rpm/gh-cli.repo
+    sudo dnf install -y "gh${VERSION:+-$VERSION}" --repo gh-cli
+    sudo dnf install -y 'dnf-command(config-manager)'
+    sudo mkdir -p -m 755 /etc/apt/keyrings
+    sudo pacman -S --noconfirm github-cli
+    sudo snap install gh
+    sudo yum install -y "gh${VERSION:+-$VERSION}"
+    sudo yum-config-manager --add-repo https://cli.github.com/packages/rpm/gh-cli.repo
+    sudo zypper addrepo https://cli.github.com/packages/rpm/gh-cli.repo
+    sudo zypper install -y "gh${VERSION:+-$VERSION}"
+    sudo zypper ref
+    wget -qO- https://cli.github.com/packages/githubcli-archive-keyring.gpg \
+  echo "ERROR: Unsupported OS: $OS"
+  echo 'See https://cli.github.com/manual/installation'
+  elif command -v brew >/dev/null 2>&1; then
+  elif command -v dnf >/dev/null 2>&1; then
+  elif command -v pacman >/dev/null 2>&1; then
+  elif command -v snap >/dev/null 2>&1; then
+  elif command -v yum >/dev/null 2>&1; then
+  elif command -v zypper >/dev/null 2>&1; then
+  else
+  else
+  exit 1
+  fi
+  fi
+  if command -v apt-get >/dev/null 2>&1; then
+  if command -v brew >/dev/null 2>&1; then
+OS="$(uname -s)"
+command -v gh
+echo ''
+echo ''
+echo '=== gh auth status ==='
+echo '=== gh version ==='
+elif [ "$OS" = "Linux" ]; then
+else
+fi
+gh --version
+gh auth status || echo 'Not authenticated. Run: task auth:login'
+if [ "$OS" = "Darwin" ]; then
+task: "_install:auto:unix" finished
+task: "_install:auto:unix" started
+task: "_install:auto:windows" not for current platform - ignored
+task: "_verify:unix" finished
+task: "_verify:unix" started
+task: "_verify:windows" not for current platform - ignored
+task: "install" finished
+task: "install" started
+task: "verify" finished
+task: "verify" started
+task: [_install:auto:unix] VERSION="BASE-VERSION"
+task: [_verify:unix] echo '=== gh binary ==='
+task: status command command -v gh >/dev/null 2>&1 && { [ -z "BASE-VERSION" ] || gh --version | grep -Fqx "gh version BASE-VERSION"; } exited non-zero: exit status 1
+
+=== task: version ===
+
+      | sudo tee /etc/apt/keyrings/githubcli-archive-keyring.gpg > /dev/null
+      | sudo tee /etc/apt/sources.list.d/github-cli.list > /dev/null
+    _key="signed-by=/etc/apt/keyrings/githubcli-archive-keyring.gpg"
+    brew install "gh${VERSION:+@$VERSION}"
+    brew install "gh${VERSION:+@$VERSION}"
+    echo "deb [arch=$(dpkg --print-architecture) $_key] https://cli.github.com/packages stable main" \
+    echo 'Arch Linux detected. Installing gh via pacman...'
+    echo 'CentOS/RHEL detected. Installing gh via yum...'
+    echo 'Debian/Ubuntu detected. Installing gh via apt...'
+    echo 'ERROR: Homebrew is required to install gh on macOS.'
+    echo 'ERROR: No supported package manager detected.'
+    echo 'Fedora/RHEL detected. Installing gh via dnf...'
+    echo 'Homebrew detected. Installing gh via brew...'
+    echo 'Install Homebrew from https://brew.sh and then re-run: task install'
+    echo 'See https://cli.github.com/manual/installation'
+    echo 'macOS detected. Installing gh via Homebrew...'
+    echo 'openSUSE detected. Installing gh via zypper...'
+    echo 'snap detected. Installing gh via snap...'
+    exit 1
+    exit 1
+    sudo apt-get install -y "gh${VERSION:+=$VERSION}"
+    sudo apt-get install -y wget
+    sudo apt-get update
+    sudo apt-get update
+    sudo chmod go+r /etc/apt/keyrings/githubcli-archive-keyring.gpg
+    sudo dnf config-manager --add-repo https://cli.github.com/packages/rpm/gh-cli.repo
+    sudo dnf install -y "gh${VERSION:+-$VERSION}" --repo gh-cli
+    sudo dnf install -y 'dnf-command(config-manager)'
+    sudo mkdir -p -m 755 /etc/apt/keyrings
+    sudo pacman -S --noconfirm github-cli
+    sudo snap install gh
+    sudo yum install -y "gh${VERSION:+-$VERSION}"
+    sudo yum-config-manager --add-repo https://cli.github.com/packages/rpm/gh-cli.repo
+    sudo zypper addrepo https://cli.github.com/packages/rpm/gh-cli.repo
+    sudo zypper install -y "gh${VERSION:+-$VERSION}"
+    sudo zypper ref
+    wget -qO- https://cli.github.com/packages/githubcli-archive-keyring.gpg \
+  echo "ERROR: Unsupported OS: $OS"
+  echo 'See https://cli.github.com/manual/installation'
+  elif command -v brew >/dev/null 2>&1; then
+  elif command -v dnf >/dev/null 2>&1; then
+  elif command -v pacman >/dev/null 2>&1; then
+  elif command -v snap >/dev/null 2>&1; then
+  elif command -v yum >/dev/null 2>&1; then
+  elif command -v zypper >/dev/null 2>&1; then
+  else
+  else
+  exit 1
+  fi
+  fi
+  if command -v apt-get >/dev/null 2>&1; then
+  if command -v brew >/dev/null 2>&1; then
+OS="$(uname -s)"
+elif [ "$OS" = "Linux" ]; then
+else
+fi
+if [ "$OS" = "Darwin" ]; then
+task: "_install:auto:unix" finished
+task: "_install:auto:unix" started
+task: "_install:auto:windows" not for current platform - ignored
+task: "_version:unix" finished
+task: "_version:unix" started
+task: "_version:windows" not for current platform - ignored
+task: "install" finished
+task: "install" started
+task: "version" finished
+task: "version" started
+task: [_install:auto:unix] VERSION="BASE-VERSION"
+task: [_version:unix] gh --version
+task: status command command -v gh >/dev/null 2>&1 && { [ -z "BASE-VERSION" ] || gh --version | grep -Fqx "gh version BASE-VERSION"; } exited non-zero: exit status 1
+
+=== task: which ===
+
+      | sudo tee /etc/apt/keyrings/githubcli-archive-keyring.gpg > /dev/null
+      | sudo tee /etc/apt/sources.list.d/github-cli.list > /dev/null
+    _key="signed-by=/etc/apt/keyrings/githubcli-archive-keyring.gpg"
+    brew install "gh${VERSION:+@$VERSION}"
+    brew install "gh${VERSION:+@$VERSION}"
+    echo "deb [arch=$(dpkg --print-architecture) $_key] https://cli.github.com/packages stable main" \
+    echo 'Arch Linux detected. Installing gh via pacman...'
+    echo 'CentOS/RHEL detected. Installing gh via yum...'
+    echo 'Debian/Ubuntu detected. Installing gh via apt...'
+    echo 'ERROR: Homebrew is required to install gh on macOS.'
+    echo 'ERROR: No supported package manager detected.'
+    echo 'Fedora/RHEL detected. Installing gh via dnf...'
+    echo 'Homebrew detected. Installing gh via brew...'
+    echo 'Install Homebrew from https://brew.sh and then re-run: task install'
+    echo 'See https://cli.github.com/manual/installation'
+    echo 'macOS detected. Installing gh via Homebrew...'
+    echo 'openSUSE detected. Installing gh via zypper...'
+    echo 'snap detected. Installing gh via snap...'
+    exit 1
+    exit 1
+    sudo apt-get install -y "gh${VERSION:+=$VERSION}"
+    sudo apt-get install -y wget
+    sudo apt-get update
+    sudo apt-get update
+    sudo chmod go+r /etc/apt/keyrings/githubcli-archive-keyring.gpg
+    sudo dnf config-manager --add-repo https://cli.github.com/packages/rpm/gh-cli.repo
+    sudo dnf install -y "gh${VERSION:+-$VERSION}" --repo gh-cli
+    sudo dnf install -y 'dnf-command(config-manager)'
+    sudo mkdir -p -m 755 /etc/apt/keyrings
+    sudo pacman -S --noconfirm github-cli
+    sudo snap install gh
+    sudo yum install -y "gh${VERSION:+-$VERSION}"
+    sudo yum-config-manager --add-repo https://cli.github.com/packages/rpm/gh-cli.repo
+    sudo zypper addrepo https://cli.github.com/packages/rpm/gh-cli.repo
+    sudo zypper install -y "gh${VERSION:+-$VERSION}"
+    sudo zypper ref
+    wget -qO- https://cli.github.com/packages/githubcli-archive-keyring.gpg \
+  echo "ERROR: Unsupported OS: $OS"
+  echo 'See https://cli.github.com/manual/installation'
+  elif command -v brew >/dev/null 2>&1; then
+  elif command -v dnf >/dev/null 2>&1; then
+  elif command -v pacman >/dev/null 2>&1; then
+  elif command -v snap >/dev/null 2>&1; then
+  elif command -v yum >/dev/null 2>&1; then
+  elif command -v zypper >/dev/null 2>&1; then
+  else
+  else
+  exit 1
+  fi
+  fi
+  if command -v apt-get >/dev/null 2>&1; then
+  if command -v brew >/dev/null 2>&1; then
+OS="$(uname -s)"
+elif [ "$OS" = "Linux" ]; then
+else
+fi
+if [ "$OS" = "Darwin" ]; then
+task: "_install:auto:unix" finished
+task: "_install:auto:unix" started
+task: "_install:auto:windows" not for current platform - ignored
+task: "_which:unix" finished
+task: "_which:unix" started
+task: "_which:windows" not for current platform - ignored
+task: "install" finished
+task: "install" started
+task: "which" finished
+task: "which" started
+task: [_install:auto:unix] VERSION="BASE-VERSION"
+task: [_which:unix] command -v gh
+task: status command command -v gh >/dev/null 2>&1 && { [ -z "BASE-VERSION" ] || gh --version | grep -Fqx "gh version BASE-VERSION"; } exited non-zero: exit status 1
+
+=== task: workflow:list ===
+
+      | sudo tee /etc/apt/keyrings/githubcli-archive-keyring.gpg > /dev/null
+      | sudo tee /etc/apt/sources.list.d/github-cli.list > /dev/null
+    _key="signed-by=/etc/apt/keyrings/githubcli-archive-keyring.gpg"
+    brew install "gh${VERSION:+@$VERSION}"
+    brew install "gh${VERSION:+@$VERSION}"
+    echo "deb [arch=$(dpkg --print-architecture) $_key] https://cli.github.com/packages stable main" \
+    echo 'Arch Linux detected. Installing gh via pacman...'
+    echo 'CentOS/RHEL detected. Installing gh via yum...'
+    echo 'Debian/Ubuntu detected. Installing gh via apt...'
+    echo 'ERROR: Homebrew is required to install gh on macOS.'
+    echo 'ERROR: No supported package manager detected.'
+    echo 'Fedora/RHEL detected. Installing gh via dnf...'
+    echo 'Homebrew detected. Installing gh via brew...'
+    echo 'Install Homebrew from https://brew.sh and then re-run: task install'
+    echo 'See https://cli.github.com/manual/installation'
+    echo 'macOS detected. Installing gh via Homebrew...'
+    echo 'openSUSE detected. Installing gh via zypper...'
+    echo 'snap detected. Installing gh via snap...'
+    exit 1
+    exit 1
+    sudo apt-get install -y "gh${VERSION:+=$VERSION}"
+    sudo apt-get install -y wget
+    sudo apt-get update
+    sudo apt-get update
+    sudo chmod go+r /etc/apt/keyrings/githubcli-archive-keyring.gpg
+    sudo dnf config-manager --add-repo https://cli.github.com/packages/rpm/gh-cli.repo
+    sudo dnf install -y "gh${VERSION:+-$VERSION}" --repo gh-cli
+    sudo dnf install -y 'dnf-command(config-manager)'
+    sudo mkdir -p -m 755 /etc/apt/keyrings
+    sudo pacman -S --noconfirm github-cli
+    sudo snap install gh
+    sudo yum install -y "gh${VERSION:+-$VERSION}"
+    sudo yum-config-manager --add-repo https://cli.github.com/packages/rpm/gh-cli.repo
+    sudo zypper addrepo https://cli.github.com/packages/rpm/gh-cli.repo
+    sudo zypper install -y "gh${VERSION:+-$VERSION}"
+    sudo zypper ref
+    wget -qO- https://cli.github.com/packages/githubcli-archive-keyring.gpg \
+  echo "ERROR: Unsupported OS: $OS"
+  echo 'See https://cli.github.com/manual/installation'
+  elif command -v brew >/dev/null 2>&1; then
+  elif command -v dnf >/dev/null 2>&1; then
+  elif command -v pacman >/dev/null 2>&1; then
+  elif command -v snap >/dev/null 2>&1; then
+  elif command -v yum >/dev/null 2>&1; then
+  elif command -v zypper >/dev/null 2>&1; then
+  else
+  else
+  exit 1
+  fi
+  fi
+  if command -v apt-get >/dev/null 2>&1; then
+  if command -v brew >/dev/null 2>&1; then
+OS="$(uname -s)"
+elif [ "$OS" = "Linux" ]; then
+else
+fi
+if [ "$OS" = "Darwin" ]; then
+task: "_install:auto:unix" finished
+task: "_install:auto:unix" started
+task: "_install:auto:windows" not for current platform - ignored
+task: "install" finished
+task: "install" started
+task: "workflow:list" finished
+task: "workflow:list" started
+task: [_install:auto:unix] VERSION="BASE-VERSION"
+task: [workflow:list] gh workflow list
+task: status command command -v gh >/dev/null 2>&1 && { [ -z "BASE-VERSION" ] || gh --version | grep -Fqx "gh version BASE-VERSION"; } exited non-zero: exit status 1
+
+=== task: workflow:run ===
+--- exit: exit status 206
+task: Task "workflow:run" cancelled because it is missing required variables: WORKFLOW
+
+=== task: workflow:view ===
+--- exit: exit status 206
+task: Task "workflow:view" cancelled because it is missing required variables: WORKFLOW
+
+=== task: workflow:watch ===
+--- exit: exit status 206
+task: Task "workflow:watch" cancelled because it is missing required variables: WORKFLOW

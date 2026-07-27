@@ -1,0 +1,361 @@
+# module: ansible
+# case:   base
+# vars:
+#   ANSIBLE_CONFIG=BASE-ANSIBLE_CONFIG
+#   ANSIBLE_LINT_SKIP_PATTERN=BASE-ANSIBLE_LINT_SKIP_PATTERN
+#   ANSIBLE_LINT_VERSION=BASE-ANSIBLE_LINT_VERSION
+#   ANSIBLE_VERSION=BASE-ANSIBLE_VERSION
+#   EXTRA_ARGS=BASE-EXTRA_ARGS
+#   FILE=BASE-FILE
+#   INVENTORY=BASE-INVENTORY
+#   PATTERN=BASE-PATTERN
+#   PLAYBOOK=BASE-PLAYBOOK
+#   REQUIREMENTS=BASE-REQUIREMENTS
+#   TARGETS=BASE-TARGETS
+
+=== task: galaxy:install ===
+task: "_galaxy:install:unix" finished
+task: "_galaxy:install:unix" started
+task: "_install:unix" finished
+task: "_install:unix" started
+task: "galaxy:install" finished
+task: "galaxy:install" started
+task: "install" finished
+task: "install" started
+task: "uv:_install:unix" started
+task: "uv:_install:windows" not for current platform - ignored
+task: "uv:install" finished
+task: "uv:install" started
+task: Task "uv:_install:unix" is up to date
+task: [_galaxy:install:unix] bash -lc 'export PATH="$HOME/.local/bin:$PATH"; ansible-galaxy install -r "BASE-REQUIREMENTS" BASE-EXTRA_ARGS'
+task: [_install:unix] bash -lc 'export PATH="$HOME/.local/bin:$PATH"; uv tool install --force "ansible-lint==BASE-ANSIBLE_LINT_VERSION"'
+task: [_install:unix] bash -lc 'export PATH="$HOME/.local/bin:$PATH"; uv tool install --force "ansible==BASE-ANSIBLE_VERSION"'
+task: [_install:unix] echo 'Ansible and ansible-lint installed.'
+task: [_install:unix] echo 'Installing Ansible via uv...'
+task: status command bash -lc 'export PATH="$HOME/.local/bin:$PATH"; command -v ansible >/dev/null 2>&1 && { [ -z "BASE-ANSIBLE_VERSION" ] || uv tool list | grep -Eq "^ansible v?BASE-ANSIBLE_VERSION( |$)"; }' exited non-zero: exit status 1
+task: status command uv_bin="$HOME/.local/bin/uv"; if [ ! -x "$uv_bin" ]; then uv_bin="$(command -v uv 2>/dev/null)"; fi; [ -n "$uv_bin" ] && [ -x "$uv_bin" ] && { [ -z "" ] || "$uv_bin" --version | grep -Fqx "uv "; } exited zero
+
+=== task: install ===
+task: "_install:unix" finished
+task: "_install:unix" started
+task: "install" finished
+task: "install" started
+task: "uv:_install:unix" started
+task: "uv:_install:windows" not for current platform - ignored
+task: "uv:install" finished
+task: "uv:install" started
+task: Task "uv:_install:unix" is up to date
+task: [_install:unix] bash -lc 'export PATH="$HOME/.local/bin:$PATH"; uv tool install --force "ansible-lint==BASE-ANSIBLE_LINT_VERSION"'
+task: [_install:unix] bash -lc 'export PATH="$HOME/.local/bin:$PATH"; uv tool install --force "ansible==BASE-ANSIBLE_VERSION"'
+task: [_install:unix] echo 'Ansible and ansible-lint installed.'
+task: [_install:unix] echo 'Installing Ansible via uv...'
+task: status command bash -lc 'export PATH="$HOME/.local/bin:$PATH"; command -v ansible >/dev/null 2>&1 && { [ -z "BASE-ANSIBLE_VERSION" ] || uv tool list | grep -Eq "^ansible v?BASE-ANSIBLE_VERSION( |$)"; }' exited non-zero: exit status 1
+task: status command uv_bin="$HOME/.local/bin/uv"; if [ ! -x "$uv_bin" ]; then uv_bin="$(command -v uv 2>/dev/null)"; fi; [ -n "$uv_bin" ] && [ -x "$uv_bin" ] && { [ -z "" ] || "$uv_bin" --version | grep -Fqx "uv "; } exited zero
+
+=== task: install:undo ===
+task: "_install:undo:unix" finished
+task: "_install:undo:unix" started
+task: "install:undo" finished
+task: "install:undo" started
+task: [_install:undo:unix] bash -lc 'export PATH="$HOME/.local/bin:$PATH"; uv tool uninstall ansible'
+task: [_install:undo:unix] bash -lc 'export PATH="$HOME/.local/bin:$PATH"; uv tool uninstall ansible-lint'
+task: [_install:undo:unix] echo 'Ansible and ansible-lint removed.'
+task: [_install:undo:unix] echo 'Removing Ansible...'
+task: status command bash -lc 'export PATH="$HOME/.local/bin:$PATH"; ! command -v ansible >/dev/null 2>&1' exited non-zero: exit status 1
+
+=== task: lint ===
+
+    BASE-EXTRA_ARGS
+    find "$target" -type f \( -name '*.yml' -o -name '*.yaml' \) -print0
+    printf '%s\000' "$target"
+  BASE-EXTRA_ARGS
+  ansible-lint  $targets \
+  elif [ -f "$target" ]; then
+  exit
+  fi
+  filter "SKIPFILES_PATTERN=$skip_pattern" SKIPFILES_MATCHING=true |
+  if [ -d "$target" ]; then
+  set -- "$@" --exclude "$path"
+  tr '\0' '
+' >"$matched_files"
+ansible-lint  "$@" $targets \
+done <"$matched_files"
+done | task --silent --taskfile "$REPO/taskfiles/ansible/../internal/skipfiles/Taskfile.yml" \
+fi
+for target in $targets; do
+if [ -z "$skip_pattern" ]; then
+matched_files="$(mktemp)"
+set --
+skip_pattern='BASE-ANSIBLE_LINT_SKIP_PATTERN'
+targets='BASE-TARGETS'
+task: "_install:unix" finished
+task: "_install:unix" started
+task: "_lint:run:unix" finished
+task: "_lint:run:unix" started
+task: "_lint:unix" finished
+task: "_lint:unix" started
+task: "install" finished
+task: "install" started
+task: "lint" finished
+task: "lint" started
+task: "uv:_install:unix" started
+task: "uv:_install:windows" not for current platform - ignored
+task: "uv:install" finished
+task: "uv:install" started
+task: Task "uv:_install:unix" is up to date
+task: [_install:unix] bash -lc 'export PATH="$HOME/.local/bin:$PATH"; uv tool install --force "ansible-lint==BASE-ANSIBLE_LINT_VERSION"'
+task: [_install:unix] bash -lc 'export PATH="$HOME/.local/bin:$PATH"; uv tool install --force "ansible==BASE-ANSIBLE_VERSION"'
+task: [_install:unix] echo 'Ansible and ansible-lint installed.'
+task: [_install:unix] echo 'Installing Ansible via uv...'
+task: [_lint:run:unix] export PATH="$HOME/.local/bin:$PATH"
+task: [lint] echo "✅ ansible-lint passed"
+task: status command bash -lc 'export PATH="$HOME/.local/bin:$PATH"; command -v ansible >/dev/null 2>&1 && { [ -z "BASE-ANSIBLE_VERSION" ] || uv tool list | grep -Eq "^ansible v?BASE-ANSIBLE_VERSION( |$)"; }' exited non-zero: exit status 1
+task: status command uv_bin="$HOME/.local/bin/uv"; if [ ! -x "$uv_bin" ]; then uv_bin="$(command -v uv 2>/dev/null)"; fi; [ -n "$uv_bin" ] && [ -x "$uv_bin" ] && { [ -z "" ] || "$uv_bin" --version | grep -Fqx "uv "; } exited zero
+trap 'rm -f "$matched_files"' EXIT
+while IFS= read -r path; do
+
+=== task: lint:fix ===
+
+    BASE-EXTRA_ARGS
+    find "$target" -type f \( -name '*.yml' -o -name '*.yaml' \) -print0
+    printf '%s\000' "$target"
+  BASE-EXTRA_ARGS
+  ansible-lint --fix $targets \
+  elif [ -f "$target" ]; then
+  exit
+  fi
+  filter "SKIPFILES_PATTERN=$skip_pattern" SKIPFILES_MATCHING=true |
+  if [ -d "$target" ]; then
+  set -- "$@" --exclude "$path"
+  tr '\0' '
+' >"$matched_files"
+ansible-lint --fix "$@" $targets \
+done <"$matched_files"
+done | task --silent --taskfile "$REPO/taskfiles/ansible/../internal/skipfiles/Taskfile.yml" \
+fi
+for target in $targets; do
+if [ -z "$skip_pattern" ]; then
+matched_files="$(mktemp)"
+set --
+skip_pattern='BASE-ANSIBLE_LINT_SKIP_PATTERN'
+targets='BASE-TARGETS'
+task: "_install:unix" finished
+task: "_install:unix" started
+task: "_lint:fix:unix" finished
+task: "_lint:fix:unix" started
+task: "_lint:run:unix" finished
+task: "_lint:run:unix" started
+task: "install" finished
+task: "install" started
+task: "lint:fix" finished
+task: "lint:fix" started
+task: "uv:_install:unix" started
+task: "uv:_install:windows" not for current platform - ignored
+task: "uv:install" finished
+task: "uv:install" started
+task: Task "uv:_install:unix" is up to date
+task: [_install:unix] bash -lc 'export PATH="$HOME/.local/bin:$PATH"; uv tool install --force "ansible-lint==BASE-ANSIBLE_LINT_VERSION"'
+task: [_install:unix] bash -lc 'export PATH="$HOME/.local/bin:$PATH"; uv tool install --force "ansible==BASE-ANSIBLE_VERSION"'
+task: [_install:unix] echo 'Ansible and ansible-lint installed.'
+task: [_install:unix] echo 'Installing Ansible via uv...'
+task: [_lint:run:unix] export PATH="$HOME/.local/bin:$PATH"
+task: [lint:fix] echo "✅ ansible-lint fixes applied"
+task: status command bash -lc 'export PATH="$HOME/.local/bin:$PATH"; command -v ansible >/dev/null 2>&1 && { [ -z "BASE-ANSIBLE_VERSION" ] || uv tool list | grep -Eq "^ansible v?BASE-ANSIBLE_VERSION( |$)"; }' exited non-zero: exit status 1
+task: status command uv_bin="$HOME/.local/bin/uv"; if [ ! -x "$uv_bin" ]; then uv_bin="$(command -v uv 2>/dev/null)"; fi; [ -n "$uv_bin" ] && [ -x "$uv_bin" ] && { [ -z "" ] || "$uv_bin" --version | grep -Fqx "uv "; } exited zero
+trap 'rm -f "$matched_files"' EXIT
+while IFS= read -r path; do
+
+=== task: list:hosts ===
+task: "_install:unix" finished
+task: "_install:unix" started
+task: "_list:hosts:unix" finished
+task: "_list:hosts:unix" started
+task: "install" finished
+task: "install" started
+task: "list:hosts" finished
+task: "list:hosts" started
+task: "uv:_install:unix" started
+task: "uv:_install:windows" not for current platform - ignored
+task: "uv:install" finished
+task: "uv:install" started
+task: Task "uv:_install:unix" is up to date
+task: [_install:unix] bash -lc 'export PATH="$HOME/.local/bin:$PATH"; uv tool install --force "ansible-lint==BASE-ANSIBLE_LINT_VERSION"'
+task: [_install:unix] bash -lc 'export PATH="$HOME/.local/bin:$PATH"; uv tool install --force "ansible==BASE-ANSIBLE_VERSION"'
+task: [_install:unix] echo 'Ansible and ansible-lint installed.'
+task: [_install:unix] echo 'Installing Ansible via uv...'
+task: [_list:hosts:unix] bash -lc 'export PATH="$HOME/.local/bin:$PATH"; ansible "BASE-PATTERN" --list-hosts -i "BASE-INVENTORY"  BASE-EXTRA_ARGS'
+task: status command bash -lc 'export PATH="$HOME/.local/bin:$PATH"; command -v ansible >/dev/null 2>&1 && { [ -z "BASE-ANSIBLE_VERSION" ] || uv tool list | grep -Eq "^ansible v?BASE-ANSIBLE_VERSION( |$)"; }' exited non-zero: exit status 1
+task: status command uv_bin="$HOME/.local/bin/uv"; if [ ! -x "$uv_bin" ]; then uv_bin="$(command -v uv 2>/dev/null)"; fi; [ -n "$uv_bin" ] && [ -x "$uv_bin" ] && { [ -z "" ] || "$uv_bin" --version | grep -Fqx "uv "; } exited zero
+
+=== task: ping ===
+task: "_install:unix" finished
+task: "_install:unix" started
+task: "_ping:unix" finished
+task: "_ping:unix" started
+task: "install" finished
+task: "install" started
+task: "ping" finished
+task: "ping" started
+task: "uv:_install:unix" started
+task: "uv:_install:windows" not for current platform - ignored
+task: "uv:install" finished
+task: "uv:install" started
+task: Task "uv:_install:unix" is up to date
+task: [_install:unix] bash -lc 'export PATH="$HOME/.local/bin:$PATH"; uv tool install --force "ansible-lint==BASE-ANSIBLE_LINT_VERSION"'
+task: [_install:unix] bash -lc 'export PATH="$HOME/.local/bin:$PATH"; uv tool install --force "ansible==BASE-ANSIBLE_VERSION"'
+task: [_install:unix] echo 'Ansible and ansible-lint installed.'
+task: [_install:unix] echo 'Installing Ansible via uv...'
+task: [_ping:unix] bash -lc 'export PATH="$HOME/.local/bin:$PATH"; ansible "BASE-PATTERN" -m ping -i "BASE-INVENTORY"  BASE-EXTRA_ARGS'
+task: status command bash -lc 'export PATH="$HOME/.local/bin:$PATH"; command -v ansible >/dev/null 2>&1 && { [ -z "BASE-ANSIBLE_VERSION" ] || uv tool list | grep -Eq "^ansible v?BASE-ANSIBLE_VERSION( |$)"; }' exited non-zero: exit status 1
+task: status command uv_bin="$HOME/.local/bin/uv"; if [ ! -x "$uv_bin" ]; then uv_bin="$(command -v uv 2>/dev/null)"; fi; [ -n "$uv_bin" ] && [ -x "$uv_bin" ] && { [ -z "" ] || "$uv_bin" --version | grep -Fqx "uv "; } exited zero
+
+=== task: run ===
+task: "_install:unix" finished
+task: "_install:unix" started
+task: "_run:unix" finished
+task: "_run:unix" started
+task: "install" finished
+task: "install" started
+task: "run" finished
+task: "run" started
+task: "uv:_install:unix" started
+task: "uv:_install:windows" not for current platform - ignored
+task: "uv:install" finished
+task: "uv:install" started
+task: Task "uv:_install:unix" is up to date
+task: [_install:unix] bash -lc 'export PATH="$HOME/.local/bin:$PATH"; uv tool install --force "ansible-lint==BASE-ANSIBLE_LINT_VERSION"'
+task: [_install:unix] bash -lc 'export PATH="$HOME/.local/bin:$PATH"; uv tool install --force "ansible==BASE-ANSIBLE_VERSION"'
+task: [_install:unix] echo 'Ansible and ansible-lint installed.'
+task: [_install:unix] echo 'Installing Ansible via uv...'
+task: [_run:unix] bash -lc 'export PATH="$HOME/.local/bin:$PATH"; ansible-playbook "BASE-PLAYBOOK" -i "BASE-INVENTORY"  BASE-EXTRA_ARGS'
+task: status command bash -lc 'export PATH="$HOME/.local/bin:$PATH"; command -v ansible >/dev/null 2>&1 && { [ -z "BASE-ANSIBLE_VERSION" ] || uv tool list | grep -Eq "^ansible v?BASE-ANSIBLE_VERSION( |$)"; }' exited non-zero: exit status 1
+task: status command uv_bin="$HOME/.local/bin/uv"; if [ ! -x "$uv_bin" ]; then uv_bin="$(command -v uv 2>/dev/null)"; fi; [ -n "$uv_bin" ] && [ -x "$uv_bin" ] && { [ -z "" ] || "$uv_bin" --version | grep -Fqx "uv "; } exited zero
+
+=== task: syntax:check ===
+
+      filter "SKIPFILES_PATTERN=$skip_pattern" |
+    task --silent --taskfile "$REPO/taskfiles/ansible/../internal/skipfiles/Taskfile.yml" \
+    tr -d '\0'
+  -i "BASE-INVENTORY" \
+  BASE-EXTRA_ARGS 
+  echo 'Ansible syntax check skipped'
+  exit 0
+  printf '%s\000' "$playbook" |
+)" ]; then
+ansible-playbook --syntax-check "$playbook" \
+fi
+if [ -n "$skip_pattern" ] && [ -z "$(
+playbook='BASE-PLAYBOOK'
+skip_pattern='BASE-ANSIBLE_LINT_SKIP_PATTERN'
+task: "_install:unix" finished
+task: "_install:unix" started
+task: "_syntax:check:unix" finished
+task: "_syntax:check:unix" started
+task: "install" finished
+task: "install" started
+task: "syntax:check" finished
+task: "syntax:check" started
+task: "uv:_install:unix" started
+task: "uv:_install:windows" not for current platform - ignored
+task: "uv:install" finished
+task: "uv:install" started
+task: Task "uv:_install:unix" is up to date
+task: [_install:unix] bash -lc 'export PATH="$HOME/.local/bin:$PATH"; uv tool install --force "ansible-lint==BASE-ANSIBLE_LINT_VERSION"'
+task: [_install:unix] bash -lc 'export PATH="$HOME/.local/bin:$PATH"; uv tool install --force "ansible==BASE-ANSIBLE_VERSION"'
+task: [_install:unix] echo 'Ansible and ansible-lint installed.'
+task: [_install:unix] echo 'Installing Ansible via uv...'
+task: [_syntax:check:unix] export PATH="$HOME/.local/bin:$PATH"
+task: status command bash -lc 'export PATH="$HOME/.local/bin:$PATH"; command -v ansible >/dev/null 2>&1 && { [ -z "BASE-ANSIBLE_VERSION" ] || uv tool list | grep -Eq "^ansible v?BASE-ANSIBLE_VERSION( |$)"; }' exited non-zero: exit status 1
+task: status command uv_bin="$HOME/.local/bin/uv"; if [ ! -x "$uv_bin" ]; then uv_bin="$(command -v uv 2>/dev/null)"; fi; [ -n "$uv_bin" ] && [ -x "$uv_bin" ] && { [ -z "" ] || "$uv_bin" --version | grep -Fqx "uv "; } exited zero
+
+=== task: upgrade ===
+task: "_install:unix" finished
+task: "_install:unix" started
+task: "_upgrade:unix" finished
+task: "_upgrade:unix" started
+task: "install" finished
+task: "install" started
+task: "upgrade" finished
+task: "upgrade" started
+task: "uv:_install:unix" started
+task: "uv:_install:windows" not for current platform - ignored
+task: "uv:install" finished
+task: "uv:install" started
+task: Task "uv:_install:unix" is up to date
+task: [_install:unix] bash -lc 'export PATH="$HOME/.local/bin:$PATH"; uv tool install --force "ansible-lint==BASE-ANSIBLE_LINT_VERSION"'
+task: [_install:unix] bash -lc 'export PATH="$HOME/.local/bin:$PATH"; uv tool install --force "ansible==BASE-ANSIBLE_VERSION"'
+task: [_install:unix] echo 'Ansible and ansible-lint installed.'
+task: [_install:unix] echo 'Installing Ansible via uv...'
+task: [_upgrade:unix] bash -lc 'export PATH="$HOME/.local/bin:$PATH"; uv tool install --force "ansible-lint==BASE-ANSIBLE_LINT_VERSION"'
+task: [_upgrade:unix] bash -lc 'export PATH="$HOME/.local/bin:$PATH"; uv tool install --force "ansible==BASE-ANSIBLE_VERSION"'
+task: [_upgrade:unix] echo 'Ansible and ansible-lint upgraded.'
+task: [_upgrade:unix] echo 'Upgrading Ansible...'
+task: status command bash -lc 'export PATH="$HOME/.local/bin:$PATH"; command -v ansible >/dev/null 2>&1 && { [ -z "BASE-ANSIBLE_VERSION" ] || uv tool list | grep -Eq "^ansible v?BASE-ANSIBLE_VERSION( |$)"; }' exited non-zero: exit status 1
+task: status command uv_bin="$HOME/.local/bin/uv"; if [ ! -x "$uv_bin" ]; then uv_bin="$(command -v uv 2>/dev/null)"; fi; [ -n "$uv_bin" ] && [ -x "$uv_bin" ] && { [ -z "" ] || "$uv_bin" --version | grep -Fqx "uv "; } exited zero
+
+=== task: vault:decrypt ===
+task: "_install:unix" finished
+task: "_install:unix" started
+task: "_vault:unix" finished
+task: "_vault:unix" started
+task: "install" finished
+task: "install" started
+task: "uv:_install:unix" started
+task: "uv:_install:windows" not for current platform - ignored
+task: "uv:install" finished
+task: "uv:install" started
+task: "vault:decrypt" finished
+task: "vault:decrypt" started
+task: Task "uv:_install:unix" is up to date
+task: [_install:unix] bash -lc 'export PATH="$HOME/.local/bin:$PATH"; uv tool install --force "ansible-lint==BASE-ANSIBLE_LINT_VERSION"'
+task: [_install:unix] bash -lc 'export PATH="$HOME/.local/bin:$PATH"; uv tool install --force "ansible==BASE-ANSIBLE_VERSION"'
+task: [_install:unix] echo 'Ansible and ansible-lint installed.'
+task: [_install:unix] echo 'Installing Ansible via uv...'
+task: [_vault:unix] bash -lc 'export PATH="$HOME/.local/bin:$PATH"; ansible-vault decrypt "BASE-FILE" BASE-EXTRA_ARGS'
+task: status command bash -lc 'export PATH="$HOME/.local/bin:$PATH"; command -v ansible >/dev/null 2>&1 && { [ -z "BASE-ANSIBLE_VERSION" ] || uv tool list | grep -Eq "^ansible v?BASE-ANSIBLE_VERSION( |$)"; }' exited non-zero: exit status 1
+task: status command uv_bin="$HOME/.local/bin/uv"; if [ ! -x "$uv_bin" ]; then uv_bin="$(command -v uv 2>/dev/null)"; fi; [ -n "$uv_bin" ] && [ -x "$uv_bin" ] && { [ -z "" ] || "$uv_bin" --version | grep -Fqx "uv "; } exited zero
+
+=== task: vault:encrypt ===
+task: "_install:unix" finished
+task: "_install:unix" started
+task: "_vault:unix" finished
+task: "_vault:unix" started
+task: "install" finished
+task: "install" started
+task: "uv:_install:unix" started
+task: "uv:_install:windows" not for current platform - ignored
+task: "uv:install" finished
+task: "uv:install" started
+task: "vault:encrypt" finished
+task: "vault:encrypt" started
+task: Task "uv:_install:unix" is up to date
+task: [_install:unix] bash -lc 'export PATH="$HOME/.local/bin:$PATH"; uv tool install --force "ansible-lint==BASE-ANSIBLE_LINT_VERSION"'
+task: [_install:unix] bash -lc 'export PATH="$HOME/.local/bin:$PATH"; uv tool install --force "ansible==BASE-ANSIBLE_VERSION"'
+task: [_install:unix] echo 'Ansible and ansible-lint installed.'
+task: [_install:unix] echo 'Installing Ansible via uv...'
+task: [_vault:unix] bash -lc 'export PATH="$HOME/.local/bin:$PATH"; ansible-vault encrypt "BASE-FILE" BASE-EXTRA_ARGS'
+task: status command bash -lc 'export PATH="$HOME/.local/bin:$PATH"; command -v ansible >/dev/null 2>&1 && { [ -z "BASE-ANSIBLE_VERSION" ] || uv tool list | grep -Eq "^ansible v?BASE-ANSIBLE_VERSION( |$)"; }' exited non-zero: exit status 1
+task: status command uv_bin="$HOME/.local/bin/uv"; if [ ! -x "$uv_bin" ]; then uv_bin="$(command -v uv 2>/dev/null)"; fi; [ -n "$uv_bin" ] && [ -x "$uv_bin" ] && { [ -z "" ] || "$uv_bin" --version | grep -Fqx "uv "; } exited zero
+
+=== task: version ===
+task: "_install:unix" finished
+task: "_install:unix" started
+task: "_version:unix" finished
+task: "_version:unix" started
+task: "install" finished
+task: "install" started
+task: "uv:_install:unix" started
+task: "uv:_install:windows" not for current platform - ignored
+task: "uv:install" finished
+task: "uv:install" started
+task: "version" finished
+task: "version" started
+task: Task "uv:_install:unix" is up to date
+task: [_install:unix] bash -lc 'export PATH="$HOME/.local/bin:$PATH"; uv tool install --force "ansible-lint==BASE-ANSIBLE_LINT_VERSION"'
+task: [_install:unix] bash -lc 'export PATH="$HOME/.local/bin:$PATH"; uv tool install --force "ansible==BASE-ANSIBLE_VERSION"'
+task: [_install:unix] echo 'Ansible and ansible-lint installed.'
+task: [_install:unix] echo 'Installing Ansible via uv...'
+task: [_version:unix] bash -lc 'export PATH="$HOME/.local/bin:$PATH"; ansible --version'
+task: [_version:unix] bash -lc 'export PATH="$HOME/.local/bin:$PATH"; ansible-lint --version'
+task: status command bash -lc 'export PATH="$HOME/.local/bin:$PATH"; command -v ansible >/dev/null 2>&1 && { [ -z "BASE-ANSIBLE_VERSION" ] || uv tool list | grep -Eq "^ansible v?BASE-ANSIBLE_VERSION( |$)"; }' exited non-zero: exit status 1
+task: status command uv_bin="$HOME/.local/bin/uv"; if [ ! -x "$uv_bin" ]; then uv_bin="$(command -v uv 2>/dev/null)"; fi; [ -n "$uv_bin" ] && [ -x "$uv_bin" ] && { [ -z "" ] || "$uv_bin" --version | grep -Fqx "uv "; } exited zero

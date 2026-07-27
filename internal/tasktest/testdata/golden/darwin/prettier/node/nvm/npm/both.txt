@@ -1,0 +1,152 @@
+# module: prettier/node/nvm/npm
+# case:   both
+# vars:
+#   CONFIG=BASE-CONFIG
+#   EXTRA_ARGS=BASE-EXTRA_ARGS
+#   IGNORE_PATH=BASE-IGNORE_PATH
+#   PRETTIER_DEFAULT_IGNORE_PATH=BASE-PRETTIER_DEFAULT_IGNORE_PATH
+#   PRETTIER_DEFAULT_TARGETS=BASE-PRETTIER_DEFAULT_TARGETS
+#   PRETTIER_FMT_SKIP_PATTERN=BASE-PRETTIER_FMT_SKIP_PATTERN
+#   PRETTIER_TARGETS=BASE-PRETTIER_TARGETS
+#   TARGETS=BASE-TARGETS
+#   VERSION=BASE-VERSION
+#   CONFIG_OVERRIDE=OVR-CONFIG
+#   EXTRA_ARGS_OVERRIDE=OVR-EXTRA_ARGS
+#   IGNORE_PATH_OVERRIDE=OVR-IGNORE_PATH
+#   PRETTIER_DEFAULT_IGNORE_PATH_OVERRIDE=OVR-PRETTIER_DEFAULT_IGNORE_PATH
+#   PRETTIER_DEFAULT_TARGETS_OVERRIDE=OVR-PRETTIER_DEFAULT_TARGETS
+#   PRETTIER_FMT_SKIP_PATTERN_OVERRIDE=OVR-PRETTIER_FMT_SKIP_PATTERN
+#   PRETTIER_TARGETS_OVERRIDE=OVR-PRETTIER_TARGETS
+#   TARGETS_OVERRIDE=OVR-TARGETS
+#   VERSION_OVERRIDE=OVR-VERSION
+
+=== task: ci ===
+  echo \"--ignore-path OVR-IGNORE_PATH\"
+" result: ""
+fi
+task: "_exec:ignore" finished
+task: "_exec:ignore" started
+task: "ci" finished
+task: "ci" started
+task: "fmt:check" finished
+task: "fmt:check" started
+task: "npm:_npm:unix" finished
+task: "npm:_npm:unix" started
+task: "npm:_npm:windows" not for current platform - ignored
+task: "npm:exec" finished
+task: "npm:exec" started
+task: [fmt:check] echo "✅ prettier passed"
+task: [npm:_npm:unix] bash -c 'export NVM_DIR="$HOME/.nvm"; . "$NVM_DIR/nvm.sh"; if [ -f .node-version ] || [ -f .nvmrc ]; then nvm use; fi; command -v corepack >/dev/null 2>&1 || { echo "corepack is not available. Run: task manager:setup"; exit 1; }; corepack npm exec -- prettier OVR-PRETTIER_TARGETS  "!OVR-PRETTIER_FMT_SKIP_PATTERN" --check --config "OVR-CONFIG"   OVR-EXTRA_ARGS '
+task: dynamic variable: "if [ -n \"OVR-IGNORE_PATH\" ] && [ -f \"OVR-IGNORE_PATH\" ]; then
+
+=== task: config:init ===
+' > "OVR-CONFIG"
+' >> "OVR-CONFIG"
+' >> "OVR-CONFIG"
+' >> "OVR-CONFIG"
+task: "config:init" finished
+task: "config:init" started
+task: [config:init] echo 'Created OVR-CONFIG.'
+task: [config:init] printf '  "semi": true
+task: [config:init] printf '  "singleQuote": true,
+task: [config:init] printf '{
+task: [config:init] printf '}
+task: status command test -f "OVR-CONFIG" exited non-zero: exit status 1
+
+=== task: fix ===
+  echo \"--ignore-path OVR-IGNORE_PATH\"
+" result: ""
+fi
+task: "_exec:ignore" finished
+task: "_exec:ignore" started
+task: "fix" finished
+task: "fix" started
+task: "fmt" finished
+task: "fmt" started
+task: "npm:_npm:unix" finished
+task: "npm:_npm:unix" started
+task: "npm:_npm:windows" not for current platform - ignored
+task: "npm:exec" finished
+task: "npm:exec" started
+task: [fmt] echo "✅ prettier fixes applied"
+task: [npm:_npm:unix] bash -c 'export NVM_DIR="$HOME/.nvm"; . "$NVM_DIR/nvm.sh"; if [ -f .node-version ] || [ -f .nvmrc ]; then nvm use; fi; command -v corepack >/dev/null 2>&1 || { echo "corepack is not available. Run: task manager:setup"; exit 1; }; corepack npm exec -- prettier OVR-PRETTIER_TARGETS  "!OVR-PRETTIER_FMT_SKIP_PATTERN" --write --config "OVR-CONFIG"   OVR-EXTRA_ARGS '
+task: dynamic variable: "if [ -n \"OVR-IGNORE_PATH\" ] && [ -f \"OVR-IGNORE_PATH\" ]; then
+
+=== task: fmt ===
+  echo \"--ignore-path OVR-IGNORE_PATH\"
+" result: ""
+fi
+task: "_exec:ignore" finished
+task: "_exec:ignore" started
+task: "fmt" finished
+task: "fmt" started
+task: "npm:_npm:unix" finished
+task: "npm:_npm:unix" started
+task: "npm:_npm:windows" not for current platform - ignored
+task: "npm:exec" finished
+task: "npm:exec" started
+task: [fmt] echo "✅ prettier fixes applied"
+task: [npm:_npm:unix] bash -c 'export NVM_DIR="$HOME/.nvm"; . "$NVM_DIR/nvm.sh"; if [ -f .node-version ] || [ -f .nvmrc ]; then nvm use; fi; command -v corepack >/dev/null 2>&1 || { echo "corepack is not available. Run: task manager:setup"; exit 1; }; corepack npm exec -- prettier OVR-PRETTIER_TARGETS  "!OVR-PRETTIER_FMT_SKIP_PATTERN" --write --config "OVR-CONFIG"   OVR-EXTRA_ARGS '
+task: dynamic variable: "if [ -n \"OVR-IGNORE_PATH\" ] && [ -f \"OVR-IGNORE_PATH\" ]; then
+
+=== task: fmt:check ===
+  echo \"--ignore-path OVR-IGNORE_PATH\"
+" result: ""
+fi
+task: "_exec:ignore" finished
+task: "_exec:ignore" started
+task: "fmt:check" finished
+task: "fmt:check" started
+task: "npm:_npm:unix" finished
+task: "npm:_npm:unix" started
+task: "npm:_npm:windows" not for current platform - ignored
+task: "npm:exec" finished
+task: "npm:exec" started
+task: [fmt:check] echo "✅ prettier passed"
+task: [npm:_npm:unix] bash -c 'export NVM_DIR="$HOME/.nvm"; . "$NVM_DIR/nvm.sh"; if [ -f .node-version ] || [ -f .nvmrc ]; then nvm use; fi; command -v corepack >/dev/null 2>&1 || { echo "corepack is not available. Run: task manager:setup"; exit 1; }; corepack npm exec -- prettier OVR-PRETTIER_TARGETS  "!OVR-PRETTIER_FMT_SKIP_PATTERN" --check --config "OVR-CONFIG"   OVR-EXTRA_ARGS '
+task: dynamic variable: "if [ -n \"OVR-IGNORE_PATH\" ] && [ -f \"OVR-IGNORE_PATH\" ]; then
+
+=== task: help ===
+task: "help" finished
+task: "help" started
+task: "npm:_npm:unix" finished
+task: "npm:_npm:unix" started
+task: "npm:_npm:windows" not for current platform - ignored
+task: "npm:exec" finished
+task: "npm:exec" started
+task: [npm:_npm:unix] bash -c 'export NVM_DIR="$HOME/.nvm"; . "$NVM_DIR/nvm.sh"; if [ -f .node-version ] || [ -f .nvmrc ]; then nvm use; fi; command -v corepack >/dev/null 2>&1 || { echo "corepack is not available. Run: task manager:setup"; exit 1; }; corepack npm exec -- prettier --help OVR-EXTRA_ARGS'
+
+=== task: install ===
+task: "install" started
+task: Task "install" is up to date
+task: status command node -e "const installed = require('./node_modules/prettier/package.json'); const requested = 'OVR-VERSION'; process.exit(!requested || installed.version === requested ? 0 : 1)" exited zero
+
+=== task: install:undo ===
+task: "install:undo" finished
+task: "install:undo" started
+task: "npm:_npm:unix" finished
+task: "npm:_npm:unix" started
+task: "npm:_npm:windows" not for current platform - ignored
+task: "npm:remove" finished
+task: "npm:remove" started
+task: [npm:_npm:unix] bash -c 'export NVM_DIR="$HOME/.nvm"; . "$NVM_DIR/nvm.sh"; if [ -f .node-version ] || [ -f .nvmrc ]; then nvm use; fi; command -v corepack >/dev/null 2>&1 || { echo "corepack is not available. Run: task manager:setup"; exit 1; }; corepack npm uninstall -g prettier OVR-EXTRA_ARGS'
+
+=== task: upgrade ===
+task: "npm:_npm:unix" finished
+task: "npm:_npm:unix" started
+task: "npm:_npm:windows" not for current platform - ignored
+task: "npm:add" finished
+task: "npm:add" started
+task: "upgrade" finished
+task: "upgrade" started
+task: [npm:_npm:unix] bash -c 'export NVM_DIR="$HOME/.nvm"; . "$NVM_DIR/nvm.sh"; if [ -f .node-version ] || [ -f .nvmrc ]; then nvm use; fi; command -v corepack >/dev/null 2>&1 || { echo "corepack is not available. Run: task manager:setup"; exit 1; }; corepack npm install -g prettier@latest OVR-EXTRA_ARGS'
+
+=== task: version ===
+task: "npm:_npm:unix" finished
+task: "npm:_npm:unix" started
+task: "npm:_npm:windows" not for current platform - ignored
+task: "npm:exec" finished
+task: "npm:exec" started
+task: "version" finished
+task: "version" started
+task: [npm:_npm:unix] bash -c 'export NVM_DIR="$HOME/.nvm"; . "$NVM_DIR/nvm.sh"; if [ -f .node-version ] || [ -f .nvmrc ]; then nvm use; fi; command -v corepack >/dev/null 2>&1 || { echo "corepack is not available. Run: task manager:setup"; exit 1; }; corepack npm exec -- prettier --version '

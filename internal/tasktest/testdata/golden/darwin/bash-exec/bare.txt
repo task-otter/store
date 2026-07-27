@@ -1,0 +1,25 @@
+# module: bash-exec
+# case:   bare
+
+=== task: check ===
+--- exit: exit status 201
+task: "check" started
+task: Failed to run task "check": task: precondition not met
+task: SCRIPT is required. Pass SCRIPT=path/to/script.sh when running this task.
+
+=== task: exec ===
+--- exit: exit status 201
+task: "exec" started
+task: COMMAND is required. Pass COMMAND='echo hello' when running this task.
+task: Failed to run task "exec": task: precondition not met
+
+=== task: run ===
+--- exit: exit status 201
+task: "run" started
+task: Failed to run task "run": task: precondition not met
+task: SCRIPT is required. Pass SCRIPT=path/to/script.sh when running this task.
+
+=== task: version ===
+task: "version" finished
+task: "version" started
+task: [version] bash --version

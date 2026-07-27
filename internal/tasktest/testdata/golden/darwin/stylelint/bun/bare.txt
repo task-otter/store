@@ -1,0 +1,143 @@
+# module: stylelint/bun
+# case:   bare
+
+=== task: cache:clean ===
+task: "cache:clean" finished
+task: "cache:clean" started
+task: [cache:clean] if [ -d .cache/stylelint ]; then rm -rf .cache/stylelint; fi
+
+=== task: ci ===
+task: "bun:_bun:unix" finished
+task: "bun:_bun:unix" started
+task: "bun:_bun:windows" not for current platform - ignored
+task: "bun:_install:unix" started
+task: "bun:_install:windows" not for current platform - ignored
+task: "bun:exec" finished
+task: "bun:exec" started
+task: "bun:install" finished
+task: "bun:install" started
+task: "ci" finished
+task: "ci" started
+task: Task "bun:_install:unix" is up to date
+task: [bun:_bun:unix] bash -lc 'export BUN_INSTALL="$HOME/.bun"; export PATH="$BUN_INSTALL/bin:$PATH"; bun x stylelint **/*.{css,scss,sass,less,vue,svelte,astro} --max-warnings=0    --cache --cache-location .cache/stylelint/  --allow-empty-input  '
+task: [ci] echo "✅ stylelint passed"
+task: status command bun_bin="$HOME/.bun/bin/bun"; if [ ! -x "$bun_bin" ]; then bun_bin="$(command -v bun 2>/dev/null)"; fi; [ -n "$bun_bin" ] && [ -x "$bun_bin" ] && { [ -z "" ] || [ "$("$bun_bin" --version)" = "" ]; } exited zero
+
+=== task: config:init ===
+
+  config_file=".stylelintrc.json"
+  echo "$config_file already exists."
+  echo "Created $config_file."
+  printf '%s
+' '{' '  "extends": "stylelint-config-standard"' '}' > "$config_file"
+else
+fi
+fi
+if [ -e "$config_file" ]; then
+if [ -z "$config_file" ]; then
+task: "config:init" finished
+task: "config:init" started
+task: [config:init] config_file=""
+
+=== task: help ===
+task: "bun:_bun:unix" finished
+task: "bun:_bun:unix" started
+task: "bun:_bun:windows" not for current platform - ignored
+task: "bun:_install:unix" started
+task: "bun:_install:windows" not for current platform - ignored
+task: "bun:exec" finished
+task: "bun:exec" started
+task: "bun:install" finished
+task: "bun:install" started
+task: "help" finished
+task: "help" started
+task: Task "bun:_install:unix" is up to date
+task: [bun:_bun:unix] bash -lc 'export BUN_INSTALL="$HOME/.bun"; export PATH="$BUN_INSTALL/bin:$PATH"; bun x stylelint --help '
+task: status command bun_bin="$HOME/.bun/bin/bun"; if [ ! -x "$bun_bin" ]; then bun_bin="$(command -v bun 2>/dev/null)"; fi; [ -n "$bun_bin" ] && [ -x "$bun_bin" ] && { [ -z "" ] || [ "$("$bun_bin" --version)" = "" ]; } exited zero
+
+=== task: install ===
+task: "install" started
+task: Task "install" is up to date
+task: status command node -e "const installed = require('./node_modules/stylelint/package.json'); const requested = ''; process.exit(!requested || installed.version === requested ? 0 : 1)" exited zero
+
+=== task: install:undo ===
+task: "bun:_bun:unix" finished
+task: "bun:_bun:unix" started
+task: "bun:_bun:windows" not for current platform - ignored
+task: "bun:_install:unix" started
+task: "bun:_install:windows" not for current platform - ignored
+task: "bun:install" finished
+task: "bun:install" started
+task: "bun:remove" finished
+task: "bun:remove" started
+task: "install:undo" finished
+task: "install:undo" started
+task: Task "bun:_install:unix" is up to date
+task: [bun:_bun:unix] bash -lc 'export BUN_INSTALL="$HOME/.bun"; export PATH="$BUN_INSTALL/bin:$PATH"; bun remove -g stylelint stylelint-config-standard '
+task: status command bun_bin="$HOME/.bun/bin/bun"; if [ ! -x "$bun_bin" ]; then bun_bin="$(command -v bun 2>/dev/null)"; fi; [ -n "$bun_bin" ] && [ -x "$bun_bin" ] && { [ -z "" ] || [ "$("$bun_bin" --version)" = "" ]; } exited zero
+
+=== task: lint ===
+task: "bun:_bun:unix" finished
+task: "bun:_bun:unix" started
+task: "bun:_bun:windows" not for current platform - ignored
+task: "bun:_install:unix" started
+task: "bun:_install:windows" not for current platform - ignored
+task: "bun:exec" finished
+task: "bun:exec" started
+task: "bun:install" finished
+task: "bun:install" started
+task: "lint" finished
+task: "lint" started
+task: Task "bun:_install:unix" is up to date
+task: [bun:_bun:unix] bash -lc 'export BUN_INSTALL="$HOME/.bun"; export PATH="$BUN_INSTALL/bin:$PATH"; bun x stylelint **/*.{css,scss,sass,less,vue,svelte,astro}    --cache --cache-location .cache/stylelint/  --allow-empty-input  '
+task: [lint] echo "✅ stylelint passed"
+task: status command bun_bin="$HOME/.bun/bin/bun"; if [ ! -x "$bun_bin" ]; then bun_bin="$(command -v bun 2>/dev/null)"; fi; [ -n "$bun_bin" ] && [ -x "$bun_bin" ] && { [ -z "" ] || [ "$("$bun_bin" --version)" = "" ]; } exited zero
+
+=== task: lint:fix ===
+task: "bun:_bun:unix" finished
+task: "bun:_bun:unix" started
+task: "bun:_bun:windows" not for current platform - ignored
+task: "bun:_install:unix" started
+task: "bun:_install:windows" not for current platform - ignored
+task: "bun:exec" finished
+task: "bun:exec" started
+task: "bun:install" finished
+task: "bun:install" started
+task: "lint:fix" finished
+task: "lint:fix" started
+task: Task "bun:_install:unix" is up to date
+task: [bun:_bun:unix] bash -lc 'export BUN_INSTALL="$HOME/.bun"; export PATH="$BUN_INSTALL/bin:$PATH"; bun x stylelint **/*.{css,scss,sass,less,vue,svelte,astro} --fix    --cache --cache-location .cache/stylelint/  --allow-empty-input  '
+task: [lint:fix] echo "✅ stylelint fixes applied"
+task: status command bun_bin="$HOME/.bun/bin/bun"; if [ ! -x "$bun_bin" ]; then bun_bin="$(command -v bun 2>/dev/null)"; fi; [ -n "$bun_bin" ] && [ -x "$bun_bin" ] && { [ -z "" ] || [ "$("$bun_bin" --version)" = "" ]; } exited zero
+
+=== task: upgrade ===
+task: "bun:_bun:unix" finished
+task: "bun:_bun:unix" started
+task: "bun:_bun:windows" not for current platform - ignored
+task: "bun:_install:unix" started
+task: "bun:_install:windows" not for current platform - ignored
+task: "bun:add" finished
+task: "bun:add" started
+task: "bun:install" finished
+task: "bun:install" started
+task: "upgrade" finished
+task: "upgrade" started
+task: Task "bun:_install:unix" is up to date
+task: [bun:_bun:unix] bash -lc 'export BUN_INSTALL="$HOME/.bun"; export PATH="$BUN_INSTALL/bin:$PATH"; bun add -g stylelint@latest stylelint-config-standard@latest '
+task: status command bun_bin="$HOME/.bun/bin/bun"; if [ ! -x "$bun_bin" ]; then bun_bin="$(command -v bun 2>/dev/null)"; fi; [ -n "$bun_bin" ] && [ -x "$bun_bin" ] && { [ -z "" ] || [ "$("$bun_bin" --version)" = "" ]; } exited zero
+
+=== task: version ===
+task: "bun:_bun:unix" finished
+task: "bun:_bun:unix" started
+task: "bun:_bun:windows" not for current platform - ignored
+task: "bun:_install:unix" started
+task: "bun:_install:windows" not for current platform - ignored
+task: "bun:exec" finished
+task: "bun:exec" started
+task: "bun:install" finished
+task: "bun:install" started
+task: "version" finished
+task: "version" started
+task: Task "bun:_install:unix" is up to date
+task: [bun:_bun:unix] bash -lc 'export BUN_INSTALL="$HOME/.bun"; export PATH="$BUN_INSTALL/bin:$PATH"; bun x stylelint --version '
+task: status command bun_bin="$HOME/.bun/bin/bun"; if [ ! -x "$bun_bin" ]; then bun_bin="$(command -v bun 2>/dev/null)"; fi; [ -n "$bun_bin" ] && [ -x "$bun_bin" ] && { [ -z "" ] || [ "$("$bun_bin" --version)" = "" ]; } exited zero

@@ -1,0 +1,65 @@
+# module: internal/skipfiles
+# case:   both
+
+=== task: filter ===
+
+
+      [Console]::Out.WriteLine($item)
+    if (-not [string]::IsNullOrWhiteSpace($item)) {
+    }
+  $inputText = [Console]::In.ReadToEnd()
+  $matching = $env:SKIPFILES_MATCHING -eq "true"
+  cat
+  cat >/dev/null
+  foreach ($item in ($inputText -split "`r?`n")) {
+  if ($matching) { exit 0 }
+  }
+ not for current platform - ignored
+'
+else
+fi
+task: "_filter:empty" finished
+task: "_filter:empty" started
+task: "filter" finished
+task: "filter" started
+task: [_filter:empty] if [[ "$SKIPFILES_MATCHING" == "true" ]]; then
+task: [_filter:empty] powershell -NoProfile -ExecutionPolicy Bypass -Command '
+task: [filter] if condition not met - skipped
+task: [filter] if condition not met - skipped
+
+=== task: go-packages ===
+
+
+
+
+    " ", [System.StringSplitOptions]::RemoveEmptyEntries
+    throw "The go executable is required by go-packages."
+  $ErrorActionPreference = "Stop"
+  $targets = @(([string]$env:SKIPFILES_GO_TARGETS).Split(
+  & go list @targets
+  ))
+  exit 1
+  if ($LASTEXITCODE -ne 0) { exit $LASTEXITCODE }
+  if ($targets.Count -eq 0) { $targets = @("./...") }
+  if (-not (Get-Command go -ErrorAction SilentlyContinue)) {
+  printf '%s
+  printf '%s\0' "$import_path"
+  }
+ not for current platform - ignored
+# Intentional word splitting preserves the public interface.
+# shellcheck disable=SC2086
+'
+' 'The go executable is required by go-packages.' >&2
+command -v go >/dev/null 2>&1 || {
+done
+go list $targets | while IFS= read -r import_path; do
+targets="${SKIPFILES_GO_TARGETS:-./...}"
+task: "_go-packages:all" finished
+task: "_go-packages:all" started
+task: "go-packages" finished
+task: "go-packages" started
+task: [_go-packages:all] powershell -NoProfile -ExecutionPolicy Bypass -Command '
+task: [_go-packages:all] set -euo pipefail
+task: [go-packages] if condition not met - skipped
+task: [go-packages] if condition not met - skipped
+}

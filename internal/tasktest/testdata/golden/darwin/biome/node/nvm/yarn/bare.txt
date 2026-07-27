@@ -1,0 +1,1005 @@
+# module: biome/node/nvm/yarn
+# case:   bare
+
+=== task: cache:clean ===
+task: "cache:clean" finished
+task: "cache:clean" started
+task: [cache:clean] if [ -d .cache/biome ]; then rm -rf .cache/biome; fi
+task: [cache:clean] if [ -d node_modules/.cache/biome ]; then rm -rf node_modules/.cache/biome; fi
+
+=== task: check ===
+
+
+
+
+
+
+
+
+
+
+            $sourceConfig = $candidate
+            break
+        if (Test-Path -LiteralPath $candidate -PathType Leaf) {
+        }
+      printf '%s' "$candidate"
+      return
+    "$(json_escape "$source_config")" "$includes" >"$output"
+    $additionalPattern -ne $pattern) {
+    $config.extends = @($sourceConfig.Replace('\', '/'))
+    $includes += '!' + $additionalPattern.Replace('\', '/')
+    $includes += '!' + $pattern.Replace('\', '/')
+    Remove-Item -LiteralPath $output -Force -ErrorAction SilentlyContinue
+    [string]::IsNullOrWhiteSpace($additionalPattern)) {
+    exit 0
+    fi
+    foreach ($candidate in @('biome.json', 'biome.jsonc')) {
+    if [[ -f "$candidate" ]]; then
+    }
+  done
+  exit 0
+  for candidate in "$@"; do
+  includes+=",\"!$(json_escape "$additional_pattern")\""
+  includes+=",\"!$(json_escape "$pattern")\""
+  local candidate
+  local value="$1"
+  printf '%s' "$value"
+  printf '{"extends":["%s"],"files":{"includes":[%s]}}
+  printf '{"files":{"includes":[%s]}}
+  rm -f "$output"
+  source_config="$(discover_config biome.json biome.jsonc || true)"
+  value="${value//$'
+  value="${value//\"/\\\"}"
+  value="${value//\\/\\\\}"
+ not for current platform - ignored
+# Nothing to skip: drop the overlay a previous run left behind so the
+# next task falls back to the project config instead of a stale one.
+$ErrorActionPreference = 'Stop'
+$additionalPattern = $env:BIOME_SKIP_ADDITIONAL_PATTERN
+$config = [ordered]@{}
+$config | ConvertTo-Json -Depth 8 | Set-Content -LiteralPath $output -Encoding UTF8
+$config.files = [ordered]@{ includes = $includes }
+$includes = @('**')
+$output = $env:BIOME_SKIP_OUTPUT
+$pattern = $env:BIOME_SKIP_PATTERN
+$sourceConfig = $env:BIOME_SKIP_SOURCE_CONFIG
+' "$includes" >"$output"
+' \
+'/\
+POWERSHELL
+additional_pattern="$BIOME_SKIP_ADDITIONAL_PATTERN"
+discover_config() {
+else
+fi
+fi
+fi
+fi
+fi
+if (-not [string]::IsNullOrWhiteSpace($additionalPattern) -and
+if (-not [string]::IsNullOrWhiteSpace($pattern)) {
+if (-not [string]::IsNullOrWhiteSpace($sourceConfig)) {
+if ([string]::IsNullOrWhiteSpace($pattern) -and
+if ([string]::IsNullOrWhiteSpace($sourceConfig)) {
+if [[ -n "$additional_pattern" && "$additional_pattern" != "$pattern" ]]; then
+if [[ -n "$pattern" ]]; then
+if [[ -n "$source_config" ]]; then
+if [[ -z "$pattern" && -z "$additional_pattern" ]]; then
+if [[ -z "$source_config" ]]; then
+includes="\"**\""
+json_escape() {
+output="$BIOME_SKIP_OUTPUT"
+source_config="$BIOME_SKIP_SOURCE_CONFIG"
+task: "check" finished
+task: "check" started
+task: "config:skip" finished
+task: "config:skip" started
+task: "yarn:_exec:unix" finished
+task: "yarn:_exec:unix" started
+task: "yarn:_exec:windows" not for current platform - ignored
+task: "yarn:exec" finished
+task: "yarn:exec" started
+task: [check] echo "✅ biome passed"
+task: [config:skip] pattern="$BIOME_SKIP_PATTERN"
+task: [config:skip] powershell -NoProfile -ExecutionPolicy Bypass -Command - <<'POWERSHELL'
+task: [yarn:_exec:unix] bash -c "biome check  . "
+}
+}
+}
+}
+}
+}
+}
+}"
+
+=== task: check:write ===
+
+
+
+
+
+
+
+
+
+
+            $sourceConfig = $candidate
+            break
+        if (Test-Path -LiteralPath $candidate -PathType Leaf) {
+        }
+      printf '%s' "$candidate"
+      return
+    "$(json_escape "$source_config")" "$includes" >"$output"
+    $additionalPattern -ne $pattern) {
+    $config.extends = @($sourceConfig.Replace('\', '/'))
+    $includes += '!' + $additionalPattern.Replace('\', '/')
+    $includes += '!' + $pattern.Replace('\', '/')
+    Remove-Item -LiteralPath $output -Force -ErrorAction SilentlyContinue
+    [string]::IsNullOrWhiteSpace($additionalPattern)) {
+    exit 0
+    fi
+    foreach ($candidate in @('biome.json', 'biome.jsonc')) {
+    if [[ -f "$candidate" ]]; then
+    }
+  done
+  exit 0
+  for candidate in "$@"; do
+  includes+=",\"!$(json_escape "$additional_pattern")\""
+  includes+=",\"!$(json_escape "$pattern")\""
+  local candidate
+  local value="$1"
+  printf '%s' "$value"
+  printf '{"extends":["%s"],"files":{"includes":[%s]}}
+  printf '{"files":{"includes":[%s]}}
+  rm -f "$output"
+  source_config="$(discover_config biome.json biome.jsonc || true)"
+  value="${value//$'
+  value="${value//\"/\\\"}"
+  value="${value//\\/\\\\}"
+ not for current platform - ignored
+# Nothing to skip: drop the overlay a previous run left behind so the
+# next task falls back to the project config instead of a stale one.
+$ErrorActionPreference = 'Stop'
+$additionalPattern = $env:BIOME_SKIP_ADDITIONAL_PATTERN
+$config = [ordered]@{}
+$config | ConvertTo-Json -Depth 8 | Set-Content -LiteralPath $output -Encoding UTF8
+$config.files = [ordered]@{ includes = $includes }
+$includes = @('**')
+$output = $env:BIOME_SKIP_OUTPUT
+$pattern = $env:BIOME_SKIP_PATTERN
+$sourceConfig = $env:BIOME_SKIP_SOURCE_CONFIG
+' "$includes" >"$output"
+' \
+'/\
+POWERSHELL
+additional_pattern="$BIOME_SKIP_ADDITIONAL_PATTERN"
+discover_config() {
+else
+fi
+fi
+fi
+fi
+fi
+if (-not [string]::IsNullOrWhiteSpace($additionalPattern) -and
+if (-not [string]::IsNullOrWhiteSpace($pattern)) {
+if (-not [string]::IsNullOrWhiteSpace($sourceConfig)) {
+if ([string]::IsNullOrWhiteSpace($pattern) -and
+if ([string]::IsNullOrWhiteSpace($sourceConfig)) {
+if [[ -n "$additional_pattern" && "$additional_pattern" != "$pattern" ]]; then
+if [[ -n "$pattern" ]]; then
+if [[ -n "$source_config" ]]; then
+if [[ -z "$pattern" && -z "$additional_pattern" ]]; then
+if [[ -z "$source_config" ]]; then
+includes="\"**\""
+json_escape() {
+output="$BIOME_SKIP_OUTPUT"
+source_config="$BIOME_SKIP_SOURCE_CONFIG"
+task: "check:write" finished
+task: "check:write" started
+task: "config:skip" finished
+task: "config:skip" started
+task: "yarn:_exec:unix" finished
+task: "yarn:_exec:unix" started
+task: "yarn:_exec:windows" not for current platform - ignored
+task: "yarn:exec" finished
+task: "yarn:exec" started
+task: [check:write] echo "✅ biome fixes applied"
+task: [config:skip] pattern="$BIOME_SKIP_PATTERN"
+task: [config:skip] powershell -NoProfile -ExecutionPolicy Bypass -Command - <<'POWERSHELL'
+task: [yarn:_exec:unix] bash -c "biome check --write  . "
+}
+}
+}
+}
+}
+}
+}
+}"
+
+=== task: ci ===
+
+
+
+
+
+
+
+
+
+
+            $sourceConfig = $candidate
+            break
+        if (Test-Path -LiteralPath $candidate -PathType Leaf) {
+        }
+      printf '%s' "$candidate"
+      return
+    "$(json_escape "$source_config")" "$includes" >"$output"
+    $additionalPattern -ne $pattern) {
+    $config.extends = @($sourceConfig.Replace('\', '/'))
+    $includes += '!' + $additionalPattern.Replace('\', '/')
+    $includes += '!' + $pattern.Replace('\', '/')
+    Remove-Item -LiteralPath $output -Force -ErrorAction SilentlyContinue
+    [string]::IsNullOrWhiteSpace($additionalPattern)) {
+    exit 0
+    fi
+    foreach ($candidate in @('biome.json', 'biome.jsonc')) {
+    if [[ -f "$candidate" ]]; then
+    }
+  done
+  exit 0
+  for candidate in "$@"; do
+  includes+=",\"!$(json_escape "$additional_pattern")\""
+  includes+=",\"!$(json_escape "$pattern")\""
+  local candidate
+  local value="$1"
+  printf '%s' "$value"
+  printf '{"extends":["%s"],"files":{"includes":[%s]}}
+  printf '{"files":{"includes":[%s]}}
+  rm -f "$output"
+  source_config="$(discover_config biome.json biome.jsonc || true)"
+  value="${value//$'
+  value="${value//\"/\\\"}"
+  value="${value//\\/\\\\}"
+ not for current platform - ignored
+# Nothing to skip: drop the overlay a previous run left behind so the
+# next task falls back to the project config instead of a stale one.
+$ErrorActionPreference = 'Stop'
+$additionalPattern = $env:BIOME_SKIP_ADDITIONAL_PATTERN
+$config = [ordered]@{}
+$config | ConvertTo-Json -Depth 8 | Set-Content -LiteralPath $output -Encoding UTF8
+$config.files = [ordered]@{ includes = $includes }
+$includes = @('**')
+$output = $env:BIOME_SKIP_OUTPUT
+$pattern = $env:BIOME_SKIP_PATTERN
+$sourceConfig = $env:BIOME_SKIP_SOURCE_CONFIG
+' "$includes" >"$output"
+' \
+'/\
+POWERSHELL
+additional_pattern="$BIOME_SKIP_ADDITIONAL_PATTERN"
+discover_config() {
+else
+fi
+fi
+fi
+fi
+fi
+if (-not [string]::IsNullOrWhiteSpace($additionalPattern) -and
+if (-not [string]::IsNullOrWhiteSpace($pattern)) {
+if (-not [string]::IsNullOrWhiteSpace($sourceConfig)) {
+if ([string]::IsNullOrWhiteSpace($pattern) -and
+if ([string]::IsNullOrWhiteSpace($sourceConfig)) {
+if [[ -n "$additional_pattern" && "$additional_pattern" != "$pattern" ]]; then
+if [[ -n "$pattern" ]]; then
+if [[ -n "$source_config" ]]; then
+if [[ -z "$pattern" && -z "$additional_pattern" ]]; then
+if [[ -z "$source_config" ]]; then
+includes="\"**\""
+json_escape() {
+output="$BIOME_SKIP_OUTPUT"
+source_config="$BIOME_SKIP_SOURCE_CONFIG"
+task: "ci" finished
+task: "ci" started
+task: "config:skip" finished
+task: "config:skip" started
+task: "yarn:_exec:unix" finished
+task: "yarn:_exec:unix" started
+task: "yarn:_exec:windows" not for current platform - ignored
+task: "yarn:exec" finished
+task: "yarn:exec" started
+task: [ci] echo "✅ biome passed"
+task: [config:skip] pattern="$BIOME_SKIP_PATTERN"
+task: [config:skip] powershell -NoProfile -ExecutionPolicy Bypass -Command - <<'POWERSHELL'
+task: [yarn:_exec:unix] bash -c "biome ci  . "
+}
+}
+}
+}
+}
+}
+}
+}"
+
+=== task: config:init ===
+task: "config:init" finished
+task: "config:init" started
+task: "yarn:_exec:unix" finished
+task: "yarn:_exec:unix" started
+task: "yarn:_exec:windows" not for current platform - ignored
+task: "yarn:exec" finished
+task: "yarn:exec" started
+task: [yarn:_exec:unix] bash -c "biome init "
+task: status command test -f biome.json || test -f biome.jsonc exited non-zero: exit status 1
+
+=== task: config:skip ===
+
+
+
+
+
+
+
+
+
+
+            $sourceConfig = $candidate
+            break
+        if (Test-Path -LiteralPath $candidate -PathType Leaf) {
+        }
+      printf '%s' "$candidate"
+      return
+    "$(json_escape "$source_config")" "$includes" >"$output"
+    $additionalPattern -ne $pattern) {
+    $config.extends = @($sourceConfig.Replace('\', '/'))
+    $includes += '!' + $additionalPattern.Replace('\', '/')
+    $includes += '!' + $pattern.Replace('\', '/')
+    Remove-Item -LiteralPath $output -Force -ErrorAction SilentlyContinue
+    [string]::IsNullOrWhiteSpace($additionalPattern)) {
+    exit 0
+    fi
+    foreach ($candidate in @('biome.json', 'biome.jsonc')) {
+    if [[ -f "$candidate" ]]; then
+    }
+  done
+  exit 0
+  for candidate in "$@"; do
+  includes+=",\"!$(json_escape "$additional_pattern")\""
+  includes+=",\"!$(json_escape "$pattern")\""
+  local candidate
+  local value="$1"
+  printf '%s' "$value"
+  printf '{"extends":["%s"],"files":{"includes":[%s]}}
+  printf '{"files":{"includes":[%s]}}
+  rm -f "$output"
+  source_config="$(discover_config biome.json biome.jsonc || true)"
+  value="${value//$'
+  value="${value//\"/\\\"}"
+  value="${value//\\/\\\\}"
+ not for current platform - ignored
+# Nothing to skip: drop the overlay a previous run left behind so the
+# next task falls back to the project config instead of a stale one.
+$ErrorActionPreference = 'Stop'
+$additionalPattern = $env:BIOME_SKIP_ADDITIONAL_PATTERN
+$config = [ordered]@{}
+$config | ConvertTo-Json -Depth 8 | Set-Content -LiteralPath $output -Encoding UTF8
+$config.files = [ordered]@{ includes = $includes }
+$includes = @('**')
+$output = $env:BIOME_SKIP_OUTPUT
+$pattern = $env:BIOME_SKIP_PATTERN
+$sourceConfig = $env:BIOME_SKIP_SOURCE_CONFIG
+' "$includes" >"$output"
+' \
+'/\
+POWERSHELL
+additional_pattern="$BIOME_SKIP_ADDITIONAL_PATTERN"
+discover_config() {
+else
+fi
+fi
+fi
+fi
+fi
+if (-not [string]::IsNullOrWhiteSpace($additionalPattern) -and
+if (-not [string]::IsNullOrWhiteSpace($pattern)) {
+if (-not [string]::IsNullOrWhiteSpace($sourceConfig)) {
+if ([string]::IsNullOrWhiteSpace($pattern) -and
+if ([string]::IsNullOrWhiteSpace($sourceConfig)) {
+if [[ -n "$additional_pattern" && "$additional_pattern" != "$pattern" ]]; then
+if [[ -n "$pattern" ]]; then
+if [[ -n "$source_config" ]]; then
+if [[ -z "$pattern" && -z "$additional_pattern" ]]; then
+if [[ -z "$source_config" ]]; then
+includes="\"**\""
+json_escape() {
+output="$BIOME_SKIP_OUTPUT"
+source_config="$BIOME_SKIP_SOURCE_CONFIG"
+task: "config:skip" finished
+task: "config:skip" started
+task: [config:skip] pattern="$BIOME_SKIP_PATTERN"
+task: [config:skip] powershell -NoProfile -ExecutionPolicy Bypass -Command - <<'POWERSHELL'
+}
+}
+}
+}
+}
+}
+}
+}"
+
+=== task: fix ===
+
+
+
+
+
+
+
+
+
+
+            $sourceConfig = $candidate
+            break
+        if (Test-Path -LiteralPath $candidate -PathType Leaf) {
+        }
+      printf '%s' "$candidate"
+      return
+    "$(json_escape "$source_config")" "$includes" >"$output"
+    $additionalPattern -ne $pattern) {
+    $config.extends = @($sourceConfig.Replace('\', '/'))
+    $includes += '!' + $additionalPattern.Replace('\', '/')
+    $includes += '!' + $pattern.Replace('\', '/')
+    Remove-Item -LiteralPath $output -Force -ErrorAction SilentlyContinue
+    [string]::IsNullOrWhiteSpace($additionalPattern)) {
+    exit 0
+    fi
+    foreach ($candidate in @('biome.json', 'biome.jsonc')) {
+    if [[ -f "$candidate" ]]; then
+    }
+  done
+  exit 0
+  for candidate in "$@"; do
+  includes+=",\"!$(json_escape "$additional_pattern")\""
+  includes+=",\"!$(json_escape "$pattern")\""
+  local candidate
+  local value="$1"
+  printf '%s' "$value"
+  printf '{"extends":["%s"],"files":{"includes":[%s]}}
+  printf '{"files":{"includes":[%s]}}
+  rm -f "$output"
+  source_config="$(discover_config biome.json biome.jsonc || true)"
+  value="${value//$'
+  value="${value//\"/\\\"}"
+  value="${value//\\/\\\\}"
+ not for current platform - ignored
+# Nothing to skip: drop the overlay a previous run left behind so the
+# next task falls back to the project config instead of a stale one.
+$ErrorActionPreference = 'Stop'
+$additionalPattern = $env:BIOME_SKIP_ADDITIONAL_PATTERN
+$config = [ordered]@{}
+$config | ConvertTo-Json -Depth 8 | Set-Content -LiteralPath $output -Encoding UTF8
+$config.files = [ordered]@{ includes = $includes }
+$includes = @('**')
+$output = $env:BIOME_SKIP_OUTPUT
+$pattern = $env:BIOME_SKIP_PATTERN
+$sourceConfig = $env:BIOME_SKIP_SOURCE_CONFIG
+' "$includes" >"$output"
+' \
+'/\
+POWERSHELL
+additional_pattern="$BIOME_SKIP_ADDITIONAL_PATTERN"
+discover_config() {
+else
+fi
+fi
+fi
+fi
+fi
+if (-not [string]::IsNullOrWhiteSpace($additionalPattern) -and
+if (-not [string]::IsNullOrWhiteSpace($pattern)) {
+if (-not [string]::IsNullOrWhiteSpace($sourceConfig)) {
+if ([string]::IsNullOrWhiteSpace($pattern) -and
+if ([string]::IsNullOrWhiteSpace($sourceConfig)) {
+if [[ -n "$additional_pattern" && "$additional_pattern" != "$pattern" ]]; then
+if [[ -n "$pattern" ]]; then
+if [[ -n "$source_config" ]]; then
+if [[ -z "$pattern" && -z "$additional_pattern" ]]; then
+if [[ -z "$source_config" ]]; then
+includes="\"**\""
+json_escape() {
+output="$BIOME_SKIP_OUTPUT"
+source_config="$BIOME_SKIP_SOURCE_CONFIG"
+task: "check:write" finished
+task: "check:write" started
+task: "config:skip" finished
+task: "config:skip" started
+task: "fix" finished
+task: "fix" started
+task: "yarn:_exec:unix" finished
+task: "yarn:_exec:unix" started
+task: "yarn:_exec:windows" not for current platform - ignored
+task: "yarn:exec" finished
+task: "yarn:exec" started
+task: [check:write] echo "✅ biome fixes applied"
+task: [config:skip] pattern="$BIOME_SKIP_PATTERN"
+task: [config:skip] powershell -NoProfile -ExecutionPolicy Bypass -Command - <<'POWERSHELL'
+task: [yarn:_exec:unix] bash -c "biome check --write  . "
+}
+}
+}
+}
+}
+}
+}
+}"
+
+=== task: fmt ===
+
+
+
+
+
+
+
+
+
+
+            $sourceConfig = $candidate
+            break
+        if (Test-Path -LiteralPath $candidate -PathType Leaf) {
+        }
+      printf '%s' "$candidate"
+      return
+    "$(json_escape "$source_config")" "$includes" >"$output"
+    $additionalPattern -ne $pattern) {
+    $config.extends = @($sourceConfig.Replace('\', '/'))
+    $includes += '!' + $additionalPattern.Replace('\', '/')
+    $includes += '!' + $pattern.Replace('\', '/')
+    Remove-Item -LiteralPath $output -Force -ErrorAction SilentlyContinue
+    [string]::IsNullOrWhiteSpace($additionalPattern)) {
+    exit 0
+    fi
+    foreach ($candidate in @('biome.json', 'biome.jsonc')) {
+    if [[ -f "$candidate" ]]; then
+    }
+  done
+  exit 0
+  for candidate in "$@"; do
+  includes+=",\"!$(json_escape "$additional_pattern")\""
+  includes+=",\"!$(json_escape "$pattern")\""
+  local candidate
+  local value="$1"
+  printf '%s' "$value"
+  printf '{"extends":["%s"],"files":{"includes":[%s]}}
+  printf '{"files":{"includes":[%s]}}
+  rm -f "$output"
+  source_config="$(discover_config biome.json biome.jsonc || true)"
+  value="${value//$'
+  value="${value//\"/\\\"}"
+  value="${value//\\/\\\\}"
+ not for current platform - ignored
+# Nothing to skip: drop the overlay a previous run left behind so the
+# next task falls back to the project config instead of a stale one.
+$ErrorActionPreference = 'Stop'
+$additionalPattern = $env:BIOME_SKIP_ADDITIONAL_PATTERN
+$config = [ordered]@{}
+$config | ConvertTo-Json -Depth 8 | Set-Content -LiteralPath $output -Encoding UTF8
+$config.files = [ordered]@{ includes = $includes }
+$includes = @('**')
+$output = $env:BIOME_SKIP_OUTPUT
+$pattern = $env:BIOME_SKIP_PATTERN
+$sourceConfig = $env:BIOME_SKIP_SOURCE_CONFIG
+' "$includes" >"$output"
+' \
+'/\
+POWERSHELL
+additional_pattern="$BIOME_SKIP_ADDITIONAL_PATTERN"
+discover_config() {
+else
+fi
+fi
+fi
+fi
+fi
+if (-not [string]::IsNullOrWhiteSpace($additionalPattern) -and
+if (-not [string]::IsNullOrWhiteSpace($pattern)) {
+if (-not [string]::IsNullOrWhiteSpace($sourceConfig)) {
+if ([string]::IsNullOrWhiteSpace($pattern) -and
+if ([string]::IsNullOrWhiteSpace($sourceConfig)) {
+if [[ -n "$additional_pattern" && "$additional_pattern" != "$pattern" ]]; then
+if [[ -n "$pattern" ]]; then
+if [[ -n "$source_config" ]]; then
+if [[ -z "$pattern" && -z "$additional_pattern" ]]; then
+if [[ -z "$source_config" ]]; then
+includes="\"**\""
+json_escape() {
+output="$BIOME_SKIP_OUTPUT"
+source_config="$BIOME_SKIP_SOURCE_CONFIG"
+task: "config:skip" finished
+task: "config:skip" started
+task: "fmt" finished
+task: "fmt" started
+task: "yarn:_exec:unix" finished
+task: "yarn:_exec:unix" started
+task: "yarn:_exec:windows" not for current platform - ignored
+task: "yarn:exec" finished
+task: "yarn:exec" started
+task: [config:skip] pattern="$BIOME_SKIP_PATTERN"
+task: [config:skip] powershell -NoProfile -ExecutionPolicy Bypass -Command - <<'POWERSHELL'
+task: [fmt] echo "✅ biome fixes applied"
+task: [yarn:_exec:unix] bash -c "biome format --write  . "
+}
+}
+}
+}
+}
+}
+}
+}"
+
+=== task: fmt:check ===
+
+
+
+
+
+
+
+
+
+
+            $sourceConfig = $candidate
+            break
+        if (Test-Path -LiteralPath $candidate -PathType Leaf) {
+        }
+      printf '%s' "$candidate"
+      return
+    "$(json_escape "$source_config")" "$includes" >"$output"
+    $additionalPattern -ne $pattern) {
+    $config.extends = @($sourceConfig.Replace('\', '/'))
+    $includes += '!' + $additionalPattern.Replace('\', '/')
+    $includes += '!' + $pattern.Replace('\', '/')
+    Remove-Item -LiteralPath $output -Force -ErrorAction SilentlyContinue
+    [string]::IsNullOrWhiteSpace($additionalPattern)) {
+    exit 0
+    fi
+    foreach ($candidate in @('biome.json', 'biome.jsonc')) {
+    if [[ -f "$candidate" ]]; then
+    }
+  done
+  exit 0
+  for candidate in "$@"; do
+  includes+=",\"!$(json_escape "$additional_pattern")\""
+  includes+=",\"!$(json_escape "$pattern")\""
+  local candidate
+  local value="$1"
+  printf '%s' "$value"
+  printf '{"extends":["%s"],"files":{"includes":[%s]}}
+  printf '{"files":{"includes":[%s]}}
+  rm -f "$output"
+  source_config="$(discover_config biome.json biome.jsonc || true)"
+  value="${value//$'
+  value="${value//\"/\\\"}"
+  value="${value//\\/\\\\}"
+ not for current platform - ignored
+# Nothing to skip: drop the overlay a previous run left behind so the
+# next task falls back to the project config instead of a stale one.
+$ErrorActionPreference = 'Stop'
+$additionalPattern = $env:BIOME_SKIP_ADDITIONAL_PATTERN
+$config = [ordered]@{}
+$config | ConvertTo-Json -Depth 8 | Set-Content -LiteralPath $output -Encoding UTF8
+$config.files = [ordered]@{ includes = $includes }
+$includes = @('**')
+$output = $env:BIOME_SKIP_OUTPUT
+$pattern = $env:BIOME_SKIP_PATTERN
+$sourceConfig = $env:BIOME_SKIP_SOURCE_CONFIG
+' "$includes" >"$output"
+' \
+'/\
+POWERSHELL
+additional_pattern="$BIOME_SKIP_ADDITIONAL_PATTERN"
+discover_config() {
+else
+fi
+fi
+fi
+fi
+fi
+if (-not [string]::IsNullOrWhiteSpace($additionalPattern) -and
+if (-not [string]::IsNullOrWhiteSpace($pattern)) {
+if (-not [string]::IsNullOrWhiteSpace($sourceConfig)) {
+if ([string]::IsNullOrWhiteSpace($pattern) -and
+if ([string]::IsNullOrWhiteSpace($sourceConfig)) {
+if [[ -n "$additional_pattern" && "$additional_pattern" != "$pattern" ]]; then
+if [[ -n "$pattern" ]]; then
+if [[ -n "$source_config" ]]; then
+if [[ -z "$pattern" && -z "$additional_pattern" ]]; then
+if [[ -z "$source_config" ]]; then
+includes="\"**\""
+json_escape() {
+output="$BIOME_SKIP_OUTPUT"
+source_config="$BIOME_SKIP_SOURCE_CONFIG"
+task: "config:skip" finished
+task: "config:skip" started
+task: "fmt:check" finished
+task: "fmt:check" started
+task: "yarn:_exec:unix" finished
+task: "yarn:_exec:unix" started
+task: "yarn:_exec:windows" not for current platform - ignored
+task: "yarn:exec" finished
+task: "yarn:exec" started
+task: [config:skip] pattern="$BIOME_SKIP_PATTERN"
+task: [config:skip] powershell -NoProfile -ExecutionPolicy Bypass -Command - <<'POWERSHELL'
+task: [yarn:_exec:unix] bash -c "biome format  . "
+}
+}
+}
+}
+}
+}
+}
+}"
+
+=== task: help ===
+task: "help" finished
+task: "help" started
+task: "yarn:_exec:unix" finished
+task: "yarn:_exec:unix" started
+task: "yarn:_exec:windows" not for current platform - ignored
+task: "yarn:exec" finished
+task: "yarn:exec" started
+task: [yarn:_exec:unix] bash -c "biome --help "
+
+=== task: init ===
+task: "config:init" finished
+task: "config:init" started
+task: "init" finished
+task: "init" started
+task: "yarn:_exec:unix" finished
+task: "yarn:_exec:unix" started
+task: "yarn:_exec:windows" not for current platform - ignored
+task: "yarn:exec" finished
+task: "yarn:exec" started
+task: [yarn:_exec:unix] bash -c "biome init "
+task: status command test -f biome.json || test -f biome.jsonc exited non-zero: exit status 1
+
+=== task: install ===
+task: "install" started
+task: Task "install" is up to date
+task: status command node -e "const installed = require('./node_modules/@biomejs/biome/package.json'); const requested = ''; process.exit(!requested || installed.version === requested ? 0 : 1)" exited zero
+
+=== task: install:undo ===
+task: "install:undo" finished
+task: "install:undo" started
+task: "yarn:_yarn:unix" finished
+task: "yarn:_yarn:unix" started
+task: "yarn:_yarn:windows" not for current platform - ignored
+task: "yarn:remove" finished
+task: "yarn:remove" started
+task: [yarn:_yarn:unix] bash -c 'export NVM_DIR="$HOME/.nvm"; . "$NVM_DIR/nvm.sh"; if [ -f .node-version ] || [ -f .nvmrc ]; then nvm use; fi; command -v corepack >/dev/null 2>&1 || { echo "corepack is not available. Run: task manager:setup"; exit 1; }; corepack yarn global remove @biomejs/biome '
+
+=== task: lint ===
+
+
+
+
+
+
+
+
+
+
+            $sourceConfig = $candidate
+            break
+        if (Test-Path -LiteralPath $candidate -PathType Leaf) {
+        }
+      printf '%s' "$candidate"
+      return
+    "$(json_escape "$source_config")" "$includes" >"$output"
+    $additionalPattern -ne $pattern) {
+    $config.extends = @($sourceConfig.Replace('\', '/'))
+    $includes += '!' + $additionalPattern.Replace('\', '/')
+    $includes += '!' + $pattern.Replace('\', '/')
+    Remove-Item -LiteralPath $output -Force -ErrorAction SilentlyContinue
+    [string]::IsNullOrWhiteSpace($additionalPattern)) {
+    exit 0
+    fi
+    foreach ($candidate in @('biome.json', 'biome.jsonc')) {
+    if [[ -f "$candidate" ]]; then
+    }
+  done
+  exit 0
+  for candidate in "$@"; do
+  includes+=",\"!$(json_escape "$additional_pattern")\""
+  includes+=",\"!$(json_escape "$pattern")\""
+  local candidate
+  local value="$1"
+  printf '%s' "$value"
+  printf '{"extends":["%s"],"files":{"includes":[%s]}}
+  printf '{"files":{"includes":[%s]}}
+  rm -f "$output"
+  source_config="$(discover_config biome.json biome.jsonc || true)"
+  value="${value//$'
+  value="${value//\"/\\\"}"
+  value="${value//\\/\\\\}"
+ not for current platform - ignored
+# Nothing to skip: drop the overlay a previous run left behind so the
+# next task falls back to the project config instead of a stale one.
+$ErrorActionPreference = 'Stop'
+$additionalPattern = $env:BIOME_SKIP_ADDITIONAL_PATTERN
+$config = [ordered]@{}
+$config | ConvertTo-Json -Depth 8 | Set-Content -LiteralPath $output -Encoding UTF8
+$config.files = [ordered]@{ includes = $includes }
+$includes = @('**')
+$output = $env:BIOME_SKIP_OUTPUT
+$pattern = $env:BIOME_SKIP_PATTERN
+$sourceConfig = $env:BIOME_SKIP_SOURCE_CONFIG
+' "$includes" >"$output"
+' \
+'/\
+POWERSHELL
+additional_pattern="$BIOME_SKIP_ADDITIONAL_PATTERN"
+discover_config() {
+else
+fi
+fi
+fi
+fi
+fi
+if (-not [string]::IsNullOrWhiteSpace($additionalPattern) -and
+if (-not [string]::IsNullOrWhiteSpace($pattern)) {
+if (-not [string]::IsNullOrWhiteSpace($sourceConfig)) {
+if ([string]::IsNullOrWhiteSpace($pattern) -and
+if ([string]::IsNullOrWhiteSpace($sourceConfig)) {
+if [[ -n "$additional_pattern" && "$additional_pattern" != "$pattern" ]]; then
+if [[ -n "$pattern" ]]; then
+if [[ -n "$source_config" ]]; then
+if [[ -z "$pattern" && -z "$additional_pattern" ]]; then
+if [[ -z "$source_config" ]]; then
+includes="\"**\""
+json_escape() {
+output="$BIOME_SKIP_OUTPUT"
+source_config="$BIOME_SKIP_SOURCE_CONFIG"
+task: "config:skip" finished
+task: "config:skip" started
+task: "lint" finished
+task: "lint" started
+task: "yarn:_exec:unix" finished
+task: "yarn:_exec:unix" started
+task: "yarn:_exec:windows" not for current platform - ignored
+task: "yarn:exec" finished
+task: "yarn:exec" started
+task: [config:skip] pattern="$BIOME_SKIP_PATTERN"
+task: [config:skip] powershell -NoProfile -ExecutionPolicy Bypass -Command - <<'POWERSHELL'
+task: [lint] echo "✅ biome passed"
+task: [yarn:_exec:unix] bash -c "biome lint  . "
+}
+}
+}
+}
+}
+}
+}
+}"
+
+=== task: lint:fix ===
+
+
+
+
+
+
+
+
+
+
+            $sourceConfig = $candidate
+            break
+        if (Test-Path -LiteralPath $candidate -PathType Leaf) {
+        }
+      printf '%s' "$candidate"
+      return
+    "$(json_escape "$source_config")" "$includes" >"$output"
+    $additionalPattern -ne $pattern) {
+    $config.extends = @($sourceConfig.Replace('\', '/'))
+    $includes += '!' + $additionalPattern.Replace('\', '/')
+    $includes += '!' + $pattern.Replace('\', '/')
+    Remove-Item -LiteralPath $output -Force -ErrorAction SilentlyContinue
+    [string]::IsNullOrWhiteSpace($additionalPattern)) {
+    exit 0
+    fi
+    foreach ($candidate in @('biome.json', 'biome.jsonc')) {
+    if [[ -f "$candidate" ]]; then
+    }
+  done
+  exit 0
+  for candidate in "$@"; do
+  includes+=",\"!$(json_escape "$additional_pattern")\""
+  includes+=",\"!$(json_escape "$pattern")\""
+  local candidate
+  local value="$1"
+  printf '%s' "$value"
+  printf '{"extends":["%s"],"files":{"includes":[%s]}}
+  printf '{"files":{"includes":[%s]}}
+  rm -f "$output"
+  source_config="$(discover_config biome.json biome.jsonc || true)"
+  value="${value//$'
+  value="${value//\"/\\\"}"
+  value="${value//\\/\\\\}"
+ not for current platform - ignored
+# Nothing to skip: drop the overlay a previous run left behind so the
+# next task falls back to the project config instead of a stale one.
+$ErrorActionPreference = 'Stop'
+$additionalPattern = $env:BIOME_SKIP_ADDITIONAL_PATTERN
+$config = [ordered]@{}
+$config | ConvertTo-Json -Depth 8 | Set-Content -LiteralPath $output -Encoding UTF8
+$config.files = [ordered]@{ includes = $includes }
+$includes = @('**')
+$output = $env:BIOME_SKIP_OUTPUT
+$pattern = $env:BIOME_SKIP_PATTERN
+$sourceConfig = $env:BIOME_SKIP_SOURCE_CONFIG
+' "$includes" >"$output"
+' \
+'/\
+POWERSHELL
+additional_pattern="$BIOME_SKIP_ADDITIONAL_PATTERN"
+discover_config() {
+else
+fi
+fi
+fi
+fi
+fi
+if (-not [string]::IsNullOrWhiteSpace($additionalPattern) -and
+if (-not [string]::IsNullOrWhiteSpace($pattern)) {
+if (-not [string]::IsNullOrWhiteSpace($sourceConfig)) {
+if ([string]::IsNullOrWhiteSpace($pattern) -and
+if ([string]::IsNullOrWhiteSpace($sourceConfig)) {
+if [[ -n "$additional_pattern" && "$additional_pattern" != "$pattern" ]]; then
+if [[ -n "$pattern" ]]; then
+if [[ -n "$source_config" ]]; then
+if [[ -z "$pattern" && -z "$additional_pattern" ]]; then
+if [[ -z "$source_config" ]]; then
+includes="\"**\""
+json_escape() {
+output="$BIOME_SKIP_OUTPUT"
+source_config="$BIOME_SKIP_SOURCE_CONFIG"
+task: "config:skip" finished
+task: "config:skip" started
+task: "lint:fix" finished
+task: "lint:fix" started
+task: "yarn:_exec:unix" finished
+task: "yarn:_exec:unix" started
+task: "yarn:_exec:windows" not for current platform - ignored
+task: "yarn:exec" finished
+task: "yarn:exec" started
+task: [config:skip] pattern="$BIOME_SKIP_PATTERN"
+task: [config:skip] powershell -NoProfile -ExecutionPolicy Bypass -Command - <<'POWERSHELL'
+task: [lint:fix] echo "✅ biome fixes applied"
+task: [yarn:_exec:unix] bash -c "biome lint --write  . "
+}
+}
+}
+}
+}
+}
+}
+}"
+
+=== task: upgrade ===
+task: "upgrade" finished
+task: "upgrade" started
+task: "yarn:_yarn:unix" finished
+task: "yarn:_yarn:unix" started
+task: "yarn:_yarn:windows" not for current platform - ignored
+task: "yarn:add" finished
+task: "yarn:add" started
+task: [yarn:_yarn:unix] bash -c 'export NVM_DIR="$HOME/.nvm"; . "$NVM_DIR/nvm.sh"; if [ -f .node-version ] || [ -f .nvmrc ]; then nvm use; fi; command -v corepack >/dev/null 2>&1 || { echo "corepack is not available. Run: task manager:setup"; exit 1; }; corepack yarn global add @biomejs/biome@latest '
+
+=== task: version ===
+task: "version" finished
+task: "version" started
+task: "yarn:_exec:unix" finished
+task: "yarn:_exec:unix" started
+task: "yarn:_exec:windows" not for current platform - ignored
+task: "yarn:exec" finished
+task: "yarn:exec" started
+task: [yarn:_exec:unix] bash -c "biome --version "

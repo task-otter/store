@@ -1,0 +1,431 @@
+# module: fnm
+# case:   override
+# vars:
+#   DEFAULT_NODE_VERSION_OVERRIDE=OVR-DEFAULT_NODE_VERSION
+#   FNM_INSTALL_DIR_OVERRIDE=OVR-FNM_INSTALL_DIR
+#   FNM_INSTALL_URL_OVERRIDE=OVR-FNM_INSTALL_URL
+
+=== task: install ===
+
+    ;;
+    ;;
+    ;;
+    ;;
+    activation_env='eval "$(fnm env --use-on-cd --shell bash)"'
+    activation_env='eval "$(fnm env --use-on-cd --shell zsh)"'
+    activation_env='fnm env --use-on-cd --shell fish | source'
+    activation_path='export PATH="$HOME/.local/share/fnm:$HOME/.local/bin:$PATH"'
+    activation_path='export PATH="$HOME/.local/share/fnm:$HOME/.local/bin:$PATH"'
+    activation_path='set -gx PATH "$HOME/.local/share/fnm" "$HOME/.local/bin" $PATH'
+    exit 0
+    exit 0
+    printf '
+    printf '
+    printf '
+    printf '  eval "$(fnm env --use-on-cd)"
+    printf '  export PATH="$HOME/.local/share/fnm:$HOME/.local/bin:$PATH"
+    printf 'Shell "%s" is not auto-configured. Add fnm activation manually:
+    printf 'fnm is already configured in %s.
+    profile_candidates=("$HOME/.bashrc" "$HOME/.bash_profile" "$HOME/.profile")
+    profile_candidates=("$HOME/.config/fish/config.fish")
+    profile_candidates=("$HOME/.zshrc" "$HOME/.zprofile")
+  "$HOME/.zshrc" "$HOME/.zprofile" "$HOME/.config/fish/config.fish"; do
+  *)
+  [ -f "$profile" ] || continue
+  bash)
+  elif [ "$has_path" = false ]; then
+  else
+  exit 0
+  fi
+  fi
+  fish)
+  grep -q "fnm env" "$profile" 2>/dev/null && has_env=true
+  grep -qF '$HOME/.local/share/fnm' "$f" 2>/dev/null && grep -q "fnm env" "$f" 2>/dev/null && exit 0
+  grep -qF '$HOME/.local/share/fnm' "$profile" 2>/dev/null && has_path=true
+  has_env=false
+  has_path=false
+  if [ "$has_path" = false ] && [ "$has_env" = false ]; then
+  if [ "$has_path" = true ] && [ "$has_env" = true ]; then
+  printf 'Restart your shell or run: source %s
+  printf 'fnm activation updated in %s.
+  zsh)
+ exited non-zero: exit status 2
+# fnm (Fast Node Manager)
+%s
+%s
+%s
+%s
+%s
+%s
+'
+'
+' "$activation_env" >> "$profile"
+' "$activation_path" "$activation_env" > "$profile"
+' "$activation_path" "$activation_env" >> "$profile"
+' "$activation_path" >> "$profile"
+' "$profile"
+' "$profile"
+' "$profile"
+' "$profile"
+' "$profile"
+' "${shell_name:-unknown}"
+case "$shell_name" in
+done
+done
+esac
+exit 1
+for profile in "${profile_candidates[@]}"; do
+mkdir -p "$(dirname "$profile")"
+printf '# fnm (Fast Node Manager)
+printf 'Restart your shell or run: source %s
+printf 'fnm activation added to %s.
+profile="${profile_candidates[0]}"
+shell_name="$(basename "${SHELL:-}")"
+task: "_install:unix" started
+task: "_install:windows" not for current platform - ignored
+task: "_shell:setup:unix" finished
+task: "_shell:setup:unix" started
+task: "_shell:setup:windows" not for current platform - ignored
+task: "install" finished
+task: "install" started
+task: "shell:setup" finished
+task: "shell:setup" started
+task: Task "_install:unix" is up to date
+task: [_shell:setup:unix] echo Configuring fnm shell activation...
+task: [_shell:setup:unix] export PATH="$HOME/.local/share/fnm:$HOME/.local/bin:$PATH"
+task: status command for f in "$HOME/.bashrc" "$HOME/.bash_profile" "$HOME/.profile" \
+task: status command test -f "$HOME/.local/share/fnm/fnm" || command -v fnm >/dev/null 2>&1 || test -f "$HOME/.local/bin/fnm" exited zero
+
+=== task: install:undo ===
+task: "_install:undo:unix" finished
+task: "_install:undo:unix" started
+task: "_install:undo:windows" not for current platform - ignored
+task: "install:undo" finished
+task: "install:undo" started
+task: [_install:undo:unix] bash -c 'found=$(grep -rl "fnm env\|local/share/fnm\|local/bin/fnm" "$HOME/.bashrc" "$HOME/.bash_profile" "$HOME/.profile" "$HOME/.zshrc" 2>/dev/null || true); [ -n "$found" ] && echo "Manually remove fnm lines from:" && echo "$found" | sed "s/^/  /" || echo "No fnm references found in shell profile files."'
+task: [_install:undo:unix] echo Removing fnm...
+task: [_install:undo:unix] echo fnm removed.
+task: [_install:undo:unix] rm -f "$HOME/.local/bin/fnm"
+task: [_install:undo:unix] rm -rf "$HOME/.local/share/fnm"
+task: status command test ! -d "$HOME/.local/share/fnm" && test ! -f "$HOME/.local/bin/fnm" exited non-zero: exit status 1
+
+=== task: ls ===
+task: "_ls:unix" finished
+task: "_ls:unix" started
+task: "_ls:windows" not for current platform - ignored
+task: "ls" finished
+task: "ls" started
+task: [_ls:unix] bash -lc 'export PATH="$HOME/.local/share/fnm:$HOME/.local/bin:$PATH"; fnm list'
+
+=== task: node:install ===
+
+    ;;
+    ;;
+    ;;
+    ;;
+    activation_env='eval "$(fnm env --use-on-cd --shell bash)"'
+    activation_env='eval "$(fnm env --use-on-cd --shell zsh)"'
+    activation_env='fnm env --use-on-cd --shell fish | source'
+    activation_path='export PATH="$HOME/.local/share/fnm:$HOME/.local/bin:$PATH"'
+    activation_path='export PATH="$HOME/.local/share/fnm:$HOME/.local/bin:$PATH"'
+    activation_path='set -gx PATH "$HOME/.local/share/fnm" "$HOME/.local/bin" $PATH'
+    exit 0
+    exit 0
+    printf '
+    printf '
+    printf '
+    printf '  eval "$(fnm env --use-on-cd)"
+    printf '  export PATH="$HOME/.local/share/fnm:$HOME/.local/bin:$PATH"
+    printf 'Shell "%s" is not auto-configured. Add fnm activation manually:
+    printf 'fnm is already configured in %s.
+    profile_candidates=("$HOME/.bashrc" "$HOME/.bash_profile" "$HOME/.profile")
+    profile_candidates=("$HOME/.config/fish/config.fish")
+    profile_candidates=("$HOME/.zshrc" "$HOME/.zprofile")
+  "$HOME/.zshrc" "$HOME/.zprofile" "$HOME/.config/fish/config.fish"; do
+  *)
+  [ -f "$profile" ] || continue
+  bash)
+  elif [ "$has_path" = false ]; then
+  else
+  exit 0
+  fi
+  fi
+  fish)
+  grep -q "fnm env" "$profile" 2>/dev/null && has_env=true
+  grep -qF '$HOME/.local/share/fnm' "$f" 2>/dev/null && grep -q "fnm env" "$f" 2>/dev/null && exit 0
+  grep -qF '$HOME/.local/share/fnm' "$profile" 2>/dev/null && has_path=true
+  has_env=false
+  has_path=false
+  if [ "$has_path" = false ] && [ "$has_env" = false ]; then
+  if [ "$has_path" = true ] && [ "$has_env" = true ]; then
+  printf 'Restart your shell or run: source %s
+  printf 'fnm activation updated in %s.
+  zsh)
+ exited non-zero: exit status 2
+# fnm (Fast Node Manager)
+%s
+%s
+%s
+%s
+%s
+%s
+'
+'
+' "$activation_env" >> "$profile"
+' "$activation_path" "$activation_env" > "$profile"
+' "$activation_path" "$activation_env" >> "$profile"
+' "$activation_path" >> "$profile"
+' "$profile"
+' "$profile"
+' "$profile"
+' "$profile"
+' "$profile"
+' "${shell_name:-unknown}"
+case "$shell_name" in
+done
+done
+esac
+exit 1
+for profile in "${profile_candidates[@]}"; do
+mkdir -p "$(dirname "$profile")"
+printf '# fnm (Fast Node Manager)
+printf 'Restart your shell or run: source %s
+printf 'fnm activation added to %s.
+profile="${profile_candidates[0]}"
+shell_name="$(basename "${SHELL:-}")"
+task: "_install:unix" started
+task: "_install:windows" not for current platform - ignored
+task: "_node:install:unix" finished
+task: "_node:install:unix" started
+task: "_node:install:windows" not for current platform - ignored
+task: "_shell:setup:unix" finished
+task: "_shell:setup:unix" started
+task: "_shell:setup:windows" not for current platform - ignored
+task: "install" finished
+task: "install" started
+task: "node:install" finished
+task: "node:install" started
+task: "shell:setup" finished
+task: "shell:setup" started
+task: Task "_install:unix" is up to date
+task: [_node:install:unix] bash -lc 'export PATH="$HOME/.local/share/fnm:$HOME/.local/bin:$PATH"; fnm install "$VERSION"'
+task: [_node:install:unix] echo Installing Node.js --lts with fnm...
+task: [_shell:setup:unix] echo Configuring fnm shell activation...
+task: [_shell:setup:unix] export PATH="$HOME/.local/share/fnm:$HOME/.local/bin:$PATH"
+task: status command bash -lc 'case "$VERSION" in --lts|lts|latest|node) exit 1 ;; esac; export PATH="$HOME/.local/share/fnm:$HOME/.local/bin:$PATH"; fnm list | grep -Eq "(^|[[:space:]])v--lts([[:space:]]|$)"' exited non-zero: exit status 1
+task: status command for f in "$HOME/.bashrc" "$HOME/.bash_profile" "$HOME/.profile" \
+task: status command test -f "$HOME/.local/share/fnm/fnm" || command -v fnm >/dev/null 2>&1 || test -f "$HOME/.local/bin/fnm" exited zero
+
+=== task: node:uninstall ===
+--- exit: exit status 206
+task: Task "node:uninstall" cancelled because it is missing required variables: VERSION
+
+=== task: node:use ===
+
+
+    ;;
+    ;;
+    ;;
+    ;;
+    activation_env='eval "$(fnm env --use-on-cd --shell bash)"'
+    activation_env='eval "$(fnm env --use-on-cd --shell zsh)"'
+    activation_env='fnm env --use-on-cd --shell fish | source'
+    activation_path='export PATH="$HOME/.local/share/fnm:$HOME/.local/bin:$PATH"'
+    activation_path='export PATH="$HOME/.local/share/fnm:$HOME/.local/bin:$PATH"'
+    activation_path='set -gx PATH "$HOME/.local/share/fnm" "$HOME/.local/bin" $PATH'
+    exit 0
+    exit 0
+    printf '
+    printf '
+    printf '
+    printf '  eval "$(fnm env --use-on-cd)"
+    printf '  export PATH="$HOME/.local/share/fnm:$HOME/.local/bin:$PATH"
+    printf 'Shell "%s" is not auto-configured. Add fnm activation manually:
+    printf 'fnm is already configured in %s.
+    profile_candidates=("$HOME/.bashrc" "$HOME/.bash_profile" "$HOME/.profile")
+    profile_candidates=("$HOME/.config/fish/config.fish")
+    profile_candidates=("$HOME/.zshrc" "$HOME/.zprofile")
+  "$HOME/.zshrc" "$HOME/.zprofile" "$HOME/.config/fish/config.fish"; do
+  *)
+  [ -f "$profile" ] || continue
+  bash)
+  elif [ "$has_path" = false ]; then
+  else
+  exit 0
+  fi
+  fi
+  fish)
+  grep -q "fnm env" "$profile" 2>/dev/null && has_env=true
+  grep -qF '$HOME/.local/share/fnm' "$f" 2>/dev/null && grep -q "fnm env" "$f" 2>/dev/null && exit 0
+  grep -qF '$HOME/.local/share/fnm' "$profile" 2>/dev/null && has_path=true
+  has_env=false
+  has_path=false
+  if [ "$has_path" = false ] && [ "$has_env" = false ]; then
+  if [ "$has_path" = true ] && [ "$has_env" = true ]; then
+  printf 'Restart your shell or run: source %s
+  printf 'fnm activation updated in %s.
+  zsh)
+ exited non-zero: exit status 2
+" "$current"'
+# fnm (Fast Node Manager)
+%s
+%s
+%s
+%s
+%s
+%s
+'
+'
+' "$activation_env" >> "$profile"
+' "$activation_path" "$activation_env" > "$profile"
+' "$activation_path" "$activation_env" >> "$profile"
+' "$activation_path" >> "$profile"
+' "$profile"
+' "$profile"
+' "$profile"
+' "$profile"
+' "$profile"
+' "${shell_name:-unknown}"
+case "$shell_name" in
+done
+done
+esac
+exit 1
+for profile in "${profile_candidates[@]}"; do
+mkdir -p "$(dirname "$profile")"
+printf '# fnm (Fast Node Manager)
+printf 'Restart your shell or run: source %s
+printf 'fnm activation added to %s.
+profile="${profile_candidates[0]}"
+shell_name="$(basename "${SHELL:-}")"
+task: "_install:unix" started
+task: "_install:windows" not for current platform - ignored
+task: "_node:install:unix" finished
+task: "_node:install:unix" started
+task: "_node:install:windows" not for current platform - ignored
+task: "_node:use:unix" finished
+task: "_node:use:unix" started
+task: "_node:use:windows" not for current platform - ignored
+task: "_shell:setup:unix" finished
+task: "_shell:setup:unix" started
+task: "_shell:setup:windows" not for current platform - ignored
+task: "install" finished
+task: "install" started
+task: "node:install" finished
+task: "node:install" started
+task: "node:use" finished
+task: "node:use" started
+task: "shell:setup" finished
+task: "shell:setup" started
+task: Task "_install:unix" is up to date
+task: [_node:install:unix] bash -lc 'export PATH="$HOME/.local/share/fnm:$HOME/.local/bin:$PATH"; fnm install "$VERSION"'
+task: [_node:install:unix] echo Installing Node.js --lts with fnm...
+task: [_node:use:unix] bash -lc 'export PATH="$HOME/.local/share/fnm:$HOME/.local/bin:$PATH"; eval "$(fnm env --use-on-cd --shell bash)"; fnm use "$VERSION"; current="$(fnm current)"; fnm default "$current"; printf "Node.js %s set as default for future shells.
+task: [_node:use:unix] echo 'For the current shell, run: eval "$(fnm env --use-on-cd --shell bash)"'
+task: [_node:use:unix] echo Switching to Node.js --lts...
+task: [_shell:setup:unix] echo Configuring fnm shell activation...
+task: [_shell:setup:unix] export PATH="$HOME/.local/share/fnm:$HOME/.local/bin:$PATH"
+task: status command bash -lc 'case "$VERSION" in --lts|lts|latest|node) exit 1 ;; esac; export PATH="$HOME/.local/share/fnm:$HOME/.local/bin:$PATH"; fnm list | grep -Eq "(^|[[:space:]])v--lts([[:space:]]|$)"' exited non-zero: exit status 1
+task: status command for f in "$HOME/.bashrc" "$HOME/.bash_profile" "$HOME/.profile" \
+task: status command test -f "$HOME/.local/share/fnm/fnm" || command -v fnm >/dev/null 2>&1 || test -f "$HOME/.local/bin/fnm" exited zero
+
+=== task: node:version ===
+task: "_node:version:unix" finished
+task: "_node:version:unix" started
+task: "_node:version:windows" not for current platform - ignored
+task: "node:version" finished
+task: "node:version" started
+task: [_node:version:unix] bash -lc 'export PATH="$HOME/.local/share/fnm:$HOME/.local/bin:$PATH"; eval "$(fnm env --use-on-cd --shell bash)"; fnm current; node --version; npm --version'
+
+=== task: shell:setup ===
+
+    ;;
+    ;;
+    ;;
+    ;;
+    activation_env='eval "$(fnm env --use-on-cd --shell bash)"'
+    activation_env='eval "$(fnm env --use-on-cd --shell zsh)"'
+    activation_env='fnm env --use-on-cd --shell fish | source'
+    activation_path='export PATH="$HOME/.local/share/fnm:$HOME/.local/bin:$PATH"'
+    activation_path='export PATH="$HOME/.local/share/fnm:$HOME/.local/bin:$PATH"'
+    activation_path='set -gx PATH "$HOME/.local/share/fnm" "$HOME/.local/bin" $PATH'
+    exit 0
+    exit 0
+    printf '
+    printf '
+    printf '
+    printf '  eval "$(fnm env --use-on-cd)"
+    printf '  export PATH="$HOME/.local/share/fnm:$HOME/.local/bin:$PATH"
+    printf 'Shell "%s" is not auto-configured. Add fnm activation manually:
+    printf 'fnm is already configured in %s.
+    profile_candidates=("$HOME/.bashrc" "$HOME/.bash_profile" "$HOME/.profile")
+    profile_candidates=("$HOME/.config/fish/config.fish")
+    profile_candidates=("$HOME/.zshrc" "$HOME/.zprofile")
+  "$HOME/.zshrc" "$HOME/.zprofile" "$HOME/.config/fish/config.fish"; do
+  *)
+  [ -f "$profile" ] || continue
+  bash)
+  elif [ "$has_path" = false ]; then
+  else
+  exit 0
+  fi
+  fi
+  fish)
+  grep -q "fnm env" "$profile" 2>/dev/null && has_env=true
+  grep -qF '$HOME/.local/share/fnm' "$f" 2>/dev/null && grep -q "fnm env" "$f" 2>/dev/null && exit 0
+  grep -qF '$HOME/.local/share/fnm' "$profile" 2>/dev/null && has_path=true
+  has_env=false
+  has_path=false
+  if [ "$has_path" = false ] && [ "$has_env" = false ]; then
+  if [ "$has_path" = true ] && [ "$has_env" = true ]; then
+  printf 'Restart your shell or run: source %s
+  printf 'fnm activation updated in %s.
+  zsh)
+ exited non-zero: exit status 2
+# fnm (Fast Node Manager)
+%s
+%s
+%s
+%s
+%s
+%s
+'
+'
+' "$activation_env" >> "$profile"
+' "$activation_path" "$activation_env" > "$profile"
+' "$activation_path" "$activation_env" >> "$profile"
+' "$activation_path" >> "$profile"
+' "$profile"
+' "$profile"
+' "$profile"
+' "$profile"
+' "$profile"
+' "${shell_name:-unknown}"
+case "$shell_name" in
+done
+done
+esac
+exit 1
+for profile in "${profile_candidates[@]}"; do
+mkdir -p "$(dirname "$profile")"
+printf '# fnm (Fast Node Manager)
+printf 'Restart your shell or run: source %s
+printf 'fnm activation added to %s.
+profile="${profile_candidates[0]}"
+shell_name="$(basename "${SHELL:-}")"
+task: "_shell:setup:unix" finished
+task: "_shell:setup:unix" started
+task: "_shell:setup:windows" not for current platform - ignored
+task: "shell:setup" finished
+task: "shell:setup" started
+task: [_shell:setup:unix] echo Configuring fnm shell activation...
+task: [_shell:setup:unix] export PATH="$HOME/.local/share/fnm:$HOME/.local/bin:$PATH"
+task: status command for f in "$HOME/.bashrc" "$HOME/.bash_profile" "$HOME/.profile" \
+
+=== task: version ===
+task: "_version:unix" finished
+task: "_version:unix" started
+task: "_version:windows" not for current platform - ignored
+task: "version" finished
+task: "version" started
+task: [_version:unix] bash -lc 'export PATH="$HOME/.local/share/fnm:$HOME/.local/bin:$PATH"; fnm --version'

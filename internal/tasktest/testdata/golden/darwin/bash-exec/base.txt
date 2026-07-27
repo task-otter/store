@@ -1,0 +1,27 @@
+# module: bash-exec
+# case:   base
+# vars:
+#   ARGS=BASE-ARGS
+#   BASH_FLAGS=BASE-BASH_FLAGS
+#   COMMAND=BASE-COMMAND
+#   SCRIPT=BASE-SCRIPT
+
+=== task: check ===
+task: "check" finished
+task: "check" started
+task: [check] bash -n BASE-BASH_FLAGS "BASE-SCRIPT"
+
+=== task: exec ===
+task: "exec" finished
+task: "exec" started
+task: [exec] bash -c "$BASH_EXEC_COMMAND"
+
+=== task: run ===
+task: "run" finished
+task: "run" started
+task: [run] bash BASE-BASH_FLAGS "BASE-SCRIPT" BASE-ARGS
+
+=== task: version ===
+task: "version" finished
+task: "version" started
+task: [version] bash --version

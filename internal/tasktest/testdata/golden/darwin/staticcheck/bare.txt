@@ -1,0 +1,202 @@
+# module: staticcheck
+# case:   bare
+
+=== task: install ===
+    gopath=\"$(go env GOPATH)\"
+  fi
+  gobin=\"$(go env GOBIN)\"
+  gobin=\"${gopath:-$HOME/go}/bin\"
+  gopath=\"${GOPATH:-}\"
+  if [ -z \"$gopath\" ] && command -v go >/dev/null 2>&1; then
+" result: "$HOME/go/bin"
+fi
+fi
+if [ -z \"$gobin\" ] && command -v go >/dev/null 2>&1; then
+if [ -z \"$gobin\" ]; then
+printf '%s' \"$gobin\"
+task: "_install:darwin" finished
+task: "_install:darwin" started
+task: "_install:linux" not for current platform - ignored
+task: "_install:windows" not for current platform - ignored
+task: "install" finished
+task: "install" started
+task: [_install:darwin] curl -fsSL "https://github.com/dominikh/go-tools/releases/download/2026.1/staticcheck_darwin_arm64.tar.gz" -o "/tmp/taskotter-staticcheck-2026.1-darwin_arm64.tar.gz"
+task: [_install:darwin] if condition not met - skipped
+task: [_install:darwin] install -m 0755 "$(find "/tmp/taskotter-staticcheck-2026.1-darwin_arm64" -type f -name staticcheck -print -quit)" "$HOME/go/bin/staticcheck"
+task: [_install:darwin] mkdir -p "$HOME/go/bin"
+task: [_install:darwin] mkdir -p "/tmp/taskotter-staticcheck-2026.1-darwin_arm64"
+task: [_install:darwin] rm -rf "/tmp/taskotter-staticcheck-2026.1-darwin_arm64"
+task: [_install:darwin] rm -rf "/tmp/taskotter-staticcheck-2026.1-darwin_arm64"
+task: [_install:darwin] rm -rf "/tmp/taskotter-staticcheck-2026.1-darwin_arm64.tar.gz"
+task: [_install:darwin] rm -rf "/tmp/taskotter-staticcheck-2026.1-darwin_arm64.tar.gz"
+task: [_install:darwin] tar -xzf "/tmp/taskotter-staticcheck-2026.1-darwin_arm64.tar.gz" -C "/tmp/taskotter-staticcheck-2026.1-darwin_arm64"
+task: dynamic variable: "gobin=\"${GOBIN:-}\"
+task: dynamic variable: "uname -m" result: "arm64"
+task: status command [ "false" != "true" ] exited zero
+task: status command test -x "$HOME/go/bin/staticcheck" exited non-zero: exit status 1
+
+=== task: install:undo ===
+    gopath=\"$(go env GOPATH)\"
+  fi
+  gobin=\"$(go env GOBIN)\"
+  gobin=\"${gopath:-$HOME/go}/bin\"
+  gopath=\"${GOPATH:-}\"
+  if [ -z \"$gopath\" ] && command -v go >/dev/null 2>&1; then
+" result: "$HOME/go/bin"
+fi
+fi
+if [ -z \"$gobin\" ] && command -v go >/dev/null 2>&1; then
+if [ -z \"$gobin\" ]; then
+printf '%s' \"$gobin\"
+task: "_install:undo:unix" started
+task: "_install:undo:windows" not for current platform - ignored
+task: "install:undo" finished
+task: "install:undo" started
+task: Task "_install:undo:unix" is up to date
+task: dynamic variable: "gobin=\"${GOBIN:-}\"
+task: status command ! test -e "$HOME/go/bin/staticcheck" exited zero
+
+=== task: lint ===
+
+    
+    ./... \
+    gopath=\"$(go env GOPATH)\"
+   <"$package_list"
+   \
+  "$HOME/go/bin/staticcheck" \
+  echo 'No matching Go packages found'
+  exit
+  exit 0
+  fi
+  go-packages >"$package_list"
+  gobin=\"$(go env GOBIN)\"
+  gobin=\"${gopath:-$HOME/go}/bin\"
+  gopath=\"${GOPATH:-}\"
+  if [ -z \"$gopath\" ] && command -v go >/dev/null 2>&1; then
+" result: "$HOME/go/bin"
+export SKIPFILES_GO_TARGETS='./...'
+export SKIPFILES_PATTERN="$skip_pattern"
+fi
+fi
+fi
+fi
+if [ ! -s "$package_list" ]; then
+if [ -z "$skip_pattern" ]; then
+if [ -z \"$gobin\" ] && command -v go >/dev/null 2>&1; then
+if [ -z \"$gobin\" ]; then
+package_list="$(mktemp)"
+printf '%s' \"$gobin\"
+task --silent --taskfile "$REPO/taskfiles/staticcheck/../internal/skipfiles/Taskfile.yml" \
+task: "_install:darwin" finished
+task: "_install:darwin" started
+task: "_install:linux" not for current platform - ignored
+task: "_install:windows" not for current platform - ignored
+task: "_lint:unix" finished
+task: "_lint:unix" started
+task: "_lint:windows" not for current platform - ignored
+task: "go:_install:linux:tarball" not for current platform - ignored
+task: "go:_install:macos:brew" started
+task: "go:_install:macos:pkg" started
+task: "go:_install:windows:msi" not for current platform - ignored
+task: "go:_shell:setup:linux" not for current platform - ignored
+task: "go:install" finished
+task: "go:install" started
+task: "install" finished
+task: "install" started
+task: "lint" finished
+task: "lint" started
+task: Task "go:_install:macos:brew" is up to date
+task: Task "go:_install:macos:pkg" is up to date
+task: [_install:darwin] curl -fsSL "https://github.com/dominikh/go-tools/releases/download/2026.1/staticcheck_darwin_arm64.tar.gz" -o "/tmp/taskotter-staticcheck-2026.1-darwin_arm64.tar.gz"
+task: [_install:darwin] if condition not met - skipped
+task: [_install:darwin] install -m 0755 "$(find "/tmp/taskotter-staticcheck-2026.1-darwin_arm64" -type f -name staticcheck -print -quit)" "$HOME/go/bin/staticcheck"
+task: [_install:darwin] mkdir -p "$HOME/go/bin"
+task: [_install:darwin] mkdir -p "/tmp/taskotter-staticcheck-2026.1-darwin_arm64"
+task: [_install:darwin] rm -rf "/tmp/taskotter-staticcheck-2026.1-darwin_arm64"
+task: [_install:darwin] rm -rf "/tmp/taskotter-staticcheck-2026.1-darwin_arm64"
+task: [_install:darwin] rm -rf "/tmp/taskotter-staticcheck-2026.1-darwin_arm64.tar.gz"
+task: [_install:darwin] rm -rf "/tmp/taskotter-staticcheck-2026.1-darwin_arm64.tar.gz"
+task: [_install:darwin] tar -xzf "/tmp/taskotter-staticcheck-2026.1-darwin_arm64.tar.gz" -C "/tmp/taskotter-staticcheck-2026.1-darwin_arm64"
+task: [_lint:unix] skip_pattern=''
+task: [lint] echo "✅ staticcheck passed"
+task: dynamic variable: "gobin=\"${GOBIN:-}\"
+task: dynamic variable: "uname -m" result: "arm64"
+task: status command [ "false" != "true" ] exited zero
+task: status command [ -n "" ] || command -v go >/dev/null 2>&1 exited zero
+task: status command [ -z "" ] || { [ "false" != "true" ] && test -x "/usr/local/go/bin/go" && [ "$("/usr/local/go/bin/go" version | awk '{print $3}')" = "" ]; } exited zero
+task: status command test -x "$HOME/go/bin/staticcheck" exited non-zero: exit status 1
+trap 'rm -f "$package_list"' EXIT
+xargs -0 "$HOME/go/bin/staticcheck" \
+
+=== task: upgrade ===
+    gopath=\"$(go env GOPATH)\"
+  fi
+  gobin=\"$(go env GOBIN)\"
+  gobin=\"${gopath:-$HOME/go}/bin\"
+  gopath=\"${GOPATH:-}\"
+  if [ -z \"$gopath\" ] && command -v go >/dev/null 2>&1; then
+" result: "$HOME/go/bin"
+fi
+fi
+if [ -z \"$gobin\" ] && command -v go >/dev/null 2>&1; then
+if [ -z \"$gobin\" ]; then
+printf '%s' \"$gobin\"
+task: "_install:darwin" finished
+task: "_install:darwin" started
+task: "_install:linux" not for current platform - ignored
+task: "_install:windows" not for current platform - ignored
+task: "upgrade" finished
+task: "upgrade" started
+task: [_install:darwin] curl -fsSL "https://github.com/dominikh/go-tools/releases/download/2026.1/staticcheck_darwin_arm64.tar.gz" -o "/tmp/taskotter-staticcheck-2026.1-darwin_arm64.tar.gz"
+task: [_install:darwin] if condition not met - skipped
+task: [_install:darwin] install -m 0755 "$(find "/tmp/taskotter-staticcheck-2026.1-darwin_arm64" -type f -name staticcheck -print -quit)" "$HOME/go/bin/staticcheck"
+task: [_install:darwin] mkdir -p "$HOME/go/bin"
+task: [_install:darwin] mkdir -p "/tmp/taskotter-staticcheck-2026.1-darwin_arm64"
+task: [_install:darwin] rm -rf "/tmp/taskotter-staticcheck-2026.1-darwin_arm64"
+task: [_install:darwin] rm -rf "/tmp/taskotter-staticcheck-2026.1-darwin_arm64"
+task: [_install:darwin] rm -rf "/tmp/taskotter-staticcheck-2026.1-darwin_arm64.tar.gz"
+task: [_install:darwin] rm -rf "/tmp/taskotter-staticcheck-2026.1-darwin_arm64.tar.gz"
+task: [_install:darwin] tar -xzf "/tmp/taskotter-staticcheck-2026.1-darwin_arm64.tar.gz" -C "/tmp/taskotter-staticcheck-2026.1-darwin_arm64"
+task: dynamic variable: "gobin=\"${GOBIN:-}\"
+task: dynamic variable: "uname -m" result: "arm64"
+task: status command [ "true" != "true" ] exited non-zero: exit status 1
+
+=== task: version ===
+    gopath=\"$(go env GOPATH)\"
+  fi
+  gobin=\"$(go env GOBIN)\"
+  gobin=\"${gopath:-$HOME/go}/bin\"
+  gopath=\"${GOPATH:-}\"
+  if [ -z \"$gopath\" ] && command -v go >/dev/null 2>&1; then
+" result: "$HOME/go/bin"
+fi
+fi
+if [ -z \"$gobin\" ] && command -v go >/dev/null 2>&1; then
+if [ -z \"$gobin\" ]; then
+printf '%s' \"$gobin\"
+task: "_install:darwin" finished
+task: "_install:darwin" started
+task: "_install:linux" not for current platform - ignored
+task: "_install:windows" not for current platform - ignored
+task: "_version:unix" finished
+task: "_version:unix" started
+task: "_version:windows" not for current platform - ignored
+task: "install" finished
+task: "install" started
+task: "version" finished
+task: "version" started
+task: [_install:darwin] curl -fsSL "https://github.com/dominikh/go-tools/releases/download/2026.1/staticcheck_darwin_arm64.tar.gz" -o "/tmp/taskotter-staticcheck-2026.1-darwin_arm64.tar.gz"
+task: [_install:darwin] if condition not met - skipped
+task: [_install:darwin] install -m 0755 "$(find "/tmp/taskotter-staticcheck-2026.1-darwin_arm64" -type f -name staticcheck -print -quit)" "$HOME/go/bin/staticcheck"
+task: [_install:darwin] mkdir -p "$HOME/go/bin"
+task: [_install:darwin] mkdir -p "/tmp/taskotter-staticcheck-2026.1-darwin_arm64"
+task: [_install:darwin] rm -rf "/tmp/taskotter-staticcheck-2026.1-darwin_arm64"
+task: [_install:darwin] rm -rf "/tmp/taskotter-staticcheck-2026.1-darwin_arm64"
+task: [_install:darwin] rm -rf "/tmp/taskotter-staticcheck-2026.1-darwin_arm64.tar.gz"
+task: [_install:darwin] rm -rf "/tmp/taskotter-staticcheck-2026.1-darwin_arm64.tar.gz"
+task: [_install:darwin] tar -xzf "/tmp/taskotter-staticcheck-2026.1-darwin_arm64.tar.gz" -C "/tmp/taskotter-staticcheck-2026.1-darwin_arm64"
+task: [_version:unix] "$HOME/go/bin/staticcheck" -version
+task: dynamic variable: "gobin=\"${GOBIN:-}\"
+task: dynamic variable: "uname -m" result: "arm64"
+task: status command [ "false" != "true" ] exited zero
+task: status command test -x "$HOME/go/bin/staticcheck" exited non-zero: exit status 1

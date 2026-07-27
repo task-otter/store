@@ -1,0 +1,101 @@
+# module: stylelint/node/nvm/yarn
+# case:   bare
+
+=== task: cache:clean ===
+task: "cache:clean" finished
+task: "cache:clean" started
+task: [cache:clean] if [ -d .cache/stylelint ]; then rm -rf .cache/stylelint; fi
+
+=== task: ci ===
+task: "ci" finished
+task: "ci" started
+task: "yarn:_exec:unix" finished
+task: "yarn:_exec:unix" started
+task: "yarn:_exec:windows" not for current platform - ignored
+task: "yarn:exec" finished
+task: "yarn:exec" started
+task: [ci] echo "✅ stylelint passed"
+task: [yarn:_exec:unix] bash -c "stylelint **/*.{css,scss,sass,less,vue,svelte,astro} --max-warnings=0    --cache --cache-location .cache/stylelint/  --allow-empty-input  "
+
+=== task: config:init ===
+
+  config_file=".stylelintrc.json"
+  echo "$config_file already exists."
+  echo "Created $config_file."
+  printf '%s
+' '{' '  "extends": "stylelint-config-standard"' '}' > "$config_file"
+else
+fi
+fi
+if [ -e "$config_file" ]; then
+if [ -z "$config_file" ]; then
+task: "config:init" finished
+task: "config:init" started
+task: [config:init] config_file=""
+
+=== task: help ===
+task: "help" finished
+task: "help" started
+task: "yarn:_exec:unix" finished
+task: "yarn:_exec:unix" started
+task: "yarn:_exec:windows" not for current platform - ignored
+task: "yarn:exec" finished
+task: "yarn:exec" started
+task: [yarn:_exec:unix] bash -c "stylelint --help "
+
+=== task: install ===
+task: "install" started
+task: Task "install" is up to date
+task: status command node -e "const installed = require('./node_modules/stylelint/package.json'); const requested = ''; process.exit(!requested || installed.version === requested ? 0 : 1)" exited zero
+
+=== task: install:undo ===
+task: "install:undo" finished
+task: "install:undo" started
+task: "yarn:_yarn:unix" finished
+task: "yarn:_yarn:unix" started
+task: "yarn:_yarn:windows" not for current platform - ignored
+task: "yarn:remove" finished
+task: "yarn:remove" started
+task: [yarn:_yarn:unix] bash -c 'export NVM_DIR="$HOME/.nvm"; . "$NVM_DIR/nvm.sh"; if [ -f .node-version ] || [ -f .nvmrc ]; then nvm use; fi; command -v corepack >/dev/null 2>&1 || { echo "corepack is not available. Run: task manager:setup"; exit 1; }; corepack yarn global remove stylelint stylelint-config-standard '
+
+=== task: lint ===
+task: "lint" finished
+task: "lint" started
+task: "yarn:_exec:unix" finished
+task: "yarn:_exec:unix" started
+task: "yarn:_exec:windows" not for current platform - ignored
+task: "yarn:exec" finished
+task: "yarn:exec" started
+task: [lint] echo "✅ stylelint passed"
+task: [yarn:_exec:unix] bash -c "stylelint **/*.{css,scss,sass,less,vue,svelte,astro}    --cache --cache-location .cache/stylelint/  --allow-empty-input  "
+
+=== task: lint:fix ===
+task: "lint:fix" finished
+task: "lint:fix" started
+task: "yarn:_exec:unix" finished
+task: "yarn:_exec:unix" started
+task: "yarn:_exec:windows" not for current platform - ignored
+task: "yarn:exec" finished
+task: "yarn:exec" started
+task: [lint:fix] echo "✅ stylelint fixes applied"
+task: [yarn:_exec:unix] bash -c "stylelint **/*.{css,scss,sass,less,vue,svelte,astro} --fix    --cache --cache-location .cache/stylelint/  --allow-empty-input  "
+
+=== task: upgrade ===
+task: "upgrade" finished
+task: "upgrade" started
+task: "yarn:_yarn:unix" finished
+task: "yarn:_yarn:unix" started
+task: "yarn:_yarn:windows" not for current platform - ignored
+task: "yarn:add" finished
+task: "yarn:add" started
+task: [yarn:_yarn:unix] bash -c 'export NVM_DIR="$HOME/.nvm"; . "$NVM_DIR/nvm.sh"; if [ -f .node-version ] || [ -f .nvmrc ]; then nvm use; fi; command -v corepack >/dev/null 2>&1 || { echo "corepack is not available. Run: task manager:setup"; exit 1; }; corepack yarn global add stylelint@latest stylelint-config-standard@latest '
+
+=== task: version ===
+task: "version" finished
+task: "version" started
+task: "yarn:_exec:unix" finished
+task: "yarn:_exec:unix" started
+task: "yarn:_exec:windows" not for current platform - ignored
+task: "yarn:exec" finished
+task: "yarn:exec" started
+task: [yarn:_exec:unix] bash -c "stylelint --version "

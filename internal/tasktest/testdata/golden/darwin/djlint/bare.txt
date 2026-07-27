@@ -1,0 +1,109 @@
+# module: djlint
+# case:   bare
+
+=== task: fmt ===
+task: "_install:unix" started
+task: "_install:windows" not for current platform - ignored
+task: "fmt" finished
+task: "fmt" started
+task: "install" finished
+task: "install" started
+task: "uv:_install:unix" started
+task: "uv:_install:windows" not for current platform - ignored
+task: "uv:install" finished
+task: "uv:install" started
+task: Task "_install:unix" is up to date
+task: Task "uv:_install:unix" is up to date
+task: [fmt] bash -lc 'export PATH="$HOME/.local/bin:$PATH"; djlint  . --reformat '
+task: [fmt] djlint . --reformat  not for current platform - ignored
+task: status command bash -lc 'export PATH="$HOME/.local/bin:$PATH"; command -v djlint >/dev/null 2>&1 && { [ -z "" ] || djlint --version | grep -Fq ""; }' exited zero
+task: status command uv_bin="$HOME/.local/bin/uv"; if [ ! -x "$uv_bin" ]; then uv_bin="$(command -v uv 2>/dev/null)"; fi; [ -n "$uv_bin" ] && [ -x "$uv_bin" ] && { [ -z "" ] || "$uv_bin" --version | grep -Fqx "uv "; } exited zero
+
+=== task: fmt:check ===
+task: "_install:unix" started
+task: "_install:windows" not for current platform - ignored
+task: "fmt:check" finished
+task: "fmt:check" started
+task: "install" finished
+task: "install" started
+task: "uv:_install:unix" started
+task: "uv:_install:windows" not for current platform - ignored
+task: "uv:install" finished
+task: "uv:install" started
+task: Task "_install:unix" is up to date
+task: Task "uv:_install:unix" is up to date
+task: [fmt:check] bash -lc 'export PATH="$HOME/.local/bin:$PATH"; djlint  . --check  && echo "✅ djlint formatting check passed" || { echo "❌ djlint formatting check failed"; exit 1; }'
+task: [fmt:check] djlint . --check  not for current platform - ignored
+task: status command bash -lc 'export PATH="$HOME/.local/bin:$PATH"; command -v djlint >/dev/null 2>&1 && { [ -z "" ] || djlint --version | grep -Fq ""; }' exited zero
+task: status command uv_bin="$HOME/.local/bin/uv"; if [ ! -x "$uv_bin" ]; then uv_bin="$(command -v uv 2>/dev/null)"; fi; [ -n "$uv_bin" ] && [ -x "$uv_bin" ] && { [ -z "" ] || "$uv_bin" --version | grep -Fqx "uv "; } exited zero
+
+=== task: install ===
+task: "_install:unix" started
+task: "_install:windows" not for current platform - ignored
+task: "install" finished
+task: "install" started
+task: "uv:_install:unix" started
+task: "uv:_install:windows" not for current platform - ignored
+task: "uv:install" finished
+task: "uv:install" started
+task: Task "_install:unix" is up to date
+task: Task "uv:_install:unix" is up to date
+task: status command bash -lc 'export PATH="$HOME/.local/bin:$PATH"; command -v djlint >/dev/null 2>&1 && { [ -z "" ] || djlint --version | grep -Fq ""; }' exited zero
+task: status command uv_bin="$HOME/.local/bin/uv"; if [ ! -x "$uv_bin" ]; then uv_bin="$(command -v uv 2>/dev/null)"; fi; [ -n "$uv_bin" ] && [ -x "$uv_bin" ] && { [ -z "" ] || "$uv_bin" --version | grep -Fqx "uv "; } exited zero
+
+=== task: install:undo ===
+task: "_install:undo:unix" finished
+task: "_install:undo:unix" started
+task: "_install:undo:windows" not for current platform - ignored
+task: "install:undo" finished
+task: "install:undo" started
+task: [_install:undo:unix] bash -lc 'export PATH="$HOME/.local/bin:$PATH"; uv tool uninstall djlint'
+task: [_install:undo:unix] echo 'Removing djLint...'
+task: [_install:undo:unix] echo 'djLint removed.'
+task: status command bash -lc 'export PATH="$HOME/.local/bin:$PATH"; ! command -v djlint >/dev/null 2>&1' exited non-zero: exit status 1
+
+=== task: lint ===
+task: "_install:unix" started
+task: "_install:windows" not for current platform - ignored
+task: "install" finished
+task: "install" started
+task: "lint" finished
+task: "lint" started
+task: "uv:_install:unix" started
+task: "uv:_install:windows" not for current platform - ignored
+task: "uv:install" finished
+task: "uv:install" started
+task: Task "_install:unix" is up to date
+task: Task "uv:_install:unix" is up to date
+task: [lint] bash -lc 'export PATH="$HOME/.local/bin:$PATH"; djlint  . --lint  && echo "✅ djlint passed" || { echo "❌ djlint failed"; exit 1; }'
+task: [lint] djlint . --lint  not for current platform - ignored
+task: status command bash -lc 'export PATH="$HOME/.local/bin:$PATH"; command -v djlint >/dev/null 2>&1 && { [ -z "" ] || djlint --version | grep -Fq ""; }' exited zero
+task: status command uv_bin="$HOME/.local/bin/uv"; if [ ! -x "$uv_bin" ]; then uv_bin="$(command -v uv 2>/dev/null)"; fi; [ -n "$uv_bin" ] && [ -x "$uv_bin" ] && { [ -z "" ] || "$uv_bin" --version | grep -Fqx "uv "; } exited zero
+
+=== task: upgrade ===
+task: "_upgrade:unix" finished
+task: "_upgrade:unix" started
+task: "_upgrade:windows" not for current platform - ignored
+task: "upgrade" finished
+task: "upgrade" started
+task: [_upgrade:unix] bash -lc 'export PATH="$HOME/.local/bin:$PATH"; uv tool install --force "djlint"'
+task: [_upgrade:unix] echo 'Upgrading djLint via uv...'
+task: [_upgrade:unix] echo 'djLint upgraded.'
+
+=== task: version ===
+task: "_install:unix" started
+task: "_install:windows" not for current platform - ignored
+task: "install" finished
+task: "install" started
+task: "uv:_install:unix" started
+task: "uv:_install:windows" not for current platform - ignored
+task: "uv:install" finished
+task: "uv:install" started
+task: "version" finished
+task: "version" started
+task: Task "_install:unix" is up to date
+task: Task "uv:_install:unix" is up to date
+task: [version] bash -lc 'export PATH="$HOME/.local/bin:$PATH"; djlint --version'
+task: [version] djlint --version not for current platform - ignored
+task: status command bash -lc 'export PATH="$HOME/.local/bin:$PATH"; command -v djlint >/dev/null 2>&1 && { [ -z "" ] || djlint --version | grep -Fq ""; }' exited zero
+task: status command uv_bin="$HOME/.local/bin/uv"; if [ ! -x "$uv_bin" ]; then uv_bin="$(command -v uv 2>/dev/null)"; fi; [ -n "$uv_bin" ] && [ -x "$uv_bin" ] && { [ -z "" ] || "$uv_bin" --version | grep -Fqx "uv "; } exited zero

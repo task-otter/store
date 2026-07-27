@@ -1,0 +1,27 @@
+# module: bash-exec
+# case:   override
+# vars:
+#   ARGS_OVERRIDE=OVR-ARGS
+#   BASH_FLAGS_OVERRIDE=OVR-BASH_FLAGS
+#   COMMAND_OVERRIDE=OVR-COMMAND
+#   SCRIPT_OVERRIDE=OVR-SCRIPT
+
+=== task: check ===
+task: "check" finished
+task: "check" started
+task: [check] bash -n OVR-BASH_FLAGS "OVR-SCRIPT"
+
+=== task: exec ===
+task: "exec" finished
+task: "exec" started
+task: [exec] bash -c "$BASH_EXEC_COMMAND"
+
+=== task: run ===
+task: "run" finished
+task: "run" started
+task: [run] bash OVR-BASH_FLAGS "OVR-SCRIPT" OVR-ARGS
+
+=== task: version ===
+task: "version" finished
+task: "version" started
+task: [version] bash --version

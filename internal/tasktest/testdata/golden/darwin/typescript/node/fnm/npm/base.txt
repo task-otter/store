@@ -1,0 +1,245 @@
+# module: typescript/node/fnm/npm
+# case:   base
+# vars:
+#   FILE=BASE-FILE
+#   OUTFILE=BASE-OUTFILE
+#   OUT_DIR=BASE-OUT_DIR
+#   TRACE_DIR=BASE-TRACE_DIR
+#   TSCONFIG=BASE-TSCONFIG
+#   TSC_FLAGS=BASE-TSC_FLAGS
+#   TSX_FLAGS=BASE-TSX_FLAGS
+#   VERSION=BASE-VERSION
+
+=== task: build ===
+--- exit: exit status 201
+task: "_tsc" started
+task: "build" started
+task: Failed to run task "build": task: Failed to run task "_tsc": task: precondition not met
+task: TSCONFIG "BASE-TSCONFIG" not found. Run: task typescript:config:init
+
+=== task: build:clean ===
+--- exit: exit status 201
+task: "_build:clean:unix" started
+task: "_tsc" started
+task: "build:clean" started
+task: Failed to run task "build:clean": task: Failed to run task "_build:clean:unix": task: Failed to run task "_tsc": task: precondition not met
+task: TSCONFIG "BASE-TSCONFIG" not found. Run: task typescript:config:init
+task: [_build:clean:unix] echo 'Removing BASE-OUT_DIR...'
+task: [_build:clean:unix] rm -rf "BASE-OUT_DIR"
+
+=== task: build:watch ===
+--- exit: exit status 201
+task: "_tsc" started
+task: "build:watch" started
+task: Failed to run task "build:watch": task: Failed to run task "_tsc": task: precondition not met
+task: TSCONFIG "BASE-TSCONFIG" not found. Run: task typescript:config:init
+
+=== task: ci ===
+--- exit: exit status 201
+task: "_tsc" started
+task: "ci" started
+task: Failed to run task "ci": task: Failed to run task "_tsc": task: precondition not met
+task: TSCONFIG "BASE-TSCONFIG" not found. Run: task typescript:config:init
+
+=== task: clean ===
+task: "_clean:unix" started
+task: "_clean:windows" not for current platform - ignored
+task: "clean" finished
+task: "clean" started
+task: Task "_clean:unix" is up to date
+task: status command test ! -d "/private$PROJECT/BASE-OUT_DIR" exited zero
+
+=== task: clean:all ===
+task: "_clean:all:unix" finished
+task: "_clean:all:unix" started
+task: "_clean:all:windows" not for current platform - ignored
+task: "clean:all" finished
+task: "clean:all" started
+task: [_clean:all:unix] echo 'Removing BASE-OUT_DIR/, tsconfig.tsbuildinfo, and .tsc-trace/...'
+task: [_clean:all:unix] echo Done.
+task: [_clean:all:unix] rm -f tsconfig.tsbuildinfo
+task: [_clean:all:unix] rm -rf "BASE-OUT_DIR"
+task: [_clean:all:unix] rm -rf .tsc-trace
+
+=== task: config:diagnostics ===
+--- exit: exit status 201
+task: "_tsc" started
+task: "config:diagnostics" started
+task: Failed to run task "config:diagnostics": task: Failed to run task "_tsc": task: precondition not met
+task: TSCONFIG "BASE-TSCONFIG" not found. Run: task typescript:config:init
+
+=== task: config:files ===
+--- exit: exit status 201
+task: "_tsc" started
+task: "config:files" started
+task: Failed to run task "config:files": task: Failed to run task "_tsc": task: precondition not met
+task: TSCONFIG "BASE-TSCONFIG" not found. Run: task typescript:config:init
+
+=== task: config:init ===
+
+  node_modules/.bin/tsc --init
+  tsc --init
+else
+fi
+task: "_tsc:noconfig" finished
+task: "_tsc:noconfig" started
+task: "_tsc:noconfig:windows" not for current platform - ignored
+task: "config:init" finished
+task: "config:init" started
+task: [_tsc:noconfig] if [ -f "node_modules/.bin/tsc" ]; then
+
+=== task: config:show ===
+--- exit: exit status 201
+task: "_tsc" started
+task: "config:show" started
+task: Failed to run task "config:show": task: Failed to run task "_tsc": task: precondition not met
+task: TSCONFIG "BASE-TSCONFIG" not found. Run: task typescript:config:init
+
+=== task: config:trace ===
+--- exit: exit status 201
+task: "_config:trace:unix" started
+task: "_tsc" started
+task: "config:trace" started
+task: Failed to run task "config:trace": task: Failed to run task "_config:trace:unix": task: Failed to run task "_tsc": task: precondition not met
+task: TSCONFIG "BASE-TSCONFIG" not found. Run: task typescript:config:init
+task: [_config:trace:unix] echo 'Generating trace to BASE-TRACE_DIR...'
+
+=== task: dev ===
+--- exit: exit status 201
+task: "_tsx" started
+task: "dev" started
+task: Failed to run task "dev": task: Failed to run task "_tsx": task: precondition not met
+task: tsx not found. Run: task typescript:install
+
+=== task: emit:dts ===
+--- exit: exit status 201
+task: "_tsc" started
+task: "emit:dts" started
+task: Failed to run task "emit:dts": task: Failed to run task "_tsc": task: precondition not met
+task: TSCONFIG "BASE-TSCONFIG" not found. Run: task typescript:config:init
+
+=== task: install ===
+task: "install" started
+task: Task "install" is up to date
+task: status command node -e "const installed = require('./node_modules/typescript/package.json'); const requested = 'BASE-VERSION'; process.exit(!requested || installed.version === requested ? 0 : 1)" exited zero
+
+=== task: install:undo ===
+task: "install:undo" finished
+task: "install:undo" started
+task: "npm:_npm:unix" finished
+task: "npm:_npm:unix" started
+task: "npm:_npm:windows" not for current platform - ignored
+task: "npm:remove" finished
+task: "npm:remove" started
+task: [npm:_npm:unix] bash -c 'export PATH="$HOME/.local/share/fnm:$HOME/.local/bin:$PATH"; if [ -f .node-version ] || [ -f .nvmrc ]; then fnm use; fi; command -v corepack >/dev/null 2>&1 || { echo "corepack is not available. Run: task manager:setup"; exit 1; }; corepack npm uninstall -g typescript tsx @types/node '
+
+=== task: run ===
+--- exit: exit status 201
+task: "_tsx" started
+task: "run" started
+task: Failed to run task "run": task: Failed to run task "_tsx": task: precondition not met
+task: tsx not found. Run: task typescript:install
+
+=== task: start ===
+--- exit: exit status 201
+task: "_start:unix" started
+task: "start" started
+task: Failed to run task "start": task: Failed to run task "_start:unix": task: precondition not met
+task: OUTFILE "BASE-OUTFILE" not found. Run: task typescript:build
+
+=== task: tsserver:info ===
+
+  echo "Binary: $(command -v tsserver) (global install)"
+  echo "Binary: $(pwd)/node_modules/.bin/tsserver"
+  echo 'Source: ships with the typescript package'
+  echo 'tsserver not found. Run: task typescript:install'
+echo '  TypeScript: Go to Project Config'
+echo '  TypeScript: Open TS Server Log'
+echo '  TypeScript: Restart TS Server'
+echo '  TypeScript: Select TypeScript Version'
+echo ''
+echo ''
+echo ''
+echo ''
+echo 'It provides autocomplete, hover types, go-to-definition, rename,'
+echo 'Protocol (LSP) directly. Some editors use an LSP adapter such as'
+echo 'Protocol: TypeScript Server protocol (stdio-based), NOT Language Server'
+echo 'VS Code — Command Palette (Cmd+Shift+P / Ctrl+Shift+P):'
+echo 'and inline diagnostics. Never start it manually.'
+echo 'to tsserver natively via the TypeScript Server protocol.'
+echo 'tsserver is a long-running stdio process managed by your editor.'
+echo 'typescript-language-server (tsls) to wrap tsserver. VS Code talks'
+elif command -v tsserver >/dev/null 2>&1; then
+else
+fi
+if [ -f node_modules/.bin/tsserver ]; then
+task: "_tsserver:info:unix" finished
+task: "_tsserver:info:unix" started
+task: "_tsserver:info:windows" not for current platform - ignored
+task: "tsserver:info" finished
+task: "tsserver:info" started
+task: [_tsserver:info:unix] echo '=== tsserver (TypeScript Server) ==='
+
+=== task: typecheck ===
+--- exit: exit status 201
+task: "_tsc" started
+task: "typecheck" started
+task: Failed to run task "typecheck": task: Failed to run task "_tsc": task: precondition not met
+task: TSCONFIG "BASE-TSCONFIG" not found. Run: task typescript:config:init
+
+=== task: typecheck:files ===
+--- exit: exit status 206
+task: Task "typecheck:files" cancelled because it is missing required variables: FILES
+
+=== task: typecheck:watch ===
+--- exit: exit status 201
+task: "_tsc" started
+task: "typecheck:watch" started
+task: Failed to run task "typecheck:watch": task: Failed to run task "_tsc": task: precondition not met
+task: TSCONFIG "BASE-TSCONFIG" not found. Run: task typescript:config:init
+
+=== task: upgrade ===
+task: "npm:_npm:unix" finished
+task: "npm:_npm:unix" started
+task: "npm:_npm:windows" not for current platform - ignored
+task: "npm:add" finished
+task: "npm:add" started
+task: "upgrade" finished
+task: "upgrade" started
+task: [npm:_npm:unix] bash -c 'export PATH="$HOME/.local/share/fnm:$HOME/.local/bin:$PATH"; if [ -f .node-version ] || [ -f .nvmrc ]; then fnm use; fi; command -v corepack >/dev/null 2>&1 || { echo "corepack is not available. Run: task manager:setup"; exit 1; }; corepack npm install -g typescript@latest tsx@latest @types/node@latest '
+
+=== task: version ===
+
+  echo "Binary: $(command -v tsserver)"
+  echo "Binary: $(pwd)/node_modules/.bin/tsserver"
+  echo 'tsc not found. Run: task typescript:install'
+  echo 'tsserver not found. Run: task typescript:install'
+  echo 'tsx not found. Run: task typescript:install'
+  node_modules/.bin/tsc --version
+  node_modules/.bin/tsx --version
+  tsc --version
+  tsx --version
+echo ''
+echo ''
+echo '=== tsserver (TypeScript Server) ==='
+echo '=== tsx (TypeScript Execute) ==='
+echo 'Managed by your editor. Do not start it manually.'
+echo 'Uses TypeScript Server protocol (stdio-based), not LSP directly.'
+elif command -v tsc >/dev/null 2>&1; then
+elif command -v tsserver >/dev/null 2>&1; then
+elif command -v tsx >/dev/null 2>&1; then
+else
+else
+else
+fi
+fi
+fi
+if [ -f node_modules/.bin/tsc ]; then
+if [ -f node_modules/.bin/tsserver ]; then
+if [ -f node_modules/.bin/tsx ]; then
+task: "_version:unix" finished
+task: "_version:unix" started
+task: "_version:windows" not for current platform - ignored
+task: "version" finished
+task: "version" started
+task: [_version:unix] echo '=== tsc (TypeScript Compiler) ==='

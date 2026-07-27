@@ -1,0 +1,190 @@
+# module: adrs
+# case:   base
+# vars:
+#   ADRS_VERSION=BASE-ADRS_VERSION
+#   CARGO_BIN_UNIX=BASE-CARGO_BIN_UNIX
+#   EXTRA_ARGS=BASE-EXTRA_ARGS
+
+=== task: exec ===
+task: "_install:unix" finished
+task: "_install:unix" started
+task: "_install:windows" not for current platform - ignored
+task: "cargo:_install:unix" started
+task: "cargo:_install:windows" not for current platform - ignored
+task: "cargo:install" finished
+task: "cargo:install" started
+task: "exec" finished
+task: "exec" started
+task: "install" finished
+task: "install" started
+task: Task "cargo:_install:unix" is up to date
+task: [_install:unix] cargo="$(command -v cargo || echo "BASE-CARGO_BIN_UNIX/cargo")"; "$cargo" install  adrs --version BASE-ADRS_VERSION
+task: [_install:unix] echo 'Installing adrs via cargo...'
+task: [_install:unix] echo 'adrs installed.'
+task: [exec] bin="$(command -v adrs || echo "BASE-CARGO_BIN_UNIX/adrs")"; "$bin" BASE-EXTRA_ARGS
+task: [exec] powershell -NoProfile -ExecutionPolicy Bypass -Command "$b = (Get-Command adrs -ErrorAction SilentlyContinue).Source; if (-not $b) { $b = Join-Path $env:USERPROFILE '.cargo\bin\adrs.exe' }; & $b BASE-EXTRA_ARGS" not for current platform - ignored
+task: status command [ "false" != "true" ] exited zero
+task: status command [ -z "BASE-ADRS_VERSION" ] || "$(command -v adrs || echo "BASE-CARGO_BIN_UNIX/adrs")" --version | grep -Fq "BASE-ADRS_VERSION" exited non-zero: exit status 1
+task: status command command -v cargo >/dev/null 2>&1 && { [ -z "" ] || rustup show 2>/dev/null | grep -Fq ""; } exited zero
+task: status command test -x "$(command -v adrs || echo "BASE-CARGO_BIN_UNIX/adrs")" exited zero
+
+=== task: generate ===
+task: "_install:unix" finished
+task: "_install:unix" started
+task: "_install:windows" not for current platform - ignored
+task: "cargo:_install:unix" started
+task: "cargo:_install:windows" not for current platform - ignored
+task: "cargo:install" finished
+task: "cargo:install" started
+task: "generate" finished
+task: "generate" started
+task: "install" finished
+task: "install" started
+task: Task "cargo:_install:unix" is up to date
+task: [_install:unix] cargo="$(command -v cargo || echo "BASE-CARGO_BIN_UNIX/cargo")"; "$cargo" install  adrs --version BASE-ADRS_VERSION
+task: [_install:unix] echo 'Installing adrs via cargo...'
+task: [_install:unix] echo 'adrs installed.'
+task: [generate] bin="$(command -v adrs || echo "BASE-CARGO_BIN_UNIX/adrs")"; "$bin" generate BASE-EXTRA_ARGS
+task: [generate] powershell -NoProfile -ExecutionPolicy Bypass -Command "$b = (Get-Command adrs -ErrorAction SilentlyContinue).Source; if (-not $b) { $b = Join-Path $env:USERPROFILE '.cargo\bin\adrs.exe' }; & $b generate BASE-EXTRA_ARGS" not for current platform - ignored
+task: status command [ "false" != "true" ] exited zero
+task: status command [ -z "BASE-ADRS_VERSION" ] || "$(command -v adrs || echo "BASE-CARGO_BIN_UNIX/adrs")" --version | grep -Fq "BASE-ADRS_VERSION" exited non-zero: exit status 1
+task: status command command -v cargo >/dev/null 2>&1 && { [ -z "" ] || rustup show 2>/dev/null | grep -Fq ""; } exited zero
+task: status command test -x "$(command -v adrs || echo "BASE-CARGO_BIN_UNIX/adrs")" exited zero
+
+=== task: init ===
+task: "_install:unix" finished
+task: "_install:unix" started
+task: "_install:windows" not for current platform - ignored
+task: "cargo:_install:unix" started
+task: "cargo:_install:windows" not for current platform - ignored
+task: "cargo:install" finished
+task: "cargo:install" started
+task: "init" finished
+task: "init" started
+task: "install" finished
+task: "install" started
+task: Task "cargo:_install:unix" is up to date
+task: [_install:unix] cargo="$(command -v cargo || echo "BASE-CARGO_BIN_UNIX/cargo")"; "$cargo" install  adrs --version BASE-ADRS_VERSION
+task: [_install:unix] echo 'Installing adrs via cargo...'
+task: [_install:unix] echo 'adrs installed.'
+task: [init] bin="$(command -v adrs || echo "BASE-CARGO_BIN_UNIX/adrs")"; "$bin" init BASE-EXTRA_ARGS
+task: [init] powershell -NoProfile -ExecutionPolicy Bypass -Command "$b = (Get-Command adrs -ErrorAction SilentlyContinue).Source; if (-not $b) { $b = Join-Path $env:USERPROFILE '.cargo\bin\adrs.exe' }; & $b init BASE-EXTRA_ARGS" not for current platform - ignored
+task: status command [ "false" != "true" ] exited zero
+task: status command [ -z "BASE-ADRS_VERSION" ] || "$(command -v adrs || echo "BASE-CARGO_BIN_UNIX/adrs")" --version | grep -Fq "BASE-ADRS_VERSION" exited non-zero: exit status 1
+task: status command command -v cargo >/dev/null 2>&1 && { [ -z "" ] || rustup show 2>/dev/null | grep -Fq ""; } exited zero
+task: status command test -x "$(command -v adrs || echo "BASE-CARGO_BIN_UNIX/adrs")" exited zero
+
+=== task: install ===
+task: "_install:unix" finished
+task: "_install:unix" started
+task: "_install:windows" not for current platform - ignored
+task: "cargo:_install:unix" started
+task: "cargo:_install:windows" not for current platform - ignored
+task: "cargo:install" finished
+task: "cargo:install" started
+task: "install" finished
+task: "install" started
+task: Task "cargo:_install:unix" is up to date
+task: [_install:unix] cargo="$(command -v cargo || echo "BASE-CARGO_BIN_UNIX/cargo")"; "$cargo" install  adrs --version BASE-ADRS_VERSION
+task: [_install:unix] echo 'Installing adrs via cargo...'
+task: [_install:unix] echo 'adrs installed.'
+task: status command [ "false" != "true" ] exited zero
+task: status command [ -z "BASE-ADRS_VERSION" ] || "$(command -v adrs || echo "BASE-CARGO_BIN_UNIX/adrs")" --version | grep -Fq "BASE-ADRS_VERSION" exited non-zero: exit status 1
+task: status command command -v cargo >/dev/null 2>&1 && { [ -z "" ] || rustup show 2>/dev/null | grep -Fq ""; } exited zero
+task: status command test -x "$(command -v adrs || echo "BASE-CARGO_BIN_UNIX/adrs")" exited zero
+
+=== task: install:undo ===
+task: "_install:undo:unix" finished
+task: "_install:undo:unix" started
+task: "_install:undo:windows" not for current platform - ignored
+task: "install:undo" finished
+task: "install:undo" started
+task: [_install:undo:unix] cargo="$(command -v cargo || echo "BASE-CARGO_BIN_UNIX/cargo")"; "$cargo" uninstall adrs
+task: [_install:undo:unix] echo 'adrs removed.'
+task: status command ! command -v adrs >/dev/null 2>&1 && ! test -x "BASE-CARGO_BIN_UNIX/adrs" exited non-zero: exit status 1
+
+=== task: list ===
+task: "_install:unix" finished
+task: "_install:unix" started
+task: "_install:windows" not for current platform - ignored
+task: "cargo:_install:unix" started
+task: "cargo:_install:windows" not for current platform - ignored
+task: "cargo:install" finished
+task: "cargo:install" started
+task: "install" finished
+task: "install" started
+task: "list" finished
+task: "list" started
+task: Task "cargo:_install:unix" is up to date
+task: [_install:unix] cargo="$(command -v cargo || echo "BASE-CARGO_BIN_UNIX/cargo")"; "$cargo" install  adrs --version BASE-ADRS_VERSION
+task: [_install:unix] echo 'Installing adrs via cargo...'
+task: [_install:unix] echo 'adrs installed.'
+task: [list] bin="$(command -v adrs || echo "BASE-CARGO_BIN_UNIX/adrs")"; "$bin" list BASE-EXTRA_ARGS
+task: [list] powershell -NoProfile -ExecutionPolicy Bypass -Command "$b = (Get-Command adrs -ErrorAction SilentlyContinue).Source; if (-not $b) { $b = Join-Path $env:USERPROFILE '.cargo\bin\adrs.exe' }; & $b list BASE-EXTRA_ARGS" not for current platform - ignored
+task: status command [ "false" != "true" ] exited zero
+task: status command [ -z "BASE-ADRS_VERSION" ] || "$(command -v adrs || echo "BASE-CARGO_BIN_UNIX/adrs")" --version | grep -Fq "BASE-ADRS_VERSION" exited non-zero: exit status 1
+task: status command command -v cargo >/dev/null 2>&1 && { [ -z "" ] || rustup show 2>/dev/null | grep -Fq ""; } exited zero
+task: status command test -x "$(command -v adrs || echo "BASE-CARGO_BIN_UNIX/adrs")" exited zero
+
+=== task: new ===
+task: "_install:unix" finished
+task: "_install:unix" started
+task: "_install:windows" not for current platform - ignored
+task: "cargo:_install:unix" started
+task: "cargo:_install:windows" not for current platform - ignored
+task: "cargo:install" finished
+task: "cargo:install" started
+task: "install" finished
+task: "install" started
+task: "new" finished
+task: "new" started
+task: Task "cargo:_install:unix" is up to date
+task: [_install:unix] cargo="$(command -v cargo || echo "BASE-CARGO_BIN_UNIX/cargo")"; "$cargo" install  adrs --version BASE-ADRS_VERSION
+task: [_install:unix] echo 'Installing adrs via cargo...'
+task: [_install:unix] echo 'adrs installed.'
+task: [new] bin="$(command -v adrs || echo "BASE-CARGO_BIN_UNIX/adrs")"; "$bin" new BASE-EXTRA_ARGS
+task: [new] powershell -NoProfile -ExecutionPolicy Bypass -Command "$b = (Get-Command adrs -ErrorAction SilentlyContinue).Source; if (-not $b) { $b = Join-Path $env:USERPROFILE '.cargo\bin\adrs.exe' }; & $b new BASE-EXTRA_ARGS" not for current platform - ignored
+task: status command [ "false" != "true" ] exited zero
+task: status command [ -z "BASE-ADRS_VERSION" ] || "$(command -v adrs || echo "BASE-CARGO_BIN_UNIX/adrs")" --version | grep -Fq "BASE-ADRS_VERSION" exited non-zero: exit status 1
+task: status command command -v cargo >/dev/null 2>&1 && { [ -z "" ] || rustup show 2>/dev/null | grep -Fq ""; } exited zero
+task: status command test -x "$(command -v adrs || echo "BASE-CARGO_BIN_UNIX/adrs")" exited zero
+
+=== task: upgrade ===
+task: "_install:unix" finished
+task: "_install:unix" started
+task: "_install:windows" not for current platform - ignored
+task: "cargo:_install:unix" started
+task: "cargo:_install:windows" not for current platform - ignored
+task: "cargo:install" finished
+task: "cargo:install" started
+task: "upgrade" finished
+task: "upgrade" started
+task: Task "cargo:_install:unix" is up to date
+task: [_install:unix] cargo="$(command -v cargo || echo "BASE-CARGO_BIN_UNIX/cargo")"; "$cargo" install --force adrs --version BASE-ADRS_VERSION
+task: [_install:unix] echo 'Installing adrs via cargo...'
+task: [_install:unix] echo 'adrs installed.'
+task: status command [ "true" != "true" ] exited non-zero: exit status 1
+task: status command command -v cargo >/dev/null 2>&1 && { [ -z "" ] || rustup show 2>/dev/null | grep -Fq ""; } exited zero
+
+=== task: version ===
+task: "_install:unix" finished
+task: "_install:unix" started
+task: "_install:windows" not for current platform - ignored
+task: "cargo:_install:unix" started
+task: "cargo:_install:windows" not for current platform - ignored
+task: "cargo:install" finished
+task: "cargo:install" started
+task: "install" finished
+task: "install" started
+task: "version" finished
+task: "version" started
+task: Task "cargo:_install:unix" is up to date
+task: [_install:unix] cargo="$(command -v cargo || echo "BASE-CARGO_BIN_UNIX/cargo")"; "$cargo" install  adrs --version BASE-ADRS_VERSION
+task: [_install:unix] echo 'Installing adrs via cargo...'
+task: [_install:unix] echo 'adrs installed.'
+task: [version] bin="$(command -v adrs || echo "BASE-CARGO_BIN_UNIX/adrs")"; "$bin" --version
+task: [version] powershell -NoProfile -ExecutionPolicy Bypass -Command "$b = (Get-Command adrs -ErrorAction SilentlyContinue).Source; if (-not $b) { $b = Join-Path $env:USERPROFILE '.cargo\bin\adrs.exe' }; & $b --version" not for current platform - ignored
+task: status command [ "false" != "true" ] exited zero
+task: status command [ -z "BASE-ADRS_VERSION" ] || "$(command -v adrs || echo "BASE-CARGO_BIN_UNIX/adrs")" --version | grep -Fq "BASE-ADRS_VERSION" exited non-zero: exit status 1
+task: status command command -v cargo >/dev/null 2>&1 && { [ -z "" ] || rustup show 2>/dev/null | grep -Fq ""; } exited zero
+task: status command test -x "$(command -v adrs || echo "BASE-CARGO_BIN_UNIX/adrs")" exited zero

@@ -1,0 +1,143 @@
+# module: prettier/node/fnm/pnpm
+# case:   base
+# vars:
+#   CONFIG=BASE-CONFIG
+#   EXTRA_ARGS=BASE-EXTRA_ARGS
+#   IGNORE_PATH=BASE-IGNORE_PATH
+#   PRETTIER_DEFAULT_IGNORE_PATH=BASE-PRETTIER_DEFAULT_IGNORE_PATH
+#   PRETTIER_DEFAULT_TARGETS=BASE-PRETTIER_DEFAULT_TARGETS
+#   PRETTIER_FMT_SKIP_PATTERN=BASE-PRETTIER_FMT_SKIP_PATTERN
+#   PRETTIER_TARGETS=BASE-PRETTIER_TARGETS
+#   TARGETS=BASE-TARGETS
+#   VERSION=BASE-VERSION
+
+=== task: ci ===
+  echo \"--ignore-path BASE-IGNORE_PATH\"
+" result: ""
+fi
+task: "_exec:ignore" finished
+task: "_exec:ignore" started
+task: "ci" finished
+task: "ci" started
+task: "fmt:check" finished
+task: "fmt:check" started
+task: "pnpm:_exec:unix" finished
+task: "pnpm:_exec:unix" started
+task: "pnpm:_exec:windows" not for current platform - ignored
+task: "pnpm:exec" finished
+task: "pnpm:exec" started
+task: [fmt:check] echo "✅ prettier passed"
+task: [pnpm:_exec:unix] bash -c "prettier BASE-TARGETS "!BASE-PRETTIER_FMT_SKIP_PATTERN" --check --config "BASE-CONFIG"   BASE-EXTRA_ARGS"
+task: dynamic variable: "if [ -n \"BASE-IGNORE_PATH\" ] && [ -f \"BASE-IGNORE_PATH\" ]; then
+
+=== task: config:init ===
+' > "BASE-CONFIG"
+' >> "BASE-CONFIG"
+' >> "BASE-CONFIG"
+' >> "BASE-CONFIG"
+task: "config:init" finished
+task: "config:init" started
+task: [config:init] echo 'Created BASE-CONFIG.'
+task: [config:init] printf '  "semi": true
+task: [config:init] printf '  "singleQuote": true,
+task: [config:init] printf '{
+task: [config:init] printf '}
+task: status command test -f "BASE-CONFIG" exited non-zero: exit status 1
+
+=== task: fix ===
+  echo \"--ignore-path BASE-IGNORE_PATH\"
+" result: ""
+fi
+task: "_exec:ignore" finished
+task: "_exec:ignore" started
+task: "fix" finished
+task: "fix" started
+task: "fmt" finished
+task: "fmt" started
+task: "pnpm:_exec:unix" finished
+task: "pnpm:_exec:unix" started
+task: "pnpm:_exec:windows" not for current platform - ignored
+task: "pnpm:exec" finished
+task: "pnpm:exec" started
+task: [fmt] echo "✅ prettier fixes applied"
+task: [pnpm:_exec:unix] bash -c "prettier BASE-TARGETS "!BASE-PRETTIER_FMT_SKIP_PATTERN" --write --config "BASE-CONFIG"   BASE-EXTRA_ARGS"
+task: dynamic variable: "if [ -n \"BASE-IGNORE_PATH\" ] && [ -f \"BASE-IGNORE_PATH\" ]; then
+
+=== task: fmt ===
+  echo \"--ignore-path BASE-IGNORE_PATH\"
+" result: ""
+fi
+task: "_exec:ignore" finished
+task: "_exec:ignore" started
+task: "fmt" finished
+task: "fmt" started
+task: "pnpm:_exec:unix" finished
+task: "pnpm:_exec:unix" started
+task: "pnpm:_exec:windows" not for current platform - ignored
+task: "pnpm:exec" finished
+task: "pnpm:exec" started
+task: [fmt] echo "✅ prettier fixes applied"
+task: [pnpm:_exec:unix] bash -c "prettier BASE-TARGETS "!BASE-PRETTIER_FMT_SKIP_PATTERN" --write --config "BASE-CONFIG"   BASE-EXTRA_ARGS"
+task: dynamic variable: "if [ -n \"BASE-IGNORE_PATH\" ] && [ -f \"BASE-IGNORE_PATH\" ]; then
+
+=== task: fmt:check ===
+  echo \"--ignore-path BASE-IGNORE_PATH\"
+" result: ""
+fi
+task: "_exec:ignore" finished
+task: "_exec:ignore" started
+task: "fmt:check" finished
+task: "fmt:check" started
+task: "pnpm:_exec:unix" finished
+task: "pnpm:_exec:unix" started
+task: "pnpm:_exec:windows" not for current platform - ignored
+task: "pnpm:exec" finished
+task: "pnpm:exec" started
+task: [fmt:check] echo "✅ prettier passed"
+task: [pnpm:_exec:unix] bash -c "prettier BASE-TARGETS "!BASE-PRETTIER_FMT_SKIP_PATTERN" --check --config "BASE-CONFIG"   BASE-EXTRA_ARGS"
+task: dynamic variable: "if [ -n \"BASE-IGNORE_PATH\" ] && [ -f \"BASE-IGNORE_PATH\" ]; then
+
+=== task: help ===
+task: "help" finished
+task: "help" started
+task: "pnpm:_exec:unix" finished
+task: "pnpm:_exec:unix" started
+task: "pnpm:_exec:windows" not for current platform - ignored
+task: "pnpm:exec" finished
+task: "pnpm:exec" started
+task: [pnpm:_exec:unix] bash -c "prettier --help BASE-EXTRA_ARGS"
+
+=== task: install ===
+task: "install" started
+task: Task "install" is up to date
+task: status command node -e "const installed = require('./node_modules/prettier/package.json'); const requested = 'BASE-VERSION'; process.exit(!requested || installed.version === requested ? 0 : 1)" exited zero
+
+=== task: install:undo ===
+task: "install:undo" finished
+task: "install:undo" started
+task: "pnpm:_pnpm:unix" finished
+task: "pnpm:_pnpm:unix" started
+task: "pnpm:_pnpm:windows" not for current platform - ignored
+task: "pnpm:remove" finished
+task: "pnpm:remove" started
+task: [pnpm:_pnpm:unix] bash -c 'export PATH="$HOME/.local/share/fnm:$HOME/.local/bin:$PATH"; if [ -f .node-version ] || [ -f .nvmrc ]; then fnm use; fi; command -v corepack >/dev/null 2>&1 || { echo "corepack is not available. Run: task manager:setup"; exit 1; }; corepack pnpm remove -g prettier BASE-EXTRA_ARGS'
+
+=== task: upgrade ===
+task: "pnpm:_pnpm:unix" finished
+task: "pnpm:_pnpm:unix" started
+task: "pnpm:_pnpm:windows" not for current platform - ignored
+task: "pnpm:add" finished
+task: "pnpm:add" started
+task: "upgrade" finished
+task: "upgrade" started
+task: [pnpm:_pnpm:unix] bash -c 'export PATH="$HOME/.local/share/fnm:$HOME/.local/bin:$PATH"; if [ -f .node-version ] || [ -f .nvmrc ]; then fnm use; fi; command -v corepack >/dev/null 2>&1 || { echo "corepack is not available. Run: task manager:setup"; exit 1; }; corepack pnpm add -g prettier@latest BASE-EXTRA_ARGS'
+
+=== task: version ===
+task: "pnpm:_exec:unix" finished
+task: "pnpm:_exec:unix" started
+task: "pnpm:_exec:windows" not for current platform - ignored
+task: "pnpm:exec" finished
+task: "pnpm:exec" started
+task: "version" finished
+task: "version" started
+task: [pnpm:_exec:unix] bash -c "prettier --version "

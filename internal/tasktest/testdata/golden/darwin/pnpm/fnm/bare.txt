@@ -1,0 +1,223 @@
+# module: pnpm/fnm
+# case:   bare
+
+=== task: add ===
+--- exit: exit status 206
+task: Task "add" cancelled because it is missing required variables: PACKAGES
+
+=== task: audit ===
+task: "_pnpm:unix" finished
+task: "_pnpm:unix" started
+task: "_pnpm:windows" not for current platform - ignored
+task: "audit" finished
+task: "audit" started
+task: [_pnpm:unix] bash -c 'export PATH="$HOME/.local/share/fnm:$HOME/.local/bin:$PATH"; if [ -f .node-version ] || [ -f .nvmrc ]; then fnm use; fi; command -v corepack >/dev/null 2>&1 || { echo "corepack is not available. Run: task manager:setup"; exit 1; }; corepack pnpm audit'
+
+=== task: audit:fix ===
+task: "_pnpm:unix" finished
+task: "_pnpm:unix" started
+task: "_pnpm:windows" not for current platform - ignored
+task: "audit:fix" finished
+task: "audit:fix" started
+task: [_pnpm:unix] bash -c 'export PATH="$HOME/.local/share/fnm:$HOME/.local/bin:$PATH"; if [ -f .node-version ] || [ -f .nvmrc ]; then fnm use; fi; command -v corepack >/dev/null 2>&1 || { echo "corepack is not available. Run: task manager:setup"; exit 1; }; corepack pnpm audit --fix'
+
+=== task: audit:json ===
+task: "_pnpm:unix" finished
+task: "_pnpm:unix" started
+task: "_pnpm:windows" not for current platform - ignored
+task: "audit:json" finished
+task: "audit:json" started
+task: [_pnpm:unix] bash -c 'export PATH="$HOME/.local/share/fnm:$HOME/.local/bin:$PATH"; if [ -f .node-version ] || [ -f .nvmrc ]; then fnm use; fi; command -v corepack >/dev/null 2>&1 || { echo "corepack is not available. Run: task manager:setup"; exit 1; }; corepack pnpm audit --json'
+
+=== task: audit:report ===
+task: "_pnpm:unix" finished
+task: "_pnpm:unix" started
+task: "_pnpm:windows" not for current platform - ignored
+task: "audit:report" finished
+task: "audit:report" started
+task: [_pnpm:unix] bash -c 'export PATH="$HOME/.local/share/fnm:$HOME/.local/bin:$PATH"; if [ -f .node-version ] || [ -f .nvmrc ]; then fnm use; fi; command -v corepack >/dev/null 2>&1 || { echo "corepack is not available. Run: task manager:setup"; exit 1; }; corepack pnpm audit'
+
+=== task: build ===
+task: "_pnpm:unix" finished
+task: "_pnpm:unix" started
+task: "_pnpm:windows" not for current platform - ignored
+task: "build" finished
+task: "build" started
+task: [_pnpm:unix] bash -c 'export PATH="$HOME/.local/share/fnm:$HOME/.local/bin:$PATH"; if [ -f .node-version ] || [ -f .nvmrc ]; then fnm use; fi; command -v corepack >/dev/null 2>&1 || { echo "corepack is not available. Run: task manager:setup"; exit 1; }; corepack pnpm run build'
+
+=== task: ci ===
+--- exit: exit status 201
+task: "_ci:unix" started
+task: "ci" started
+task: Failed to run task "ci": task: Failed to run task "_ci:unix": task: precondition not met
+task: pnpm-lock.yaml not found. pnpm CI installs require a lockfile.
+
+=== task: clean ===
+task: "_clean:unix" started
+task: "_clean:windows" not for current platform - ignored
+task: "clean" finished
+task: "clean" started
+task: Task "_clean:unix" is up to date
+task: status command test ! -d node_modules exited zero
+
+=== task: clean:all ===
+task: "_clean:all:unix" finished
+task: "_clean:all:unix" started
+task: "_clean:all:windows" not for current platform - ignored
+task: "clean:all" finished
+task: "clean:all" started
+task: [_clean:all:unix] rm -f pnpm-lock.yaml
+task: [_clean:all:unix] rm -rf node_modules
+
+=== task: dev ===
+task: "_pnpm:unix" finished
+task: "_pnpm:unix" started
+task: "_pnpm:windows" not for current platform - ignored
+task: "dev" finished
+task: "dev" started
+task: [_pnpm:unix] bash -c 'export PATH="$HOME/.local/share/fnm:$HOME/.local/bin:$PATH"; if [ -f .node-version ] || [ -f .nvmrc ]; then fnm use; fi; command -v corepack >/dev/null 2>&1 || { echo "corepack is not available. Run: task manager:setup"; exit 1; }; corepack pnpm run dev'
+
+=== task: exec ===
+--- exit: exit status 206
+task: Task "exec" cancelled because it is missing required variables: BINARY
+
+=== task: format ===
+task: "_pnpm:unix" finished
+task: "_pnpm:unix" started
+task: "_pnpm:windows" not for current platform - ignored
+task: "format" finished
+task: "format" started
+task: [_pnpm:unix] bash -c 'export PATH="$HOME/.local/share/fnm:$HOME/.local/bin:$PATH"; if [ -f .node-version ] || [ -f .nvmrc ]; then fnm use; fi; command -v corepack >/dev/null 2>&1 || { echo "corepack is not available. Run: task manager:setup"; exit 1; }; corepack pnpm run format'
+
+=== task: install ===
+task: "_pnpm:unix" finished
+task: "_pnpm:unix" started
+task: "_pnpm:windows" not for current platform - ignored
+task: "install" finished
+task: "install" started
+task: [_pnpm:unix] bash -c 'export PATH="$HOME/.local/share/fnm:$HOME/.local/bin:$PATH"; if [ -f .node-version ] || [ -f .nvmrc ]; then fnm use; fi; command -v corepack >/dev/null 2>&1 || { echo "corepack is not available. Run: task manager:setup"; exit 1; }; corepack pnpm install'
+
+=== task: install:undo ===
+task: "corepack:_corepack:unix" finished
+task: "corepack:_corepack:unix" started
+task: "corepack:_corepack:windows" not for current platform - ignored
+task: "install:undo" finished
+task: "install:undo" started
+task: [corepack:_corepack:unix] bash -c 'export PATH="$HOME/.local/share/fnm:$HOME/.local/bin:$PATH"; if [ -f .node-version ] || [ -f .nvmrc ]; then fnm use; fi; command -v corepack >/dev/null 2>&1 || { echo "corepack is not available. Run the install task for this Corepack Taskfile."; exit 1; }; corepack disable pnpm'
+
+=== task: lint ===
+task: "_pnpm:unix" finished
+task: "_pnpm:unix" started
+task: "_pnpm:windows" not for current platform - ignored
+task: "lint" finished
+task: "lint" started
+task: [_pnpm:unix] bash -c 'export PATH="$HOME/.local/share/fnm:$HOME/.local/bin:$PATH"; if [ -f .node-version ] || [ -f .nvmrc ]; then fnm use; fi; command -v corepack >/dev/null 2>&1 || { echo "corepack is not available. Run: task manager:setup"; exit 1; }; corepack pnpm run lint'
+
+=== task: manager:pin ===
+--- exit: exit status 206
+task: Task "manager:pin" cancelled because it is missing required variables: PACKAGE_MANAGER_VERSION
+
+=== task: manager:setup ===
+task: "corepack:_corepack:unix" finished
+task: "corepack:_corepack:unix" started
+task: "corepack:_corepack:windows" not for current platform - ignored
+task: "corepack:_install:unix" finished
+task: "corepack:_install:unix" started
+task: "corepack:_install:windows" not for current platform - ignored
+task: "corepack:enable" finished
+task: "corepack:enable" started
+task: "corepack:install" finished
+task: "corepack:install" started
+task: "corepack:setup" finished
+task: "corepack:setup" started
+task: "manager:setup" finished
+task: "manager:setup" started
+task: [corepack:_corepack:unix] bash -c 'export PATH="$HOME/.local/share/fnm:$HOME/.local/bin:$PATH"; if [ -f .node-version ] || [ -f .nvmrc ]; then fnm use; fi; command -v corepack >/dev/null 2>&1 || { echo "corepack is not available. Run the install task for this Corepack Taskfile."; exit 1; }; corepack enable'
+task: [corepack:_install:unix] bash -c 'export PATH="$HOME/.local/share/fnm:$HOME/.local/bin:$PATH"; if [ -f .node-version ] || [ -f .nvmrc ]; then fnm use; fi; npm install --global "corepack@0.34.0"'
+task: status command bash -c 'export PATH="$HOME/.local/share/fnm:$HOME/.local/bin:$PATH"; if [ -f .node-version ] || [ -f .nvmrc ]; then fnm use; fi; command -v corepack >/dev/null 2>&1 && corepack --version | grep -Fqx "0.34.0"' exited non-zero: exit status 1
+task: status command test -f "$HOME/.local/share/fnm/fnm" || command -v fnm >/dev/null 2>&1 || test -f "$HOME/.local/bin/fnm" exited zero
+
+=== task: node:setup ===
+
+  task fnm:node:install
+  task fnm:node:install VERSION="$NODE_VERSION"
+else
+fi
+task: "_node:setup:unix" finished
+task: "_node:setup:unix" started
+task: "_node:setup:windows" not for current platform - ignored
+task: "node:setup" finished
+task: "node:setup" started
+task: [_node:setup:unix] if [ -n "$NODE_VERSION" ]; then
+
+=== task: outdated ===
+task: "_pnpm:unix" finished
+task: "_pnpm:unix" started
+task: "_pnpm:windows" not for current platform - ignored
+task: "outdated" finished
+task: "outdated" started
+task: [_pnpm:unix] bash -c 'export PATH="$HOME/.local/share/fnm:$HOME/.local/bin:$PATH"; if [ -f .node-version ] || [ -f .nvmrc ]; then fnm use; fi; command -v corepack >/dev/null 2>&1 || { echo "corepack is not available. Run: task manager:setup"; exit 1; }; corepack pnpm outdated'
+
+=== task: outdated:strict ===
+task: "_pnpm:unix" finished
+task: "_pnpm:unix" started
+task: "_pnpm:windows" not for current platform - ignored
+task: "outdated:strict" finished
+task: "outdated:strict" started
+task: [_pnpm:unix] bash -c 'export PATH="$HOME/.local/share/fnm:$HOME/.local/bin:$PATH"; if [ -f .node-version ] || [ -f .nvmrc ]; then fnm use; fi; command -v corepack >/dev/null 2>&1 || { echo "corepack is not available. Run: task manager:setup"; exit 1; }; corepack pnpm outdated'
+
+=== task: remove ===
+--- exit: exit status 206
+task: Task "remove" cancelled because it is missing required variables: PACKAGES
+
+=== task: run ===
+--- exit: exit status 206
+task: Task "run" cancelled because it is missing required variables: SCRIPT
+
+=== task: store:prune ===
+task: "_pnpm:unix" finished
+task: "_pnpm:unix" started
+task: "_pnpm:windows" not for current platform - ignored
+task: "store:prune" finished
+task: "store:prune" started
+task: [_pnpm:unix] bash -c 'export PATH="$HOME/.local/share/fnm:$HOME/.local/bin:$PATH"; if [ -f .node-version ] || [ -f .nvmrc ]; then fnm use; fi; command -v corepack >/dev/null 2>&1 || { echo "corepack is not available. Run: task manager:setup"; exit 1; }; corepack pnpm store prune'
+
+=== task: test ===
+task: "_pnpm:unix" finished
+task: "_pnpm:unix" started
+task: "_pnpm:windows" not for current platform - ignored
+task: "test" finished
+task: "test" started
+task: [_pnpm:unix] bash -c 'export PATH="$HOME/.local/share/fnm:$HOME/.local/bin:$PATH"; if [ -f .node-version ] || [ -f .nvmrc ]; then fnm use; fi; command -v corepack >/dev/null 2>&1 || { echo "corepack is not available. Run: task manager:setup"; exit 1; }; corepack pnpm test'
+
+=== task: typecheck ===
+task: "_pnpm:unix" finished
+task: "_pnpm:unix" started
+task: "_pnpm:windows" not for current platform - ignored
+task: "typecheck" finished
+task: "typecheck" started
+task: [_pnpm:unix] bash -c 'export PATH="$HOME/.local/share/fnm:$HOME/.local/bin:$PATH"; if [ -f .node-version ] || [ -f .nvmrc ]; then fnm use; fi; command -v corepack >/dev/null 2>&1 || { echo "corepack is not available. Run: task manager:setup"; exit 1; }; corepack pnpm run typecheck'
+
+=== task: update ===
+task: "_pnpm:unix" finished
+task: "_pnpm:unix" started
+task: "_pnpm:windows" not for current platform - ignored
+task: "update" finished
+task: "update" started
+task: [_pnpm:unix] bash -c 'export PATH="$HOME/.local/share/fnm:$HOME/.local/bin:$PATH"; if [ -f .node-version ] || [ -f .nvmrc ]; then fnm use; fi; command -v corepack >/dev/null 2>&1 || { echo "corepack is not available. Run: task manager:setup"; exit 1; }; corepack pnpm update'
+
+=== task: upgrade ===
+task: "corepack:_corepack:unix" finished
+task: "corepack:_corepack:unix" started
+task: "corepack:_corepack:windows" not for current platform - ignored
+task: "upgrade" finished
+task: "upgrade" started
+task: [corepack:_corepack:unix] bash -c 'export PATH="$HOME/.local/share/fnm:$HOME/.local/bin:$PATH"; if [ -f .node-version ] || [ -f .nvmrc ]; then fnm use; fi; command -v corepack >/dev/null 2>&1 || { echo "corepack is not available. Run the install task for this Corepack Taskfile."; exit 1; }; corepack prepare pnpm@latest --activate'
+
+=== task: version ===
+task: "_version:unix" finished
+task: "_version:unix" started
+task: "_version:windows" not for current platform - ignored
+task: "version" finished
+task: "version" started
+task: [_version:unix] bash -c 'export PATH="$HOME/.local/share/fnm:$HOME/.local/bin:$PATH"; if [ -f .node-version ] || [ -f .nvmrc ]; then fnm use; fi; command -v corepack >/dev/null 2>&1 || { echo "corepack is not available. Run: task manager:setup"; exit 1; }; node --version; corepack pnpm --version'

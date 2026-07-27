@@ -1,0 +1,128 @@
+# module: eslint/node/fnm/npm
+# case:   both
+# vars:
+#   CACHE=false
+#   CONFIG=BASE-CONFIG
+#   ESLINT_DEFAULT_CACHE=false
+#   ESLINT_DEFAULT_TARGETS=BASE-ESLINT_DEFAULT_TARGETS
+#   ESLINT_LINT_SKIP_PATTERN=BASE-ESLINT_LINT_SKIP_PATTERN
+#   ESLINT_TARGETS=BASE-ESLINT_TARGETS
+#   EXTRA_ARGS=BASE-EXTRA_ARGS
+#   TARGETS=BASE-TARGETS
+#   VERSION=BASE-VERSION
+#   CACHE_OVERRIDE=true
+#   CONFIG_OVERRIDE=OVR-CONFIG
+#   ESLINT_DEFAULT_CACHE_OVERRIDE=true
+#   ESLINT_DEFAULT_TARGETS_OVERRIDE=OVR-ESLINT_DEFAULT_TARGETS
+#   ESLINT_LINT_SKIP_PATTERN_OVERRIDE=OVR-ESLINT_LINT_SKIP_PATTERN
+#   ESLINT_TARGETS_OVERRIDE=OVR-ESLINT_TARGETS
+#   EXTRA_ARGS_OVERRIDE=OVR-EXTRA_ARGS
+#   TARGETS_OVERRIDE=OVR-TARGETS
+#   VERSION_OVERRIDE=OVR-VERSION
+
+=== task: cache:clean ===
+task: "cache:clean" finished
+task: "cache:clean" started
+task: [cache:clean] if [ -d .cache/eslint ]; then rm -rf .cache/eslint; fi
+
+=== task: ci ===
+task: "ci" finished
+task: "ci" started
+task: "npm:_npm:unix" finished
+task: "npm:_npm:unix" started
+task: "npm:_npm:windows" not for current platform - ignored
+task: "npm:exec" finished
+task: "npm:exec" started
+task: [ci] echo "✅ eslint passed"
+task: [npm:_npm:unix] bash -c 'export PATH="$HOME/.local/share/fnm:$HOME/.local/bin:$PATH"; if [ -f .node-version ] || [ -f .nvmrc ]; then fnm use; fi; command -v corepack >/dev/null 2>&1 || { echo "corepack is not available. Run: task manager:setup"; exit 1; }; corepack npm exec -- eslint --config "OVR-CONFIG"  --cache --cache-location .cache/eslint/   --max-warnings=0 --ignore-pattern "OVR-ESLINT_LINT_SKIP_PATTERN"  OVR-ESLINT_TARGETS  OVR-EXTRA_ARGS'
+
+=== task: config:init ===
+task: "config:init" finished
+task: "config:init" started
+task: "npm:_npm:unix" finished
+task: "npm:_npm:unix" started
+task: "npm:_npm:windows" not for current platform - ignored
+task: "npm:exec" finished
+task: "npm:exec" started
+task: [npm:_npm:unix] bash -c 'export PATH="$HOME/.local/share/fnm:$HOME/.local/bin:$PATH"; if [ -f .node-version ] || [ -f .nvmrc ]; then fnm use; fi; command -v corepack >/dev/null 2>&1 || { echo "corepack is not available. Run: task manager:setup"; exit 1; }; corepack npm exec -- eslint --init OVR-EXTRA_ARGS'
+task: status command test -f eslint.config.js || test -f eslint.config.mjs || test -f eslint.config.cjs || test -f .eslintrc.js || test -f .eslintrc.cjs || test -f .eslintrc.json || test -f .eslintrc.yml || test -f .eslintrc.yaml exited non-zero: exit status 1
+
+=== task: help ===
+task: "help" finished
+task: "help" started
+task: "npm:_npm:unix" finished
+task: "npm:_npm:unix" started
+task: "npm:_npm:windows" not for current platform - ignored
+task: "npm:exec" finished
+task: "npm:exec" started
+task: [npm:_npm:unix] bash -c 'export PATH="$HOME/.local/share/fnm:$HOME/.local/bin:$PATH"; if [ -f .node-version ] || [ -f .nvmrc ]; then fnm use; fi; command -v corepack >/dev/null 2>&1 || { echo "corepack is not available. Run: task manager:setup"; exit 1; }; corepack npm exec -- eslint --help OVR-EXTRA_ARGS'
+
+=== task: init ===
+task: "config:init" finished
+task: "config:init" started
+task: "init" finished
+task: "init" started
+task: "npm:_npm:unix" finished
+task: "npm:_npm:unix" started
+task: "npm:_npm:windows" not for current platform - ignored
+task: "npm:exec" finished
+task: "npm:exec" started
+task: [npm:_npm:unix] bash -c 'export PATH="$HOME/.local/share/fnm:$HOME/.local/bin:$PATH"; if [ -f .node-version ] || [ -f .nvmrc ]; then fnm use; fi; command -v corepack >/dev/null 2>&1 || { echo "corepack is not available. Run: task manager:setup"; exit 1; }; corepack npm exec -- eslint --init OVR-EXTRA_ARGS'
+task: status command test -f eslint.config.js || test -f eslint.config.mjs || test -f eslint.config.cjs || test -f .eslintrc.js || test -f .eslintrc.cjs || test -f .eslintrc.json || test -f .eslintrc.yml || test -f .eslintrc.yaml exited non-zero: exit status 1
+
+=== task: install ===
+task: "install" started
+task: Task "install" is up to date
+task: status command node -e "const installed = require('./node_modules/eslint/package.json'); const requested = 'OVR-VERSION'; process.exit(!requested || installed.version === requested ? 0 : 1)" exited zero
+
+=== task: install:undo ===
+task: "install:undo" finished
+task: "install:undo" started
+task: "npm:_npm:unix" finished
+task: "npm:_npm:unix" started
+task: "npm:_npm:windows" not for current platform - ignored
+task: "npm:remove" finished
+task: "npm:remove" started
+task: [npm:_npm:unix] bash -c 'export PATH="$HOME/.local/share/fnm:$HOME/.local/bin:$PATH"; if [ -f .node-version ] || [ -f .nvmrc ]; then fnm use; fi; command -v corepack >/dev/null 2>&1 || { echo "corepack is not available. Run: task manager:setup"; exit 1; }; corepack npm uninstall -g eslint OVR-EXTRA_ARGS'
+
+=== task: lint ===
+task: "lint" finished
+task: "lint" started
+task: "npm:_npm:unix" finished
+task: "npm:_npm:unix" started
+task: "npm:_npm:windows" not for current platform - ignored
+task: "npm:exec" finished
+task: "npm:exec" started
+task: [lint] echo "✅ eslint passed"
+task: [npm:_npm:unix] bash -c 'export PATH="$HOME/.local/share/fnm:$HOME/.local/bin:$PATH"; if [ -f .node-version ] || [ -f .nvmrc ]; then fnm use; fi; command -v corepack >/dev/null 2>&1 || { echo "corepack is not available. Run: task manager:setup"; exit 1; }; corepack npm exec -- eslint --config "OVR-CONFIG"  --cache --cache-location .cache/eslint/   --ignore-pattern "OVR-ESLINT_LINT_SKIP_PATTERN"  OVR-ESLINT_TARGETS  OVR-EXTRA_ARGS'
+
+=== task: lint:fix ===
+task: "lint:fix" finished
+task: "lint:fix" started
+task: "npm:_npm:unix" finished
+task: "npm:_npm:unix" started
+task: "npm:_npm:windows" not for current platform - ignored
+task: "npm:exec" finished
+task: "npm:exec" started
+task: [lint:fix] echo "✅ eslint fixes applied"
+task: [npm:_npm:unix] bash -c 'export PATH="$HOME/.local/share/fnm:$HOME/.local/bin:$PATH"; if [ -f .node-version ] || [ -f .nvmrc ]; then fnm use; fi; command -v corepack >/dev/null 2>&1 || { echo "corepack is not available. Run: task manager:setup"; exit 1; }; corepack npm exec -- eslint --config "OVR-CONFIG"  --cache --cache-location .cache/eslint/   --fix --ignore-pattern "OVR-ESLINT_LINT_SKIP_PATTERN"  OVR-ESLINT_TARGETS  OVR-EXTRA_ARGS'
+
+=== task: upgrade ===
+task: "npm:_npm:unix" finished
+task: "npm:_npm:unix" started
+task: "npm:_npm:windows" not for current platform - ignored
+task: "npm:add" finished
+task: "npm:add" started
+task: "upgrade" finished
+task: "upgrade" started
+task: [npm:_npm:unix] bash -c 'export PATH="$HOME/.local/share/fnm:$HOME/.local/bin:$PATH"; if [ -f .node-version ] || [ -f .nvmrc ]; then fnm use; fi; command -v corepack >/dev/null 2>&1 || { echo "corepack is not available. Run: task manager:setup"; exit 1; }; corepack npm install -g eslint@latest OVR-EXTRA_ARGS'
+
+=== task: version ===
+task: "npm:_npm:unix" finished
+task: "npm:_npm:unix" started
+task: "npm:_npm:windows" not for current platform - ignored
+task: "npm:exec" finished
+task: "npm:exec" started
+task: "version" finished
+task: "version" started
+task: [npm:_npm:unix] bash -c 'export PATH="$HOME/.local/share/fnm:$HOME/.local/bin:$PATH"; if [ -f .node-version ] || [ -f .nvmrc ]; then fnm use; fi; command -v corepack >/dev/null 2>&1 || { echo "corepack is not available. Run: task manager:setup"; exit 1; }; corepack npm exec -- eslint --version '

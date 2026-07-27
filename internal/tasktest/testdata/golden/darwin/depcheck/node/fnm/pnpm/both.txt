@@ -1,0 +1,121 @@
+# module: depcheck/node/fnm/pnpm
+# case:   both
+# vars:
+#   DEPCHECK_DEFAULT_PROJECT_PATH=BASE-DEPCHECK_DEFAULT_PROJECT_PATH
+#   DEPCHECK_LINT_SKIP_PATTERN=BASE-DEPCHECK_LINT_SKIP_PATTERN
+#   DEPCHECK_PROJECT_PATH=BASE-DEPCHECK_PROJECT_PATH
+#   DEPCHECK_TARGETS=BASE-DEPCHECK_TARGETS
+#   EXTRA_ARGS=BASE-EXTRA_ARGS
+#   IGNORE_PACKAGES=BASE-IGNORE_PACKAGES
+#   PROJECT_PATH=BASE-PROJECT_PATH
+#   TARGETS=BASE-TARGETS
+#   VERSION=BASE-VERSION
+#   DEPCHECK_DEFAULT_PROJECT_PATH_OVERRIDE=OVR-DEPCHECK_DEFAULT_PROJECT_PATH
+#   DEPCHECK_LINT_SKIP_PATTERN_OVERRIDE=OVR-DEPCHECK_LINT_SKIP_PATTERN
+#   DEPCHECK_PROJECT_PATH_OVERRIDE=OVR-DEPCHECK_PROJECT_PATH
+#   DEPCHECK_TARGETS_OVERRIDE=OVR-DEPCHECK_TARGETS
+#   EXTRA_ARGS_OVERRIDE=OVR-EXTRA_ARGS
+#   IGNORE_PACKAGES_OVERRIDE=OVR-IGNORE_PACKAGES
+#   PROJECT_PATH_OVERRIDE=OVR-PROJECT_PATH
+#   TARGETS_OVERRIDE=OVR-TARGETS
+#   VERSION_OVERRIDE=OVR-VERSION
+
+=== task: ci ===
+task: "ci" finished
+task: "ci" started
+task: "lint" finished
+task: "lint" started
+task: "pnpm:_exec:unix" finished
+task: "pnpm:_exec:unix" started
+task: "pnpm:_exec:windows" not for current platform - ignored
+task: "pnpm:exec" finished
+task: "pnpm:exec" started
+task: [ci] echo "✅ depcheck ci passed"
+task: [lint] echo "✅ depcheck passed"
+task: [pnpm:_exec:unix] bash -c "depcheck --ignore-patterns="OVR-DEPCHECK_LINT_SKIP_PATTERN"  OVR-DEPCHECK_PROJECT_PATH  OVR-EXTRA_ARGS "
+
+=== task: help ===
+task: "help" finished
+task: "help" started
+task: "pnpm:_exec:unix" finished
+task: "pnpm:_exec:unix" started
+task: "pnpm:_exec:windows" not for current platform - ignored
+task: "pnpm:exec" finished
+task: "pnpm:exec" started
+task: [pnpm:_exec:unix] bash -c "depcheck --help OVR-EXTRA_ARGS"
+
+=== task: ignores ===
+task: "ignores" finished
+task: "ignores" started
+task: "pnpm:_exec:unix" finished
+task: "pnpm:_exec:unix" started
+task: "pnpm:_exec:windows" not for current platform - ignored
+task: "pnpm:exec" finished
+task: "pnpm:exec" started
+task: [pnpm:_exec:unix] bash -c "depcheck --ignore-patterns="OVR-DEPCHECK_LINT_SKIP_PATTERN"  OVR-DEPCHECK_PROJECT_PATH  --ignores="OVR-IGNORE_PACKAGES" OVR-EXTRA_ARGS "
+
+=== task: install ===
+task: "install" started
+task: Task "install" is up to date
+task: status command node -e "const installed = require('./node_modules/depcheck/package.json'); const requested = 'OVR-VERSION'; process.exit(!requested || installed.version === requested ? 0 : 1)" exited zero
+
+=== task: install:undo ===
+task: "install:undo" finished
+task: "install:undo" started
+task: "pnpm:_pnpm:unix" finished
+task: "pnpm:_pnpm:unix" started
+task: "pnpm:_pnpm:windows" not for current platform - ignored
+task: "pnpm:remove" finished
+task: "pnpm:remove" started
+task: [pnpm:_pnpm:unix] bash -c 'export PATH="$HOME/.local/share/fnm:$HOME/.local/bin:$PATH"; if [ -f .node-version ] || [ -f .nvmrc ]; then fnm use; fi; command -v corepack >/dev/null 2>&1 || { echo "corepack is not available. Run: task manager:setup"; exit 1; }; corepack pnpm remove -g depcheck OVR-EXTRA_ARGS'
+
+=== task: json ===
+task: "json" finished
+task: "json" started
+task: "pnpm:_exec:unix" finished
+task: "pnpm:_exec:unix" started
+task: "pnpm:_exec:windows" not for current platform - ignored
+task: "pnpm:exec" finished
+task: "pnpm:exec" started
+task: [pnpm:_exec:unix] bash -c "depcheck --ignore-patterns="OVR-DEPCHECK_LINT_SKIP_PATTERN"  OVR-DEPCHECK_PROJECT_PATH  --json OVR-EXTRA_ARGS "
+
+=== task: lint ===
+task: "lint" finished
+task: "lint" started
+task: "pnpm:_exec:unix" finished
+task: "pnpm:_exec:unix" started
+task: "pnpm:_exec:windows" not for current platform - ignored
+task: "pnpm:exec" finished
+task: "pnpm:exec" started
+task: [lint] echo "✅ depcheck passed"
+task: [pnpm:_exec:unix] bash -c "depcheck --ignore-patterns="OVR-DEPCHECK_LINT_SKIP_PATTERN"  OVR-DEPCHECK_PROJECT_PATH  OVR-EXTRA_ARGS "
+
+=== task: skip-missing ===
+task: "pnpm:_exec:unix" finished
+task: "pnpm:_exec:unix" started
+task: "pnpm:_exec:windows" not for current platform - ignored
+task: "pnpm:exec" finished
+task: "pnpm:exec" started
+task: "skip-missing" finished
+task: "skip-missing" started
+task: [pnpm:_exec:unix] bash -c "depcheck --ignore-patterns="OVR-DEPCHECK_LINT_SKIP_PATTERN"  OVR-DEPCHECK_PROJECT_PATH  --skip-missing=true OVR-EXTRA_ARGS "
+
+=== task: upgrade ===
+task: "pnpm:_pnpm:unix" finished
+task: "pnpm:_pnpm:unix" started
+task: "pnpm:_pnpm:windows" not for current platform - ignored
+task: "pnpm:add" finished
+task: "pnpm:add" started
+task: "upgrade" finished
+task: "upgrade" started
+task: [pnpm:_pnpm:unix] bash -c 'export PATH="$HOME/.local/share/fnm:$HOME/.local/bin:$PATH"; if [ -f .node-version ] || [ -f .nvmrc ]; then fnm use; fi; command -v corepack >/dev/null 2>&1 || { echo "corepack is not available. Run: task manager:setup"; exit 1; }; corepack pnpm add -g depcheck@latest OVR-EXTRA_ARGS'
+
+=== task: version ===
+task: "pnpm:_exec:unix" finished
+task: "pnpm:_exec:unix" started
+task: "pnpm:_exec:windows" not for current platform - ignored
+task: "pnpm:exec" finished
+task: "pnpm:exec" started
+task: "version" finished
+task: "version" started
+task: [pnpm:_exec:unix] bash -c "depcheck --version "

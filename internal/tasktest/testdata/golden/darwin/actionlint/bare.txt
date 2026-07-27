@@ -1,0 +1,157 @@
+# module: actionlint
+# case:   bare
+
+=== task: install ===
+task: "_install:linux" not for current platform - ignored
+task: "_install:macos" finished
+task: "_install:macos" started
+task: "_install:windows" not for current platform - ignored
+task: "install" finished
+task: "install" started
+task: [_install:macos] brew install actionlint
+task: [_install:macos] echo 'Installing actionlint via Homebrew...'
+task: [_install:macos] echo 'actionlint installed.'
+task: status command command -v actionlint >/dev/null 2>&1 && actionlint --version | grep -Fqx "1.7.12" exited non-zero: exit status 1
+
+=== task: install:undo ===
+task: "_install:undo:linux" not for current platform - ignored
+task: "_install:undo:macos" finished
+task: "_install:undo:macos" started
+task: "_install:undo:windows" not for current platform - ignored
+task: "install:undo" finished
+task: "install:undo" started
+task: [_install:undo:macos] brew uninstall actionlint
+task: [_install:undo:macos] echo 'Removing actionlint via Homebrew...'
+task: [_install:undo:macos] echo 'actionlint removed.'
+task: status command ! command -v actionlint >/dev/null 2>&1 exited non-zero: exit status 1
+
+=== task: lint ===
+
+
+    
+          printf '%s\000' "$1" >>"$argument_list"
+          shift
+        $index++;
+        $toolArguments.Add($tokens[$index]);
+        ;;
+        fi
+        if [ "$#" -gt 0 ]; then
+        printf '%s\000' "$argument" >>"$argument_list"
+      $targetPaths.Add($argument)
+      $toolArguments.Add($argument)
+      $toolArguments.Add($argument);
+      *) printf '%s
+      -*) printf '%s\000' "$argument" >>"$argument_list" ;;
+      -config-file|-format|-ignore|-pyflakes|-shellcheck|-stdin-filename)
+      Where-Object { $_.Extension -in @('.yml', '.yaml') }
+      if (($index + 1) -lt $tokens.Count) {
+      }
+     \
+     \
+    $argument=$tokens[$index];
+    $targetPaths.Add($target)
+    && echo "✅ actionlint passed" || { echo "❌ actionlint failed"; exit 1; }
+    ;
+    Get-ChildItem -LiteralPath $_ -Recurse -File |
+    argument="$1"
+    case "$argument" in
+    esac
+    filter "SKIPFILES_PATTERN=$skip_pattern" >"$file_list"
+    filter ('SKIPFILES_PATTERN=' + $skipPattern));
+    find "$target" -type f \( -name '*.yml' -o -name '*.yaml' \) -print0
+    if ($argument -in @('-config-file','-format','-ignore','-pyflakes','-shellcheck','-stdin-filename')) {
+    printf '%s\000' "$target"
+    shift
+    }
+    } else {
+    } elseif ($argument.StartsWith('-')) {
+  $tokens=$Text.Split(' ', [System.StringSplitOptions]::RemoveEmptyEntries);
+  && echo "✅ actionlint passed" || { echo "❌ actionlint failed"; exit 1; }
+  actionlint 
+  actionlint \
+  done
+  echo "✅ actionlint passed (no matching workflows found)"
+  elif [ -f "$target" ]; then
+  exit
+  exit $LASTEXITCODE
+  exit 0
+  fi
+  for ($index=0; $index -lt $tokens.Count; $index++) {
+  for target in $targets; do printf '%s
+  foreach ($target in $configuredTargets.Split(' ', [System.StringSplitOptions]::RemoveEmptyEntries)) {
+  if ('' -or -not $configuredTargets) { $configuredTargets='.github/workflows' };
+  if (Test-Path -LiteralPath $_ -PathType Container) {
+  if [ -d "$target" ]; then
+  if [ -n "" ] || [ -z "$targets" ]; then targets='.github/workflows'; fi
+  task --silent --taskfile "$REPO/taskfiles/actionlint/../internal/skipfiles/Taskfile.yml" \
+  task --silent --taskfile '$REPO/taskfiles/actionlint/../internal/skipfiles/Taskfile.yml'
+  while [ "$#" -gt 0 ]; do
+  }
+  }
+  } elseif (Test-Path -LiteralPath $_ -PathType Leaf) { Get-Item -LiteralPath $_ }
+' "$argument" >>"$target_list" ;;
+' "$target" >>"$target_list"; done
+argument_list="$(mktemp)"
+cat "$argument_list" "$file_list" | xargs -0 actionlint \
+done <"$target_list" |
+fi
+fi
+fi
+file_list="$(mktemp)"
+if (-not $paths) { Write-Host 'No matching workflows found'; exit 0 }; actionlint @toolArguments @paths; exit $LASTEXITCODE" not for current platform - ignored
+if [ ! -s "$file_list" ]; then
+if [ ! -s "$target_list" ]; then
+if [ -z "$skip_pattern" ]; then
+parse_arguments 
+parse_arguments 
+parse_arguments() {
+target_list="$(mktemp)"
+targets=''
+task: "_install:linux" not for current platform - ignored
+task: "_install:macos" finished
+task: "_install:macos" started
+task: "_install:windows" not for current platform - ignored
+task: "install" finished
+task: "install" started
+task: "lint" finished
+task: "lint" started
+task: [_install:macos] brew install actionlint
+task: [_install:macos] echo 'Installing actionlint via Homebrew...'
+task: [_install:macos] echo 'actionlint installed.'
+task: [lint] powershell -NoProfile -ExecutionPolicy Bypass -Command "$skipPattern=''; if (-not $skipPattern) {
+task: [lint] skip_pattern=''
+task: status command command -v actionlint >/dev/null 2>&1 && actionlint --version | grep -Fqx "1.7.12" exited non-zero: exit status 1
+trap 'rm -f "$file_list" "$argument_list" "$target_list"' EXIT
+while IFS= read -r target; do
+}
+}); $paths=@($files | ForEach-Object FullName |
+}; $files=@($targetPaths | ForEach-Object {
+}; $toolArguments=[System.Collections.Generic.List[string]]::new(); $targetPaths=[System.Collections.Generic.List[string]]::new(); function Add-ActionlintArguments([string]$Text) {
+}; Add-ActionlintArguments ''; Add-ActionlintArguments ''; $configuredTargets=''; if (-not $targetPaths.Count) {
+
+=== task: upgrade ===
+task: "_upgrade:linux" not for current platform - ignored
+task: "_upgrade:macos" finished
+task: "_upgrade:macos" started
+task: "_upgrade:windows" not for current platform - ignored
+task: "upgrade" finished
+task: "upgrade" started
+task: [_upgrade:macos] brew upgrade actionlint
+task: [_upgrade:macos] echo 'Upgrading actionlint via Homebrew...'
+task: [_upgrade:macos] echo 'actionlint upgraded.'
+task: [_upgrade:macos] if condition not met - skipped
+
+=== task: version ===
+task: "_install:linux" not for current platform - ignored
+task: "_install:macos" finished
+task: "_install:macos" started
+task: "_install:windows" not for current platform - ignored
+task: "install" finished
+task: "install" started
+task: "version" finished
+task: "version" started
+task: [_install:macos] brew install actionlint
+task: [_install:macos] echo 'Installing actionlint via Homebrew...'
+task: [_install:macos] echo 'actionlint installed.'
+task: [version] actionlint --version
+task: status command command -v actionlint >/dev/null 2>&1 && actionlint --version | grep -Fqx "1.7.12" exited non-zero: exit status 1

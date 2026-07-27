@@ -1,0 +1,126 @@
+# module: python
+# case:   bare
+
+=== task: install ===
+task: "_install:unix" finished
+task: "_install:unix" started
+task: "_install:windows" not for current platform - ignored
+task: "install" finished
+task: "install" started
+task: "uv:_install:unix" started
+task: "uv:_install:windows" not for current platform - ignored
+task: "uv:install" finished
+task: "uv:install" started
+task: Task "uv:_install:unix" is up to date
+task: [_install:unix] bash -lc 'export PATH="$HOME/.local/bin:$PATH"; uv python install 3.13 --default'
+task: [_install:unix] echo 'Installing Python via uv...'
+task: [_install:unix] echo 'Python installed.'
+task: status command python_bin="$HOME/.local/bin/python3"; if [ ! -x "$python_bin" ]; then python_bin="$(command -v python3 2>/dev/null)"; fi; [ -n "$python_bin" ] && [ -x "$python_bin" ] && "$python_bin" --version | grep -Eq "^Python 3.13(\\.|$)" exited non-zero: exit status 1
+task: status command uv_bin="$HOME/.local/bin/uv"; if [ ! -x "$uv_bin" ]; then uv_bin="$(command -v uv 2>/dev/null)"; fi; [ -n "$uv_bin" ] && [ -x "$uv_bin" ] && { [ -z "" ] || "$uv_bin" --version | grep -Fqx "uv "; } exited zero
+
+=== task: install:undo ===
+task: "_install:undo:unix" finished
+task: "_install:undo:unix" started
+task: "_install:undo:windows" not for current platform - ignored
+task: "install:undo" finished
+task: "install:undo" started
+task: [_install:undo:unix] bash -lc 'export PATH="$HOME/.local/bin:$PATH"; uv python uninstall 3.13'
+task: [_install:undo:unix] echo 'Python removed.'
+task: [_install:undo:unix] echo 'Removing Python via uv...'
+task: status command ! test -f "$HOME/.local/bin/python3" && ! command -v python3 >/dev/null 2>&1 exited non-zero: exit status 1
+
+=== task: pip:install ===
+task: "_pip:install:unix" finished
+task: "_pip:install:unix" started
+task: "_pip:install:windows" not for current platform - ignored
+task: "pip:install" finished
+task: "pip:install" started
+task: [_pip:install:unix] bash -lc 'export PATH="$HOME/.local/bin:$PATH"; pip3 install -r "requirements.txt" '
+
+=== task: run ===
+--- exit: exit status 201
+task: "run" started
+task: FILE is required. Pass FILE=path/to/script.py when running this task.
+task: Failed to run task "run": task: precondition not met
+
+=== task: upgrade ===
+task: "_install:unix" finished
+task: "_install:unix" started
+task: "_install:windows" not for current platform - ignored
+task: "_upgrade:unix" finished
+task: "_upgrade:unix" started
+task: "_upgrade:windows" not for current platform - ignored
+task: "install" finished
+task: "install" started
+task: "upgrade" finished
+task: "upgrade" started
+task: "uv:_install:unix" started
+task: "uv:_install:windows" not for current platform - ignored
+task: "uv:install" finished
+task: "uv:install" started
+task: Task "uv:_install:unix" is up to date
+task: [_install:unix] bash -lc 'export PATH="$HOME/.local/bin:$PATH"; uv python install 3.13 --default'
+task: [_install:unix] echo 'Installing Python via uv...'
+task: [_install:unix] echo 'Python installed.'
+task: [_upgrade:unix] bash -lc 'export PATH="$HOME/.local/bin:$PATH"; uv python install 3.13 --default --reinstall'
+task: [_upgrade:unix] echo 'Python upgraded.'
+task: [_upgrade:unix] echo 'Upgrading Python via uv...'
+task: status command python_bin="$HOME/.local/bin/python3"; if [ ! -x "$python_bin" ]; then python_bin="$(command -v python3 2>/dev/null)"; fi; [ -n "$python_bin" ] && [ -x "$python_bin" ] && "$python_bin" --version | grep -Eq "^Python 3.13(\\.|$)" exited non-zero: exit status 1
+task: status command uv_bin="$HOME/.local/bin/uv"; if [ ! -x "$uv_bin" ]; then uv_bin="$(command -v uv 2>/dev/null)"; fi; [ -n "$uv_bin" ] && [ -x "$uv_bin" ] && { [ -z "" ] || "$uv_bin" --version | grep -Fqx "uv "; } exited zero
+
+=== task: venv ===
+task: "_venv:unix" finished
+task: "_venv:unix" started
+task: "_venv:windows" not for current platform - ignored
+task: "venv" finished
+task: "venv" started
+task: [_venv:unix] bash -lc 'export PATH="$HOME/.local/bin:$PATH"; python3 -m venv ".venv"'
+task: [_venv:unix] echo 'Creating virtual environment at .venv...'
+task: [_venv:unix] echo 'Virtual environment ready.'
+
+=== task: verify ===
+task: "_install:unix" finished
+task: "_install:unix" started
+task: "_install:windows" not for current platform - ignored
+task: "_verify:unix" finished
+task: "_verify:unix" started
+task: "_verify:windows" not for current platform - ignored
+task: "install" finished
+task: "install" started
+task: "uv:_install:unix" started
+task: "uv:_install:windows" not for current platform - ignored
+task: "uv:install" finished
+task: "uv:install" started
+task: "verify" finished
+task: "verify" started
+task: Task "uv:_install:unix" is up to date
+task: [_install:unix] bash -lc 'export PATH="$HOME/.local/bin:$PATH"; uv python install 3.13 --default'
+task: [_install:unix] echo 'Installing Python via uv...'
+task: [_install:unix] echo 'Python installed.'
+task: [_verify:unix] bash -lc 'export PATH="$HOME/.local/bin:$PATH"; pip3 --version'
+task: [_verify:unix] bash -lc 'export PATH="$HOME/.local/bin:$PATH"; python3 --version'
+task: status command python_bin="$HOME/.local/bin/python3"; if [ ! -x "$python_bin" ]; then python_bin="$(command -v python3 2>/dev/null)"; fi; [ -n "$python_bin" ] && [ -x "$python_bin" ] && "$python_bin" --version | grep -Eq "^Python 3.13(\\.|$)" exited non-zero: exit status 1
+task: status command uv_bin="$HOME/.local/bin/uv"; if [ ! -x "$uv_bin" ]; then uv_bin="$(command -v uv 2>/dev/null)"; fi; [ -n "$uv_bin" ] && [ -x "$uv_bin" ] && { [ -z "" ] || "$uv_bin" --version | grep -Fqx "uv "; } exited zero
+
+=== task: version ===
+task: "_install:unix" finished
+task: "_install:unix" started
+task: "_install:windows" not for current platform - ignored
+task: "_version:unix" finished
+task: "_version:unix" started
+task: "_version:windows" not for current platform - ignored
+task: "install" finished
+task: "install" started
+task: "uv:_install:unix" started
+task: "uv:_install:windows" not for current platform - ignored
+task: "uv:install" finished
+task: "uv:install" started
+task: "version" finished
+task: "version" started
+task: Task "uv:_install:unix" is up to date
+task: [_install:unix] bash -lc 'export PATH="$HOME/.local/bin:$PATH"; uv python install 3.13 --default'
+task: [_install:unix] echo 'Installing Python via uv...'
+task: [_install:unix] echo 'Python installed.'
+task: [_version:unix] bash -lc 'export PATH="$HOME/.local/bin:$PATH"; python3 --version'
+task: status command python_bin="$HOME/.local/bin/python3"; if [ ! -x "$python_bin" ]; then python_bin="$(command -v python3 2>/dev/null)"; fi; [ -n "$python_bin" ] && [ -x "$python_bin" ] && "$python_bin" --version | grep -Eq "^Python 3.13(\\.|$)" exited non-zero: exit status 1
+task: status command uv_bin="$HOME/.local/bin/uv"; if [ ! -x "$uv_bin" ]; then uv_bin="$(command -v uv 2>/dev/null)"; fi; [ -n "$uv_bin" ] && [ -x "$uv_bin" ] && { [ -z "" ] || "$uv_bin" --version | grep -Fqx "uv "; } exited zero
