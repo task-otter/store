@@ -35,20 +35,18 @@ tasks:
     summary: |
       Install depcheck as a local devDependency. Pass VERSION=x.y.z to pin a
       specific release instead of the package manager's default resolution.
+    vars:
+      RESOLVED_VERSION: '{{default .VERSION .VERSION_OVERRIDE}}'
     status:
       - >-
         node -e "const installed = require('./node_modules/depcheck/package.json');
-        const requested = '{{if .VERSION_OVERRIDE}}{{.VERSION_OVERRIDE}}{{else}}{{.VERSION}}{{end}}';
+        const requested = '{{.RESOLVED_VERSION}}';
         process.exit(!requested || installed.version === requested ? 0 : 1)"
     cmds:
       - task: bun:add
         vars:
-          PACKAGES: >-
-            depcheck{{if .VERSION_OVERRIDE}}@{{.VERSION_OVERRIDE}}
-            {{- else if .VERSION}}@{{.VERSION}}{{end}}
-          EXTRA_ARGS: >-
-            {{if .EXTRA_ARGS_OVERRIDE}}{{.EXTRA_ARGS_OVERRIDE}}
-            {{- else}}{{.EXTRA_ARGS}}{{end}}{{if .CLI_ARGS}} {{.CLI_ARGS}}{{end}}
+          PACKAGES: 'depcheck{{if .RESOLVED_VERSION}}@{{.RESOLVED_VERSION}}{{end}}'
+          EXTRA_ARGS: '{{default .EXTRA_ARGS .EXTRA_ARGS_OVERRIDE}}{{if .CLI_ARGS}} {{.CLI_ARGS}}{{end}}'
 
   install:undo:
     run: once
@@ -61,7 +59,7 @@ tasks:
       - task: bun:remove
         vars:
           PACKAGES: depcheck
-          EXTRA_ARGS: "{{if .EXTRA_ARGS_OVERRIDE}}{{.EXTRA_ARGS_OVERRIDE}}{{else}}{{.EXTRA_ARGS}}{{end}}"
+          EXTRA_ARGS: '{{default .EXTRA_ARGS .EXTRA_ARGS_OVERRIDE}}'
 
   upgrade:
     run: once
@@ -71,89 +69,62 @@ tasks:
       - task: bun:add
         vars:
           PACKAGES: depcheck@latest
-          EXTRA_ARGS: "{{if .EXTRA_ARGS_OVERRIDE}}{{.EXTRA_ARGS_OVERRIDE}}{{else}}{{.EXTRA_ARGS}}{{end}}"
+          EXTRA_ARGS: '{{default .EXTRA_ARGS .EXTRA_ARGS_OVERRIDE}}'
+
+  # Shared implementation of lint / json / ignores / skip-missing. Each override
+  # is resolved exactly once here; callers supply only the trailing mode flag.
+  _run:
+    internal: true
+    run: when_changed
+    vars:
+      RESOLVED_SKIP: '{{default .DEPCHECK_LINT_SKIP_PATTERN .DEPCHECK_LINT_SKIP_PATTERN_OVERRIDE}}'
+      RESOLVED_PATH: >-
+        {{or .DEPCHECK_PROJECT_PATH_OVERRIDE .DEPCHECK_TARGETS_OVERRIDE
+        .PROJECT_PATH .TARGETS .DEPCHECK_DEFAULT_PROJECT_PATH}}
+    cmds:
+      - task: bun:exec
+        vars:
+          BINARY: depcheck
+          ARGS: >-
+            {{if .RESOLVED_SKIP}}--ignore-patterns="{{.RESOLVED_SKIP}}" {{end}}
+            {{- .RESOLVED_PATH}}
+            {{- if .MODE_ARGS}} {{.MODE_ARGS}}{{end}}
+          EXTRA_ARGS: '{{default .EXTRA_ARGS .EXTRA_ARGS_OVERRIDE}}{{if .CLI_ARGS}} {{.CLI_ARGS}}{{end}}'
 
   lint:
     run: once
     desc: Run Depcheck
     summary: Depcheck reports unused and missing dependencies; review findings before removing packages.
     cmds:
-      - task: bun:exec
+      - task: _run
         vars:
-          BINARY: depcheck
-          ARGS: >-
-            {{if .DEPCHECK_LINT_SKIP_PATTERN_OVERRIDE}}--ignore-patterns="{{.DEPCHECK_LINT_SKIP_PATTERN_OVERRIDE}}"
-            {{else if .DEPCHECK_LINT_SKIP_PATTERN}}--ignore-patterns="{{.DEPCHECK_LINT_SKIP_PATTERN}}" {{end}}
-            {{if .DEPCHECK_PROJECT_PATH_OVERRIDE}}{{.DEPCHECK_PROJECT_PATH_OVERRIDE}}
-            {{else}}{{if .DEPCHECK_TARGETS_OVERRIDE}}{{.DEPCHECK_TARGETS_OVERRIDE}}
-            {{else}}{{if .PROJECT_PATH}}{{.PROJECT_PATH}}
-            {{else}}{{if .TARGETS}}{{.TARGETS}}
-            {{else}}{{.DEPCHECK_DEFAULT_PROJECT_PATH}}{{end}}{{end}}{{end}}{{end}}
-          EXTRA_ARGS: >-
-            {{if .EXTRA_ARGS_OVERRIDE}}{{.EXTRA_ARGS_OVERRIDE}}
-            {{else}}{{if .EXTRA_ARGS}}{{.EXTRA_ARGS}}{{end}}{{end}}{{if .CLI_ARGS}} {{.CLI_ARGS}}{{end}}
+          MODE_ARGS: ""
       - echo "✅ depcheck passed"
 
   json:
     run: once
     desc: Run Depcheck and print JSON output
     cmds:
-      - task: bun:exec
+      - task: _run
         vars:
-          BINARY: depcheck
-          ARGS: >-
-            {{if .DEPCHECK_LINT_SKIP_PATTERN_OVERRIDE}}--ignore-patterns="{{.DEPCHECK_LINT_SKIP_PATTERN_OVERRIDE}}"
-            {{else if .DEPCHECK_LINT_SKIP_PATTERN}}--ignore-patterns="{{.DEPCHECK_LINT_SKIP_PATTERN}}" {{end}}
-            {{if .DEPCHECK_PROJECT_PATH_OVERRIDE}}{{.DEPCHECK_PROJECT_PATH_OVERRIDE}}
-            {{else}}{{if .DEPCHECK_TARGETS_OVERRIDE}}{{.DEPCHECK_TARGETS_OVERRIDE}}
-            {{else}}{{if .PROJECT_PATH}}{{.PROJECT_PATH}}
-            {{else}}{{if .TARGETS}}{{.TARGETS}}
-            {{else}}{{.DEPCHECK_DEFAULT_PROJECT_PATH}}{{end}}{{end}}{{end}}{{end}}
-            --json
-          EXTRA_ARGS: >-
-            {{if .EXTRA_ARGS_OVERRIDE}}{{.EXTRA_ARGS_OVERRIDE}}
-            {{else}}{{if .EXTRA_ARGS}}{{.EXTRA_ARGS}}{{end}}{{end}}{{if .CLI_ARGS}} {{.CLI_ARGS}}{{end}}
+          MODE_ARGS: "--json"
 
   ignores:
     run: once
     desc: Run Depcheck while ignoring packages from IGNORE_PACKAGES
     summary: Set IGNORE_PACKAGES as a comma-separated list, for example IGNORE_PACKAGES="@types/*,eslint-*".
     cmds:
-      - task: bun:exec
+      - task: _run
         vars:
-          BINARY: depcheck
-          ARGS: >-
-            {{if .DEPCHECK_LINT_SKIP_PATTERN_OVERRIDE}}--ignore-patterns="{{.DEPCHECK_LINT_SKIP_PATTERN_OVERRIDE}}"
-            {{else if .DEPCHECK_LINT_SKIP_PATTERN}}--ignore-patterns="{{.DEPCHECK_LINT_SKIP_PATTERN}}" {{end}}
-            {{if .DEPCHECK_PROJECT_PATH_OVERRIDE}}{{.DEPCHECK_PROJECT_PATH_OVERRIDE}}
-            {{else}}{{if .DEPCHECK_TARGETS_OVERRIDE}}{{.DEPCHECK_TARGETS_OVERRIDE}}
-            {{else}}{{if .PROJECT_PATH}}{{.PROJECT_PATH}}
-            {{else}}{{if .TARGETS}}{{.TARGETS}}
-            {{else}}{{.DEPCHECK_DEFAULT_PROJECT_PATH}}{{end}}{{end}}{{end}}{{end}}
-            --ignores="{{if .IGNORE_PACKAGES_OVERRIDE}}{{.IGNORE_PACKAGES_OVERRIDE}}{{else}}{{.IGNORE_PACKAGES}}{{end}}"
-          EXTRA_ARGS: >-
-            {{if .EXTRA_ARGS_OVERRIDE}}{{.EXTRA_ARGS_OVERRIDE}}
-            {{else}}{{if .EXTRA_ARGS}}{{.EXTRA_ARGS}}{{end}}{{end}}{{if .CLI_ARGS}} {{.CLI_ARGS}}{{end}}
+          MODE_ARGS: '--ignores="{{default .IGNORE_PACKAGES .IGNORE_PACKAGES_OVERRIDE}}"'
 
   skip-missing:
     run: once
     desc: Run Depcheck while ignoring missing dependency reports
     cmds:
-      - task: bun:exec
+      - task: _run
         vars:
-          BINARY: depcheck
-          ARGS: >-
-            {{if .DEPCHECK_LINT_SKIP_PATTERN_OVERRIDE}}--ignore-patterns="{{.DEPCHECK_LINT_SKIP_PATTERN_OVERRIDE}}"
-            {{else if .DEPCHECK_LINT_SKIP_PATTERN}}--ignore-patterns="{{.DEPCHECK_LINT_SKIP_PATTERN}}" {{end}}
-            {{if .DEPCHECK_PROJECT_PATH_OVERRIDE}}{{.DEPCHECK_PROJECT_PATH_OVERRIDE}}
-            {{else}}{{if .DEPCHECK_TARGETS_OVERRIDE}}{{.DEPCHECK_TARGETS_OVERRIDE}}
-            {{else}}{{if .PROJECT_PATH}}{{.PROJECT_PATH}}
-            {{else}}{{if .TARGETS}}{{.TARGETS}}
-            {{else}}{{.DEPCHECK_DEFAULT_PROJECT_PATH}}{{end}}{{end}}{{end}}{{end}}
-            --skip-missing=true
-          EXTRA_ARGS: >-
-            {{if .EXTRA_ARGS_OVERRIDE}}{{.EXTRA_ARGS_OVERRIDE}}
-            {{else}}{{if .EXTRA_ARGS}}{{.EXTRA_ARGS}}{{end}}{{end}}{{if .CLI_ARGS}} {{.CLI_ARGS}}{{end}}
+          MODE_ARGS: "--skip-missing=true"
 
   ci:
     run: once
@@ -180,6 +151,4 @@ tasks:
         vars:
           BINARY: depcheck
           ARGS: "--help"
-          EXTRA_ARGS: >-
-            {{if .EXTRA_ARGS_OVERRIDE}}{{.EXTRA_ARGS_OVERRIDE}}
-            {{- else}}{{.EXTRA_ARGS}}{{end}}{{if .CLI_ARGS}} {{.CLI_ARGS}}{{end}}
+          EXTRA_ARGS: '{{default .EXTRA_ARGS .EXTRA_ARGS_OVERRIDE}}{{if .CLI_ARGS}} {{.CLI_ARGS}}{{end}}'

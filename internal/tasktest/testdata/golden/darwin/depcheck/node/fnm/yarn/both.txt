@@ -21,6 +21,8 @@
 #   VERSION_OVERRIDE=OVR-VERSION
 
 === task: ci ===
+task: "_run" finished
+task: "_run" started
 task: "ci" finished
 task: "ci" started
 task: "lint" finished
@@ -32,7 +34,7 @@ task: "yarn:exec" finished
 task: "yarn:exec" started
 task: [ci] echo "✅ depcheck ci passed"
 task: [lint] echo "✅ depcheck passed"
-task: [yarn:_exec:unix] bash -c "depcheck --ignore-patterns="OVR-DEPCHECK_LINT_SKIP_PATTERN"  OVR-DEPCHECK_PROJECT_PATH  OVR-EXTRA_ARGS "
+task: [yarn:_exec:unix] bash -c "depcheck --ignore-patterns="OVR-DEPCHECK_LINT_SKIP_PATTERN" OVR-DEPCHECK_PROJECT_PATH OVR-EXTRA_ARGS"
 
 === task: help ===
 task: "help" finished
@@ -45,6 +47,8 @@ task: "yarn:exec" started
 task: [yarn:_exec:unix] bash -c "depcheck --help OVR-EXTRA_ARGS"
 
 === task: ignores ===
+task: "_run" finished
+task: "_run" started
 task: "ignores" finished
 task: "ignores" started
 task: "yarn:_exec:unix" finished
@@ -52,7 +56,7 @@ task: "yarn:_exec:unix" started
 task: "yarn:_exec:windows" not for current platform - ignored
 task: "yarn:exec" finished
 task: "yarn:exec" started
-task: [yarn:_exec:unix] bash -c "depcheck --ignore-patterns="OVR-DEPCHECK_LINT_SKIP_PATTERN"  OVR-DEPCHECK_PROJECT_PATH  --ignores="OVR-IGNORE_PACKAGES" OVR-EXTRA_ARGS "
+task: [yarn:_exec:unix] bash -c "depcheck --ignore-patterns="OVR-DEPCHECK_LINT_SKIP_PATTERN" OVR-DEPCHECK_PROJECT_PATH --ignores="OVR-IGNORE_PACKAGES" OVR-EXTRA_ARGS"
 
 === task: install ===
 task: "install" started
@@ -70,6 +74,8 @@ task: "yarn:remove" started
 task: [yarn:_yarn:unix] bash -c 'export PATH="$HOME/.local/share/fnm:$HOME/.local/bin:$PATH"; if [ -f .node-version ] || [ -f .nvmrc ]; then fnm use; fi; command -v corepack >/dev/null 2>&1 || { echo "corepack is not available. Run: task manager:setup"; exit 1; }; corepack yarn global remove depcheck OVR-EXTRA_ARGS'
 
 === task: json ===
+task: "_run" finished
+task: "_run" started
 task: "json" finished
 task: "json" started
 task: "yarn:_exec:unix" finished
@@ -77,9 +83,11 @@ task: "yarn:_exec:unix" started
 task: "yarn:_exec:windows" not for current platform - ignored
 task: "yarn:exec" finished
 task: "yarn:exec" started
-task: [yarn:_exec:unix] bash -c "depcheck --ignore-patterns="OVR-DEPCHECK_LINT_SKIP_PATTERN"  OVR-DEPCHECK_PROJECT_PATH  --json OVR-EXTRA_ARGS "
+task: [yarn:_exec:unix] bash -c "depcheck --ignore-patterns="OVR-DEPCHECK_LINT_SKIP_PATTERN" OVR-DEPCHECK_PROJECT_PATH --json OVR-EXTRA_ARGS"
 
 === task: lint ===
+task: "_run" finished
+task: "_run" started
 task: "lint" finished
 task: "lint" started
 task: "yarn:_exec:unix" finished
@@ -88,9 +96,11 @@ task: "yarn:_exec:windows" not for current platform - ignored
 task: "yarn:exec" finished
 task: "yarn:exec" started
 task: [lint] echo "✅ depcheck passed"
-task: [yarn:_exec:unix] bash -c "depcheck --ignore-patterns="OVR-DEPCHECK_LINT_SKIP_PATTERN"  OVR-DEPCHECK_PROJECT_PATH  OVR-EXTRA_ARGS "
+task: [yarn:_exec:unix] bash -c "depcheck --ignore-patterns="OVR-DEPCHECK_LINT_SKIP_PATTERN" OVR-DEPCHECK_PROJECT_PATH OVR-EXTRA_ARGS"
 
 === task: skip-missing ===
+task: "_run" finished
+task: "_run" started
 task: "skip-missing" finished
 task: "skip-missing" started
 task: "yarn:_exec:unix" finished
@@ -98,7 +108,7 @@ task: "yarn:_exec:unix" started
 task: "yarn:_exec:windows" not for current platform - ignored
 task: "yarn:exec" finished
 task: "yarn:exec" started
-task: [yarn:_exec:unix] bash -c "depcheck --ignore-patterns="OVR-DEPCHECK_LINT_SKIP_PATTERN"  OVR-DEPCHECK_PROJECT_PATH  --skip-missing=true OVR-EXTRA_ARGS "
+task: [yarn:_exec:unix] bash -c "depcheck --ignore-patterns="OVR-DEPCHECK_LINT_SKIP_PATTERN" OVR-DEPCHECK_PROJECT_PATH --skip-missing=true OVR-EXTRA_ARGS"
 
 === task: upgrade ===
 task: "upgrade" finished

@@ -12,6 +12,8 @@
 #   VERSION_OVERRIDE=OVR-VERSION
 
 === task: ci ===
+task: "_run" finished
+task: "_run" started
 task: "ci" finished
 task: "ci" started
 task: "lint" finished
@@ -23,7 +25,7 @@ task: "pnpm:exec" finished
 task: "pnpm:exec" started
 task: [ci] echo "✅ depcheck ci passed"
 task: [lint] echo "✅ depcheck passed"
-task: [pnpm:_exec:unix] bash -c "depcheck --ignore-patterns="OVR-DEPCHECK_LINT_SKIP_PATTERN"  OVR-DEPCHECK_PROJECT_PATH  OVR-EXTRA_ARGS "
+task: [pnpm:_exec:unix] bash -c "depcheck --ignore-patterns="OVR-DEPCHECK_LINT_SKIP_PATTERN" OVR-DEPCHECK_PROJECT_PATH OVR-EXTRA_ARGS"
 
 === task: help ===
 task: "help" finished
@@ -36,6 +38,8 @@ task: "pnpm:exec" started
 task: [pnpm:_exec:unix] bash -c "depcheck --help OVR-EXTRA_ARGS"
 
 === task: ignores ===
+task: "_run" finished
+task: "_run" started
 task: "ignores" finished
 task: "ignores" started
 task: "pnpm:_exec:unix" finished
@@ -43,7 +47,7 @@ task: "pnpm:_exec:unix" started
 task: "pnpm:_exec:windows" not for current platform - ignored
 task: "pnpm:exec" finished
 task: "pnpm:exec" started
-task: [pnpm:_exec:unix] bash -c "depcheck --ignore-patterns="OVR-DEPCHECK_LINT_SKIP_PATTERN"  OVR-DEPCHECK_PROJECT_PATH  --ignores="OVR-IGNORE_PACKAGES" OVR-EXTRA_ARGS "
+task: [pnpm:_exec:unix] bash -c "depcheck --ignore-patterns="OVR-DEPCHECK_LINT_SKIP_PATTERN" OVR-DEPCHECK_PROJECT_PATH --ignores="OVR-IGNORE_PACKAGES" OVR-EXTRA_ARGS"
 
 === task: install ===
 task: "install" started
@@ -61,6 +65,8 @@ task: "pnpm:remove" started
 task: [pnpm:_pnpm:unix] bash -c 'export NVM_DIR="$HOME/.nvm"; . "$NVM_DIR/nvm.sh"; if [ -f .node-version ] || [ -f .nvmrc ]; then nvm use; fi; command -v corepack >/dev/null 2>&1 || { echo "corepack is not available. Run: task manager:setup"; exit 1; }; corepack pnpm remove -g depcheck OVR-EXTRA_ARGS'
 
 === task: json ===
+task: "_run" finished
+task: "_run" started
 task: "json" finished
 task: "json" started
 task: "pnpm:_exec:unix" finished
@@ -68,9 +74,11 @@ task: "pnpm:_exec:unix" started
 task: "pnpm:_exec:windows" not for current platform - ignored
 task: "pnpm:exec" finished
 task: "pnpm:exec" started
-task: [pnpm:_exec:unix] bash -c "depcheck --ignore-patterns="OVR-DEPCHECK_LINT_SKIP_PATTERN"  OVR-DEPCHECK_PROJECT_PATH  --json OVR-EXTRA_ARGS "
+task: [pnpm:_exec:unix] bash -c "depcheck --ignore-patterns="OVR-DEPCHECK_LINT_SKIP_PATTERN" OVR-DEPCHECK_PROJECT_PATH --json OVR-EXTRA_ARGS"
 
 === task: lint ===
+task: "_run" finished
+task: "_run" started
 task: "lint" finished
 task: "lint" started
 task: "pnpm:_exec:unix" finished
@@ -79,9 +87,11 @@ task: "pnpm:_exec:windows" not for current platform - ignored
 task: "pnpm:exec" finished
 task: "pnpm:exec" started
 task: [lint] echo "✅ depcheck passed"
-task: [pnpm:_exec:unix] bash -c "depcheck --ignore-patterns="OVR-DEPCHECK_LINT_SKIP_PATTERN"  OVR-DEPCHECK_PROJECT_PATH  OVR-EXTRA_ARGS "
+task: [pnpm:_exec:unix] bash -c "depcheck --ignore-patterns="OVR-DEPCHECK_LINT_SKIP_PATTERN" OVR-DEPCHECK_PROJECT_PATH OVR-EXTRA_ARGS"
 
 === task: skip-missing ===
+task: "_run" finished
+task: "_run" started
 task: "pnpm:_exec:unix" finished
 task: "pnpm:_exec:unix" started
 task: "pnpm:_exec:windows" not for current platform - ignored
@@ -89,7 +99,7 @@ task: "pnpm:exec" finished
 task: "pnpm:exec" started
 task: "skip-missing" finished
 task: "skip-missing" started
-task: [pnpm:_exec:unix] bash -c "depcheck --ignore-patterns="OVR-DEPCHECK_LINT_SKIP_PATTERN"  OVR-DEPCHECK_PROJECT_PATH  --skip-missing=true OVR-EXTRA_ARGS "
+task: [pnpm:_exec:unix] bash -c "depcheck --ignore-patterns="OVR-DEPCHECK_LINT_SKIP_PATTERN" OVR-DEPCHECK_PROJECT_PATH --skip-missing=true OVR-EXTRA_ARGS"
 
 === task: upgrade ===
 task: "pnpm:_pnpm:unix" finished

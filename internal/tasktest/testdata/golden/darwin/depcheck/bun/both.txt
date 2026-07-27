@@ -21,6 +21,8 @@
 #   VERSION_OVERRIDE=OVR-VERSION
 
 === task: ci ===
+task: "_run" finished
+task: "_run" started
 task: "bun:_bun:unix" finished
 task: "bun:_bun:unix" started
 task: "bun:_bun:windows" not for current platform - ignored
@@ -35,7 +37,7 @@ task: "ci" started
 task: "lint" finished
 task: "lint" started
 task: Task "bun:_install:unix" is up to date
-task: [bun:_bun:unix] bash -lc 'export BUN_INSTALL="$HOME/.bun"; export PATH="$BUN_INSTALL/bin:$PATH"; bun x depcheck --ignore-patterns="OVR-DEPCHECK_LINT_SKIP_PATTERN"  OVR-DEPCHECK_PROJECT_PATH  OVR-EXTRA_ARGS '
+task: [bun:_bun:unix] bash -lc 'export BUN_INSTALL="$HOME/.bun"; export PATH="$BUN_INSTALL/bin:$PATH"; bun x depcheck --ignore-patterns="OVR-DEPCHECK_LINT_SKIP_PATTERN" OVR-DEPCHECK_PROJECT_PATH OVR-EXTRA_ARGS'
 task: [ci] echo "✅ depcheck ci passed"
 task: [lint] echo "✅ depcheck passed"
 task: status command bun_bin="$HOME/.bun/bin/bun"; if [ ! -x "$bun_bin" ]; then bun_bin="$(command -v bun 2>/dev/null)"; fi; [ -n "$bun_bin" ] && [ -x "$bun_bin" ] && { [ -z "" ] || [ "$("$bun_bin" --version)" = "" ]; } exited zero
@@ -57,6 +59,8 @@ task: [bun:_bun:unix] bash -lc 'export BUN_INSTALL="$HOME/.bun"; export PATH="$B
 task: status command bun_bin="$HOME/.bun/bin/bun"; if [ ! -x "$bun_bin" ]; then bun_bin="$(command -v bun 2>/dev/null)"; fi; [ -n "$bun_bin" ] && [ -x "$bun_bin" ] && { [ -z "" ] || [ "$("$bun_bin" --version)" = "" ]; } exited zero
 
 === task: ignores ===
+task: "_run" finished
+task: "_run" started
 task: "bun:_bun:unix" finished
 task: "bun:_bun:unix" started
 task: "bun:_bun:windows" not for current platform - ignored
@@ -69,7 +73,7 @@ task: "bun:install" started
 task: "ignores" finished
 task: "ignores" started
 task: Task "bun:_install:unix" is up to date
-task: [bun:_bun:unix] bash -lc 'export BUN_INSTALL="$HOME/.bun"; export PATH="$BUN_INSTALL/bin:$PATH"; bun x depcheck --ignore-patterns="OVR-DEPCHECK_LINT_SKIP_PATTERN"  OVR-DEPCHECK_PROJECT_PATH  --ignores="OVR-IGNORE_PACKAGES" OVR-EXTRA_ARGS '
+task: [bun:_bun:unix] bash -lc 'export BUN_INSTALL="$HOME/.bun"; export PATH="$BUN_INSTALL/bin:$PATH"; bun x depcheck --ignore-patterns="OVR-DEPCHECK_LINT_SKIP_PATTERN" OVR-DEPCHECK_PROJECT_PATH --ignores="OVR-IGNORE_PACKAGES" OVR-EXTRA_ARGS'
 task: status command bun_bin="$HOME/.bun/bin/bun"; if [ ! -x "$bun_bin" ]; then bun_bin="$(command -v bun 2>/dev/null)"; fi; [ -n "$bun_bin" ] && [ -x "$bun_bin" ] && { [ -z "" ] || [ "$("$bun_bin" --version)" = "" ]; } exited zero
 
 === task: install ===
@@ -94,6 +98,8 @@ task: [bun:_bun:unix] bash -lc 'export BUN_INSTALL="$HOME/.bun"; export PATH="$B
 task: status command bun_bin="$HOME/.bun/bin/bun"; if [ ! -x "$bun_bin" ]; then bun_bin="$(command -v bun 2>/dev/null)"; fi; [ -n "$bun_bin" ] && [ -x "$bun_bin" ] && { [ -z "" ] || [ "$("$bun_bin" --version)" = "" ]; } exited zero
 
 === task: json ===
+task: "_run" finished
+task: "_run" started
 task: "bun:_bun:unix" finished
 task: "bun:_bun:unix" started
 task: "bun:_bun:windows" not for current platform - ignored
@@ -106,10 +112,12 @@ task: "bun:install" started
 task: "json" finished
 task: "json" started
 task: Task "bun:_install:unix" is up to date
-task: [bun:_bun:unix] bash -lc 'export BUN_INSTALL="$HOME/.bun"; export PATH="$BUN_INSTALL/bin:$PATH"; bun x depcheck --ignore-patterns="OVR-DEPCHECK_LINT_SKIP_PATTERN"  OVR-DEPCHECK_PROJECT_PATH  --json OVR-EXTRA_ARGS '
+task: [bun:_bun:unix] bash -lc 'export BUN_INSTALL="$HOME/.bun"; export PATH="$BUN_INSTALL/bin:$PATH"; bun x depcheck --ignore-patterns="OVR-DEPCHECK_LINT_SKIP_PATTERN" OVR-DEPCHECK_PROJECT_PATH --json OVR-EXTRA_ARGS'
 task: status command bun_bin="$HOME/.bun/bin/bun"; if [ ! -x "$bun_bin" ]; then bun_bin="$(command -v bun 2>/dev/null)"; fi; [ -n "$bun_bin" ] && [ -x "$bun_bin" ] && { [ -z "" ] || [ "$("$bun_bin" --version)" = "" ]; } exited zero
 
 === task: lint ===
+task: "_run" finished
+task: "_run" started
 task: "bun:_bun:unix" finished
 task: "bun:_bun:unix" started
 task: "bun:_bun:windows" not for current platform - ignored
@@ -122,11 +130,13 @@ task: "bun:install" started
 task: "lint" finished
 task: "lint" started
 task: Task "bun:_install:unix" is up to date
-task: [bun:_bun:unix] bash -lc 'export BUN_INSTALL="$HOME/.bun"; export PATH="$BUN_INSTALL/bin:$PATH"; bun x depcheck --ignore-patterns="OVR-DEPCHECK_LINT_SKIP_PATTERN"  OVR-DEPCHECK_PROJECT_PATH  OVR-EXTRA_ARGS '
+task: [bun:_bun:unix] bash -lc 'export BUN_INSTALL="$HOME/.bun"; export PATH="$BUN_INSTALL/bin:$PATH"; bun x depcheck --ignore-patterns="OVR-DEPCHECK_LINT_SKIP_PATTERN" OVR-DEPCHECK_PROJECT_PATH OVR-EXTRA_ARGS'
 task: [lint] echo "✅ depcheck passed"
 task: status command bun_bin="$HOME/.bun/bin/bun"; if [ ! -x "$bun_bin" ]; then bun_bin="$(command -v bun 2>/dev/null)"; fi; [ -n "$bun_bin" ] && [ -x "$bun_bin" ] && { [ -z "" ] || [ "$("$bun_bin" --version)" = "" ]; } exited zero
 
 === task: skip-missing ===
+task: "_run" finished
+task: "_run" started
 task: "bun:_bun:unix" finished
 task: "bun:_bun:unix" started
 task: "bun:_bun:windows" not for current platform - ignored
@@ -139,7 +149,7 @@ task: "bun:install" started
 task: "skip-missing" finished
 task: "skip-missing" started
 task: Task "bun:_install:unix" is up to date
-task: [bun:_bun:unix] bash -lc 'export BUN_INSTALL="$HOME/.bun"; export PATH="$BUN_INSTALL/bin:$PATH"; bun x depcheck --ignore-patterns="OVR-DEPCHECK_LINT_SKIP_PATTERN"  OVR-DEPCHECK_PROJECT_PATH  --skip-missing=true OVR-EXTRA_ARGS '
+task: [bun:_bun:unix] bash -lc 'export BUN_INSTALL="$HOME/.bun"; export PATH="$BUN_INSTALL/bin:$PATH"; bun x depcheck --ignore-patterns="OVR-DEPCHECK_LINT_SKIP_PATTERN" OVR-DEPCHECK_PROJECT_PATH --skip-missing=true OVR-EXTRA_ARGS'
 task: status command bun_bin="$HOME/.bun/bin/bun"; if [ ! -x "$bun_bin" ]; then bun_bin="$(command -v bun 2>/dev/null)"; fi; [ -n "$bun_bin" ] && [ -x "$bun_bin" ] && { [ -z "" ] || [ "$("$bun_bin" --version)" = "" ]; } exited zero
 
 === task: upgrade ===
