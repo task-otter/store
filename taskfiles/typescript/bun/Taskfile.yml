@@ -75,15 +75,17 @@ tasks:
         pnpm-lock.yaml       → pnpm add -D
         yarn.lock            → yarn add -D
         (fallback)           → npm install -D
+    vars:
+      RESOLVED_VERSION: '{{default .VERSION .VERSION_OVERRIDE}}'
     status:
       - >-
         node -e "const installed = require('./node_modules/typescript/package.json');
-        const requested = '{{if .VERSION_OVERRIDE}}{{.VERSION_OVERRIDE}}{{else}}{{.VERSION}}{{end}}';
+        const requested = '{{.RESOLVED_VERSION}}';
         process.exit(!requested || installed.version === requested ? 0 : 1)"
     cmds:
       - task: bun:add
         vars:
-          PACKAGES: "typescript{{if .VERSION}}@{{.VERSION}}{{end}} tsx @types/node"
+          PACKAGES: 'typescript{{if .RESOLVED_VERSION}}@{{.RESOLVED_VERSION}}{{end}} tsx @types/node'
           PM: "{{.PM}}"
       - task: _install:windows
 
