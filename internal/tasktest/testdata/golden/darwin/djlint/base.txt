@@ -12,6 +12,8 @@
 task: "_install:unix" finished
 task: "_install:unix" started
 task: "_install:windows" not for current platform - ignored
+task: "_run" finished
+task: "_run" started
 task: "fmt" finished
 task: "fmt" started
 task: "install" finished
@@ -24,8 +26,8 @@ task: Task "uv:_install:unix" is up to date
 task: [_install:unix] bash -lc 'BASE-UV_LOAD; uv tool install --force "djlint==BASE-DJLINT_VERSION"'
 task: [_install:unix] echo 'Installing djLint via uv...'
 task: [_install:unix] echo 'djLint installed.'
-task: [fmt] bash -lc 'BASE-UV_LOAD; djlint --extend-exclude "BASE-DJLINT_FMT_SKIP_PATTERN"  BASE-TARGETS --reformat BASE-EXTRA_ARGS'
-task: [fmt] djlint BASE-TARGETS --reformat BASE-EXTRA_ARGS not for current platform - ignored
+task: [_run] bash -lc 'BASE-UV_LOAD; djlint --extend-exclude "BASE-DJLINT_FMT_SKIP_PATTERN" BASE-TARGETS --reformat BASE-EXTRA_ARGS'
+task: [_run] djlint BASE-TARGETS --reformat BASE-EXTRA_ARGS not for current platform - ignored
 task: status command bash -lc 'BASE-UV_LOAD; command -v djlint >/dev/null 2>&1 && { [ -z "BASE-DJLINT_VERSION" ] || djlint --version | grep -Fq "BASE-DJLINT_VERSION"; }' exited non-zero: exit status 1
 task: status command uv_bin="$HOME/.local/bin/uv"; if [ ! -x "$uv_bin" ]; then uv_bin="$(command -v uv 2>/dev/null)"; fi; [ -n "$uv_bin" ] && [ -x "$uv_bin" ] && { [ -z "" ] || "$uv_bin" --version | grep -Fqx "uv "; } exited zero
 
@@ -33,6 +35,8 @@ task: status command uv_bin="$HOME/.local/bin/uv"; if [ ! -x "$uv_bin" ]; then u
 task: "_install:unix" finished
 task: "_install:unix" started
 task: "_install:windows" not for current platform - ignored
+task: "_run" finished
+task: "_run" started
 task: "fmt:check" finished
 task: "fmt:check" started
 task: "install" finished
@@ -45,8 +49,8 @@ task: Task "uv:_install:unix" is up to date
 task: [_install:unix] bash -lc 'BASE-UV_LOAD; uv tool install --force "djlint==BASE-DJLINT_VERSION"'
 task: [_install:unix] echo 'Installing djLint via uv...'
 task: [_install:unix] echo 'djLint installed.'
-task: [fmt:check] bash -lc 'BASE-UV_LOAD; djlint --extend-exclude "BASE-DJLINT_FMT_SKIP_PATTERN"  BASE-TARGETS --check BASE-EXTRA_ARGS && echo "✅ djlint formatting check passed" || { echo "❌ djlint formatting check failed"; exit 1; }'
-task: [fmt:check] djlint BASE-TARGETS --check BASE-EXTRA_ARGS not for current platform - ignored
+task: [_run] bash -lc 'BASE-UV_LOAD; djlint --extend-exclude "BASE-DJLINT_FMT_SKIP_PATTERN" BASE-TARGETS --check BASE-EXTRA_ARGS && echo "✅ djlint formatting check passed" || { echo "❌ djlint formatting check failed"; exit 1; }'
+task: [_run] djlint BASE-TARGETS --check BASE-EXTRA_ARGS not for current platform - ignored
 task: status command bash -lc 'BASE-UV_LOAD; command -v djlint >/dev/null 2>&1 && { [ -z "BASE-DJLINT_VERSION" ] || djlint --version | grep -Fq "BASE-DJLINT_VERSION"; }' exited non-zero: exit status 1
 task: status command uv_bin="$HOME/.local/bin/uv"; if [ ! -x "$uv_bin" ]; then uv_bin="$(command -v uv 2>/dev/null)"; fi; [ -n "$uv_bin" ] && [ -x "$uv_bin" ] && { [ -z "" ] || "$uv_bin" --version | grep -Fqx "uv "; } exited zero
 
@@ -82,6 +86,8 @@ task: status command bash -lc 'BASE-UV_LOAD; ! command -v djlint >/dev/null 2>&1
 task: "_install:unix" finished
 task: "_install:unix" started
 task: "_install:windows" not for current platform - ignored
+task: "_run" finished
+task: "_run" started
 task: "install" finished
 task: "install" started
 task: "lint" finished
@@ -94,8 +100,8 @@ task: Task "uv:_install:unix" is up to date
 task: [_install:unix] bash -lc 'BASE-UV_LOAD; uv tool install --force "djlint==BASE-DJLINT_VERSION"'
 task: [_install:unix] echo 'Installing djLint via uv...'
 task: [_install:unix] echo 'djLint installed.'
-task: [lint] bash -lc 'BASE-UV_LOAD; djlint --extend-exclude "BASE-DJLINT_LINT_SKIP_PATTERN"  BASE-TARGETS --lint BASE-EXTRA_ARGS && echo "✅ djlint passed" || { echo "❌ djlint failed"; exit 1; }'
-task: [lint] djlint BASE-TARGETS --lint BASE-EXTRA_ARGS not for current platform - ignored
+task: [_run] bash -lc 'BASE-UV_LOAD; djlint --extend-exclude "BASE-DJLINT_LINT_SKIP_PATTERN" BASE-TARGETS --lint BASE-EXTRA_ARGS && echo "✅ djlint passed" || { echo "❌ djlint failed"; exit 1; }'
+task: [_run] djlint BASE-TARGETS --lint BASE-EXTRA_ARGS not for current platform - ignored
 task: status command bash -lc 'BASE-UV_LOAD; command -v djlint >/dev/null 2>&1 && { [ -z "BASE-DJLINT_VERSION" ] || djlint --version | grep -Fq "BASE-DJLINT_VERSION"; }' exited non-zero: exit status 1
 task: status command uv_bin="$HOME/.local/bin/uv"; if [ ! -x "$uv_bin" ]; then uv_bin="$(command -v uv 2>/dev/null)"; fi; [ -n "$uv_bin" ] && [ -x "$uv_bin" ] && { [ -z "" ] || "$uv_bin" --version | grep -Fqx "uv "; } exited zero
 

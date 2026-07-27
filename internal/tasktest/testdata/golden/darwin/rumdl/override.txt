@@ -11,6 +11,8 @@
 === task: fix ===
 task: "_install:unix" started
 task: "_install:windows" not for current platform - ignored
+task: "_run" finished
+task: "_run" started
 task: "fix" finished
 task: "fix" started
 task: "install" finished
@@ -21,14 +23,16 @@ task: "uv:install" finished
 task: "uv:install" started
 task: Task "_install:unix" is up to date
 task: Task "uv:_install:unix" is up to date
-task: [fix] bash -lc 'export PATH="$HOME/.local/bin:$PATH"; rumdl check --fix --exclude "OVR-RUMDL_LINT_SKIP_PATTERN"  OVR-TARGETS OVR-EXTRA_ARGS'
-task: [fix] rumdl check --fix --exclude "OVR-RUMDL_LINT_SKIP_PATTERN"  OVR-TARGETS OVR-EXTRA_ARGS not for current platform - ignored
+task: [_run] bash -lc 'export PATH="$HOME/.local/bin:$PATH"; rumdl check --fix --exclude "OVR-RUMDL_LINT_SKIP_PATTERN" OVR-TARGETS OVR-EXTRA_ARGS'
+task: [_run] rumdl check --fix --exclude "OVR-RUMDL_LINT_SKIP_PATTERN" OVR-TARGETS OVR-EXTRA_ARGS not for current platform - ignored
 task: status command bash -lc 'export PATH="$HOME/.local/bin:$PATH"; command -v rumdl >/dev/null 2>&1 && { [ -z "" ] || rumdl --version | grep -Fq ""; }' exited zero
 task: status command uv_bin="$HOME/.local/bin/uv"; if [ ! -x "$uv_bin" ]; then uv_bin="$(command -v uv 2>/dev/null)"; fi; [ -n "$uv_bin" ] && [ -x "$uv_bin" ] && { [ -z "" ] || "$uv_bin" --version | grep -Fqx "uv "; } exited zero
 
 === task: fmt ===
 task: "_install:unix" started
 task: "_install:windows" not for current platform - ignored
+task: "_run" finished
+task: "_run" started
 task: "fmt" finished
 task: "fmt" started
 task: "install" finished
@@ -39,8 +43,8 @@ task: "uv:install" finished
 task: "uv:install" started
 task: Task "_install:unix" is up to date
 task: Task "uv:_install:unix" is up to date
-task: [fmt] bash -lc 'export PATH="$HOME/.local/bin:$PATH"; rumdl fmt --exclude "OVR-RUMDL_FMT_SKIP_PATTERN"  OVR-TARGETS OVR-EXTRA_ARGS'
-task: [fmt] rumdl fmt --exclude "OVR-RUMDL_FMT_SKIP_PATTERN"  OVR-TARGETS OVR-EXTRA_ARGS not for current platform - ignored
+task: [_run] bash -lc 'export PATH="$HOME/.local/bin:$PATH"; rumdl fmt --exclude "OVR-RUMDL_FMT_SKIP_PATTERN" OVR-TARGETS OVR-EXTRA_ARGS'
+task: [_run] rumdl fmt --exclude "OVR-RUMDL_FMT_SKIP_PATTERN" OVR-TARGETS OVR-EXTRA_ARGS not for current platform - ignored
 task: status command bash -lc 'export PATH="$HOME/.local/bin:$PATH"; command -v rumdl >/dev/null 2>&1 && { [ -z "" ] || rumdl --version | grep -Fq ""; }' exited zero
 task: status command uv_bin="$HOME/.local/bin/uv"; if [ ! -x "$uv_bin" ]; then uv_bin="$(command -v uv 2>/dev/null)"; fi; [ -n "$uv_bin" ] && [ -x "$uv_bin" ] && { [ -z "" ] || "$uv_bin" --version | grep -Fqx "uv "; } exited zero
 
@@ -72,6 +76,8 @@ task: status command bash -lc 'export PATH="$HOME/.local/bin:$PATH"; ! command -
 === task: lint ===
 task: "_install:unix" started
 task: "_install:windows" not for current platform - ignored
+task: "_run" finished
+task: "_run" started
 task: "install" finished
 task: "install" started
 task: "lint" finished
@@ -82,8 +88,8 @@ task: "uv:install" finished
 task: "uv:install" started
 task: Task "_install:unix" is up to date
 task: Task "uv:_install:unix" is up to date
-task: [lint] bash -lc 'export PATH="$HOME/.local/bin:$PATH"; rumdl check --exclude "OVR-RUMDL_LINT_SKIP_PATTERN"  OVR-TARGETS OVR-EXTRA_ARGS && echo "✅ rumdl passed" || { echo "❌ rumdl failed"; exit 1; }'
-task: [lint] rumdl check --exclude "OVR-RUMDL_LINT_SKIP_PATTERN"  OVR-TARGETS OVR-EXTRA_ARGS not for current platform - ignored
+task: [_run] bash -lc 'export PATH="$HOME/.local/bin:$PATH"; rumdl check --exclude "OVR-RUMDL_LINT_SKIP_PATTERN" OVR-TARGETS OVR-EXTRA_ARGS && echo "✅ rumdl passed" || { echo "❌ rumdl failed"; exit 1; }'
+task: [_run] rumdl check --exclude "OVR-RUMDL_LINT_SKIP_PATTERN" OVR-TARGETS OVR-EXTRA_ARGS not for current platform - ignored
 task: status command bash -lc 'export PATH="$HOME/.local/bin:$PATH"; command -v rumdl >/dev/null 2>&1 && { [ -z "" ] || rumdl --version | grep -Fq ""; }' exited zero
 task: status command uv_bin="$HOME/.local/bin/uv"; if [ ! -x "$uv_bin" ]; then uv_bin="$(command -v uv 2>/dev/null)"; fi; [ -n "$uv_bin" ] && [ -x "$uv_bin" ] && { [ -z "" ] || "$uv_bin" --version | grep -Fqx "uv "; } exited zero
 
