@@ -1,5 +1,5 @@
 ---
-version: "3.53"
+version: "3.5"
 output:
   group:
     begin: "::group::{{.TASK}}"

@@ -109,7 +109,7 @@ func writeExecutable(t *testing.T, body string) string {
 }
 
 func validTaskfile() string {
-	return `version: "3.53"
+	return `version: "3.5"
 output:
   group:
     begin: "::group::{{.TASK}}"
