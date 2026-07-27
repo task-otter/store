@@ -3,7 +3,7 @@ version: "3"
 
 includes:
   pnpm:
-    taskfile: ../../../../pnpm-fnm/Taskfile.yml
+    taskfile: ../../../../pnpm/fnm/Taskfile.yml
     optional: true
 
 output:

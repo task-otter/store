@@ -6,9 +6,6 @@ This Taskfile wraps ESLint for JavaScript and TypeScript projects. It installs
 ESLint as a local dev dependency, runs cached checks by default, supports strict
 CI mode.
 
-This variant uses the `npm-fnm` stack (`npm-fnm`) package manager.
-
-
 ## Variants
 
 Every runtime + package-manager combination ships as its own leaf Taskfile under

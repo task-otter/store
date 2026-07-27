@@ -24,6 +24,7 @@ type Task struct {
 	Desc          string   `yaml:"desc"`
 	Summary       string   `yaml:"summary"`
 	Internal      bool     `yaml:"internal"`
+	Run           string   `yaml:"run"`
 	Set           []string `yaml:"set"`
 	Preconditions any      `yaml:"preconditions"`
 	Cmds          any      `yaml:"cmds"`

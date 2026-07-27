@@ -134,6 +134,27 @@ func moduleTaskfilePath(t testT, root string) string {
 	return ""
 }
 
+// ModuleReadmePath returns the README.md documenting the module. Flat modules
+// keep their own README next to the Taskfile; nested family variants share one
+// README at the family root (e.g. taskfiles/npm/fnm/ documents itself in
+// taskfiles/npm/README.md), so ancestors are searched when the leaf has none.
+func ModuleReadmePath(t testT) string {
+	t.Helper()
+
+	current := ModuleRoot(t)
+	for {
+		if p := filepath.Join(current, "README.md"); FileExists(p) {
+			return p
+		}
+		parent := filepath.Dir(current)
+		if parent == current || filepath.Base(current) == "taskfiles" {
+			t.Fatal("could not find README.md for module")
+			return ""
+		}
+		current = parent
+	}
+}
+
 // LoadTaskfile parses the Taskfile in the module root and returns a LoadedTaskfile.
 func LoadTaskfile(t testT) LoadedTaskfile {
 	t.Helper()

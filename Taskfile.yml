@@ -20,8 +20,7 @@ includes:
   buf: taskfiles/buf/Taskfile.yml
   bun: taskfiles/bun/Taskfile.yml
   cargo: taskfiles/cargo/Taskfile.yml
-  corepack-fnm: taskfiles/corepack-fnm/Taskfile.yml
-  corepack-nvm: taskfiles/corepack-nvm/Taskfile.yml
+  corepack: taskfiles/corepack/Taskfile.yml
   depcheck: taskfiles/depcheck/Taskfile.yml
   djlint: taskfiles/djlint/Taskfile.yml
   docker: taskfiles/docker/Taskfile.yml
@@ -36,11 +35,9 @@ includes:
   jq: taskfiles/jq/Taskfile.yml
   jsonlint: taskfiles/jsonlint/Taskfile.yml
   knip: taskfiles/knip/Taskfile.yml
-  npm-fnm: taskfiles/npm-fnm/Taskfile.yml
-  npm-nvm: taskfiles/npm-nvm/Taskfile.yml
+  npm: taskfiles/npm/Taskfile.yml
   nvm: taskfiles/nvm/Taskfile.yml
-  pnpm-fnm: taskfiles/pnpm-fnm/Taskfile.yml
-  pnpm-nvm: taskfiles/pnpm-nvm/Taskfile.yml
+  pnpm: taskfiles/pnpm/Taskfile.yml
   prettier: taskfiles/prettier/Taskfile.yml
   proto: taskfiles/proto/Taskfile.yml
   protolint: taskfiles/protolint/Taskfile.yml
@@ -56,8 +53,7 @@ includes:
   uv: taskfiles/uv/Taskfile.yml
   vault: taskfiles/vault/Taskfile.yml
   yamllint: taskfiles/yamllint/Taskfile.yml
-  yarn-fnm: taskfiles/yarn-fnm/Taskfile.yml
-  yarn-nvm: taskfiles/yarn-nvm/Taskfile.yml
+  yarn: taskfiles/yarn/Taskfile.yml
   zizmor: taskfiles/zizmor/Taskfile.yml
 
 tasks:

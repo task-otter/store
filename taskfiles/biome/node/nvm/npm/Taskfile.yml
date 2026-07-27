@@ -11,11 +11,7 @@ silent: true
 
 includes:
   npm:
-    taskfile: ../../../../npm-nvm/Taskfile.yml
-
-  skipfiles:
-    taskfile: ../../../../internal/skipfiles/Taskfile.yml
-    internal: true
+    taskfile: ../../../../npm/nvm/Taskfile.yml
 
 vars:
   BIOME_LINT_SKIP_PATTERN: ""
@@ -114,21 +110,123 @@ tasks:
             {{if .EXTRA_ARGS_OVERRIDE}}{{.EXTRA_ARGS_OVERRIDE}}
             {{- else}}{{.EXTRA_ARGS}}{{end}}{{if .CLI_ARGS}} {{.CLI_ARGS}}{{end}}
 
+  config:skip:
+    desc: Write a Biome config overlay that excludes the skip patterns
+    summary: |
+      Generate a Biome config that extends the project config and negates
+      BIOME_LINT_SKIP_PATTERN and BIOME_FMT_SKIP_PATTERN. Every lint, format,
+      check, and ci task runs this first. Pass SKIP_SCOPE=lint or SKIP_SCOPE=fmt
+      to negate only one of the two; the default covers both. The overlay is
+      rewritten on every run and is not removed afterwards, so add it to
+      .gitignore. Running with no skip pattern set deletes it.
+    dir: "{{.USER_WORKING_DIR}}"
+    set: [errexit, nounset, pipefail]
+    env:
+      BIOME_SKIP_PATTERN: >-
+        {{if eq (default "all" .SKIP_SCOPE) "fmt"}}{{.BIOME_INTERNAL_FMT_SKIP_PATTERN}}
+        {{- else}}{{.BIOME_INTERNAL_LINT_SKIP_PATTERN}}{{end}}
+      BIOME_SKIP_ADDITIONAL_PATTERN: >-
+        {{if eq (default "all" .SKIP_SCOPE) "all"}}{{.BIOME_INTERNAL_FMT_SKIP_PATTERN}}{{end}}
+      BIOME_SKIP_SOURCE_CONFIG: "{{.BIOME_INTERNAL_CONFIG}}"
+      BIOME_SKIP_OUTPUT: "{{.BIOME_INTERNAL_SKIP_CONFIG}}"
+    cmds:
+      - cmd: |
+          pattern="$BIOME_SKIP_PATTERN"
+          source_config="$BIOME_SKIP_SOURCE_CONFIG"
+          output="$BIOME_SKIP_OUTPUT"
+          additional_pattern="$BIOME_SKIP_ADDITIONAL_PATTERN"
+
+          # Nothing to skip: drop the overlay a previous run left behind so the
+          # next task falls back to the project config instead of a stale one.
+          if [[ -z "$pattern" && -z "$additional_pattern" ]]; then
+            rm -f "$output"
+            exit 0
+          fi
+
+          json_escape() {
+            local value="$1"
+            value="${value//\\/\\\\}"
+            value="${value//\"/\\\"}"
+            value="${value//$'\n'/\\n}"
+            printf '%s' "$value"
+          }
+
+          discover_config() {
+            local candidate
+            for candidate in "$@"; do
+              if [[ -f "$candidate" ]]; then
+                printf '%s' "$candidate"
+                return
+              fi
+            done
+          }
+
+          if [[ -z "$source_config" ]]; then
+            source_config="$(discover_config biome.json biome.jsonc || true)"
+          fi
+
+          includes="\"**\""
+          if [[ -n "$pattern" ]]; then
+            includes+=",\"!$(json_escape "$pattern")\""
+          fi
+          if [[ -n "$additional_pattern" && "$additional_pattern" != "$pattern" ]]; then
+            includes+=",\"!$(json_escape "$additional_pattern")\""
+          fi
+
+          if [[ -n "$source_config" ]]; then
+            printf '{"extends":["%s"],"files":{"includes":[%s]}}\n' \
+              "$(json_escape "$source_config")" "$includes" >"$output"
+          else
+            printf '{"files":{"includes":[%s]}}\n' "$includes" >"$output"
+          fi
+        platforms: [linux, darwin]
+      - cmd: |
+          powershell -NoProfile -ExecutionPolicy Bypass -Command - <<'POWERSHELL'
+          $ErrorActionPreference = 'Stop'
+          $pattern = $env:BIOME_SKIP_PATTERN
+          $sourceConfig = $env:BIOME_SKIP_SOURCE_CONFIG
+          $output = $env:BIOME_SKIP_OUTPUT
+          $additionalPattern = $env:BIOME_SKIP_ADDITIONAL_PATTERN
+
+          if ([string]::IsNullOrWhiteSpace($pattern) -and
+              [string]::IsNullOrWhiteSpace($additionalPattern)) {
+              Remove-Item -LiteralPath $output -Force -ErrorAction SilentlyContinue
+              exit 0
+          }
+
+          if ([string]::IsNullOrWhiteSpace($sourceConfig)) {
+              foreach ($candidate in @('biome.json', 'biome.jsonc')) {
+                  if (Test-Path -LiteralPath $candidate -PathType Leaf) {
+                      $sourceConfig = $candidate
+                      break
+                  }
+              }
+          }
+
+          $config = [ordered]@{}
+          if (-not [string]::IsNullOrWhiteSpace($sourceConfig)) {
+              $config.extends = @($sourceConfig.Replace('\', '/'))
+          }
+          $includes = @('**')
+          if (-not [string]::IsNullOrWhiteSpace($pattern)) {
+              $includes += '!' + $pattern.Replace('\', '/')
+          }
+          if (-not [string]::IsNullOrWhiteSpace($additionalPattern) -and
+              $additionalPattern -ne $pattern) {
+              $includes += '!' + $additionalPattern.Replace('\', '/')
+          }
+          $config.files = [ordered]@{ includes = $includes }
+          $config | ConvertTo-Json -Depth 8 | Set-Content -LiteralPath $output -Encoding UTF8
+          POWERSHELL
+        platforms: [windows]
+
   check:
     run: once
     desc: Run Biome check
     cmds:
-      - task: skipfiles:prepare-overlay
+      - task: config:skip
         vars:
-          SKIPFILES_TOOL: biome
-          SKIPFILES_PATTERN: "{{.BIOME_INTERNAL_LINT_SKIP_PATTERN}}"
-          SKIPFILES_SOURCE_CONFIG: "{{.BIOME_INTERNAL_CONFIG}}"
-          SKIPFILES_OUTPUT: "{{.BIOME_INTERNAL_SKIP_CONFIG}}"
-          SKIPFILES_ADDITIONAL_PATTERN: "{{.BIOME_INTERNAL_FMT_SKIP_PATTERN}}"
-      - defer:
-          task: skipfiles:cleanup
-          vars:
-            SKIPFILES_OUTPUT: "{{.BIOME_INTERNAL_SKIP_CONFIG}}"
+          SKIP_SCOPE: all
       - task: npm:exec
         vars:
           BINARY: biome
@@ -150,17 +248,9 @@ tasks:
     run: once
     desc: Run Biome check and write safe fixes
     cmds:
-      - task: skipfiles:prepare-overlay
+      - task: config:skip
         vars:
-          SKIPFILES_TOOL: biome
-          SKIPFILES_PATTERN: "{{.BIOME_INTERNAL_LINT_SKIP_PATTERN}}"
-          SKIPFILES_SOURCE_CONFIG: "{{.BIOME_INTERNAL_CONFIG}}"
-          SKIPFILES_OUTPUT: "{{.BIOME_INTERNAL_SKIP_CONFIG}}"
-          SKIPFILES_ADDITIONAL_PATTERN: "{{.BIOME_INTERNAL_FMT_SKIP_PATTERN}}"
-      - defer:
-          task: skipfiles:cleanup
-          vars:
-            SKIPFILES_OUTPUT: "{{.BIOME_INTERNAL_SKIP_CONFIG}}"
+          SKIP_SCOPE: all
       - task: npm:exec
         vars:
           BINARY: biome
@@ -188,16 +278,9 @@ tasks:
     run: once
     desc: Run Biome lint
     cmds:
-      - task: skipfiles:prepare-overlay
+      - task: config:skip
         vars:
-          SKIPFILES_TOOL: biome
-          SKIPFILES_PATTERN: "{{.BIOME_INTERNAL_LINT_SKIP_PATTERN}}"
-          SKIPFILES_SOURCE_CONFIG: "{{.BIOME_INTERNAL_CONFIG}}"
-          SKIPFILES_OUTPUT: "{{.BIOME_INTERNAL_SKIP_CONFIG}}"
-      - defer:
-          task: skipfiles:cleanup
-          vars:
-            SKIPFILES_OUTPUT: "{{.BIOME_INTERNAL_SKIP_CONFIG}}"
+          SKIP_SCOPE: lint
       - task: npm:exec
         vars:
           BINARY: biome
@@ -219,16 +302,9 @@ tasks:
     run: once
     desc: Run Biome lint and write fixes
     cmds:
-      - task: skipfiles:prepare-overlay
+      - task: config:skip
         vars:
-          SKIPFILES_TOOL: biome
-          SKIPFILES_PATTERN: "{{.BIOME_INTERNAL_LINT_SKIP_PATTERN}}"
-          SKIPFILES_SOURCE_CONFIG: "{{.BIOME_INTERNAL_CONFIG}}"
-          SKIPFILES_OUTPUT: "{{.BIOME_INTERNAL_SKIP_CONFIG}}"
-      - defer:
-          task: skipfiles:cleanup
-          vars:
-            SKIPFILES_OUTPUT: "{{.BIOME_INTERNAL_SKIP_CONFIG}}"
+          SKIP_SCOPE: lint
       - task: npm:exec
         vars:
           BINARY: biome
@@ -250,16 +326,9 @@ tasks:
     run: once
     desc: Check formatting with Biome
     cmds:
-      - task: skipfiles:prepare-overlay
+      - task: config:skip
         vars:
-          SKIPFILES_TOOL: biome
-          SKIPFILES_PATTERN: "{{.BIOME_INTERNAL_FMT_SKIP_PATTERN}}"
-          SKIPFILES_SOURCE_CONFIG: "{{.BIOME_INTERNAL_CONFIG}}"
-          SKIPFILES_OUTPUT: "{{.BIOME_INTERNAL_SKIP_CONFIG}}"
-      - defer:
-          task: skipfiles:cleanup
-          vars:
-            SKIPFILES_OUTPUT: "{{.BIOME_INTERNAL_SKIP_CONFIG}}"
+          SKIP_SCOPE: fmt
       - task: npm:exec
         vars:
           BINARY: biome
@@ -280,16 +349,9 @@ tasks:
     run: once
     desc: Format files with Biome
     cmds:
-      - task: skipfiles:prepare-overlay
+      - task: config:skip
         vars:
-          SKIPFILES_TOOL: biome
-          SKIPFILES_PATTERN: "{{.BIOME_INTERNAL_FMT_SKIP_PATTERN}}"
-          SKIPFILES_SOURCE_CONFIG: "{{.BIOME_INTERNAL_CONFIG}}"
-          SKIPFILES_OUTPUT: "{{.BIOME_INTERNAL_SKIP_CONFIG}}"
-      - defer:
-          task: skipfiles:cleanup
-          vars:
-            SKIPFILES_OUTPUT: "{{.BIOME_INTERNAL_SKIP_CONFIG}}"
+          SKIP_SCOPE: fmt
       - task: npm:exec
         vars:
           BINARY: biome
@@ -311,17 +373,9 @@ tasks:
     run: once
     desc: Run Biome CI checks
     cmds:
-      - task: skipfiles:prepare-overlay
+      - task: config:skip
         vars:
-          SKIPFILES_TOOL: biome
-          SKIPFILES_PATTERN: "{{.BIOME_INTERNAL_LINT_SKIP_PATTERN}}"
-          SKIPFILES_SOURCE_CONFIG: "{{.BIOME_INTERNAL_CONFIG}}"
-          SKIPFILES_OUTPUT: "{{.BIOME_INTERNAL_SKIP_CONFIG}}"
-          SKIPFILES_ADDITIONAL_PATTERN: "{{.BIOME_INTERNAL_FMT_SKIP_PATTERN}}"
-      - defer:
-          task: skipfiles:cleanup
-          vars:
-            SKIPFILES_OUTPUT: "{{.BIOME_INTERNAL_SKIP_CONFIG}}"
+          SKIP_SCOPE: all
       - task: npm:exec
         vars:
           BINARY: biome

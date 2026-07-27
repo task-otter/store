@@ -3,7 +3,7 @@ version: "3"
 
 includes:
   yarn:
-    taskfile: ../../../../yarn-fnm/Taskfile.yml
+    taskfile: ../../../../yarn/fnm/Taskfile.yml
     optional: true
 
 output:

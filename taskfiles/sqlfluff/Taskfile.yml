@@ -13,10 +13,6 @@ includes:
   uv:
     taskfile: ../uv/Taskfile.yml
 
-  skipfiles:
-    taskfile: ../internal/skipfiles/Taskfile.yml
-    internal: true
-
 vars:
   SQLFLUFF_LINT_SKIP_PATTERN: ""
   SQLFLUFF_INTERNAL_SKIP_CONFIG: ".taskotter-sqlfluff-skip.cfg"
@@ -90,19 +86,7 @@ tasks:
       DIALECT: ""
       EXTRA_ARGS: ""
     cmds:
-      - task: skipfiles:prepare-overlay
-        vars:
-          SKIPFILES_TOOL: sqlfluff
-          SKIPFILES_PATTERN: >-
-            {{if .SQLFLUFF_LINT_SKIP_PATTERN_OVERRIDE}}{{.SQLFLUFF_LINT_SKIP_PATTERN_OVERRIDE}}
-            {{- else}}{{.SQLFLUFF_LINT_SKIP_PATTERN}}{{end}}
-          SKIPFILES_SOURCE_CONFIG: >-
-            {{if .CONFIG_OVERRIDE}}{{.CONFIG_OVERRIDE}}{{else}}{{.CONFIG}}{{end}}
-          SKIPFILES_OUTPUT: "{{.SQLFLUFF_INTERNAL_SKIP_CONFIG}}"
-      - defer:
-          task: skipfiles:cleanup
-          vars:
-            SKIPFILES_OUTPUT: "{{.SQLFLUFF_INTERNAL_SKIP_CONFIG}}"
+      - task: config:skip
       - >-
         bash -c '{{.UV_LOAD}};
         _skip="{{if .SQLFLUFF_LINT_SKIP_PATTERN_OVERRIDE}}{{.SQLFLUFF_LINT_SKIP_PATTERN_OVERRIDE}}
@@ -160,19 +144,7 @@ tasks:
       DIALECT: ""
       EXTRA_ARGS: ""
     cmds:
-      - task: skipfiles:prepare-overlay
-        vars:
-          SKIPFILES_TOOL: sqlfluff
-          SKIPFILES_PATTERN: >-
-            {{if .SQLFLUFF_LINT_SKIP_PATTERN_OVERRIDE}}{{.SQLFLUFF_LINT_SKIP_PATTERN_OVERRIDE}}
-            {{- else}}{{.SQLFLUFF_LINT_SKIP_PATTERN}}{{end}}
-          SKIPFILES_SOURCE_CONFIG: >-
-            {{if .CONFIG_OVERRIDE}}{{.CONFIG_OVERRIDE}}{{else}}{{.CONFIG}}{{end}}
-          SKIPFILES_OUTPUT: "{{.SQLFLUFF_INTERNAL_SKIP_CONFIG}}"
-      - defer:
-          task: skipfiles:cleanup
-          vars:
-            SKIPFILES_OUTPUT: "{{.SQLFLUFF_INTERNAL_SKIP_CONFIG}}"
+      - task: config:skip
       - >-
         bash -c '{{.UV_LOAD}};
         _skip="{{if .SQLFLUFF_LINT_SKIP_PATTERN_OVERRIDE}}{{.SQLFLUFF_LINT_SKIP_PATTERN_OVERRIDE}}
@@ -231,19 +203,7 @@ tasks:
       DIALECT: ""
       EXTRA_ARGS: ""
     cmds:
-      - task: skipfiles:prepare-overlay
-        vars:
-          SKIPFILES_TOOL: sqlfluff
-          SKIPFILES_PATTERN: >-
-            {{if .SQLFLUFF_LINT_SKIP_PATTERN_OVERRIDE}}{{.SQLFLUFF_LINT_SKIP_PATTERN_OVERRIDE}}
-            {{- else}}{{.SQLFLUFF_LINT_SKIP_PATTERN}}{{end}}
-          SKIPFILES_SOURCE_CONFIG: >-
-            {{if .CONFIG_OVERRIDE}}{{.CONFIG_OVERRIDE}}{{else}}{{.CONFIG}}{{end}}
-          SKIPFILES_OUTPUT: "{{.SQLFLUFF_INTERNAL_SKIP_CONFIG}}"
-      - defer:
-          task: skipfiles:cleanup
-          vars:
-            SKIPFILES_OUTPUT: "{{.SQLFLUFF_INTERNAL_SKIP_CONFIG}}"
+      - task: config:skip
       - >-
         bash -c '{{.UV_LOAD}};
         _skip="{{if .SQLFLUFF_LINT_SKIP_PATTERN_OVERRIDE}}{{.SQLFLUFF_LINT_SKIP_PATTERN_OVERRIDE}}
@@ -301,6 +261,119 @@ tasks:
       - "printf 'indent_unit = space\\n' >> .sqlfluff"
       - "printf 'tab_space_size = 4\\n' >> .sqlfluff"
       - echo 'Created .sqlfluff with default configuration.'
+
+  config:skip:
+    desc: Write a sqlfluff config overlay that ignores the skip pattern
+    summary: |
+      Generate a sqlfluff config that merges the project config with
+      SQLFLUFF_LINT_SKIP_PATTERN appended to [sqlfluff] ignore_paths. The lint,
+      fix, and parse tasks run this first. The overlay is rewritten on every run
+      and is not removed afterwards, so add it to .gitignore. Running with no
+      skip pattern set deletes it.
+    dir: "{{.USER_WORKING_DIR}}"
+    set: [errexit, nounset, pipefail]
+    env:
+      SQLFLUFF_SKIP_PATTERN: >-
+        {{if .SQLFLUFF_LINT_SKIP_PATTERN_OVERRIDE}}{{.SQLFLUFF_LINT_SKIP_PATTERN_OVERRIDE}}
+        {{- else}}{{.SQLFLUFF_LINT_SKIP_PATTERN}}{{end}}
+      SQLFLUFF_SKIP_SOURCE_CONFIG: >-
+        {{if .CONFIG_OVERRIDE}}{{.CONFIG_OVERRIDE}}{{else}}{{default "" .CONFIG}}{{end}}
+      SQLFLUFF_SKIP_OUTPUT: "{{.SQLFLUFF_INTERNAL_SKIP_CONFIG}}"
+    cmds:
+      - cmd: |
+          pattern="$SQLFLUFF_SKIP_PATTERN"
+          source_config="$SQLFLUFF_SKIP_SOURCE_CONFIG"
+          output="$SQLFLUFF_SKIP_OUTPUT"
+
+          # Nothing to skip: drop the overlay a previous run left behind so the
+          # next task falls back to the project config instead of a stale one.
+          if [[ -z "$pattern" ]]; then
+            rm -f "$output"
+            exit 0
+          fi
+
+          pattern="${pattern//\\//}"
+          if [[ -n "$source_config" && -f "$source_config" ]]; then
+            awk -v pattern="$pattern" '
+              BEGIN { in_sqlfluff = 0; section_found = 0; key_found = 0 }
+              /^\[[^]]+\][[:space:]]*$/ {
+                if (in_sqlfluff && !key_found) { print "ignore_paths = " pattern; key_found = 1 }
+                in_sqlfluff = ($0 ~ /^\[sqlfluff\][[:space:]]*$/)
+                if (in_sqlfluff) { section_found = 1 }
+              }
+              in_sqlfluff && /^[[:space:]]*ignore_paths[[:space:]]*=/ {
+                value = $0
+                sub(/^[^=]*=[[:space:]]*/, "", value)
+                if (value == "") print "ignore_paths = " pattern
+                else print "ignore_paths = " value "," pattern
+                key_found = 1
+                next
+              }
+              { print }
+              END {
+                if (in_sqlfluff && !key_found) print "ignore_paths = " pattern
+                else if (!section_found) {
+                  print ""
+                  print "[sqlfluff]"
+                  print "ignore_paths = " pattern
+                }
+              }
+            ' "$source_config" >"$output"
+          else
+            printf '[sqlfluff]\nignore_paths = %s\n' "$pattern" >"$output"
+          fi
+        platforms: [linux, darwin]
+      - cmd: |
+          powershell -NoProfile -ExecutionPolicy Bypass -Command - <<'POWERSHELL'
+          $ErrorActionPreference = 'Stop'
+          $pattern = $env:SQLFLUFF_SKIP_PATTERN
+          $sourceConfig = $env:SQLFLUFF_SKIP_SOURCE_CONFIG
+          $output = $env:SQLFLUFF_SKIP_OUTPUT
+
+          if ([string]::IsNullOrWhiteSpace($pattern)) {
+              Remove-Item -LiteralPath $output -Force -ErrorAction SilentlyContinue
+              exit 0
+          }
+
+          $normalizedPattern = $pattern.Replace('\', '/')
+          if (-not [string]::IsNullOrWhiteSpace($sourceConfig) -and
+              (Test-Path -LiteralPath $sourceConfig -PathType Leaf)) {
+              $lines = @(Get-Content -LiteralPath $sourceConfig)
+              $result = [System.Collections.Generic.List[string]]::new()
+              $inSqlfluff = $false
+              $sectionFound = $false
+              $keyFound = $false
+              foreach ($line in $lines) {
+                  if ($line -match '^\[[^]]+\]\s*$') {
+                      if ($inSqlfluff -and -not $keyFound) {
+                          $result.Add("ignore_paths = $normalizedPattern")
+                          $keyFound = $true
+                      }
+                      $inSqlfluff = $line -match '^\[sqlfluff\]\s*$'
+                      if ($inSqlfluff) { $sectionFound = $true }
+                  }
+                  if ($inSqlfluff -and $line -match '^\s*ignore_paths\s*=\s*(.*)$') {
+                      $existing = $Matches[1]
+                      $separator = if ([string]::IsNullOrWhiteSpace($existing)) { '' } else { ',' }
+                      $result.Add("ignore_paths = $existing$separator$normalizedPattern")
+                      $keyFound = $true
+                  } else {
+                      $result.Add($line)
+                  }
+              }
+              if ($inSqlfluff -and -not $keyFound) {
+                  $result.Add("ignore_paths = $normalizedPattern")
+              } elseif (-not $sectionFound) {
+                  $result.Add('')
+                  $result.Add('[sqlfluff]')
+                  $result.Add("ignore_paths = $normalizedPattern")
+              }
+              Set-Content -LiteralPath $output -Encoding UTF8 -Value $result
+          } else {
+              Set-Content -LiteralPath $output -Encoding UTF8 -Value "[sqlfluff]`nignore_paths = $normalizedPattern"
+          }
+          POWERSHELL
+        platforms: [windows]
 
   _install:unix:
     run: once

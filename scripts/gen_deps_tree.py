@@ -23,14 +23,14 @@ JS_TOOLS = [
 
 NODE_ROOTS = {"fnm", "nvm", "bun"}
 NODE_PM = {
-    "corepack-fnm",
-    "corepack-nvm",
-    "npm-fnm",
-    "npm-nvm",
-    "pnpm-fnm",
-    "pnpm-nvm",
-    "yarn-fnm",
-    "yarn-nvm",
+    "corepack/fnm",
+    "corepack/nvm",
+    "npm/fnm",
+    "npm/nvm",
+    "pnpm/fnm",
+    "pnpm/nvm",
+    "yarn/fnm",
+    "yarn/nvm",
 }
 
 

@@ -360,13 +360,13 @@ func TestLintSkipPatternDryRuns(t *testing.T) {
 	tasktest.AssertDryRunContains(t, "go",
 		[]string{"lint", "GO_LINT_SKIP_PATTERN=" + pattern},
 		"golangci-lint",
-		"SKIPFILES_TOOL=golangci",
+		"config:skip",
 		pattern,
 	)
 	tasktest.AssertDryRunContains(t, "go",
 		[]string{"lint:fix", "GO_LINT_SKIP_PATTERN=" + pattern},
 		"golangci-lint",
-		"SKIPFILES_TOOL=golangci",
+		"config:skip",
 		pattern,
 		"--fix",
 	)

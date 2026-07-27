@@ -8,6 +8,7 @@ exported_tasks:
   - check:write
   - ci
   - config:init
+  - config:skip
   - fix
   - fmt
   - fmt:check

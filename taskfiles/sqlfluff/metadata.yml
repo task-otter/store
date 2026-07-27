@@ -4,6 +4,7 @@ module: sqlfluff
 taskfile: Taskfile.yml
 exported_tasks:
   - config:init
+  - config:skip
   - fix
   - install
   - install:undo

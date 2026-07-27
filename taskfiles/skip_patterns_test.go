@@ -87,13 +87,21 @@ var skipPatternModules = []skipPatternModule{
 	{name: "zizmor", vars: []string{"ZIZMOR_LINT_SKIP_PATTERN"}},
 }
 
+// Modules that still delegate to the shared skipfiles helper. Biome and Knip
+// dropped out when their config overlays moved into their own config:skip
+// tasks; SQLFluff and Go stay because they still use filter / go-packages.
 var sharedSkipfilesConsumers = []string{
-	"actionlint", "ansible", "biome/bun", "biome/node/fnm/npm", "biome/node/nvm/npm",
+	"actionlint", "ansible", "buf", "cargo", "dotenv-linter", "go", "hadolint",
+	"jsonlint", "protolint", "shellcheck", "shfmt", "sqlfluff", "yamllint", "zizmor",
+}
+
+// Modules that own their config overlay through a local config:skip task.
+var configSkipModules = []string{
+	"biome/bun", "biome/node/fnm/npm", "biome/node/nvm/npm",
 	"biome/node/fnm/pnpm", "biome/node/nvm/pnpm", "biome/node/fnm/yarn", "biome/node/nvm/yarn",
-	"buf", "cargo", "dotenv-linter", "go", "hadolint", "jsonlint", "knip/bun",
+	"go", "knip/bun",
 	"knip/node/fnm/npm", "knip/node/nvm/npm", "knip/node/fnm/pnpm", "knip/node/nvm/pnpm",
-	"knip/node/fnm/yarn", "knip/node/nvm/yarn", "protolint", "shellcheck", "shfmt",
-	"sqlfluff", "yamllint", "zizmor",
+	"knip/node/fnm/yarn", "knip/node/nvm/yarn", "sqlfluff",
 }
 
 func TestSkipPatternContract(t *testing.T) {
@@ -171,8 +179,8 @@ func TestSkipPatternRepresentativeDryRuns(t *testing.T) {
 	}{
 		{module: "eslint/bun", args: []string{"lint", "ESLINT_LINT_SKIP_PATTERN=" + pattern}, expected: []string{"--ignore-pattern", pattern}},
 		{module: "prettier/bun", args: []string{"fmt:check", "PRETTIER_FMT_SKIP_PATTERN=" + pattern}, expected: []string{"!" + pattern}},
-		{module: "biome/bun", args: []string{"ci", "BIOME_LINT_SKIP_PATTERN=" + pattern}, expected: []string{"skipfiles:prepare-overlay"}},
-		{module: "knip/bun", args: []string{"lint", "KNIP_LINT_SKIP_PATTERN=" + pattern}, expected: []string{"skipfiles:prepare-overlay"}},
+		{module: "biome/bun", args: []string{"ci", "BIOME_LINT_SKIP_PATTERN=" + pattern}, expected: []string{"config:skip"}},
+		{module: "knip/bun", args: []string{"lint", "KNIP_LINT_SKIP_PATTERN=" + pattern}, expected: []string{"config:skip"}},
 		{module: "actionlint", args: []string{"lint", "ACTIONLINT_LINT_SKIP_PATTERN=" + pattern}, expected: []string{"internal/skipfiles/Taskfile.yml", pattern}},
 		{module: "ansible", args: []string{"syntax:check", "PLAYBOOK_OVERRIDE=site.yml", "ANSIBLE_LINT_SKIP_PATTERN=" + pattern}, expected: []string{"internal/skipfiles/Taskfile.yml", pattern}},
 		{module: "buf", args: []string{"breaking", "BUF_LINT_SKIP_PATTERN=" + pattern}, expected: []string{"internal/skipfiles/Taskfile.yml", pattern}},
@@ -182,8 +190,8 @@ func TestSkipPatternRepresentativeDryRuns(t *testing.T) {
 		{module: "yamllint", args: []string{"ci", "YAMLLINT_LINT_SKIP_PATTERN=" + pattern}, expected: []string{"internal/skipfiles/Taskfile.yml", pattern}},
 		{module: "jsonlint", args: []string{"lint", "JSONLINT_LINT_SKIP_PATTERN=" + pattern}, expected: []string{"internal/skipfiles/Taskfile.yml", pattern}},
 		{module: "protolint", args: []string{"lint", "PROTOLINT_LINT_SKIP_PATTERN=" + pattern}, expected: []string{"internal/skipfiles/Taskfile.yml", pattern}},
-		{module: "sqlfluff", args: []string{"lint", "SQLFLUFF_LINT_SKIP_PATTERN=" + pattern}, expected: []string{"skipfiles:prepare-overlay"}},
-		{module: "sqlfluff", args: []string{"parse", "SQLFLUFF_LINT_SKIP_PATTERN=" + pattern}, expected: []string{"skipfiles:prepare-overlay"}},
+		{module: "sqlfluff", args: []string{"lint", "SQLFLUFF_LINT_SKIP_PATTERN=" + pattern}, expected: []string{"config:skip"}},
+		{module: "sqlfluff", args: []string{"parse", "SQLFLUFF_LINT_SKIP_PATTERN=" + pattern}, expected: []string{"config:skip"}},
 		{module: "cargo", args: []string{"lint", "CARGO_LINT_SKIP_PATTERN=" + pattern}, expected: []string{"internal/skipfiles/Taskfile.yml", pattern}},
 		{module: "staticcheck", args: []string{"lint", "STATICCHECK_LINT_SKIP_PATTERN=" + pattern}, expected: []string{"internal/skipfiles/Taskfile.yml", pattern}},
 		{module: "go", args: []string{"govulncheck:lint", "GO_LINT_SKIP_PATTERN=" + pattern}, expected: []string{"internal/skipfiles/Taskfile.yml", pattern}},
@@ -261,99 +269,192 @@ func TestSharedSkipFileMatcher(t *testing.T) {
 	}
 }
 
-func TestSharedOverlayTaskfile(t *testing.T) {
+// runConfigSkip runs a module's config:skip task inside project, which is the
+// USER_WORKING_DIR the task writes its overlay relative to.
+func runConfigSkip(t *testing.T, project, module string, vars ...string) {
+	t.Helper()
 	root := tasktest.RepoRoot(t)
-	helper := filepath.Join(root, "taskfiles", "internal", "skipfiles", "Taskfile.yml")
-	temporaryDirectory := t.TempDir()
+	arguments := append([]string{
+		"--silent", "--taskfile",
+		filepath.Join(root, "taskfiles", module, "Taskfile.yml"),
+		"config:skip",
+	}, vars...)
+	runCommand(t, project, "task", arguments...)
+}
 
-	emptyOutput := filepath.Join(temporaryDirectory, "empty-biome.json")
-	if err := os.WriteFile(emptyOutput, []byte("stale\n"), 0o644); err != nil {
-		t.Fatalf("write stale overlay: %v", err)
+// writeFixture creates a file inside a fresh project directory.
+func writeFixture(t *testing.T, project, name, content string) {
+	t.Helper()
+	if err := os.WriteFile(filepath.Join(project, name), []byte(content), 0o644); err != nil {
+		t.Fatalf("write %s: %v", name, err)
 	}
-	runCommand(t, root, "task", "--silent", "--taskfile", helper, "prepare-overlay",
-		"SKIPFILES_TOOL=biome", "SKIPFILES_PATTERN=", "SKIPFILES_SOURCE_CONFIG=",
-		"SKIPFILES_OUTPUT="+emptyOutput, "SKIPFILES_ADDITIONAL_PATTERN=")
-	if _, err := os.Stat(emptyOutput); !os.IsNotExist(err) {
-		t.Fatalf("empty skip pattern did not remove stale overlay")
-	}
+}
 
-	biomeOutput := filepath.Join(temporaryDirectory, "biome.json")
-	runCommand(t, root, "task", "--silent", "--taskfile", helper, "prepare-overlay",
-		"SKIPFILES_TOOL=biome", "SKIPFILES_PATTERN=**/generated/**", "SKIPFILES_SOURCE_CONFIG=",
-		"SKIPFILES_OUTPUT="+biomeOutput, "SKIPFILES_ADDITIONAL_PATTERN=**/vendor/**")
-	biomeConfig := readFile(t, biomeOutput)
-	for _, expected := range []string{`"!**/generated/**"`, `"!**/vendor/**"`} {
-		if !strings.Contains(biomeConfig, expected) {
-			t.Fatalf("Biome overlay does not contain %s:\n%s", expected, biomeConfig)
+// assertOverlayContains reads an overlay written into project and checks tokens.
+func assertOverlayContains(t *testing.T, project, name string, tokens ...string) {
+	t.Helper()
+	content := readFile(t, filepath.Join(project, name))
+	for _, token := range tokens {
+		if !strings.Contains(content, token) {
+			t.Fatalf("%s does not contain %q:\n%s", name, token, content)
 		}
 	}
+}
 
-	sourceConfig := filepath.Join(temporaryDirectory, "source.cfg")
-	if err := os.WriteFile(sourceConfig, []byte("[sqlfluff]\ndialect = postgres\nignore_paths = build/**\n"), 0o644); err != nil {
-		t.Fatalf("write SQLFluff source config: %v", err)
-	}
-	sqlfluffOutput := filepath.Join(temporaryDirectory, "sqlfluff.cfg")
-	runCommand(t, root, "task", "--silent", "--taskfile", helper, "prepare-overlay",
-		"SKIPFILES_TOOL=sqlfluff", `SKIPFILES_PATTERN=**\generated\**`,
-		"SKIPFILES_SOURCE_CONFIG="+sourceConfig, "SKIPFILES_OUTPUT="+sqlfluffOutput)
-	sqlfluffConfig := readFile(t, sqlfluffOutput)
-	for _, expected := range []string{"dialect = postgres", "ignore_paths = build/**,**/generated/**"} {
-		if !strings.Contains(sqlfluffConfig, expected) {
-			t.Fatalf("SQLFluff overlay does not contain %q:\n%s", expected, sqlfluffConfig)
+func TestBiomeConfigSkipTask(t *testing.T) {
+	const overlay = ".taskotter-biome-bun-skip.json"
+
+	t.Run("both patterns", func(t *testing.T) {
+		project := t.TempDir()
+		runConfigSkip(t, project, "biome/bun",
+			"BIOME_LINT_SKIP_PATTERN=**/generated/**",
+			"BIOME_FMT_SKIP_PATTERN=**/vendor/**")
+		assertOverlayContains(t, project, overlay, `"!**/generated/**"`, `"!**/vendor/**"`)
+	})
+
+	t.Run("lint scope excludes fmt pattern", func(t *testing.T) {
+		project := t.TempDir()
+		runConfigSkip(t, project, "biome/bun", "SKIP_SCOPE=lint",
+			"BIOME_LINT_SKIP_PATTERN=**/generated/**",
+			"BIOME_FMT_SKIP_PATTERN=**/vendor/**")
+		assertOverlayContains(t, project, overlay, `"!**/generated/**"`)
+		if content := readFile(t, filepath.Join(project, overlay)); strings.Contains(content, "vendor") {
+			t.Fatalf("lint-scoped overlay leaked the fmt pattern:\n%s", content)
 		}
-	}
+	})
 
-	knipOutput := filepath.Join(temporaryDirectory, "knip.json")
-	runCommand(t, root, "task", "--silent", "--taskfile", helper, "prepare-overlay",
-		"SKIPFILES_TOOL=knip", "SKIPFILES_PATTERN=**/generated/**", "SKIPFILES_SOURCE_CONFIG=",
-		"SKIPFILES_OUTPUT="+knipOutput, "SKIPFILES_JS_RUNTIME=node")
-	if knipConfig := readFile(t, knipOutput); !strings.Contains(knipConfig, "**/generated/**") {
-		t.Fatalf("Knip overlay does not contain skip pattern:\n%s", knipConfig)
-	}
+	t.Run("extends a discovered config", func(t *testing.T) {
+		project := t.TempDir()
+		writeFixture(t, project, "biome.json", `{"linter":{"enabled":true}}`)
+		runConfigSkip(t, project, "biome/bun", "BIOME_LINT_SKIP_PATTERN=**/generated/**")
+		assertOverlayContains(t, project, overlay, `"extends":["biome.json"]`)
+	})
 
-	knipJSONC := filepath.Join(temporaryDirectory, "knip.jsonc")
-	if err := os.WriteFile(knipJSONC, []byte("{\n  // keep this entry\n  \"entry\": [\"src/index.ts\"],\n}\n"), 0o644); err != nil {
-		t.Fatalf("write Knip JSONC config: %v", err)
-	}
-	knipJSONCOutput := filepath.Join(temporaryDirectory, "knip-jsonc-output.json")
-	runCommand(t, root, "task", "--silent", "--taskfile", helper, "prepare-overlay",
-		"SKIPFILES_TOOL=knip", "SKIPFILES_PATTERN=**/generated/**",
-		"SKIPFILES_SOURCE_CONFIG="+knipJSONC, "SKIPFILES_OUTPUT="+knipJSONCOutput,
-		"SKIPFILES_JS_RUNTIME=node")
-	for _, expected := range []string{"src/index.ts", "**/generated/**"} {
-		if content := readFile(t, knipJSONCOutput); !strings.Contains(content, expected) {
-			t.Fatalf("Knip JSONC overlay does not contain %q:\n%s", expected, content)
+	t.Run("no pattern removes a stale overlay", func(t *testing.T) {
+		project := t.TempDir()
+		writeFixture(t, project, overlay, "stale\n")
+		runConfigSkip(t, project, "biome/bun")
+		if _, err := os.Stat(filepath.Join(project, overlay)); !os.IsNotExist(err) {
+			t.Fatal("empty skip pattern did not remove the stale overlay")
 		}
-	}
+	})
+}
 
-	packageJSON := filepath.Join(temporaryDirectory, "package.json")
-	if err := os.WriteFile(packageJSON, []byte(`{"name":"fixture","knip":{"ignore":["existing/**"]}}`), 0o644); err != nil {
-		t.Fatalf("write package.json: %v", err)
-	}
-	packageOutput := filepath.Join(temporaryDirectory, "knip-package-output.json")
-	runCommand(t, root, "task", "--silent", "--taskfile", helper, "prepare-overlay",
-		"SKIPFILES_TOOL=knip", "SKIPFILES_PATTERN=**/generated/**",
-		"SKIPFILES_SOURCE_CONFIG="+packageJSON, "SKIPFILES_OUTPUT="+packageOutput,
-		"SKIPFILES_JS_RUNTIME=node")
-	for _, expected := range []string{"existing/**", "**/generated/**"} {
-		if content := readFile(t, packageOutput); !strings.Contains(content, expected) {
-			t.Fatalf("Knip package.json overlay does not contain %q:\n%s", expected, content)
+func TestKnipConfigSkipTask(t *testing.T) {
+	const overlay = ".taskotter-knip-bun-skip.json"
+
+	t.Run("no project config", func(t *testing.T) {
+		project := t.TempDir()
+		runConfigSkip(t, project, "knip/bun", "KNIP_LINT_SKIP_PATTERN=**/generated/**")
+		assertOverlayContains(t, project, overlay, "**/generated/**")
+	})
+
+	t.Run("merges jsonc", func(t *testing.T) {
+		project := t.TempDir()
+		writeFixture(t, project, "knip.jsonc",
+			"{\n  // keep this entry\n  \"entry\": [\"src/index.ts\"],\n}\n")
+		runConfigSkip(t, project, "knip/bun", "KNIP_LINT_SKIP_PATTERN=**/generated/**")
+		assertOverlayContains(t, project, overlay, "src/index.ts", "**/generated/**")
+	})
+
+	t.Run("merges the package.json knip section", func(t *testing.T) {
+		project := t.TempDir()
+		writeFixture(t, project, "package.json",
+			`{"name":"fixture","knip":{"ignore":["existing/**"]}}`)
+		runConfigSkip(t, project, "knip/bun", "KNIP_LINT_SKIP_PATTERN=**/generated/**")
+		assertOverlayContains(t, project, overlay, "existing/**", "**/generated/**")
+	})
+
+	t.Run("rejects a dynamic JS config", func(t *testing.T) {
+		project := t.TempDir()
+		writeFixture(t, project, "knip.config.js", "export default {};\n")
+		command := exec.Command("task", "--silent", "--taskfile",
+			filepath.Join(tasktest.RepoRoot(t), "taskfiles", "knip", "bun", "Taskfile.yml"),
+			"config:skip", "KNIP_LINT_SKIP_PATTERN=**/generated/**")
+		command.Dir = project
+		output, err := command.CombinedOutput()
+		if err == nil || !strings.Contains(string(output), "dynamic JS/TS Knip config") {
+			t.Fatalf("dynamic Knip config was not rejected clearly: err=%v\n%s", err, output)
 		}
-	}
+	})
 
-	dynamicConfig := filepath.Join(temporaryDirectory, "knip.config.js")
-	dynamicCommand := exec.Command(
-		"task", "--silent", "--taskfile", helper, "prepare-overlay",
-		"SKIPFILES_TOOL=knip", "SKIPFILES_PATTERN=**/generated/**",
-		"SKIPFILES_SOURCE_CONFIG="+dynamicConfig,
-		"SKIPFILES_OUTPUT="+filepath.Join(temporaryDirectory, "dynamic-output.json"),
-		"SKIPFILES_JS_RUNTIME=node",
-	)
-	dynamicCommand.Dir = root
-	dynamicOutput, err := dynamicCommand.CombinedOutput()
-	if err == nil || !strings.Contains(string(dynamicOutput), "dynamic JS/TS Knip config") {
-		t.Fatalf("dynamic Knip config was not rejected clearly: err=%v\n%s", err, dynamicOutput)
-	}
+	t.Run("no pattern removes a stale overlay", func(t *testing.T) {
+		project := t.TempDir()
+		writeFixture(t, project, overlay, "stale\n")
+		runConfigSkip(t, project, "knip/bun")
+		if _, err := os.Stat(filepath.Join(project, overlay)); !os.IsNotExist(err) {
+			t.Fatal("empty skip pattern did not remove the stale overlay")
+		}
+	})
+}
+
+func TestSQLFluffConfigSkipTask(t *testing.T) {
+	const overlay = ".taskotter-sqlfluff-skip.cfg"
+
+	t.Run("merges ignore_paths and normalizes separators", func(t *testing.T) {
+		project := t.TempDir()
+		writeFixture(t, project, "source.cfg",
+			"[sqlfluff]\ndialect = postgres\nignore_paths = build/**\n")
+		runConfigSkip(t, project, "sqlfluff",
+			`SQLFLUFF_LINT_SKIP_PATTERN=**\generated\**`, "CONFIG_OVERRIDE=source.cfg")
+		assertOverlayContains(t, project, overlay,
+			"dialect = postgres", "ignore_paths = build/**,**/generated/**")
+	})
+
+	t.Run("no project config", func(t *testing.T) {
+		project := t.TempDir()
+		runConfigSkip(t, project, "sqlfluff", "SQLFLUFF_LINT_SKIP_PATTERN=**/generated/**")
+		assertOverlayContains(t, project, overlay, "[sqlfluff]", "ignore_paths = **/generated/**")
+	})
+
+	t.Run("no pattern removes a stale overlay", func(t *testing.T) {
+		project := t.TempDir()
+		writeFixture(t, project, overlay, "stale\n")
+		runConfigSkip(t, project, "sqlfluff")
+		if _, err := os.Stat(filepath.Join(project, overlay)); !os.IsNotExist(err) {
+			t.Fatal("empty skip pattern did not remove the stale overlay")
+		}
+	})
+}
+
+func TestGoConfigSkipTask(t *testing.T) {
+	const overlay = ".golangci-taskotter-skip.yml"
+
+	t.Run("translates the glob into an exclusion regex", func(t *testing.T) {
+		project := t.TempDir()
+		runConfigSkip(t, project, "go", "GO_LINT_SKIP_PATTERN=**/generated/**")
+		assertOverlayContains(t, project, overlay,
+			"linters:", "exclusions:", "paths:", `^(?:.*/)?generated/.*$`)
+	})
+
+	t.Run("rewrites rather than accumulating overlays", func(t *testing.T) {
+		project := t.TempDir()
+		runConfigSkip(t, project, "go", "GO_LINT_SKIP_PATTERN=**/generated/**")
+		runConfigSkip(t, project, "go", "GO_LINT_SKIP_PATTERN=**/mocks/*.go")
+		content := readFile(t, filepath.Join(project, overlay))
+		if strings.Contains(content, "generated") {
+			t.Fatalf("second run did not replace the first pattern:\n%s", content)
+		}
+		if !strings.Contains(content, `^(?:.*/)?mocks/[^/]*\.go$`) {
+			t.Fatalf("second run did not write the new pattern:\n%s", content)
+		}
+		entries, err := os.ReadDir(project)
+		if err != nil {
+			t.Fatalf("read project: %v", err)
+		}
+		if len(entries) != 1 {
+			t.Fatalf("expected exactly one overlay file, found %d", len(entries))
+		}
+	})
+
+	t.Run("no pattern removes a stale overlay", func(t *testing.T) {
+		project := t.TempDir()
+		writeFixture(t, project, overlay, "stale\n")
+		runConfigSkip(t, project, "go")
+		if _, err := os.Stat(filepath.Join(project, overlay)); !os.IsNotExist(err) {
+			t.Fatal("empty skip pattern did not remove the stale overlay")
+		}
+	})
 }
 
 func TestSharedSkipfilesTaskfileContract(t *testing.T) {
@@ -371,8 +472,16 @@ func TestSharedSkipfilesTaskfileContract(t *testing.T) {
 		t.Fatalf("shared skipfiles directory contains %v, want only Taskfile.yml", names)
 	}
 
-	if len(sharedSkipfilesConsumers) != 28 {
-		t.Fatalf("shared skipfiles consumer count = %d, want 28", len(sharedSkipfilesConsumers))
+	// The helper is down to filter and go-packages; overlay generation now lives
+	// in each tool's own config:skip task.
+	for _, removed := range []string{"prepare-overlay:", "cleanup:"} {
+		if strings.Contains(readFile(t, filepath.Join(helperDirectory, "Taskfile.yml")), removed) {
+			t.Errorf("shared skipfiles Taskfile still defines %s", removed)
+		}
+	}
+
+	if len(sharedSkipfilesConsumers) != 14 {
+		t.Fatalf("shared skipfiles consumer count = %d, want 14", len(sharedSkipfilesConsumers))
 	}
 	for _, module := range sharedSkipfilesConsumers {
 		content := readFile(t, filepath.Join(root, "taskfiles", module, "Taskfile.yml"))
@@ -387,6 +496,26 @@ func TestSharedSkipfilesTaskfileContract(t *testing.T) {
 			if strings.Contains(content, removed) {
 				t.Errorf("%s still references removed helper %s", module, removed)
 			}
+		}
+	}
+
+	if len(configSkipModules) != 16 {
+		t.Fatalf("config:skip module count = %d, want 16", len(configSkipModules))
+	}
+	for _, module := range configSkipModules {
+		taskfile := tasktest.LoadTaskfile(t, module)
+		task, exists := taskfile.Tasks["config:skip"]
+		if !exists {
+			t.Errorf("%s does not define a config:skip task", module)
+			continue
+		}
+		if task.Internal {
+			t.Errorf("%s config:skip is internal, want a public task", module)
+		}
+		// run: once would let one caller's overlay be reused by the next call in
+		// the same run, which passes a different scope or pattern.
+		if task.Run == "once" {
+			t.Errorf("%s config:skip must not use run: once", module)
 		}
 	}
 }

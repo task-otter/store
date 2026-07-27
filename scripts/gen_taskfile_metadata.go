@@ -27,6 +27,8 @@ var toolFamilies = map[string]bool{
 	"eslint": true, "prettier": true, "biome": true, "bruno": true,
 	"depcheck": true, "knip": true, "stylelint": true, "typescript": true,
 	"htmlhint": true, "spectral": true,
+	// Package managers are families too: taskfiles/<pm>/{fnm,nvm}.
+	"npm": true, "pnpm": true, "yarn": true, "corepack": true,
 }
 
 type taskfile struct {

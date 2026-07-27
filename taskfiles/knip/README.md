@@ -38,6 +38,7 @@ Available leaves: `bun`, `node/{fnm,nvm}/{npm,pnpm,yarn}`.
 | `upgrade`          | Optional `EXTRA_ARGS`                       | Reinstall `knip` at the latest version.                    |
 | `init`             | Optional `EXTRA_ARGS`, `CLI_ARGS`           | Initialize Knip configuration.                            |
 | `config:init`      | Optional `EXTRA_ARGS`, `CLI_ARGS`           | Alias for `init`.                                         |
+| `config:skip`      | —                                           | Write the skip-pattern config overlay. Run automatically by the tasks below. |
 | `lint`             | Optional `CONFIG`, `EXTRA_ARGS`, `CLI_ARGS` | Run the default Knip analysis.                            |
 | `production`       | Optional `CONFIG`, `EXTRA_ARGS`, `CLI_ARGS` | Run Knip with `--production`.                             |
 | `dependencies`     | Optional `CONFIG`, `EXTRA_ARGS`, `CLI_ARGS` | Report unused production dependencies.                    |
@@ -62,9 +63,16 @@ Skip patterns support `*` within one path segment, `**` across directories, and 
 
 Knip still analyzes its project graph; the generated configuration suppresses findings for files matching `KNIP_LINT_SKIP_PATTERN`.
 
-When a skip pattern is set, TaskOtter can merge JSON, JSONC, and
-`package.json#knip` configurations. Dynamic JavaScript and TypeScript Knip
-configurations must add the pattern to their own `ignore` array.
+When a skip pattern is set, `config:skip` merges your configuration with the
+pattern appended to its `ignore` array and writes
+`.taskotter-knip-<pm>-skip.json`, which the task then passes to Knip via
+`--config`. JSON, JSONC, and `package.json#knip` configurations can be merged;
+dynamic JavaScript and TypeScript Knip configurations cannot, and must add the
+pattern to their own `ignore` array instead.
+
+The overlay is rewritten on every run and is not deleted afterwards, so **add
+`.taskotter-knip-*-skip.json` to your `.gitignore`**. Running `config:skip` with
+no skip pattern set deletes it.
 
 ## Examples
 

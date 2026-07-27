@@ -11,7 +11,7 @@ silent: true
 
 includes:
   npm:
-    taskfile: ../../../../npm-fnm/Taskfile.yml
+    taskfile: ../../../../npm/fnm/Taskfile.yml
 
 vars:
   DEPCHECK_LINT_SKIP_PATTERN: ""

@@ -3,7 +3,7 @@ version: "3"
 
 includes:
   npm:
-    taskfile: ../../../../npm-nvm/Taskfile.yml
+    taskfile: ../../../../npm/nvm/Taskfile.yml
     optional: true
 
 output:

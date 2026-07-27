@@ -5,6 +5,7 @@ taskfile: Taskfile.yml
 exported_tasks:
   - ci
   - config:init
+  - config:skip
   - dependencies
   - dev-dependencies
   - exports

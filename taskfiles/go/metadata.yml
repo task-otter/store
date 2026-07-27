@@ -4,6 +4,7 @@ module: go
 taskfile: Taskfile.yml
 exported_tasks:
   - bench
+  - config:skip
   - coverage
   - fmt
   - fmt:check

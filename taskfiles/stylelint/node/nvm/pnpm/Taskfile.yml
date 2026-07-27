@@ -11,7 +11,7 @@ silent: true
 
 includes:
   pnpm:
-    taskfile: ../../../../pnpm-nvm/Taskfile.yml
+    taskfile: ../../../../pnpm/nvm/Taskfile.yml
 
 vars:
   STYLELINT_LINT_SKIP_PATTERN: ""

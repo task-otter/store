@@ -30,7 +30,7 @@ task go:lint
 | Category | Modules | Count | Example |
 | --- | --- | ---: | --- |
 | Node runtimes | `fnm`, `nvm`, `bun` | 3 | [`fnm`](taskfiles/fnm/README.md) |
-| Package managers | `npm-{fnm,nvm}`, `pnpm-{fnm,nvm}`, `yarn-{fnm,nvm}`, `corepack-{fnm,nvm}` | 8 | [`npm-fnm`](taskfiles/npm-fnm/README.md) |
+| Package managers | `npm`, `pnpm`, `yarn`, `corepack` — each a nested family with 2 leaves (`{fnm,nvm}`) | 8 | [`npm`](taskfiles/npm/README.md) |
 | JS lint/format/check | `biome`, `bruno`, `depcheck`, `eslint`, `knip`, `prettier`, `stylelint`, `typescript` — each a nested family with 7 leaves (`bun`, `node/{fnm,nvm}/{npm,pnpm,yarn}`) | 56 | [`eslint`](taskfiles/eslint/README.md) |
 | Languages & runtimes | `go`, `python`, `uv`, `cargo`, `proto`, `staticcheck` | 6 | [`go`](taskfiles/go/README.md) |
 | CI & infra | `actionlint`, `bash-exec`, `bencher`, `shellcheck`, `shfmt`, `yamllint`, `zizmor`, `hadolint`, `buf`, `docker`, `git`, `gh`, `jq`, `vault`, `ansible`, `sqlfluff`, `dotenv-linter`, `htmlhint`, `djlint`, `jsonlint`, `rumdl`, `protolint`, `spectral`, `adrs` | 30 | [`actionlint`](taskfiles/actionlint/README.md) |
@@ -59,7 +59,15 @@ For example: `task eslint:node:fnm:npm:lint`, `task prettier:bun:fmt:check`,
 `task typescript:node:nvm:pnpm:build`. (`htmlhint` and `spectral` omit the `bun`
 and `yarn` leaves.)
 
-Package-manager modules follow the flat pattern: `npm-fnm`, `pnpm-nvm`, `yarn-fnm`, etc.
+Package-manager modules are nested families too, keyed by node version manager.
+Include the family once (`npm: taskfiles/npm/Taskfile.yml`), then invoke the leaf
+matching your stack:
+
+```
+task {npm|pnpm|yarn|corepack}:{fnm|nvm}:{task}
+```
+
+For example: `task npm:fnm:install`, `task pnpm:nvm:ci`, `task corepack:fnm:setup`.
 
 ## Dependencies
 
@@ -67,12 +75,12 @@ Modules compose via Taskfile `includes:`. A JS tool variant typically depends on
 
 ```mermaid
 flowchart BT
-  fnm --> corepack_fnm["corepack-fnm"]
-  corepack_fnm --> npm_fnm["npm-fnm"]
+  fnm --> corepack_fnm["corepack:fnm"]
+  corepack_fnm --> npm_fnm["npm:fnm"]
   npm_fnm --> eslint_fnm_npm["eslint:node:fnm:npm"]
 
-  nvm --> corepack_nvm["corepack-nvm"]
-  corepack_nvm --> npm_nvm["npm-nvm"]
+  nvm --> corepack_nvm["corepack:nvm"]
+  corepack_nvm --> npm_nvm["npm:nvm"]
   npm_nvm --> eslint_nvm_npm["eslint:node:nvm:npm"]
 
   bun --> eslint_bun["eslint:bun"]

@@ -37,6 +37,7 @@ Available leaves: `bun`, `node/{fnm,nvm}/{npm,pnpm,yarn}`.
 | `upgrade`      | Optional `EXTRA_ARGS`                                  | Reinstall `@biomejs/biome` at the latest version.                          |
 | `init`         | Optional `EXTRA_ARGS`, `CLI_ARGS`                      | Alias for `config:init`.                                                   |
 | `config:init`  | Optional `EXTRA_ARGS`, `CLI_ARGS`                      | Run `biome init`. Skipped if `biome.json` or `biome.jsonc` already exists. |
+| `config:skip`  | Optional `SKIP_SCOPE`                                  | Write the skip-pattern config overlay. Run automatically by the tasks below. |
 | `check`        | Optional `TARGETS`, `CONFIG`, `EXTRA_ARGS`, `CLI_ARGS` | Run `biome check`.                                                         |
 | `check:write`  | Optional `TARGETS`, `CONFIG`, `EXTRA_ARGS`, `CLI_ARGS` | Run `biome check --write`.                                                 |
 | `fix`          | Optional `TARGETS`, `CONFIG`, `EXTRA_ARGS`, `CLI_ARGS` | Alias for `check:write`.                                                   |
@@ -59,6 +60,14 @@ and `CONFIG` adds `--config-path <path>`.
 - `BIOME_FMT_SKIP_PATTERN` (default empty): forward-slash path glob for files skipped by formatting checks and fixes.
 
 Skip patterns support `*` within one path segment, `**` across directories, and `?` for one character. Paths are matched relative to the task working directory; for example, `**/generated/**`.
+
+When a skip pattern is set, `config:skip` writes `.taskotter-biome-<pm>-skip.json`
+next to your `biome.json` — a config that extends it and negates the pattern —
+and the task runs Biome against that overlay so the rest of your configuration
+stays active. Pass `SKIP_SCOPE=lint` or `SKIP_SCOPE=fmt` to negate only one of
+the two patterns; the default negates both. The overlay is rewritten on every
+run and is not deleted afterwards, so **add `.taskotter-biome-*-skip.json` to
+your `.gitignore`**. Running `config:skip` with no skip pattern set deletes it.
 
 ## Examples
 

@@ -4,8 +4,7 @@
 
 This Taskfile wraps the [Bruno](https://www.usebruno.com/) CLI (`@usebruno/cli`)
 for running API collections from the command line. It installs Bruno as a local
-dev dependency This variant uses the `npm-fnm` stack (`npm-fnm`) package manager.
-
+dev dependency.
 
 ## Variants
 

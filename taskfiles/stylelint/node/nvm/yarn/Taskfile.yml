@@ -11,7 +11,7 @@ silent: true
 
 includes:
   yarn:
-    taskfile: ../../../../yarn-nvm/Taskfile.yml
+    taskfile: ../../../../yarn/nvm/Taskfile.yml
 
 vars:
   STYLELINT_LINT_SKIP_PATTERN: ""
