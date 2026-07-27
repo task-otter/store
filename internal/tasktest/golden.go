@@ -150,12 +150,11 @@ func isSimpleScalar(value any) bool {
 
 // goldenValue picks the sentinel for a variable in a given role.
 //
-// Variables that the Taskfile compares against the literal "true" are treated
-// as booleans, and are given values that make the override observable: the base
-// disables the flag, the override enables it. For those, CaseBoth renders the
+// Boolean variables are given values that make the override observable: the
+// base disables the flag, the override enables it. CaseBoth then renders the
 // flag if and only if the override correctly takes precedence.
-func goldenValue(text, name string, override bool) string {
-	if isBooleanVar(text, name) {
+func goldenValue(booleans map[string]bool, name string, override bool) string {
+	if booleans[name] {
 		if override {
 			return "true"
 		}
@@ -167,9 +166,38 @@ func goldenValue(text, name string, override bool) string {
 	return "BASE-" + name
 }
 
-func isBooleanVar(text, name string) bool {
-	return strings.Contains(text, `eq .`+name+` "`) ||
-		strings.Contains(text, `eq .`+name+`_OVERRIDE "`)
+// booleanVars classifies which of a module's variables carry "true"/"false".
+//
+// Classification is derived from the *declared defaults* in the module's own
+// `vars:` block, never from how a template happens to spell its comparison.
+// Keying off the spelling would make the matrix shift underneath a refactor
+// that rewrites those comparisons — silently changing which code paths the
+// goldens exercise, which is precisely what they exist to hold fixed.
+//
+// A var counts as boolean when its own default is "true"/"false", or when the
+// module declares a companion default that is — eslint pairs an empty `CACHE`
+// with `ESLINT_DEFAULT_CACHE: "true"`.
+func booleanVars(t testT, module string) map[string]bool {
+	t.Helper()
+
+	declared := LoadTaskfile(t, module).Vars
+
+	booleans := map[string]bool{}
+	for name, value := range declared {
+		text, ok := value.(string)
+		if !ok || (text != "true" && text != "false") {
+			continue
+		}
+
+		booleans[name] = true
+		// Link `<TOOL>_DEFAULT_CACHE` to the `CACHE` a caller actually sets.
+		for other := range declared {
+			if other != name && strings.HasSuffix(name, "_"+other) {
+				booleans[other] = true
+			}
+		}
+	}
+	return booleans
 }
 
 // GoldenRender runs every public task of a module under one matrix case and
@@ -181,24 +209,19 @@ func isBooleanVar(text, name string) bool {
 func GoldenRender(t testT, module string, kase GoldenCase) string {
 	t.Helper()
 
-	content, err := os.ReadFile(taskfilePath(t, module))
-	if err != nil {
-		t.Fatalf("read %s Taskfile: %v", module, err)
-	}
-	text := string(content)
-
 	bases, overrides := goldenVars(t, module)
+	booleans := booleanVars(t, module)
 
 	var assignments []string
 	if kase == CaseBase || kase == CaseBoth {
 		for _, name := range bases {
-			assignments = append(assignments, name+"="+goldenValue(text, name, false))
+			assignments = append(assignments, name+"="+goldenValue(booleans, name, false))
 		}
 	}
 	if kase == CaseOverride || kase == CaseBoth {
 		for _, name := range overrides {
 			base := strings.TrimSuffix(name, "_OVERRIDE")
-			assignments = append(assignments, name+"="+goldenValue(text, base, true))
+			assignments = append(assignments, name+"="+goldenValue(booleans, base, true))
 		}
 	}
 
