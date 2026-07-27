@@ -8,6 +8,7 @@ import (
 
 var publicTasks = []string{
 	"config:init",
+	"config:skip",
 	"fix",
 	"install",
 	"install:undo",

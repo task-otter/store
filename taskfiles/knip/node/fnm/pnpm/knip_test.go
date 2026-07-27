@@ -9,6 +9,7 @@ import (
 var publicTasks = []string{
 	"ci",
 	"config:init",
+	"config:skip",
 	"dependencies",
 	"dev-dependencies",
 	"exports",

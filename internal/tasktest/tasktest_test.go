@@ -92,7 +92,7 @@ func writeExecutable(t *testing.T, body string) string {
 }
 
 func validTaskfile() string {
-	return `version: "3"
+	return `version: "3.53"
 vars:
   FOO: value
 tasks:
@@ -280,7 +280,7 @@ func TestTaskfileValidation(t *testing.T) {
 		vars    []string
 		want    string
 	}{
-		{name: "version", content: strings.Replace(validTaskfile(), `version: "3"`, `version: "2"`, 1), tasks: []string{"build"}, vars: []string{"FOO"}, want: "version must be 3"},
+		{name: "version", content: strings.Replace(validTaskfile(), `version: "3.53"`, `version: "2"`, 1), tasks: []string{"build"}, vars: []string{"FOO"}, want: "version must be 3"},
 		{name: "no tasks", content: "version: \"3\"\ntasks: {}\n", want: "must define tasks"},
 		{name: "drift", content: validTaskfile(), tasks: []string{"other"}, vars: []string{"FOO"}, want: "public task drift"},
 		{name: "description", content: strings.Replace(validTaskfile(), "Build the fixture project", "short", 1), tasks: []string{"build"}, vars: []string{"FOO"}, want: "desc is missing or too short"},

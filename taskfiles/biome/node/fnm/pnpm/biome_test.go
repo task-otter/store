@@ -12,6 +12,7 @@ var publicTasks = []string{
 	"check:write",
 	"ci",
 	"config:init",
+	"config:skip",
 	"fix",
 	"fmt",
 	"fmt:check",

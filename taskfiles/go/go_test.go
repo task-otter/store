@@ -15,6 +15,7 @@ import (
 
 var publicTasks = []string{
 	"bench",
+	"config:skip",
 	"coverage",
 	"fmt",
 	"fmt:check",
