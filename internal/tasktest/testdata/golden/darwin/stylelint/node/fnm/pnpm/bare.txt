@@ -7,6 +7,8 @@ task: "cache:clean" started
 task: [cache:clean] if [ -d .cache/stylelint ]; then rm -rf .cache/stylelint; fi
 
 === task: ci ===
+task: "_run" finished
+task: "_run" started
 task: "ci" finished
 task: "ci" started
 task: "pnpm:_exec:unix" finished
@@ -15,7 +17,7 @@ task: "pnpm:_exec:windows" not for current platform - ignored
 task: "pnpm:exec" finished
 task: "pnpm:exec" started
 task: [ci] echo "✅ stylelint passed"
-task: [pnpm:_exec:unix] bash -c "stylelint **/*.{css,scss,sass,less,vue,svelte,astro} --max-warnings=0    --cache --cache-location .cache/stylelint/  --allow-empty-input  "
+task: [pnpm:_exec:unix] bash -c "stylelint **/*.{css,scss,sass,less,vue,svelte,astro} --max-warnings=0 --cache --cache-location .cache/stylelint/ --allow-empty-input "
 
 === task: config:init ===
 
@@ -59,6 +61,8 @@ task: "pnpm:remove" started
 task: [pnpm:_pnpm:unix] bash -c 'export PATH="$HOME/.local/share/fnm:$HOME/.local/bin:$PATH"; if [ -f .node-version ] || [ -f .nvmrc ]; then fnm use; fi; command -v corepack >/dev/null 2>&1 || { echo "corepack is not available. Run: task manager:setup"; exit 1; }; corepack pnpm remove -g stylelint stylelint-config-standard '
 
 === task: lint ===
+task: "_run" finished
+task: "_run" started
 task: "lint" finished
 task: "lint" started
 task: "pnpm:_exec:unix" finished
@@ -67,9 +71,11 @@ task: "pnpm:_exec:windows" not for current platform - ignored
 task: "pnpm:exec" finished
 task: "pnpm:exec" started
 task: [lint] echo "✅ stylelint passed"
-task: [pnpm:_exec:unix] bash -c "stylelint **/*.{css,scss,sass,less,vue,svelte,astro}    --cache --cache-location .cache/stylelint/  --allow-empty-input  "
+task: [pnpm:_exec:unix] bash -c "stylelint **/*.{css,scss,sass,less,vue,svelte,astro} --cache --cache-location .cache/stylelint/ --allow-empty-input "
 
 === task: lint:fix ===
+task: "_run" finished
+task: "_run" started
 task: "lint:fix" finished
 task: "lint:fix" started
 task: "pnpm:_exec:unix" finished
@@ -78,7 +84,7 @@ task: "pnpm:_exec:windows" not for current platform - ignored
 task: "pnpm:exec" finished
 task: "pnpm:exec" started
 task: [lint:fix] echo "✅ stylelint fixes applied"
-task: [pnpm:_exec:unix] bash -c "stylelint **/*.{css,scss,sass,less,vue,svelte,astro} --fix    --cache --cache-location .cache/stylelint/  --allow-empty-input  "
+task: [pnpm:_exec:unix] bash -c "stylelint **/*.{css,scss,sass,less,vue,svelte,astro} --fix --cache --cache-location .cache/stylelint/ --allow-empty-input "
 
 === task: upgrade ===
 task: "pnpm:_pnpm:unix" finished

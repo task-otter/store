@@ -28,6 +28,8 @@ task: "cache:clean" started
 task: [cache:clean] if [ -d .cache/stylelint ]; then rm -rf .cache/stylelint; fi
 
 === task: ci ===
+task: "_run" finished
+task: "_run" started
 task: "ci" finished
 task: "ci" started
 task: "pnpm:_exec:unix" finished
@@ -36,7 +38,7 @@ task: "pnpm:_exec:windows" not for current platform - ignored
 task: "pnpm:exec" finished
 task: "pnpm:exec" started
 task: [ci] echo "✅ stylelint passed"
-task: [pnpm:_exec:unix] bash -c "stylelint OVR-STYLELINT_TARGETS  --max-warnings=0 --ignore-pattern "OVR-STYLELINT_LINT_SKIP_PATTERN"  --config "OVR-CONFIG"  --cache --cache-location .cache/stylelint/   --allow-empty-input   OVR-EXTRA_ARGS "
+task: [pnpm:_exec:unix] bash -c "stylelint OVR-STYLELINT_TARGETS --max-warnings=0 --ignore-pattern "OVR-STYLELINT_LINT_SKIP_PATTERN" --config "OVR-CONFIG" --cache --cache-location .cache/stylelint/ --allow-empty-input OVR-EXTRA_ARGS"
 
 === task: config:init ===
 
@@ -80,6 +82,8 @@ task: "pnpm:remove" started
 task: [pnpm:_pnpm:unix] bash -c 'export PATH="$HOME/.local/share/fnm:$HOME/.local/bin:$PATH"; if [ -f .node-version ] || [ -f .nvmrc ]; then fnm use; fi; command -v corepack >/dev/null 2>&1 || { echo "corepack is not available. Run: task manager:setup"; exit 1; }; corepack pnpm remove -g stylelint stylelint-config-standard OVR-EXTRA_ARGS'
 
 === task: lint ===
+task: "_run" finished
+task: "_run" started
 task: "lint" finished
 task: "lint" started
 task: "pnpm:_exec:unix" finished
@@ -88,9 +92,11 @@ task: "pnpm:_exec:windows" not for current platform - ignored
 task: "pnpm:exec" finished
 task: "pnpm:exec" started
 task: [lint] echo "✅ stylelint passed"
-task: [pnpm:_exec:unix] bash -c "stylelint OVR-STYLELINT_TARGETS  --ignore-pattern "OVR-STYLELINT_LINT_SKIP_PATTERN"  --config "OVR-CONFIG"  --cache --cache-location .cache/stylelint/   --allow-empty-input   OVR-EXTRA_ARGS "
+task: [pnpm:_exec:unix] bash -c "stylelint OVR-STYLELINT_TARGETS --ignore-pattern "OVR-STYLELINT_LINT_SKIP_PATTERN" --config "OVR-CONFIG" --cache --cache-location .cache/stylelint/ --allow-empty-input OVR-EXTRA_ARGS"
 
 === task: lint:fix ===
+task: "_run" finished
+task: "_run" started
 task: "lint:fix" finished
 task: "lint:fix" started
 task: "pnpm:_exec:unix" finished
@@ -99,7 +105,7 @@ task: "pnpm:_exec:windows" not for current platform - ignored
 task: "pnpm:exec" finished
 task: "pnpm:exec" started
 task: [lint:fix] echo "✅ stylelint fixes applied"
-task: [pnpm:_exec:unix] bash -c "stylelint OVR-STYLELINT_TARGETS  --fix --ignore-pattern "OVR-STYLELINT_LINT_SKIP_PATTERN"  --config "OVR-CONFIG"  --cache --cache-location .cache/stylelint/   --allow-empty-input   OVR-EXTRA_ARGS "
+task: [pnpm:_exec:unix] bash -c "stylelint OVR-STYLELINT_TARGETS --fix --ignore-pattern "OVR-STYLELINT_LINT_SKIP_PATTERN" --config "OVR-CONFIG" --cache --cache-location .cache/stylelint/ --allow-empty-input OVR-EXTRA_ARGS"
 
 === task: upgrade ===
 task: "pnpm:_pnpm:unix" finished

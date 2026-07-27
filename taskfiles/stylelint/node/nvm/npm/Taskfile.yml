@@ -38,20 +38,20 @@ tasks:
     summary: |
       Install stylelint and stylelint-config-standard as local devDependencies.
       Pass VERSION=x.y.z to pin stylelint to a specific release.
+    vars:
+      RESOLVED_VERSION: '{{default .VERSION .VERSION_OVERRIDE}}'
+      RESOLVED_EXTRA_ARGS: '{{default .EXTRA_ARGS .EXTRA_ARGS_OVERRIDE}}'
     status:
       - >-
         node -e "const installed = require('./node_modules/stylelint/package.json');
-        const requested = '{{if .VERSION_OVERRIDE}}{{.VERSION_OVERRIDE}}{{else}}{{.VERSION}}{{end}}';
+        const requested = '{{.RESOLVED_VERSION}}';
         process.exit(!requested || installed.version === requested ? 0 : 1)"
     cmds:
       - task: npm:add
         vars:
           PACKAGES: >-
-            stylelint{{if .VERSION_OVERRIDE}}@{{.VERSION_OVERRIDE}}
-            {{- else if .VERSION}}@{{.VERSION}}{{end}} stylelint-config-standard
-          EXTRA_ARGS: >-
-            {{if .EXTRA_ARGS_OVERRIDE}}{{.EXTRA_ARGS_OVERRIDE}}
-            {{- else}}{{.EXTRA_ARGS}}{{end}}{{if .CLI_ARGS}} {{.CLI_ARGS}}{{end}}
+            stylelint{{if .RESOLVED_VERSION}}@{{.RESOLVED_VERSION}}{{end}} stylelint-config-standard
+          EXTRA_ARGS: '{{.RESOLVED_EXTRA_ARGS}}{{if .CLI_ARGS}} {{.CLI_ARGS}}{{end}}'
 
   install:undo:
     run: once
@@ -64,7 +64,7 @@ tasks:
       - task: npm:remove
         vars:
           PACKAGES: "stylelint stylelint-config-standard"
-          EXTRA_ARGS: "{{if .EXTRA_ARGS_OVERRIDE}}{{.EXTRA_ARGS_OVERRIDE}}{{else}}{{.EXTRA_ARGS}}{{end}}"
+          EXTRA_ARGS: '{{default .EXTRA_ARGS .EXTRA_ARGS_OVERRIDE}}'
 
   upgrade:
     run: once
@@ -74,14 +74,16 @@ tasks:
       - task: npm:add
         vars:
           PACKAGES: "stylelint@latest stylelint-config-standard@latest"
-          EXTRA_ARGS: "{{if .EXTRA_ARGS_OVERRIDE}}{{.EXTRA_ARGS_OVERRIDE}}{{else}}{{.EXTRA_ARGS}}{{end}}"
+          EXTRA_ARGS: '{{default .EXTRA_ARGS .EXTRA_ARGS_OVERRIDE}}'
 
   config:init:
     run: once
     desc: Create a starter Stylelint config when none exists
+    vars:
+      RESOLVED_CONFIG: '{{default .CONFIG .CONFIG_OVERRIDE}}'
     cmds:
       - |
-        config_file="{{if .CONFIG_OVERRIDE}}{{.CONFIG_OVERRIDE}}{{else}}{{if .CONFIG}}{{.CONFIG}}{{end}}{{end}}"
+        config_file="{{.RESOLVED_CONFIG}}"
         if [ -z "$config_file" ]; then
           config_file=".stylelintrc.json"
         fi
@@ -92,84 +94,57 @@ tasks:
           echo "Created $config_file."
         fi
 
-  lint:
-    run: once
-    desc: Lint stylesheet targets with Stylelint
+  # Shared implementation of lint / lint:fix / ci. Each override is resolved
+  # exactly once here; the three public tasks differ only by MODE_ARGS.
+  _run:
+    internal: true
+    run: when_changed
+    vars:
+      RESOLVED_TARGETS: '{{or .STYLELINT_TARGETS_OVERRIDE .TARGETS .STYLELINT_DEFAULT_TARGETS}}'
+      RESOLVED_SKIP: '{{default .STYLELINT_LINT_SKIP_PATTERN .STYLELINT_LINT_SKIP_PATTERN_OVERRIDE}}'
+      RESOLVED_CONFIG: '{{default .CONFIG .CONFIG_OVERRIDE}}'
+      RESOLVED_CACHE: '{{or .CACHE_OVERRIDE .CACHE .STYLELINT_DEFAULT_CACHE}}'
+      RESOLVED_EMPTY: >-
+        {{or .ALLOW_EMPTY_INPUT_OVERRIDE .ALLOW_EMPTY_INPUT .STYLELINT_DEFAULT_ALLOW_EMPTY_INPUT}}
+      RESOLVED_EXTRA_ARGS: '{{default .EXTRA_ARGS .EXTRA_ARGS_OVERRIDE}}'
     cmds:
       - task: npm:exec
         vars:
           BINARY: stylelint
           ARGS: >-
-            {{if .STYLELINT_TARGETS_OVERRIDE}}{{.STYLELINT_TARGETS_OVERRIDE}}
-            {{else}}{{if .TARGETS}}{{.TARGETS}}{{else}}{{.STYLELINT_DEFAULT_TARGETS}}{{end}}{{end}}
-            {{if .STYLELINT_LINT_SKIP_PATTERN_OVERRIDE}}--ignore-pattern "{{.STYLELINT_LINT_SKIP_PATTERN_OVERRIDE}}"
-            {{else if .STYLELINT_LINT_SKIP_PATTERN}}--ignore-pattern "{{.STYLELINT_LINT_SKIP_PATTERN}}" {{end}}
-            {{if .CONFIG_OVERRIDE}}--config "{{.CONFIG_OVERRIDE}}"
-            {{else}}{{if .CONFIG}}--config "{{.CONFIG}}" {{end}}{{end}}
-            {{if .CACHE_OVERRIDE}}{{if eq .CACHE_OVERRIDE "true"}}--cache --cache-location .cache/stylelint/ {{end}}
-            {{else}}{{if .CACHE}}{{if eq .CACHE "true"}}--cache --cache-location .cache/stylelint/ {{end}}
-            {{else}}{{if eq .STYLELINT_DEFAULT_CACHE "true"}}
-            --cache --cache-location .cache/stylelint/ {{end}}{{end}}{{end}}
-            {{if .ALLOW_EMPTY_INPUT_OVERRIDE}}{{if eq .ALLOW_EMPTY_INPUT_OVERRIDE "true"}}--allow-empty-input {{end}}
-            {{else}}{{if .ALLOW_EMPTY_INPUT}}{{if eq .ALLOW_EMPTY_INPUT "true"}}--allow-empty-input {{end}}
-            {{else}}{{if eq .STYLELINT_DEFAULT_ALLOW_EMPTY_INPUT "true"}}--allow-empty-input {{end}}{{end}}{{end}}
-          EXTRA_ARGS: >-
-            {{if .EXTRA_ARGS_OVERRIDE}}{{.EXTRA_ARGS_OVERRIDE}}
-            {{else}}{{if .EXTRA_ARGS}}{{.EXTRA_ARGS}}{{end}}{{end}}{{if .CLI_ARGS}} {{.CLI_ARGS}}{{end}}
+            {{.RESOLVED_TARGETS}}
+            {{- if .MODE_ARGS}} {{.MODE_ARGS}}{{end}}
+            {{- if .RESOLVED_SKIP}} --ignore-pattern "{{.RESOLVED_SKIP}}"{{end}}
+            {{- if .RESOLVED_CONFIG}} --config "{{.RESOLVED_CONFIG}}"{{end}}
+            {{- if eq .RESOLVED_CACHE "true"}} --cache --cache-location .cache/stylelint/{{end}}
+            {{- if eq .RESOLVED_EMPTY "true"}} --allow-empty-input{{end}}
+          EXTRA_ARGS: '{{.RESOLVED_EXTRA_ARGS}}{{if .CLI_ARGS}} {{.CLI_ARGS}}{{end}}'
+
+  lint:
+    run: once
+    desc: Lint stylesheet targets with Stylelint
+    cmds:
+      - task: _run
+        vars:
+          MODE_ARGS: ""
       - echo "✅ stylelint passed"
 
   lint:fix:
     run: once
     desc: Lint stylesheet targets with Stylelint and apply fixes
     cmds:
-      - task: npm:exec
+      - task: _run
         vars:
-          BINARY: stylelint
-          ARGS: >-
-            {{if .STYLELINT_TARGETS_OVERRIDE}}{{.STYLELINT_TARGETS_OVERRIDE}}
-            {{else}}{{if .TARGETS}}{{.TARGETS}}{{else}}{{.STYLELINT_DEFAULT_TARGETS}}{{end}}{{end}}
-            --fix
-            {{if .STYLELINT_LINT_SKIP_PATTERN_OVERRIDE}}--ignore-pattern "{{.STYLELINT_LINT_SKIP_PATTERN_OVERRIDE}}"
-            {{else if .STYLELINT_LINT_SKIP_PATTERN}}--ignore-pattern "{{.STYLELINT_LINT_SKIP_PATTERN}}" {{end}}
-            {{if .CONFIG_OVERRIDE}}--config "{{.CONFIG_OVERRIDE}}"
-            {{else}}{{if .CONFIG}}--config "{{.CONFIG}}" {{end}}{{end}}
-            {{if .CACHE_OVERRIDE}}{{if eq .CACHE_OVERRIDE "true"}}--cache --cache-location .cache/stylelint/ {{end}}
-            {{else}}{{if .CACHE}}{{if eq .CACHE "true"}}--cache --cache-location .cache/stylelint/ {{end}}
-            {{else}}{{if eq .STYLELINT_DEFAULT_CACHE "true"}}
-            --cache --cache-location .cache/stylelint/ {{end}}{{end}}{{end}}
-            {{if .ALLOW_EMPTY_INPUT_OVERRIDE}}{{if eq .ALLOW_EMPTY_INPUT_OVERRIDE "true"}}--allow-empty-input {{end}}
-            {{else}}{{if .ALLOW_EMPTY_INPUT}}{{if eq .ALLOW_EMPTY_INPUT "true"}}--allow-empty-input {{end}}
-            {{else}}{{if eq .STYLELINT_DEFAULT_ALLOW_EMPTY_INPUT "true"}}--allow-empty-input {{end}}{{end}}{{end}}
-          EXTRA_ARGS: >-
-            {{if .EXTRA_ARGS_OVERRIDE}}{{.EXTRA_ARGS_OVERRIDE}}
-            {{else}}{{if .EXTRA_ARGS}}{{.EXTRA_ARGS}}{{end}}{{end}}{{if .CLI_ARGS}} {{.CLI_ARGS}}{{end}}
+          MODE_ARGS: "--fix"
       - echo "✅ stylelint fixes applied"
 
   ci:
     run: once
     desc: Run Stylelint with zero-warning CI enforcement
     cmds:
-      - task: npm:exec
+      - task: _run
         vars:
-          BINARY: stylelint
-          ARGS: >-
-            {{if .STYLELINT_TARGETS_OVERRIDE}}{{.STYLELINT_TARGETS_OVERRIDE}}
-            {{else}}{{if .TARGETS}}{{.TARGETS}}{{else}}{{.STYLELINT_DEFAULT_TARGETS}}{{end}}{{end}}
-            --max-warnings=0
-            {{if .STYLELINT_LINT_SKIP_PATTERN_OVERRIDE}}--ignore-pattern "{{.STYLELINT_LINT_SKIP_PATTERN_OVERRIDE}}"
-            {{else if .STYLELINT_LINT_SKIP_PATTERN}}--ignore-pattern "{{.STYLELINT_LINT_SKIP_PATTERN}}" {{end}}
-            {{if .CONFIG_OVERRIDE}}--config "{{.CONFIG_OVERRIDE}}"
-            {{else}}{{if .CONFIG}}--config "{{.CONFIG}}" {{end}}{{end}}
-            {{if .CACHE_OVERRIDE}}{{if eq .CACHE_OVERRIDE "true"}}--cache --cache-location .cache/stylelint/ {{end}}
-            {{else}}{{if .CACHE}}{{if eq .CACHE "true"}}--cache --cache-location .cache/stylelint/ {{end}}
-            {{else}}{{if eq .STYLELINT_DEFAULT_CACHE "true"}}
-            --cache --cache-location .cache/stylelint/ {{end}}{{end}}{{end}}
-            {{if .ALLOW_EMPTY_INPUT_OVERRIDE}}{{if eq .ALLOW_EMPTY_INPUT_OVERRIDE "true"}}--allow-empty-input {{end}}
-            {{else}}{{if .ALLOW_EMPTY_INPUT}}{{if eq .ALLOW_EMPTY_INPUT "true"}}--allow-empty-input {{end}}
-            {{else}}{{if eq .STYLELINT_DEFAULT_ALLOW_EMPTY_INPUT "true"}}--allow-empty-input {{end}}{{end}}{{end}}
-          EXTRA_ARGS: >-
-            {{if .EXTRA_ARGS_OVERRIDE}}{{.EXTRA_ARGS_OVERRIDE}}
-            {{else}}{{if .EXTRA_ARGS}}{{.EXTRA_ARGS}}{{end}}{{end}}{{if .CLI_ARGS}} {{.CLI_ARGS}}{{end}}
+          MODE_ARGS: "--max-warnings=0"
       - echo "✅ stylelint passed"
 
   cache:clean:
@@ -195,6 +170,4 @@ tasks:
         vars:
           BINARY: stylelint
           ARGS: "--help"
-          EXTRA_ARGS: >-
-            {{if .EXTRA_ARGS_OVERRIDE}}{{.EXTRA_ARGS_OVERRIDE}}
-            {{- else}}{{.EXTRA_ARGS}}{{end}}{{if .CLI_ARGS}} {{.CLI_ARGS}}{{end}}
+          EXTRA_ARGS: '{{default .EXTRA_ARGS .EXTRA_ARGS_OVERRIDE}}{{if .CLI_ARGS}} {{.CLI_ARGS}}{{end}}'

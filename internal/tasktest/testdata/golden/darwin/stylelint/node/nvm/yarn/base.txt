@@ -18,6 +18,8 @@ task: "cache:clean" started
 task: [cache:clean] if [ -d .cache/stylelint ]; then rm -rf .cache/stylelint; fi
 
 === task: ci ===
+task: "_run" finished
+task: "_run" started
 task: "ci" finished
 task: "ci" started
 task: "yarn:_exec:unix" finished
@@ -26,7 +28,7 @@ task: "yarn:_exec:windows" not for current platform - ignored
 task: "yarn:exec" finished
 task: "yarn:exec" started
 task: [ci] echo "✅ stylelint passed"
-task: [yarn:_exec:unix] bash -c "stylelint BASE-TARGETS --max-warnings=0 --ignore-pattern "BASE-STYLELINT_LINT_SKIP_PATTERN"  --config "BASE-CONFIG"      BASE-EXTRA_ARGS"
+task: [yarn:_exec:unix] bash -c "stylelint BASE-TARGETS --max-warnings=0 --ignore-pattern "BASE-STYLELINT_LINT_SKIP_PATTERN" --config "BASE-CONFIG" BASE-EXTRA_ARGS"
 
 === task: config:init ===
 
@@ -70,6 +72,8 @@ task: "yarn:remove" started
 task: [yarn:_yarn:unix] bash -c 'export NVM_DIR="$HOME/.nvm"; . "$NVM_DIR/nvm.sh"; if [ -f .node-version ] || [ -f .nvmrc ]; then nvm use; fi; command -v corepack >/dev/null 2>&1 || { echo "corepack is not available. Run: task manager:setup"; exit 1; }; corepack yarn global remove stylelint stylelint-config-standard BASE-EXTRA_ARGS'
 
 === task: lint ===
+task: "_run" finished
+task: "_run" started
 task: "lint" finished
 task: "lint" started
 task: "yarn:_exec:unix" finished
@@ -78,9 +82,11 @@ task: "yarn:_exec:windows" not for current platform - ignored
 task: "yarn:exec" finished
 task: "yarn:exec" started
 task: [lint] echo "✅ stylelint passed"
-task: [yarn:_exec:unix] bash -c "stylelint BASE-TARGETS --ignore-pattern "BASE-STYLELINT_LINT_SKIP_PATTERN"  --config "BASE-CONFIG"      BASE-EXTRA_ARGS"
+task: [yarn:_exec:unix] bash -c "stylelint BASE-TARGETS --ignore-pattern "BASE-STYLELINT_LINT_SKIP_PATTERN" --config "BASE-CONFIG" BASE-EXTRA_ARGS"
 
 === task: lint:fix ===
+task: "_run" finished
+task: "_run" started
 task: "lint:fix" finished
 task: "lint:fix" started
 task: "yarn:_exec:unix" finished
@@ -89,7 +95,7 @@ task: "yarn:_exec:windows" not for current platform - ignored
 task: "yarn:exec" finished
 task: "yarn:exec" started
 task: [lint:fix] echo "✅ stylelint fixes applied"
-task: [yarn:_exec:unix] bash -c "stylelint BASE-TARGETS --fix --ignore-pattern "BASE-STYLELINT_LINT_SKIP_PATTERN"  --config "BASE-CONFIG"      BASE-EXTRA_ARGS"
+task: [yarn:_exec:unix] bash -c "stylelint BASE-TARGETS --fix --ignore-pattern "BASE-STYLELINT_LINT_SKIP_PATTERN" --config "BASE-CONFIG" BASE-EXTRA_ARGS"
 
 === task: upgrade ===
 task: "upgrade" finished
