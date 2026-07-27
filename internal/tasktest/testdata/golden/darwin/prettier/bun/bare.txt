@@ -7,6 +7,8 @@
 fi
 task: "_exec:ignore" finished
 task: "_exec:ignore" started
+task: "_run" finished
+task: "_run" started
 task: "bun:_bun:unix" finished
 task: "bun:_bun:unix" started
 task: "bun:_bun:windows" not for current platform - ignored
@@ -21,7 +23,7 @@ task: "ci" started
 task: "fmt:check" finished
 task: "fmt:check" started
 task: Task "bun:_install:unix" is up to date
-task: [bun:_bun:unix] bash -lc 'export BUN_INSTALL="$HOME/.bun"; export PATH="$BUN_INSTALL/bin:$PATH"; bun x prettier . --check   '
+task: [bun:_bun:unix] bash -lc 'export BUN_INSTALL="$HOME/.bun"; export PATH="$BUN_INSTALL/bin:$PATH"; bun x prettier . --check  '
 task: [fmt:check] echo "✅ prettier passed"
 task: dynamic variable: "if [ -n \".prettierignore\" ] && [ -f \".prettierignore\" ]; then
 task: status command bun_bin="$HOME/.bun/bin/bun"; if [ ! -x "$bun_bin" ]; then bun_bin="$(command -v bun 2>/dev/null)"; fi; [ -n "$bun_bin" ] && [ -x "$bun_bin" ] && { [ -z "" ] || [ "$("$bun_bin" --version)" = "" ]; } exited zero
@@ -46,6 +48,8 @@ task: status command test -f ".prettierrc.json" exited non-zero: exit status 1
 fi
 task: "_exec:ignore" finished
 task: "_exec:ignore" started
+task: "_run" finished
+task: "_run" started
 task: "bun:_bun:unix" finished
 task: "bun:_bun:unix" started
 task: "bun:_bun:windows" not for current platform - ignored
@@ -60,7 +64,7 @@ task: "fix" started
 task: "fmt" finished
 task: "fmt" started
 task: Task "bun:_install:unix" is up to date
-task: [bun:_bun:unix] bash -lc 'export BUN_INSTALL="$HOME/.bun"; export PATH="$BUN_INSTALL/bin:$PATH"; bun x prettier . --write   '
+task: [bun:_bun:unix] bash -lc 'export BUN_INSTALL="$HOME/.bun"; export PATH="$BUN_INSTALL/bin:$PATH"; bun x prettier . --write  '
 task: [fmt] echo "✅ prettier fixes applied"
 task: dynamic variable: "if [ -n \".prettierignore\" ] && [ -f \".prettierignore\" ]; then
 task: status command bun_bin="$HOME/.bun/bin/bun"; if [ ! -x "$bun_bin" ]; then bun_bin="$(command -v bun 2>/dev/null)"; fi; [ -n "$bun_bin" ] && [ -x "$bun_bin" ] && { [ -z "" ] || [ "$("$bun_bin" --version)" = "" ]; } exited zero
@@ -71,6 +75,8 @@ task: status command bun_bin="$HOME/.bun/bin/bun"; if [ ! -x "$bun_bin" ]; then 
 fi
 task: "_exec:ignore" finished
 task: "_exec:ignore" started
+task: "_run" finished
+task: "_run" started
 task: "bun:_bun:unix" finished
 task: "bun:_bun:unix" started
 task: "bun:_bun:windows" not for current platform - ignored
@@ -83,7 +89,7 @@ task: "bun:install" started
 task: "fmt" finished
 task: "fmt" started
 task: Task "bun:_install:unix" is up to date
-task: [bun:_bun:unix] bash -lc 'export BUN_INSTALL="$HOME/.bun"; export PATH="$BUN_INSTALL/bin:$PATH"; bun x prettier . --write   '
+task: [bun:_bun:unix] bash -lc 'export BUN_INSTALL="$HOME/.bun"; export PATH="$BUN_INSTALL/bin:$PATH"; bun x prettier . --write  '
 task: [fmt] echo "✅ prettier fixes applied"
 task: dynamic variable: "if [ -n \".prettierignore\" ] && [ -f \".prettierignore\" ]; then
 task: status command bun_bin="$HOME/.bun/bin/bun"; if [ ! -x "$bun_bin" ]; then bun_bin="$(command -v bun 2>/dev/null)"; fi; [ -n "$bun_bin" ] && [ -x "$bun_bin" ] && { [ -z "" ] || [ "$("$bun_bin" --version)" = "" ]; } exited zero
@@ -94,6 +100,8 @@ task: status command bun_bin="$HOME/.bun/bin/bun"; if [ ! -x "$bun_bin" ]; then 
 fi
 task: "_exec:ignore" finished
 task: "_exec:ignore" started
+task: "_run" finished
+task: "_run" started
 task: "bun:_bun:unix" finished
 task: "bun:_bun:unix" started
 task: "bun:_bun:windows" not for current platform - ignored
@@ -106,7 +114,7 @@ task: "bun:install" started
 task: "fmt:check" finished
 task: "fmt:check" started
 task: Task "bun:_install:unix" is up to date
-task: [bun:_bun:unix] bash -lc 'export BUN_INSTALL="$HOME/.bun"; export PATH="$BUN_INSTALL/bin:$PATH"; bun x prettier . --check   '
+task: [bun:_bun:unix] bash -lc 'export BUN_INSTALL="$HOME/.bun"; export PATH="$BUN_INSTALL/bin:$PATH"; bun x prettier . --check  '
 task: [fmt:check] echo "✅ prettier passed"
 task: dynamic variable: "if [ -n \".prettierignore\" ] && [ -f \".prettierignore\" ]; then
 task: status command bun_bin="$HOME/.bun/bin/bun"; if [ ! -x "$bun_bin" ]; then bun_bin="$(command -v bun 2>/dev/null)"; fi; [ -n "$bun_bin" ] && [ -x "$bun_bin" ] && { [ -z "" ] || [ "$("$bun_bin" --version)" = "" ]; } exited zero

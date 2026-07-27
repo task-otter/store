@@ -108,6 +108,8 @@ includes="\"**\""
 json_escape() {
 output="$BIOME_SKIP_OUTPUT"
 source_config="$BIOME_SKIP_SOURCE_CONFIG"
+task: "_run" finished
+task: "_run" started
 task: "bun:_bun:unix" finished
 task: "bun:_bun:unix" started
 task: "bun:_bun:windows" not for current platform - ignored
@@ -122,7 +124,7 @@ task: "check" started
 task: "config:skip" finished
 task: "config:skip" started
 task: Task "bun:_install:unix" is up to date
-task: [bun:_bun:unix] bash -lc 'export BUN_INSTALL="$HOME/.bun"; export PATH="$BUN_INSTALL/bin:$PATH"; bun x biome check --config-path "BASE-BIOME_INTERNAL_SKIP_CONFIG"  OVR-BIOME_TARGETS  OVR-EXTRA_ARGS '
+task: [bun:_bun:unix] bash -lc 'export BUN_INSTALL="$HOME/.bun"; export PATH="$BUN_INSTALL/bin:$PATH"; bun x biome check --config-path "BASE-BIOME_INTERNAL_SKIP_CONFIG" OVR-BIOME_TARGETS OVR-EXTRA_ARGS'
 task: [check] echo "✅ biome passed"
 task: [config:skip] pattern="$BIOME_SKIP_PATTERN"
 task: [config:skip] powershell -NoProfile -ExecutionPolicy Bypass -Command - <<'POWERSHELL'
@@ -218,6 +220,8 @@ includes="\"**\""
 json_escape() {
 output="$BIOME_SKIP_OUTPUT"
 source_config="$BIOME_SKIP_SOURCE_CONFIG"
+task: "_run" finished
+task: "_run" started
 task: "bun:_bun:unix" finished
 task: "bun:_bun:unix" started
 task: "bun:_bun:windows" not for current platform - ignored
@@ -232,7 +236,7 @@ task: "check:write" started
 task: "config:skip" finished
 task: "config:skip" started
 task: Task "bun:_install:unix" is up to date
-task: [bun:_bun:unix] bash -lc 'export BUN_INSTALL="$HOME/.bun"; export PATH="$BUN_INSTALL/bin:$PATH"; bun x biome check --write --config-path "BASE-BIOME_INTERNAL_SKIP_CONFIG"  OVR-BIOME_TARGETS  OVR-EXTRA_ARGS '
+task: [bun:_bun:unix] bash -lc 'export BUN_INSTALL="$HOME/.bun"; export PATH="$BUN_INSTALL/bin:$PATH"; bun x biome check --write --config-path "BASE-BIOME_INTERNAL_SKIP_CONFIG" OVR-BIOME_TARGETS OVR-EXTRA_ARGS'
 task: [check:write] echo "✅ biome fixes applied"
 task: [config:skip] pattern="$BIOME_SKIP_PATTERN"
 task: [config:skip] powershell -NoProfile -ExecutionPolicy Bypass -Command - <<'POWERSHELL'
@@ -328,6 +332,8 @@ includes="\"**\""
 json_escape() {
 output="$BIOME_SKIP_OUTPUT"
 source_config="$BIOME_SKIP_SOURCE_CONFIG"
+task: "_run" finished
+task: "_run" started
 task: "bun:_bun:unix" finished
 task: "bun:_bun:unix" started
 task: "bun:_bun:windows" not for current platform - ignored
@@ -342,7 +348,7 @@ task: "ci" started
 task: "config:skip" finished
 task: "config:skip" started
 task: Task "bun:_install:unix" is up to date
-task: [bun:_bun:unix] bash -lc 'export BUN_INSTALL="$HOME/.bun"; export PATH="$BUN_INSTALL/bin:$PATH"; bun x biome ci --config-path "BASE-BIOME_INTERNAL_SKIP_CONFIG"  OVR-BIOME_TARGETS  OVR-EXTRA_ARGS '
+task: [bun:_bun:unix] bash -lc 'export BUN_INSTALL="$HOME/.bun"; export PATH="$BUN_INSTALL/bin:$PATH"; bun x biome ci --config-path "BASE-BIOME_INTERNAL_SKIP_CONFIG" OVR-BIOME_TARGETS OVR-EXTRA_ARGS'
 task: [ci] echo "✅ biome passed"
 task: [config:skip] pattern="$BIOME_SKIP_PATTERN"
 task: [config:skip] powershell -NoProfile -ExecutionPolicy Bypass -Command - <<'POWERSHELL'
@@ -550,6 +556,8 @@ includes="\"**\""
 json_escape() {
 output="$BIOME_SKIP_OUTPUT"
 source_config="$BIOME_SKIP_SOURCE_CONFIG"
+task: "_run" finished
+task: "_run" started
 task: "bun:_bun:unix" finished
 task: "bun:_bun:unix" started
 task: "bun:_bun:windows" not for current platform - ignored
@@ -566,7 +574,7 @@ task: "config:skip" started
 task: "fix" finished
 task: "fix" started
 task: Task "bun:_install:unix" is up to date
-task: [bun:_bun:unix] bash -lc 'export BUN_INSTALL="$HOME/.bun"; export PATH="$BUN_INSTALL/bin:$PATH"; bun x biome check --write --config-path "BASE-BIOME_INTERNAL_SKIP_CONFIG"  OVR-BIOME_TARGETS  OVR-EXTRA_ARGS '
+task: [bun:_bun:unix] bash -lc 'export BUN_INSTALL="$HOME/.bun"; export PATH="$BUN_INSTALL/bin:$PATH"; bun x biome check --write --config-path "BASE-BIOME_INTERNAL_SKIP_CONFIG" OVR-BIOME_TARGETS OVR-EXTRA_ARGS'
 task: [check:write] echo "✅ biome fixes applied"
 task: [config:skip] pattern="$BIOME_SKIP_PATTERN"
 task: [config:skip] powershell -NoProfile -ExecutionPolicy Bypass -Command - <<'POWERSHELL'
@@ -662,6 +670,8 @@ includes="\"**\""
 json_escape() {
 output="$BIOME_SKIP_OUTPUT"
 source_config="$BIOME_SKIP_SOURCE_CONFIG"
+task: "_run" finished
+task: "_run" started
 task: "bun:_bun:unix" finished
 task: "bun:_bun:unix" started
 task: "bun:_bun:windows" not for current platform - ignored
@@ -676,7 +686,7 @@ task: "config:skip" started
 task: "fmt" finished
 task: "fmt" started
 task: Task "bun:_install:unix" is up to date
-task: [bun:_bun:unix] bash -lc 'export BUN_INSTALL="$HOME/.bun"; export PATH="$BUN_INSTALL/bin:$PATH"; bun x biome format --write --config-path "BASE-BIOME_INTERNAL_SKIP_CONFIG"  OVR-BIOME_TARGETS  OVR-EXTRA_ARGS '
+task: [bun:_bun:unix] bash -lc 'export BUN_INSTALL="$HOME/.bun"; export PATH="$BUN_INSTALL/bin:$PATH"; bun x biome format --write --config-path "BASE-BIOME_INTERNAL_SKIP_CONFIG" OVR-BIOME_TARGETS OVR-EXTRA_ARGS'
 task: [config:skip] pattern="$BIOME_SKIP_PATTERN"
 task: [config:skip] powershell -NoProfile -ExecutionPolicy Bypass -Command - <<'POWERSHELL'
 task: [fmt] echo "✅ biome fixes applied"
@@ -772,6 +782,8 @@ includes="\"**\""
 json_escape() {
 output="$BIOME_SKIP_OUTPUT"
 source_config="$BIOME_SKIP_SOURCE_CONFIG"
+task: "_run" finished
+task: "_run" started
 task: "bun:_bun:unix" finished
 task: "bun:_bun:unix" started
 task: "bun:_bun:windows" not for current platform - ignored
@@ -786,7 +798,7 @@ task: "config:skip" started
 task: "fmt:check" finished
 task: "fmt:check" started
 task: Task "bun:_install:unix" is up to date
-task: [bun:_bun:unix] bash -lc 'export BUN_INSTALL="$HOME/.bun"; export PATH="$BUN_INSTALL/bin:$PATH"; bun x biome format --config-path "BASE-BIOME_INTERNAL_SKIP_CONFIG"  OVR-BIOME_TARGETS  OVR-EXTRA_ARGS '
+task: [bun:_bun:unix] bash -lc 'export BUN_INSTALL="$HOME/.bun"; export PATH="$BUN_INSTALL/bin:$PATH"; bun x biome format --config-path "BASE-BIOME_INTERNAL_SKIP_CONFIG" OVR-BIOME_TARGETS OVR-EXTRA_ARGS'
 task: [config:skip] pattern="$BIOME_SKIP_PATTERN"
 task: [config:skip] powershell -NoProfile -ExecutionPolicy Bypass -Command - <<'POWERSHELL'
 task: status command bun_bin="$HOME/.bun/bin/bun"; if [ ! -x "$bun_bin" ]; then bun_bin="$(command -v bun 2>/dev/null)"; fi; [ -n "$bun_bin" ] && [ -x "$bun_bin" ] && { [ -z "" ] || [ "$("$bun_bin" --version)" = "" ]; } exited zero
@@ -937,6 +949,8 @@ includes="\"**\""
 json_escape() {
 output="$BIOME_SKIP_OUTPUT"
 source_config="$BIOME_SKIP_SOURCE_CONFIG"
+task: "_run" finished
+task: "_run" started
 task: "bun:_bun:unix" finished
 task: "bun:_bun:unix" started
 task: "bun:_bun:windows" not for current platform - ignored
@@ -951,7 +965,7 @@ task: "config:skip" started
 task: "lint" finished
 task: "lint" started
 task: Task "bun:_install:unix" is up to date
-task: [bun:_bun:unix] bash -lc 'export BUN_INSTALL="$HOME/.bun"; export PATH="$BUN_INSTALL/bin:$PATH"; bun x biome lint --config-path "BASE-BIOME_INTERNAL_SKIP_CONFIG"  OVR-BIOME_TARGETS  OVR-EXTRA_ARGS '
+task: [bun:_bun:unix] bash -lc 'export BUN_INSTALL="$HOME/.bun"; export PATH="$BUN_INSTALL/bin:$PATH"; bun x biome lint --config-path "BASE-BIOME_INTERNAL_SKIP_CONFIG" OVR-BIOME_TARGETS OVR-EXTRA_ARGS'
 task: [config:skip] pattern="$BIOME_SKIP_PATTERN"
 task: [config:skip] powershell -NoProfile -ExecutionPolicy Bypass -Command - <<'POWERSHELL'
 task: [lint] echo "✅ biome passed"
@@ -1047,6 +1061,8 @@ includes="\"**\""
 json_escape() {
 output="$BIOME_SKIP_OUTPUT"
 source_config="$BIOME_SKIP_SOURCE_CONFIG"
+task: "_run" finished
+task: "_run" started
 task: "bun:_bun:unix" finished
 task: "bun:_bun:unix" started
 task: "bun:_bun:windows" not for current platform - ignored
@@ -1061,7 +1077,7 @@ task: "config:skip" started
 task: "lint:fix" finished
 task: "lint:fix" started
 task: Task "bun:_install:unix" is up to date
-task: [bun:_bun:unix] bash -lc 'export BUN_INSTALL="$HOME/.bun"; export PATH="$BUN_INSTALL/bin:$PATH"; bun x biome lint --write --config-path "BASE-BIOME_INTERNAL_SKIP_CONFIG"  OVR-BIOME_TARGETS  OVR-EXTRA_ARGS '
+task: [bun:_bun:unix] bash -lc 'export BUN_INSTALL="$HOME/.bun"; export PATH="$BUN_INSTALL/bin:$PATH"; bun x biome lint --write --config-path "BASE-BIOME_INTERNAL_SKIP_CONFIG" OVR-BIOME_TARGETS OVR-EXTRA_ARGS'
 task: [config:skip] pattern="$BIOME_SKIP_PATTERN"
 task: [config:skip] powershell -NoProfile -ExecutionPolicy Bypass -Command - <<'POWERSHELL'
 task: [lint:fix] echo "✅ biome fixes applied"

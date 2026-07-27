@@ -21,18 +21,6 @@ vars:
   CONFIG: ""
   EXTRA_ARGS: ""
   VERSION: ""
-  BIOME_INTERNAL_LINT_SKIP_PATTERN: >-
-    {{if .BIOME_LINT_SKIP_PATTERN_OVERRIDE}}{{.BIOME_LINT_SKIP_PATTERN_OVERRIDE}}
-    {{- else}}{{.BIOME_LINT_SKIP_PATTERN}}{{end}}
-  BIOME_INTERNAL_FMT_SKIP_PATTERN: >-
-    {{if .BIOME_FMT_SKIP_PATTERN_OVERRIDE}}{{.BIOME_FMT_SKIP_PATTERN_OVERRIDE}}
-    {{- else}}{{.BIOME_FMT_SKIP_PATTERN}}{{end}}
-  BIOME_INTERNAL_COMBINED_SKIP_PATTERN: >-
-    {{if .BIOME_INTERNAL_LINT_SKIP_PATTERN}}{{.BIOME_INTERNAL_LINT_SKIP_PATTERN}}
-    {{- else}}{{.BIOME_INTERNAL_FMT_SKIP_PATTERN}}{{end}}
-  BIOME_INTERNAL_CONFIG: >-
-    {{if .CONFIG_OVERRIDE}}{{.CONFIG_OVERRIDE}}
-    {{- else}}{{.CONFIG}}{{end}}
   BIOME_INTERNAL_SKIP_CONFIG: ".taskotter-biome-npm-nvm-skip.json"
 
 tasks:
@@ -52,17 +40,15 @@ tasks:
     status:
       - >-
         node -e "const installed = require('./node_modules/@biomejs/biome/package.json');
-        const requested = '{{if .VERSION_OVERRIDE}}{{.VERSION_OVERRIDE}}{{else}}{{.VERSION}}{{end}}';
+        const requested = '{{.RESOLVED_VERSION}}';
         process.exit(!requested || installed.version === requested ? 0 : 1)"
+    vars:
+      RESOLVED_VERSION: '{{default .VERSION .VERSION_OVERRIDE}}'
     cmds:
       - task: npm:add
         vars:
-          PACKAGES: >-
-            @biomejs/biome{{if .VERSION_OVERRIDE}}@{{.VERSION_OVERRIDE}}
-            {{- else if .VERSION}}@{{.VERSION}}{{end}}
-          EXTRA_ARGS: >-
-            {{if .EXTRA_ARGS_OVERRIDE}}{{.EXTRA_ARGS_OVERRIDE}}
-            {{- else}}{{.EXTRA_ARGS}}{{end}}{{if .CLI_ARGS}} {{.CLI_ARGS}}{{end}}
+          PACKAGES: '@biomejs/biome{{if .RESOLVED_VERSION}}@{{.RESOLVED_VERSION}}{{end}}'
+          EXTRA_ARGS: '{{default .EXTRA_ARGS .EXTRA_ARGS_OVERRIDE}}{{if .CLI_ARGS}} {{.CLI_ARGS}}{{end}}'
 
   install:undo:
     run: once
@@ -75,7 +61,7 @@ tasks:
       - task: npm:remove
         vars:
           PACKAGES: "@biomejs/biome"
-          EXTRA_ARGS: "{{if .EXTRA_ARGS_OVERRIDE}}{{.EXTRA_ARGS_OVERRIDE}}{{else}}{{.EXTRA_ARGS}}{{end}}"
+          EXTRA_ARGS: '{{default .EXTRA_ARGS .EXTRA_ARGS_OVERRIDE}}'
 
   upgrade:
     run: once
@@ -85,7 +71,7 @@ tasks:
       - task: npm:add
         vars:
           PACKAGES: "@biomejs/biome@latest"
-          EXTRA_ARGS: "{{if .EXTRA_ARGS_OVERRIDE}}{{.EXTRA_ARGS_OVERRIDE}}{{else}}{{.EXTRA_ARGS}}{{end}}"
+          EXTRA_ARGS: '{{default .EXTRA_ARGS .EXTRA_ARGS_OVERRIDE}}'
 
   init:
     run: once
@@ -106,9 +92,7 @@ tasks:
         vars:
           BINARY: biome
           ARGS: init
-          EXTRA_ARGS: >-
-            {{if .EXTRA_ARGS_OVERRIDE}}{{.EXTRA_ARGS_OVERRIDE}}
-            {{- else}}{{.EXTRA_ARGS}}{{end}}{{if .CLI_ARGS}} {{.CLI_ARGS}}{{end}}
+          EXTRA_ARGS: '{{default .EXTRA_ARGS .EXTRA_ARGS_OVERRIDE}}{{if .CLI_ARGS}} {{.CLI_ARGS}}{{end}}'
 
   config:skip:
     desc: Write a Biome config overlay that excludes the skip patterns
@@ -121,13 +105,17 @@ tasks:
       .gitignore. Running with no skip pattern set deletes it.
     dir: "{{.USER_WORKING_DIR}}"
     set: [errexit, nounset, pipefail]
+    vars:
+      RESOLVED_LINT_SKIP: '{{default .BIOME_LINT_SKIP_PATTERN .BIOME_LINT_SKIP_PATTERN_OVERRIDE}}'
+      RESOLVED_FMT_SKIP: '{{default .BIOME_FMT_SKIP_PATTERN .BIOME_FMT_SKIP_PATTERN_OVERRIDE}}'
+      RESOLVED_CONFIG: '{{default .CONFIG .CONFIG_OVERRIDE}}'
     env:
       BIOME_SKIP_PATTERN: >-
-        {{if eq (default "all" .SKIP_SCOPE) "fmt"}}{{.BIOME_INTERNAL_FMT_SKIP_PATTERN}}
-        {{- else}}{{.BIOME_INTERNAL_LINT_SKIP_PATTERN}}{{end}}
+        {{if eq (default "all" .SKIP_SCOPE) "fmt"}}{{.RESOLVED_FMT_SKIP}}
+        {{- else}}{{.RESOLVED_LINT_SKIP}}{{end}}
       BIOME_SKIP_ADDITIONAL_PATTERN: >-
-        {{if eq (default "all" .SKIP_SCOPE) "all"}}{{.BIOME_INTERNAL_FMT_SKIP_PATTERN}}{{end}}
-      BIOME_SKIP_SOURCE_CONFIG: "{{.BIOME_INTERNAL_CONFIG}}"
+        {{if eq (default "all" .SKIP_SCOPE) "all"}}{{.RESOLVED_FMT_SKIP}}{{end}}
+      BIOME_SKIP_SOURCE_CONFIG: "{{.RESOLVED_CONFIG}}"
       BIOME_SKIP_OUTPUT: "{{.BIOME_INTERNAL_SKIP_CONFIG}}"
     cmds:
       - cmd: |
@@ -220,52 +208,54 @@ tasks:
           POWERSHELL
         platforms: [windows]
 
-  check:
-    run: once
-    desc: Run Biome check
+  # Shared implementation of check / lint / format / ci. Callers supply the
+  # subcommand, which skip scope the config overlay is generated for, and the
+  # resolved pattern that decides whether the overlay is used at all.
+  _run:
+    internal: true
+    run: when_changed
+    vars:
+      RESOLVED_LINT_SKIP: '{{default .BIOME_LINT_SKIP_PATTERN .BIOME_LINT_SKIP_PATTERN_OVERRIDE}}'
+      RESOLVED_FMT_SKIP: '{{default .BIOME_FMT_SKIP_PATTERN .BIOME_FMT_SKIP_PATTERN_OVERRIDE}}'
+      RESOLVED_CONFIG: '{{default .CONFIG .CONFIG_OVERRIDE}}'
+      RESOLVED_TARGETS: '{{or .BIOME_TARGETS_OVERRIDE .TARGETS .BIOME_DEFAULT_TARGETS}}'
+      # Which skip pattern decides whether the generated overlay is used.
+      GATE: >-
+        {{if eq .SKIP_SCOPE "lint"}}{{.RESOLVED_LINT_SKIP}}
+        {{- else if eq .SKIP_SCOPE "fmt"}}{{.RESOLVED_FMT_SKIP}}
+        {{- else}}{{or .RESOLVED_LINT_SKIP .RESOLVED_FMT_SKIP}}{{end}}
     cmds:
       - task: config:skip
         vars:
-          SKIP_SCOPE: all
+          SKIP_SCOPE: "{{.SKIP_SCOPE}}"
       - task: npm:exec
         vars:
           BINARY: biome
           ARGS: >-
-            check
-            {{if .BIOME_INTERNAL_COMBINED_SKIP_PATTERN}}--config-path
-            "{{.BIOME_INTERNAL_SKIP_CONFIG}}"
-            {{else if .CONFIG_OVERRIDE}}--config-path "{{.CONFIG_OVERRIDE}}"
-            {{else}}{{if .CONFIG}}--config-path "{{.CONFIG}}" {{end}}{{end}}
-            {{if .BIOME_TARGETS_OVERRIDE}}{{.BIOME_TARGETS_OVERRIDE}}
-            {{else}}{{if .TARGETS}}{{.TARGETS}}
-            {{else}}{{.BIOME_DEFAULT_TARGETS}}{{end}}{{end}}
-          EXTRA_ARGS: >-
-            {{if .EXTRA_ARGS_OVERRIDE}}{{.EXTRA_ARGS_OVERRIDE}}
-            {{else}}{{if .EXTRA_ARGS}}{{.EXTRA_ARGS}}{{end}}{{end}}{{if .CLI_ARGS}} {{.CLI_ARGS}}{{end}}
+            {{.SUBCMD}}
+            {{- if .GATE}} --config-path "{{.BIOME_INTERNAL_SKIP_CONFIG}}"
+            {{- else if .RESOLVED_CONFIG}} --config-path "{{.RESOLVED_CONFIG}}"{{end}}
+            {{- if .RESOLVED_TARGETS}} {{.RESOLVED_TARGETS}}{{end}}
+          EXTRA_ARGS: '{{default .EXTRA_ARGS .EXTRA_ARGS_OVERRIDE}}{{if .CLI_ARGS}} {{.CLI_ARGS}}{{end}}'
+
+  check:
+    run: once
+    desc: Run Biome check
+    cmds:
+      - task: _run
+        vars:
+          SUBCMD: check
+          SKIP_SCOPE: all
       - echo "✅ biome passed"
 
   check:write:
     run: once
     desc: Run Biome check and write safe fixes
     cmds:
-      - task: config:skip
+      - task: _run
         vars:
+          SUBCMD: check --write
           SKIP_SCOPE: all
-      - task: npm:exec
-        vars:
-          BINARY: biome
-          ARGS: >-
-            check --write
-            {{if .BIOME_INTERNAL_COMBINED_SKIP_PATTERN}}--config-path
-            "{{.BIOME_INTERNAL_SKIP_CONFIG}}"
-            {{else if .CONFIG_OVERRIDE}}--config-path "{{.CONFIG_OVERRIDE}}"
-            {{else}}{{if .CONFIG}}--config-path "{{.CONFIG}}" {{end}}{{end}}
-            {{if .BIOME_TARGETS_OVERRIDE}}{{.BIOME_TARGETS_OVERRIDE}}
-            {{else}}{{if .TARGETS}}{{.TARGETS}}
-            {{else}}{{.BIOME_DEFAULT_TARGETS}}{{end}}{{end}}
-          EXTRA_ARGS: >-
-            {{if .EXTRA_ARGS_OVERRIDE}}{{.EXTRA_ARGS_OVERRIDE}}
-            {{else}}{{if .EXTRA_ARGS}}{{.EXTRA_ARGS}}{{end}}{{end}}{{if .CLI_ARGS}} {{.CLI_ARGS}}{{end}}
       - echo "✅ biome fixes applied"
 
   fix:
@@ -278,119 +268,49 @@ tasks:
     run: once
     desc: Run Biome lint
     cmds:
-      - task: config:skip
+      - task: _run
         vars:
+          SUBCMD: lint
           SKIP_SCOPE: lint
-      - task: npm:exec
-        vars:
-          BINARY: biome
-          ARGS: >-
-            lint
-            {{if .BIOME_INTERNAL_LINT_SKIP_PATTERN}}--config-path
-            "{{.BIOME_INTERNAL_SKIP_CONFIG}}"
-            {{else if .CONFIG_OVERRIDE}}--config-path "{{.CONFIG_OVERRIDE}}"
-            {{else}}{{if .CONFIG}}--config-path "{{.CONFIG}}" {{end}}{{end}}
-            {{if .BIOME_TARGETS_OVERRIDE}}{{.BIOME_TARGETS_OVERRIDE}}
-            {{else}}{{if .TARGETS}}{{.TARGETS}}
-            {{else}}{{.BIOME_DEFAULT_TARGETS}}{{end}}{{end}}
-          EXTRA_ARGS: >-
-            {{if .EXTRA_ARGS_OVERRIDE}}{{.EXTRA_ARGS_OVERRIDE}}
-            {{else}}{{if .EXTRA_ARGS}}{{.EXTRA_ARGS}}{{end}}{{end}}{{if .CLI_ARGS}} {{.CLI_ARGS}}{{end}}
       - echo "✅ biome passed"
 
   lint:fix:
     run: once
     desc: Run Biome lint and write fixes
     cmds:
-      - task: config:skip
+      - task: _run
         vars:
+          SUBCMD: lint --write
           SKIP_SCOPE: lint
-      - task: npm:exec
-        vars:
-          BINARY: biome
-          ARGS: >-
-            lint --write
-            {{if .BIOME_INTERNAL_LINT_SKIP_PATTERN}}--config-path
-            "{{.BIOME_INTERNAL_SKIP_CONFIG}}"
-            {{else if .CONFIG_OVERRIDE}}--config-path "{{.CONFIG_OVERRIDE}}"
-            {{else}}{{if .CONFIG}}--config-path "{{.CONFIG}}" {{end}}{{end}}
-            {{if .BIOME_TARGETS_OVERRIDE}}{{.BIOME_TARGETS_OVERRIDE}}
-            {{else}}{{if .TARGETS}}{{.TARGETS}}
-            {{else}}{{.BIOME_DEFAULT_TARGETS}}{{end}}{{end}}
-          EXTRA_ARGS: >-
-            {{if .EXTRA_ARGS_OVERRIDE}}{{.EXTRA_ARGS_OVERRIDE}}
-            {{else}}{{if .EXTRA_ARGS}}{{.EXTRA_ARGS}}{{end}}{{end}}{{if .CLI_ARGS}} {{.CLI_ARGS}}{{end}}
       - echo "✅ biome fixes applied"
 
   fmt:check:
     run: once
     desc: Check formatting with Biome
     cmds:
-      - task: config:skip
+      - task: _run
         vars:
+          SUBCMD: format
           SKIP_SCOPE: fmt
-      - task: npm:exec
-        vars:
-          BINARY: biome
-          ARGS: >-
-            format
-            {{if .BIOME_INTERNAL_FMT_SKIP_PATTERN}}--config-path
-            "{{.BIOME_INTERNAL_SKIP_CONFIG}}"
-            {{else if .CONFIG_OVERRIDE}}--config-path "{{.CONFIG_OVERRIDE}}"
-            {{else}}{{if .CONFIG}}--config-path "{{.CONFIG}}" {{end}}{{end}}
-            {{if .BIOME_TARGETS_OVERRIDE}}{{.BIOME_TARGETS_OVERRIDE}}
-            {{else}}{{if .TARGETS}}{{.TARGETS}}
-            {{else}}{{.BIOME_DEFAULT_TARGETS}}{{end}}{{end}}
-          EXTRA_ARGS: >-
-            {{if .EXTRA_ARGS_OVERRIDE}}{{.EXTRA_ARGS_OVERRIDE}}
-            {{else}}{{if .EXTRA_ARGS}}{{.EXTRA_ARGS}}{{end}}{{end}}{{if .CLI_ARGS}} {{.CLI_ARGS}}{{end}}
 
   fmt:
     run: once
     desc: Format files with Biome
     cmds:
-      - task: config:skip
+      - task: _run
         vars:
+          SUBCMD: format --write
           SKIP_SCOPE: fmt
-      - task: npm:exec
-        vars:
-          BINARY: biome
-          ARGS: >-
-            format --write
-            {{if .BIOME_INTERNAL_FMT_SKIP_PATTERN}}--config-path
-            "{{.BIOME_INTERNAL_SKIP_CONFIG}}"
-            {{else if .CONFIG_OVERRIDE}}--config-path "{{.CONFIG_OVERRIDE}}"
-            {{else}}{{if .CONFIG}}--config-path "{{.CONFIG}}" {{end}}{{end}}
-            {{if .BIOME_TARGETS_OVERRIDE}}{{.BIOME_TARGETS_OVERRIDE}}
-            {{else}}{{if .TARGETS}}{{.TARGETS}}
-            {{else}}{{.BIOME_DEFAULT_TARGETS}}{{end}}{{end}}
-          EXTRA_ARGS: >-
-            {{if .EXTRA_ARGS_OVERRIDE}}{{.EXTRA_ARGS_OVERRIDE}}
-            {{else}}{{if .EXTRA_ARGS}}{{.EXTRA_ARGS}}{{end}}{{end}}{{if .CLI_ARGS}} {{.CLI_ARGS}}{{end}}
       - echo "✅ biome fixes applied"
 
   ci:
     run: once
     desc: Run Biome CI checks
     cmds:
-      - task: config:skip
+      - task: _run
         vars:
+          SUBCMD: ci
           SKIP_SCOPE: all
-      - task: npm:exec
-        vars:
-          BINARY: biome
-          ARGS: >-
-            ci
-            {{if .BIOME_INTERNAL_COMBINED_SKIP_PATTERN}}--config-path
-            "{{.BIOME_INTERNAL_SKIP_CONFIG}}"
-            {{else if .CONFIG_OVERRIDE}}--config-path "{{.CONFIG_OVERRIDE}}"
-            {{else}}{{if .CONFIG}}--config-path "{{.CONFIG}}" {{end}}{{end}}
-            {{if .BIOME_TARGETS_OVERRIDE}}{{.BIOME_TARGETS_OVERRIDE}}
-            {{else}}{{if .TARGETS}}{{.TARGETS}}
-            {{else}}{{.BIOME_DEFAULT_TARGETS}}{{end}}{{end}}
-          EXTRA_ARGS: >-
-            {{if .EXTRA_ARGS_OVERRIDE}}{{.EXTRA_ARGS_OVERRIDE}}
-            {{else}}{{if .EXTRA_ARGS}}{{.EXTRA_ARGS}}{{end}}{{end}}{{if .CLI_ARGS}} {{.CLI_ARGS}}{{end}}
       - echo "✅ biome passed"
 
   cache:clean:
@@ -417,6 +337,4 @@ tasks:
         vars:
           BINARY: biome
           ARGS: "--help"
-          EXTRA_ARGS: >-
-            {{if .EXTRA_ARGS_OVERRIDE}}{{.EXTRA_ARGS_OVERRIDE}}
-            {{- else}}{{.EXTRA_ARGS}}{{end}}{{if .CLI_ARGS}} {{.CLI_ARGS}}{{end}}
+          EXTRA_ARGS: '{{default .EXTRA_ARGS .EXTRA_ARGS_OVERRIDE}}{{if .CLI_ARGS}} {{.CLI_ARGS}}{{end}}'

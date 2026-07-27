@@ -26,6 +26,8 @@
 fi
 task: "_exec:ignore" finished
 task: "_exec:ignore" started
+task: "_run" finished
+task: "_run" started
 task: "ci" finished
 task: "ci" started
 task: "fmt:check" finished
@@ -36,7 +38,7 @@ task: "pnpm:_exec:windows" not for current platform - ignored
 task: "pnpm:exec" finished
 task: "pnpm:exec" started
 task: [fmt:check] echo "✅ prettier passed"
-task: [pnpm:_exec:unix] bash -c "prettier OVR-PRETTIER_TARGETS  "!OVR-PRETTIER_FMT_SKIP_PATTERN" --check --config "OVR-CONFIG"   OVR-EXTRA_ARGS "
+task: [pnpm:_exec:unix] bash -c "prettier OVR-PRETTIER_TARGETS "!OVR-PRETTIER_FMT_SKIP_PATTERN" --check --config "OVR-CONFIG"  OVR-EXTRA_ARGS"
 task: dynamic variable: "if [ -n \"OVR-IGNORE_PATH\" ] && [ -f \"OVR-IGNORE_PATH\" ]; then
 
 === task: config:init ===
@@ -59,6 +61,8 @@ task: status command test -f "OVR-CONFIG" exited non-zero: exit status 1
 fi
 task: "_exec:ignore" finished
 task: "_exec:ignore" started
+task: "_run" finished
+task: "_run" started
 task: "fix" finished
 task: "fix" started
 task: "fmt" finished
@@ -69,7 +73,7 @@ task: "pnpm:_exec:windows" not for current platform - ignored
 task: "pnpm:exec" finished
 task: "pnpm:exec" started
 task: [fmt] echo "✅ prettier fixes applied"
-task: [pnpm:_exec:unix] bash -c "prettier OVR-PRETTIER_TARGETS  "!OVR-PRETTIER_FMT_SKIP_PATTERN" --write --config "OVR-CONFIG"   OVR-EXTRA_ARGS "
+task: [pnpm:_exec:unix] bash -c "prettier OVR-PRETTIER_TARGETS "!OVR-PRETTIER_FMT_SKIP_PATTERN" --write --config "OVR-CONFIG"  OVR-EXTRA_ARGS"
 task: dynamic variable: "if [ -n \"OVR-IGNORE_PATH\" ] && [ -f \"OVR-IGNORE_PATH\" ]; then
 
 === task: fmt ===
@@ -78,6 +82,8 @@ task: dynamic variable: "if [ -n \"OVR-IGNORE_PATH\" ] && [ -f \"OVR-IGNORE_PATH
 fi
 task: "_exec:ignore" finished
 task: "_exec:ignore" started
+task: "_run" finished
+task: "_run" started
 task: "fmt" finished
 task: "fmt" started
 task: "pnpm:_exec:unix" finished
@@ -86,7 +92,7 @@ task: "pnpm:_exec:windows" not for current platform - ignored
 task: "pnpm:exec" finished
 task: "pnpm:exec" started
 task: [fmt] echo "✅ prettier fixes applied"
-task: [pnpm:_exec:unix] bash -c "prettier OVR-PRETTIER_TARGETS  "!OVR-PRETTIER_FMT_SKIP_PATTERN" --write --config "OVR-CONFIG"   OVR-EXTRA_ARGS "
+task: [pnpm:_exec:unix] bash -c "prettier OVR-PRETTIER_TARGETS "!OVR-PRETTIER_FMT_SKIP_PATTERN" --write --config "OVR-CONFIG"  OVR-EXTRA_ARGS"
 task: dynamic variable: "if [ -n \"OVR-IGNORE_PATH\" ] && [ -f \"OVR-IGNORE_PATH\" ]; then
 
 === task: fmt:check ===
@@ -95,6 +101,8 @@ task: dynamic variable: "if [ -n \"OVR-IGNORE_PATH\" ] && [ -f \"OVR-IGNORE_PATH
 fi
 task: "_exec:ignore" finished
 task: "_exec:ignore" started
+task: "_run" finished
+task: "_run" started
 task: "fmt:check" finished
 task: "fmt:check" started
 task: "pnpm:_exec:unix" finished
@@ -103,7 +111,7 @@ task: "pnpm:_exec:windows" not for current platform - ignored
 task: "pnpm:exec" finished
 task: "pnpm:exec" started
 task: [fmt:check] echo "✅ prettier passed"
-task: [pnpm:_exec:unix] bash -c "prettier OVR-PRETTIER_TARGETS  "!OVR-PRETTIER_FMT_SKIP_PATTERN" --check --config "OVR-CONFIG"   OVR-EXTRA_ARGS "
+task: [pnpm:_exec:unix] bash -c "prettier OVR-PRETTIER_TARGETS "!OVR-PRETTIER_FMT_SKIP_PATTERN" --check --config "OVR-CONFIG"  OVR-EXTRA_ARGS"
 task: dynamic variable: "if [ -n \"OVR-IGNORE_PATH\" ] && [ -f \"OVR-IGNORE_PATH\" ]; then
 
 === task: help ===

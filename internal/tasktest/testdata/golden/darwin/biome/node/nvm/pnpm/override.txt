@@ -99,6 +99,8 @@ includes="\"**\""
 json_escape() {
 output="$BIOME_SKIP_OUTPUT"
 source_config="$BIOME_SKIP_SOURCE_CONFIG"
+task: "_run" finished
+task: "_run" started
 task: "check" finished
 task: "check" started
 task: "config:skip" finished
@@ -111,7 +113,7 @@ task: "pnpm:exec" started
 task: [check] echo "✅ biome passed"
 task: [config:skip] pattern="$BIOME_SKIP_PATTERN"
 task: [config:skip] powershell -NoProfile -ExecutionPolicy Bypass -Command - <<'POWERSHELL'
-task: [pnpm:_exec:unix] bash -c "biome check --config-path "OVR-CONFIG"  OVR-BIOME_TARGETS  OVR-EXTRA_ARGS "
+task: [pnpm:_exec:unix] bash -c "biome check --config-path ".taskotter-biome-pnpm-nvm-skip.json" OVR-BIOME_TARGETS OVR-EXTRA_ARGS"
 }
 }
 }
@@ -203,6 +205,8 @@ includes="\"**\""
 json_escape() {
 output="$BIOME_SKIP_OUTPUT"
 source_config="$BIOME_SKIP_SOURCE_CONFIG"
+task: "_run" finished
+task: "_run" started
 task: "check:write" finished
 task: "check:write" started
 task: "config:skip" finished
@@ -215,7 +219,7 @@ task: "pnpm:exec" started
 task: [check:write] echo "✅ biome fixes applied"
 task: [config:skip] pattern="$BIOME_SKIP_PATTERN"
 task: [config:skip] powershell -NoProfile -ExecutionPolicy Bypass -Command - <<'POWERSHELL'
-task: [pnpm:_exec:unix] bash -c "biome check --write --config-path "OVR-CONFIG"  OVR-BIOME_TARGETS  OVR-EXTRA_ARGS "
+task: [pnpm:_exec:unix] bash -c "biome check --write --config-path ".taskotter-biome-pnpm-nvm-skip.json" OVR-BIOME_TARGETS OVR-EXTRA_ARGS"
 }
 }
 }
@@ -307,6 +311,8 @@ includes="\"**\""
 json_escape() {
 output="$BIOME_SKIP_OUTPUT"
 source_config="$BIOME_SKIP_SOURCE_CONFIG"
+task: "_run" finished
+task: "_run" started
 task: "ci" finished
 task: "ci" started
 task: "config:skip" finished
@@ -319,7 +325,7 @@ task: "pnpm:exec" started
 task: [ci] echo "✅ biome passed"
 task: [config:skip] pattern="$BIOME_SKIP_PATTERN"
 task: [config:skip] powershell -NoProfile -ExecutionPolicy Bypass -Command - <<'POWERSHELL'
-task: [pnpm:_exec:unix] bash -c "biome ci --config-path "OVR-CONFIG"  OVR-BIOME_TARGETS  OVR-EXTRA_ARGS "
+task: [pnpm:_exec:unix] bash -c "biome ci --config-path ".taskotter-biome-pnpm-nvm-skip.json" OVR-BIOME_TARGETS OVR-EXTRA_ARGS"
 }
 }
 }
@@ -517,6 +523,8 @@ includes="\"**\""
 json_escape() {
 output="$BIOME_SKIP_OUTPUT"
 source_config="$BIOME_SKIP_SOURCE_CONFIG"
+task: "_run" finished
+task: "_run" started
 task: "check:write" finished
 task: "check:write" started
 task: "config:skip" finished
@@ -531,7 +539,7 @@ task: "pnpm:exec" started
 task: [check:write] echo "✅ biome fixes applied"
 task: [config:skip] pattern="$BIOME_SKIP_PATTERN"
 task: [config:skip] powershell -NoProfile -ExecutionPolicy Bypass -Command - <<'POWERSHELL'
-task: [pnpm:_exec:unix] bash -c "biome check --write --config-path "OVR-CONFIG"  OVR-BIOME_TARGETS  OVR-EXTRA_ARGS "
+task: [pnpm:_exec:unix] bash -c "biome check --write --config-path ".taskotter-biome-pnpm-nvm-skip.json" OVR-BIOME_TARGETS OVR-EXTRA_ARGS"
 }
 }
 }
@@ -623,6 +631,8 @@ includes="\"**\""
 json_escape() {
 output="$BIOME_SKIP_OUTPUT"
 source_config="$BIOME_SKIP_SOURCE_CONFIG"
+task: "_run" finished
+task: "_run" started
 task: "config:skip" finished
 task: "config:skip" started
 task: "fmt" finished
@@ -635,7 +645,7 @@ task: "pnpm:exec" started
 task: [config:skip] pattern="$BIOME_SKIP_PATTERN"
 task: [config:skip] powershell -NoProfile -ExecutionPolicy Bypass -Command - <<'POWERSHELL'
 task: [fmt] echo "✅ biome fixes applied"
-task: [pnpm:_exec:unix] bash -c "biome format --write --config-path "OVR-CONFIG"  OVR-BIOME_TARGETS  OVR-EXTRA_ARGS "
+task: [pnpm:_exec:unix] bash -c "biome format --write --config-path ".taskotter-biome-pnpm-nvm-skip.json" OVR-BIOME_TARGETS OVR-EXTRA_ARGS"
 }
 }
 }
@@ -727,6 +737,8 @@ includes="\"**\""
 json_escape() {
 output="$BIOME_SKIP_OUTPUT"
 source_config="$BIOME_SKIP_SOURCE_CONFIG"
+task: "_run" finished
+task: "_run" started
 task: "config:skip" finished
 task: "config:skip" started
 task: "fmt:check" finished
@@ -738,7 +750,7 @@ task: "pnpm:exec" finished
 task: "pnpm:exec" started
 task: [config:skip] pattern="$BIOME_SKIP_PATTERN"
 task: [config:skip] powershell -NoProfile -ExecutionPolicy Bypass -Command - <<'POWERSHELL'
-task: [pnpm:_exec:unix] bash -c "biome format --config-path "OVR-CONFIG"  OVR-BIOME_TARGETS  OVR-EXTRA_ARGS "
+task: [pnpm:_exec:unix] bash -c "biome format --config-path ".taskotter-biome-pnpm-nvm-skip.json" OVR-BIOME_TARGETS OVR-EXTRA_ARGS"
 }
 }
 }
@@ -868,6 +880,8 @@ includes="\"**\""
 json_escape() {
 output="$BIOME_SKIP_OUTPUT"
 source_config="$BIOME_SKIP_SOURCE_CONFIG"
+task: "_run" finished
+task: "_run" started
 task: "config:skip" finished
 task: "config:skip" started
 task: "lint" finished
@@ -880,7 +894,7 @@ task: "pnpm:exec" started
 task: [config:skip] pattern="$BIOME_SKIP_PATTERN"
 task: [config:skip] powershell -NoProfile -ExecutionPolicy Bypass -Command - <<'POWERSHELL'
 task: [lint] echo "✅ biome passed"
-task: [pnpm:_exec:unix] bash -c "biome lint --config-path "OVR-CONFIG"  OVR-BIOME_TARGETS  OVR-EXTRA_ARGS "
+task: [pnpm:_exec:unix] bash -c "biome lint --config-path ".taskotter-biome-pnpm-nvm-skip.json" OVR-BIOME_TARGETS OVR-EXTRA_ARGS"
 }
 }
 }
@@ -972,6 +986,8 @@ includes="\"**\""
 json_escape() {
 output="$BIOME_SKIP_OUTPUT"
 source_config="$BIOME_SKIP_SOURCE_CONFIG"
+task: "_run" finished
+task: "_run" started
 task: "config:skip" finished
 task: "config:skip" started
 task: "lint:fix" finished
@@ -984,7 +1000,7 @@ task: "pnpm:exec" started
 task: [config:skip] pattern="$BIOME_SKIP_PATTERN"
 task: [config:skip] powershell -NoProfile -ExecutionPolicy Bypass -Command - <<'POWERSHELL'
 task: [lint:fix] echo "✅ biome fixes applied"
-task: [pnpm:_exec:unix] bash -c "biome lint --write --config-path "OVR-CONFIG"  OVR-BIOME_TARGETS  OVR-EXTRA_ARGS "
+task: [pnpm:_exec:unix] bash -c "biome lint --write --config-path ".taskotter-biome-pnpm-nvm-skip.json" OVR-BIOME_TARGETS OVR-EXTRA_ARGS"
 }
 }
 }

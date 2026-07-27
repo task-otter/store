@@ -7,6 +7,8 @@
 fi
 task: "_exec:ignore" finished
 task: "_exec:ignore" started
+task: "_run" finished
+task: "_run" started
 task: "ci" finished
 task: "ci" started
 task: "fmt:check" finished
@@ -17,7 +19,7 @@ task: "pnpm:_exec:windows" not for current platform - ignored
 task: "pnpm:exec" finished
 task: "pnpm:exec" started
 task: [fmt:check] echo "✅ prettier passed"
-task: [pnpm:_exec:unix] bash -c "prettier . --check   "
+task: [pnpm:_exec:unix] bash -c "prettier . --check  "
 task: dynamic variable: "if [ -n \".prettierignore\" ] && [ -f \".prettierignore\" ]; then
 
 === task: config:init ===
@@ -40,6 +42,8 @@ task: status command test -f ".prettierrc.json" exited non-zero: exit status 1
 fi
 task: "_exec:ignore" finished
 task: "_exec:ignore" started
+task: "_run" finished
+task: "_run" started
 task: "fix" finished
 task: "fix" started
 task: "fmt" finished
@@ -50,7 +54,7 @@ task: "pnpm:_exec:windows" not for current platform - ignored
 task: "pnpm:exec" finished
 task: "pnpm:exec" started
 task: [fmt] echo "✅ prettier fixes applied"
-task: [pnpm:_exec:unix] bash -c "prettier . --write   "
+task: [pnpm:_exec:unix] bash -c "prettier . --write  "
 task: dynamic variable: "if [ -n \".prettierignore\" ] && [ -f \".prettierignore\" ]; then
 
 === task: fmt ===
@@ -59,6 +63,8 @@ task: dynamic variable: "if [ -n \".prettierignore\" ] && [ -f \".prettierignore
 fi
 task: "_exec:ignore" finished
 task: "_exec:ignore" started
+task: "_run" finished
+task: "_run" started
 task: "fmt" finished
 task: "fmt" started
 task: "pnpm:_exec:unix" finished
@@ -67,7 +73,7 @@ task: "pnpm:_exec:windows" not for current platform - ignored
 task: "pnpm:exec" finished
 task: "pnpm:exec" started
 task: [fmt] echo "✅ prettier fixes applied"
-task: [pnpm:_exec:unix] bash -c "prettier . --write   "
+task: [pnpm:_exec:unix] bash -c "prettier . --write  "
 task: dynamic variable: "if [ -n \".prettierignore\" ] && [ -f \".prettierignore\" ]; then
 
 === task: fmt:check ===
@@ -76,6 +82,8 @@ task: dynamic variable: "if [ -n \".prettierignore\" ] && [ -f \".prettierignore
 fi
 task: "_exec:ignore" finished
 task: "_exec:ignore" started
+task: "_run" finished
+task: "_run" started
 task: "fmt:check" finished
 task: "fmt:check" started
 task: "pnpm:_exec:unix" finished
@@ -84,7 +92,7 @@ task: "pnpm:_exec:windows" not for current platform - ignored
 task: "pnpm:exec" finished
 task: "pnpm:exec" started
 task: [fmt:check] echo "✅ prettier passed"
-task: [pnpm:_exec:unix] bash -c "prettier . --check   "
+task: [pnpm:_exec:unix] bash -c "prettier . --check  "
 task: dynamic variable: "if [ -n \".prettierignore\" ] && [ -f \".prettierignore\" ]; then
 
 === task: help ===

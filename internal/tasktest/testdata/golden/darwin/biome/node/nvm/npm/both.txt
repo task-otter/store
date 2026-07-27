@@ -108,6 +108,8 @@ includes="\"**\""
 json_escape() {
 output="$BIOME_SKIP_OUTPUT"
 source_config="$BIOME_SKIP_SOURCE_CONFIG"
+task: "_run" finished
+task: "_run" started
 task: "check" finished
 task: "check" started
 task: "config:skip" finished
@@ -120,7 +122,7 @@ task: "npm:exec" started
 task: [check] echo "✅ biome passed"
 task: [config:skip] pattern="$BIOME_SKIP_PATTERN"
 task: [config:skip] powershell -NoProfile -ExecutionPolicy Bypass -Command - <<'POWERSHELL'
-task: [npm:_npm:unix] bash -c 'export NVM_DIR="$HOME/.nvm"; . "$NVM_DIR/nvm.sh"; if [ -f .node-version ] || [ -f .nvmrc ]; then nvm use; fi; command -v corepack >/dev/null 2>&1 || { echo "corepack is not available. Run: task manager:setup"; exit 1; }; corepack npm exec -- biome check --config-path "BASE-BIOME_INTERNAL_SKIP_CONFIG"  OVR-BIOME_TARGETS  OVR-EXTRA_ARGS '
+task: [npm:_npm:unix] bash -c 'export NVM_DIR="$HOME/.nvm"; . "$NVM_DIR/nvm.sh"; if [ -f .node-version ] || [ -f .nvmrc ]; then nvm use; fi; command -v corepack >/dev/null 2>&1 || { echo "corepack is not available. Run: task manager:setup"; exit 1; }; corepack npm exec -- biome check --config-path "BASE-BIOME_INTERNAL_SKIP_CONFIG" OVR-BIOME_TARGETS OVR-EXTRA_ARGS'
 }
 }
 }
@@ -212,6 +214,8 @@ includes="\"**\""
 json_escape() {
 output="$BIOME_SKIP_OUTPUT"
 source_config="$BIOME_SKIP_SOURCE_CONFIG"
+task: "_run" finished
+task: "_run" started
 task: "check:write" finished
 task: "check:write" started
 task: "config:skip" finished
@@ -224,7 +228,7 @@ task: "npm:exec" started
 task: [check:write] echo "✅ biome fixes applied"
 task: [config:skip] pattern="$BIOME_SKIP_PATTERN"
 task: [config:skip] powershell -NoProfile -ExecutionPolicy Bypass -Command - <<'POWERSHELL'
-task: [npm:_npm:unix] bash -c 'export NVM_DIR="$HOME/.nvm"; . "$NVM_DIR/nvm.sh"; if [ -f .node-version ] || [ -f .nvmrc ]; then nvm use; fi; command -v corepack >/dev/null 2>&1 || { echo "corepack is not available. Run: task manager:setup"; exit 1; }; corepack npm exec -- biome check --write --config-path "BASE-BIOME_INTERNAL_SKIP_CONFIG"  OVR-BIOME_TARGETS  OVR-EXTRA_ARGS '
+task: [npm:_npm:unix] bash -c 'export NVM_DIR="$HOME/.nvm"; . "$NVM_DIR/nvm.sh"; if [ -f .node-version ] || [ -f .nvmrc ]; then nvm use; fi; command -v corepack >/dev/null 2>&1 || { echo "corepack is not available. Run: task manager:setup"; exit 1; }; corepack npm exec -- biome check --write --config-path "BASE-BIOME_INTERNAL_SKIP_CONFIG" OVR-BIOME_TARGETS OVR-EXTRA_ARGS'
 }
 }
 }
@@ -316,6 +320,8 @@ includes="\"**\""
 json_escape() {
 output="$BIOME_SKIP_OUTPUT"
 source_config="$BIOME_SKIP_SOURCE_CONFIG"
+task: "_run" finished
+task: "_run" started
 task: "ci" finished
 task: "ci" started
 task: "config:skip" finished
@@ -328,7 +334,7 @@ task: "npm:exec" started
 task: [ci] echo "✅ biome passed"
 task: [config:skip] pattern="$BIOME_SKIP_PATTERN"
 task: [config:skip] powershell -NoProfile -ExecutionPolicy Bypass -Command - <<'POWERSHELL'
-task: [npm:_npm:unix] bash -c 'export NVM_DIR="$HOME/.nvm"; . "$NVM_DIR/nvm.sh"; if [ -f .node-version ] || [ -f .nvmrc ]; then nvm use; fi; command -v corepack >/dev/null 2>&1 || { echo "corepack is not available. Run: task manager:setup"; exit 1; }; corepack npm exec -- biome ci --config-path "BASE-BIOME_INTERNAL_SKIP_CONFIG"  OVR-BIOME_TARGETS  OVR-EXTRA_ARGS '
+task: [npm:_npm:unix] bash -c 'export NVM_DIR="$HOME/.nvm"; . "$NVM_DIR/nvm.sh"; if [ -f .node-version ] || [ -f .nvmrc ]; then nvm use; fi; command -v corepack >/dev/null 2>&1 || { echo "corepack is not available. Run: task manager:setup"; exit 1; }; corepack npm exec -- biome ci --config-path "BASE-BIOME_INTERNAL_SKIP_CONFIG" OVR-BIOME_TARGETS OVR-EXTRA_ARGS'
 }
 }
 }
@@ -526,6 +532,8 @@ includes="\"**\""
 json_escape() {
 output="$BIOME_SKIP_OUTPUT"
 source_config="$BIOME_SKIP_SOURCE_CONFIG"
+task: "_run" finished
+task: "_run" started
 task: "check:write" finished
 task: "check:write" started
 task: "config:skip" finished
@@ -540,7 +548,7 @@ task: "npm:exec" started
 task: [check:write] echo "✅ biome fixes applied"
 task: [config:skip] pattern="$BIOME_SKIP_PATTERN"
 task: [config:skip] powershell -NoProfile -ExecutionPolicy Bypass -Command - <<'POWERSHELL'
-task: [npm:_npm:unix] bash -c 'export NVM_DIR="$HOME/.nvm"; . "$NVM_DIR/nvm.sh"; if [ -f .node-version ] || [ -f .nvmrc ]; then nvm use; fi; command -v corepack >/dev/null 2>&1 || { echo "corepack is not available. Run: task manager:setup"; exit 1; }; corepack npm exec -- biome check --write --config-path "BASE-BIOME_INTERNAL_SKIP_CONFIG"  OVR-BIOME_TARGETS  OVR-EXTRA_ARGS '
+task: [npm:_npm:unix] bash -c 'export NVM_DIR="$HOME/.nvm"; . "$NVM_DIR/nvm.sh"; if [ -f .node-version ] || [ -f .nvmrc ]; then nvm use; fi; command -v corepack >/dev/null 2>&1 || { echo "corepack is not available. Run: task manager:setup"; exit 1; }; corepack npm exec -- biome check --write --config-path "BASE-BIOME_INTERNAL_SKIP_CONFIG" OVR-BIOME_TARGETS OVR-EXTRA_ARGS'
 }
 }
 }
@@ -632,6 +640,8 @@ includes="\"**\""
 json_escape() {
 output="$BIOME_SKIP_OUTPUT"
 source_config="$BIOME_SKIP_SOURCE_CONFIG"
+task: "_run" finished
+task: "_run" started
 task: "config:skip" finished
 task: "config:skip" started
 task: "fmt" finished
@@ -644,7 +654,7 @@ task: "npm:exec" started
 task: [config:skip] pattern="$BIOME_SKIP_PATTERN"
 task: [config:skip] powershell -NoProfile -ExecutionPolicy Bypass -Command - <<'POWERSHELL'
 task: [fmt] echo "✅ biome fixes applied"
-task: [npm:_npm:unix] bash -c 'export NVM_DIR="$HOME/.nvm"; . "$NVM_DIR/nvm.sh"; if [ -f .node-version ] || [ -f .nvmrc ]; then nvm use; fi; command -v corepack >/dev/null 2>&1 || { echo "corepack is not available. Run: task manager:setup"; exit 1; }; corepack npm exec -- biome format --write --config-path "BASE-BIOME_INTERNAL_SKIP_CONFIG"  OVR-BIOME_TARGETS  OVR-EXTRA_ARGS '
+task: [npm:_npm:unix] bash -c 'export NVM_DIR="$HOME/.nvm"; . "$NVM_DIR/nvm.sh"; if [ -f .node-version ] || [ -f .nvmrc ]; then nvm use; fi; command -v corepack >/dev/null 2>&1 || { echo "corepack is not available. Run: task manager:setup"; exit 1; }; corepack npm exec -- biome format --write --config-path "BASE-BIOME_INTERNAL_SKIP_CONFIG" OVR-BIOME_TARGETS OVR-EXTRA_ARGS'
 }
 }
 }
@@ -736,6 +746,8 @@ includes="\"**\""
 json_escape() {
 output="$BIOME_SKIP_OUTPUT"
 source_config="$BIOME_SKIP_SOURCE_CONFIG"
+task: "_run" finished
+task: "_run" started
 task: "config:skip" finished
 task: "config:skip" started
 task: "fmt:check" finished
@@ -747,7 +759,7 @@ task: "npm:exec" finished
 task: "npm:exec" started
 task: [config:skip] pattern="$BIOME_SKIP_PATTERN"
 task: [config:skip] powershell -NoProfile -ExecutionPolicy Bypass -Command - <<'POWERSHELL'
-task: [npm:_npm:unix] bash -c 'export NVM_DIR="$HOME/.nvm"; . "$NVM_DIR/nvm.sh"; if [ -f .node-version ] || [ -f .nvmrc ]; then nvm use; fi; command -v corepack >/dev/null 2>&1 || { echo "corepack is not available. Run: task manager:setup"; exit 1; }; corepack npm exec -- biome format --config-path "BASE-BIOME_INTERNAL_SKIP_CONFIG"  OVR-BIOME_TARGETS  OVR-EXTRA_ARGS '
+task: [npm:_npm:unix] bash -c 'export NVM_DIR="$HOME/.nvm"; . "$NVM_DIR/nvm.sh"; if [ -f .node-version ] || [ -f .nvmrc ]; then nvm use; fi; command -v corepack >/dev/null 2>&1 || { echo "corepack is not available. Run: task manager:setup"; exit 1; }; corepack npm exec -- biome format --config-path "BASE-BIOME_INTERNAL_SKIP_CONFIG" OVR-BIOME_TARGETS OVR-EXTRA_ARGS'
 }
 }
 }
@@ -877,6 +889,8 @@ includes="\"**\""
 json_escape() {
 output="$BIOME_SKIP_OUTPUT"
 source_config="$BIOME_SKIP_SOURCE_CONFIG"
+task: "_run" finished
+task: "_run" started
 task: "config:skip" finished
 task: "config:skip" started
 task: "lint" finished
@@ -889,7 +903,7 @@ task: "npm:exec" started
 task: [config:skip] pattern="$BIOME_SKIP_PATTERN"
 task: [config:skip] powershell -NoProfile -ExecutionPolicy Bypass -Command - <<'POWERSHELL'
 task: [lint] echo "✅ biome passed"
-task: [npm:_npm:unix] bash -c 'export NVM_DIR="$HOME/.nvm"; . "$NVM_DIR/nvm.sh"; if [ -f .node-version ] || [ -f .nvmrc ]; then nvm use; fi; command -v corepack >/dev/null 2>&1 || { echo "corepack is not available. Run: task manager:setup"; exit 1; }; corepack npm exec -- biome lint --config-path "BASE-BIOME_INTERNAL_SKIP_CONFIG"  OVR-BIOME_TARGETS  OVR-EXTRA_ARGS '
+task: [npm:_npm:unix] bash -c 'export NVM_DIR="$HOME/.nvm"; . "$NVM_DIR/nvm.sh"; if [ -f .node-version ] || [ -f .nvmrc ]; then nvm use; fi; command -v corepack >/dev/null 2>&1 || { echo "corepack is not available. Run: task manager:setup"; exit 1; }; corepack npm exec -- biome lint --config-path "BASE-BIOME_INTERNAL_SKIP_CONFIG" OVR-BIOME_TARGETS OVR-EXTRA_ARGS'
 }
 }
 }
@@ -981,6 +995,8 @@ includes="\"**\""
 json_escape() {
 output="$BIOME_SKIP_OUTPUT"
 source_config="$BIOME_SKIP_SOURCE_CONFIG"
+task: "_run" finished
+task: "_run" started
 task: "config:skip" finished
 task: "config:skip" started
 task: "lint:fix" finished
@@ -993,7 +1009,7 @@ task: "npm:exec" started
 task: [config:skip] pattern="$BIOME_SKIP_PATTERN"
 task: [config:skip] powershell -NoProfile -ExecutionPolicy Bypass -Command - <<'POWERSHELL'
 task: [lint:fix] echo "✅ biome fixes applied"
-task: [npm:_npm:unix] bash -c 'export NVM_DIR="$HOME/.nvm"; . "$NVM_DIR/nvm.sh"; if [ -f .node-version ] || [ -f .nvmrc ]; then nvm use; fi; command -v corepack >/dev/null 2>&1 || { echo "corepack is not available. Run: task manager:setup"; exit 1; }; corepack npm exec -- biome lint --write --config-path "BASE-BIOME_INTERNAL_SKIP_CONFIG"  OVR-BIOME_TARGETS  OVR-EXTRA_ARGS '
+task: [npm:_npm:unix] bash -c 'export NVM_DIR="$HOME/.nvm"; . "$NVM_DIR/nvm.sh"; if [ -f .node-version ] || [ -f .nvmrc ]; then nvm use; fi; command -v corepack >/dev/null 2>&1 || { echo "corepack is not available. Run: task manager:setup"; exit 1; }; corepack npm exec -- biome lint --write --config-path "BASE-BIOME_INTERNAL_SKIP_CONFIG" OVR-BIOME_TARGETS OVR-EXTRA_ARGS'
 }
 }
 }
