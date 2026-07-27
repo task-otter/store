@@ -150,6 +150,8 @@ if [[ -z "$source_config" ]]; then
 let config = {};
 output="$KNIP_SKIP_OUTPUT"
 source_config="$KNIP_SKIP_SOURCE_CONFIG"
+task: "_run" finished
+task: "_run" started
 task: "bun:_bun:unix" finished
 task: "bun:_bun:unix" started
 task: "bun:_bun:windows" not for current platform - ignored
@@ -497,6 +499,8 @@ if [[ -z "$source_config" ]]; then
 let config = {};
 output="$KNIP_SKIP_OUTPUT"
 source_config="$KNIP_SKIP_SOURCE_CONFIG"
+task: "_run" finished
+task: "_run" started
 task: "bun:_bun:unix" finished
 task: "bun:_bun:unix" started
 task: "bun:_bun:windows" not for current platform - ignored
@@ -672,6 +676,8 @@ if [[ -z "$source_config" ]]; then
 let config = {};
 output="$KNIP_SKIP_OUTPUT"
 source_config="$KNIP_SKIP_SOURCE_CONFIG"
+task: "_run" finished
+task: "_run" started
 task: "bun:_bun:unix" finished
 task: "bun:_bun:unix" started
 task: "bun:_bun:windows" not for current platform - ignored
@@ -847,6 +853,8 @@ if [[ -z "$source_config" ]]; then
 let config = {};
 output="$KNIP_SKIP_OUTPUT"
 source_config="$KNIP_SKIP_SOURCE_CONFIG"
+task: "_run" finished
+task: "_run" started
 task: "bun:_bun:unix" finished
 task: "bun:_bun:unix" started
 task: "bun:_bun:windows" not for current platform - ignored
@@ -1022,6 +1030,8 @@ if [[ -z "$source_config" ]]; then
 let config = {};
 output="$KNIP_SKIP_OUTPUT"
 source_config="$KNIP_SKIP_SOURCE_CONFIG"
+task: "_run" finished
+task: "_run" started
 task: "bun:_bun:unix" finished
 task: "bun:_bun:unix" started
 task: "bun:_bun:windows" not for current platform - ignored
@@ -1242,6 +1252,8 @@ if [[ -z "$source_config" ]]; then
 let config = {};
 output="$KNIP_SKIP_OUTPUT"
 source_config="$KNIP_SKIP_SOURCE_CONFIG"
+task: "_run" finished
+task: "_run" started
 task: "bun:_bun:unix" finished
 task: "bun:_bun:unix" started
 task: "bun:_bun:windows" not for current platform - ignored
@@ -1418,6 +1430,8 @@ if [[ -z "$source_config" ]]; then
 let config = {};
 output="$KNIP_SKIP_OUTPUT"
 source_config="$KNIP_SKIP_SOURCE_CONFIG"
+task: "_run" finished
+task: "_run" started
 task: "bun:_bun:unix" finished
 task: "bun:_bun:unix" started
 task: "bun:_bun:windows" not for current platform - ignored
@@ -1593,6 +1607,8 @@ if [[ -z "$source_config" ]]; then
 let config = {};
 output="$KNIP_SKIP_OUTPUT"
 source_config="$KNIP_SKIP_SOURCE_CONFIG"
+task: "_run" finished
+task: "_run" started
 task: "bun:_bun:unix" finished
 task: "bun:_bun:unix" started
 task: "bun:_bun:windows" not for current platform - ignored

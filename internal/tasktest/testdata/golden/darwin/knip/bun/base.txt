@@ -158,6 +158,8 @@ if [[ -z "$source_config" ]]; then
 let config = {};
 output="$KNIP_SKIP_OUTPUT"
 source_config="$KNIP_SKIP_SOURCE_CONFIG"
+task: "_run" finished
+task: "_run" started
 task: "bun:_bun:unix" finished
 task: "bun:_bun:unix" started
 task: "bun:_bun:windows" not for current platform - ignored
@@ -172,7 +174,7 @@ task: "ci" started
 task: "config:skip" finished
 task: "config:skip" started
 task: Task "bun:_install:unix" is up to date
-task: [bun:_bun:unix] bash -lc 'export BUN_INSTALL="$HOME/.bun"; export PATH="$BUN_INSTALL/bin:$PATH"; bun x knip --production --config "BASE-KNIP_INTERNAL_SKIP_CONFIG"  BASE-EXTRA_ARGS'
+task: [bun:_bun:unix] bash -lc 'export BUN_INSTALL="$HOME/.bun"; export PATH="$BUN_INSTALL/bin:$PATH"; bun x knip --production --config "BASE-KNIP_INTERNAL_SKIP_CONFIG" BASE-EXTRA_ARGS'
 task: [ci] echo "✅ knip passed"
 task: [config:skip] pattern="$KNIP_SKIP_PATTERN"
 task: [config:skip] powershell -NoProfile -ExecutionPolicy Bypass -Command - <<'POWERSHELL'
@@ -505,6 +507,8 @@ if [[ -z "$source_config" ]]; then
 let config = {};
 output="$KNIP_SKIP_OUTPUT"
 source_config="$KNIP_SKIP_SOURCE_CONFIG"
+task: "_run" finished
+task: "_run" started
 task: "bun:_bun:unix" finished
 task: "bun:_bun:unix" started
 task: "bun:_bun:windows" not for current platform - ignored
@@ -519,7 +523,7 @@ task: "config:skip" started
 task: "dependencies" finished
 task: "dependencies" started
 task: Task "bun:_install:unix" is up to date
-task: [bun:_bun:unix] bash -lc 'export BUN_INSTALL="$HOME/.bun"; export PATH="$BUN_INSTALL/bin:$PATH"; bun x knip --dependencies --config "BASE-KNIP_INTERNAL_SKIP_CONFIG"  BASE-EXTRA_ARGS'
+task: [bun:_bun:unix] bash -lc 'export BUN_INSTALL="$HOME/.bun"; export PATH="$BUN_INSTALL/bin:$PATH"; bun x knip --dependencies --config "BASE-KNIP_INTERNAL_SKIP_CONFIG" BASE-EXTRA_ARGS'
 task: [config:skip] pattern="$KNIP_SKIP_PATTERN"
 task: [config:skip] powershell -NoProfile -ExecutionPolicy Bypass -Command - <<'POWERSHELL'
 task: status command bun_bin="$HOME/.bun/bin/bun"; if [ ! -x "$bun_bin" ]; then bun_bin="$(command -v bun 2>/dev/null)"; fi; [ -n "$bun_bin" ] && [ -x "$bun_bin" ] && { [ -z "" ] || [ "$("$bun_bin" --version)" = "" ]; } exited zero
@@ -680,6 +684,8 @@ if [[ -z "$source_config" ]]; then
 let config = {};
 output="$KNIP_SKIP_OUTPUT"
 source_config="$KNIP_SKIP_SOURCE_CONFIG"
+task: "_run" finished
+task: "_run" started
 task: "bun:_bun:unix" finished
 task: "bun:_bun:unix" started
 task: "bun:_bun:windows" not for current platform - ignored
@@ -694,7 +700,7 @@ task: "config:skip" started
 task: "dev-dependencies" finished
 task: "dev-dependencies" started
 task: Task "bun:_install:unix" is up to date
-task: [bun:_bun:unix] bash -lc 'export BUN_INSTALL="$HOME/.bun"; export PATH="$BUN_INSTALL/bin:$PATH"; bun x knip --devDependencies --config "BASE-KNIP_INTERNAL_SKIP_CONFIG"  BASE-EXTRA_ARGS'
+task: [bun:_bun:unix] bash -lc 'export BUN_INSTALL="$HOME/.bun"; export PATH="$BUN_INSTALL/bin:$PATH"; bun x knip --devDependencies --config "BASE-KNIP_INTERNAL_SKIP_CONFIG" BASE-EXTRA_ARGS'
 task: [config:skip] pattern="$KNIP_SKIP_PATTERN"
 task: [config:skip] powershell -NoProfile -ExecutionPolicy Bypass -Command - <<'POWERSHELL'
 task: status command bun_bin="$HOME/.bun/bin/bun"; if [ ! -x "$bun_bin" ]; then bun_bin="$(command -v bun 2>/dev/null)"; fi; [ -n "$bun_bin" ] && [ -x "$bun_bin" ] && { [ -z "" ] || [ "$("$bun_bin" --version)" = "" ]; } exited zero
@@ -855,6 +861,8 @@ if [[ -z "$source_config" ]]; then
 let config = {};
 output="$KNIP_SKIP_OUTPUT"
 source_config="$KNIP_SKIP_SOURCE_CONFIG"
+task: "_run" finished
+task: "_run" started
 task: "bun:_bun:unix" finished
 task: "bun:_bun:unix" started
 task: "bun:_bun:windows" not for current platform - ignored
@@ -869,7 +877,7 @@ task: "config:skip" started
 task: "exports" finished
 task: "exports" started
 task: Task "bun:_install:unix" is up to date
-task: [bun:_bun:unix] bash -lc 'export BUN_INSTALL="$HOME/.bun"; export PATH="$BUN_INSTALL/bin:$PATH"; bun x knip --exports --config "BASE-KNIP_INTERNAL_SKIP_CONFIG"  BASE-EXTRA_ARGS'
+task: [bun:_bun:unix] bash -lc 'export BUN_INSTALL="$HOME/.bun"; export PATH="$BUN_INSTALL/bin:$PATH"; bun x knip --exports --config "BASE-KNIP_INTERNAL_SKIP_CONFIG" BASE-EXTRA_ARGS'
 task: [config:skip] pattern="$KNIP_SKIP_PATTERN"
 task: [config:skip] powershell -NoProfile -ExecutionPolicy Bypass -Command - <<'POWERSHELL'
 task: status command bun_bin="$HOME/.bun/bin/bun"; if [ ! -x "$bun_bin" ]; then bun_bin="$(command -v bun 2>/dev/null)"; fi; [ -n "$bun_bin" ] && [ -x "$bun_bin" ] && { [ -z "" ] || [ "$("$bun_bin" --version)" = "" ]; } exited zero
@@ -1030,6 +1038,8 @@ if [[ -z "$source_config" ]]; then
 let config = {};
 output="$KNIP_SKIP_OUTPUT"
 source_config="$KNIP_SKIP_SOURCE_CONFIG"
+task: "_run" finished
+task: "_run" started
 task: "bun:_bun:unix" finished
 task: "bun:_bun:unix" started
 task: "bun:_bun:windows" not for current platform - ignored
@@ -1044,7 +1054,7 @@ task: "config:skip" started
 task: "files" finished
 task: "files" started
 task: Task "bun:_install:unix" is up to date
-task: [bun:_bun:unix] bash -lc 'export BUN_INSTALL="$HOME/.bun"; export PATH="$BUN_INSTALL/bin:$PATH"; bun x knip --files --config "BASE-KNIP_INTERNAL_SKIP_CONFIG"  BASE-EXTRA_ARGS'
+task: [bun:_bun:unix] bash -lc 'export BUN_INSTALL="$HOME/.bun"; export PATH="$BUN_INSTALL/bin:$PATH"; bun x knip --files --config "BASE-KNIP_INTERNAL_SKIP_CONFIG" BASE-EXTRA_ARGS'
 task: [config:skip] pattern="$KNIP_SKIP_PATTERN"
 task: [config:skip] powershell -NoProfile -ExecutionPolicy Bypass -Command - <<'POWERSHELL'
 task: status command bun_bin="$HOME/.bun/bin/bun"; if [ ! -x "$bun_bin" ]; then bun_bin="$(command -v bun 2>/dev/null)"; fi; [ -n "$bun_bin" ] && [ -x "$bun_bin" ] && { [ -z "" ] || [ "$("$bun_bin" --version)" = "" ]; } exited zero
@@ -1250,6 +1260,8 @@ if [[ -z "$source_config" ]]; then
 let config = {};
 output="$KNIP_SKIP_OUTPUT"
 source_config="$KNIP_SKIP_SOURCE_CONFIG"
+task: "_run" finished
+task: "_run" started
 task: "bun:_bun:unix" finished
 task: "bun:_bun:unix" started
 task: "bun:_bun:windows" not for current platform - ignored
@@ -1264,7 +1276,7 @@ task: "config:skip" started
 task: "lint" finished
 task: "lint" started
 task: Task "bun:_install:unix" is up to date
-task: [bun:_bun:unix] bash -lc 'export BUN_INSTALL="$HOME/.bun"; export PATH="$BUN_INSTALL/bin:$PATH"; bun x knip --config "BASE-KNIP_INTERNAL_SKIP_CONFIG"  BASE-EXTRA_ARGS'
+task: [bun:_bun:unix] bash -lc 'export BUN_INSTALL="$HOME/.bun"; export PATH="$BUN_INSTALL/bin:$PATH"; bun x knip --config "BASE-KNIP_INTERNAL_SKIP_CONFIG" BASE-EXTRA_ARGS'
 task: [config:skip] pattern="$KNIP_SKIP_PATTERN"
 task: [config:skip] powershell -NoProfile -ExecutionPolicy Bypass -Command - <<'POWERSHELL'
 task: [lint] echo "✅ knip passed"
@@ -1426,6 +1438,8 @@ if [[ -z "$source_config" ]]; then
 let config = {};
 output="$KNIP_SKIP_OUTPUT"
 source_config="$KNIP_SKIP_SOURCE_CONFIG"
+task: "_run" finished
+task: "_run" started
 task: "bun:_bun:unix" finished
 task: "bun:_bun:unix" started
 task: "bun:_bun:windows" not for current platform - ignored
@@ -1440,7 +1454,7 @@ task: "config:skip" started
 task: "lint:fix" finished
 task: "lint:fix" started
 task: Task "bun:_install:unix" is up to date
-task: [bun:_bun:unix] bash -lc 'export BUN_INSTALL="$HOME/.bun"; export PATH="$BUN_INSTALL/bin:$PATH"; bun x knip --fix --config "BASE-KNIP_INTERNAL_SKIP_CONFIG"  BASE-EXTRA_ARGS'
+task: [bun:_bun:unix] bash -lc 'export BUN_INSTALL="$HOME/.bun"; export PATH="$BUN_INSTALL/bin:$PATH"; bun x knip --fix --config "BASE-KNIP_INTERNAL_SKIP_CONFIG" BASE-EXTRA_ARGS'
 task: [config:skip] pattern="$KNIP_SKIP_PATTERN"
 task: [config:skip] powershell -NoProfile -ExecutionPolicy Bypass -Command - <<'POWERSHELL'
 task: status command bun_bin="$HOME/.bun/bin/bun"; if [ ! -x "$bun_bin" ]; then bun_bin="$(command -v bun 2>/dev/null)"; fi; [ -n "$bun_bin" ] && [ -x "$bun_bin" ] && { [ -z "" ] || [ "$("$bun_bin" --version)" = "" ]; } exited zero
@@ -1601,6 +1615,8 @@ if [[ -z "$source_config" ]]; then
 let config = {};
 output="$KNIP_SKIP_OUTPUT"
 source_config="$KNIP_SKIP_SOURCE_CONFIG"
+task: "_run" finished
+task: "_run" started
 task: "bun:_bun:unix" finished
 task: "bun:_bun:unix" started
 task: "bun:_bun:windows" not for current platform - ignored
@@ -1615,7 +1631,7 @@ task: "config:skip" started
 task: "production" finished
 task: "production" started
 task: Task "bun:_install:unix" is up to date
-task: [bun:_bun:unix] bash -lc 'export BUN_INSTALL="$HOME/.bun"; export PATH="$BUN_INSTALL/bin:$PATH"; bun x knip --production --config "BASE-KNIP_INTERNAL_SKIP_CONFIG"  BASE-EXTRA_ARGS'
+task: [bun:_bun:unix] bash -lc 'export BUN_INSTALL="$HOME/.bun"; export PATH="$BUN_INSTALL/bin:$PATH"; bun x knip --production --config "BASE-KNIP_INTERNAL_SKIP_CONFIG" BASE-EXTRA_ARGS'
 task: [config:skip] pattern="$KNIP_SKIP_PATTERN"
 task: [config:skip] powershell -NoProfile -ExecutionPolicy Bypass -Command - <<'POWERSHELL'
 task: status command bun_bin="$HOME/.bun/bin/bun"; if [ ! -x "$bun_bin" ]; then bun_bin="$(command -v bun 2>/dev/null)"; fi; [ -n "$bun_bin" ] && [ -x "$bun_bin" ] && { [ -z "" ] || [ "$("$bun_bin" --version)" = "" ]; } exited zero

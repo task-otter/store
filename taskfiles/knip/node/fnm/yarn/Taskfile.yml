@@ -18,12 +18,6 @@ vars:
   EXTRA_ARGS: ""
   CONFIG: ""
   VERSION: ""
-  KNIP_INTERNAL_LINT_SKIP_PATTERN: >-
-    {{if .KNIP_LINT_SKIP_PATTERN_OVERRIDE}}{{.KNIP_LINT_SKIP_PATTERN_OVERRIDE}}
-    {{- else}}{{.KNIP_LINT_SKIP_PATTERN}}{{end}}
-  KNIP_INTERNAL_CONFIG: >-
-    {{if .CONFIG_OVERRIDE}}{{.CONFIG_OVERRIDE}}
-    {{- else}}{{.CONFIG}}{{end}}
   KNIP_INTERNAL_SKIP_CONFIG: ".taskotter-knip-yarn-fnm-skip.json"
   KNIP_INTERNAL_JS_RUNTIME: "node"
 
@@ -43,17 +37,15 @@ tasks:
     status:
       - >-
         node -e "const installed = require('./node_modules/knip/package.json');
-        const requested = '{{if .VERSION_OVERRIDE}}{{.VERSION_OVERRIDE}}{{else}}{{.VERSION}}{{end}}';
+        const requested = '{{.RESOLVED_VERSION}}';
         process.exit(!requested || installed.version === requested ? 0 : 1)"
+    vars:
+      RESOLVED_VERSION: '{{default .VERSION .VERSION_OVERRIDE}}'
     cmds:
       - task: yarn:add
         vars:
-          PACKAGES: >-
-            knip{{if .VERSION_OVERRIDE}}@{{.VERSION_OVERRIDE}}
-            {{- else if .VERSION}}@{{.VERSION}}{{end}}
-          EXTRA_ARGS: >-
-            {{if .EXTRA_ARGS_OVERRIDE}}{{.EXTRA_ARGS_OVERRIDE}}
-            {{- else}}{{.EXTRA_ARGS}}{{end}}{{if .CLI_ARGS}} {{.CLI_ARGS}}{{end}}
+          PACKAGES: 'knip{{if .RESOLVED_VERSION}}@{{.RESOLVED_VERSION}}{{end}}'
+          EXTRA_ARGS: '{{default .EXTRA_ARGS .EXTRA_ARGS_OVERRIDE}}{{if .CLI_ARGS}} {{.CLI_ARGS}}{{end}}'
 
   install:undo:
     run: once
@@ -66,7 +58,7 @@ tasks:
       - task: yarn:remove
         vars:
           PACKAGES: knip
-          EXTRA_ARGS: "{{if .EXTRA_ARGS_OVERRIDE}}{{.EXTRA_ARGS_OVERRIDE}}{{else}}{{.EXTRA_ARGS}}{{end}}"
+          EXTRA_ARGS: '{{default .EXTRA_ARGS .EXTRA_ARGS_OVERRIDE}}'
 
   upgrade:
     run: once
@@ -76,7 +68,7 @@ tasks:
       - task: yarn:add
         vars:
           PACKAGES: knip@latest
-          EXTRA_ARGS: "{{if .EXTRA_ARGS_OVERRIDE}}{{.EXTRA_ARGS_OVERRIDE}}{{else}}{{.EXTRA_ARGS}}{{end}}"
+          EXTRA_ARGS: '{{default .EXTRA_ARGS .EXTRA_ARGS_OVERRIDE}}'
 
   init:
     run: once
@@ -109,9 +101,12 @@ tasks:
       deletes it. Dynamic JS/TS Knip configs cannot be merged and are rejected.
     dir: "{{.USER_WORKING_DIR}}"
     set: [errexit, nounset, pipefail]
+    vars:
+      RESOLVED_SKIP: '{{default .KNIP_LINT_SKIP_PATTERN .KNIP_LINT_SKIP_PATTERN_OVERRIDE}}'
+      RESOLVED_CONFIG: '{{default .CONFIG .CONFIG_OVERRIDE}}'
     env:
-      KNIP_SKIP_PATTERN: "{{.KNIP_INTERNAL_LINT_SKIP_PATTERN}}"
-      KNIP_SKIP_SOURCE_CONFIG: "{{.KNIP_INTERNAL_CONFIG}}"
+      KNIP_SKIP_PATTERN: "{{.RESOLVED_SKIP}}"
+      KNIP_SKIP_SOURCE_CONFIG: "{{.RESOLVED_CONFIG}}"
       KNIP_SKIP_OUTPUT: "{{.KNIP_INTERNAL_SKIP_CONFIG}}"
       KNIP_SKIP_JS_RUNTIME: "{{.KNIP_INTERNAL_JS_RUNTIME}}"
     cmds:
@@ -270,23 +265,33 @@ tasks:
           POWERSHELL
         platforms: [windows]
 
-  lint:
-    run: once
-    desc: Run Knip for unused files, exports, and dependencies
-    summary: Knip may report framework-specific false positives; review results before deleting files or dependencies.
+  # Shared implementation of every analysis task. Each override is resolved
+  # exactly once here; callers supply only the mode flag.
+  _run:
+    internal: true
+    run: when_changed
+    vars:
+      RESOLVED_SKIP: '{{default .KNIP_LINT_SKIP_PATTERN .KNIP_LINT_SKIP_PATTERN_OVERRIDE}}'
+      RESOLVED_CONFIG: '{{default .CONFIG .CONFIG_OVERRIDE}}'
     cmds:
       - task: config:skip
       - task: yarn:exec
         vars:
           BINARY: knip
           ARGS: >-
-            {{if .KNIP_INTERNAL_LINT_SKIP_PATTERN}}--config
-            "{{.KNIP_INTERNAL_SKIP_CONFIG}}"
-            {{else if .CONFIG_OVERRIDE}}--config "{{.CONFIG_OVERRIDE}}"
-            {{else}}{{if .CONFIG}}--config "{{.CONFIG}}" {{end}}{{end}}
-          EXTRA_ARGS: >-
-            {{if .EXTRA_ARGS_OVERRIDE}}{{.EXTRA_ARGS_OVERRIDE}}
-            {{- else}}{{.EXTRA_ARGS}}{{end}}{{if .CLI_ARGS}} {{.CLI_ARGS}}{{end}}
+            {{if .MODE}}{{.MODE}} {{end}}
+            {{- if .RESOLVED_SKIP}}--config "{{.KNIP_INTERNAL_SKIP_CONFIG}}"
+            {{- else if .RESOLVED_CONFIG}}--config "{{.RESOLVED_CONFIG}}"{{end}}
+          EXTRA_ARGS: '{{default .EXTRA_ARGS .EXTRA_ARGS_OVERRIDE}}{{if .CLI_ARGS}} {{.CLI_ARGS}}{{end}}'
+
+  lint:
+    run: once
+    desc: Run Knip for unused files, exports, and dependencies
+    summary: Knip may report framework-specific false positives; review results before deleting files or dependencies.
+    cmds:
+      - task: _run
+        vars:
+          MODE: ""
       - echo "✅ knip passed"
 
   production:
@@ -294,133 +299,63 @@ tasks:
     desc: Run Knip against production dependency usage
     summary: Knip may report framework-specific false positives; review results before deleting files or dependencies.
     cmds:
-      - task: config:skip
-      - task: yarn:exec
+      - task: _run
         vars:
-          BINARY: knip
-          ARGS: >-
-            --production
-            {{if .KNIP_INTERNAL_LINT_SKIP_PATTERN}}--config
-            "{{.KNIP_INTERNAL_SKIP_CONFIG}}"
-            {{else if .CONFIG_OVERRIDE}}--config "{{.CONFIG_OVERRIDE}}"
-            {{else}}{{if .CONFIG}}--config "{{.CONFIG}}" {{end}}{{end}}
-          EXTRA_ARGS: >-
-            {{if .EXTRA_ARGS_OVERRIDE}}{{.EXTRA_ARGS_OVERRIDE}}
-            {{- else}}{{.EXTRA_ARGS}}{{end}}{{if .CLI_ARGS}} {{.CLI_ARGS}}{{end}}
+          MODE: "--production"
 
   dependencies:
     run: once
     desc: Report unused production dependencies with Knip
     summary: Review Knip dependency results before removing packages.
     cmds:
-      - task: config:skip
-      - task: yarn:exec
+      - task: _run
         vars:
-          BINARY: knip
-          ARGS: >-
-            --dependencies
-            {{if .KNIP_INTERNAL_LINT_SKIP_PATTERN}}--config
-            "{{.KNIP_INTERNAL_SKIP_CONFIG}}"
-            {{else if .CONFIG_OVERRIDE}}--config "{{.CONFIG_OVERRIDE}}"
-            {{else}}{{if .CONFIG}}--config "{{.CONFIG}}" {{end}}{{end}}
-          EXTRA_ARGS: >-
-            {{if .EXTRA_ARGS_OVERRIDE}}{{.EXTRA_ARGS_OVERRIDE}}
-            {{- else}}{{.EXTRA_ARGS}}{{end}}{{if .CLI_ARGS}} {{.CLI_ARGS}}{{end}}
+          MODE: "--dependencies"
 
   dev-dependencies:
     run: once
     desc: Report unused development dependencies with Knip
     summary: Review Knip dependency results before removing packages.
     cmds:
-      - task: config:skip
-      - task: yarn:exec
+      - task: _run
         vars:
-          BINARY: knip
-          ARGS: >-
-            --devDependencies
-            {{if .KNIP_INTERNAL_LINT_SKIP_PATTERN}}--config
-            "{{.KNIP_INTERNAL_SKIP_CONFIG}}"
-            {{else if .CONFIG_OVERRIDE}}--config "{{.CONFIG_OVERRIDE}}"
-            {{else}}{{if .CONFIG}}--config "{{.CONFIG}}" {{end}}{{end}}
-          EXTRA_ARGS: >-
-            {{if .EXTRA_ARGS_OVERRIDE}}{{.EXTRA_ARGS_OVERRIDE}}
-            {{- else}}{{.EXTRA_ARGS}}{{end}}{{if .CLI_ARGS}} {{.CLI_ARGS}}{{end}}
+          MODE: "--devDependencies"
 
   files:
     run: once
     desc: Report unused files with Knip
     summary: Review Knip file results before deleting files.
     cmds:
-      - task: config:skip
-      - task: yarn:exec
+      - task: _run
         vars:
-          BINARY: knip
-          ARGS: >-
-            --files
-            {{if .KNIP_INTERNAL_LINT_SKIP_PATTERN}}--config
-            "{{.KNIP_INTERNAL_SKIP_CONFIG}}"
-            {{else if .CONFIG_OVERRIDE}}--config "{{.CONFIG_OVERRIDE}}"
-            {{else}}{{if .CONFIG}}--config "{{.CONFIG}}" {{end}}{{end}}
-          EXTRA_ARGS: >-
-            {{if .EXTRA_ARGS_OVERRIDE}}{{.EXTRA_ARGS_OVERRIDE}}
-            {{- else}}{{.EXTRA_ARGS}}{{end}}{{if .CLI_ARGS}} {{.CLI_ARGS}}{{end}}
+          MODE: "--files"
 
   exports:
     run: once
     desc: Report unused exports with Knip
     summary: Review Knip export results before deleting code.
     cmds:
-      - task: config:skip
-      - task: yarn:exec
+      - task: _run
         vars:
-          BINARY: knip
-          ARGS: >-
-            --exports
-            {{if .KNIP_INTERNAL_LINT_SKIP_PATTERN}}--config
-            "{{.KNIP_INTERNAL_SKIP_CONFIG}}"
-            {{else if .CONFIG_OVERRIDE}}--config "{{.CONFIG_OVERRIDE}}"
-            {{else}}{{if .CONFIG}}--config "{{.CONFIG}}" {{end}}{{end}}
-          EXTRA_ARGS: >-
-            {{if .EXTRA_ARGS_OVERRIDE}}{{.EXTRA_ARGS_OVERRIDE}}
-            {{- else}}{{.EXTRA_ARGS}}{{end}}{{if .CLI_ARGS}} {{.CLI_ARGS}}{{end}}
+          MODE: "--exports"
 
   lint:fix:
     run: once
     desc: Run Knip fix mode when supported by the installed version
     summary: Knip fixes can update project files; dependency removals should still be reviewed manually.
     cmds:
-      - task: config:skip
-      - task: yarn:exec
+      - task: _run
         vars:
-          BINARY: knip
-          ARGS: >-
-            --fix
-            {{if .KNIP_INTERNAL_LINT_SKIP_PATTERN}}--config
-            "{{.KNIP_INTERNAL_SKIP_CONFIG}}"
-            {{else if .CONFIG_OVERRIDE}}--config "{{.CONFIG_OVERRIDE}}"
-            {{else}}{{if .CONFIG}}--config "{{.CONFIG}}" {{end}}{{end}}
-          EXTRA_ARGS: >-
-            {{if .EXTRA_ARGS_OVERRIDE}}{{.EXTRA_ARGS_OVERRIDE}}
-            {{- else}}{{.EXTRA_ARGS}}{{end}}{{if .CLI_ARGS}} {{.CLI_ARGS}}{{end}}
+          MODE: "--fix"
 
   ci:
     run: once
     desc: Run Knip production checks for CI
     summary: Knip may report framework-specific false positives; tune configuration before enforcing broadly.
     cmds:
-      - task: config:skip
-      - task: yarn:exec
+      - task: _run
         vars:
-          BINARY: knip
-          ARGS: >-
-            --production
-            {{if .KNIP_INTERNAL_LINT_SKIP_PATTERN}}--config
-            "{{.KNIP_INTERNAL_SKIP_CONFIG}}"
-            {{else if .CONFIG_OVERRIDE}}--config "{{.CONFIG_OVERRIDE}}"
-            {{else}}{{if .CONFIG}}--config "{{.CONFIG}}" {{end}}{{end}}
-          EXTRA_ARGS: >-
-            {{if .EXTRA_ARGS_OVERRIDE}}{{.EXTRA_ARGS_OVERRIDE}}
-            {{- else}}{{.EXTRA_ARGS}}{{end}}{{if .CLI_ARGS}} {{.CLI_ARGS}}{{end}}
+          MODE: "--production"
       - echo "✅ knip passed"
 
   version:
@@ -429,11 +364,9 @@ tasks:
     cmds:
       - task: yarn:exec
         vars:
-          {
-            PM: "{{if .PM_OVERRIDE}}{{.PM_OVERRIDE}}{{else}}{{.PM}}{{end}}",
-            BINARY: knip,
-            ARGS: "--version",
-          }
+          PM: '{{default .PM .PM_OVERRIDE}}'
+          BINARY: knip
+          ARGS: "--version"
 
   help:
     run: once
@@ -443,6 +376,4 @@ tasks:
         vars:
           BINARY: knip
           ARGS: "--help"
-          EXTRA_ARGS: >-
-            {{if .EXTRA_ARGS_OVERRIDE}}{{.EXTRA_ARGS_OVERRIDE}}
-            {{- else}}{{.EXTRA_ARGS}}{{end}}{{if .CLI_ARGS}} {{.CLI_ARGS}}{{end}}
+          EXTRA_ARGS: '{{default .EXTRA_ARGS .EXTRA_ARGS_OVERRIDE}}{{if .CLI_ARGS}} {{.CLI_ARGS}}{{end}}'

@@ -150,6 +150,8 @@ if [[ -z "$source_config" ]]; then
 let config = {};
 output="$KNIP_SKIP_OUTPUT"
 source_config="$KNIP_SKIP_SOURCE_CONFIG"
+task: "_run" finished
+task: "_run" started
 task: "ci" finished
 task: "ci" started
 task: "config:skip" finished
@@ -491,6 +493,8 @@ if [[ -z "$source_config" ]]; then
 let config = {};
 output="$KNIP_SKIP_OUTPUT"
 source_config="$KNIP_SKIP_SOURCE_CONFIG"
+task: "_run" finished
+task: "_run" started
 task: "config:skip" finished
 task: "config:skip" started
 task: "dependencies" finished
@@ -660,6 +664,8 @@ if [[ -z "$source_config" ]]; then
 let config = {};
 output="$KNIP_SKIP_OUTPUT"
 source_config="$KNIP_SKIP_SOURCE_CONFIG"
+task: "_run" finished
+task: "_run" started
 task: "config:skip" finished
 task: "config:skip" started
 task: "dev-dependencies" finished
@@ -829,6 +835,8 @@ if [[ -z "$source_config" ]]; then
 let config = {};
 output="$KNIP_SKIP_OUTPUT"
 source_config="$KNIP_SKIP_SOURCE_CONFIG"
+task: "_run" finished
+task: "_run" started
 task: "config:skip" finished
 task: "config:skip" started
 task: "exports" finished
@@ -998,6 +1006,8 @@ if [[ -z "$source_config" ]]; then
 let config = {};
 output="$KNIP_SKIP_OUTPUT"
 source_config="$KNIP_SKIP_SOURCE_CONFIG"
+task: "_run" finished
+task: "_run" started
 task: "config:skip" finished
 task: "config:skip" started
 task: "files" finished
@@ -1200,6 +1210,8 @@ if [[ -z "$source_config" ]]; then
 let config = {};
 output="$KNIP_SKIP_OUTPUT"
 source_config="$KNIP_SKIP_SOURCE_CONFIG"
+task: "_run" finished
+task: "_run" started
 task: "config:skip" finished
 task: "config:skip" started
 task: "lint" finished
@@ -1370,6 +1382,8 @@ if [[ -z "$source_config" ]]; then
 let config = {};
 output="$KNIP_SKIP_OUTPUT"
 source_config="$KNIP_SKIP_SOURCE_CONFIG"
+task: "_run" finished
+task: "_run" started
 task: "config:skip" finished
 task: "config:skip" started
 task: "lint:fix" finished
@@ -1539,6 +1553,8 @@ if [[ -z "$source_config" ]]; then
 let config = {};
 output="$KNIP_SKIP_OUTPUT"
 source_config="$KNIP_SKIP_SOURCE_CONFIG"
+task: "_run" finished
+task: "_run" started
 task: "config:skip" finished
 task: "config:skip" started
 task: "pnpm:_exec:unix" finished

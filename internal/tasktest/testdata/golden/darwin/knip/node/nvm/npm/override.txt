@@ -158,6 +158,8 @@ if [[ -z "$source_config" ]]; then
 let config = {};
 output="$KNIP_SKIP_OUTPUT"
 source_config="$KNIP_SKIP_SOURCE_CONFIG"
+task: "_run" finished
+task: "_run" started
 task: "ci" finished
 task: "ci" started
 task: "config:skip" finished
@@ -170,7 +172,7 @@ task: "npm:exec" started
 task: [ci] echo "✅ knip passed"
 task: [config:skip] pattern="$KNIP_SKIP_PATTERN"
 task: [config:skip] powershell -NoProfile -ExecutionPolicy Bypass -Command - <<'POWERSHELL'
-task: [npm:_npm:unix] bash -c 'export NVM_DIR="$HOME/.nvm"; . "$NVM_DIR/nvm.sh"; if [ -f .node-version ] || [ -f .nvmrc ]; then nvm use; fi; command -v corepack >/dev/null 2>&1 || { echo "corepack is not available. Run: task manager:setup"; exit 1; }; corepack npm exec -- knip --production --config "OVR-CONFIG"  OVR-EXTRA_ARGS'
+task: [npm:_npm:unix] bash -c 'export NVM_DIR="$HOME/.nvm"; . "$NVM_DIR/nvm.sh"; if [ -f .node-version ] || [ -f .nvmrc ]; then nvm use; fi; command -v corepack >/dev/null 2>&1 || { echo "corepack is not available. Run: task manager:setup"; exit 1; }; corepack npm exec -- knip --production --config ".taskotter-knip-npm-nvm-skip.json" OVR-EXTRA_ARGS'
 }
 }
 }
@@ -499,6 +501,8 @@ if [[ -z "$source_config" ]]; then
 let config = {};
 output="$KNIP_SKIP_OUTPUT"
 source_config="$KNIP_SKIP_SOURCE_CONFIG"
+task: "_run" finished
+task: "_run" started
 task: "config:skip" finished
 task: "config:skip" started
 task: "dependencies" finished
@@ -510,7 +514,7 @@ task: "npm:exec" finished
 task: "npm:exec" started
 task: [config:skip] pattern="$KNIP_SKIP_PATTERN"
 task: [config:skip] powershell -NoProfile -ExecutionPolicy Bypass -Command - <<'POWERSHELL'
-task: [npm:_npm:unix] bash -c 'export NVM_DIR="$HOME/.nvm"; . "$NVM_DIR/nvm.sh"; if [ -f .node-version ] || [ -f .nvmrc ]; then nvm use; fi; command -v corepack >/dev/null 2>&1 || { echo "corepack is not available. Run: task manager:setup"; exit 1; }; corepack npm exec -- knip --dependencies --config "OVR-CONFIG"  OVR-EXTRA_ARGS'
+task: [npm:_npm:unix] bash -c 'export NVM_DIR="$HOME/.nvm"; . "$NVM_DIR/nvm.sh"; if [ -f .node-version ] || [ -f .nvmrc ]; then nvm use; fi; command -v corepack >/dev/null 2>&1 || { echo "corepack is not available. Run: task manager:setup"; exit 1; }; corepack npm exec -- knip --dependencies --config ".taskotter-knip-npm-nvm-skip.json" OVR-EXTRA_ARGS'
 }
 }
 }
@@ -668,6 +672,8 @@ if [[ -z "$source_config" ]]; then
 let config = {};
 output="$KNIP_SKIP_OUTPUT"
 source_config="$KNIP_SKIP_SOURCE_CONFIG"
+task: "_run" finished
+task: "_run" started
 task: "config:skip" finished
 task: "config:skip" started
 task: "dev-dependencies" finished
@@ -679,7 +685,7 @@ task: "npm:exec" finished
 task: "npm:exec" started
 task: [config:skip] pattern="$KNIP_SKIP_PATTERN"
 task: [config:skip] powershell -NoProfile -ExecutionPolicy Bypass -Command - <<'POWERSHELL'
-task: [npm:_npm:unix] bash -c 'export NVM_DIR="$HOME/.nvm"; . "$NVM_DIR/nvm.sh"; if [ -f .node-version ] || [ -f .nvmrc ]; then nvm use; fi; command -v corepack >/dev/null 2>&1 || { echo "corepack is not available. Run: task manager:setup"; exit 1; }; corepack npm exec -- knip --devDependencies --config "OVR-CONFIG"  OVR-EXTRA_ARGS'
+task: [npm:_npm:unix] bash -c 'export NVM_DIR="$HOME/.nvm"; . "$NVM_DIR/nvm.sh"; if [ -f .node-version ] || [ -f .nvmrc ]; then nvm use; fi; command -v corepack >/dev/null 2>&1 || { echo "corepack is not available. Run: task manager:setup"; exit 1; }; corepack npm exec -- knip --devDependencies --config ".taskotter-knip-npm-nvm-skip.json" OVR-EXTRA_ARGS'
 }
 }
 }
@@ -837,6 +843,8 @@ if [[ -z "$source_config" ]]; then
 let config = {};
 output="$KNIP_SKIP_OUTPUT"
 source_config="$KNIP_SKIP_SOURCE_CONFIG"
+task: "_run" finished
+task: "_run" started
 task: "config:skip" finished
 task: "config:skip" started
 task: "exports" finished
@@ -848,7 +856,7 @@ task: "npm:exec" finished
 task: "npm:exec" started
 task: [config:skip] pattern="$KNIP_SKIP_PATTERN"
 task: [config:skip] powershell -NoProfile -ExecutionPolicy Bypass -Command - <<'POWERSHELL'
-task: [npm:_npm:unix] bash -c 'export NVM_DIR="$HOME/.nvm"; . "$NVM_DIR/nvm.sh"; if [ -f .node-version ] || [ -f .nvmrc ]; then nvm use; fi; command -v corepack >/dev/null 2>&1 || { echo "corepack is not available. Run: task manager:setup"; exit 1; }; corepack npm exec -- knip --exports --config "OVR-CONFIG"  OVR-EXTRA_ARGS'
+task: [npm:_npm:unix] bash -c 'export NVM_DIR="$HOME/.nvm"; . "$NVM_DIR/nvm.sh"; if [ -f .node-version ] || [ -f .nvmrc ]; then nvm use; fi; command -v corepack >/dev/null 2>&1 || { echo "corepack is not available. Run: task manager:setup"; exit 1; }; corepack npm exec -- knip --exports --config ".taskotter-knip-npm-nvm-skip.json" OVR-EXTRA_ARGS'
 }
 }
 }
@@ -1006,6 +1014,8 @@ if [[ -z "$source_config" ]]; then
 let config = {};
 output="$KNIP_SKIP_OUTPUT"
 source_config="$KNIP_SKIP_SOURCE_CONFIG"
+task: "_run" finished
+task: "_run" started
 task: "config:skip" finished
 task: "config:skip" started
 task: "files" finished
@@ -1017,7 +1027,7 @@ task: "npm:exec" finished
 task: "npm:exec" started
 task: [config:skip] pattern="$KNIP_SKIP_PATTERN"
 task: [config:skip] powershell -NoProfile -ExecutionPolicy Bypass -Command - <<'POWERSHELL'
-task: [npm:_npm:unix] bash -c 'export NVM_DIR="$HOME/.nvm"; . "$NVM_DIR/nvm.sh"; if [ -f .node-version ] || [ -f .nvmrc ]; then nvm use; fi; command -v corepack >/dev/null 2>&1 || { echo "corepack is not available. Run: task manager:setup"; exit 1; }; corepack npm exec -- knip --files --config "OVR-CONFIG"  OVR-EXTRA_ARGS'
+task: [npm:_npm:unix] bash -c 'export NVM_DIR="$HOME/.nvm"; . "$NVM_DIR/nvm.sh"; if [ -f .node-version ] || [ -f .nvmrc ]; then nvm use; fi; command -v corepack >/dev/null 2>&1 || { echo "corepack is not available. Run: task manager:setup"; exit 1; }; corepack npm exec -- knip --files --config ".taskotter-knip-npm-nvm-skip.json" OVR-EXTRA_ARGS'
 }
 }
 }
@@ -1208,6 +1218,8 @@ if [[ -z "$source_config" ]]; then
 let config = {};
 output="$KNIP_SKIP_OUTPUT"
 source_config="$KNIP_SKIP_SOURCE_CONFIG"
+task: "_run" finished
+task: "_run" started
 task: "config:skip" finished
 task: "config:skip" started
 task: "lint" finished
@@ -1220,7 +1232,7 @@ task: "npm:exec" started
 task: [config:skip] pattern="$KNIP_SKIP_PATTERN"
 task: [config:skip] powershell -NoProfile -ExecutionPolicy Bypass -Command - <<'POWERSHELL'
 task: [lint] echo "✅ knip passed"
-task: [npm:_npm:unix] bash -c 'export NVM_DIR="$HOME/.nvm"; . "$NVM_DIR/nvm.sh"; if [ -f .node-version ] || [ -f .nvmrc ]; then nvm use; fi; command -v corepack >/dev/null 2>&1 || { echo "corepack is not available. Run: task manager:setup"; exit 1; }; corepack npm exec -- knip --config "OVR-CONFIG"  OVR-EXTRA_ARGS'
+task: [npm:_npm:unix] bash -c 'export NVM_DIR="$HOME/.nvm"; . "$NVM_DIR/nvm.sh"; if [ -f .node-version ] || [ -f .nvmrc ]; then nvm use; fi; command -v corepack >/dev/null 2>&1 || { echo "corepack is not available. Run: task manager:setup"; exit 1; }; corepack npm exec -- knip --config ".taskotter-knip-npm-nvm-skip.json" OVR-EXTRA_ARGS'
 }
 }
 }
@@ -1378,6 +1390,8 @@ if [[ -z "$source_config" ]]; then
 let config = {};
 output="$KNIP_SKIP_OUTPUT"
 source_config="$KNIP_SKIP_SOURCE_CONFIG"
+task: "_run" finished
+task: "_run" started
 task: "config:skip" finished
 task: "config:skip" started
 task: "lint:fix" finished
@@ -1389,7 +1403,7 @@ task: "npm:exec" finished
 task: "npm:exec" started
 task: [config:skip] pattern="$KNIP_SKIP_PATTERN"
 task: [config:skip] powershell -NoProfile -ExecutionPolicy Bypass -Command - <<'POWERSHELL'
-task: [npm:_npm:unix] bash -c 'export NVM_DIR="$HOME/.nvm"; . "$NVM_DIR/nvm.sh"; if [ -f .node-version ] || [ -f .nvmrc ]; then nvm use; fi; command -v corepack >/dev/null 2>&1 || { echo "corepack is not available. Run: task manager:setup"; exit 1; }; corepack npm exec -- knip --fix --config "OVR-CONFIG"  OVR-EXTRA_ARGS'
+task: [npm:_npm:unix] bash -c 'export NVM_DIR="$HOME/.nvm"; . "$NVM_DIR/nvm.sh"; if [ -f .node-version ] || [ -f .nvmrc ]; then nvm use; fi; command -v corepack >/dev/null 2>&1 || { echo "corepack is not available. Run: task manager:setup"; exit 1; }; corepack npm exec -- knip --fix --config ".taskotter-knip-npm-nvm-skip.json" OVR-EXTRA_ARGS'
 }
 }
 }
@@ -1547,6 +1561,8 @@ if [[ -z "$source_config" ]]; then
 let config = {};
 output="$KNIP_SKIP_OUTPUT"
 source_config="$KNIP_SKIP_SOURCE_CONFIG"
+task: "_run" finished
+task: "_run" started
 task: "config:skip" finished
 task: "config:skip" started
 task: "npm:_npm:unix" finished
@@ -1558,7 +1574,7 @@ task: "production" finished
 task: "production" started
 task: [config:skip] pattern="$KNIP_SKIP_PATTERN"
 task: [config:skip] powershell -NoProfile -ExecutionPolicy Bypass -Command - <<'POWERSHELL'
-task: [npm:_npm:unix] bash -c 'export NVM_DIR="$HOME/.nvm"; . "$NVM_DIR/nvm.sh"; if [ -f .node-version ] || [ -f .nvmrc ]; then nvm use; fi; command -v corepack >/dev/null 2>&1 || { echo "corepack is not available. Run: task manager:setup"; exit 1; }; corepack npm exec -- knip --production --config "OVR-CONFIG"  OVR-EXTRA_ARGS'
+task: [npm:_npm:unix] bash -c 'export NVM_DIR="$HOME/.nvm"; . "$NVM_DIR/nvm.sh"; if [ -f .node-version ] || [ -f .nvmrc ]; then nvm use; fi; command -v corepack >/dev/null 2>&1 || { echo "corepack is not available. Run: task manager:setup"; exit 1; }; corepack npm exec -- knip --production --config ".taskotter-knip-npm-nvm-skip.json" OVR-EXTRA_ARGS'
 }
 }
 }
