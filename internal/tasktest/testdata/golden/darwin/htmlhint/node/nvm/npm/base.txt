@@ -76,7 +76,7 @@ task: "npm:exec" finished
 task: "npm:exec" started
 task: Task "install" is up to date
 task: [lint] echo "✅ htmlhint passed"
-task: [npm:_npm:unix] bash -c 'export NVM_DIR="$HOME/.nvm"; . "$NVM_DIR/nvm.sh"; if [ -f .node-version ] || [ -f .nvmrc ]; then nvm use; fi; command -v corepack >/dev/null 2>&1 || { echo "corepack is not available. Run: task manager:setup"; exit 1; }; corepack npm exec -- htmlhint --config "BASE-CONFIG"  --ignore "BASE-HTMLHINT_LINT_SKIP_PATTERN"  BASE-TARGETS BASE-EXTRA_ARGS'
+task: [npm:_npm:unix] bash -c 'export NVM_DIR="$HOME/.nvm"; . "$NVM_DIR/nvm.sh"; if [ -f .node-version ] || [ -f .nvmrc ]; then nvm use; fi; command -v corepack >/dev/null 2>&1 || { echo "corepack is not available. Run: task manager:setup"; exit 1; }; corepack npm exec -- htmlhint --config "BASE-CONFIG" --ignore "BASE-HTMLHINT_LINT_SKIP_PATTERN" BASE-TARGETS BASE-EXTRA_ARGS'
 task: status command node -e "const installed = require('./node_modules/htmlhint/package.json'); const requested = 'BASE-VERSION'; process.exit(!requested || installed.version === requested ? 0 : 1)" exited zero
 
 === task: upgrade ===

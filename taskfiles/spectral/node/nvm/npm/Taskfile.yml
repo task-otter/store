@@ -34,20 +34,19 @@ tasks:
       Install @stoplight/spectral-cli as a local devDependency. Pass
       VERSION=x.y.z to pin a specific release instead of the package
       manager's default resolution.
+    vars:
+      RESOLVED_VERSION: '{{default .VERSION .VERSION_OVERRIDE}}'
     status:
       - >-
         node -e "const installed = require('./node_modules/@stoplight/spectral-cli/package.json');
-        const requested = '{{if .VERSION_OVERRIDE}}{{.VERSION_OVERRIDE}}{{else}}{{.VERSION}}{{end}}';
+        const requested = '{{.RESOLVED_VERSION}}';
         process.exit(!requested || installed.version === requested ? 0 : 1)"
     cmds:
       - task: npm:add
         vars:
           PACKAGES: >-
-            @stoplight/spectral-cli{{if .VERSION_OVERRIDE}}@{{.VERSION_OVERRIDE}}
-            {{- else if .VERSION}}@{{.VERSION}}{{end}}
-          EXTRA_ARGS: >-
-            {{if .EXTRA_ARGS_OVERRIDE}}{{.EXTRA_ARGS_OVERRIDE}}
-            {{- else}}{{.EXTRA_ARGS}}{{end}}{{if .CLI_ARGS}} {{.CLI_ARGS}}{{end}}
+            @stoplight/spectral-cli{{if .RESOLVED_VERSION}}@{{.RESOLVED_VERSION}}{{end}}
+          EXTRA_ARGS: '{{default .EXTRA_ARGS .EXTRA_ARGS_OVERRIDE}}{{if .CLI_ARGS}} {{.CLI_ARGS}}{{end}}'
 
   install:undo:
     run: once
@@ -60,7 +59,7 @@ tasks:
       - task: npm:remove
         vars:
           PACKAGES: "@stoplight/spectral-cli"
-          EXTRA_ARGS: "{{if .EXTRA_ARGS_OVERRIDE}}{{.EXTRA_ARGS_OVERRIDE}}{{else}}{{.EXTRA_ARGS}}{{end}}"
+          EXTRA_ARGS: '{{default .EXTRA_ARGS .EXTRA_ARGS_OVERRIDE}}'
 
   upgrade:
     run: once
@@ -70,7 +69,7 @@ tasks:
       - task: npm:add
         vars:
           PACKAGES: "@stoplight/spectral-cli@latest"
-          EXTRA_ARGS: "{{if .EXTRA_ARGS_OVERRIDE}}{{.EXTRA_ARGS_OVERRIDE}}{{else}}{{.EXTRA_ARGS}}{{end}}"
+          EXTRA_ARGS: '{{default .EXTRA_ARGS .EXTRA_ARGS_OVERRIDE}}'
 
   config:init:
     run: once
@@ -96,20 +95,19 @@ tasks:
     dir: "{{.USER_WORKING_DIR}}"
     deps:
       - install
+    vars:
+      RESOLVED_TARGETS: '{{default .TARGETS .TARGETS_OVERRIDE}}'
+      RESOLVED_SKIP: '{{default .SPECTRAL_LINT_SKIP_PATTERN .SPECTRAL_LINT_SKIP_PATTERN_OVERRIDE}}'
+      RESOLVED_RULESET: '{{default .RULESET .RULESET_OVERRIDE}}'
     cmds:
       - task: npm:exec
         vars:
           BINARY: spectral
           ARGS: >-
-            lint
-            {{if .TARGETS_OVERRIDE}}{{.TARGETS_OVERRIDE}}{{else}}{{.TARGETS}}{{end}}
-            {{if .SPECTRAL_LINT_SKIP_PATTERN_OVERRIDE}}"!{{.SPECTRAL_LINT_SKIP_PATTERN_OVERRIDE}}"
-            {{else if .SPECTRAL_LINT_SKIP_PATTERN}}"!{{.SPECTRAL_LINT_SKIP_PATTERN}}" {{end}}
-            {{if .RULESET_OVERRIDE}}--ruleset "{{.RULESET_OVERRIDE}}"
-            {{else}}{{if .RULESET}}--ruleset "{{.RULESET}}"{{end}}{{end}}
-          EXTRA_ARGS: >-
-            {{if .EXTRA_ARGS_OVERRIDE}}{{.EXTRA_ARGS_OVERRIDE}}
-            {{- else}}{{.EXTRA_ARGS}}{{end}}{{if .CLI_ARGS}} {{.CLI_ARGS}}{{end}}
+            lint {{.RESOLVED_TARGETS}}
+            {{- if .RESOLVED_SKIP}} "!{{.RESOLVED_SKIP}}"{{end}}
+            {{- if .RESOLVED_RULESET}} --ruleset "{{.RESOLVED_RULESET}}"{{end}}
+          EXTRA_ARGS: '{{default .EXTRA_ARGS .EXTRA_ARGS_OVERRIDE}}{{if .CLI_ARGS}} {{.CLI_ARGS}}{{end}}'
       - echo "✅ spectral passed"
 
   help:

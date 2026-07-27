@@ -81,7 +81,7 @@ task: "pnpm:exec" finished
 task: "pnpm:exec" started
 task: Task "install" is up to date
 task: [lint] echo "✅ htmlhint passed"
-task: [pnpm:_exec:unix] bash -c "htmlhint --config "OVR-CONFIG"  --ignore "OVR-HTMLHINT_LINT_SKIP_PATTERN"  OVR-TARGETS  OVR-EXTRA_ARGS"
+task: [pnpm:_exec:unix] bash -c "htmlhint --config "OVR-CONFIG" --ignore "OVR-HTMLHINT_LINT_SKIP_PATTERN" OVR-TARGETS OVR-EXTRA_ARGS"
 task: status command node -e "const installed = require('./node_modules/htmlhint/package.json'); const requested = 'OVR-VERSION'; process.exit(!requested || installed.version === requested ? 0 : 1)" exited zero
 
 === task: upgrade ===

@@ -2,6 +2,8 @@
 # case:   bare
 
 === task: ci ===
+task: "_run" finished
+task: "_run" started
 task: "ci" finished
 task: "ci" started
 task: "yarn:_exec:unix" finished
@@ -37,6 +39,8 @@ task: "yarn:remove" started
 task: [yarn:_yarn:unix] bash -c 'export NVM_DIR="$HOME/.nvm"; . "$NVM_DIR/nvm.sh"; if [ -f .node-version ] || [ -f .nvmrc ]; then nvm use; fi; command -v corepack >/dev/null 2>&1 || { echo "corepack is not available. Run: task manager:setup"; exit 1; }; corepack yarn global remove @usebruno/cli '
 
 === task: run ===
+task: "_run" finished
+task: "_run" started
 task: "run" finished
 task: "run" started
 task: "yarn:_exec:unix" finished

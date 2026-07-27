@@ -59,7 +59,7 @@ task: "pnpm:exec" finished
 task: "pnpm:exec" started
 task: Task "install" is up to date
 task: [lint] echo "✅ spectral passed"
-task: [pnpm:_exec:unix] bash -c "spectral lint OVR-TARGETS "!OVR-SPECTRAL_LINT_SKIP_PATTERN"  --ruleset "OVR-RULESET"  OVR-EXTRA_ARGS"
+task: [pnpm:_exec:unix] bash -c "spectral lint OVR-TARGETS "!OVR-SPECTRAL_LINT_SKIP_PATTERN" --ruleset "OVR-RULESET" OVR-EXTRA_ARGS"
 task: status command node -e "const installed = require('./node_modules/@stoplight/spectral-cli/package.json'); const requested = 'OVR-VERSION'; process.exit(!requested || installed.version === requested ? 0 : 1)" exited zero
 
 === task: upgrade ===

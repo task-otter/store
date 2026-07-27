@@ -2,6 +2,8 @@
 # case:   bare
 
 === task: ci ===
+task: "_run" finished
+task: "_run" started
 task: "ci" finished
 task: "ci" started
 task: "npm:_npm:unix" finished
@@ -37,6 +39,8 @@ task: "npm:remove" started
 task: [npm:_npm:unix] bash -c 'export NVM_DIR="$HOME/.nvm"; . "$NVM_DIR/nvm.sh"; if [ -f .node-version ] || [ -f .nvmrc ]; then nvm use; fi; command -v corepack >/dev/null 2>&1 || { echo "corepack is not available. Run: task manager:setup"; exit 1; }; corepack npm uninstall -g @usebruno/cli '
 
 === task: run ===
+task: "_run" finished
+task: "_run" started
 task: "npm:_npm:unix" finished
 task: "npm:_npm:unix" started
 task: "npm:_npm:windows" not for current platform - ignored

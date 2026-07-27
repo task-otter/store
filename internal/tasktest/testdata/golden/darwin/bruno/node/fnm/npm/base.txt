@@ -7,6 +7,8 @@
 #   VERSION=BASE-VERSION
 
 === task: ci ===
+task: "_run" finished
+task: "_run" started
 task: "ci" finished
 task: "ci" started
 task: "npm:_npm:unix" finished
@@ -42,6 +44,8 @@ task: "npm:remove" started
 task: [npm:_npm:unix] bash -c 'export PATH="$HOME/.local/share/fnm:$HOME/.local/bin:$PATH"; if [ -f .node-version ] || [ -f .nvmrc ]; then fnm use; fi; command -v corepack >/dev/null 2>&1 || { echo "corepack is not available. Run: task manager:setup"; exit 1; }; corepack npm uninstall -g @usebruno/cli BASE-EXTRA_ARGS'
 
 === task: run ===
+task: "_run" finished
+task: "_run" started
 task: "npm:_npm:unix" finished
 task: "npm:_npm:unix" started
 task: "npm:_npm:windows" not for current platform - ignored

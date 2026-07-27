@@ -33,20 +33,18 @@ tasks:
       Install @usebruno/cli as a local devDependency. Pass VERSION=x.y.z to
       pin a specific release instead of the package manager's default
       resolution.
+    vars:
+      RESOLVED_VERSION: '{{default .VERSION .VERSION_OVERRIDE}}'
     status:
       - >-
         node -e "const installed = require('./node_modules/@usebruno/cli/package.json');
-        const requested = '{{if .VERSION_OVERRIDE}}{{.VERSION_OVERRIDE}}{{else}}{{.VERSION}}{{end}}';
+        const requested = '{{.RESOLVED_VERSION}}';
         process.exit(!requested || installed.version === requested ? 0 : 1)"
     cmds:
       - task: npm:add
         vars:
-          PACKAGES: >-
-            @usebruno/cli{{if .VERSION_OVERRIDE}}@{{.VERSION_OVERRIDE}}
-            {{- else if .VERSION}}@{{.VERSION}}{{end}}
-          EXTRA_ARGS: >-
-            {{if .EXTRA_ARGS_OVERRIDE}}{{.EXTRA_ARGS_OVERRIDE}}
-            {{- else}}{{.EXTRA_ARGS}}{{end}}{{if .CLI_ARGS}} {{.CLI_ARGS}}{{end}}
+          PACKAGES: '@usebruno/cli{{if .RESOLVED_VERSION}}@{{.RESOLVED_VERSION}}{{end}}'
+          EXTRA_ARGS: '{{default .EXTRA_ARGS .EXTRA_ARGS_OVERRIDE}}{{if .CLI_ARGS}} {{.CLI_ARGS}}{{end}}'
 
   install:undo:
     run: once
@@ -59,7 +57,7 @@ tasks:
       - task: npm:remove
         vars:
           PACKAGES: "@usebruno/cli"
-          EXTRA_ARGS: "{{if .EXTRA_ARGS_OVERRIDE}}{{.EXTRA_ARGS_OVERRIDE}}{{else}}{{.EXTRA_ARGS}}{{end}}"
+          EXTRA_ARGS: '{{default .EXTRA_ARGS .EXTRA_ARGS_OVERRIDE}}'
 
   upgrade:
     run: once
@@ -69,7 +67,24 @@ tasks:
       - task: npm:add
         vars:
           PACKAGES: "@usebruno/cli@latest"
-          EXTRA_ARGS: "{{if .EXTRA_ARGS_OVERRIDE}}{{.EXTRA_ARGS_OVERRIDE}}{{else}}{{.EXTRA_ARGS}}{{end}}"
+          EXTRA_ARGS: '{{default .EXTRA_ARGS .EXTRA_ARGS_OVERRIDE}}'
+
+  # Shared implementation of run / ci, which differ only by --bail.
+  _run:
+    internal: true
+    run: when_changed
+    vars:
+      RESOLVED_COLLECTION: '{{default .COLLECTION .COLLECTION_OVERRIDE}}'
+      RESOLVED_ENV: '{{default .ENV .ENV_OVERRIDE}}'
+    cmds:
+      - task: npm:exec
+        vars:
+          BINARY: bru
+          ARGS: >-
+            run {{.RESOLVED_COLLECTION}}
+            {{- if .RESOLVED_ENV}} --env "{{.RESOLVED_ENV}}"{{end}}
+            {{- if .MODE_ARGS}} {{.MODE_ARGS}}{{end}}
+          EXTRA_ARGS: '{{default .EXTRA_ARGS .EXTRA_ARGS_OVERRIDE}}{{if .CLI_ARGS}} {{.CLI_ARGS}}{{end}}'
 
   run:
     run: once
@@ -80,18 +95,9 @@ tasks:
       for additional bru flags. Pass CLI arguments after -- to override all
       variables directly.
     cmds:
-      - task: npm:exec
+      - task: _run
         vars:
-          BINARY: bru
-          ARGS: >-
-            run
-            {{if .COLLECTION_OVERRIDE}}{{.COLLECTION_OVERRIDE}}
-            {{- else}}{{.COLLECTION}}{{end}}
-            {{- if .ENV_OVERRIDE}} --env "{{.ENV_OVERRIDE}}"
-            {{- else}}{{if .ENV}} --env "{{.ENV}}"{{end}}{{end}}
-          EXTRA_ARGS: >-
-            {{if .EXTRA_ARGS_OVERRIDE}}{{.EXTRA_ARGS_OVERRIDE}}
-            {{- else}}{{.EXTRA_ARGS}}{{end}}{{if .CLI_ARGS}} {{.CLI_ARGS}}{{end}}
+          MODE_ARGS: ""
 
   ci:
     run: once
@@ -101,19 +107,9 @@ tasks:
       failure via --bail. Pass ENV to activate a named Bruno environment.
       Intended for CI pipelines where a single failure should abort the run.
     cmds:
-      - task: npm:exec
+      - task: _run
         vars:
-          BINARY: bru
-          ARGS: >-
-            run
-            {{if .COLLECTION_OVERRIDE}}{{.COLLECTION_OVERRIDE}}
-            {{- else}}{{.COLLECTION}}{{end}}
-            {{- if .ENV_OVERRIDE}} --env "{{.ENV_OVERRIDE}}"
-            {{- else}}{{if .ENV}} --env "{{.ENV}}"{{end}}{{end}}
-            --bail
-          EXTRA_ARGS: >-
-            {{if .EXTRA_ARGS_OVERRIDE}}{{.EXTRA_ARGS_OVERRIDE}}
-            {{- else}}{{.EXTRA_ARGS}}{{end}}{{if .CLI_ARGS}} {{.CLI_ARGS}}{{end}}
+          MODE_ARGS: "--bail"
 
   version:
     run: once
@@ -132,6 +128,4 @@ tasks:
         vars:
           BINARY: bru
           ARGS: "--help"
-          EXTRA_ARGS: >-
-            {{if .EXTRA_ARGS_OVERRIDE}}{{.EXTRA_ARGS_OVERRIDE}}
-            {{- else}}{{.EXTRA_ARGS}}{{end}}{{if .CLI_ARGS}} {{.CLI_ARGS}}{{end}}
+          EXTRA_ARGS: '{{default .EXTRA_ARGS .EXTRA_ARGS_OVERRIDE}}{{if .CLI_ARGS}} {{.CLI_ARGS}}{{end}}'

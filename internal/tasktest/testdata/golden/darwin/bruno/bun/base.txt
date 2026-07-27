@@ -7,6 +7,8 @@
 #   VERSION=BASE-VERSION
 
 === task: ci ===
+task: "_run" finished
+task: "_run" started
 task: "bun:_bun:unix" finished
 task: "bun:_bun:unix" started
 task: "bun:_bun:windows" not for current platform - ignored
@@ -60,6 +62,8 @@ task: [bun:_bun:unix] bash -lc 'export BUN_INSTALL="$HOME/.bun"; export PATH="$B
 task: status command bun_bin="$HOME/.bun/bin/bun"; if [ ! -x "$bun_bin" ]; then bun_bin="$(command -v bun 2>/dev/null)"; fi; [ -n "$bun_bin" ] && [ -x "$bun_bin" ] && { [ -z "" ] || [ "$("$bun_bin" --version)" = "" ]; } exited zero
 
 === task: run ===
+task: "_run" finished
+task: "_run" started
 task: "bun:_bun:unix" finished
 task: "bun:_bun:unix" started
 task: "bun:_bun:windows" not for current platform - ignored
