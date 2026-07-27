@@ -340,12 +340,25 @@ func TestBiomeConfigSkipTask(t *testing.T) {
 	})
 }
 
+// jsRuntimeVar pins the Knip overlay generator to a JS runtime that exists on
+// this machine. The bun module defaults to bun, which CI does not install.
+func jsRuntimeVar(t *testing.T) string {
+	t.Helper()
+	for _, runtime := range []string{"bun", "node"} {
+		if _, err := exec.LookPath(runtime); err == nil {
+			return "KNIP_INTERNAL_JS_RUNTIME=" + runtime
+		}
+	}
+	t.Skip("neither bun nor node is installed")
+	return ""
+}
+
 func TestKnipConfigSkipTask(t *testing.T) {
 	const overlay = ".taskotter-knip-bun-skip.json"
 
 	t.Run("no project config", func(t *testing.T) {
 		project := t.TempDir()
-		runConfigSkip(t, project, "knip/bun", "KNIP_LINT_SKIP_PATTERN=**/generated/**")
+		runConfigSkip(t, project, "knip/bun", "KNIP_LINT_SKIP_PATTERN=**/generated/**", jsRuntimeVar(t))
 		assertOverlayContains(t, project, overlay, "**/generated/**")
 	})
 
@@ -353,7 +366,7 @@ func TestKnipConfigSkipTask(t *testing.T) {
 		project := t.TempDir()
 		writeFixture(t, project, "knip.jsonc",
 			"{\n  // keep this entry\n  \"entry\": [\"src/index.ts\"],\n}\n")
-		runConfigSkip(t, project, "knip/bun", "KNIP_LINT_SKIP_PATTERN=**/generated/**")
+		runConfigSkip(t, project, "knip/bun", "KNIP_LINT_SKIP_PATTERN=**/generated/**", jsRuntimeVar(t))
 		assertOverlayContains(t, project, overlay, "src/index.ts", "**/generated/**")
 	})
 
@@ -361,7 +374,7 @@ func TestKnipConfigSkipTask(t *testing.T) {
 		project := t.TempDir()
 		writeFixture(t, project, "package.json",
 			`{"name":"fixture","knip":{"ignore":["existing/**"]}}`)
-		runConfigSkip(t, project, "knip/bun", "KNIP_LINT_SKIP_PATTERN=**/generated/**")
+		runConfigSkip(t, project, "knip/bun", "KNIP_LINT_SKIP_PATTERN=**/generated/**", jsRuntimeVar(t))
 		assertOverlayContains(t, project, overlay, "existing/**", "**/generated/**")
 	})
 

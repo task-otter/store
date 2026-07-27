@@ -179,7 +179,11 @@ tasks:
       matching=false
       [[ "$SKIPFILES_MATCHING" == "true" ]] && matching=true
 
-      while IFS= read -r -d '' path; do
+      # Task runs commands through mvdan/sh, whose read builtin has no -d flag,
+      # so translate the NUL stream into lines before iterating over it.
+      while IFS= read -r path; do
+        [[ -n "$path" ]] || continue
+
         normalized="$(normalize_path "$path" "$working_dir")"
         is_match=false
         if [[ "$normalized" =~ $regex ]]; then
@@ -188,7 +192,7 @@ tasks:
         if [[ "$matching" == "$is_match" ]]; then
           printf '%s\0' "$path"
         fi
-      done
+      done < <(tr '\0' '\n')
 
   _filter:windows:
     internal: true

@@ -209,7 +209,7 @@ func TestLoadTaskfile(t *testing.T) {
 	chdir(t, module)
 
 	tf := LoadTaskfile(t, "fixture")
-	if tf.Version != "3" || tf.Vars["FOO"] != "value" || len(tf.Tasks) != 3 {
+	if tf.Version != "3.5" || tf.Vars["FOO"] != "value" || len(tf.Tasks) != 3 {
 		t.Fatalf("unexpected Taskfile: %#v", tf)
 	}
 
