@@ -95,6 +95,7 @@ tasks:
     deps:
       - fmt:check
       - lint
+      - go:test
 
   ci:fix:
     run: once

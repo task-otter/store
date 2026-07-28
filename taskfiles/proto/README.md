@@ -1,6 +1,6 @@
 # Proto Taskfile
 
-A [TaskOtter](https://github.com/mostafakhairy0305-dot/TaskOtter) module for generating Go and gRPC source files from [Protocol Buffer](https://protobuf.dev/) definitions using [protoc](https://github.com/protocolbuffers/protobuf).
+A [TaskOtter](https://github.com/task-otter/store) module for generating Go and gRPC source files from [Protocol Buffer](https://protobuf.dev/) definitions using [protoc](https://github.com/protocolbuffers/protobuf).
 
 ## What is this Taskfile?
 

@@ -7,7 +7,7 @@ import (
 	"slices"
 	"testing"
 
-	"github.com/mostafakhairy0305-dot/TaskOtter/internal/tasktestutil"
+	"github.com/task-otter/store/internal/tasktestutil"
 	"gopkg.in/yaml.v3"
 )
 

@@ -1,12 +1,6 @@
 # Module dependency tree
 
-Auto-generated from [`.deps.yml`](.deps.yml).
-
-Regenerate:
-
-```sh
-python3 scripts/gen_deps_tree.py
-```
+This document reflects the module dependencies declared in [`.deps.yml`](.deps.yml).
 
 **104 modules** total.
 

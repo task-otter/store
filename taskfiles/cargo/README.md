@@ -1,6 +1,6 @@
 # cargo
 
-A [TaskOtter](https://github.com/mostafakhairy0305-dot/TaskOtter) module for the
+A [TaskOtter](https://github.com/task-otter/store) module for the
 [Rust](https://www.rust-lang.org/) toolchain and its [Cargo](https://doc.rust-lang.org/cargo/)
 build tool.
 

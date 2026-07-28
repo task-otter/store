@@ -1,6 +1,6 @@
 # bash-exec
 
-A [TaskOtter](https://github.com/mostafakhairy0305-dot/TaskOtter) module for executing and syntax-checking Bash scripts already available on the host.
+A [TaskOtter](https://github.com/task-otter/store) module for executing and syntax-checking Bash scripts already available on the host.
 
 ## What is this Taskfile?
 

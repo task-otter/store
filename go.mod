@@ -1,4 +1,4 @@
-module github.com/mostafakhairy0305-dot/TaskOtter
+module github.com/task-otter/store
 
 go 1.26.2
 

@@ -3,7 +3,7 @@ package brunonodenvmnpm_test
 import (
 	"testing"
 
-	"github.com/mostafakhairy0305-dot/TaskOtter/internal/tasktest"
+	"github.com/task-otter/store/internal/tasktest"
 )
 
 var publicTasks = []string{

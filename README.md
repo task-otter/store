@@ -93,11 +93,7 @@ flowchart BT
 
 See [deps-tree.md](deps-tree.md) for the complete dependency graph (forward and reverse views).
 
-Regenerate after editing [`.deps.yml`](.deps.yml):
-
-```sh
-python3 scripts/gen_deps_tree.py
-```
+Keep [deps-tree.md](deps-tree.md) in sync when editing [`.deps.yml`](.deps.yml).
 
 ## Development
 
@@ -136,8 +132,5 @@ Goldens are per-`GOOS` because modules branch on `platforms:`; a platform with
 no recorded goldens skips instead of failing. `go:lint` is excluded — it fans
 out to concurrent `deps:` whose render order varies between runs.
 
-Regenerate the per-module metadata after adding, removing, or renaming an exported task:
-
-```sh
-go run ./scripts/gen_taskfile_metadata.go
-```
+After adding, removing, or renaming an exported task, update the corresponding
+`metadata.yml` and run `go test ./...`.

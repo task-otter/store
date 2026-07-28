@@ -1,6 +1,6 @@
 # bencher
 
-A [TaskOtter](https://github.com/mostafakhairy0305-dot/TaskOtter) module for the [Bencher CLI](https://bencher.dev/docs/how-to/install-cli/), which uploads and tracks benchmark results.
+A [TaskOtter](https://github.com/task-otter/store) module for the [Bencher CLI](https://bencher.dev/docs/how-to/install-cli/), which uploads and tracks benchmark results.
 
 ## What is this Taskfile?
 

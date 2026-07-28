@@ -5,7 +5,7 @@ import (
 	"strings"
 	"testing"
 
-	"github.com/mostafakhairy0305-dot/TaskOtter/internal/tasktest"
+	"github.com/task-otter/store/internal/tasktest"
 	"gopkg.in/yaml.v3"
 )
 

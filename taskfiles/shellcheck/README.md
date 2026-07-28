@@ -1,6 +1,6 @@
 # ShellCheck
 
-A [TaskOtter](https://github.com/mostafakhairy0305-dot/TaskOtter) module for [ShellCheck](https://www.shellcheck.net) — a static analysis tool for shell scripts.
+A [TaskOtter](https://github.com/task-otter/store) module for [ShellCheck](https://www.shellcheck.net) — a static analysis tool for shell scripts.
 
 ## What is this Taskfile?
 

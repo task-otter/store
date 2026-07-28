@@ -1,6 +1,6 @@
 # shfmt
 
-A [TaskOtter](https://github.com/mostafakhairy0305-dot/TaskOtter) module for [shfmt](https://github.com/mvdan/sh), the shell formatter supporting POSIX shell, Bash, Zsh, and mksh.
+A [TaskOtter](https://github.com/task-otter/store) module for [shfmt](https://github.com/mvdan/sh), the shell formatter supporting POSIX shell, Bash, Zsh, and mksh.
 
 ## What is this Taskfile?
 

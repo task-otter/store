@@ -8,7 +8,7 @@ import (
 	"strings"
 	"testing"
 
-	"github.com/mostafakhairy0305-dot/TaskOtter/internal/tasktest"
+	"github.com/task-otter/store/internal/tasktest"
 	"gopkg.in/yaml.v3"
 )
 
@@ -183,7 +183,7 @@ func assertMetadata(t *testing.T, taskfilesDir, dir, module string, expectedTask
 	metadataPath := filepath.Join(taskfilesDir, dir, "metadata.yml")
 	content, err := os.ReadFile(metadataPath)
 	if err != nil {
-		t.Fatalf("read metadata.yml: %v; regenerate with go run ./scripts/gen_taskfile_metadata.go", err)
+		t.Fatalf("read metadata.yml: %v; add or update it to match the module Taskfile", err)
 	}
 	if strings.Contains(string(content), "\r\n") {
 		t.Fatal("metadata.yml must use LF line endings")
@@ -215,13 +215,13 @@ func assertMetadata(t *testing.T, taskfilesDir, dir, module string, expectedTask
 	}
 	if !slices.Equal(metadata.ExportedTasks, expectedTasks) {
 		t.Fatalf(
-			"exported task drift\nmetadata: %v\ntaskfile: %v\nregenerate with go run ./scripts/gen_taskfile_metadata.go",
+			"exported task drift\nmetadata: %v\ntaskfile: %v\nupdate metadata.yml to match the Taskfile",
 			metadata.ExportedTasks, expectedTasks,
 		)
 	}
 	if !slices.Equal(metadata.Variants, expectedVariants) {
 		t.Fatalf(
-			"variant drift\nmetadata: %v\non disk:  %v\nregenerate with go run ./scripts/gen_taskfile_metadata.go",
+			"variant drift\nmetadata: %v\non disk:  %v\nupdate metadata.yml to match the variants on disk",
 			metadata.Variants, expectedVariants,
 		)
 	}
