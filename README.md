@@ -1,6 +1,6 @@
 # TaskOtter
 
-[![codecov](https://codecov.io/gh/task-otter/Taskotter/graph/badge.svg)](https://codecov.io/gh/task-otter/store)
+[![codecov](https://codecov.io/gh/task-otter/store/graph/badge.svg)](https://codecov.io/gh/task-otter/store)
 
 Reusable, tested [Taskfile](https://taskfile.dev) modules for installing and running common dev tools. Each module lives under `taskfiles/<name>/` with a `Taskfile.yml`, `metadata.yml`, `README.md`, and Go tests.
 
