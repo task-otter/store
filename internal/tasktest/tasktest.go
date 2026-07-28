@@ -31,6 +31,7 @@ type Task struct {
 	Cmds          any      `yaml:"cmds"`
 	Deps          any      `yaml:"deps"`
 	Vars          any      `yaml:"vars"`
+	Status        any      `yaml:"status"`
 }
 
 type testT interface {

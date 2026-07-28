@@ -75,6 +75,22 @@ task -t taskfiles/go/Taskfile.yml golangci-lint:lint -- ./internal/...
 task go:govulncheck:lint -- -test ./...
 ```
 
+`install:golangci-lint` installs golangci-lint, then rebuilds it with the
+`github.com/gostafa/modularity` module plugin as the `modularity` linter. To
+run it, enable the custom linter in your project's golangci-lint config:
+
+```yaml
+version: "2"
+linters:
+  enable:
+    - modularity
+  settings:
+    custom:
+      modularity:
+        type: module
+        description: Enforce Go modularity policy thresholds
+```
+
 Set `GO_LINT_SKIP_PATTERN` to exclude matching file paths from golangci-lint,
 govulncheck, and gosec analysis. It applies to both `lint` and `lint:fix` and
 uses the same shell-style path glob syntax as `GO_FMT_SKIP_PATTERN`; quote the
@@ -193,13 +209,15 @@ Each development tool has its own optional version variable:
 ```sh
 task go:install:go-junit-report
 task go:install:golangci-lint GOLANGCI_LINT_VERSION=v2.1.6
+task go:install:golangci-lint GOLANGCI_LINT_MODULARITY_VERSION=v0.0.1
 task go:install:govulncheck GOVULNCHECK_VERSION=v1.1.4
 task go:install:gosec GOSEC_VERSION=v2.22.7
 ```
 
 An empty tool version defaults to `latest`. Supplying a tool version forces its
 installer to run even when the executable already exists. `go-junit-report` is
-pinned to v2.1.0.
+pinned to v2.1.0. The modularity plugin defaults to v0.0.1 and requires Go
+1.26.5 or newer to build.
 
 ## Public Tasks
 
@@ -210,7 +228,7 @@ pinned to v2.1.0.
 | `install`                   | Install Go on the current operating system if missing | `INSTALL_DIR_UNIX`, `GO_VERSION` |
 | `install:undo`              | Remove Go from the current operating system            | `INSTALL_DIR_UNIX` |
 | `install:go-junit-report`   | Install go-junit-report into the global Go bin        | `GLOBAL_GO_BIN` |
-| `install:golangci-lint`     | Install golangci-lint into the global Go bin          | `GLOBAL_GO_BIN`, `GOLANGCI_LINT_VERSION` |
+| `install:golangci-lint`     | Install golangci-lint into the global Go bin          | `GLOBAL_GO_BIN`, `GOLANGCI_LINT_VERSION`, `GOLANGCI_LINT_MODULARITY_VERSION` |
 | `install:govulncheck`       | Install govulncheck into the global Go bin             | `GLOBAL_GO_BIN`, `GOVULNCHECK_VERSION` |
 | `install:gosec`             | Install gosec into the global Go bin                   | `GLOBAL_GO_BIN`, `GOSEC_VERSION` |
 | `lint`                      | Run all Go lint and security checks                    | `GO_LINT_SKIP_PATTERN` |
@@ -242,6 +260,7 @@ pinned to v2.1.0.
 | `GO_DOWNLOAD_BASE_URL` | `https://go.dev/dl`             | Base URL for official Go downloads                                    |
 | `GO_VERSION`           | empty (latest stable)           | Optional official Go release name, such as `go1.26.2`                 |
 | `GOLANGCI_LINT_VERSION` | empty (`latest`)               | Optional golangci-lint module version                                 |
+| `GOLANGCI_LINT_MODULARITY_VERSION` | `v0.0.1`             | Version of the modularity module plugin built into golangci-lint    |
 | `GOVULNCHECK_VERSION`  | empty (`latest`)                | Optional govulncheck module version                                   |
 | `GOSEC_VERSION`        | empty (`latest`)                | Optional gosec module version                                         |
 | `GO_FMT_SKIP_PATTERN`  | empty                           | Shell-style path glob for Go files skipped by `fmt` and `fmt:check`   |

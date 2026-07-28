@@ -19,6 +19,7 @@ vars:
   GO_DOWNLOAD_BASE_URL: https://go.dev/dl
   GO_VERSION: ""
   GOLANGCI_LINT_VERSION: ""
+  GOLANGCI_LINT_MODULARITY_VERSION: "v0.0.1"
   GOVULNCHECK_VERSION: ""
   GOSEC_VERSION: ""
   GO_FMT_SKIP_PATTERN: ""
@@ -88,18 +89,127 @@ tasks:
   install:golangci-lint:
     run: once
     desc: Install golangci-lint globally
-    summary: Install GOLANGCI_LINT_VERSION, defaulting to latest, into the global Go bin.
+    summary: |
+      Install GOLANGCI_LINT_VERSION, defaulting to latest, into the global Go
+      bin, then rebuild it with the modularity module plugin.
     deps:
       - install
     cmds:
-      - >-
-        GOBIN="{{.GLOBAL_GO_BIN}}" go install github.com/golangci/golangci-lint/v2/cmd/golangci-lint@{{default "latest"
-        .GOLANGCI_LINT_VERSION}}
+      - cmd: |
+          required_go_version=1.26.5
+          current_go_version="$(go env GOVERSION 2>/dev/null | sed 's/^go//' || true)"
+          if [ -z "$current_go_version" ]; then
+            current_go_version="$(go version | awk '{print $3}' | sed 's/^go//')"
+          fi
+          if ! awk -v got="$current_go_version" -v want="$required_go_version" '
+            BEGIN {
+              split(got, got_parts, ".")
+              split(want, want_parts, ".")
+              for (part = 1; part <= 3; part++) {
+                got_part = got_parts[part] + 0
+                want_part = want_parts[part] + 0
+                if (got_part > want_part) { exit 0 }
+                if (got_part < want_part) { exit 1 }
+              }
+              exit 0
+            }'; then
+            echo "github.com/gostafa/modularity@{{.GOLANGCI_LINT_MODULARITY_VERSION}} requires Go $required_go_version or newer." >&2
+            echo "Run task go:upgrade GO_VERSION=go1.26.5 or install a newer Go toolchain." >&2
+            exit 1
+          fi
+
+          mkdir -p "{{.GLOBAL_GO_BIN}}"
+          GOBIN="{{.GLOBAL_GO_BIN}}" go install github.com/golangci/golangci-lint/v2/cmd/golangci-lint@{{default "latest" .GOLANGCI_LINT_VERSION}}
+
+          golangci_lint_version="{{.GOLANGCI_LINT_VERSION}}"
+          if [ -z "$golangci_lint_version" ] || [ "$golangci_lint_version" = "latest" ]; then
+            golangci_lint_version="$("{{.GLOBAL_GO_BIN}}/golangci-lint" version --short)"
+          fi
+          case "$golangci_lint_version" in
+            v*) ;;
+            *) golangci_lint_version="v$golangci_lint_version" ;;
+          esac
+
+          work_dir="$(mktemp -d)"
+          trap 'rm -rf "$work_dir"' EXIT
+          cat >"$work_dir/.custom-gcl.yml" <<YAML
+          version: $golangci_lint_version
+          name: golangci-lint
+          destination: $work_dir
+          plugins:
+            - module: github.com/gostafa/modularity
+              import: github.com/gostafa/modularity/plugin
+              version: {{.GOLANGCI_LINT_MODULARITY_VERSION}}
+          YAML
+
+          (cd "$work_dir" && "{{.GLOBAL_GO_BIN}}/golangci-lint" custom -v)
+          mv "$work_dir/golangci-lint" "{{.GLOBAL_GO_BIN}}/golangci-lint"
+          printf '%s\n' "{{.GOLANGCI_LINT_MODULARITY_VERSION}}" >"{{.GLOBAL_GO_BIN}}/golangci-lint.modularity.version"
+        platforms: [linux, darwin]
+      - cmd: >-
+          powershell -NoProfile -ExecutionPolicy Bypass -Command "$ErrorActionPreference='Stop'; $requiredGoVersion =
+          [version]'1.26.5'; $currentGoVersionRaw = (& go env GOVERSION).Trim(); if (-not $currentGoVersionRaw) {
+          $currentGoVersionRaw = (& go version).Split()[2] }; $currentGoVersionText = $currentGoVersionRaw -replace
+          '^go', ''; try { $currentGoVersion = [version]$currentGoVersionText } catch { Write-Error
+          \"Could not parse Go version '$currentGoVersionRaw'. github.com/gostafa/modularity@{{.GOLANGCI_LINT_MODULARITY_VERSION}}
+          requires Go 1.26.5 or newer.\" }; if ($currentGoVersion -lt $requiredGoVersion) { Write-Error
+          \"github.com/gostafa/modularity@{{.GOLANGCI_LINT_MODULARITY_VERSION}} requires Go 1.26.5 or newer. Run task
+          go:upgrade GO_VERSION=go1.26.5 or install a newer Go toolchain.\" }; $globalGoBin = '{{.GLOBAL_GO_BIN}}';
+          New-Item -ItemType Directory -Force -Path $globalGoBin | Out-Null; $env:GOBIN = $globalGoBin; $installVersion
+          = '{{default "latest" .GOLANGCI_LINT_VERSION}}'; go install
+          github.com/golangci/golangci-lint/v2/cmd/golangci-lint@$installVersion; $golangciLint = Join-Path $globalGoBin
+          'golangci-lint'; $golangciLintExe = Join-Path $globalGoBin 'golangci-lint.exe'; if (Test-Path -LiteralPath
+          $golangciLintExe) { $golangciLint = $golangciLintExe }; $golangciLintVersion = '{{.GOLANGCI_LINT_VERSION}}'; if
+          ([string]::IsNullOrWhiteSpace($golangciLintVersion) -or $golangciLintVersion -eq 'latest') { $golangciLintVersion
+          = (& $golangciLint version --short).Trim() }; if (-not $golangciLintVersion.StartsWith('v')) {
+          $golangciLintVersion = 'v' + $golangciLintVersion }; $workDir = Join-Path $env:TEMP ('taskotter-golangci-lint-'
+          + [Guid]::NewGuid().ToString('N')); New-Item -ItemType Directory -Path $workDir | Out-Null; try { $customConfig
+          = Join-Path $workDir '.custom-gcl.yml'; @('version: ' + $golangciLintVersion, 'name: golangci-lint',
+          'destination: ' + $workDir, 'plugins:', '  - module: github.com/gostafa/modularity', '    import:
+          github.com/gostafa/modularity/plugin', '    version: {{.GOLANGCI_LINT_MODULARITY_VERSION}}') |
+          Set-Content -LiteralPath $customConfig -Encoding UTF8; Push-Location $workDir; try { & $golangciLint custom -v }
+          finally { Pop-Location }; if ($LASTEXITCODE -ne 0) { exit $LASTEXITCODE }; $built = Join-Path $workDir
+          'golangci-lint.exe'; if (-not (Test-Path -LiteralPath $built)) { $built = Join-Path $workDir 'golangci-lint' };
+          Move-Item -LiteralPath $built -Destination $golangciLintExe -Force; Set-Content -LiteralPath (Join-Path
+          $globalGoBin 'golangci-lint.modularity.version') -Value '{{.GOLANGCI_LINT_MODULARITY_VERSION}}' -Encoding
+          ASCII } finally { Remove-Item -LiteralPath $workDir -Recurse -Force -ErrorAction SilentlyContinue }"
+        platforms: [windows]
     status:
+      - test -x "{{.GLOBAL_GO_BIN}}/golangci-lint"
       - >-
-        test -x "{{.GLOBAL_GO_BIN}}/golangci-lint" && { test -z "{{.GOLANGCI_LINT_VERSION}}" || test
-        "{{.GOLANGCI_LINT_VERSION}}" = "latest" || go version -m "{{.GLOBAL_GO_BIN}}/golangci-lint" | awk -v
-        want="{{.GOLANGCI_LINT_VERSION}}" '$1 == "mod" && $3 == want { found = 1 } END { exit !found }'; }
+        { test -z "{{.GOLANGCI_LINT_VERSION}}" || test "{{.GOLANGCI_LINT_VERSION}}" = "latest" ||
+        "{{.GLOBAL_GO_BIN}}/golangci-lint" version --short | awk -v want="{{.GOLANGCI_LINT_VERSION}}" '{ got = $1;
+        sub(/^v/, "", got); sub(/^v/, "", want); sub(/[-+].*$/, "", got); if (got == want) { found = 1 } } END { exit
+        !found }'; }
+      - >-
+        test "$(cat "{{.GLOBAL_GO_BIN}}/golangci-lint.modularity.version" 2>/dev/null)" =
+        "{{.GOLANGCI_LINT_MODULARITY_VERSION}}"
+      - |
+        tmp_dir="$(mktemp -d)"
+        trap 'rm -rf "$tmp_dir"' EXIT
+        cat >"$tmp_dir/go.mod" <<EOF
+        module taskotter-modularity-status
+        go 1.26.5
+        EOF
+        cat >"$tmp_dir/statusprobe.go" <<EOF
+        package statusprobe
+        type Widget struct{}
+        EOF
+        cat >"$tmp_dir/.golangci.yml" <<YAML
+        version: "2"
+        linters:
+          default: none
+          enable:
+            - modularity
+          settings:
+            custom:
+              modularity:
+                type: module
+                description: Enforce Go modularity policy thresholds
+                settings:
+                  patterns: [.]
+        YAML
+        (cd "$tmp_dir" && "{{.GLOBAL_GO_BIN}}/golangci-lint" run --config .golangci.yml --issues-exit-code=0 --timeout=30s .) >/dev/null
   install:govulncheck:
     run: once
     desc: Install govulncheck globally

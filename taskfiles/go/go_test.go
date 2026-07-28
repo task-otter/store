@@ -51,6 +51,7 @@ var publicVars = []string{
 	"GO_ROOT_UNIX",
 	"GO_VERSION_URL",
 	"GOLANGCI_LINT_VERSION",
+	"GOLANGCI_LINT_MODULARITY_VERSION",
 	"GOSEC_VERSION",
 	"GLOBAL_GO_BIN",
 	"GOVULNCHECK_VERSION",
@@ -121,6 +122,48 @@ func TestTestingTaskCommands(t *testing.T) {
 	} {
 		if !strings.Contains(testVars, token) {
 			t.Fatalf("go test vars missing %q: %s", token, testVars)
+		}
+	}
+}
+
+func TestGolangciLintInstallerBuildsModularityPlugin(t *testing.T) {
+	t.Parallel()
+
+	tf := tasktest.LoadTaskfile(t, "go")
+	task, ok := tf.Tasks["install:golangci-lint"]
+	if !ok {
+		t.Fatal("go Taskfile missing install:golangci-lint")
+	}
+
+	cmds := fmt.Sprintf("%v", task.Cmds)
+	for _, token := range []string{
+		"go install github.com/golangci/golangci-lint/v2/cmd/golangci-lint@",
+		"custom -v",
+		".custom-gcl.yml",
+		"name: golangci-lint",
+		"destination:",
+		"github.com/gostafa/modularity",
+		"github.com/gostafa/modularity/plugin",
+		"GOLANGCI_LINT_MODULARITY_VERSION",
+		"golangci-lint.modularity.version",
+		"Go 1.26.5 or newer",
+	} {
+		if !strings.Contains(cmds, token) {
+			t.Fatalf("install:golangci-lint cmds missing %q: %s", token, cmds)
+		}
+	}
+
+	status := fmt.Sprintf("%v", task.Status)
+	for _, token := range []string{
+		"golangci-lint\" version --short",
+		"golangci-lint.modularity.version",
+		"--issues-exit-code=0",
+		"taskotter-modularity-status",
+		"modularity",
+		"GOLANGCI_LINT_MODULARITY_VERSION",
+	} {
+		if !strings.Contains(status, token) {
+			t.Fatalf("install:golangci-lint status missing %q: %s", token, status)
 		}
 	}
 }
@@ -216,6 +259,14 @@ func TestVersionVariablesAreIndependentAndOptional(t *testing.T) {
 		if value != "" {
 			t.Fatalf("%s default = %#v, want empty", name, value)
 		}
+	}
+
+	value, exists := tf.Vars["GOLANGCI_LINT_MODULARITY_VERSION"]
+	if !exists {
+		t.Fatal("GOLANGCI_LINT_MODULARITY_VERSION must be defined")
+	}
+	if value != "v0.0.1" {
+		t.Fatalf("GOLANGCI_LINT_MODULARITY_VERSION default = %#v, want v0.0.1", value)
 	}
 }
 
