@@ -113,13 +113,15 @@ tasks:
               }
               exit 0
             }'; then
-            echo "github.com/gostafa/modularity@{{.GOLANGCI_LINT_MODULARITY_VERSION}} requires Go $required_go_version or newer." >&2
+            echo "github.com/gostafa/modularity@{{.GOLANGCI_LINT_MODULARITY_VERSION}} requires Go" \
+              "$required_go_version or newer." >&2
             echo "Run task go:upgrade GO_VERSION=go1.26.5 or install a newer Go toolchain." >&2
             exit 1
           fi
 
           mkdir -p "{{.GLOBAL_GO_BIN}}"
-          GOBIN="{{.GLOBAL_GO_BIN}}" go install github.com/golangci/golangci-lint/v2/cmd/golangci-lint@{{default "latest" .GOLANGCI_LINT_VERSION}}
+          GOBIN="{{.GLOBAL_GO_BIN}}" go install \
+            github.com/golangci/golangci-lint/v2/cmd/golangci-lint@{{default "latest" .GOLANGCI_LINT_VERSION}}
 
           golangci_lint_version="{{.GOLANGCI_LINT_VERSION}}"
           if [ -z "$golangci_lint_version" ] || [ "$golangci_lint_version" = "latest" ]; then
@@ -151,25 +153,29 @@ tasks:
           [version]'1.26.5'; $currentGoVersionRaw = (& go env GOVERSION).Trim(); if (-not $currentGoVersionRaw) {
           $currentGoVersionRaw = (& go version).Split()[2] }; $currentGoVersionText = $currentGoVersionRaw -replace
           '^go', ''; try { $currentGoVersion = [version]$currentGoVersionText } catch { Write-Error
-          \"Could not parse Go version '$currentGoVersionRaw'. github.com/gostafa/modularity@{{.GOLANGCI_LINT_MODULARITY_VERSION}}
-          requires Go 1.26.5 or newer.\" }; if ($currentGoVersion -lt $requiredGoVersion) { Write-Error
+          \"Could not parse Go version '$currentGoVersionRaw'. Requires Go 1.26.5 or newer.\" }; if
+          ($currentGoVersion -lt $requiredGoVersion) { Write-Error
           \"github.com/gostafa/modularity@{{.GOLANGCI_LINT_MODULARITY_VERSION}} requires Go 1.26.5 or newer. Run task
           go:upgrade GO_VERSION=go1.26.5 or install a newer Go toolchain.\" }; $globalGoBin = '{{.GLOBAL_GO_BIN}}';
           New-Item -ItemType Directory -Force -Path $globalGoBin | Out-Null; $env:GOBIN = $globalGoBin; $installVersion
           = '{{default "latest" .GOLANGCI_LINT_VERSION}}'; go install
           github.com/golangci/golangci-lint/v2/cmd/golangci-lint@$installVersion; $golangciLint = Join-Path $globalGoBin
           'golangci-lint'; $golangciLintExe = Join-Path $globalGoBin 'golangci-lint.exe'; if (Test-Path -LiteralPath
-          $golangciLintExe) { $golangciLint = $golangciLintExe }; $golangciLintVersion = '{{.GOLANGCI_LINT_VERSION}}'; if
-          ([string]::IsNullOrWhiteSpace($golangciLintVersion) -or $golangciLintVersion -eq 'latest') { $golangciLintVersion
-          = (& $golangciLint version --short).Trim() }; if (-not $golangciLintVersion.StartsWith('v')) {
-          $golangciLintVersion = 'v' + $golangciLintVersion }; $workDir = Join-Path $env:TEMP ('taskotter-golangci-lint-'
-          + [Guid]::NewGuid().ToString('N')); New-Item -ItemType Directory -Path $workDir | Out-Null; try { $customConfig
+          $golangciLintExe) { $golangciLint = $golangciLintExe };
+          $golangciLintVersion = '{{.GOLANGCI_LINT_VERSION}}'; if
+          ([string]::IsNullOrWhiteSpace($golangciLintVersion) -or $golangciLintVersion -eq 'latest') {
+          $golangciLintVersion = (& $golangciLint version --short).Trim() }; if
+          (-not $golangciLintVersion.StartsWith('v')) { $golangciLintVersion = 'v' + $golangciLintVersion };
+          $workDir = Join-Path $env:TEMP ('taskotter-golangci-lint-' + [Guid]::NewGuid().ToString('N'));
+          New-Item -ItemType Directory -Path $workDir | Out-Null; try { $customConfig
           = Join-Path $workDir '.custom-gcl.yml'; @('version: ' + $golangciLintVersion, 'name: golangci-lint',
           'destination: ' + $workDir, 'plugins:', '  - module: github.com/gostafa/modularity', '    import:
           github.com/gostafa/modularity/plugin', '    version: {{.GOLANGCI_LINT_MODULARITY_VERSION}}') |
-          Set-Content -LiteralPath $customConfig -Encoding UTF8; Push-Location $workDir; try { & $golangciLint custom -v }
+          Set-Content -LiteralPath $customConfig -Encoding UTF8; Push-Location $workDir; try {
+          & $golangciLint custom -v }
           finally { Pop-Location }; if ($LASTEXITCODE -ne 0) { exit $LASTEXITCODE }; $built = Join-Path $workDir
-          'golangci-lint.exe'; if (-not (Test-Path -LiteralPath $built)) { $built = Join-Path $workDir 'golangci-lint' };
+          'golangci-lint.exe'; if (-not (Test-Path -LiteralPath $built)) {
+          $built = Join-Path $workDir 'golangci-lint' };
           Move-Item -LiteralPath $built -Destination $golangciLintExe -Force; Set-Content -LiteralPath (Join-Path
           $globalGoBin 'golangci-lint.modularity.version') -Value '{{.GOLANGCI_LINT_MODULARITY_VERSION}}' -Encoding
           ASCII } finally { Remove-Item -LiteralPath $workDir -Recurse -Force -ErrorAction SilentlyContinue }"
@@ -209,7 +215,8 @@ tasks:
                 settings:
                   patterns: [.]
         YAML
-        (cd "$tmp_dir" && "{{.GLOBAL_GO_BIN}}/golangci-lint" run --config .golangci.yml --issues-exit-code=0 --timeout=30s .) >/dev/null
+        (cd "$tmp_dir" && "{{.GLOBAL_GO_BIN}}/golangci-lint" run \
+          --config .golangci.yml --issues-exit-code=0 --timeout=30s .) >/dev/null
   install:govulncheck:
     run: once
     desc: Install govulncheck globally

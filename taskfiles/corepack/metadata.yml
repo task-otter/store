@@ -13,6 +13,4 @@ exported_tasks:
   - upgrade
   - use
   - version
-variants:
-  - fnm
-  - nvm
+variants: [fnm, nvm]

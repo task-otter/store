@@ -15,6 +15,6 @@ runs:
         version: 3.5
     - name: Show versions
       shell: bash
-      run: |
+      run: |-
         go version
         task --version
