@@ -16,6 +16,7 @@ exported_tasks:
   - gosec:lint
   - govulncheck:lint
   - install
+  - install:go-junit-report
   - install:golangci-lint
   - install:gosec
   - install:govulncheck
@@ -23,6 +24,7 @@ exported_tasks:
   - lint
   - lint:fix
   - test
+  - test:junit
   - upgrade
   - verify
   - version

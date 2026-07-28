@@ -9,6 +9,7 @@
 #   GO_FMT_SKIP_PATTERN=BASE-GO_FMT_SKIP_PATTERN
 #   GO_FUZZTIME=BASE-GO_FUZZTIME
 #   GO_INTERNAL_SKIP_CONFIG=BASE-GO_INTERNAL_SKIP_CONFIG
+#   GO_JUNIT_REPORT=BASE-GO_JUNIT_REPORT
 #   GO_LINT_SKIP_PATTERN=BASE-GO_LINT_SKIP_PATTERN
 #   GO_VERSION=BASE-GO_VERSION
 #   GO_VERSION_URL=BASE-GO_VERSION_URL
@@ -21,6 +22,7 @@
 #   GO_FMT_SKIP_PATTERN_OVERRIDE=OVR-GO_FMT_SKIP_PATTERN
 #   GO_FUZZTIME_OVERRIDE=OVR-GO_FUZZTIME
 #   GO_INTERNAL_SKIP_CONFIG_OVERRIDE=OVR-GO_INTERNAL_SKIP_CONFIG
+#   GO_JUNIT_REPORT_OVERRIDE=OVR-GO_JUNIT_REPORT
 #   GO_LINT_SKIP_PATTERN_OVERRIDE=OVR-GO_LINT_SKIP_PATTERN
 #   GO_VERSION_OVERRIDE=OVR-GO_VERSION
 #   GO_VERSION_URL_OVERRIDE=OVR-GO_VERSION_URL
@@ -868,6 +870,31 @@ task: dynamic variable: "gobin=\"${GOBIN:-}\"
 task: dynamic variable: "uname -m" result: "arm64"
 task: status command [ -n "BASE-GO_VERSION" ] || command -v go >/dev/null 2>&1 exited zero
 
+=== task: install:go-junit-report ===
+--- exit: exit status 201
+    gopath=\"$(go env GOPATH)\"
+  fi
+  gobin=\"$(go env GOBIN)\"
+  gobin=\"${gopath:-$HOME/go}/bin\"
+  gopath=\"${GOPATH:-}\"
+  if [ -z \"$gopath\" ] && command -v go >/dev/null 2>&1; then
+" result: "$HOME/go/bin"
+fi
+fi
+if [ -z \"$gobin\" ] && command -v go >/dev/null 2>&1; then
+if [ -z \"$gobin\" ]; then
+printf '%s' \"$gobin\"
+task: "_install:macos:brew" started
+task: "_install:macos:pkg" started
+task: "install" started
+task: "install:go-junit-report" started
+task: Failed to run task "install:go-junit-report": task: Failed to run task "install": task: Failed to run task "_install:macos:pkg": task: precondition not met
+task: GO_VERSION must use the official Go release format, for example go1.26.2.
+task: Task "_install:macos:brew" is up to date
+task: dynamic variable: "gobin=\"${GOBIN:-}\"
+task: dynamic variable: "uname -m" result: "arm64"
+task: status command [ -n "BASE-GO_VERSION" ] || command -v go >/dev/null 2>&1 exited zero
+
 === task: install:golangci-lint ===
 --- exit: exit status 201
     gopath=\"$(go env GOPATH)\"
@@ -1021,6 +1048,32 @@ task: "test" finished
 task: "test" started
 task: [test] go test ./...
 task: dynamic variable: "gobin=\"${GOBIN:-}\"
+
+=== task: test:junit ===
+--- exit: exit status 201
+    gopath=\"$(go env GOPATH)\"
+  fi
+  gobin=\"$(go env GOBIN)\"
+  gobin=\"${gopath:-$HOME/go}/bin\"
+  gopath=\"${GOPATH:-}\"
+  if [ -z \"$gopath\" ] && command -v go >/dev/null 2>&1; then
+" result: "$HOME/go/bin"
+fi
+fi
+if [ -z \"$gobin\" ] && command -v go >/dev/null 2>&1; then
+if [ -z \"$gobin\" ]; then
+printf '%s' \"$gobin\"
+task: "_install:macos:brew" started
+task: "_install:macos:pkg" started
+task: "install" started
+task: "install:go-junit-report" started
+task: "test:junit" started
+task: Failed to run task "test:junit": task: Failed to run task "install:go-junit-report": task: Failed to run task "install": task: Failed to run task "_install:macos:pkg": task: precondition not met
+task: GO_VERSION must use the official Go release format, for example go1.26.2.
+task: Task "_install:macos:brew" is up to date
+task: dynamic variable: "gobin=\"${GOBIN:-}\"
+task: dynamic variable: "uname -m" result: "arm64"
+task: status command [ -n "BASE-GO_VERSION" ] || command -v go >/dev/null 2>&1 exited zero
 
 === task: upgrade ===
 --- exit: exit status 201

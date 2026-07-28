@@ -32,6 +32,7 @@ type Task struct {
 	Preconditions any      `yaml:"preconditions"`
 	Cmds          any      `yaml:"cmds"`
 	Deps          any      `yaml:"deps"`
+	Vars          any      `yaml:"vars"`
 }
 
 type testT interface {

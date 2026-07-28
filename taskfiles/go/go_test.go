@@ -27,6 +27,7 @@ var publicTasks = []string{
 	"gosec:lint",
 	"govulncheck:lint",
 	"install",
+	"install:go-junit-report",
 	"install:golangci-lint",
 	"install:gosec",
 	"install:govulncheck",
@@ -34,6 +35,7 @@ var publicTasks = []string{
 	"lint",
 	"lint:fix",
 	"test",
+	"test:junit",
 	"upgrade",
 	"verify",
 	"version",
@@ -47,6 +49,7 @@ var publicVars = []string{
 	"GO_DOWNLOAD_BASE_URL",
 	"GO_FMT_SKIP_PATTERN",
 	"GO_FUZZTIME",
+	"GO_JUNIT_REPORT",
 	"GO_LINT_SKIP_PATTERN",
 	"GO_VERSION",
 	"GO_ROOT_UNIX",
@@ -125,6 +128,17 @@ func TestTestingTaskCommands(t *testing.T) {
 		tokens []string
 	}{
 		{task: "test", tokens: []string{"go test", "./..."}},
+		{
+			task: "test:junit",
+			tokens: []string{
+				"go test -v",
+				"./...",
+				"go-junit-report",
+				"-set-exit-code",
+				"-iocopy",
+				"-out",
+			},
+		},
 		{task: "bench", tokens: []string{"go test", "-bench", "-benchmem"}},
 		{task: "fuzz", tokens: []string{"go test", "-fuzz", "-fuzztime"}},
 		{task: "coverage", tokens: []string{"-coverprofile", "awk", "LC_ALL=C sort", "Sort-Object"}},
@@ -149,6 +163,13 @@ func TestTestingTaskCommands(t *testing.T) {
 	coverageCommands := fmt.Sprintf("%v", tf.Tasks["coverage"].Cmds)
 	if strings.Contains(coverageCommands, "go tool cover") {
 		t.Fatalf("go coverage task must not run the per-function cover report: %s", coverageCommands)
+	}
+
+	junitVars := fmt.Sprintf("%v", tf.Tasks["test:junit"].Vars)
+	for _, token := range []string{"GO_JUNIT_REPORT_OUT", "GO_JUNIT_REPORT", "junit.xml"} {
+		if !strings.Contains(junitVars, token) {
+			t.Fatalf("go test:junit vars missing %q: %s", token, junitVars)
+		}
 	}
 }
 
@@ -403,9 +424,10 @@ func TestDevelopmentToolDependencies(t *testing.T) {
 	tf := tasktest.LoadTaskfile(t, "go")
 
 	installTasks := map[string][]string{
-		"install:golangci-lint": {"install"},
-		"install:govulncheck":   {"install"},
-		"install:gosec":         {"install"},
+		"install:golangci-lint":   {"install"},
+		"install:go-junit-report": {"install"},
+		"install:govulncheck":     {"install"},
+		"install:gosec":           {"install"},
 	}
 	lintTasks := map[string][]string{
 		"fmt:check":               {"golangci-lint:fmt:check"},
@@ -422,11 +444,17 @@ func TestDevelopmentToolDependencies(t *testing.T) {
 			"gosec:lint",
 		},
 	}
+	testTasks := map[string][]string{
+		"test:junit": {"install:go-junit-report"},
+	}
 
 	for taskName, expected := range installTasks {
 		assertTaskDependencies(t, tf, taskName, expected)
 	}
 	for taskName, expected := range lintTasks {
+		assertTaskDependencies(t, tf, taskName, expected)
+	}
+	for taskName, expected := range testTasks {
 		assertTaskDependencies(t, tf, taskName, expected)
 	}
 }
@@ -467,6 +495,15 @@ func TestDevelopmentToolInstallVersions(t *testing.T) {
 			)
 		})
 	}
+}
+
+func TestGoJunitReportInstallVersion(t *testing.T) {
+	t.Parallel()
+
+	tasktest.AssertDryRunContains(t, "go",
+		[]string{"install:go-junit-report"},
+		"github.com/jstemmer/go-junit-report/v2@v2.1.0",
+	)
 }
 
 func TestVersionVariablesAreIndependentAndOptional(t *testing.T) {
