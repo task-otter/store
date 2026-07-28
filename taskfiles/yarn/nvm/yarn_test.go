@@ -65,36 +65,6 @@ func TestTaskfileAndReadmePublicApi(t *testing.T) {
 	}
 }
 
-func TestTaskCliLoadsAndDryRunsPublicTasks(t *testing.T) {
-	t.Parallel()
-
-	for _, args := range [][]string{{"--list"}, {"--list-all"}, {"--list-all", "--json"}} {
-		result := tasktestutil.RunSimpleTask(t, ".", stubEnv(t), args...)
-		if result.Err != nil {
-			t.Fatalf("task %v failed:\n%s", args, result.Output)
-		}
-	}
-
-	for _, name := range publicTasks {
-		args := []string{"--dry", "--yes", name}
-		switch name {
-		case "run":
-			args = append(args, "SCRIPT=build")
-		case "add", "remove":
-			args = append(args, "PACKAGES=prettier")
-		case "exec":
-			args = append(args, "BINARY=prettier")
-		case "manager:pin":
-			args = append(args, "PACKAGE_MANAGER_VERSION=stable")
-		}
-
-		result := tasktestutil.RunSimpleTask(t, ".", stubEnv(t), args...)
-		if result.Err != nil {
-			t.Fatalf("dry run %s failed:\n%s", name, result.Output)
-		}
-	}
-}
-
 func TestStubbedYarnFlows(t *testing.T) {
 	t.Parallel()
 

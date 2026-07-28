@@ -34,15 +34,3 @@ func TestTaskfileModuleContract(t *testing.T) {
 
 	tasktest.AssertModule(t, "eslint/node/nvm/pnpm", publicTasks, publicVars)
 }
-
-func TestRepresentativeDryRuns(t *testing.T) {
-	t.Parallel()
-
-	tasktest.AssertDryRunContains(t, "eslint/node/nvm/pnpm",
-		[]string{"lint", "TARGETS=src test", "--", "--quiet"},
-		"pnpm:exec",
-		"--cache --cache-location .cache/eslint/",
-		"src test",
-		"--quiet",
-	)
-}

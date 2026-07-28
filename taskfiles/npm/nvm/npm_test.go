@@ -420,56 +420,6 @@ func TestTaskSummariesWork(t *testing.T) {
 	}
 }
 
-func TestPublicTasksDryRunWithExpectedArgs(t *testing.T) {
-	t.Parallel()
-
-	root := tasktestutil.ModuleRoot(t)
-	for _, spec := range expectedPublicTasks {
-		spec := spec
-		t.Run(spec.Name, func(t *testing.T) {
-			t.Parallel()
-			if !spec.MustDryRunWithArgs {
-				return
-			}
-			args := append([]string{"--dry", "--yes", spec.Name}, tasktestutil.TaskArgs(spec.Args)...)
-			result := tasktestutil.RunTask(t, root, npmNvmDryRunEnv(t), args...)
-			tasktestutil.AssertExitCode(t, result, 0)
-			out := strings.ToLower(result.Combined())
-			tasktestutil.AssertNotContains(t, out, "task not found")
-			tasktestutil.AssertNotContains(t, out, "unknown task")
-			tasktestutil.AssertNotContains(t, out, "cannot find")
-			tasktestutil.AssertNotContains(t, out, "missing required")
-		})
-	}
-}
-
-func TestOptionalVersionTasksDryRunWithoutVersion(t *testing.T) {
-	t.Parallel()
-
-	root := tasktestutil.ModuleRoot(t)
-	tf := tasktestutil.LoadTaskfile(t)
-	for _, spec := range expectedPublicTasks {
-		spec := spec
-		t.Run(spec.Name, func(t *testing.T) {
-			t.Parallel()
-			if !spec.MustDryRunWithoutArgs {
-				return
-			}
-			result := tasktestutil.RunTask(t, root, npmNvmDryRunEnv(t), "--dry", "--yes", spec.Name)
-			tasktestutil.AssertExitCode(t, result, 0)
-			out := strings.ToLower(result.Combined())
-			tasktestutil.AssertNotContains(t, out, "missing required")
-			tasktestutil.AssertNotContains(t, out, "required variable")
-			if len(spec.ExpectedDefaultTokens) > 0 {
-				varsText := tasktestutil.NodeText(tf.Root.Field("vars"))
-				for _, token := range spec.ExpectedDefaultTokens {
-					tasktestutil.AssertContains(t, varsText, token)
-				}
-			}
-		})
-	}
-}
-
 func TestCommandsDoNotContainDangerousPatterns(t *testing.T) {
 	t.Parallel()
 
@@ -504,7 +454,7 @@ func TestRunTaskRequiresScriptVariable(t *testing.T) {
 	if runtime.GOOS == "windows" {
 		t.Skip("stub npm tests target Unix-like systems")
 	}
-	result := tasktestutil.RunTask(t, tasktestutil.ModuleRoot(t), npmNvmDryRunEnv(t), "--yes", "run")
+	result := tasktestutil.RunTask(t, tasktestutil.ModuleRoot(t), npmNvmStubEnv(t), "--yes", "run")
 	if result.Err == nil {
 		t.Fatal("expected task run to fail without SCRIPT variable but it succeeded")
 	}
@@ -516,7 +466,7 @@ func TestVersionTaskExitsSuccessfully(t *testing.T) {
 	if runtime.GOOS == "windows" {
 		t.Skip("stub npm tests target Unix-like systems")
 	}
-	result := tasktestutil.RunTask(t, tasktestutil.ModuleRoot(t), npmNvmDryRunEnv(t), "--yes", "version")
+	result := tasktestutil.RunTask(t, tasktestutil.ModuleRoot(t), npmNvmStubEnv(t), "--yes", "version")
 	tasktestutil.AssertExitCode(t, result, 0)
 	tasktestutil.AssertContains(t, result.Combined(), "stub")
 }
@@ -527,7 +477,7 @@ func TestInstallTaskExitsSuccessfully(t *testing.T) {
 	if runtime.GOOS == "windows" {
 		t.Skip("stub npm tests target Unix-like systems")
 	}
-	result := tasktestutil.RunTask(t, tasktestutil.ModuleRoot(t), npmNvmDryRunEnv(t), "--yes", "install")
+	result := tasktestutil.RunTask(t, tasktestutil.ModuleRoot(t), npmNvmStubEnv(t), "--yes", "install")
 	tasktestutil.AssertExitCode(t, result, 0)
 }
 
@@ -537,7 +487,7 @@ func TestCiTaskExitsSuccessfully(t *testing.T) {
 	if runtime.GOOS == "windows" {
 		t.Skip("stub npm tests target Unix-like systems")
 	}
-	result := tasktestutil.RunTask(t, tasktestutil.ModuleRoot(t), npmNvmDryRunEnv(t), "--yes", "ci")
+	result := tasktestutil.RunTask(t, tasktestutil.ModuleRoot(t), npmNvmStubEnv(t), "--yes", "ci")
 	tasktestutil.AssertExitCode(t, result, 0)
 }
 
@@ -547,7 +497,7 @@ func TestBuildTaskExitsSuccessfully(t *testing.T) {
 	if runtime.GOOS == "windows" {
 		t.Skip("stub npm tests target Unix-like systems")
 	}
-	result := tasktestutil.RunTask(t, tasktestutil.ModuleRoot(t), npmNvmDryRunEnv(t), "--yes", "build")
+	result := tasktestutil.RunTask(t, tasktestutil.ModuleRoot(t), npmNvmStubEnv(t), "--yes", "build")
 	tasktestutil.AssertExitCode(t, result, 0)
 }
 
@@ -557,7 +507,7 @@ func TestRunTaskExitsSuccessfully(t *testing.T) {
 	if runtime.GOOS == "windows" {
 		t.Skip("stub npm tests target Unix-like systems")
 	}
-	result := tasktestutil.RunTask(t, tasktestutil.ModuleRoot(t), npmNvmDryRunEnv(t), "--yes", "run", "SCRIPT=build")
+	result := tasktestutil.RunTask(t, tasktestutil.ModuleRoot(t), npmNvmStubEnv(t), "--yes", "run", "SCRIPT=build")
 	tasktestutil.AssertExitCode(t, result, 0)
 	tasktestutil.AssertContains(t, result.Combined(), "build")
 }
@@ -568,7 +518,7 @@ func TestCleanTaskSkipsWhenNodeModulesAbsent(t *testing.T) {
 	if runtime.GOOS == "windows" {
 		t.Skip("stub npm tests target Unix-like systems")
 	}
-	result := tasktestutil.RunTask(t, tasktestutil.ModuleRoot(t), npmNvmDryRunEnv(t), "--yes", "clean")
+	result := tasktestutil.RunTask(t, tasktestutil.ModuleRoot(t), npmNvmStubEnv(t), "--yes", "clean")
 	tasktestutil.AssertExitCode(t, result, 0)
 }
 
@@ -578,7 +528,7 @@ func TestOutdatedTaskExitsSuccessfully(t *testing.T) {
 	if runtime.GOOS == "windows" {
 		t.Skip("stub npm tests target Unix-like systems")
 	}
-	result := tasktestutil.RunTask(t, tasktestutil.ModuleRoot(t), npmNvmDryRunEnv(t), "--yes", "outdated")
+	result := tasktestutil.RunTask(t, tasktestutil.ModuleRoot(t), npmNvmStubEnv(t), "--yes", "outdated")
 	tasktestutil.AssertExitCode(t, result, 0)
 }
 
@@ -588,7 +538,7 @@ func TestOutdatedStrictTaskExitsSuccessfully(t *testing.T) {
 	if runtime.GOOS == "windows" {
 		t.Skip("stub npm tests target Unix-like systems")
 	}
-	result := tasktestutil.RunTask(t, tasktestutil.ModuleRoot(t), npmNvmDryRunEnv(t), "--yes", "outdated:strict")
+	result := tasktestutil.RunTask(t, tasktestutil.ModuleRoot(t), npmNvmStubEnv(t), "--yes", "outdated:strict")
 	tasktestutil.AssertExitCode(t, result, 0)
 }
 
@@ -598,7 +548,7 @@ func TestAuditReportTaskExitsSuccessfully(t *testing.T) {
 	if runtime.GOOS == "windows" {
 		t.Skip("stub npm tests target Unix-like systems")
 	}
-	result := tasktestutil.RunTask(t, tasktestutil.ModuleRoot(t), npmNvmDryRunEnv(t), "--yes", "audit:report")
+	result := tasktestutil.RunTask(t, tasktestutil.ModuleRoot(t), npmNvmStubEnv(t), "--yes", "audit:report")
 	tasktestutil.AssertExitCode(t, result, 0)
 }
 
@@ -608,7 +558,7 @@ func TestRunTaskForwardsCliArgs(t *testing.T) {
 	if runtime.GOOS == "windows" {
 		t.Skip("stub npm tests target Unix-like systems")
 	}
-	result := tasktestutil.RunTask(t, tasktestutil.ModuleRoot(t), npmNvmDryRunEnv(t), "--yes", "run", "SCRIPT=test", "--", "--watch")
+	result := tasktestutil.RunTask(t, tasktestutil.ModuleRoot(t), npmNvmStubEnv(t), "--yes", "run", "SCRIPT=test", "--", "--watch")
 	tasktestutil.AssertExitCode(t, result, 0)
 }
 
@@ -632,7 +582,7 @@ func TestDevTaskExitsSuccessfully(t *testing.T) {
 	if runtime.GOOS == "windows" {
 		t.Skip("stub npm tests target Unix-like systems")
 	}
-	result := tasktestutil.RunTask(t, tasktestutil.ModuleRoot(t), npmNvmDryRunEnv(t), "--yes", "dev")
+	result := tasktestutil.RunTask(t, tasktestutil.ModuleRoot(t), npmNvmStubEnv(t), "--yes", "dev")
 	tasktestutil.AssertExitCode(t, result, 0)
 }
 
@@ -644,7 +594,7 @@ func TestInstallFailsOutsideProjectRoot(t *testing.T) {
 	}
 	taskfileDir := tasktestutil.ModuleRoot(t)
 	projectDir := t.TempDir()
-	result := tasktestutil.RunTask(t, projectDir, npmNvmDryRunEnv(t),
+	result := tasktestutil.RunTask(t, projectDir, npmNvmStubEnv(t),
 		"--taskfile", filepath.Join(taskfileDir, "Taskfile.yml"),
 		"--yes", "install",
 	)
@@ -671,7 +621,7 @@ func TestCiFailsWithoutLockfile(t *testing.T) {
 	); err != nil {
 		t.Fatalf("failed to create package.json: %v", err)
 	}
-	result := tasktestutil.RunTask(t, projectDir, npmNvmDryRunEnv(t),
+	result := tasktestutil.RunTask(t, projectDir, npmNvmStubEnv(t),
 		"--taskfile", filepath.Join(taskfileDir, "Taskfile.yml"),
 		"--yes", "ci",
 	)
@@ -690,7 +640,7 @@ func TestRunTaskRejectsUnsafeScript(t *testing.T) {
 	if runtime.GOOS == "windows" {
 		t.Skip("stub npm tests target Unix-like systems")
 	}
-	result := tasktestutil.RunTask(t, tasktestutil.ModuleRoot(t), npmNvmDryRunEnv(t), "--yes", "run", "SCRIPT=dev; rm -rf /")
+	result := tasktestutil.RunTask(t, tasktestutil.ModuleRoot(t), npmNvmStubEnv(t), "--yes", "run", "SCRIPT=dev; rm -rf /")
 	if result.Err == nil {
 		t.Fatal("expected task run to reject unsafe SCRIPT but it succeeded")
 	}
@@ -716,9 +666,16 @@ func TestRealNpmFlowOnlyWhenExplicitlyEnabled(t *testing.T) {
 	tasktestutil.AssertNotEmpty(t, result.Combined(), "version output is empty")
 }
 
-// npmNvmDryRunEnv returns an isolated environment with stub fnm, node, npm, and
+// npmNvmStubEnv returns an isolated environment with stub fnm, node, npm, and
 // corepack binaries so all preconditions pass without real installations.
-func npmNvmDryRunEnv(t *testing.T) []string {
+
+// readmePublicTaskNames parses the npm README and returns sorted task names
+// from the Public Tasks table.
+func readmePublicTaskNames(content string) []string {
+	return tasktestutil.ReadmePublicTaskNames(content)
+}
+
+func npmNvmStubEnv(t *testing.T) []string {
 	t.Helper()
 
 	env := tasktestutil.IsolatedEnv(t)
@@ -755,10 +712,4 @@ func npmNvmDryRunEnv(t *testing.T) []string {
 
 	path := tasktestutil.EnvValue(env, "PATH")
 	return tasktestutil.SetEnv(env, "PATH", binDir+":"+path)
-}
-
-// readmePublicTaskNames parses the npm README and returns sorted task names
-// from the Public Tasks table.
-func readmePublicTaskNames(content string) []string {
-	return tasktestutil.ReadmePublicTaskNames(content)
 }

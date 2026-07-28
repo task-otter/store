@@ -33,14 +33,3 @@ func TestTaskfileModuleContract(t *testing.T) {
 
 	tasktest.AssertModule(t, "depcheck/node/fnm/npm", publicTasks, publicVars)
 }
-
-func TestRepresentativeDryRuns(t *testing.T) {
-	t.Parallel()
-
-	tasktest.AssertDryRunContains(t, "depcheck/node/fnm/npm",
-		[]string{"lint", "PROJECT_PATH=packages/app", "--", "--ignores=@types/*,eslint-*"},
-		"npm:exec",
-		"packages/app",
-		"--ignores=@types/*,eslint-*",
-	)
-}

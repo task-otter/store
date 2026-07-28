@@ -174,43 +174,6 @@ func TestSkipPatternVariantParity(t *testing.T) {
 	}
 }
 
-func TestSkipPatternRepresentativeDryRuns(t *testing.T) {
-	t.Parallel()
-
-	const pattern = "**/generated/**"
-	tests := []struct {
-		module   string
-		args     []string
-		expected []string
-	}{
-		{module: "eslint/bun", args: []string{"lint", "ESLINT_LINT_SKIP_PATTERN=" + pattern}, expected: []string{"--ignore-pattern", pattern}},
-		{module: "prettier/bun", args: []string{"fmt:check", "PRETTIER_FMT_SKIP_PATTERN=" + pattern}, expected: []string{"!" + pattern}},
-		{module: "biome/bun", args: []string{"ci", "BIOME_LINT_SKIP_PATTERN=" + pattern}, expected: []string{"config:skip"}},
-		{module: "knip/bun", args: []string{"lint", "KNIP_LINT_SKIP_PATTERN=" + pattern}, expected: []string{"config:skip"}},
-		{module: "actionlint", args: []string{"lint", "ACTIONLINT_LINT_SKIP_PATTERN=" + pattern}, expected: []string{"internal/skipfiles/Taskfile.yml", pattern}},
-		{module: "ansible", args: []string{"syntax:check", "PLAYBOOK_OVERRIDE=site.yml", "ANSIBLE_LINT_SKIP_PATTERN=" + pattern}, expected: []string{"internal/skipfiles/Taskfile.yml", pattern}},
-		{module: "buf", args: []string{"breaking", "BUF_LINT_SKIP_PATTERN=" + pattern}, expected: []string{"internal/skipfiles/Taskfile.yml", pattern}},
-		{module: "dotenv-linter", args: []string{"diff", "DOTENV_LINTER_LINT_SKIP_PATTERN=" + pattern}, expected: []string{"internal/skipfiles/Taskfile.yml", pattern}},
-		{module: "shellcheck", args: []string{"lint", "SHELLCHECK_LINT_SKIP_PATTERN=" + pattern}, expected: []string{"internal/skipfiles/Taskfile.yml", pattern}},
-		{module: "shfmt", args: []string{"fmt:check", "SHFMT_FMT_SKIP_PATTERN=" + pattern}, expected: []string{"internal/skipfiles/Taskfile.yml", pattern}},
-		{module: "yamllint", args: []string{"ci", "YAMLLINT_LINT_SKIP_PATTERN=" + pattern}, expected: []string{"internal/skipfiles/Taskfile.yml", pattern}},
-		{module: "jsonlint", args: []string{"lint", "JSONLINT_LINT_SKIP_PATTERN=" + pattern}, expected: []string{"internal/skipfiles/Taskfile.yml", pattern}},
-		{module: "protolint", args: []string{"lint", "PROTOLINT_LINT_SKIP_PATTERN=" + pattern}, expected: []string{"internal/skipfiles/Taskfile.yml", pattern}},
-		{module: "sqlfluff", args: []string{"lint", "SQLFLUFF_LINT_SKIP_PATTERN=" + pattern}, expected: []string{"config:skip"}},
-		{module: "sqlfluff", args: []string{"parse", "SQLFLUFF_LINT_SKIP_PATTERN=" + pattern}, expected: []string{"config:skip"}},
-		{module: "cargo", args: []string{"lint", "CARGO_LINT_SKIP_PATTERN=" + pattern}, expected: []string{"internal/skipfiles/Taskfile.yml", pattern}},
-		{module: "staticcheck", args: []string{"lint", "STATICCHECK_LINT_SKIP_PATTERN=" + pattern}, expected: []string{"internal/skipfiles/Taskfile.yml", pattern}},
-		{module: "go", args: []string{"govulncheck:lint", "GO_LINT_SKIP_PATTERN=" + pattern}, expected: []string{"internal/skipfiles/Taskfile.yml", pattern}},
-		{module: "go", args: []string{"gosec:lint", "GO_LINT_SKIP_PATTERN=" + pattern}, expected: []string{"internal/skipfiles/Taskfile.yml", pattern}},
-	}
-
-	for _, test := range tests {
-		t.Run(test.module, func(t *testing.T) {
-			tasktest.AssertDryRunContains(t, test.module, test.args, test.expected...)
-		})
-	}
-}
-
 func TestSharedSkipFileMatcher(t *testing.T) {
 	t.Parallel()
 

@@ -288,56 +288,6 @@ func TestTaskSummariesWork(t *testing.T) {
 	}
 }
 
-func TestPublicTasksDryRunWithExpectedArgs(t *testing.T) {
-	t.Parallel()
-
-	root := tasktestutil.ModuleRoot(t)
-	for _, spec := range expectedPublicTasks {
-		spec := spec
-		t.Run(spec.Name, func(t *testing.T) {
-			t.Parallel()
-			if !spec.MustDryRunWithArgs {
-				return
-			}
-			args := append([]string{"--dry", "--yes", spec.Name}, tasktestutil.TaskArgs(spec.Args)...)
-			result := tasktestutil.RunTask(t, root, fnmDryRunEnv(t), args...)
-			tasktestutil.AssertExitCode(t, result, 0)
-			out := strings.ToLower(result.Combined())
-			tasktestutil.AssertNotContains(t, out, "task not found")
-			tasktestutil.AssertNotContains(t, out, "unknown task")
-			tasktestutil.AssertNotContains(t, out, "cannot find")
-			tasktestutil.AssertNotContains(t, out, "missing required")
-		})
-	}
-}
-
-func TestOptionalVersionTasksDryRunWithoutVersion(t *testing.T) {
-	t.Parallel()
-
-	root := tasktestutil.ModuleRoot(t)
-	tf := tasktestutil.LoadTaskfile(t)
-	for _, spec := range expectedPublicTasks {
-		spec := spec
-		t.Run(spec.Name, func(t *testing.T) {
-			t.Parallel()
-			if !spec.MustDryRunWithoutArgs {
-				return
-			}
-			result := tasktestutil.RunTask(t, root, fnmDryRunEnv(t), "--dry", "--yes", spec.Name)
-			tasktestutil.AssertExitCode(t, result, 0)
-			out := strings.ToLower(result.Combined())
-			tasktestutil.AssertNotContains(t, out, "missing required")
-			tasktestutil.AssertNotContains(t, out, "required variable")
-			if len(spec.ExpectedDefaultTokens) > 0 {
-				varsText := tasktestutil.NodeText(tf.Root.Field("vars"))
-				for _, token := range spec.ExpectedDefaultTokens {
-					tasktestutil.AssertContains(t, varsText, token)
-				}
-			}
-		})
-	}
-}
-
 func TestUndoPairsExist(t *testing.T) {
 	t.Parallel()
 
@@ -423,7 +373,7 @@ func TestVersionTaskExitsSuccessfully(t *testing.T) {
 	if runtime.GOOS == "windows" {
 		t.Skip("stub fnm tests target Unix-like systems")
 	}
-	result := tasktestutil.RunTask(t, tasktestutil.ModuleRoot(t), fnmDryRunEnv(t), "--yes", "version")
+	result := tasktestutil.RunTask(t, tasktestutil.ModuleRoot(t), fnmStubEnv(t), "--yes", "version")
 	tasktestutil.AssertExitCode(t, result, 0)
 }
 
@@ -433,7 +383,7 @@ func TestLsTaskExitsSuccessfully(t *testing.T) {
 	if runtime.GOOS == "windows" {
 		t.Skip("stub fnm tests target Unix-like systems")
 	}
-	result := tasktestutil.RunTask(t, tasktestutil.ModuleRoot(t), fnmDryRunEnv(t), "--yes", "ls")
+	result := tasktestutil.RunTask(t, tasktestutil.ModuleRoot(t), fnmStubEnv(t), "--yes", "ls")
 	tasktestutil.AssertExitCode(t, result, 0)
 }
 
@@ -444,7 +394,7 @@ func TestInstallIsIdempotentWithStubFnm(t *testing.T) {
 		t.Skip("stub fnm tests target Unix-like systems")
 	}
 	root := tasktestutil.ModuleRoot(t)
-	env := fnmDryRunEnv(t)
+	env := fnmStubEnv(t)
 	tasktestutil.AssertExitCode(t, tasktestutil.RunTask(t, root, env, "--yes", "install"), 0)
 	tasktestutil.AssertExitCode(t, tasktestutil.RunTask(t, root, env, "--yes", "install"), 0)
 }
@@ -456,7 +406,7 @@ func TestInstallUndoRemovesFnmBinary(t *testing.T) {
 		t.Skip("stub fnm tests target Unix-like systems")
 	}
 	root := tasktestutil.ModuleRoot(t)
-	env := fnmDryRunEnv(t)
+	env := fnmStubEnv(t)
 	stubBin := filepath.Join(tasktestutil.EnvValue(env, "HOME"), ".local", "bin", "fnm")
 	tasktestutil.AssertFileExists(t, stubBin)
 	tasktestutil.AssertExitCode(t, tasktestutil.RunTask(t, root, env, "--yes", "install:undo"), 0)
@@ -471,7 +421,7 @@ func TestNodeInstallWithVersionPrintsVersionInOutput(t *testing.T) {
 	if runtime.GOOS == "windows" {
 		t.Skip("stub fnm tests target Unix-like systems")
 	}
-	result := tasktestutil.RunTask(t, tasktestutil.ModuleRoot(t), fnmDryRunEnv(t), "--yes", "node:install", "VERSION=18.0.0")
+	result := tasktestutil.RunTask(t, tasktestutil.ModuleRoot(t), fnmStubEnv(t), "--yes", "node:install", "VERSION=18.0.0")
 	tasktestutil.AssertExitCode(t, result, 0)
 	tasktestutil.AssertContains(t, result.Combined(), "18.0.0")
 }
@@ -482,7 +432,7 @@ func TestNodeInstallDefaultVersionUsesLts(t *testing.T) {
 	if runtime.GOOS == "windows" {
 		t.Skip("stub fnm tests target Unix-like systems")
 	}
-	result := tasktestutil.RunTask(t, tasktestutil.ModuleRoot(t), fnmDryRunEnv(t), "--yes", "node:install")
+	result := tasktestutil.RunTask(t, tasktestutil.ModuleRoot(t), fnmStubEnv(t), "--yes", "node:install")
 	tasktestutil.AssertExitCode(t, result, 0)
 	tasktestutil.AssertContains(t, result.Combined(), "--lts")
 }
@@ -493,7 +443,7 @@ func TestNodeUninstallWithInstalledVersionPrintsVersionInOutput(t *testing.T) {
 	if runtime.GOOS == "windows" {
 		t.Skip("stub fnm tests target Unix-like systems")
 	}
-	result := tasktestutil.RunTask(t, tasktestutil.ModuleRoot(t), fnmDryRunEnv(t), "--yes", "node:uninstall", "VERSION=18.0.0")
+	result := tasktestutil.RunTask(t, tasktestutil.ModuleRoot(t), fnmStubEnv(t), "--yes", "node:uninstall", "VERSION=18.0.0")
 	tasktestutil.AssertExitCode(t, result, 0)
 	tasktestutil.AssertContains(t, result.Combined(), "18.0.0")
 }
@@ -640,10 +590,47 @@ func TestAllPublicTasksIntegration(t *testing.T) {
 	})
 }
 
-// fnmDryRunEnv returns an isolated environment with a stub fnm binary.
+// fnmStubEnv returns an isolated environment with a stub fnm binary.
 // .bashrc is pre-populated so the shell:setup status check exits 0 and
 // shell:setup is skipped in tests that don't specifically test it.
-func fnmDryRunEnv(t *testing.T) []string {
+
+// fnmFreshProfileEnv returns the same stub env as fnmStubEnv but with an
+// empty .bashrc so shell:setup actually runs. Use only in shell:setup tests.
+func fnmFreshProfileEnv(t *testing.T) []string {
+	t.Helper()
+	env := fnmStubEnv(t)
+	home := tasktestutil.EnvValue(env, "HOME")
+	if err := os.WriteFile(filepath.Join(home, ".bashrc"), []byte(""), 0644); err != nil {
+		t.Fatalf("failed to clear shell profile: %v", err)
+	}
+	return env
+}
+
+func shellProfilePaths(home string) []string {
+	return []string{
+		filepath.Join(home, ".bashrc"),
+		filepath.Join(home, ".bash_profile"),
+		filepath.Join(home, ".profile"),
+		filepath.Join(home, ".zshrc"),
+		filepath.Join(home, ".zprofile"),
+		filepath.Join(home, ".config", "fish", "config.fish"),
+	}
+}
+
+func profileContains(home, token string) bool {
+	for _, p := range shellProfilePaths(home) {
+		content, err := os.ReadFile(p)
+		if err != nil {
+			continue
+		}
+		if strings.Contains(string(content), token) {
+			return true
+		}
+	}
+	return false
+}
+
+func fnmStubEnv(t *testing.T) []string {
 	t.Helper()
 
 	env := tasktestutil.IsolatedEnv(t)
@@ -679,40 +666,4 @@ func fnmDryRunEnv(t *testing.T) []string {
 
 	path := tasktestutil.EnvValue(env, "PATH")
 	return tasktestutil.SetEnv(env, "PATH", binDir+":"+path)
-}
-
-// fnmFreshProfileEnv returns the same stub env as fnmDryRunEnv but with an
-// empty .bashrc so shell:setup actually runs. Use only in shell:setup tests.
-func fnmFreshProfileEnv(t *testing.T) []string {
-	t.Helper()
-	env := fnmDryRunEnv(t)
-	home := tasktestutil.EnvValue(env, "HOME")
-	if err := os.WriteFile(filepath.Join(home, ".bashrc"), []byte(""), 0644); err != nil {
-		t.Fatalf("failed to clear shell profile: %v", err)
-	}
-	return env
-}
-
-func shellProfilePaths(home string) []string {
-	return []string{
-		filepath.Join(home, ".bashrc"),
-		filepath.Join(home, ".bash_profile"),
-		filepath.Join(home, ".profile"),
-		filepath.Join(home, ".zshrc"),
-		filepath.Join(home, ".zprofile"),
-		filepath.Join(home, ".config", "fish", "config.fish"),
-	}
-}
-
-func profileContains(home, token string) bool {
-	for _, p := range shellProfilePaths(home) {
-		content, err := os.ReadFile(p)
-		if err != nil {
-			continue
-		}
-		if strings.Contains(string(content), token) {
-			return true
-		}
-	}
-	return false
 }

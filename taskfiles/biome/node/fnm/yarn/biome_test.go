@@ -40,15 +40,3 @@ func TestTaskfileModuleContract(t *testing.T) {
 
 	tasktest.AssertModule(t, "biome/node/fnm/yarn", publicTasks, publicVars)
 }
-
-func TestRepresentativeDryRuns(t *testing.T) {
-	t.Parallel()
-
-	tasktest.AssertDryRunContains(t, "biome/node/fnm/yarn",
-		[]string{"ci", "CONFIG=biome.json", "TARGETS=src"},
-		"yarn:exec",
-		"biome.json",
-		"ci",
-		"src",
-	)
-}

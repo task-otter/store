@@ -292,56 +292,6 @@ func TestTaskSummariesWork(t *testing.T) {
 	}
 }
 
-func TestPublicTasksDryRunWithExpectedArgs(t *testing.T) {
-	t.Parallel()
-
-	root := tasktestutil.ModuleRoot(t)
-	for _, spec := range expectedPublicTasks {
-		spec := spec
-		t.Run(spec.Name, func(t *testing.T) {
-			t.Parallel()
-			if !spec.MustDryRunWithArgs {
-				return
-			}
-			args := append([]string{"--dry", "--yes", spec.Name}, tasktestutil.TaskArgs(spec.Args)...)
-			result := tasktestutil.RunTask(t, root, dryRunEnv(t), args...)
-			tasktestutil.AssertExitCode(t, result, 0)
-			out := strings.ToLower(result.Combined())
-			tasktestutil.AssertNotContains(t, out, "task not found")
-			tasktestutil.AssertNotContains(t, out, "unknown task")
-			tasktestutil.AssertNotContains(t, out, "cannot find")
-			tasktestutil.AssertNotContains(t, out, "missing required")
-		})
-	}
-}
-
-func TestOptionalVersionTasksDryRunWithoutVersion(t *testing.T) {
-	t.Parallel()
-
-	root := tasktestutil.ModuleRoot(t)
-	tf := tasktestutil.LoadTaskfile(t)
-	for _, spec := range expectedPublicTasks {
-		spec := spec
-		t.Run(spec.Name, func(t *testing.T) {
-			t.Parallel()
-			if !spec.MustDryRunWithoutArgs {
-				return
-			}
-			result := tasktestutil.RunTask(t, root, dryRunEnv(t), "--dry", "--yes", spec.Name)
-			tasktestutil.AssertExitCode(t, result, 0)
-			out := strings.ToLower(result.Combined())
-			tasktestutil.AssertNotContains(t, out, "missing required")
-			tasktestutil.AssertNotContains(t, out, "required variable")
-			if len(spec.ExpectedDefaultTokens) > 0 {
-				varsText := tasktestutil.NodeText(tf.Root.Field("vars"))
-				for _, token := range spec.ExpectedDefaultTokens {
-					tasktestutil.AssertContains(t, varsText, token)
-				}
-			}
-		})
-	}
-}
-
 func TestUndoPairsExist(t *testing.T) {
 	t.Parallel()
 

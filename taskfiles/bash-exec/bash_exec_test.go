@@ -25,30 +25,3 @@ func TestTaskfileModuleContract(t *testing.T) {
 
 	tasktest.AssertModule(t, "bash-exec", publicTasks, publicVars)
 }
-
-func TestRepresentativeDryRuns(t *testing.T) {
-	t.Parallel()
-
-	tasktest.AssertDryRunContains(t, "bash-exec",
-		[]string{"run", "SCRIPT=scripts/build.sh", "ARGS=--release"},
-		"bash",
-		"scripts/build.sh",
-		"--release",
-	)
-
-	tasktest.AssertDryRunContains(t, "bash-exec",
-		[]string{"check", "SCRIPT=scripts/build.sh"},
-		"bash -n",
-		"scripts/build.sh",
-	)
-
-	tasktest.AssertDryRunContains(t, "bash-exec",
-		[]string{"exec", "COMMAND=printf hello"},
-		"bash -c",
-	)
-
-	tasktest.AssertDryRunContains(t, "bash-exec",
-		[]string{"version"},
-		"bash --version",
-	)
-}

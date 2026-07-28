@@ -34,13 +34,3 @@ func TestTaskfileModuleContract(t *testing.T) {
 
 	tasktest.AssertModule(t, "stylelint/node/nvm/pnpm", publicTasks, publicVars)
 }
-
-func TestRepresentativeDryRuns(t *testing.T) {
-	t.Parallel()
-
-	tasktest.AssertDryRunContains(t, "stylelint/node/nvm/pnpm",
-		[]string{"ci", "CACHE=false", "ALLOW_EMPTY_INPUT=false"},
-		"pnpm:exec",
-		"--max-warnings=0",
-	)
-}

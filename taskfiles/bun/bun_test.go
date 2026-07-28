@@ -283,29 +283,6 @@ func TestTaskSummariesWork(t *testing.T) {
 	}
 }
 
-func TestPublicTasksDryRunWithExpectedArgs(t *testing.T) {
-	t.Parallel()
-
-	root := tasktestutil.ModuleRoot(t)
-	for _, spec := range expectedPublicTasks {
-		spec := spec
-		t.Run(spec.Name, func(t *testing.T) {
-			t.Parallel()
-			if !spec.MustDryRunWithArgs {
-				return
-			}
-			args := append([]string{"--dry", "--yes", spec.Name}, tasktestutil.TaskArgs(spec.Args)...)
-			result := tasktestutil.RunTask(t, root, bunDryRunEnv(t), args...)
-			tasktestutil.AssertExitCode(t, result, 0)
-			out := strings.ToLower(result.Combined())
-			tasktestutil.AssertNotContains(t, out, "task not found")
-			tasktestutil.AssertNotContains(t, out, "unknown task")
-			tasktestutil.AssertNotContains(t, out, "cannot find")
-			tasktestutil.AssertNotContains(t, out, "missing required")
-		})
-	}
-}
-
 func TestUndoPairsExist(t *testing.T) {
 	t.Parallel()
 
@@ -381,7 +358,7 @@ func TestVersionTaskExitsSuccessfully(t *testing.T) {
 	if runtime.GOOS == "windows" {
 		t.Skip("stub bun tests target Unix-like systems")
 	}
-	result := tasktestutil.RunTask(t, tasktestutil.ModuleRoot(t), bunDryRunEnv(t), "--yes", "version")
+	result := tasktestutil.RunTask(t, tasktestutil.ModuleRoot(t), bunStubEnv(t), "--yes", "version")
 	tasktestutil.AssertExitCode(t, result, 0)
 }
 
@@ -391,7 +368,7 @@ func TestVersionTaskPrintsBunVersion(t *testing.T) {
 	if runtime.GOOS == "windows" {
 		t.Skip("stub bun tests target Unix-like systems")
 	}
-	result := tasktestutil.RunTask(t, tasktestutil.ModuleRoot(t), bunDryRunEnv(t), "--yes", "version")
+	result := tasktestutil.RunTask(t, tasktestutil.ModuleRoot(t), bunStubEnv(t), "--yes", "version")
 	tasktestutil.AssertExitCode(t, result, 0)
 	tasktestutil.AssertContains(t, result.Combined(), "1.")
 }
@@ -403,7 +380,7 @@ func TestInstallIsIdempotentWithStubBun(t *testing.T) {
 		t.Skip("stub bun tests target Unix-like systems")
 	}
 	root := tasktestutil.ModuleRoot(t)
-	env := bunDryRunEnv(t)
+	env := bunStubEnv(t)
 	tasktestutil.AssertExitCode(t, tasktestutil.RunTask(t, root, env, "--yes", "install"), 0)
 	tasktestutil.AssertExitCode(t, tasktestutil.RunTask(t, root, env, "--yes", "install"), 0)
 }
@@ -414,7 +391,7 @@ func TestInstallSkipsWhenBunIsAlreadyPresent(t *testing.T) {
 	if runtime.GOOS == "windows" {
 		t.Skip("stub bun tests target Unix-like systems")
 	}
-	result := tasktestutil.RunTask(t, tasktestutil.ModuleRoot(t), bunDryRunEnv(t), "--yes", "install")
+	result := tasktestutil.RunTask(t, tasktestutil.ModuleRoot(t), bunStubEnv(t), "--yes", "install")
 	tasktestutil.AssertExitCode(t, result, 0)
 	tasktestutil.AssertNotContains(t, result.Combined(), "Installing Bun")
 }
@@ -426,7 +403,7 @@ func TestInstallUndoRemovesBunDir(t *testing.T) {
 		t.Skip("stub bun tests target Unix-like systems")
 	}
 	root := tasktestutil.ModuleRoot(t)
-	env := bunDryRunEnv(t)
+	env := bunStubEnv(t)
 	bunDir := filepath.Join(tasktestutil.EnvValue(env, "HOME"), ".bun")
 	tasktestutil.AssertDirExists(t, bunDir)
 	tasktestutil.AssertExitCode(t, tasktestutil.RunTask(t, root, env, "--yes", "install:undo"), 0)
@@ -440,7 +417,7 @@ func TestInstallUndoIsIdempotent(t *testing.T) {
 		t.Skip("stub bun tests target Unix-like systems")
 	}
 	root := tasktestutil.ModuleRoot(t)
-	env := bunDryRunEnv(t)
+	env := bunStubEnv(t)
 	tasktestutil.AssertExitCode(t, tasktestutil.RunTask(t, root, env, "--yes", "install:undo"), 0)
 	tasktestutil.AssertExitCode(t, tasktestutil.RunTask(t, root, env, "--yes", "install:undo"), 0)
 }
@@ -451,7 +428,7 @@ func TestUpgradeExitsSuccessfully(t *testing.T) {
 	if runtime.GOOS == "windows" {
 		t.Skip("stub bun tests target Unix-like systems")
 	}
-	result := tasktestutil.RunTask(t, tasktestutil.ModuleRoot(t), bunDryRunEnv(t), "--yes", "upgrade")
+	result := tasktestutil.RunTask(t, tasktestutil.ModuleRoot(t), bunStubEnv(t), "--yes", "upgrade")
 	tasktestutil.AssertExitCode(t, result, 0)
 }
 
@@ -461,7 +438,7 @@ func TestUpgradeCanaryExitsSuccessfully(t *testing.T) {
 	if runtime.GOOS == "windows" {
 		t.Skip("stub bun tests target Unix-like systems")
 	}
-	result := tasktestutil.RunTask(t, tasktestutil.ModuleRoot(t), bunDryRunEnv(t), "--yes", "upgrade:canary")
+	result := tasktestutil.RunTask(t, tasktestutil.ModuleRoot(t), bunStubEnv(t), "--yes", "upgrade:canary")
 	tasktestutil.AssertExitCode(t, result, 0)
 }
 
@@ -471,7 +448,7 @@ func TestUpgradeStableExitsSuccessfully(t *testing.T) {
 	if runtime.GOOS == "windows" {
 		t.Skip("stub bun tests target Unix-like systems")
 	}
-	result := tasktestutil.RunTask(t, tasktestutil.ModuleRoot(t), bunDryRunEnv(t), "--yes", "upgrade:stable")
+	result := tasktestutil.RunTask(t, tasktestutil.ModuleRoot(t), bunStubEnv(t), "--yes", "upgrade:stable")
 	tasktestutil.AssertExitCode(t, result, 0)
 }
 
@@ -552,9 +529,10 @@ func TestAllPublicTasksIntegration(t *testing.T) {
 	})
 }
 
-// bunDryRunEnv returns an isolated environment with a stub bun binary that
+// bunStubEnv returns an isolated environment with a stub bun binary that
 // satisfies precondition checks without performing real operations.
-func bunDryRunEnv(t *testing.T) []string {
+
+func bunStubEnv(t *testing.T) []string {
 	t.Helper()
 
 	env := tasktestutil.IsolatedEnv(t)

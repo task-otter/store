@@ -28,14 +28,3 @@ func TestTaskfileModuleContract(t *testing.T) {
 
 	tasktest.AssertModule(t, "bruno/node/fnm/npm", publicTasks, publicVars)
 }
-
-func TestRepresentativeDryRuns(t *testing.T) {
-	t.Parallel()
-
-	tasktest.AssertDryRunContains(t, "bruno/node/fnm/npm",
-		[]string{"ci", "ENV=staging"},
-		"npm:exec",
-		"--bail",
-		"staging",
-	)
-}

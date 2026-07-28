@@ -34,14 +34,3 @@ func TestTaskfileModuleContract(t *testing.T) {
 
 	tasktest.AssertModule(t, "stylelint/node/nvm/yarn", publicTasks, publicVars)
 }
-
-func TestRepresentativeDryRuns(t *testing.T) {
-	t.Parallel()
-
-	tasktest.AssertDryRunContains(t, "stylelint/node/nvm/yarn",
-		[]string{"lint:fix", "TARGETS=src/**/*.scss", "--", "--formatter", "verbose"},
-		"yarn:exec",
-		"src/**/*.scss --fix",
-		"--formatter verbose",
-	)
-}

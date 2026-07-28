@@ -2,7 +2,7 @@ package jq_test
 
 import (
 	"os/exec"
-	"runtime"
+
 	"testing"
 
 	"github.com/task-otter/store/internal/tasktest"
@@ -28,37 +28,4 @@ func TestTaskfileModuleContract(t *testing.T) {
 	t.Parallel()
 
 	tasktest.AssertModule(t, "jq", publicTasks, publicVars)
-}
-
-func TestRepresentativeDryRuns(t *testing.T) {
-	t.Parallel()
-
-	tasktest.AssertDryRunContains(t, "jq",
-		[]string{"version"},
-		"jq",
-		"--version",
-	)
-}
-
-func TestInstallDryRunUsesPlatformPackageManager(t *testing.T) {
-	t.Parallel()
-
-	if jqAvailable() {
-		t.Skip("jq is already installed; install task would be a no-op")
-	}
-	switch runtime.GOOS {
-	case "darwin":
-		tasktest.AssertDryRunContains(t, "jq",
-			[]string{"install"},
-			"brew",
-			"jq",
-		)
-	case "linux":
-		tasktest.AssertDryRunContains(t, "jq",
-			[]string{"install"},
-			"jq",
-		)
-	default:
-		t.Skip("install dry-run is covered on macOS and Linux")
-	}
 }

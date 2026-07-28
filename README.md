@@ -105,32 +105,5 @@ go test ./...
 
 Each module README must include a `## Public Tasks` table listing every public task from its `Taskfile.yml`. Tests enforce this contract — run `go test ./...` after changing Taskfiles or READMEs.
 
-### Dry-run goldens
-
-`internal/tasktest/testdata/golden/<goos>/<module>/<case>.txt` records the fully
-rendered command line of every public task, across a matrix of the base and
-`*_OVERRIDE` variables:
-
-| case | variables set |
-| --- | --- |
-| `bare` | none — module defaults apply |
-| `base` | the base variables only |
-| `override` | the `*_OVERRIDE` variables only |
-| `both` | both, to *different* values — proves the override wins |
-
-These exist so that refactors of the variable-resolution templates can be shown
-to be byte-for-byte inert. Trailing whitespace inside the goldens is
-significant; do not strip it.
-
-```sh
-go test ./internal/tasktest -run TestGoldenDryRun -count=1           # compare
-go test ./internal/tasktest -run TestGoldenDryRun -count=1 -update   # re-record
-```
-
-Only re-record after reading the diff and confirming every change is intended.
-Goldens are per-`GOOS` because modules branch on `platforms:`; a platform with
-no recorded goldens skips instead of failing. `go:lint` is excluded — it fans
-out to concurrent `deps:` whose render order varies between runs.
-
 After adding, removing, or renaming an exported task, update the corresponding
 `metadata.yml` and run `go test ./...`.

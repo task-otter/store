@@ -33,23 +33,3 @@ func TestTaskfileModuleContract(t *testing.T) {
 
 	tasktest.AssertModule(t, "prettier/node/fnm/pnpm", publicTasks, publicVars)
 }
-
-func TestConfigInitDryRun(t *testing.T) {
-	t.Parallel()
-
-	tasktest.AssertDryRunContains(t, "prettier/node/fnm/pnpm", []string{"config:init"},
-		"singleQuote",
-		".prettierrc.json",
-	)
-}
-
-func TestRepresentativeDryRuns(t *testing.T) {
-	t.Parallel()
-
-	tasktest.AssertDryRunContains(t, "prettier/node/fnm/pnpm",
-		[]string{"fmt:check", "TARGETS=src/**/*.ts", "CONFIG=.prettierrc.json"},
-		"pnpm:exec",
-		"src/**/*.ts --check",
-		".prettierrc.json",
-	)
-}

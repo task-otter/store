@@ -5,7 +5,6 @@ taskfile: Taskfile.yml
 exported_tasks:
   - bench
   - config:skip
-  - coverage
   - fmt
   - fmt:check
   - fuzz
@@ -24,7 +23,6 @@ exported_tasks:
   - lint
   - lint:fix
   - test
-  - test:junit
   - upgrade
   - verify
   - version

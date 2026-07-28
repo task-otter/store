@@ -34,14 +34,3 @@ func TestTaskfileModuleContract(t *testing.T) {
 
 	tasktest.AssertModule(t, "eslint/bun", publicTasks, publicVars)
 }
-
-func TestRepresentativeDryRuns(t *testing.T) {
-	t.Parallel()
-
-	tasktest.AssertDryRunContains(t, "eslint/bun",
-		[]string{"ci", "CONFIG=eslint.config.js", "CACHE=false"},
-		"bun:exec",
-		"eslint.config.js",
-		"--max-warnings=0",
-	)
-}

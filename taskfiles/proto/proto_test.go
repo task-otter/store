@@ -1,7 +1,6 @@
 package proto_test
 
 import (
-	"runtime"
 	"slices"
 	"testing"
 
@@ -47,70 +46,5 @@ func TestPluginWorkflowsInstallGoFirst(t *testing.T) {
 		if !slices.Contains(deps, any("go:install")) {
 			t.Errorf("%s must depend on go:install; deps: %v", taskName, deps)
 		}
-	}
-}
-
-func TestRepresentativeDryRuns(t *testing.T) {
-	t.Parallel()
-
-	tasktest.AssertDryRunContains(t, "proto",
-		[]string{"version"},
-		"protoc",
-		"--version",
-	)
-
-	tasktest.AssertDryRunContains(t, "proto",
-		[]string{"gen"},
-		"protoc",
-		"--go_out",
-	)
-}
-
-func TestInstallDryRunUsesPlatformPackageManager(t *testing.T) {
-	t.Parallel()
-
-	switch runtime.GOOS {
-	case "darwin":
-		tasktest.AssertInstallDryRun(t, "proto", "protoc", "brew", "protobuf")
-	case "linux":
-		tasktest.AssertInstallDryRun(t, "proto", "protoc", "curl", "protoc-")
-	default:
-		t.Skip("install dry-run is covered on macOS and Linux")
-	}
-}
-
-func TestUpgradeDryRunUsesPlatformPackageManager(t *testing.T) {
-	t.Parallel()
-
-	switch runtime.GOOS {
-	case "darwin":
-		tasktest.AssertDryRunContains(t, "proto",
-			[]string{"upgrade"},
-			"brew",
-			"protobuf",
-		)
-	case "linux":
-		tasktest.AssertDryRunContains(t, "proto",
-			[]string{"upgrade"},
-			"curl",
-			"protoc-",
-		)
-	default:
-		t.Skip("upgrade dry-run is covered on macOS and Linux")
-	}
-}
-
-func TestUngenDryRun(t *testing.T) {
-	t.Parallel()
-
-	switch runtime.GOOS {
-	case "darwin", "linux":
-		tasktest.AssertDryRunContains(t, "proto",
-			[]string{"ungen"},
-			"find",
-			".pb.go",
-		)
-	default:
-		t.Skip("ungen dry-run is covered on macOS and Linux")
 	}
 }

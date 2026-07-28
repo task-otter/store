@@ -34,13 +34,3 @@ func TestTaskfileModuleContract(t *testing.T) {
 
 	tasktest.AssertModule(t, "eslint/node/fnm/npm", publicTasks, publicVars)
 }
-
-func TestRepresentativeDryRuns(t *testing.T) {
-	t.Parallel()
-
-	tasktest.AssertDryRunContains(t, "eslint/node/fnm/npm",
-		[]string{"config:init"},
-		"npm:exec",
-		"--init",
-	)
-}

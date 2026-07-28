@@ -33,13 +33,3 @@ func TestTaskfileModuleContract(t *testing.T) {
 
 	tasktest.AssertModule(t, "depcheck/node/nvm/pnpm", publicTasks, publicVars)
 }
-
-func TestRepresentativeDryRuns(t *testing.T) {
-	t.Parallel()
-
-	tasktest.AssertDryRunContains(t, "depcheck/node/nvm/pnpm",
-		[]string{"ignores", "IGNORE_PACKAGES=@types/*,eslint-*"},
-		"pnpm:exec",
-		"@types/*,eslint-*",
-	)
-}

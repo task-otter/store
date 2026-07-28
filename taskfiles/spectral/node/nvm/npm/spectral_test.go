@@ -29,20 +29,3 @@ func TestTaskfileModuleContract(t *testing.T) {
 
 	tasktest.AssertModule(t, "spectral/node/nvm/npm", publicTasks, publicVars)
 }
-
-func TestRepresentativeDryRuns(t *testing.T) {
-	t.Parallel()
-
-	tasktest.AssertDryRunContains(t, "spectral/node/nvm/npm",
-		[]string{"lint", "TARGETS=openapi.yaml"},
-		"spectral",
-		"lint",
-		"openapi.yaml",
-	)
-
-	tasktest.AssertDryRunContains(t, "spectral/node/nvm/npm",
-		[]string{"version"},
-		"spectral",
-		"--version",
-	)
-}

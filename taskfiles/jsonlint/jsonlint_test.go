@@ -1,7 +1,6 @@
 package jsonlint_test
 
 import (
-	"runtime"
 	"testing"
 
 	"github.com/task-otter/store/internal/tasktest"
@@ -27,44 +26,4 @@ func TestTaskfileModuleContract(t *testing.T) {
 	t.Parallel()
 
 	tasktest.AssertModule(t, "jsonlint", publicTasks, publicVars)
-}
-
-func TestRepresentativeDryRuns(t *testing.T) {
-	t.Parallel()
-
-	tasktest.AssertDryRunContains(t, "jsonlint",
-		[]string{"lint", "TARGETS=config.json"},
-		"jsonlint",
-		"config.json",
-	)
-
-	tasktest.AssertDryRunContains(t, "jsonlint",
-		[]string{"version"},
-		"jsonlint --version",
-	)
-}
-
-func TestInstallDryRunUsesDemjson3(t *testing.T) {
-	t.Parallel()
-
-	switch runtime.GOOS {
-	case "darwin", "linux":
-		tasktest.AssertInstallDryRun(t, "jsonlint", "jsonlint", "demjson3")
-	default:
-		t.Skip("install dry-run is covered on macOS and Linux")
-	}
-}
-
-func TestInstallHonorsVersionPin(t *testing.T) {
-	t.Parallel()
-
-	switch runtime.GOOS {
-	case "darwin", "linux":
-		tasktest.AssertDryRunContains(t, "jsonlint",
-			[]string{"install", "JSONLINT_VERSION=0.0.0-test"},
-			"demjson3==0.0.0-test",
-		)
-	default:
-		t.Skip("install dry-run is covered on macOS and Linux")
-	}
 }

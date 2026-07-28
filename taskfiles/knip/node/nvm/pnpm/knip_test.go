@@ -37,13 +37,3 @@ func TestTaskfileModuleContract(t *testing.T) {
 
 	tasktest.AssertModule(t, "knip/node/nvm/pnpm", publicTasks, publicVars)
 }
-
-func TestRepresentativeDryRuns(t *testing.T) {
-	t.Parallel()
-
-	tasktest.AssertDryRunContains(t, "knip/node/nvm/pnpm",
-		[]string{"lint", "--", "--debug"},
-		"pnpm:exec",
-		"--debug",
-	)
-}

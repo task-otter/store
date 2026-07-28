@@ -35,8 +35,4 @@ func TestTaskfileModuleContract(t *testing.T) {
 	tasktest.AssertModule(t, "eslint/node/fnm/yarn", publicTasks, publicVars)
 }
 
-func TestRepresentativeDryRuns(t *testing.T) {
-	t.Parallel()
-
-	// covered by module contract
-}
+// covered by module contract

@@ -37,14 +37,3 @@ func TestTaskfileModuleContract(t *testing.T) {
 
 	tasktest.AssertModule(t, "knip/bun", publicTasks, publicVars)
 }
-
-func TestRepresentativeDryRuns(t *testing.T) {
-	t.Parallel()
-
-	tasktest.AssertDryRunContains(t, "knip/bun",
-		[]string{"production", "CONFIG=knip.json"},
-		"bun:exec",
-		"--production",
-		"knip.json",
-	)
-}

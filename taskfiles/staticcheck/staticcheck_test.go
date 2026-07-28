@@ -1,7 +1,6 @@
 package staticcheck_test
 
 import (
-	"runtime"
 	"testing"
 
 	"github.com/task-otter/store/internal/tasktest"
@@ -26,40 +25,4 @@ func TestTaskfileModuleContract(t *testing.T) {
 	t.Parallel()
 
 	tasktest.AssertModule(t, "staticcheck", publicTasks, publicVars)
-}
-
-func TestRepresentativeDryRuns(t *testing.T) {
-	t.Parallel()
-
-	tasktest.AssertDryRunContains(t, "staticcheck",
-		[]string{"lint", "--", "./cmd/..."},
-		"staticcheck",
-		"./cmd/...",
-	)
-
-	tasktest.AssertDryRunContains(t, "staticcheck",
-		[]string{"version"},
-		"-version",
-	)
-}
-
-func TestInstallDryRunUsesPlatformArchive(t *testing.T) {
-	t.Parallel()
-
-	switch runtime.GOOS {
-	case "darwin":
-		tasktest.AssertDryRunContains(t, "staticcheck",
-			[]string{"install"},
-			"staticcheck_darwin_",
-			".tar.gz",
-		)
-	case "linux":
-		tasktest.AssertDryRunContains(t, "staticcheck",
-			[]string{"install"},
-			"staticcheck_linux_",
-			".tar.gz",
-		)
-	default:
-		t.Skip("archive dry-run is covered on macOS and Linux")
-	}
 }

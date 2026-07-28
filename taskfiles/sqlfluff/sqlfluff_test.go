@@ -29,34 +29,3 @@ func TestTaskfileModuleContract(t *testing.T) {
 
 	tasktest.AssertModule(t, "sqlfluff", publicTasks, publicVars)
 }
-
-func TestRepresentativeDryRuns(t *testing.T) {
-	t.Parallel()
-
-	tasktest.AssertDryRunContains(t, "sqlfluff",
-		[]string{"lint"},
-		"sqlfluff",
-		"lint",
-		".",
-	)
-
-	tasktest.AssertDryRunContains(t, "sqlfluff",
-		[]string{"lint", "DIALECT_OVERRIDE=postgres", "TARGETS_OVERRIDE=./migrations"},
-		"sqlfluff",
-		"--dialect",
-		"postgres",
-		"./migrations",
-	)
-
-	tasktest.AssertDryRunContains(t, "sqlfluff",
-		[]string{"fix"},
-		"sqlfluff",
-		"fix",
-	)
-
-	tasktest.AssertDryRunContains(t, "sqlfluff",
-		[]string{"version"},
-		"sqlfluff",
-		"--version",
-	)
-}

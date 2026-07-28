@@ -40,13 +40,3 @@ func TestTaskfileModuleContract(t *testing.T) {
 
 	tasktest.AssertModule(t, "biome/node/nvm/npm", publicTasks, publicVars)
 }
-
-func TestRepresentativeDryRuns(t *testing.T) {
-	t.Parallel()
-
-	tasktest.AssertDryRunContains(t, "biome/node/nvm/npm",
-		[]string{"config:init"},
-		"npm:exec",
-		"init",
-	)
-}

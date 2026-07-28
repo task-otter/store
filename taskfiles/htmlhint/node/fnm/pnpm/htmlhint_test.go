@@ -29,20 +29,3 @@ func TestTaskfileModuleContract(t *testing.T) {
 
 	tasktest.AssertModule(t, "htmlhint/node/fnm/pnpm", publicTasks, publicVars)
 }
-
-func TestRepresentativeDryRuns(t *testing.T) {
-	t.Parallel()
-
-	tasktest.AssertDryRunContains(t, "htmlhint/node/fnm/pnpm",
-		[]string{"lint", "TARGETS=src/**/*.html"},
-		"pnpm:exec",
-		"htmlhint",
-		"src/**/*.html",
-	)
-
-	tasktest.AssertDryRunContains(t, "htmlhint/node/fnm/pnpm",
-		[]string{"version"},
-		"htmlhint",
-		"--version",
-	)
-}

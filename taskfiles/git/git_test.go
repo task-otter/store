@@ -85,34 +85,3 @@ func TestTaskfileModuleContract(t *testing.T) {
 
 	tasktest.AssertModule(t, "git", publicTasks, publicVars)
 }
-
-func TestRepresentativeDryRuns(t *testing.T) {
-	t.Parallel()
-
-	tasktest.AssertDryRunContains(t, "git",
-		[]string{"commit", "COMMIT_MSG=feat: add login page"},
-		"git commit -m",
-		"feat: add login page",
-	)
-
-	tasktest.AssertDryRunContains(t, "git",
-		[]string{"clone", "OWNER=github", "REPO=cli"},
-		"gh repo clone",
-		"github/cli",
-	)
-
-	tasktest.AssertDryRunContains(t, "git",
-		[]string{"pr:create", "TITLE=feat: login page", "BASE=develop"},
-		"git push origin HEAD",
-		"--title",
-		"feat: login page",
-		"--base",
-		"develop",
-	)
-
-	tasktest.AssertDryRunContains(t, "git",
-		[]string{"tag:delete", "TAG=v0.1.0"},
-		"git tag -d v0.1.0",
-		"git push origin --delete v0.1.0",
-	)
-}

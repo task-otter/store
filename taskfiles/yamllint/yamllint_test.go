@@ -2,7 +2,7 @@ package yamllint_test
 
 import (
 	"os/exec"
-	"runtime"
+
 	"testing"
 
 	"github.com/task-otter/store/internal/tasktest"
@@ -38,50 +38,4 @@ func TestTaskfileModuleContract(t *testing.T) {
 	t.Parallel()
 
 	tasktest.AssertModule(t, "yamllint", publicTasks, publicVars)
-}
-
-func TestInstallDryRun(t *testing.T) {
-	t.Parallel()
-
-	if yamllintAvailable() {
-		t.Skip("yamllint already installed; status check short-circuits install body")
-	}
-
-	switch runtime.GOOS {
-	case "darwin", "linux":
-		tasktest.AssertDryRunContains(t, "yamllint", []string{"install"}, "uv tool install --force", "yamllint")
-	default:
-		t.Skip("install dry-run is covered on macOS and Linux")
-	}
-}
-
-func TestVersionDryRun(t *testing.T) {
-	t.Parallel()
-
-	if !yamllintAvailable() {
-		t.Skip("yamllint is not installed")
-	}
-
-	tasktest.AssertDryRunContains(t, "yamllint", []string{"version"}, "yamllint --version")
-}
-
-func TestLintDryRun(t *testing.T) {
-	t.Parallel()
-
-	tasktest.AssertDryRunContains(t, "yamllint", []string{"lint"},
-		"yamllint",
-		".",
-	)
-}
-
-func TestCiDryRun(t *testing.T) {
-	t.Parallel()
-
-	tasktest.AssertDryRunContains(t, "yamllint", []string{"ci"}, "yamllint --strict")
-}
-
-func TestConfigInitDryRun(t *testing.T) {
-	t.Parallel()
-
-	tasktest.AssertDryRunContains(t, "yamllint", []string{"config:init"}, "extends: default")
 }

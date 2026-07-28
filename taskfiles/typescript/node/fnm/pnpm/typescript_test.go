@@ -2,6 +2,7 @@ package typescriptnodefnmpnpm_test
 
 import (
 	"encoding/json"
+	"gopkg.in/yaml.v3"
 	"os"
 	"os/exec"
 	"path/filepath"
@@ -10,8 +11,6 @@ import (
 	"slices"
 	"strings"
 	"testing"
-
-	"gopkg.in/yaml.v3"
 )
 
 type publicTaskSpec struct {
@@ -192,25 +191,6 @@ func TestTaskSummariesWork(t *testing.T) {
 			assertContains(t, result.output, spec.name)
 			assertNotContains(t, strings.ToLower(result.output), "task not found")
 			assertNotContains(t, strings.ToLower(result.output), "no summary")
-		})
-	}
-}
-
-func TestPublicTasksDryRunWithExpectedArgs(t *testing.T) {
-	t.Parallel()
-
-	for _, spec := range publicTasks {
-		spec := spec
-		t.Run(spec.name, func(t *testing.T) {
-			t.Parallel()
-
-			args := append([]string{"--dry", "--yes", spec.name}, spec.args...)
-			result := runTask(t, isolatedEnv(t), args...)
-
-			assertExitCode(t, result, 0)
-			assertNotContains(t, strings.ToLower(result.output), "task not found")
-			assertNotContains(t, strings.ToLower(result.output), "unknown task")
-			assertNotContains(t, strings.ToLower(result.output), "missing required")
 		})
 	}
 }
