@@ -76,19 +76,45 @@ task go:govulncheck:lint -- -test ./...
 ```
 
 `install:golangci-lint` installs golangci-lint, then rebuilds it with the
-`github.com/gostafa/modularity` module plugin as the `modularity` linter. To
-run it, enable the custom linter in your project's golangci-lint config:
+`github.com/gostafa/modularity` and `github.com/gostafa/coverlint` module
+plugins. To run them, enable the custom linters in your project's golangci-lint
+config:
 
 ```yaml
 version: "2"
 linters:
   enable:
     - modularity
+    - coverlint
   settings:
     custom:
       modularity:
         type: module
         description: Enforce Go modularity policy thresholds
+      coverlint:
+        type: module
+        description: Enforce Go coverage policy thresholds
+```
+
+`coverlint` defaults to requiring 80% coverage for `./...`. Its project-level
+settings can override the minimum, selected packages, excluded import-path
+globs, package-specific overrides, timeout, and extra `go test` arguments:
+
+```yaml
+linters:
+  settings:
+    custom:
+      coverlint:
+        type: module
+        settings:
+          min: 85
+          packages: [./...]
+          exclude: ["**/generated/**"]
+          overrides:
+            - pattern: "**/critical/**"
+              min: 95
+          timeout: 10m
+          testArgs: [-race]
 ```
 
 Set `GO_LINT_SKIP_PATTERN` to exclude matching file paths from golangci-lint,
@@ -209,6 +235,7 @@ Each development tool has its own optional version variable:
 ```sh
 task go:install:go-junit-report
 task go:install:golangci-lint GOLANGCI_LINT_VERSION=v2.1.6
+task go:install:golangci-lint GOLANGCI_LINT_COVERLINT_VERSION=v0.0.1
 task go:install:golangci-lint GOLANGCI_LINT_MODULARITY_VERSION=v0.0.1
 task go:install:govulncheck GOVULNCHECK_VERSION=v1.1.4
 task go:install:gosec GOSEC_VERSION=v2.22.7
@@ -216,8 +243,8 @@ task go:install:gosec GOSEC_VERSION=v2.22.7
 
 An empty tool version defaults to `latest`. Supplying a tool version forces its
 installer to run even when the executable already exists. `go-junit-report` is
-pinned to v2.1.0. The modularity plugin defaults to v0.0.1 and requires Go
-1.26.5 or newer to build.
+pinned to v2.1.0. The coverlint and modularity plugins default to v0.0.1 and
+require Go 1.26.5 or newer to build.
 
 ## Public Tasks
 
@@ -228,7 +255,7 @@ pinned to v2.1.0. The modularity plugin defaults to v0.0.1 and requires Go
 | `install`                   | Install Go on the current operating system if missing | `INSTALL_DIR_UNIX`, `GO_VERSION` |
 | `install:undo`              | Remove Go from the current operating system            | `INSTALL_DIR_UNIX` |
 | `install:go-junit-report`   | Install go-junit-report into the global Go bin        | `GLOBAL_GO_BIN` |
-| `install:golangci-lint`     | Install golangci-lint into the global Go bin          | `GLOBAL_GO_BIN`, `GOLANGCI_LINT_VERSION`, `GOLANGCI_LINT_MODULARITY_VERSION` |
+| `install:golangci-lint`     | Install golangci-lint into the global Go bin          | `GLOBAL_GO_BIN`, `GOLANGCI_LINT_VERSION`, `GOLANGCI_LINT_COVERLINT_VERSION`, `GOLANGCI_LINT_MODULARITY_VERSION` |
 | `install:govulncheck`       | Install govulncheck into the global Go bin             | `GLOBAL_GO_BIN`, `GOVULNCHECK_VERSION` |
 | `install:gosec`             | Install gosec into the global Go bin                   | `GLOBAL_GO_BIN`, `GOSEC_VERSION` |
 | `lint`                      | Run all Go lint and security checks                    | `GO_LINT_SKIP_PATTERN` |
@@ -260,6 +287,7 @@ pinned to v2.1.0. The modularity plugin defaults to v0.0.1 and requires Go
 | `GO_DOWNLOAD_BASE_URL` | `https://go.dev/dl`             | Base URL for official Go downloads                                    |
 | `GO_VERSION`           | empty (latest stable)           | Optional official Go release name, such as `go1.26.2`                 |
 | `GOLANGCI_LINT_VERSION` | empty (`latest`)               | Optional golangci-lint module version                                 |
+| `GOLANGCI_LINT_COVERLINT_VERSION` | `v0.0.1`             | Version of the coverlint module plugin built into golangci-lint      |
 | `GOLANGCI_LINT_MODULARITY_VERSION` | `v0.0.1`             | Version of the modularity module plugin built into golangci-lint    |
 | `GOVULNCHECK_VERSION`  | empty (`latest`)                | Optional govulncheck module version                                   |
 | `GOSEC_VERSION`        | empty (`latest`)                | Optional gosec module version                                         |

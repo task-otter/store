@@ -50,6 +50,7 @@ var publicVars = []string{
 	"GO_VERSION",
 	"GO_ROOT_UNIX",
 	"GO_VERSION_URL",
+	"GOLANGCI_LINT_COVERLINT_VERSION",
 	"GOLANGCI_LINT_VERSION",
 	"GOLANGCI_LINT_MODULARITY_VERSION",
 	"GOSEC_VERSION",
@@ -126,7 +127,7 @@ func TestTestingTaskCommands(t *testing.T) {
 	}
 }
 
-func TestGolangciLintInstallerBuildsModularityPlugin(t *testing.T) {
+func TestGolangciLintInstallerBuildsCustomPlugins(t *testing.T) {
 	t.Parallel()
 
 	tf := tasktest.LoadTaskfile(t, "go")
@@ -144,7 +145,10 @@ func TestGolangciLintInstallerBuildsModularityPlugin(t *testing.T) {
 		"destination:",
 		"github.com/gostafa/modularity",
 		"github.com/gostafa/modularity/plugin",
+		"github.com/gostafa/coverlint",
+		"GOLANGCI_LINT_COVERLINT_VERSION",
 		"GOLANGCI_LINT_MODULARITY_VERSION",
+		"golangci-lint.coverlint.version",
 		"golangci-lint.modularity.version",
 		"Go 1.26.5 or newer",
 	} {
@@ -156,10 +160,13 @@ func TestGolangciLintInstallerBuildsModularityPlugin(t *testing.T) {
 	status := fmt.Sprintf("%v", task.Status)
 	for _, token := range []string{
 		"golangci-lint\" version --short",
+		"golangci-lint.coverlint.version",
 		"golangci-lint.modularity.version",
-		"--issues-exit-code=0",
-		"taskotter-modularity-status",
+		"linters --config",
+		"taskotter-golangci-status",
+		"coverlint",
 		"modularity",
+		"GOLANGCI_LINT_COVERLINT_VERSION",
 		"GOLANGCI_LINT_MODULARITY_VERSION",
 	} {
 		if !strings.Contains(status, token) {
@@ -261,12 +268,17 @@ func TestVersionVariablesAreIndependentAndOptional(t *testing.T) {
 		}
 	}
 
-	value, exists := tf.Vars["GOLANGCI_LINT_MODULARITY_VERSION"]
-	if !exists {
-		t.Fatal("GOLANGCI_LINT_MODULARITY_VERSION must be defined")
-	}
-	if value != "v0.0.1" {
-		t.Fatalf("GOLANGCI_LINT_MODULARITY_VERSION default = %#v, want v0.0.1", value)
+	for _, name := range []string{
+		"GOLANGCI_LINT_COVERLINT_VERSION",
+		"GOLANGCI_LINT_MODULARITY_VERSION",
+	} {
+		value, exists := tf.Vars[name]
+		if !exists {
+			t.Fatalf("%s must be defined", name)
+		}
+		if value != "v0.0.1" {
+			t.Fatalf("%s default = %#v, want v0.0.1", name, value)
+		}
 	}
 }
 

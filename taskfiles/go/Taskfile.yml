@@ -19,6 +19,7 @@ vars:
   GO_DOWNLOAD_BASE_URL: https://go.dev/dl
   GO_VERSION: ""
   GOLANGCI_LINT_VERSION: ""
+  GOLANGCI_LINT_COVERLINT_VERSION: "v0.0.1"
   GOLANGCI_LINT_MODULARITY_VERSION: "v0.0.1"
   GOVULNCHECK_VERSION: ""
   GOSEC_VERSION: ""
@@ -91,7 +92,7 @@ tasks:
     desc: Install golangci-lint globally
     summary: |
       Install GOLANGCI_LINT_VERSION, defaulting to latest, into the global Go
-      bin, then rebuild it with the modularity module plugin.
+      bin, then rebuild it with the coverlint and modularity module plugins.
     deps:
       - install
     cmds:
@@ -142,11 +143,15 @@ tasks:
             - module: github.com/gostafa/modularity
               import: github.com/gostafa/modularity/plugin
               version: {{.GOLANGCI_LINT_MODULARITY_VERSION}}
+            - module: github.com/gostafa/coverlint
+              import: github.com/gostafa/coverlint
+              version: {{.GOLANGCI_LINT_COVERLINT_VERSION}}
           YAML
 
           (cd "$work_dir" && "{{.GLOBAL_GO_BIN}}/golangci-lint" custom -v)
           mv "$work_dir/golangci-lint" "{{.GLOBAL_GO_BIN}}/golangci-lint"
           printf '%s\n' "{{.GOLANGCI_LINT_MODULARITY_VERSION}}" >"{{.GLOBAL_GO_BIN}}/golangci-lint.modularity.version"
+          printf '%s\n' "{{.GOLANGCI_LINT_COVERLINT_VERSION}}" >"{{.GLOBAL_GO_BIN}}/golangci-lint.coverlint.version"
         platforms: [linux, darwin]
       - cmd: >-
           powershell -NoProfile -ExecutionPolicy Bypass -Command "$ErrorActionPreference='Stop'; $requiredGoVersion =
@@ -170,7 +175,9 @@ tasks:
           New-Item -ItemType Directory -Path $workDir | Out-Null; try { $customConfig
           = Join-Path $workDir '.custom-gcl.yml'; @('version: ' + $golangciLintVersion, 'name: golangci-lint',
           'destination: ' + $workDir, 'plugins:', '  - module: github.com/gostafa/modularity', '    import:
-          github.com/gostafa/modularity/plugin', '    version: {{.GOLANGCI_LINT_MODULARITY_VERSION}}') |
+          github.com/gostafa/modularity/plugin', '    version: {{.GOLANGCI_LINT_MODULARITY_VERSION}}', '  - module:
+          github.com/gostafa/coverlint', '    import: github.com/gostafa/coverlint', '    version:
+          {{.GOLANGCI_LINT_COVERLINT_VERSION}}') |
           Set-Content -LiteralPath $customConfig -Encoding UTF8; Push-Location $workDir; try {
           & $golangciLint custom -v }
           finally { Pop-Location }; if ($LASTEXITCODE -ne 0) { exit $LASTEXITCODE }; $built = Join-Path $workDir
@@ -178,6 +185,8 @@ tasks:
           $built = Join-Path $workDir 'golangci-lint' };
           Move-Item -LiteralPath $built -Destination $golangciLintExe -Force; Set-Content -LiteralPath (Join-Path
           $globalGoBin 'golangci-lint.modularity.version') -Value '{{.GOLANGCI_LINT_MODULARITY_VERSION}}' -Encoding
+          ASCII; Set-Content -LiteralPath (Join-Path $globalGoBin 'golangci-lint.coverlint.version') -Value
+          '{{.GOLANGCI_LINT_COVERLINT_VERSION}}' -Encoding
           ASCII } finally { Remove-Item -LiteralPath $workDir -Recurse -Force -ErrorAction SilentlyContinue }"
         platforms: [windows]
     status:
@@ -190,16 +199,33 @@ tasks:
       - >-
         test "$(cat "{{.GLOBAL_GO_BIN}}/golangci-lint.modularity.version" 2>/dev/null)" =
         "{{.GOLANGCI_LINT_MODULARITY_VERSION}}"
+      - >-
+        test "$(cat "{{.GLOBAL_GO_BIN}}/golangci-lint.coverlint.version" 2>/dev/null)" =
+        "{{.GOLANGCI_LINT_COVERLINT_VERSION}}"
       - |
         tmp_dir="$(mktemp -d)"
         trap 'rm -rf "$tmp_dir"' EXIT
         cat >"$tmp_dir/go.mod" <<EOF
-        module taskotter-modularity-status
+        module taskotter-golangci-status
         go 1.26.5
         EOF
         cat >"$tmp_dir/statusprobe.go" <<EOF
         package statusprobe
-        type Widget struct{}
+
+        func Covered() int {
+          return 1
+        }
+        EOF
+        cat >"$tmp_dir/statusprobe_test.go" <<EOF
+        package statusprobe
+
+        import "testing"
+
+        func TestCovered(t *testing.T) {
+          if Covered() != 1 {
+            t.Fatal("unexpected covered value")
+          }
+        }
         EOF
         cat >"$tmp_dir/.golangci.yml" <<YAML
         version: "2"
@@ -207,6 +233,7 @@ tasks:
           default: none
           enable:
             - modularity
+            - coverlint
           settings:
             custom:
               modularity:
@@ -214,9 +241,21 @@ tasks:
                 description: Enforce Go modularity policy thresholds
                 settings:
                   patterns: [.]
+              coverlint:
+                type: module
+                description: Enforce Go coverage policy thresholds
+                settings:
+                  packages: [.]
         YAML
-        (cd "$tmp_dir" && "{{.GLOBAL_GO_BIN}}/golangci-lint" run \
-          --config .golangci.yml --issues-exit-code=0 --timeout=30s .) >/dev/null
+        linters_output="$(cd "$tmp_dir" && "{{.GLOBAL_GO_BIN}}/golangci-lint" linters --config .golangci.yml)"
+        case "$linters_output" in
+          *"coverlint:"*) ;;
+          *) exit 1 ;;
+        esac
+        case "$linters_output" in
+          *"modularity:"*) ;;
+          *) exit 1 ;;
+        esac
   install:govulncheck:
     run: once
     desc: Install govulncheck globally
