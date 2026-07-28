@@ -24,10 +24,14 @@ var publicVars = []string{
 }
 
 func TestTaskfileModuleContract(t *testing.T) {
+	t.Parallel()
+
 	tasktest.AssertModule(t, "zizmor", publicTasks, publicVars)
 }
 
 func TestRepresentativeDryRuns(t *testing.T) {
+	t.Parallel()
+
 	tasktest.AssertDryRunContains(t, "zizmor",
 		[]string{"lint"},
 		"zizmor",
@@ -47,6 +51,8 @@ func TestRepresentativeDryRuns(t *testing.T) {
 }
 
 func TestLintIgnoresSharedTargetVariable(t *testing.T) {
+	t.Parallel()
+
 	output := tasktest.DryRun(t, "zizmor", "lint", "TARGETS=**/*.html")
 	if !strings.Contains(output, "zizmor") {
 		t.Fatalf("zizmor dry-run command not found:\n%s", output)
@@ -57,6 +63,8 @@ func TestLintIgnoresSharedTargetVariable(t *testing.T) {
 }
 
 func TestInstallDryRunDownloadsBinary(t *testing.T) {
+	t.Parallel()
+
 	switch runtime.GOOS {
 	case "darwin":
 		tasktest.AssertInstallDryRun(t, "zizmor", "zizmor", "curl", "apple-darwin")
@@ -68,6 +76,8 @@ func TestInstallDryRunDownloadsBinary(t *testing.T) {
 }
 
 func TestUpgradeDryRunDownloadsBinary(t *testing.T) {
+	t.Parallel()
+
 	switch runtime.GOOS {
 	case "darwin", "linux":
 		tasktest.AssertDryRunContains(t, "zizmor",

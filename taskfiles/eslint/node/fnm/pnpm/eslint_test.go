@@ -30,10 +30,14 @@ var publicVars = []string{
 }
 
 func TestTaskfileModuleContract(t *testing.T) {
+	t.Parallel()
+
 	tasktest.AssertModule(t, "eslint/node/fnm/pnpm", publicTasks, publicVars)
 }
 
 func TestRepresentativeDryRuns(t *testing.T) {
+	t.Parallel()
+
 	tasktest.AssertDryRunContains(t, "eslint/node/fnm/pnpm",
 		[]string{"lint", "TARGETS=src test", "--", "--quiet"},
 		"pnpm:exec",

@@ -341,7 +341,9 @@ func TestDefaultTaskBinaryAndSimpleRunner(t *testing.T) {
 	t.Setenv("PATH", bin+string(os.PathListSeparator)+os.Getenv("PATH"))
 	t.Setenv("TASK_BIN", "")
 
-	if result := RunTaskTimeout(t, root, os.Environ(), time.Second, "alpha"); result.Stdout != "simple" || result.Err != nil {
+	// Generous: this asserts the happy path, and the suite runs tests in
+	// parallel, so a short deadline turns CPU pressure into a flake.
+	if result := RunTaskTimeout(t, root, os.Environ(), 30*time.Second, "alpha"); result.Stdout != "simple" || result.Err != nil {
 		t.Fatalf("default task result: %#v", result)
 	}
 	if result := RunSimpleTask(t, root, os.Environ(), "alpha"); result.Output != "simple" || result.Err != nil {

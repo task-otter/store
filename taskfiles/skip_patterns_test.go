@@ -105,6 +105,8 @@ var configSkipModules = []string{
 }
 
 func TestSkipPatternContract(t *testing.T) {
+	t.Parallel()
+
 	if len(skipPatternModules) != 67 {
 		t.Fatalf("skip-pattern module count = %d, want 67", len(skipPatternModules))
 	}
@@ -141,6 +143,8 @@ func TestSkipPatternContract(t *testing.T) {
 }
 
 func TestSkipPatternVariantParity(t *testing.T) {
+	t.Parallel()
+
 	families := map[string][]string{
 		"biome":     {"BIOME_LINT_SKIP_PATTERN", "BIOME_FMT_SKIP_PATTERN"},
 		"depcheck":  {"DEPCHECK_LINT_SKIP_PATTERN"},
@@ -171,6 +175,8 @@ func TestSkipPatternVariantParity(t *testing.T) {
 }
 
 func TestSkipPatternRepresentativeDryRuns(t *testing.T) {
+	t.Parallel()
+
 	const pattern = "**/generated/**"
 	tests := []struct {
 		module   string
@@ -206,6 +212,8 @@ func TestSkipPatternRepresentativeDryRuns(t *testing.T) {
 }
 
 func TestSharedSkipFileMatcher(t *testing.T) {
+	t.Parallel()
+
 	root := tasktest.RepoRoot(t)
 	filter := filepath.Join(root, "taskfiles", "internal", "skipfiles", "Taskfile.yml")
 	tests := []struct {
@@ -302,6 +310,8 @@ func assertOverlayContains(t *testing.T, project, name string, tokens ...string)
 }
 
 func TestBiomeConfigSkipTask(t *testing.T) {
+	t.Parallel()
+
 	const overlay = ".taskotter-biome-bun-skip.json"
 
 	t.Run("both patterns", func(t *testing.T) {
@@ -354,6 +364,8 @@ func jsRuntimeVar(t *testing.T) string {
 }
 
 func TestKnipConfigSkipTask(t *testing.T) {
+	t.Parallel()
+
 	const overlay = ".taskotter-knip-bun-skip.json"
 
 	t.Run("no project config", func(t *testing.T) {
@@ -402,6 +414,8 @@ func TestKnipConfigSkipTask(t *testing.T) {
 }
 
 func TestSQLFluffConfigSkipTask(t *testing.T) {
+	t.Parallel()
+
 	const overlay = ".taskotter-sqlfluff-skip.cfg"
 
 	t.Run("merges ignore_paths and normalizes separators", func(t *testing.T) {
@@ -431,6 +445,8 @@ func TestSQLFluffConfigSkipTask(t *testing.T) {
 }
 
 func TestGoConfigSkipTask(t *testing.T) {
+	t.Parallel()
+
 	const overlay = ".golangci-taskotter-skip.yml"
 
 	t.Run("translates the glob into an exclusion regex", func(t *testing.T) {
@@ -471,6 +487,8 @@ func TestGoConfigSkipTask(t *testing.T) {
 }
 
 func TestSharedSkipfilesTaskfileContract(t *testing.T) {
+	t.Parallel()
+
 	root := tasktest.RepoRoot(t)
 	helperDirectory := filepath.Join(root, "taskfiles", "internal", "skipfiles")
 	entries, err := os.ReadDir(helperDirectory)
@@ -534,6 +552,8 @@ func TestSharedSkipfilesTaskfileContract(t *testing.T) {
 }
 
 func TestActionlintSkipPatternFiltersFiles(t *testing.T) {
+	t.Parallel()
+
 	if testing.Short() {
 		t.Skip("skipping task integration test in short mode")
 	}
@@ -630,6 +650,8 @@ printf '%s\n' "$@" >"$TASKOTTER_ACTIONLINT_LOG"
 }
 
 func TestCargoSkipPatternExcludesWorkspacePackages(t *testing.T) {
+	t.Parallel()
+
 	if testing.Short() {
 		t.Skip("skipping task integration test in short mode")
 	}
@@ -698,6 +720,8 @@ printf '%s\n' "$@" >"$TASKOTTER_CARGO_LOG"
 }
 
 func TestGoAnalysisSkipPatternExcludesPackages(t *testing.T) {
+	t.Parallel()
+
 	if testing.Short() {
 		t.Skip("skipping task integration test in short mode")
 	}

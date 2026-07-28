@@ -296,7 +296,10 @@ func TestTaskfileValidation(t *testing.T) {
 }
 
 func TestDryRunEnvironment(t *testing.T) {
-	project, env := setupDryRunEnv(t)
+	project, env := sharedDryRunEnv(t)
+	if second, _ := sharedDryRunEnv(t); second != project {
+		t.Fatalf("shared environment rebuilt: %q then %q", project, second)
+	}
 	for _, path := range []string{
 		filepath.Join(project, ".stub-bin", "node"),
 		filepath.Join(project, "package.json"),
@@ -326,14 +329,21 @@ func TestDryRunEnvironmentFailures(t *testing.T) {
 		return home, project
 	}
 
+	expectError := func(t *testing.T, home, project, want string) {
+		t.Helper()
+		_, err := buildDryRunEnv(home, project)
+		if err == nil || !strings.Contains(err.Error(), want) {
+			t.Fatalf("error = %v, want message containing %q", err, want)
+		}
+	}
+
 	t.Run("mkdir", func(t *testing.T) {
 		home, project := newDirs("mkdir")
 		if err := os.Remove(project); err != nil {
 			t.Fatal(err)
 		}
 		writeFile(t, project, "file")
-		ft := &fakeTest{tempDirs: []string{home, project}}
-		expectFatalWith(t, ft, "create stub dir", func() { setupDryRunEnv(ft) })
+		expectError(t, home, project, "create stub dir")
 	})
 
 	tests := []struct {
@@ -354,23 +364,9 @@ func TestDryRunEnvironmentFailures(t *testing.T) {
 			if err := os.MkdirAll(blocked, 0o755); err != nil {
 				t.Fatal(err)
 			}
-			ft := &fakeTest{tempDirs: []string{home, project}}
-			expectFatalWith(t, ft, tt.want, func() { setupDryRunEnv(ft) })
+			expectError(t, home, project, tt.want)
 		})
 	}
-}
-
-func expectFatalWith(t *testing.T, ft *fakeTest, want string, fn func()) {
-	t.Helper()
-	defer func() {
-		recovered := recover()
-		fatal, ok := recovered.(fatalCall)
-		if !ok || !strings.Contains(fatal.message, want) {
-			t.Fatalf("fatal = %#v, want message containing %q", recovered, want)
-		}
-	}()
-	fn()
-	panic("expected fatal call")
 }
 
 func TestTaskCommandsAndAssertions(t *testing.T) {
@@ -397,7 +393,8 @@ esac`)
 	if output, err := runTaskOutput(t, "build"); err != nil || !strings.Contains(output, "token") {
 		t.Fatalf("runTaskOutput = %q, %v", output, err)
 	}
-	assertTaskCliCanLoad(t, "fixture")
+	AssertTaskCliCanLoad(t, "fixture")
+	AssertTaskCliCanLoad(t, "fixture") // deduplicated per family
 	AssertModule(t, "fixture", []string{"build"}, []string{"FOO"})
 
 	expectFatal(t, "missing \"absent\"", func(ft testT) {

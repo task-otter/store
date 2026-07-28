@@ -35,10 +35,14 @@ func yamllintAvailable() bool {
 }
 
 func TestTaskfileModuleContract(t *testing.T) {
+	t.Parallel()
+
 	tasktest.AssertModule(t, "yamllint", publicTasks, publicVars)
 }
 
 func TestInstallDryRun(t *testing.T) {
+	t.Parallel()
+
 	if yamllintAvailable() {
 		t.Skip("yamllint already installed; status check short-circuits install body")
 	}
@@ -52,6 +56,8 @@ func TestInstallDryRun(t *testing.T) {
 }
 
 func TestVersionDryRun(t *testing.T) {
+	t.Parallel()
+
 	if !yamllintAvailable() {
 		t.Skip("yamllint is not installed")
 	}
@@ -60,6 +66,8 @@ func TestVersionDryRun(t *testing.T) {
 }
 
 func TestLintDryRun(t *testing.T) {
+	t.Parallel()
+
 	tasktest.AssertDryRunContains(t, "yamllint", []string{"lint"},
 		"yamllint",
 		".",
@@ -67,9 +75,13 @@ func TestLintDryRun(t *testing.T) {
 }
 
 func TestCiDryRun(t *testing.T) {
+	t.Parallel()
+
 	tasktest.AssertDryRunContains(t, "yamllint", []string{"ci"}, "yamllint --strict")
 }
 
 func TestConfigInitDryRun(t *testing.T) {
+	t.Parallel()
+
 	tasktest.AssertDryRunContains(t, "yamllint", []string{"config:init"}, "extends: default")
 }

@@ -225,7 +225,7 @@ func GoldenRender(t testT, module string, kase GoldenCase) string {
 		}
 	}
 
-	projectDir, env := setupDryRunEnv(t)
+	projectDir, env := sharedDryRunEnv(t)
 	home := dryRunGetEnv(env, "HOME")
 
 	var out strings.Builder

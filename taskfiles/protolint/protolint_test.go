@@ -25,10 +25,14 @@ var publicVars = []string{
 }
 
 func TestTaskfileModuleContract(t *testing.T) {
+	t.Parallel()
+
 	tasktest.AssertModule(t, "protolint", publicTasks, publicVars)
 }
 
 func TestRepresentativeDryRuns(t *testing.T) {
+	t.Parallel()
+
 	tasktest.AssertDryRunContains(t, "protolint",
 		[]string{"lint", "TARGETS=api", "EXTRA_ARGS=-reporter json"},
 		"protolint\" lint",
@@ -49,6 +53,8 @@ func TestRepresentativeDryRuns(t *testing.T) {
 }
 
 func TestInstallDryRunUsesOfficialGoModule(t *testing.T) {
+	t.Parallel()
+
 	switch runtime.GOOS {
 	case "darwin", "linux":
 		tasktest.AssertInstallDryRun(t, "protolint", "protolint",
@@ -59,6 +65,8 @@ func TestInstallDryRunUsesOfficialGoModule(t *testing.T) {
 }
 
 func TestUpgradeDryRunUsesOfficialGoModule(t *testing.T) {
+	t.Parallel()
+
 	switch runtime.GOOS {
 	case "darwin", "linux":
 		tasktest.AssertDryRunContains(t, "protolint",
@@ -72,6 +80,8 @@ func TestUpgradeDryRunUsesOfficialGoModule(t *testing.T) {
 }
 
 func TestInstallHonorsVersionPin(t *testing.T) {
+	t.Parallel()
+
 	switch runtime.GOOS {
 	case "darwin", "linux":
 		tasktest.AssertDryRunContains(t, "protolint",

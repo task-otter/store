@@ -28,10 +28,14 @@ var publicVars = []string{
 }
 
 func TestTaskfileModuleContract(t *testing.T) {
+	t.Parallel()
+
 	tasktest.AssertModule(t, "proto", publicTasks, publicVars)
 }
 
 func TestPluginWorkflowsInstallGoFirst(t *testing.T) {
+	t.Parallel()
+
 	tf := tasktest.LoadTaskfile(t, "proto")
 
 	for _, taskName := range []string{"install", "upgrade"} {
@@ -47,6 +51,8 @@ func TestPluginWorkflowsInstallGoFirst(t *testing.T) {
 }
 
 func TestRepresentativeDryRuns(t *testing.T) {
+	t.Parallel()
+
 	tasktest.AssertDryRunContains(t, "proto",
 		[]string{"version"},
 		"protoc",
@@ -61,6 +67,8 @@ func TestRepresentativeDryRuns(t *testing.T) {
 }
 
 func TestInstallDryRunUsesPlatformPackageManager(t *testing.T) {
+	t.Parallel()
+
 	switch runtime.GOOS {
 	case "darwin":
 		tasktest.AssertInstallDryRun(t, "proto", "protoc", "brew", "protobuf")
@@ -72,6 +80,8 @@ func TestInstallDryRunUsesPlatformPackageManager(t *testing.T) {
 }
 
 func TestUpgradeDryRunUsesPlatformPackageManager(t *testing.T) {
+	t.Parallel()
+
 	switch runtime.GOOS {
 	case "darwin":
 		tasktest.AssertDryRunContains(t, "proto",
@@ -91,6 +101,8 @@ func TestUpgradeDryRunUsesPlatformPackageManager(t *testing.T) {
 }
 
 func TestUngenDryRun(t *testing.T) {
+	t.Parallel()
+
 	switch runtime.GOOS {
 	case "darwin", "linux":
 		tasktest.AssertDryRunContains(t, "proto",

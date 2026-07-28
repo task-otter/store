@@ -23,10 +23,14 @@ var publicVars = []string{
 }
 
 func TestTaskfileModuleContract(t *testing.T) {
+	t.Parallel()
+
 	tasktest.AssertModule(t, "shellcheck", publicTasks, publicVars)
 }
 
 func TestRepresentativeDryRuns(t *testing.T) {
+	t.Parallel()
+
 	tasktest.AssertDryRunContains(t, "shellcheck",
 		[]string{"lint"},
 		"shellcheck",
@@ -40,6 +44,8 @@ func TestRepresentativeDryRuns(t *testing.T) {
 }
 
 func TestInstallDryRunUsesPlatformPackageManager(t *testing.T) {
+	t.Parallel()
+
 	switch runtime.GOOS {
 	case "darwin":
 		tasktest.AssertInstallDryRun(t, "shellcheck", "shellcheck", "brew", "shellcheck")
@@ -51,6 +57,8 @@ func TestInstallDryRunUsesPlatformPackageManager(t *testing.T) {
 }
 
 func TestUpgradeDryRunUsesPlatformPackageManager(t *testing.T) {
+	t.Parallel()
+
 	switch runtime.GOOS {
 	case "darwin":
 		tasktest.AssertDryRunContains(t, "shellcheck",

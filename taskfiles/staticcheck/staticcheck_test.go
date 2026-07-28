@@ -23,10 +23,14 @@ var publicVars = []string{
 }
 
 func TestTaskfileModuleContract(t *testing.T) {
+	t.Parallel()
+
 	tasktest.AssertModule(t, "staticcheck", publicTasks, publicVars)
 }
 
 func TestRepresentativeDryRuns(t *testing.T) {
+	t.Parallel()
+
 	tasktest.AssertDryRunContains(t, "staticcheck",
 		[]string{"lint", "--", "./cmd/..."},
 		"staticcheck",
@@ -40,6 +44,8 @@ func TestRepresentativeDryRuns(t *testing.T) {
 }
 
 func TestInstallDryRunUsesPlatformArchive(t *testing.T) {
+	t.Parallel()
+
 	switch runtime.GOOS {
 	case "darwin":
 		tasktest.AssertDryRunContains(t, "staticcheck",

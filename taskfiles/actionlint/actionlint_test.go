@@ -24,10 +24,14 @@ var publicVars = []string{
 }
 
 func TestTaskfileModuleContract(t *testing.T) {
+	t.Parallel()
+
 	tasktest.AssertModule(t, "actionlint", publicTasks, publicVars)
 }
 
 func TestRepresentativeDryRuns(t *testing.T) {
+	t.Parallel()
+
 	tasktest.AssertDryRunContains(t, "actionlint",
 		[]string{"lint"},
 		"actionlint",
@@ -47,6 +51,8 @@ func TestRepresentativeDryRuns(t *testing.T) {
 }
 
 func TestLintIgnoresSharedTargetVariable(t *testing.T) {
+	t.Parallel()
+
 	output := tasktest.DryRun(t, "actionlint", "lint", "TARGETS=.")
 	if !strings.Contains(output, "actionlint") {
 		t.Fatalf("actionlint dry-run command not found:\n%s", output)
@@ -57,6 +63,8 @@ func TestLintIgnoresSharedTargetVariable(t *testing.T) {
 }
 
 func TestInstallDryRunUsesPlatformPackageManager(t *testing.T) {
+	t.Parallel()
+
 	switch runtime.GOOS {
 	case "darwin":
 		tasktest.AssertInstallDryRun(t, "actionlint", "actionlint", "brew", "actionlint")
@@ -68,6 +76,8 @@ func TestInstallDryRunUsesPlatformPackageManager(t *testing.T) {
 }
 
 func TestUpgradeDryRunUsesPlatformPackageManager(t *testing.T) {
+	t.Parallel()
+
 	switch runtime.GOOS {
 	case "darwin":
 		tasktest.AssertDryRunContains(t, "actionlint",

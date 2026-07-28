@@ -30,10 +30,14 @@ var publicVars = []string{
 }
 
 func TestTaskfileModuleContract(t *testing.T) {
+	t.Parallel()
+
 	tasktest.AssertModule(t, "buf", publicTasks, publicVars)
 }
 
 func TestRepresentativeDryRuns(t *testing.T) {
+	t.Parallel()
+
 	tasktest.AssertDryRunContains(t, "buf",
 		[]string{"lint"},
 		"buf lint",
@@ -58,6 +62,8 @@ func TestRepresentativeDryRuns(t *testing.T) {
 }
 
 func TestInstallDryRunUsesPlatformPackageManager(t *testing.T) {
+	t.Parallel()
+
 	switch runtime.GOOS {
 	case "darwin":
 		tasktest.AssertInstallDryRun(t, "buf", "buf", "brew", "bufbuild/buf/buf")
@@ -69,6 +75,8 @@ func TestInstallDryRunUsesPlatformPackageManager(t *testing.T) {
 }
 
 func TestUpgradeDryRunUsesPlatformPackageManager(t *testing.T) {
+	t.Parallel()
+
 	switch runtime.GOOS {
 	case "darwin":
 		tasktest.AssertDryRunContains(t, "buf",

@@ -26,10 +26,14 @@ var publicVars = []string{
 }
 
 func TestTaskfileModuleContract(t *testing.T) {
+	t.Parallel()
+
 	tasktest.AssertModule(t, "dotenv-linter", publicTasks, publicVars)
 }
 
 func TestRepresentativeDryRuns(t *testing.T) {
+	t.Parallel()
+
 	tasktest.AssertDryRunContains(t, "dotenv-linter",
 		[]string{"lint", "TARGETS=.env.example"},
 		"dotenv-linter",
@@ -56,6 +60,8 @@ func TestRepresentativeDryRuns(t *testing.T) {
 }
 
 func TestInstallDryRunUsesCargo(t *testing.T) {
+	t.Parallel()
+
 	switch runtime.GOOS {
 	case "darwin", "linux":
 		tasktest.AssertInstallDryRun(t, "dotenv-linter", "dotenv-linter", "install")
@@ -65,6 +71,8 @@ func TestInstallDryRunUsesCargo(t *testing.T) {
 }
 
 func TestUpgradeHonorsVersionPin(t *testing.T) {
+	t.Parallel()
+
 	switch runtime.GOOS {
 	case "darwin", "linux":
 		tasktest.AssertDryRunContains(t, "dotenv-linter",

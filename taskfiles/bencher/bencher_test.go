@@ -23,10 +23,14 @@ var publicVars = []string{
 }
 
 func TestTaskfileModuleContract(t *testing.T) {
+	t.Parallel()
+
 	tasktest.AssertModule(t, "bencher", publicTasks, publicVars)
 }
 
 func TestRepresentativeDryRuns(t *testing.T) {
+	t.Parallel()
+
 	tasktest.AssertDryRunContains(t, "bencher",
 		[]string{"version"},
 		"bencher --version",
@@ -47,6 +51,8 @@ func TestRepresentativeDryRuns(t *testing.T) {
 }
 
 func TestInstallDryRunUsesOfficialInstaller(t *testing.T) {
+	t.Parallel()
+
 	switch runtime.GOOS {
 	case "darwin", "linux":
 		tasktest.AssertInstallDryRun(t, "bencher", "bencher", "curl", "bencher.dev/download/install-cli.sh")
@@ -56,6 +62,8 @@ func TestInstallDryRunUsesOfficialInstaller(t *testing.T) {
 }
 
 func TestUpgradeDryRunUsesOfficialInstaller(t *testing.T) {
+	t.Parallel()
+
 	switch runtime.GOOS {
 	case "darwin", "linux":
 		tasktest.AssertDryRunContains(t, "bencher",

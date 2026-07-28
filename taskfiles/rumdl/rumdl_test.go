@@ -27,10 +27,14 @@ var publicVars = []string{
 }
 
 func TestTaskfileModuleContract(t *testing.T) {
+	t.Parallel()
+
 	tasktest.AssertModule(t, "rumdl", publicTasks, publicVars)
 }
 
 func TestRepresentativeDryRuns(t *testing.T) {
+	t.Parallel()
+
 	tasktest.AssertDryRunContains(t, "rumdl",
 		[]string{"lint", "TARGETS=docs"},
 		"rumdl check",
@@ -56,6 +60,8 @@ func TestRepresentativeDryRuns(t *testing.T) {
 }
 
 func TestInstallDryRunUsesUv(t *testing.T) {
+	t.Parallel()
+
 	switch runtime.GOOS {
 	case "darwin", "linux":
 		tasktest.AssertInstallDryRun(t, "rumdl", "rumdl", "uv tool install")
@@ -65,6 +71,8 @@ func TestInstallDryRunUsesUv(t *testing.T) {
 }
 
 func TestInstallHonorsVersionPin(t *testing.T) {
+	t.Parallel()
+
 	switch runtime.GOOS {
 	case "darwin", "linux":
 		tasktest.AssertDryRunContains(t, "rumdl",

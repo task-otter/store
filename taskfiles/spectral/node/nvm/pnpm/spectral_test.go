@@ -25,10 +25,14 @@ var publicVars = []string{
 }
 
 func TestTaskfileModuleContract(t *testing.T) {
+	t.Parallel()
+
 	tasktest.AssertModule(t, "spectral/node/nvm/pnpm", publicTasks, publicVars)
 }
 
 func TestRepresentativeDryRuns(t *testing.T) {
+	t.Parallel()
+
 	tasktest.AssertDryRunContains(t, "spectral/node/nvm/pnpm",
 		[]string{"lint", "TARGETS=openapi.yaml"},
 		"pnpm:exec",

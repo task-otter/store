@@ -3,12 +3,15 @@ package tasktest
 import (
 	"context"
 	"encoding/json"
+	"fmt"
 	"os"
 	"os/exec"
 	"path/filepath"
 	"slices"
 	"sort"
 	"strings"
+	"sync"
+	"testing"
 	"time"
 
 	"gopkg.in/yaml.v3"
@@ -44,13 +47,44 @@ var (
 	taskTimeout   = time.Minute
 )
 
+// TestMain builds the shared read-only dry-run environment once for the whole
+// test binary, runs the package's tests, and tears the environment down. Test
+// packages that exercise task modules should delegate to it:
+//
+//	func TestMain(m *testing.M) { tasktest.TestMain(m) }
+//
+// Delegating is optional — the environment is built lazily on first use — but
+// without it the temporary tree is left behind for the OS to reclaim.
+func TestMain(m *testing.M) {
+	code := m.Run()
+	cleanupDryRunEnv()
+	os.Exit(code)
+}
+
+// AssertModule checks a module's README and Taskfile against its declared
+// public surface. It does not fork the task CLI: the Taskfile is parsed here,
+// and CLI loadability is covered once per family by AssertTaskCliCanLoad.
 func AssertModule(t testT, module string, expectedTasks, expectedVars []string) {
 	t.Helper()
 
 	assertReadme(t, module, expectedTasks)
 	assertTaskfile(t, module, expectedTasks, expectedVars)
-	assertTaskCliCanLoad(t, module)
 }
+
+// AssertTaskCliCanLoad verifies the task CLI can parse a module's Taskfile.
+// This forks the CLI, so it is deduplicated per tool family within a test
+// binary — every variant of a family shares the same generated structure.
+func AssertTaskCliCanLoad(t testT, module string) {
+	t.Helper()
+
+	family, _, _ := strings.Cut(module, "/")
+	once, _ := cliLoadOnce.LoadOrStore(family, &sync.Once{})
+	once.(*sync.Once).Do(func() {
+		assertTaskCliCanLoad(t, module)
+	})
+}
+
+var cliLoadOnce sync.Map // family -> *sync.Once
 
 func AssertDryRunContains(t testT, module string, args []string, tokens ...string) {
 	t.Helper()
@@ -94,7 +128,7 @@ func RootDryRun(t testT, args ...string) string {
 func DryRun(t testT, module string, args ...string) string {
 	t.Helper()
 
-	projectDir, env := setupDryRunEnv(t)
+	projectDir, env := sharedDryRunEnv(t)
 	allArgs := append([]string{"--taskfile", taskfilePath(t, module), "--dry", "--yes", "--verbose"}, args...)
 
 	ctx, cancel := context.WithTimeout(context.Background(), taskTimeout)
@@ -115,15 +149,50 @@ func DryRun(t testT, module string, args ...string) string {
 	return string(output)
 }
 
-// setupDryRunEnv creates a temporary project directory and isolated environment
-// for dry-run tests. It stubs common JS package managers, node version managers,
-// and linting/formatting tools so that _install-if-missing skips installation
-// and package-manager preconditions pass without real tools being present.
-func setupDryRunEnv(t testT) (projectDir string, env []string) {
+var (
+	dryRunEnvOnce sync.Once
+	dryRunRoot    string
+	dryRunProject string
+	dryRunEnv     []string
+	dryRunEnvErr  error
+)
+
+// sharedDryRunEnv returns the process-wide dry-run project directory and
+// environment, building the stub tree on first use. Dry runs never write to it,
+// so every test — including parallel ones — shares the same read-only tree.
+func sharedDryRunEnv(t testT) (projectDir string, env []string) {
 	t.Helper()
 
-	home := t.TempDir()
-	projectDir = t.TempDir()
+	dryRunEnvOnce.Do(func() {
+		dryRunRoot, dryRunEnvErr = os.MkdirTemp("", "tasktest-")
+		if dryRunEnvErr != nil {
+			dryRunEnvErr = fmt.Errorf("create stub root: %w", dryRunEnvErr)
+			return
+		}
+		home := filepath.Join(dryRunRoot, "home")
+		dryRunProject = filepath.Join(dryRunRoot, "project")
+		dryRunEnv, dryRunEnvErr = buildDryRunEnv(home, dryRunProject)
+	})
+	if dryRunEnvErr != nil {
+		t.Fatalf("build dry-run environment: %v", dryRunEnvErr)
+	}
+
+	return dryRunProject, dryRunEnv
+}
+
+// cleanupDryRunEnv removes the shared stub tree. Safe to call when nothing was
+// ever built.
+func cleanupDryRunEnv() {
+	if dryRunRoot != "" {
+		os.RemoveAll(dryRunRoot)
+	}
+}
+
+// buildDryRunEnv populates a project directory and isolated environment for
+// dry-run tests. It stubs common JS package managers, node version managers,
+// and linting/formatting tools so that _install-if-missing skips installation
+// and package-manager preconditions pass without real tools being present.
+func buildDryRunEnv(home, projectDir string) (env []string, err error) {
 	binDir := filepath.Join(projectDir, ".stub-bin")
 
 	for _, dir := range []string{
@@ -133,7 +202,7 @@ func setupDryRunEnv(t testT) (projectDir string, env []string) {
 		filepath.Join(home, ".nvm"),
 	} {
 		if err := os.MkdirAll(dir, 0755); err != nil {
-			t.Fatalf("create stub dir %s: %v", dir, err)
+			return nil, fmt.Errorf("create stub dir %s: %w", dir, err)
 		}
 	}
 
@@ -144,25 +213,25 @@ func setupDryRunEnv(t testT) (projectDir string, env []string) {
 		"prettier", "eslint", "biome", "stylelint", "knip", "depcheck", "bru",
 	} {
 		if err := os.WriteFile(filepath.Join(binDir, name), []byte(stub), 0755); err != nil {
-			t.Fatalf("write stub %s: %v", name, err)
+			return nil, fmt.Errorf("write stub %s: %w", name, err)
 		}
 	}
 
 	// bun:_bun:unix checks: test -f "$HOME/.bun/bin/bun"
 	if err := os.WriteFile(filepath.Join(home, ".bun", "bin", "bun"), []byte(stub), 0755); err != nil {
-		t.Fatalf("write bun file stub: %v", err)
+		return nil, fmt.Errorf("write bun file stub: %w", err)
 	}
 	// npm/pnpm/yarn:_*:unix checks FNM_INSTALL_DIR ($HOME/.local/share/fnm/fnm)
 	if err := os.WriteFile(filepath.Join(home, ".local", "share", "fnm", "fnm"), []byte(stub), 0755); err != nil {
-		t.Fatalf("write fnm file stub: %v", err)
+		return nil, fmt.Errorf("write fnm file stub: %w", err)
 	}
 	// npm/pnpm/yarn nvm-stack checks $HOME/.nvm/nvm.sh
 	if err := os.WriteFile(filepath.Join(home, ".nvm", "nvm.sh"), []byte("# nvm stub\n"), 0644); err != nil {
-		t.Fatalf("write nvm.sh stub: %v", err)
+		return nil, fmt.Errorf("write nvm.sh stub: %w", err)
 	}
 	// npm/pnpm/yarn:_*:unix checks for package.json in USER_WORKING_DIR
 	if err := os.WriteFile(filepath.Join(projectDir, "package.json"), []byte("{}\n"), 0644); err != nil {
-		t.Fatalf("write package.json: %v", err)
+		return nil, fmt.Errorf("write package.json: %w", err)
 	}
 
 	env = os.Environ()
@@ -172,7 +241,7 @@ func setupDryRunEnv(t testT) (projectDir string, env []string) {
 	env = dryRunSetEnv(env, "NO_COLOR", "1")
 	env = dryRunSetEnv(env, "TASK_ASSUME_YES", "true")
 
-	return projectDir, env
+	return env, nil
 }
 
 func dryRunSetEnv(env []string, key, value string) []string {

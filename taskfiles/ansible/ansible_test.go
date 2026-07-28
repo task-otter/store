@@ -44,10 +44,14 @@ func ansibleAvailable() bool {
 }
 
 func TestTaskfileModuleContract(t *testing.T) {
+	t.Parallel()
+
 	tasktest.AssertModule(t, "ansible", publicTasks, publicVars)
 }
 
 func TestInstallDryRun(t *testing.T) {
+	t.Parallel()
+
 	if ansibleAvailable() {
 		t.Skip("ansible already installed; status check short-circuits install body")
 	}
@@ -61,6 +65,8 @@ func TestInstallDryRun(t *testing.T) {
 }
 
 func TestVersionDryRun(t *testing.T) {
+	t.Parallel()
+
 	if !ansibleAvailable() {
 		t.Skip("ansible is not installed")
 	}
@@ -69,6 +75,8 @@ func TestVersionDryRun(t *testing.T) {
 }
 
 func TestLintDryRun(t *testing.T) {
+	t.Parallel()
+
 	switch runtime.GOOS {
 	case "darwin", "linux":
 		tasktest.AssertDryRunContains(t, "ansible", []string{"lint"},
@@ -81,6 +89,8 @@ func TestLintDryRun(t *testing.T) {
 }
 
 func TestRunDryRun(t *testing.T) {
+	t.Parallel()
+
 	switch runtime.GOOS {
 	case "darwin", "linux":
 		tasktest.AssertDryRunContains(t, "ansible", []string{"run", "PLAYBOOK=site.yml"},
@@ -93,6 +103,8 @@ func TestRunDryRun(t *testing.T) {
 }
 
 func TestPingDryRun(t *testing.T) {
+	t.Parallel()
+
 	switch runtime.GOOS {
 	case "darwin", "linux":
 		tasktest.AssertDryRunContains(t, "ansible", []string{"ping", "INVENTORY=hosts"},

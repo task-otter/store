@@ -27,10 +27,14 @@ var publicVars = []string{
 }
 
 func TestTaskfileModuleContract(t *testing.T) {
+	t.Parallel()
+
 	tasktest.AssertModule(t, "djlint", publicTasks, publicVars)
 }
 
 func TestRepresentativeDryRuns(t *testing.T) {
+	t.Parallel()
+
 	tasktest.AssertDryRunContains(t, "djlint",
 		[]string{"lint", "TARGETS=templates"},
 		"djlint",
@@ -59,6 +63,8 @@ func TestRepresentativeDryRuns(t *testing.T) {
 }
 
 func TestInstallDryRunUsesUv(t *testing.T) {
+	t.Parallel()
+
 	switch runtime.GOOS {
 	case "darwin", "linux":
 		tasktest.AssertInstallDryRun(t, "djlint", "djlint", "uv tool install")
@@ -68,6 +74,8 @@ func TestInstallDryRunUsesUv(t *testing.T) {
 }
 
 func TestInstallHonorsVersionPin(t *testing.T) {
+	t.Parallel()
+
 	switch runtime.GOOS {
 	case "darwin", "linux":
 		tasktest.AssertDryRunContains(t, "djlint",

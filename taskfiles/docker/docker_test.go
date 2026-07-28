@@ -33,10 +33,14 @@ var publicVars = []string{
 }
 
 func TestTaskfileModuleContract(t *testing.T) {
+	t.Parallel()
+
 	tasktest.AssertModule(t, "docker", publicTasks, publicVars)
 }
 
 func TestInstallDryRun(t *testing.T) {
+	t.Parallel()
+
 	if _, err := exec.LookPath("docker"); err == nil {
 		t.Skip("docker already installed; status check short-circuits install body")
 	}
@@ -58,6 +62,8 @@ func TestInstallDryRun(t *testing.T) {
 }
 
 func TestVersionDryRun(t *testing.T) {
+	t.Parallel()
+
 	if _, err := exec.LookPath("docker"); err != nil {
 		t.Skip("docker is not installed")
 	}
@@ -66,18 +72,26 @@ func TestVersionDryRun(t *testing.T) {
 }
 
 func TestPsDryRun(t *testing.T) {
+	t.Parallel()
+
 	tasktest.AssertDryRunContains(t, "docker", []string{"ps"}, "docker ps")
 }
 
 func TestPsAllDryRun(t *testing.T) {
+	t.Parallel()
+
 	tasktest.AssertDryRunContains(t, "docker", []string{"ps:all"}, "docker ps -a")
 }
 
 func TestImagesDryRun(t *testing.T) {
+	t.Parallel()
+
 	tasktest.AssertDryRunContains(t, "docker", []string{"images"}, "docker images")
 }
 
 func TestBuildDryRun(t *testing.T) {
+	t.Parallel()
+
 	tasktest.AssertDryRunContains(t, "docker", []string{"build", "IMAGE=myapp:latest"},
 		"docker build",
 		"-t",
@@ -86,6 +100,8 @@ func TestBuildDryRun(t *testing.T) {
 }
 
 func TestPullDryRun(t *testing.T) {
+	t.Parallel()
+
 	tasktest.AssertDryRunContains(t, "docker", []string{"pull", "IMAGE=ubuntu:latest"},
 		"docker pull",
 		"ubuntu:latest",
@@ -93,5 +109,7 @@ func TestPullDryRun(t *testing.T) {
 }
 
 func TestPruneDryRun(t *testing.T) {
+	t.Parallel()
+
 	tasktest.AssertDryRunContains(t, "docker", []string{"prune"}, "docker system prune")
 }

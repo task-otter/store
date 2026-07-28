@@ -187,13 +187,15 @@ var expectedPublicTasks = []tasktestutil.PublicTaskSpec{
 		RequiresSummary:     true,
 	},
 	{
-		Name:            "version",
+		Name:               "version",
 		MustDryRunWithArgs: true,
-		RequiresSummary: true,
+		RequiresSummary:    true,
 	},
 }
 
 func TestTaskBinaryIsAvailable(t *testing.T) {
+	t.Parallel()
+
 	root := tasktestutil.ModuleRoot(t)
 	result := tasktestutil.RunTask(t, root, nil, "--version")
 	tasktestutil.AssertExitCode(t, result, 0)
@@ -201,6 +203,8 @@ func TestTaskBinaryIsAvailable(t *testing.T) {
 }
 
 func TestTaskfileYamlIsCleanAndValid(t *testing.T) {
+	t.Parallel()
+
 	path := tasktestutil.ModuleTaskfilePath(t)
 	content := tasktestutil.ReadFile(t, path)
 	tasktestutil.AssertTextFileClean(t, path, content)
@@ -224,6 +228,8 @@ func TestTaskfileYamlIsCleanAndValid(t *testing.T) {
 }
 
 func TestTaskCliCanLoadTaskfile(t *testing.T) {
+	t.Parallel()
+
 	root := tasktestutil.ModuleRoot(t)
 	for _, args := range [][]string{
 		{"--list"},
@@ -242,6 +248,8 @@ func TestTaskCliCanLoadTaskfile(t *testing.T) {
 }
 
 func TestTaskListAllJsonIsValid(t *testing.T) {
+	t.Parallel()
+
 	root := tasktestutil.ModuleRoot(t)
 	result := tasktestutil.RunTask(t, root, tasktestutil.IsolatedEnv(t), "--list-all", "--json")
 	tasktestutil.AssertExitCode(t, result, 0)
@@ -251,6 +259,8 @@ func TestTaskListAllJsonIsValid(t *testing.T) {
 }
 
 func TestPublicApiDoesNotDrift(t *testing.T) {
+	t.Parallel()
+
 	tf := tasktestutil.LoadTaskfile(t)
 	expected := tasktestutil.ExpectedPublicTaskNames(expectedPublicTasks)
 	actual := tasktestutil.PublicTaskNamesFromTaskfile(t, tf)
@@ -263,6 +273,8 @@ func TestPublicApiDoesNotDrift(t *testing.T) {
 }
 
 func TestReadmePublicTaskTableDoesNotDrift(t *testing.T) {
+	t.Parallel()
+
 	content := tasktestutil.ReadFile(t, tasktestutil.ModuleReadmePath(t))
 	expected := tasktestutil.ExpectedPublicTaskNames(expectedPublicTasks)
 	actual := readmePublicTaskNames(content)
@@ -275,6 +287,8 @@ func TestReadmePublicTaskTableDoesNotDrift(t *testing.T) {
 }
 
 func TestEveryTaskIsEitherPublicOrInternal(t *testing.T) {
+	t.Parallel()
+
 	tf := tasktestutil.LoadTaskfile(t)
 	for name, task := range tf.Tasks {
 		name, task := name, task
@@ -290,6 +304,8 @@ func TestEveryTaskIsEitherPublicOrInternal(t *testing.T) {
 }
 
 func TestPublicTasksHaveMetadata(t *testing.T) {
+	t.Parallel()
+
 	tf := tasktestutil.LoadTaskfile(t)
 	for _, spec := range expectedPublicTasks {
 		spec := spec
@@ -320,6 +336,8 @@ func TestPublicTasksHaveMetadata(t *testing.T) {
 }
 
 func TestDestructivePublicTasksHavePrompt(t *testing.T) {
+	t.Parallel()
+
 	tf := tasktestutil.LoadTaskfile(t)
 	for _, spec := range expectedPublicTasks {
 		spec := spec
@@ -344,6 +362,8 @@ func TestDestructivePublicTasksHavePrompt(t *testing.T) {
 }
 
 func TestInstallTasksUseGithubGroupOutput(t *testing.T) {
+	t.Parallel()
+
 	tf := tasktestutil.LoadTaskfile(t)
 	for _, spec := range expectedPublicTasks {
 		spec := spec
@@ -363,6 +383,8 @@ func TestInstallTasksUseGithubGroupOutput(t *testing.T) {
 }
 
 func TestPublicTasksHaveCommands(t *testing.T) {
+	t.Parallel()
+
 	tf := tasktestutil.LoadTaskfile(t)
 	for _, spec := range expectedPublicTasks {
 		spec := spec
@@ -377,6 +399,8 @@ func TestPublicTasksHaveCommands(t *testing.T) {
 }
 
 func TestTaskSummariesWork(t *testing.T) {
+	t.Parallel()
+
 	root := tasktestutil.ModuleRoot(t)
 	for _, spec := range expectedPublicTasks {
 		spec := spec
@@ -397,6 +421,8 @@ func TestTaskSummariesWork(t *testing.T) {
 }
 
 func TestPublicTasksDryRunWithExpectedArgs(t *testing.T) {
+	t.Parallel()
+
 	root := tasktestutil.ModuleRoot(t)
 	for _, spec := range expectedPublicTasks {
 		spec := spec
@@ -418,6 +444,8 @@ func TestPublicTasksDryRunWithExpectedArgs(t *testing.T) {
 }
 
 func TestOptionalVersionTasksDryRunWithoutVersion(t *testing.T) {
+	t.Parallel()
+
 	root := tasktestutil.ModuleRoot(t)
 	tf := tasktestutil.LoadTaskfile(t)
 	for _, spec := range expectedPublicTasks {
@@ -443,6 +471,8 @@ func TestOptionalVersionTasksDryRunWithoutVersion(t *testing.T) {
 }
 
 func TestCommandsDoNotContainDangerousPatterns(t *testing.T) {
+	t.Parallel()
+
 	tf := tasktestutil.LoadTaskfile(t)
 	for taskName, task := range tf.Tasks {
 		taskName := taskName
@@ -457,6 +487,8 @@ func TestCommandsDoNotContainDangerousPatterns(t *testing.T) {
 }
 
 func TestNoPlaceholderTextInTaskfile(t *testing.T) {
+	t.Parallel()
+
 	content := tasktestutil.ReadFile(t, tasktestutil.ModuleTaskfilePath(t))
 	upper := strings.ToUpper(content)
 	for _, p := range []string{"TODO", "FIXME", "CHANGEME", "REPLACE_ME", "YOUR VALUE HERE", "LOREM IPSUM"} {
@@ -467,10 +499,11 @@ func TestNoPlaceholderTextInTaskfile(t *testing.T) {
 }
 
 func TestRunTaskRequiresScriptVariable(t *testing.T) {
+	t.Parallel()
+
 	if runtime.GOOS == "windows" {
 		t.Skip("stub npm tests target Unix-like systems")
 	}
-	t.Parallel()
 	result := tasktestutil.RunTask(t, tasktestutil.ModuleRoot(t), npmNvmDryRunEnv(t), "--yes", "run")
 	if result.Err == nil {
 		t.Fatal("expected task run to fail without SCRIPT variable but it succeeded")
@@ -478,98 +511,110 @@ func TestRunTaskRequiresScriptVariable(t *testing.T) {
 }
 
 func TestVersionTaskExitsSuccessfully(t *testing.T) {
+	t.Parallel()
+
 	if runtime.GOOS == "windows" {
 		t.Skip("stub npm tests target Unix-like systems")
 	}
-	t.Parallel()
 	result := tasktestutil.RunTask(t, tasktestutil.ModuleRoot(t), npmNvmDryRunEnv(t), "--yes", "version")
 	tasktestutil.AssertExitCode(t, result, 0)
 	tasktestutil.AssertContains(t, result.Combined(), "stub")
 }
 
 func TestInstallTaskExitsSuccessfully(t *testing.T) {
+	t.Parallel()
+
 	if runtime.GOOS == "windows" {
 		t.Skip("stub npm tests target Unix-like systems")
 	}
-	t.Parallel()
 	result := tasktestutil.RunTask(t, tasktestutil.ModuleRoot(t), npmNvmDryRunEnv(t), "--yes", "install")
 	tasktestutil.AssertExitCode(t, result, 0)
 }
 
 func TestCiTaskExitsSuccessfully(t *testing.T) {
+	t.Parallel()
+
 	if runtime.GOOS == "windows" {
 		t.Skip("stub npm tests target Unix-like systems")
 	}
-	t.Parallel()
 	result := tasktestutil.RunTask(t, tasktestutil.ModuleRoot(t), npmNvmDryRunEnv(t), "--yes", "ci")
 	tasktestutil.AssertExitCode(t, result, 0)
 }
 
 func TestBuildTaskExitsSuccessfully(t *testing.T) {
+	t.Parallel()
+
 	if runtime.GOOS == "windows" {
 		t.Skip("stub npm tests target Unix-like systems")
 	}
-	t.Parallel()
 	result := tasktestutil.RunTask(t, tasktestutil.ModuleRoot(t), npmNvmDryRunEnv(t), "--yes", "build")
 	tasktestutil.AssertExitCode(t, result, 0)
 }
 
 func TestRunTaskExitsSuccessfully(t *testing.T) {
+	t.Parallel()
+
 	if runtime.GOOS == "windows" {
 		t.Skip("stub npm tests target Unix-like systems")
 	}
-	t.Parallel()
 	result := tasktestutil.RunTask(t, tasktestutil.ModuleRoot(t), npmNvmDryRunEnv(t), "--yes", "run", "SCRIPT=build")
 	tasktestutil.AssertExitCode(t, result, 0)
 	tasktestutil.AssertContains(t, result.Combined(), "build")
 }
 
 func TestCleanTaskSkipsWhenNodeModulesAbsent(t *testing.T) {
+	t.Parallel()
+
 	if runtime.GOOS == "windows" {
 		t.Skip("stub npm tests target Unix-like systems")
 	}
-	t.Parallel()
 	result := tasktestutil.RunTask(t, tasktestutil.ModuleRoot(t), npmNvmDryRunEnv(t), "--yes", "clean")
 	tasktestutil.AssertExitCode(t, result, 0)
 }
 
 func TestOutdatedTaskExitsSuccessfully(t *testing.T) {
+	t.Parallel()
+
 	if runtime.GOOS == "windows" {
 		t.Skip("stub npm tests target Unix-like systems")
 	}
-	t.Parallel()
 	result := tasktestutil.RunTask(t, tasktestutil.ModuleRoot(t), npmNvmDryRunEnv(t), "--yes", "outdated")
 	tasktestutil.AssertExitCode(t, result, 0)
 }
 
 func TestOutdatedStrictTaskExitsSuccessfully(t *testing.T) {
+	t.Parallel()
+
 	if runtime.GOOS == "windows" {
 		t.Skip("stub npm tests target Unix-like systems")
 	}
-	t.Parallel()
 	result := tasktestutil.RunTask(t, tasktestutil.ModuleRoot(t), npmNvmDryRunEnv(t), "--yes", "outdated:strict")
 	tasktestutil.AssertExitCode(t, result, 0)
 }
 
 func TestAuditReportTaskExitsSuccessfully(t *testing.T) {
+	t.Parallel()
+
 	if runtime.GOOS == "windows" {
 		t.Skip("stub npm tests target Unix-like systems")
 	}
-	t.Parallel()
 	result := tasktestutil.RunTask(t, tasktestutil.ModuleRoot(t), npmNvmDryRunEnv(t), "--yes", "audit:report")
 	tasktestutil.AssertExitCode(t, result, 0)
 }
 
 func TestRunTaskForwardsCliArgs(t *testing.T) {
+	t.Parallel()
+
 	if runtime.GOOS == "windows" {
 		t.Skip("stub npm tests target Unix-like systems")
 	}
-	t.Parallel()
 	result := tasktestutil.RunTask(t, tasktestutil.ModuleRoot(t), npmNvmDryRunEnv(t), "--yes", "run", "SCRIPT=test", "--", "--watch")
 	tasktestutil.AssertExitCode(t, result, 0)
 }
 
 func TestRunTaskCliArgsWiredInYaml(t *testing.T) {
+	t.Parallel()
+
 	tf := tasktestutil.LoadTaskfile(t)
 	task := tasktestutil.MustTask(t, tf, "_run:unix")
 	cmds := task.Field("cmds")
@@ -582,19 +627,21 @@ func TestRunTaskCliArgsWiredInYaml(t *testing.T) {
 }
 
 func TestDevTaskExitsSuccessfully(t *testing.T) {
+	t.Parallel()
+
 	if runtime.GOOS == "windows" {
 		t.Skip("stub npm tests target Unix-like systems")
 	}
-	t.Parallel()
 	result := tasktestutil.RunTask(t, tasktestutil.ModuleRoot(t), npmNvmDryRunEnv(t), "--yes", "dev")
 	tasktestutil.AssertExitCode(t, result, 0)
 }
 
 func TestInstallFailsOutsideProjectRoot(t *testing.T) {
+	t.Parallel()
+
 	if runtime.GOOS == "windows" {
 		t.Skip("stub npm tests target Unix-like systems")
 	}
-	t.Parallel()
 	taskfileDir := tasktestutil.ModuleRoot(t)
 	projectDir := t.TempDir()
 	result := tasktestutil.RunTask(t, projectDir, npmNvmDryRunEnv(t),
@@ -610,10 +657,11 @@ func TestInstallFailsOutsideProjectRoot(t *testing.T) {
 }
 
 func TestCiFailsWithoutLockfile(t *testing.T) {
+	t.Parallel()
+
 	if runtime.GOOS == "windows" {
 		t.Skip("stub npm tests target Unix-like systems")
 	}
-	t.Parallel()
 	taskfileDir := tasktestutil.ModuleRoot(t)
 	projectDir := t.TempDir()
 	if err := os.WriteFile(
@@ -637,10 +685,11 @@ func TestCiFailsWithoutLockfile(t *testing.T) {
 }
 
 func TestRunTaskRejectsUnsafeScript(t *testing.T) {
+	t.Parallel()
+
 	if runtime.GOOS == "windows" {
 		t.Skip("stub npm tests target Unix-like systems")
 	}
-	t.Parallel()
 	result := tasktestutil.RunTask(t, tasktestutil.ModuleRoot(t), npmNvmDryRunEnv(t), "--yes", "run", "SCRIPT=dev; rm -rf /")
 	if result.Err == nil {
 		t.Fatal("expected task run to reject unsafe SCRIPT but it succeeded")
@@ -652,6 +701,8 @@ func TestRunTaskRejectsUnsafeScript(t *testing.T) {
 }
 
 func TestRealNpmFlowOnlyWhenExplicitlyEnabled(t *testing.T) {
+	t.Parallel()
+
 	if os.Getenv("RUN_INSTALLER_TESTS") != "1" {
 		t.Skip("set RUN_INSTALLER_TESTS=1 to run real npm install/build/test tests")
 	}

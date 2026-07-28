@@ -48,10 +48,14 @@ var publicVars = []string{
 }
 
 func TestTaskfileModuleContract(t *testing.T) {
+	t.Parallel()
+
 	tasktest.AssertModule(t, "vault", publicTasks, publicVars)
 }
 
 func TestInputValidatedTasksDoNotInstallBeforePreconditions(t *testing.T) {
+	t.Parallel()
+
 	tf := tasktest.LoadTaskfile(t, "vault")
 
 	for _, name := range []string{"init", "login", "login:approle", "login:root-token", "restore", "token:issue:approle", "token:revoke-self", "unseal"} {
@@ -63,6 +67,8 @@ func TestInputValidatedTasksDoNotInstallBeforePreconditions(t *testing.T) {
 }
 
 func TestVerifyDoesNotMaskStatusFailures(t *testing.T) {
+	t.Parallel()
+
 	tf := tasktest.LoadTaskfile(t, "vault")
 	cmds := taskFieldYAML(t, tf.Tasks["verify"].Cmds)
 
@@ -75,6 +81,8 @@ func TestVerifyDoesNotMaskStatusFailures(t *testing.T) {
 }
 
 func TestInitDoesNotOverwriteExistingKeysFile(t *testing.T) {
+	t.Parallel()
+
 	tf := tasktest.LoadTaskfile(t, "vault")
 	task := tf.Tasks["init"]
 	preconditions := taskFieldYAML(t, task.Preconditions)
@@ -96,6 +104,8 @@ func TestInitDoesNotOverwriteExistingKeysFile(t *testing.T) {
 }
 
 func TestLoginDoesNotPassRootTokenAsCommandArgument(t *testing.T) {
+	t.Parallel()
+
 	tf := tasktest.LoadTaskfile(t, "vault")
 	cmds := taskFieldYAML(t, tf.Tasks["login"].Cmds)
 
@@ -112,6 +122,8 @@ func TestLoginDoesNotPassRootTokenAsCommandArgument(t *testing.T) {
 }
 
 func TestLoginRootTokenPipesTokenViaStdin(t *testing.T) {
+	t.Parallel()
+
 	tf := tasktest.LoadTaskfile(t, "vault")
 	cmds := taskFieldYAML(t, tf.Tasks["login:root-token"].Cmds)
 
@@ -128,6 +140,8 @@ func TestLoginRootTokenPipesTokenViaStdin(t *testing.T) {
 }
 
 func TestLoginApproleRequiresBothCredentials(t *testing.T) {
+	t.Parallel()
+
 	tf := tasktest.LoadTaskfile(t, "vault")
 	task := tf.Tasks["login:approle"]
 	preconditions := taskFieldYAML(t, task.Preconditions)
@@ -161,6 +175,8 @@ func TestLoginApproleRequiresBothCredentials(t *testing.T) {
 }
 
 func TestLinuxParentTasksGuardUnsupportedPackageManagers(t *testing.T) {
+	t.Parallel()
+
 	tf := tasktest.LoadTaskfile(t, "vault")
 
 	for _, name := range []string{"_install:linux", "_install:undo:linux", "_upgrade:linux"} {
@@ -174,6 +190,8 @@ func TestLinuxParentTasksGuardUnsupportedPackageManagers(t *testing.T) {
 }
 
 func TestStrictShellSetOnSensitiveTasks(t *testing.T) {
+	t.Parallel()
+
 	tf := tasktest.LoadTaskfile(t, "vault")
 
 	for _, name := range []string{"health", "init", "kv:get", "login", "login:approle", "login:root-token", "restore", "token:issue:approle", "token:revoke-self", "unseal"} {
@@ -187,6 +205,8 @@ func TestStrictShellSetOnSensitiveTasks(t *testing.T) {
 }
 
 func TestTokenIssueApRolePipesSecretViaStdinWithoutLogin(t *testing.T) {
+	t.Parallel()
+
 	tf := tasktest.LoadTaskfile(t, "vault")
 	task := tf.Tasks["token:issue:approle"]
 	preconditions := taskFieldYAML(t, task.Preconditions)
@@ -217,6 +237,8 @@ func TestTokenIssueApRolePipesSecretViaStdinWithoutLogin(t *testing.T) {
 }
 
 func TestTokenRevokeSelfRequiresVaultToken(t *testing.T) {
+	t.Parallel()
+
 	tf := tasktest.LoadTaskfile(t, "vault")
 	task := tf.Tasks["token:revoke-self"]
 	preconditions := taskFieldYAML(t, task.Preconditions)
@@ -231,6 +253,8 @@ func TestTokenRevokeSelfRequiresVaultToken(t *testing.T) {
 }
 
 func TestKvGetRequiresMountPathAndToken(t *testing.T) {
+	t.Parallel()
+
 	tf := tasktest.LoadTaskfile(t, "vault")
 	task := tf.Tasks["kv:get"]
 	preconditions := taskFieldYAML(t, task.Preconditions)

@@ -40,6 +40,8 @@ var publicTasks = []string{
 }
 
 func TestTaskfileAndReadmePublicApi(t *testing.T) {
+	t.Parallel()
+
 	doc := loadTaskfile(t)
 
 	var root map[string]any
@@ -64,6 +66,8 @@ func TestTaskfileAndReadmePublicApi(t *testing.T) {
 }
 
 func TestTaskCliLoadsAndDryRunsPublicTasks(t *testing.T) {
+	t.Parallel()
+
 	for _, args := range [][]string{{"--list"}, {"--list-all"}, {"--list-all", "--json"}} {
 		result := tasktestutil.RunSimpleTask(t, ".", stubEnv(t), args...)
 		if result.Err != nil {
@@ -92,6 +96,8 @@ func TestTaskCliLoadsAndDryRunsPublicTasks(t *testing.T) {
 }
 
 func TestStubbedYarnFlows(t *testing.T) {
+	t.Parallel()
+
 	if runtime.GOOS == "windows" {
 		t.Skip("Unix shell stubs cover these flows")
 	}
@@ -124,7 +130,7 @@ func stubEnv(t *testing.T) []string {
 		t.Fatalf("create stub bin dir: %v", err)
 	}
 
-		nvmDir := filepath.Join(home, ".nvm")
+	nvmDir := filepath.Join(home, ".nvm")
 	if err := os.MkdirAll(nvmDir, 0755); err != nil {
 		t.Fatalf("create nvm dir: %v", err)
 	}

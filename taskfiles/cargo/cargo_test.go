@@ -34,10 +34,14 @@ var publicVars = []string{
 }
 
 func TestTaskfileModuleContract(t *testing.T) {
+	t.Parallel()
+
 	tasktest.AssertModule(t, "cargo", publicTasks, publicVars)
 }
 
 func TestRepresentativeDryRuns(t *testing.T) {
+	t.Parallel()
+
 	tasktest.AssertDryRunContains(t, "cargo",
 		[]string{"version"},
 		"cargo",
@@ -56,6 +60,8 @@ func TestRepresentativeDryRuns(t *testing.T) {
 }
 
 func TestInstallDryRunUsesOfficialInstaller(t *testing.T) {
+	t.Parallel()
+
 	switch runtime.GOOS {
 	case "darwin", "linux":
 		tasktest.AssertInstallDryRun(t, "cargo", "cargo", "curl", "sh.rustup.rs")
@@ -65,6 +71,8 @@ func TestInstallDryRunUsesOfficialInstaller(t *testing.T) {
 }
 
 func TestUpgradeDryRunUsesRustup(t *testing.T) {
+	t.Parallel()
+
 	switch runtime.GOOS {
 	case "darwin", "linux":
 		tasktest.AssertDryRunContains(t, "cargo",

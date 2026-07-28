@@ -29,10 +29,14 @@ var publicVars = []string{
 }
 
 func TestTaskfileModuleContract(t *testing.T) {
+	t.Parallel()
+
 	tasktest.AssertModule(t, "depcheck/node/nvm/npm", publicTasks, publicVars)
 }
 
 func TestRepresentativeDryRuns(t *testing.T) {
+	t.Parallel()
+
 	tasktest.AssertDryRunContains(t, "depcheck/node/nvm/npm",
 		[]string{"lint", "PROJECT_PATH=packages/app", "--", "--ignores=@types/*,eslint-*"},
 		"npm:exec",

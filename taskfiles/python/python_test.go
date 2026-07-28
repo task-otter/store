@@ -39,10 +39,14 @@ func pythonAvailable() bool {
 }
 
 func TestTaskfileModuleContract(t *testing.T) {
+	t.Parallel()
+
 	tasktest.AssertModule(t, "python", publicTasks, publicVars)
 }
 
 func TestInstallDryRun(t *testing.T) {
+	t.Parallel()
+
 	if pythonAvailable() {
 		t.Skip("python already installed; status check short-circuits install body")
 	}
@@ -56,6 +60,8 @@ func TestInstallDryRun(t *testing.T) {
 }
 
 func TestVersionDryRun(t *testing.T) {
+	t.Parallel()
+
 	if !pythonAvailable() {
 		t.Skip("python is not installed")
 	}
@@ -69,6 +75,8 @@ func TestVersionDryRun(t *testing.T) {
 }
 
 func TestVenvDryRun(t *testing.T) {
+	t.Parallel()
+
 	switch runtime.GOOS {
 	case "darwin", "linux":
 		tasktest.AssertDryRunContains(t, "python", []string{"venv"}, "python3 -m venv")
@@ -78,6 +86,8 @@ func TestVenvDryRun(t *testing.T) {
 }
 
 func TestPipInstallDryRun(t *testing.T) {
+	t.Parallel()
+
 	switch runtime.GOOS {
 	case "darwin", "linux":
 		tasktest.AssertDryRunContains(t, "python", []string{"pip:install"}, "pip3 install -r")
@@ -87,6 +97,8 @@ func TestPipInstallDryRun(t *testing.T) {
 }
 
 func TestRunDryRun(t *testing.T) {
+	t.Parallel()
+
 	switch runtime.GOOS {
 	case "darwin", "linux":
 		tasktest.AssertDryRunContains(t, "python", []string{"run", "FILE=hello.py"},

@@ -41,10 +41,14 @@ func uvAvailable() bool {
 }
 
 func TestTaskfileModuleContract(t *testing.T) {
+	t.Parallel()
+
 	tasktest.AssertModule(t, "uv", publicTasks, publicVars)
 }
 
 func TestInstallDryRun(t *testing.T) {
+	t.Parallel()
+
 	if uvAvailable() {
 		t.Skip("uv already installed; status check short-circuits install body")
 	}
@@ -58,6 +62,8 @@ func TestInstallDryRun(t *testing.T) {
 }
 
 func TestVersionDryRun(t *testing.T) {
+	t.Parallel()
+
 	if !uvAvailable() {
 		t.Skip("uv is not installed")
 	}
@@ -66,6 +72,8 @@ func TestVersionDryRun(t *testing.T) {
 }
 
 func TestToolInstallDryRun(t *testing.T) {
+	t.Parallel()
+
 	tasktest.AssertDryRunContains(t, "uv", []string{"tool:install", "TOOL=yamllint"},
 		"uv tool install",
 		"yamllint",
@@ -73,14 +81,20 @@ func TestToolInstallDryRun(t *testing.T) {
 }
 
 func TestVenvDryRun(t *testing.T) {
+	t.Parallel()
+
 	tasktest.AssertDryRunContains(t, "uv", []string{"venv"}, "uv venv")
 }
 
 func TestPipInstallDryRun(t *testing.T) {
+	t.Parallel()
+
 	tasktest.AssertDryRunContains(t, "uv", []string{"pip:install"}, "uv pip install -r")
 }
 
 func TestRunDryRun(t *testing.T) {
+	t.Parallel()
+
 	tasktest.AssertDryRunContains(t, "uv", []string{"run", "FILE=main.py"},
 		"uv run",
 		"main.py",

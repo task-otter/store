@@ -25,10 +25,14 @@ var publicVars = []string{
 }
 
 func TestTaskfileModuleContract(t *testing.T) {
+	t.Parallel()
+
 	tasktest.AssertModule(t, "htmlhint/node/fnm/npm", publicTasks, publicVars)
 }
 
 func TestRepresentativeDryRuns(t *testing.T) {
+	t.Parallel()
+
 	tasktest.AssertDryRunContains(t, "htmlhint/node/fnm/npm",
 		[]string{"lint", "TARGETS=src/**/*.html"},
 		"htmlhint",

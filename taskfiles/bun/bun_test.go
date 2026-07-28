@@ -64,13 +64,15 @@ var expectedPublicTasks = []tasktestutil.PublicTaskSpec{
 		RequiresSummary:     true,
 	},
 	{
-		Name:            "version",
+		Name:               "version",
 		MustDryRunWithArgs: true,
-		RequiresSummary: true,
+		RequiresSummary:    true,
 	},
 }
 
 func TestTaskBinaryIsAvailable(t *testing.T) {
+	t.Parallel()
+
 	root := tasktestutil.ModuleRoot(t)
 	result := tasktestutil.RunTask(t, root, nil, "--version")
 	tasktestutil.AssertExitCode(t, result, 0)
@@ -78,6 +80,8 @@ func TestTaskBinaryIsAvailable(t *testing.T) {
 }
 
 func TestTaskfileYamlIsCleanAndValid(t *testing.T) {
+	t.Parallel()
+
 	path := tasktestutil.ModuleTaskfilePath(t)
 	content := tasktestutil.ReadFile(t, path)
 	tasktestutil.AssertTextFileClean(t, path, content)
@@ -101,6 +105,8 @@ func TestTaskfileYamlIsCleanAndValid(t *testing.T) {
 }
 
 func TestTaskCliCanLoadTaskfile(t *testing.T) {
+	t.Parallel()
+
 	root := tasktestutil.ModuleRoot(t)
 	for _, args := range [][]string{
 		{"--list"},
@@ -119,6 +125,8 @@ func TestTaskCliCanLoadTaskfile(t *testing.T) {
 }
 
 func TestTaskListAllJsonIsValid(t *testing.T) {
+	t.Parallel()
+
 	root := tasktestutil.ModuleRoot(t)
 	result := tasktestutil.RunTask(t, root, tasktestutil.IsolatedEnv(t), "--list-all", "--json")
 	tasktestutil.AssertExitCode(t, result, 0)
@@ -128,6 +136,8 @@ func TestTaskListAllJsonIsValid(t *testing.T) {
 }
 
 func TestPublicApiDoesNotDrift(t *testing.T) {
+	t.Parallel()
+
 	tf := tasktestutil.LoadTaskfile(t)
 	expected := tasktestutil.ExpectedPublicTaskNames(expectedPublicTasks)
 	actual := tasktestutil.PublicTaskNamesFromTaskfile(t, tf)
@@ -140,6 +150,8 @@ func TestPublicApiDoesNotDrift(t *testing.T) {
 }
 
 func TestEveryTaskIsEitherPublicOrInternal(t *testing.T) {
+	t.Parallel()
+
 	tf := tasktestutil.LoadTaskfile(t)
 	for name, task := range tf.Tasks {
 		name, task := name, task
@@ -155,6 +167,8 @@ func TestEveryTaskIsEitherPublicOrInternal(t *testing.T) {
 }
 
 func TestPublicTasksHaveMetadata(t *testing.T) {
+	t.Parallel()
+
 	tf := tasktestutil.LoadTaskfile(t)
 	for _, spec := range expectedPublicTasks {
 		spec := spec
@@ -185,6 +199,8 @@ func TestPublicTasksHaveMetadata(t *testing.T) {
 }
 
 func TestDestructivePublicTasksHavePrompt(t *testing.T) {
+	t.Parallel()
+
 	tf := tasktestutil.LoadTaskfile(t)
 	for _, spec := range expectedPublicTasks {
 		spec := spec
@@ -209,6 +225,8 @@ func TestDestructivePublicTasksHavePrompt(t *testing.T) {
 }
 
 func TestInstallTasksUseGithubGroupOutput(t *testing.T) {
+	t.Parallel()
+
 	tf := tasktestutil.LoadTaskfile(t)
 	for _, spec := range expectedPublicTasks {
 		spec := spec
@@ -228,6 +246,8 @@ func TestInstallTasksUseGithubGroupOutput(t *testing.T) {
 }
 
 func TestPublicTasksHaveCommands(t *testing.T) {
+	t.Parallel()
+
 	tf := tasktestutil.LoadTaskfile(t)
 	for _, spec := range expectedPublicTasks {
 		spec := spec
@@ -242,6 +262,8 @@ func TestPublicTasksHaveCommands(t *testing.T) {
 }
 
 func TestTaskSummariesWork(t *testing.T) {
+	t.Parallel()
+
 	root := tasktestutil.ModuleRoot(t)
 	for _, spec := range expectedPublicTasks {
 		spec := spec
@@ -262,6 +284,8 @@ func TestTaskSummariesWork(t *testing.T) {
 }
 
 func TestPublicTasksDryRunWithExpectedArgs(t *testing.T) {
+	t.Parallel()
+
 	root := tasktestutil.ModuleRoot(t)
 	for _, spec := range expectedPublicTasks {
 		spec := spec
@@ -283,6 +307,8 @@ func TestPublicTasksDryRunWithExpectedArgs(t *testing.T) {
 }
 
 func TestUndoPairsExist(t *testing.T) {
+	t.Parallel()
+
 	tf := tasktestutil.LoadTaskfile(t)
 	for task, undo := range map[string]string{"install": "install:undo"} {
 		if _, ok := tf.Tasks[task]; !ok {
@@ -295,6 +321,8 @@ func TestUndoPairsExist(t *testing.T) {
 }
 
 func TestReferencedScriptsExist(t *testing.T) {
+	t.Parallel()
+
 	root := tasktestutil.ModuleRoot(t)
 	tf := tasktestutil.LoadTaskfile(t)
 	for taskName, task := range tf.Tasks {
@@ -319,6 +347,8 @@ func TestReferencedScriptsExist(t *testing.T) {
 }
 
 func TestCommandsDoNotContainDangerousPatterns(t *testing.T) {
+	t.Parallel()
+
 	dangerousPatterns := tasktestutil.DangerousCommandPatterns()
 	tf := tasktestutil.LoadTaskfile(t)
 	for taskName, task := range tf.Tasks {
@@ -334,6 +364,8 @@ func TestCommandsDoNotContainDangerousPatterns(t *testing.T) {
 }
 
 func TestNoPlaceholderTextInTaskfile(t *testing.T) {
+	t.Parallel()
+
 	content := tasktestutil.ReadFile(t, tasktestutil.ModuleTaskfilePath(t))
 	upper := strings.ToUpper(content)
 	for _, p := range []string{"TODO", "FIXME", "CHANGEME", "REPLACE_ME", "YOUR VALUE HERE", "LOREM IPSUM"} {
@@ -344,29 +376,32 @@ func TestNoPlaceholderTextInTaskfile(t *testing.T) {
 }
 
 func TestVersionTaskExitsSuccessfully(t *testing.T) {
+	t.Parallel()
+
 	if runtime.GOOS == "windows" {
 		t.Skip("stub bun tests target Unix-like systems")
 	}
-	t.Parallel()
 	result := tasktestutil.RunTask(t, tasktestutil.ModuleRoot(t), bunDryRunEnv(t), "--yes", "version")
 	tasktestutil.AssertExitCode(t, result, 0)
 }
 
 func TestVersionTaskPrintsBunVersion(t *testing.T) {
+	t.Parallel()
+
 	if runtime.GOOS == "windows" {
 		t.Skip("stub bun tests target Unix-like systems")
 	}
-	t.Parallel()
 	result := tasktestutil.RunTask(t, tasktestutil.ModuleRoot(t), bunDryRunEnv(t), "--yes", "version")
 	tasktestutil.AssertExitCode(t, result, 0)
 	tasktestutil.AssertContains(t, result.Combined(), "1.")
 }
 
 func TestInstallIsIdempotentWithStubBun(t *testing.T) {
+	t.Parallel()
+
 	if runtime.GOOS == "windows" {
 		t.Skip("stub bun tests target Unix-like systems")
 	}
-	t.Parallel()
 	root := tasktestutil.ModuleRoot(t)
 	env := bunDryRunEnv(t)
 	tasktestutil.AssertExitCode(t, tasktestutil.RunTask(t, root, env, "--yes", "install"), 0)
@@ -374,20 +409,22 @@ func TestInstallIsIdempotentWithStubBun(t *testing.T) {
 }
 
 func TestInstallSkipsWhenBunIsAlreadyPresent(t *testing.T) {
+	t.Parallel()
+
 	if runtime.GOOS == "windows" {
 		t.Skip("stub bun tests target Unix-like systems")
 	}
-	t.Parallel()
 	result := tasktestutil.RunTask(t, tasktestutil.ModuleRoot(t), bunDryRunEnv(t), "--yes", "install")
 	tasktestutil.AssertExitCode(t, result, 0)
 	tasktestutil.AssertNotContains(t, result.Combined(), "Installing Bun")
 }
 
 func TestInstallUndoRemovesBunDir(t *testing.T) {
+	t.Parallel()
+
 	if runtime.GOOS == "windows" {
 		t.Skip("stub bun tests target Unix-like systems")
 	}
-	t.Parallel()
 	root := tasktestutil.ModuleRoot(t)
 	env := bunDryRunEnv(t)
 	bunDir := filepath.Join(tasktestutil.EnvValue(env, "HOME"), ".bun")
@@ -397,10 +434,11 @@ func TestInstallUndoRemovesBunDir(t *testing.T) {
 }
 
 func TestInstallUndoIsIdempotent(t *testing.T) {
+	t.Parallel()
+
 	if runtime.GOOS == "windows" {
 		t.Skip("stub bun tests target Unix-like systems")
 	}
-	t.Parallel()
 	root := tasktestutil.ModuleRoot(t)
 	env := bunDryRunEnv(t)
 	tasktestutil.AssertExitCode(t, tasktestutil.RunTask(t, root, env, "--yes", "install:undo"), 0)
@@ -408,33 +446,38 @@ func TestInstallUndoIsIdempotent(t *testing.T) {
 }
 
 func TestUpgradeExitsSuccessfully(t *testing.T) {
+	t.Parallel()
+
 	if runtime.GOOS == "windows" {
 		t.Skip("stub bun tests target Unix-like systems")
 	}
-	t.Parallel()
 	result := tasktestutil.RunTask(t, tasktestutil.ModuleRoot(t), bunDryRunEnv(t), "--yes", "upgrade")
 	tasktestutil.AssertExitCode(t, result, 0)
 }
 
 func TestUpgradeCanaryExitsSuccessfully(t *testing.T) {
+	t.Parallel()
+
 	if runtime.GOOS == "windows" {
 		t.Skip("stub bun tests target Unix-like systems")
 	}
-	t.Parallel()
 	result := tasktestutil.RunTask(t, tasktestutil.ModuleRoot(t), bunDryRunEnv(t), "--yes", "upgrade:canary")
 	tasktestutil.AssertExitCode(t, result, 0)
 }
 
 func TestUpgradeStableExitsSuccessfully(t *testing.T) {
+	t.Parallel()
+
 	if runtime.GOOS == "windows" {
 		t.Skip("stub bun tests target Unix-like systems")
 	}
-	t.Parallel()
 	result := tasktestutil.RunTask(t, tasktestutil.ModuleRoot(t), bunDryRunEnv(t), "--yes", "upgrade:stable")
 	tasktestutil.AssertExitCode(t, result, 0)
 }
 
 func TestRealInstallerFlowOnlyWhenExplicitlyEnabled(t *testing.T) {
+	t.Parallel()
+
 	if os.Getenv("RUN_INSTALLER_TESTS") != "1" {
 		t.Skip("set RUN_INSTALLER_TESTS=1 to run real install/uninstall tests")
 	}
@@ -456,6 +499,8 @@ func TestRealInstallerFlowOnlyWhenExplicitlyEnabled(t *testing.T) {
 }
 
 func TestAllPublicTasksIntegration(t *testing.T) {
+	t.Parallel()
+
 	if os.Getenv("RUN_INTEGRATION_TESTS") != "1" {
 		t.Skip("set RUN_INTEGRATION_TESTS=1 to run integration tests (downloads and installs Bun)")
 	}

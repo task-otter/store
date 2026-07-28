@@ -29,10 +29,14 @@ var publicVars = []string{
 }
 
 func TestTaskfileModuleContract(t *testing.T) {
+	t.Parallel()
+
 	tasktest.AssertModule(t, "prettier/bun", publicTasks, publicVars)
 }
 
 func TestConfigInitDryRun(t *testing.T) {
+	t.Parallel()
+
 	tasktest.AssertDryRunContains(t, "prettier/bun", []string{"config:init"},
 		"singleQuote",
 		".prettierrc.json",
@@ -40,6 +44,8 @@ func TestConfigInitDryRun(t *testing.T) {
 }
 
 func TestRepresentativeDryRuns(t *testing.T) {
+	t.Parallel()
+
 	tasktest.AssertDryRunContains(t, "prettier/bun",
 		[]string{"fmt", "--", "--ignore-unknown"},
 		"bun:exec",

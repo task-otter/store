@@ -24,10 +24,14 @@ var publicVars = []string{
 }
 
 func TestTaskfileModuleContract(t *testing.T) {
+	t.Parallel()
+
 	tasktest.AssertModule(t, "jsonlint", publicTasks, publicVars)
 }
 
 func TestRepresentativeDryRuns(t *testing.T) {
+	t.Parallel()
+
 	tasktest.AssertDryRunContains(t, "jsonlint",
 		[]string{"lint", "TARGETS=config.json"},
 		"jsonlint",
@@ -41,6 +45,8 @@ func TestRepresentativeDryRuns(t *testing.T) {
 }
 
 func TestInstallDryRunUsesDemjson3(t *testing.T) {
+	t.Parallel()
+
 	switch runtime.GOOS {
 	case "darwin", "linux":
 		tasktest.AssertInstallDryRun(t, "jsonlint", "jsonlint", "demjson3")
@@ -50,6 +56,8 @@ func TestInstallDryRunUsesDemjson3(t *testing.T) {
 }
 
 func TestInstallHonorsVersionPin(t *testing.T) {
+	t.Parallel()
+
 	switch runtime.GOOS {
 	case "darwin", "linux":
 		tasktest.AssertDryRunContains(t, "jsonlint",

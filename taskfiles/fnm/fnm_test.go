@@ -76,6 +76,8 @@ var expectedPublicTasks = []tasktestutil.PublicTaskSpec{
 }
 
 func TestTaskBinaryIsAvailable(t *testing.T) {
+	t.Parallel()
+
 	root := tasktestutil.ModuleRoot(t)
 	result := tasktestutil.RunTask(t, root, nil, "--version")
 	tasktestutil.AssertExitCode(t, result, 0)
@@ -83,6 +85,8 @@ func TestTaskBinaryIsAvailable(t *testing.T) {
 }
 
 func TestTaskfileYamlIsCleanAndValid(t *testing.T) {
+	t.Parallel()
+
 	path := tasktestutil.ModuleTaskfilePath(t)
 	content := tasktestutil.ReadFile(t, path)
 	tasktestutil.AssertTextFileClean(t, path, content)
@@ -106,6 +110,8 @@ func TestTaskfileYamlIsCleanAndValid(t *testing.T) {
 }
 
 func TestTaskCliCanLoadTaskfile(t *testing.T) {
+	t.Parallel()
+
 	root := tasktestutil.ModuleRoot(t)
 	for _, args := range [][]string{
 		{"--list"},
@@ -124,6 +130,8 @@ func TestTaskCliCanLoadTaskfile(t *testing.T) {
 }
 
 func TestTaskListAllJsonIsValid(t *testing.T) {
+	t.Parallel()
+
 	root := tasktestutil.ModuleRoot(t)
 	result := tasktestutil.RunTask(t, root, tasktestutil.IsolatedEnv(t), "--list-all", "--json")
 	tasktestutil.AssertExitCode(t, result, 0)
@@ -133,6 +141,8 @@ func TestTaskListAllJsonIsValid(t *testing.T) {
 }
 
 func TestPublicApiDoesNotDrift(t *testing.T) {
+	t.Parallel()
+
 	tf := tasktestutil.LoadTaskfile(t)
 	expected := tasktestutil.ExpectedPublicTaskNames(expectedPublicTasks)
 	actual := tasktestutil.PublicTaskNamesFromTaskfile(t, tf)
@@ -145,6 +155,8 @@ func TestPublicApiDoesNotDrift(t *testing.T) {
 }
 
 func TestEveryTaskIsEitherPublicOrInternal(t *testing.T) {
+	t.Parallel()
+
 	tf := tasktestutil.LoadTaskfile(t)
 	for name, task := range tf.Tasks {
 		name, task := name, task
@@ -160,6 +172,8 @@ func TestEveryTaskIsEitherPublicOrInternal(t *testing.T) {
 }
 
 func TestPublicTasksHaveMetadata(t *testing.T) {
+	t.Parallel()
+
 	tf := tasktestutil.LoadTaskfile(t)
 	for _, spec := range expectedPublicTasks {
 		spec := spec
@@ -190,6 +204,8 @@ func TestPublicTasksHaveMetadata(t *testing.T) {
 }
 
 func TestDestructivePublicTasksHavePrompt(t *testing.T) {
+	t.Parallel()
+
 	tf := tasktestutil.LoadTaskfile(t)
 	for _, spec := range expectedPublicTasks {
 		spec := spec
@@ -214,6 +230,8 @@ func TestDestructivePublicTasksHavePrompt(t *testing.T) {
 }
 
 func TestInstallTasksUseGithubGroupOutput(t *testing.T) {
+	t.Parallel()
+
 	tf := tasktestutil.LoadTaskfile(t)
 	for _, spec := range expectedPublicTasks {
 		spec := spec
@@ -233,6 +251,8 @@ func TestInstallTasksUseGithubGroupOutput(t *testing.T) {
 }
 
 func TestPublicTasksHaveCommands(t *testing.T) {
+	t.Parallel()
+
 	tf := tasktestutil.LoadTaskfile(t)
 	for _, spec := range expectedPublicTasks {
 		spec := spec
@@ -247,6 +267,8 @@ func TestPublicTasksHaveCommands(t *testing.T) {
 }
 
 func TestTaskSummariesWork(t *testing.T) {
+	t.Parallel()
+
 	root := tasktestutil.ModuleRoot(t)
 	for _, spec := range expectedPublicTasks {
 		spec := spec
@@ -267,6 +289,8 @@ func TestTaskSummariesWork(t *testing.T) {
 }
 
 func TestPublicTasksDryRunWithExpectedArgs(t *testing.T) {
+	t.Parallel()
+
 	root := tasktestutil.ModuleRoot(t)
 	for _, spec := range expectedPublicTasks {
 		spec := spec
@@ -288,6 +312,8 @@ func TestPublicTasksDryRunWithExpectedArgs(t *testing.T) {
 }
 
 func TestOptionalVersionTasksDryRunWithoutVersion(t *testing.T) {
+	t.Parallel()
+
 	root := tasktestutil.ModuleRoot(t)
 	tf := tasktestutil.LoadTaskfile(t)
 	for _, spec := range expectedPublicTasks {
@@ -313,6 +339,8 @@ func TestOptionalVersionTasksDryRunWithoutVersion(t *testing.T) {
 }
 
 func TestUndoPairsExist(t *testing.T) {
+	t.Parallel()
+
 	tf := tasktestutil.LoadTaskfile(t)
 	for task, undo := range map[string]string{"install": "install:undo"} {
 		if _, ok := tf.Tasks[task]; !ok {
@@ -336,6 +364,8 @@ func TestUndoPairsExist(t *testing.T) {
 }
 
 func TestReferencedScriptsExist(t *testing.T) {
+	t.Parallel()
+
 	root := tasktestutil.ModuleRoot(t)
 	tf := tasktestutil.LoadTaskfile(t)
 	for taskName, task := range tf.Tasks {
@@ -360,6 +390,8 @@ func TestReferencedScriptsExist(t *testing.T) {
 }
 
 func TestCommandsDoNotContainDangerousPatterns(t *testing.T) {
+	t.Parallel()
+
 	tf := tasktestutil.LoadTaskfile(t)
 	for taskName, task := range tf.Tasks {
 		taskName := taskName
@@ -374,6 +406,8 @@ func TestCommandsDoNotContainDangerousPatterns(t *testing.T) {
 }
 
 func TestNoPlaceholderTextInTaskfile(t *testing.T) {
+	t.Parallel()
+
 	content := tasktestutil.ReadFile(t, tasktestutil.ModuleTaskfilePath(t))
 	upper := strings.ToUpper(content)
 	for _, p := range []string{"TODO", "FIXME", "CHANGEME", "REPLACE_ME", "YOUR VALUE HERE", "LOREM IPSUM"} {
@@ -384,28 +418,31 @@ func TestNoPlaceholderTextInTaskfile(t *testing.T) {
 }
 
 func TestVersionTaskExitsSuccessfully(t *testing.T) {
+	t.Parallel()
+
 	if runtime.GOOS == "windows" {
 		t.Skip("stub fnm tests target Unix-like systems")
 	}
-	t.Parallel()
 	result := tasktestutil.RunTask(t, tasktestutil.ModuleRoot(t), fnmDryRunEnv(t), "--yes", "version")
 	tasktestutil.AssertExitCode(t, result, 0)
 }
 
 func TestLsTaskExitsSuccessfully(t *testing.T) {
+	t.Parallel()
+
 	if runtime.GOOS == "windows" {
 		t.Skip("stub fnm tests target Unix-like systems")
 	}
-	t.Parallel()
 	result := tasktestutil.RunTask(t, tasktestutil.ModuleRoot(t), fnmDryRunEnv(t), "--yes", "ls")
 	tasktestutil.AssertExitCode(t, result, 0)
 }
 
 func TestInstallIsIdempotentWithStubFnm(t *testing.T) {
+	t.Parallel()
+
 	if runtime.GOOS == "windows" {
 		t.Skip("stub fnm tests target Unix-like systems")
 	}
-	t.Parallel()
 	root := tasktestutil.ModuleRoot(t)
 	env := fnmDryRunEnv(t)
 	tasktestutil.AssertExitCode(t, tasktestutil.RunTask(t, root, env, "--yes", "install"), 0)
@@ -413,10 +450,11 @@ func TestInstallIsIdempotentWithStubFnm(t *testing.T) {
 }
 
 func TestInstallUndoRemovesFnmBinary(t *testing.T) {
+	t.Parallel()
+
 	if runtime.GOOS == "windows" {
 		t.Skip("stub fnm tests target Unix-like systems")
 	}
-	t.Parallel()
 	root := tasktestutil.ModuleRoot(t)
 	env := fnmDryRunEnv(t)
 	stubBin := filepath.Join(tasktestutil.EnvValue(env, "HOME"), ".local", "bin", "fnm")
@@ -428,40 +466,44 @@ func TestInstallUndoRemovesFnmBinary(t *testing.T) {
 }
 
 func TestNodeInstallWithVersionPrintsVersionInOutput(t *testing.T) {
+	t.Parallel()
+
 	if runtime.GOOS == "windows" {
 		t.Skip("stub fnm tests target Unix-like systems")
 	}
-	t.Parallel()
 	result := tasktestutil.RunTask(t, tasktestutil.ModuleRoot(t), fnmDryRunEnv(t), "--yes", "node:install", "VERSION=18.0.0")
 	tasktestutil.AssertExitCode(t, result, 0)
 	tasktestutil.AssertContains(t, result.Combined(), "18.0.0")
 }
 
 func TestNodeInstallDefaultVersionUsesLts(t *testing.T) {
+	t.Parallel()
+
 	if runtime.GOOS == "windows" {
 		t.Skip("stub fnm tests target Unix-like systems")
 	}
-	t.Parallel()
 	result := tasktestutil.RunTask(t, tasktestutil.ModuleRoot(t), fnmDryRunEnv(t), "--yes", "node:install")
 	tasktestutil.AssertExitCode(t, result, 0)
 	tasktestutil.AssertContains(t, result.Combined(), "--lts")
 }
 
 func TestNodeUninstallWithInstalledVersionPrintsVersionInOutput(t *testing.T) {
+	t.Parallel()
+
 	if runtime.GOOS == "windows" {
 		t.Skip("stub fnm tests target Unix-like systems")
 	}
-	t.Parallel()
 	result := tasktestutil.RunTask(t, tasktestutil.ModuleRoot(t), fnmDryRunEnv(t), "--yes", "node:uninstall", "VERSION=18.0.0")
 	tasktestutil.AssertExitCode(t, result, 0)
 	tasktestutil.AssertContains(t, result.Combined(), "18.0.0")
 }
 
 func TestShellSetupAddsActivationToProfile(t *testing.T) {
+	t.Parallel()
+
 	if runtime.GOOS == "windows" {
 		t.Skip("stub fnm tests target Unix-like systems")
 	}
-	t.Parallel()
 	root := tasktestutil.ModuleRoot(t)
 	env := fnmFreshProfileEnv(t)
 	home := tasktestutil.EnvValue(env, "HOME")
@@ -472,10 +514,11 @@ func TestShellSetupAddsActivationToProfile(t *testing.T) {
 }
 
 func TestShellSetupIsIdempotent(t *testing.T) {
+	t.Parallel()
+
 	if runtime.GOOS == "windows" {
 		t.Skip("stub fnm tests target Unix-like systems")
 	}
-	t.Parallel()
 	root := tasktestutil.ModuleRoot(t)
 	env := fnmFreshProfileEnv(t)
 	home := tasktestutil.EnvValue(env, "HOME")
@@ -493,10 +536,11 @@ func TestShellSetupIsIdempotent(t *testing.T) {
 }
 
 func TestInstallAlsoConfiguresShellActivation(t *testing.T) {
+	t.Parallel()
+
 	if runtime.GOOS == "windows" {
 		t.Skip("stub fnm tests target Unix-like systems")
 	}
-	t.Parallel()
 	root := tasktestutil.ModuleRoot(t)
 	env := fnmFreshProfileEnv(t)
 	home := tasktestutil.EnvValue(env, "HOME")
@@ -507,6 +551,8 @@ func TestInstallAlsoConfiguresShellActivation(t *testing.T) {
 }
 
 func TestRealInstallerFlowOnlyWhenExplicitlyEnabled(t *testing.T) {
+	t.Parallel()
+
 	if os.Getenv("RUN_INSTALLER_TESTS") != "1" {
 		t.Skip("set RUN_INSTALLER_TESTS=1 to run real install/uninstall tests")
 	}
@@ -528,6 +574,8 @@ func TestRealInstallerFlowOnlyWhenExplicitlyEnabled(t *testing.T) {
 }
 
 func TestAllPublicTasksIntegration(t *testing.T) {
+	t.Parallel()
+
 	if os.Getenv("RUN_INTEGRATION_TESTS") != "1" {
 		t.Skip("set RUN_INTEGRATION_TESTS=1 to run integration tests (downloads and installs fnm and Node.js)")
 	}

@@ -43,6 +43,8 @@ var publicTasks = []string{
 }
 
 func TestTaskfileAndReadmePublicApi(t *testing.T) {
+	t.Parallel()
+
 	doc := loadTaskfile(t)
 
 	var root map[string]any
@@ -67,6 +69,8 @@ func TestTaskfileAndReadmePublicApi(t *testing.T) {
 }
 
 func TestTaskCliLoadsAndDryRunsPublicTasks(t *testing.T) {
+	t.Parallel()
+
 	for _, args := range [][]string{{"--list"}, {"--list-all"}, {"--list-all", "--json"}} {
 		result := tasktestutil.RunSimpleTask(t, ".", stubEnv(t), args...)
 		if result.Err != nil {
@@ -95,6 +99,8 @@ func TestTaskCliLoadsAndDryRunsPublicTasks(t *testing.T) {
 }
 
 func TestStubbedPnpmFlows(t *testing.T) {
+	t.Parallel()
+
 	if runtime.GOOS == "windows" {
 		t.Skip("Unix shell stubs cover these flows")
 	}

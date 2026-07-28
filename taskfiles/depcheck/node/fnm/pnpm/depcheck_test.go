@@ -29,10 +29,14 @@ var publicVars = []string{
 }
 
 func TestTaskfileModuleContract(t *testing.T) {
+	t.Parallel()
+
 	tasktest.AssertModule(t, "depcheck/node/fnm/pnpm", publicTasks, publicVars)
 }
 
 func TestRepresentativeDryRuns(t *testing.T) {
+	t.Parallel()
+
 	tasktest.AssertDryRunContains(t, "depcheck/node/fnm/pnpm",
 		[]string{"ignores", "IGNORE_PACKAGES=@types/*,eslint-*"},
 		"pnpm:exec",

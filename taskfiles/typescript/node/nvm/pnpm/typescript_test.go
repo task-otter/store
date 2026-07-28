@@ -48,6 +48,8 @@ var publicTasks = []publicTaskSpec{
 }
 
 func TestTaskfileAndReadmePublicApi(t *testing.T) {
+	t.Parallel()
+
 	tf := loadTaskfile(t)
 
 	expected := publicTaskNames()
@@ -63,6 +65,8 @@ func TestTaskfileAndReadmePublicApi(t *testing.T) {
 }
 
 func TestTaskfileYamlIsCleanAndValid(t *testing.T) {
+	t.Parallel()
+
 	content := read(t, "Taskfile.yml")
 
 	if strings.Contains(content, "\r\n") {
@@ -88,6 +92,8 @@ func TestTaskfileYamlIsCleanAndValid(t *testing.T) {
 }
 
 func TestTaskCliCanLoadTaskfile(t *testing.T) {
+	t.Parallel()
+
 	for _, args := range [][]string{
 		{"--list"},
 		{"--list-all"},
@@ -105,6 +111,8 @@ func TestTaskCliCanLoadTaskfile(t *testing.T) {
 }
 
 func TestTaskListAllJsonIsValid(t *testing.T) {
+	t.Parallel()
+
 	result := runTask(t, isolatedEnv(t), "--list-all", "--json")
 	assertExitCode(t, result, 0)
 
@@ -115,6 +123,8 @@ func TestTaskListAllJsonIsValid(t *testing.T) {
 }
 
 func TestPublicTasksHaveMetadataAndCommands(t *testing.T) {
+	t.Parallel()
+
 	tf := loadTaskfile(t)
 
 	for _, spec := range publicTasks {
@@ -145,6 +155,8 @@ func TestPublicTasksHaveMetadataAndCommands(t *testing.T) {
 }
 
 func TestDestructivePublicTasksHavePrompt(t *testing.T) {
+	t.Parallel()
+
 	tf := loadTaskfile(t)
 
 	for _, spec := range publicTasks {
@@ -165,6 +177,8 @@ func TestDestructivePublicTasksHavePrompt(t *testing.T) {
 }
 
 func TestTaskSummariesWork(t *testing.T) {
+	t.Parallel()
+
 	for _, spec := range publicTasks {
 		spec := spec
 		t.Run(spec.name, func(t *testing.T) {
@@ -183,6 +197,8 @@ func TestTaskSummariesWork(t *testing.T) {
 }
 
 func TestPublicTasksDryRunWithExpectedArgs(t *testing.T) {
+	t.Parallel()
+
 	for _, spec := range publicTasks {
 		spec := spec
 		t.Run(spec.name, func(t *testing.T) {
@@ -200,6 +216,8 @@ func TestPublicTasksDryRunWithExpectedArgs(t *testing.T) {
 }
 
 func TestTypecheckFilesRequiresExplicitFiles(t *testing.T) {
+	t.Parallel()
+
 	result := runTask(t, isolatedEnv(t), "--dry", "--yes", "typecheck:files")
 	if result.err == nil {
 		t.Fatalf("typecheck:files without FILES unexpectedly succeeded:\n%s", result.output)
@@ -208,6 +226,8 @@ func TestTypecheckFilesRequiresExplicitFiles(t *testing.T) {
 }
 
 func TestTsserverGuidanceStaysEditorManaged(t *testing.T) {
+	t.Parallel()
+
 	content := read(t, "Taskfile.yml")
 
 	for _, token := range []string{
@@ -221,6 +241,8 @@ func TestTsserverGuidanceStaysEditorManaged(t *testing.T) {
 }
 
 func TestCommandsDoNotContainDangerousPatterns(t *testing.T) {
+	t.Parallel()
+
 	tf := loadTaskfile(t)
 	patterns := []*regexp.Regexp{
 		regexp.MustCompile(`(?m)\brm\s+-[a-zA-Z]*r[a-zA-Z]*f[a-zA-Z]*\s+/(?:\s|$)`),
@@ -243,6 +265,8 @@ func TestCommandsDoNotContainDangerousPatterns(t *testing.T) {
 }
 
 func TestNoPlaceholderTextInTaskfileOrReadme(t *testing.T) {
+	t.Parallel()
+
 	files := map[string]string{
 		"Taskfile.yml": read(t, "Taskfile.yml"),
 		"README.md":    readTool(t, "README.md"),

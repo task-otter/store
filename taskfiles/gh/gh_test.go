@@ -125,6 +125,8 @@ func ghAvailable() bool {
 }
 
 func TestModule(t *testing.T) {
+	t.Parallel()
+
 	tasktest.AssertModule(t, "gh", expectedPublicTasks, expectedVars)
 }
 
@@ -133,6 +135,8 @@ func TestModule(t *testing.T) {
 // so the install cmds are shown in the dry-run output even without gh present.
 
 func TestInstallMacosBrewDryRun(t *testing.T) {
+	t.Parallel()
+
 	if runtime.GOOS != "darwin" {
 		t.Skip("macOS-only test")
 	}
@@ -146,6 +150,8 @@ func TestInstallMacosBrewDryRun(t *testing.T) {
 }
 
 func TestInstallLinuxAptDryRun(t *testing.T) {
+	t.Parallel()
+
 	if runtime.GOOS != "linux" {
 		t.Skip("Linux-only test")
 	}
@@ -159,6 +165,8 @@ func TestInstallLinuxAptDryRun(t *testing.T) {
 }
 
 func TestInstallLinuxDnfDryRun(t *testing.T) {
+	t.Parallel()
+
 	if runtime.GOOS != "linux" {
 		t.Skip("Linux-only test")
 	}
@@ -173,6 +181,8 @@ func TestInstallLinuxDnfDryRun(t *testing.T) {
 // Operation dry-run tests: these require gh to be installed so the deps pass.
 
 func TestAuthLoginDryRun(t *testing.T) {
+	t.Parallel()
+
 	if !ghAvailable() {
 		t.Skip("gh is not installed")
 	}
@@ -182,6 +192,8 @@ func TestAuthLoginDryRun(t *testing.T) {
 }
 
 func TestAuthLoginWebDryRun(t *testing.T) {
+	t.Parallel()
+
 	if !ghAvailable() {
 		t.Skip("gh is not installed")
 	}
@@ -191,6 +203,8 @@ func TestAuthLoginWebDryRun(t *testing.T) {
 }
 
 func TestAuthLoginSshDryRun(t *testing.T) {
+	t.Parallel()
+
 	if !ghAvailable() {
 		t.Skip("gh is not installed")
 	}
@@ -200,6 +214,8 @@ func TestAuthLoginSshDryRun(t *testing.T) {
 }
 
 func TestPrMergeDryRun(t *testing.T) {
+	t.Parallel()
+
 	if !ghAvailable() {
 		t.Skip("gh is not installed")
 	}
@@ -210,6 +226,8 @@ func TestPrMergeDryRun(t *testing.T) {
 }
 
 func TestApiGetDryRun(t *testing.T) {
+	t.Parallel()
+
 	if !ghAvailable() {
 		t.Skip("gh is not installed")
 	}
@@ -220,6 +238,8 @@ func TestApiGetDryRun(t *testing.T) {
 }
 
 func TestSearchReposDryRun(t *testing.T) {
+	t.Parallel()
+
 	if !ghAvailable() {
 		t.Skip("gh is not installed")
 	}

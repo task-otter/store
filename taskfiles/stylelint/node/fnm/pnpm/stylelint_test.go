@@ -30,10 +30,14 @@ var publicVars = []string{
 }
 
 func TestTaskfileModuleContract(t *testing.T) {
+	t.Parallel()
+
 	tasktest.AssertModule(t, "stylelint/node/fnm/pnpm", publicTasks, publicVars)
 }
 
 func TestRepresentativeDryRuns(t *testing.T) {
+	t.Parallel()
+
 	tasktest.AssertDryRunContains(t, "stylelint/node/fnm/pnpm",
 		[]string{"ci", "CACHE=false", "ALLOW_EMPTY_INPUT=false"},
 		"pnpm:exec",

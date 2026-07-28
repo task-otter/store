@@ -64,10 +64,14 @@ func goAvailable() bool {
 }
 
 func TestTaskfileModuleContract(t *testing.T) {
+	t.Parallel()
+
 	tasktest.AssertModule(t, "go", publicTasks, publicVars)
 }
 
 func TestVersionDryRun(t *testing.T) {
+	t.Parallel()
+
 	if !goAvailable() {
 		t.Skip("go is not installed")
 	}
@@ -76,6 +80,8 @@ func TestVersionDryRun(t *testing.T) {
 }
 
 func TestLintDryRuns(t *testing.T) {
+	t.Parallel()
+
 	tests := []struct {
 		task  string
 		token string
@@ -95,6 +101,8 @@ func TestLintDryRuns(t *testing.T) {
 }
 
 func TestLintFixDryRun(t *testing.T) {
+	t.Parallel()
+
 	tasktest.AssertDryRunContains(t, "go", []string{"lint:fix"},
 		"golangci-lint",
 		"--fix",
@@ -108,6 +116,8 @@ func TestLintFixDryRun(t *testing.T) {
 }
 
 func TestTestingTaskCommands(t *testing.T) {
+	t.Parallel()
+
 	tf := tasktest.LoadTaskfile(t, "go")
 
 	tests := []struct {
@@ -143,6 +153,8 @@ func TestTestingTaskCommands(t *testing.T) {
 }
 
 func TestCoverageReportsStatementPackagesInAscendingOrder(t *testing.T) {
+	t.Parallel()
+
 	projectDir := t.TempDir()
 	writeCoverageFixture(t, projectDir, map[string]string{
 		"go.mod": "module example.com/coveragefixture\n\ngo 1.22\n",
@@ -221,6 +233,8 @@ const Value = 1
 }
 
 func TestCoveragePreservesTestFailure(t *testing.T) {
+	t.Parallel()
+
 	projectDir := t.TempDir()
 	writeCoverageFixture(t, projectDir, map[string]string{
 		"go.mod": "module example.com/coveragefailure\n\ngo 1.22\n",
@@ -276,6 +290,8 @@ func runCoverageTask(t *testing.T, projectDir, profile string) (string, error) {
 }
 
 func TestFmtDryRuns(t *testing.T) {
+	t.Parallel()
+
 	tests := []struct {
 		task   string
 		tokens []string
@@ -316,6 +332,8 @@ func TestFmtDryRuns(t *testing.T) {
 }
 
 func TestFmtSkipPatternDefaultsEmpty(t *testing.T) {
+	t.Parallel()
+
 	tf := tasktest.LoadTaskfile(t, "go")
 
 	value, exists := tf.Vars["GO_FMT_SKIP_PATTERN"]
@@ -328,6 +346,8 @@ func TestFmtSkipPatternDefaultsEmpty(t *testing.T) {
 }
 
 func TestLintSkipPatternDefaultsEmpty(t *testing.T) {
+	t.Parallel()
+
 	tf := tasktest.LoadTaskfile(t, "go")
 
 	value, exists := tf.Vars["GO_LINT_SKIP_PATTERN"]
@@ -340,6 +360,8 @@ func TestLintSkipPatternDefaultsEmpty(t *testing.T) {
 }
 
 func TestFmtSkipPatternDryRuns(t *testing.T) {
+	t.Parallel()
+
 	const pattern = "**/generated/**"
 
 	tasktest.AssertDryRunContains(t, "go",
@@ -356,6 +378,8 @@ func TestFmtSkipPatternDryRuns(t *testing.T) {
 }
 
 func TestLintSkipPatternDryRuns(t *testing.T) {
+	t.Parallel()
+
 	const pattern = "**/generated/**"
 
 	tasktest.AssertDryRunContains(t, "go",
@@ -374,6 +398,8 @@ func TestLintSkipPatternDryRuns(t *testing.T) {
 }
 
 func TestDevelopmentToolDependencies(t *testing.T) {
+	t.Parallel()
+
 	tf := tasktest.LoadTaskfile(t, "go")
 
 	installTasks := map[string][]string{
@@ -406,6 +432,8 @@ func TestDevelopmentToolDependencies(t *testing.T) {
 }
 
 func TestDevelopmentToolInstallVersions(t *testing.T) {
+	t.Parallel()
+
 	tests := []struct {
 		task       string
 		module     string
@@ -442,6 +470,8 @@ func TestDevelopmentToolInstallVersions(t *testing.T) {
 }
 
 func TestVersionVariablesAreIndependentAndOptional(t *testing.T) {
+	t.Parallel()
+
 	tf := tasktest.LoadTaskfile(t, "go")
 
 	if _, exists := tf.Vars["VERSION"]; exists {
@@ -465,6 +495,8 @@ func TestVersionVariablesAreIndependentAndOptional(t *testing.T) {
 }
 
 func TestGoInstallVersionDryRun(t *testing.T) {
+	t.Parallel()
+
 	switch runtime.GOOS {
 	case "darwin":
 		tasktest.AssertDryRunContains(t, "go",
@@ -484,6 +516,8 @@ func TestGoInstallVersionDryRun(t *testing.T) {
 }
 
 func TestAggregateLintDryRun(t *testing.T) {
+	t.Parallel()
+
 	tasktest.AssertDryRunContains(t, "go", []string{"lint"},
 		"golangci-lint",
 		"--diff",
@@ -520,6 +554,8 @@ func assertTaskDependencies(t *testing.T, tf tasktest.Taskfile, taskName string,
 }
 
 func TestUpgradeDryRun(t *testing.T) {
+	t.Parallel()
+
 	switch runtime.GOOS {
 	case "darwin":
 		if _, err := exec.LookPath("brew"); err != nil {

@@ -36,10 +36,14 @@ var publicVars = []string{
 }
 
 func TestTaskfileModuleContract(t *testing.T) {
+	t.Parallel()
+
 	tasktest.AssertModule(t, "biome/node/nvm/yarn", publicTasks, publicVars)
 }
 
 func TestRepresentativeDryRuns(t *testing.T) {
+	t.Parallel()
+
 	tasktest.AssertDryRunContains(t, "biome/node/nvm/yarn",
 		[]string{"ci", "CONFIG=biome.json", "TARGETS=src"},
 		"yarn:exec",

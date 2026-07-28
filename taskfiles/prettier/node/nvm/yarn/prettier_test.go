@@ -29,10 +29,14 @@ var publicVars = []string{
 }
 
 func TestTaskfileModuleContract(t *testing.T) {
+	t.Parallel()
+
 	tasktest.AssertModule(t, "prettier/node/nvm/yarn", publicTasks, publicVars)
 }
 
 func TestConfigInitDryRun(t *testing.T) {
+	t.Parallel()
+
 	tasktest.AssertDryRunContains(t, "prettier/node/nvm/yarn", []string{"config:init"},
 		"singleQuote",
 		".prettierrc.json",
@@ -40,5 +44,7 @@ func TestConfigInitDryRun(t *testing.T) {
 }
 
 func TestRepresentativeDryRuns(t *testing.T) {
+	t.Parallel()
+
 	// covered by module contract
 }

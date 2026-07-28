@@ -52,6 +52,8 @@ func exportedTasks(t *testing.T, module string) []string {
 // every one of its variant leaves (the shared-interface guarantee) and whose
 // variants list must match the leaves actually present on disk.
 func TestModuleMetadataListsEveryExportedTask(t *testing.T) {
+	t.Parallel()
+
 	root := tasktest.RepoRoot(t)
 	taskfilesDir := filepath.Join(root, "taskfiles")
 
@@ -118,6 +120,62 @@ func TestModuleMetadataListsEveryExportedTask(t *testing.T) {
 			assertMetadata(t, taskfilesDir, tool, tool, base, variants)
 		})
 	}
+}
+
+// TestTaskCliLoadsEveryFamily forks the task CLI once per family to prove every
+// shipped Taskfile still parses. Per-module contract tests only parse the YAML
+// themselves; this is the single place that pays for the CLI round trip.
+func TestTaskCliLoadsEveryFamily(t *testing.T) {
+	t.Parallel()
+
+	for _, module := range familyRepresentatives(t) {
+		t.Run(module, func(t *testing.T) {
+			t.Parallel()
+			tasktest.AssertTaskCliCanLoad(t, module)
+		})
+	}
+}
+
+// familyRepresentatives returns one module per family: flat modules stand for
+// themselves, and each tool family is represented by its first leaf, since all
+// leaves are generated from the same template.
+func familyRepresentatives(t *testing.T) []string {
+	t.Helper()
+
+	taskfilesDir := filepath.Join(tasktest.RepoRoot(t), "taskfiles")
+	seen := map[string]string{}
+
+	err := filepath.WalkDir(taskfilesDir, func(path string, d fs.DirEntry, err error) error {
+		if err != nil {
+			return err
+		}
+		if d.IsDir() || d.Name() != "Taskfile.yml" {
+			return nil
+		}
+		rel, err := filepath.Rel(taskfilesDir, filepath.Dir(path))
+		if err != nil {
+			return err
+		}
+		module := filepath.ToSlash(rel)
+		family := strings.Split(module, "/")[0]
+		if existing, ok := seen[family]; !ok || module < existing {
+			seen[family] = module
+		}
+		return nil
+	})
+	if err != nil {
+		t.Fatalf("walk taskfiles: %v", err)
+	}
+	if len(seen) == 0 {
+		t.Fatal("no modules discovered")
+	}
+
+	modules := make([]string, 0, len(seen))
+	for _, module := range seen {
+		modules = append(modules, module)
+	}
+	slices.Sort(modules)
+	return modules
 }
 
 func assertMetadata(t *testing.T, taskfilesDir, dir, module string, expectedTasks, expectedVariants []string) {

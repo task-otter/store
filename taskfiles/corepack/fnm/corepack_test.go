@@ -27,6 +27,8 @@ var publicTasks = []string{
 }
 
 func TestTaskfileAndReadmePublicApi(t *testing.T) {
+	t.Parallel()
+
 	var root map[string]any
 	var doc yaml.Node
 	if err := yaml.Unmarshal([]byte(read(t, "Taskfile.yml")), &doc); err != nil {
@@ -53,6 +55,8 @@ func TestTaskfileAndReadmePublicApi(t *testing.T) {
 }
 
 func TestTaskCliAndCorepackFlows(t *testing.T) {
+	t.Parallel()
+
 	env := stubEnv(t)
 	for _, args := range [][]string{
 		{"--list"},
@@ -75,6 +79,8 @@ func TestTaskCliAndCorepackFlows(t *testing.T) {
 }
 
 func TestCorepackVersionDefaultIsPinned(t *testing.T) {
+	t.Parallel()
+
 	content := read(t, "Taskfile.yml")
 	if !strings.Contains(content, "COREPACK_VERSION: 0.34.0") {
 		t.Fatalf("COREPACK_VERSION default should stay pinned for reproducibility:\n%s", content)

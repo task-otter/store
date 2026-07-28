@@ -1,29 +1,14 @@
 ---
 name: CI
-description: Set up Go and Task, vet, and test the project.
+description: Run the repository's own lint/format checks and go vet.
 runs:
   using: composite
   steps:
-    - name: Setup Go
-      uses: actions/setup-go@b7ad1dad31e06c5925ef5d2fc7ad053ef454303e  # v7
-      with:
-        go-version-file: go.mod
-        cache: true
-    - name: Install Taskfile CLI
-      uses: go-task/setup-task@01a4adf9db2d14c1de7a560f09170b6e0df736aa  # v2.1.0
-      with:
-        version: 3.5
-    - name: Show versions
-      shell: bash
-      run: |
-        go version
-        task --version
+    - name: Setup
+      uses: ./.github/actions/setup
     - name: Run CI
       shell: bash
       run: task -t Taskfile.yml ci
     - name: Vet
       shell: bash
       run: go vet ./...
-    - name: Test
-      shell: bash
-      run: go test ./... -count=1 -timeout 5m

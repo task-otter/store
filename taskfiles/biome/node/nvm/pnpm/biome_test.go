@@ -36,10 +36,14 @@ var publicVars = []string{
 }
 
 func TestTaskfileModuleContract(t *testing.T) {
+	t.Parallel()
+
 	tasktest.AssertModule(t, "biome/node/nvm/pnpm", publicTasks, publicVars)
 }
 
 func TestRepresentativeDryRuns(t *testing.T) {
+	t.Parallel()
+
 	tasktest.AssertDryRunContains(t, "biome/node/nvm/pnpm",
 		[]string{"fmt", "--", "--no-errors-on-unmatched"},
 		"pnpm:exec",

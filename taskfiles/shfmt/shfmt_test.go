@@ -25,10 +25,14 @@ var publicVars = []string{
 }
 
 func TestTaskfileModuleContract(t *testing.T) {
+	t.Parallel()
+
 	tasktest.AssertModule(t, "shfmt", publicTasks, publicVars)
 }
 
 func TestRepresentativeDryRuns(t *testing.T) {
+	t.Parallel()
+
 	tasktest.AssertDryRunContains(t, "shfmt",
 		[]string{"fmt", "TARGETS=scripts", "EXTRA_ARGS=-i 2 -ci"},
 		"shfmt\" -w",
@@ -50,6 +54,8 @@ func TestRepresentativeDryRuns(t *testing.T) {
 }
 
 func TestInstallDryRunUsesOfficialGoModule(t *testing.T) {
+	t.Parallel()
+
 	switch runtime.GOOS {
 	case "darwin", "linux":
 		tasktest.AssertInstallDryRun(t, "shfmt", "shfmt", "go install", "mvdan.cc/sh/v3/cmd/shfmt@latest")
@@ -59,6 +65,8 @@ func TestInstallDryRunUsesOfficialGoModule(t *testing.T) {
 }
 
 func TestUpgradeDryRunUsesOfficialGoModule(t *testing.T) {
+	t.Parallel()
+
 	switch runtime.GOOS {
 	case "darwin", "linux":
 		tasktest.AssertDryRunContains(t, "shfmt",
