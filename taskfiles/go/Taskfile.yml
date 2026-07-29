@@ -202,7 +202,8 @@ tasks:
       Run golangci-lint against all Go packages by default. Set
       GO_LINT_SKIP_PATTERN to a shell-style path glob for files to skip. Pass
       CLI arguments after -- to override the default ./... target.
-      Auto-installs golangci-lint if missing.
+      Auto-installs golangci-lint if missing. When .custom-gcl.yml exists in the
+      working directory, builds or reuses its custom binary instead.
     deps:
       - task: install:golangci-lint
     cmds:
@@ -217,7 +218,9 @@ tasks:
       Run golangci-lint with --fix against all Go packages by default. Set
       GO_LINT_SKIP_PATTERN to a shell-style path glob for files that must not
       be modified. Pass CLI arguments after -- to override the default ./...
-      target. Auto-installs golangci-lint if missing.
+      target. Auto-installs golangci-lint if missing. When .custom-gcl.yml
+      exists in the working directory, builds or reuses its custom binary
+      instead.
     deps:
       - task: install:golangci-lint
     cmds:
@@ -676,20 +679,62 @@ tasks:
           $lines | Set-Content -LiteralPath $output -Encoding UTF8
           POWERSHELL
         platforms: [windows]
+  _golangci-lint:custom:
+    run: once
+    internal: true
+    dir: "{{.USER_WORKING_DIR}}"
+    if: test -f .custom-gcl.yml
+    method: checksum
+    vars:
+      CUSTOM_GCL_YAML:
+        sh: if [ -f .custom-gcl.yml ]; then cat .custom-gcl.yml; else printf '{}'; fi
+      CUSTOM_GCL:
+        ref: fromYaml .CUSTOM_GCL_YAML
+      CUSTOM_GCL_NAME: '{{default "custom-gcl" .CUSTOM_GCL.name}}'
+      CUSTOM_GCL_DESTINATION: '{{default "." .CUSTOM_GCL.destination}}'
+      CUSTOM_GCL_BINARY_NAME: "{{.CUSTOM_GCL_NAME}}{{exeExt}}"
+      CUSTOM_GCL_BINARY: "{{joinPath .CUSTOM_GCL_DESTINATION .CUSTOM_GCL_BINARY_NAME}}"
+    sources:
+      - .custom-gcl.yml
+    generates:
+      - "{{.CUSTOM_GCL_BINARY}}"
+    cmds:
+      - '"{{.GLOBAL_GO_BIN}}/golangci-lint" custom -v'
   _golangci-lint:lint:
     run: once
     internal: true
     dir: "{{.USER_WORKING_DIR}}"
+    deps:
+      - task: _golangci-lint:custom
+    vars:
+      CUSTOM_GCL_ENABLED:
+        sh: if [ -f .custom-gcl.yml ]; then printf true; else printf false; fi
+      CUSTOM_GCL_YAML:
+        sh: if [ -f .custom-gcl.yml ]; then cat .custom-gcl.yml; else printf '{}'; fi
+      CUSTOM_GCL:
+        ref: fromYaml .CUSTOM_GCL_YAML
+      CUSTOM_GCL_NAME: '{{default "custom-gcl" .CUSTOM_GCL.name}}'
+      CUSTOM_GCL_DESTINATION: '{{default "." .CUSTOM_GCL.destination}}'
+      CUSTOM_GCL_BINARY_NAME: "{{.CUSTOM_GCL_NAME}}{{exeExt}}"
+      CUSTOM_GCL_BINARY: "{{joinPath .CUSTOM_GCL_DESTINATION .CUSTOM_GCL_BINARY_NAME}}"
     cmds:
       - cmd: |
+          lint_binary="{{.GLOBAL_GO_BIN}}/golangci-lint"
+          if [ "{{.CUSTOM_GCL_ENABLED}}" = "true" ]; then
+            case "{{.CUSTOM_GCL_BINARY}}" in
+              /*) lint_binary="{{.CUSTOM_GCL_BINARY}}" ;;
+              *) lint_binary="./{{.CUSTOM_GCL_BINARY}}" ;;
+            esac
+          fi
+
           skip_pattern='{{if .GO_LINT_SKIP_PATTERN_OVERRIDE}}{{.GO_LINT_SKIP_PATTERN_OVERRIDE}}
           {{- else}}{{.GO_LINT_SKIP_PATTERN}}{{end}}'
           if [ -z "$skip_pattern" ]; then
-            "{{.GLOBAL_GO_BIN}}/golangci-lint" run {{.GO_LINT_FIX}} {{.GO_LINT_ARGS}}
+            "$lint_binary" run {{.GO_LINT_FIX}} {{.GO_LINT_ARGS}}
             exit
           fi
 
-          config_path="$("{{.GLOBAL_GO_BIN}}/golangci-lint" config path 2>/dev/null || true)"
+          config_path="$("$lint_binary" config path 2>/dev/null || true)"
           config_dir=.
           if [ -n "$config_path" ]; then
             config_dir="$(dirname "$config_path")"
@@ -705,22 +750,29 @@ tasks:
           fi
 
           lint_status=0
-          "{{.GLOBAL_GO_BIN}}/golangci-lint" run \
+          "$lint_binary" run \
             {{.GO_LINT_FIX}} \
             {{.GO_LINT_ARGS}} \
             --config "$overlay_config" || lint_status=$?
           exit "$lint_status"
         platforms: [linux, darwin]
       - cmd: >-
-          powershell -NoProfile -ExecutionPolicy Bypass -Command "$ErrorActionPreference='Stop'; $skipPattern = '{{if
+          powershell -NoProfile -ExecutionPolicy Bypass -Command "$ErrorActionPreference='Stop'; $lintBinary =
+          '{{.GLOBAL_GO_BIN}}/golangci-lint'; if ('{{.CUSTOM_GCL_ENABLED}}' -eq 'true') {
+
+            $lintBinary = '{{.CUSTOM_GCL_BINARY}}'; if (-not [System.IO.Path]::IsPathRooted($lintBinary)) {
+
+              $lintBinary = Join-Path (Get-Location) $lintBinary;
+            }
+          }; $skipPattern = '{{if
           .GO_LINT_SKIP_PATTERN_OVERRIDE}}{{.GO_LINT_SKIP_PATTERN_OVERRIDE}} {{-
           else}}{{.GO_LINT_SKIP_PATTERN}}{{end}}'; if (-not $skipPattern) {
 
-            & '{{.GLOBAL_GO_BIN}}/golangci-lint' run
+            & $lintBinary run
               {{.GO_LINT_FIX}}
               {{.GO_LINT_ARGS}};
             exit $LASTEXITCODE;
-          }; $configPath = (& '{{.GLOBAL_GO_BIN}}/golangci-lint' config path 2>$null | Select-Object -First 1); if
+          }; $configPath = (& $lintBinary config path 2>$null | Select-Object -First 1); if
           ($LASTEXITCODE -ne 0) {
 
             $configPath = '';
@@ -736,7 +788,7 @@ tasks:
             "GO_LINT_SKIP_PATTERN_OVERRIDE=$skipPattern"; if ($LASTEXITCODE -ne 0) {
 
             exit $LASTEXITCODE;
-          }; & '{{.GLOBAL_GO_BIN}}/golangci-lint' run
+          }; & $lintBinary run
             {{.GO_LINT_FIX}}
             {{.GO_LINT_ARGS}}
             --config $overlayConfig; exit $LASTEXITCODE"

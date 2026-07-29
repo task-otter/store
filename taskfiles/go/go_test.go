@@ -1,7 +1,12 @@
 package go_test
 
 import (
+	"context"
 	"fmt"
+	"os"
+	"os/exec"
+	"path/filepath"
+	"runtime"
 	"slices"
 	"strings"
 	"testing"
@@ -193,6 +198,273 @@ func TestGolangciLintInstallerUsesGoInstall(t *testing.T) {
 		if strings.Contains(status, token) {
 			t.Fatalf("install:golangci-lint status contains plugin token %q: %s", token, status)
 		}
+	}
+}
+
+func TestGolangciLintCustomBuildLifecycle(t *testing.T) {
+	t.Parallel()
+
+	if runtime.GOOS == "windows" {
+		t.Skip("shell fixture covers the Unix command path")
+	}
+
+	fixture := newCustomGolangciLintFixture(t)
+	fixture.writeConfig(t, "project-gcl", ".tools", "v1.0.0")
+
+	fixture.run(t, "golangci-lint:lint")
+	fixture.assertLog(t,
+		"stock:custom -v",
+		"custom:run ./...",
+	)
+
+	fixture.clearLog(t)
+	fixture.run(t, "golangci-lint:lint")
+	fixture.assertLog(t, "custom:run ./...")
+
+	fixture.writeConfig(t, "project-gcl", ".tools", "v1.0.1")
+	fixture.clearLog(t)
+	fixture.run(t, "golangci-lint:lint")
+	fixture.assertLog(t,
+		"stock:custom -v",
+		"custom:run ./...",
+	)
+
+	err := os.Remove(filepath.Join(fixture.project, ".tools", "project-gcl"))
+	if err != nil {
+		t.Fatalf("remove custom golangci-lint: %v", err)
+	}
+
+	fixture.clearLog(t)
+	fixture.run(t, "golangci-lint:lint:fix", "--", "./internal/...")
+	fixture.assertLog(t,
+		"stock:custom -v",
+		"custom:run --fix ./internal/...",
+	)
+}
+
+func TestGolangciLintCustomBuildDefaultsAndFallback(t *testing.T) {
+	t.Parallel()
+
+	if runtime.GOOS == "windows" {
+		t.Skip("shell fixture covers the Unix command path")
+	}
+
+	t.Run("stock fallback", func(t *testing.T) {
+		t.Parallel()
+
+		fixture := newCustomGolangciLintFixture(t)
+		fixture.run(t, "golangci-lint:lint")
+		fixture.assertLog(t, "stock:run ./...")
+	})
+
+	t.Run("default output", func(t *testing.T) {
+		t.Parallel()
+
+		fixture := newCustomGolangciLintFixture(t)
+		fixture.writeConfig(t, "", "", "v1.0.0")
+		fixture.run(t, "golangci-lint:lint")
+		fixture.assertLog(t,
+			"stock:custom -v",
+			"custom:run ./...",
+		)
+
+		_, err := os.Stat(filepath.Join(fixture.project, "custom-gcl"))
+		if err != nil {
+			t.Fatalf("stat default custom golangci-lint: %v", err)
+		}
+	})
+
+	t.Run("build failure", func(t *testing.T) {
+		t.Parallel()
+
+		fixture := newCustomGolangciLintFixture(t)
+		fixture.writeConfig(t, "project-gcl", ".tools", "v1.0.0")
+
+		output, err := fixture.runCommand(
+			t.Context(),
+			"golangci-lint:lint",
+			[]string{"GCL_CUSTOM_EXIT=9"},
+		)
+		if err == nil {
+			t.Fatalf("custom golangci-lint build succeeded unexpectedly\n%s", output)
+		}
+
+		fixture.assertLog(t, "stock:custom -v")
+	})
+}
+
+type customGolangciLintFixture struct {
+	project  string
+	bin      string
+	log      string
+	template string
+	taskfile string
+}
+
+func newCustomGolangciLintFixture(t *testing.T) customGolangciLintFixture {
+	t.Helper()
+
+	project := t.TempDir()
+
+	bin := filepath.Join(project, "bin")
+
+	err := os.MkdirAll(bin, 0o750)
+	if err != nil {
+		t.Fatalf("create fixture bin: %v", err)
+	}
+
+	logPath := filepath.Join(project, "golangci-lint.log")
+	template := filepath.Join(project, "custom-template")
+	writeExecutable(t, template, `#!/bin/sh
+set -eu
+printf 'custom:%s\n' "$*" >>"$GCL_LOG"
+if [ "${1:-}" = "run" ]; then
+  exit "${GCL_RUN_EXIT:-0}"
+fi
+`)
+
+	writeExecutable(t, filepath.Join(bin, "golangci-lint"), `#!/bin/sh
+set -eu
+printf 'stock:%s\n' "$*" >>"$GCL_LOG"
+if [ "${1:-}" = "custom" ]; then
+  exit_code="${GCL_CUSTOM_EXIT:-0}"
+  if [ "$exit_code" -ne 0 ]; then
+    exit "$exit_code"
+  fi
+  name="$(awk '$1 == "name:" { print $2; exit }' .custom-gcl.yml)"
+  destination="$(awk '$1 == "destination:" { print $2; exit }' .custom-gcl.yml)"
+  name="${name:-custom-gcl}"
+  destination="${destination:-.}"
+  mkdir -p "$destination"
+  cp "$CUSTOM_GCL_TEMPLATE" "$destination/$name"
+  chmod +x "$destination/$name"
+  exit 0
+fi
+if [ "${1:-}" = "run" ]; then
+  exit "${GCL_RUN_EXIT:-0}"
+fi
+`)
+
+	return customGolangciLintFixture{
+		project:  project,
+		bin:      bin,
+		log:      logPath,
+		template: template,
+		taskfile: filepath.Join(tasktest.RepoRoot(t), "taskfiles", "go", "Taskfile.yml"),
+	}
+}
+
+func (fixture customGolangciLintFixture) writeConfig(
+	t *testing.T,
+	name string,
+	destination string,
+	pluginVersion string,
+) {
+	t.Helper()
+
+	var builder strings.Builder
+	builder.WriteString("version: v2.12.2\n")
+
+	if name != "" {
+		fmt.Fprintf(&builder, "name: %s\n", name)
+	}
+
+	if destination != "" {
+		fmt.Fprintf(&builder, "destination: %s\n", destination)
+	}
+
+	fmt.Fprintf(
+		&builder,
+		"plugins:\n  - module: example.com/custom-linter\n    version: %s\n",
+		pluginVersion,
+	)
+
+	err := os.WriteFile(
+		filepath.Join(fixture.project, ".custom-gcl.yml"),
+		[]byte(builder.String()),
+		0o600,
+	)
+	if err != nil {
+		t.Fatalf("write custom golangci-lint config: %v", err)
+	}
+}
+
+func (fixture customGolangciLintFixture) run(t *testing.T, taskName string, args ...string) {
+	t.Helper()
+
+	output, err := fixture.runCommand(t.Context(), taskName, nil, args...)
+	if err != nil {
+		t.Fatalf("run task %s: %v\n%s", taskName, err, output)
+	}
+}
+
+func (fixture customGolangciLintFixture) runCommand(
+	ctx context.Context,
+	taskName string,
+	extraEnv []string,
+	args ...string,
+) ([]byte, error) {
+	taskArgs := make([]string, 0, 4+len(args))
+	taskArgs = append(taskArgs,
+		"--taskfile",
+		fixture.taskfile,
+		taskName,
+		"GLOBAL_GO_BIN="+fixture.bin,
+	)
+	taskArgs = append(taskArgs, args...)
+
+	// #nosec G204 -- every subprocess argument is assembled by this test fixture.
+	cmd := exec.CommandContext(ctx, "task", taskArgs...)
+	cmd.Dir = fixture.project
+	cmd.Env = append(os.Environ(),
+		"CUSTOM_GCL_TEMPLATE="+fixture.template,
+		"GCL_LOG="+fixture.log,
+		"TASK_TEMP_DIR="+filepath.Join(fixture.project, ".task"),
+	)
+	cmd.Env = append(cmd.Env, extraEnv...)
+
+	output, err := cmd.CombinedOutput()
+	if err != nil {
+		return output, fmt.Errorf("run task %s: %w", taskName, err)
+	}
+
+	return output, nil
+}
+
+func (fixture customGolangciLintFixture) clearLog(t *testing.T) {
+	t.Helper()
+
+	err := os.WriteFile(fixture.log, nil, 0o600)
+	if err != nil {
+		t.Fatalf("clear golangci-lint log: %v", err)
+	}
+}
+
+func (fixture customGolangciLintFixture) assertLog(t *testing.T, expected ...string) {
+	t.Helper()
+
+	content, err := os.ReadFile(fixture.log)
+	if err != nil {
+		t.Fatalf("read golangci-lint log: %v", err)
+	}
+
+	actual := strings.Split(strings.TrimSpace(string(content)), "\n")
+	if !slices.Equal(actual, expected) {
+		t.Fatalf("golangci-lint log mismatch\nexpected: %v\nactual:   %v", expected, actual)
+	}
+}
+
+func writeExecutable(t *testing.T, path string, content string) {
+	t.Helper()
+
+	err := os.WriteFile(path, []byte(content), 0o600)
+	if err != nil {
+		t.Fatalf("write executable %s: %v", path, err)
+	}
+
+	err = os.Chmod(path, 0o700) // #nosec G302 -- fixture commands must be executable.
+	if err != nil {
+		t.Fatalf("make executable %s: %v", path, err)
 	}
 }
 
