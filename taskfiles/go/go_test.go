@@ -337,6 +337,7 @@ func taskDependencyName(rawDep any) (string, bool) {
 		return dep, true
 	case map[string]any:
 		name, ok := dep["task"].(string)
+
 		return name, ok
 	default:
 		return "", false

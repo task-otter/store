@@ -144,7 +144,12 @@ func stubEnv(t *testing.T) []string {
 	}
 
 	stub(t, bin, "nvm", "#!/usr/bin/env bash\ncase \"$1\" in use) exit 0 ;; *) exit 0 ;; esac\n")
-	stub(t, bin, "corepack", "#!/usr/bin/env bash\ncase \"$1\" in --version) echo \"0.34.0\" ;; *) echo \"corepack $* stub\" ;; esac\n")
+	stub(
+		t,
+		bin,
+		"corepack",
+		"#!/usr/bin/env bash\ncase \"$1\" in --version) echo \"0.34.0\" ;; *) echo \"corepack $* stub\" ;; esac\n",
+	)
 	stub(t, bin, "npm", "#!/usr/bin/env bash\necho \"npm $* stub\"\n")
 
 	env := os.Environ()
