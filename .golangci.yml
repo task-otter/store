@@ -22,7 +22,7 @@ linters:
           packages:
             - ./...
           timeout: 10m
-          testArgs:
+          test-args:
             - -race
             - -tags=integration
     wsl_v5:
