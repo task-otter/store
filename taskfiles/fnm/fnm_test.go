@@ -1,11 +1,14 @@
 package fnm_test
 
 import (
+	"fmt"
+	"io/fs"
 	"os"
 	"path/filepath"
 	"runtime"
 	"slices"
 	"strings"
+	"syscall"
 	"testing"
 	"time"
 
@@ -537,7 +540,7 @@ func TestShellSetupIsIdempotent(t *testing.T) {
 	tasktestutil.AssertExitCode(t, tasktestutil.RunTask(t, root, env, "--yes", "shell:setup"), 0)
 
 	for _, profilePath := range shellProfilePaths(home) {
-		content, err := os.ReadFile(profilePath)
+		content, err := readProfile(profilePath)
 		if err != nil {
 			continue
 		}
@@ -763,7 +766,7 @@ func fnmFreshProfileEnv(t *testing.T) []string {
 
 	home := tasktestutil.EnvValue(env, "HOME")
 
-	err := os.WriteFile(filepath.Join(home, ".bashrc"), []byte(""), 0o644)
+	err := os.WriteFile(filepath.Join(home, ".bashrc"), []byte(""), 0o600)
 	if err != nil {
 		t.Fatalf("failed to clear shell profile: %v", err)
 	}
@@ -782,9 +785,18 @@ func shellProfilePaths(home string) []string {
 	}
 }
 
+func readProfile(profilePath string) ([]byte, error) {
+	content, err := fs.ReadFile(os.DirFS(filepath.Dir(profilePath)), filepath.Base(profilePath))
+	if err != nil {
+		return nil, fmt.Errorf("read profile %s: %w", profilePath, err)
+	}
+
+	return content, nil
+}
+
 func profileContains(home, token string) bool {
 	for _, profilePath := range shellProfilePaths(home) {
-		content, err := os.ReadFile(profilePath)
+		content, err := readProfile(profilePath)
 		if err != nil {
 			continue
 		}
@@ -805,7 +817,7 @@ func fnmStubEnv(t *testing.T) []string {
 
 	binDir := filepath.Join(home, ".local", "bin")
 
-	err := os.MkdirAll(binDir, 0o755)
+	err := os.MkdirAll(binDir, 0o700)
 	if err != nil {
 		t.Fatalf("failed to create stub bin dir: %v", err)
 	}
@@ -821,9 +833,16 @@ func fnmStubEnv(t *testing.T) []string {
 		"  *) exit 0 ;;\n" +
 		"esac\n"
 
-	err = os.WriteFile(filepath.Join(binDir, "fnm"), []byte(stub), 0o755)
+	fnmPath := filepath.Join(binDir, "fnm")
+
+	err = os.WriteFile(fnmPath, []byte(stub), 0o600)
 	if err != nil {
 		t.Fatalf("failed to create stub fnm binary: %v", err)
+	}
+
+	err = syscall.Chmod(fnmPath, 0o500)
+	if err != nil {
+		t.Fatalf("make stub fnm executable: %v", err)
 	}
 
 	bashrc := filepath.Join(home, ".bashrc")
@@ -832,7 +851,7 @@ func fnmStubEnv(t *testing.T) []string {
 		"export PATH=\"$HOME/.local/share/fnm:$HOME/.local/bin:$PATH\"\n" +
 		"eval \"$(fnm env --use-on-cd --shell bash)\"\n"
 
-	err = os.WriteFile(bashrc, []byte(bashrcContent), 0o644)
+	err = os.WriteFile(bashrc, []byte(bashrcContent), 0o600)
 	if err != nil {
 		t.Fatalf("failed to pre-populate shell profile: %v", err)
 	}

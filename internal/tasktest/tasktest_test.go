@@ -106,12 +106,12 @@ func inDir(t *testing.T, dir string, callback func()) {
 func writeFile(t *testing.T, path, content string) {
 	t.Helper()
 
-	err := os.MkdirAll(filepath.Dir(path), 0o755)
+	err := os.MkdirAll(filepath.Dir(path), 0o700)
 	if err != nil {
 		t.Fatalf("create parent directory: %v", err)
 	}
 
-	err = os.WriteFile(path, []byte(content), 0o644)
+	err = os.WriteFile(path, []byte(content), 0o600)
 	if err != nil {
 		t.Fatalf("write %s: %v", path, err)
 	}
@@ -154,7 +154,7 @@ func TestRepositoryAndTaskfilePaths(t *testing.T) {
 
 	nested := filepath.Join(module, "nested")
 
-	err := os.MkdirAll(nested, 0o755)
+	err := os.MkdirAll(nested, 0o700)
 	if err != nil {
 		t.Fatal(err)
 	}

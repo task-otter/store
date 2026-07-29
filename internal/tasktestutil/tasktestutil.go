@@ -26,7 +26,7 @@ const (
 	taskWaitDelay                = 5 * time.Second
 	readmeTableMatchCount        = 2
 	privateFileMode              = 0o600
-	stubExecutableMode           = 0o755
+	stubExecutableMode           = 0o500
 )
 
 // PublicTaskSpec describes expectations for a single public task.

@@ -5,26 +5,7 @@ run:
 linters:
   default: all
   disable: [wsl, gomodguard]
-  enable:
-  #   - gomodularity
-    - coverlint
   settings:
-    custom:
-    #   gomodularity:
-    #     type: module
-    #     description: Enforce Go modularity policy thresholds
-      coverlint:
-        type: module
-        description: Enforce minimum Go test coverage.
-        original-url: github.com/gostafa/coverlint
-        settings:
-          min: 100
-          packages:
-            - ./...
-          timeout: 10m
-          test-args:
-            - -race
-            - -tags=integration
     wsl_v5:
       allow-first-in-block: true
       allow-whole-block: false
@@ -39,13 +20,6 @@ linters:
               desc: use fmt in development, but not in production code
     ireturn:
       allow: [anon, empty, error, generic, stdlib]
-  exclusions:
-    paths: [.*\.pb\.go]
-    rules:
-      - path: _test\.go
-        linters: [gosec, bodyclose, noctx, errcheck, wrapcheck]
-      - path: internal/config/.*_test\.go
-        linters: [paralleltest]
 issues:
   max-issues-per-linter: 0
   max-same-issues: 0

@@ -6,6 +6,7 @@ import (
 	"runtime"
 	"slices"
 	"strings"
+	"syscall"
 	"testing"
 	"time"
 
@@ -636,7 +637,7 @@ func bunStubEnv(t *testing.T) []string {
 
 	bunBinDir := filepath.Join(home, ".bun", "bin")
 
-	err := os.MkdirAll(bunBinDir, 0o755)
+	err := os.MkdirAll(bunBinDir, 0o700)
 	if err != nil {
 		t.Fatalf("failed to create stub bun dir: %v", err)
 	}
@@ -649,9 +650,16 @@ func bunStubEnv(t *testing.T) []string {
 		"  *) exit 0 ;;\n" +
 		"esac\n"
 
-	err = os.WriteFile(filepath.Join(bunBinDir, "bun"), []byte(stub), 0o755)
+	bunPath := filepath.Join(bunBinDir, "bun")
+
+	err = os.WriteFile(bunPath, []byte(stub), 0o600)
 	if err != nil {
 		t.Fatalf("failed to create stub bun binary: %v", err)
+	}
+
+	err = syscall.Chmod(bunPath, 0o500)
+	if err != nil {
+		t.Fatalf("make stub bun executable: %v", err)
 	}
 
 	path := tasktestutil.EnvValue(env, "PATH")

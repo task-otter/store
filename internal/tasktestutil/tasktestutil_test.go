@@ -1,6 +1,7 @@
 package tasktestutil_test
 
 import (
+	"context"
 	"errors"
 	"fmt"
 	"os"
@@ -121,12 +122,12 @@ func inDir(t *testing.T, dir string, callback func()) {
 func writeFile(t *testing.T, path, content string) {
 	t.Helper()
 
-	err := os.MkdirAll(filepath.Dir(path), 0o755)
+	err := os.MkdirAll(filepath.Dir(path), 0o700)
 	if err != nil {
 		t.Fatal(err)
 	}
 
-	err = os.WriteFile(path, []byte(content), 0o644)
+	err = os.WriteFile(path, []byte(content), 0o600)
 	if err != nil {
 		t.Fatal(err)
 	}
@@ -136,13 +137,23 @@ func writeExecutable(t *testing.T, body string) string {
 	t.Helper()
 
 	path := filepath.Join(t.TempDir(), "task")
+	writeExecutableFile(t, path, "#!/bin/sh\n"+body+"\n")
 
-	err := os.WriteFile(path, []byte("#!/bin/sh\n"+body+"\n"), 0o755)
+	return path
+}
+
+func writeExecutableFile(t *testing.T, path, content string) {
+	t.Helper()
+
+	err := os.WriteFile(path, []byte(content), 0o600)
 	if err != nil {
 		t.Fatal(err)
 	}
 
-	return path
+	err = syscall.Chmod(path, 0o500)
+	if err != nil {
+		t.Fatal(err)
+	}
 }
 
 func validTaskfile() string {
@@ -451,7 +462,7 @@ func TestModuleDiscoveryAndLoading(t *testing.T) {
 
 	nested := filepath.Join(root, "nested", "deeper")
 
-	err := os.MkdirAll(nested, 0o755)
+	err := os.MkdirAll(nested, 0o700)
 	if err != nil {
 		t.Fatal(err)
 	}
@@ -616,10 +627,7 @@ func TestDefaultTaskBinaryAndSimpleRunner(t *testing.T) {
 
 	stub := filepath.Join(bin, "task")
 
-	err := os.WriteFile(stub, []byte("#!/bin/sh\nprintf simple\n"), 0o755)
-	if err != nil {
-		t.Fatal(err)
-	}
+	writeExecutableFile(t, stub, "#!/bin/sh\nprintf simple\n")
 
 	t.Setenv("PATH", bin+string(os.PathListSeparator)+os.Getenv("PATH"))
 
@@ -667,7 +675,7 @@ func TestEnvironmentHelpers(t *testing.T) {
 
 	homeFailure := t.TempDir()
 
-	err := os.Mkdir(filepath.Join(homeFailure, ".bashrc"), 0o755)
+	err := os.Mkdir(filepath.Join(homeFailure, ".bashrc"), 0o700)
 	if err != nil {
 		t.Fatal(err)
 	}
@@ -834,7 +842,7 @@ func TestAssertExitCode(t *testing.T) {
 		0,
 	)
 
-	err := exec.Command("sh", "-c", "exit 7").Run()
+	err := exec.CommandContext(context.Background(), "sh", "-c", "exit 7").Run()
 	ttu.AssertExitCode(t, ttu.CommandResult{
 		Err:  err,
 		Args: []string{"exit"}, Stdout: "", Stderr: "",
@@ -884,7 +892,7 @@ func TestFilesystemAssertions(t *testing.T) {
 
 	empty := filepath.Join(dir, "empty")
 
-	err := os.Mkdir(empty, 0o755)
+	err := os.Mkdir(empty, 0o700)
 	if err != nil {
 		t.Fatal(err)
 	}

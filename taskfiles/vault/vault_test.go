@@ -10,19 +10,19 @@ import (
 )
 
 const (
-	initTask              = "init"
-	loginTask             = "login"
-	loginTaskApprole      = "login:approle"
-	loginTaskRootToken    = "login:root-token"
-	restoreTask           = "restore"
-	tokenIssueApproleTask = "token:issue:approle"
-	tokenRevokeSelfTask   = "token:revoke-self"
-	unsealTask            = "unseal"
-	roleIDVar             = "ROLE_ID"
-	secretIDVar           = "SECRET_ID"
-	methodTokenFlag       = "-method=token"
-	noPrintFlag           = "-no-print"
-	vaultLoginPipe        = `| vault login`
+	initTask           = "init"
+	loginTask          = "login"
+	loginTaskApprole   = "login:approle"
+	loginTaskRootToken = "login:root-token"
+	restoreTask        = "restore"
+	issueApproleTask   = "token:issue:approle"
+	revokeSelfTask     = "token:revoke-self"
+	unsealTask         = "unseal"
+	roleIDVar          = "ROLE_ID"
+	secretIDVar        = "SECRET_ID"
+	methodTokenFlag    = "-method=token"
+	noPrintFlag        = "-no-print"
+	vaultLoginPipe     = `| vault login`
 )
 
 func publicTasks() []string {
@@ -41,8 +41,8 @@ func publicTasks() []string {
 		"seal",
 		"snapshot",
 		"status",
-		tokenIssueApproleTask,
-		tokenRevokeSelfTask,
+		issueApproleTask,
+		revokeSelfTask,
 		unsealTask,
 		"upgrade",
 		"verify",
@@ -84,8 +84,8 @@ func TestInputValidatedTasksDoNotInstallBeforePreconditions(t *testing.T) {
 		loginTaskApprole,
 		loginTaskRootToken,
 		restoreTask,
-		tokenIssueApproleTask,
-		tokenRevokeSelfTask,
+		issueApproleTask,
+		revokeSelfTask,
 		unsealTask,
 	} {
 		task := taskfile.Tasks[name]
@@ -281,8 +281,8 @@ func TestStrictShellSetOnSensitiveTasks(t *testing.T) {
 		loginTaskApprole,
 		loginTaskRootToken,
 		restoreTask,
-		tokenIssueApproleTask,
-		tokenRevokeSelfTask,
+		issueApproleTask,
+		revokeSelfTask,
 		unsealTask,
 	} {
 		task := taskfile.Tasks[name]
@@ -298,7 +298,7 @@ func TestTokenIssueApRolePipesSecretViaStdinWithoutLogin(t *testing.T) {
 	t.Parallel()
 
 	taskfile := tasktest.LoadTaskfile(t, "vault")
-	task := taskfile.Tasks[tokenIssueApproleTask]
+	task := taskfile.Tasks[issueApproleTask]
 	preconditions := taskFieldYAML(t, task.Preconditions)
 	cmds := taskFieldYAML(t, task.Cmds)
 
@@ -343,7 +343,7 @@ func TestTokenRevokeSelfRequiresVaultToken(t *testing.T) {
 	t.Parallel()
 
 	taskfile := tasktest.LoadTaskfile(t, "vault")
-	task := taskfile.Tasks[tokenRevokeSelfTask]
+	task := taskfile.Tasks[revokeSelfTask]
 	preconditions := taskFieldYAML(t, task.Preconditions)
 	cmds := taskFieldYAML(t, task.Cmds)
 

@@ -108,7 +108,7 @@ func stubEnv(t *testing.T) []string {
 
 	binDir := filepath.Join(home, ".local", "bin")
 
-	err := os.MkdirAll(binDir, 0o755)
+	err := os.MkdirAll(binDir, 0o700)
 	if err != nil {
 		t.Fatalf("create stub bin dir: %v", err)
 	}

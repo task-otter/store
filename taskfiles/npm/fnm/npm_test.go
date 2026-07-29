@@ -600,7 +600,7 @@ func TestCiFailsWithoutLockfile(t *testing.T) {
 	err := os.WriteFile(
 		filepath.Join(projectDir, "package.json"),
 		[]byte(`{"name":"test","version":"1.0.0"}`),
-		0o644,
+		0o600,
 	)
 	if err != nil {
 		t.Fatalf("failed to create package.json: %v", err)
@@ -680,7 +680,7 @@ func npmStubEnv(t *testing.T) []string {
 
 	binDir := filepath.Join(home, ".local", "bin")
 
-	err := os.MkdirAll(binDir, 0o755)
+	err := os.MkdirAll(binDir, 0o700)
 	if err != nil {
 		t.Fatalf("failed to create stub bin dir: %v", err)
 	}
@@ -712,7 +712,7 @@ func npmStubEnv(t *testing.T) []string {
 
 	bashrc := filepath.Join(home, ".bashrc")
 
-	err = os.WriteFile(bashrc, []byte("export PATH=\"$HOME/.local/bin:$PATH\"\n"), 0o644)
+	err = os.WriteFile(bashrc, []byte("export PATH=\"$HOME/.local/bin:$PATH\"\n"), 0o600)
 	if err != nil {
 		t.Fatalf("failed to pre-populate shell profile: %v", err)
 	}

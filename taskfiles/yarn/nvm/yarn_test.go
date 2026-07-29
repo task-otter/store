@@ -108,19 +108,19 @@ func stubEnv(t *testing.T) []string {
 
 	binDir := filepath.Join(home, ".local", "bin")
 
-	err := os.MkdirAll(binDir, 0o755)
+	err := os.MkdirAll(binDir, 0o700)
 	if err != nil {
 		t.Fatalf("create stub bin dir: %v", err)
 	}
 
 	nvmDir := filepath.Join(home, ".nvm")
 
-	err = os.MkdirAll(nvmDir, 0o755)
+	err = os.MkdirAll(nvmDir, 0o700)
 	if err != nil {
 		t.Fatalf("create nvm dir: %v", err)
 	}
 
-	err = os.WriteFile(filepath.Join(nvmDir, "nvm.sh"), []byte("# nvm stub\n"), 0o644)
+	err = os.WriteFile(filepath.Join(nvmDir, "nvm.sh"), []byte("# nvm stub\n"), 0o600)
 	if err != nil {
 		t.Fatalf("create nvm.sh stub: %v", err)
 	}

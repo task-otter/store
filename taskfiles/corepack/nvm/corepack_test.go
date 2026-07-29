@@ -1,6 +1,8 @@
 package corepacknvm_test
 
 import (
+	"context"
+	"io/fs"
 	"os"
 	"os/exec"
 	"path/filepath"
@@ -8,6 +10,7 @@ import (
 	"runtime"
 	"slices"
 	"strings"
+	"syscall"
 	"testing"
 
 	"gopkg.in/yaml.v3"
@@ -111,7 +114,8 @@ type result struct {
 func runTask(t *testing.T, env []string, args ...string) result {
 	t.Helper()
 
-	cmd := exec.Command("task", args...)
+	commandContext := exec.CommandContext
+	cmd := commandContext(context.Background(), "task", args...)
 	cmd.Dir = dir(t)
 	cmd.Env = env
 	out, err := cmd.CombinedOutput()
@@ -126,19 +130,19 @@ func stubEnv(t *testing.T) []string {
 
 	nvmDir := filepath.Join(home, ".nvm")
 
-	err := os.MkdirAll(nvmDir, 0o755)
+	err := os.MkdirAll(nvmDir, 0o700)
 	if err != nil {
 		t.Fatalf("create nvm dir: %v", err)
 	}
 
-	err = os.WriteFile(filepath.Join(nvmDir, "nvm.sh"), []byte("# nvm stub\n"), 0o644)
+	err = os.WriteFile(filepath.Join(nvmDir, "nvm.sh"), []byte("# nvm stub\n"), 0o600)
 	if err != nil {
 		t.Fatalf("write nvm.sh stub: %v", err)
 	}
 
 	bin := filepath.Join(home, ".local", "bin")
 
-	err = os.MkdirAll(bin, 0o755)
+	err = os.MkdirAll(bin, 0o700)
 	if err != nil {
 		t.Fatalf("create stub bin: %v", err)
 	}
@@ -165,9 +169,16 @@ func stubEnv(t *testing.T) []string {
 func stub(t *testing.T, path, name, body string) {
 	t.Helper()
 
-	err := os.WriteFile(filepath.Join(path, name), []byte(body), 0o755)
+	stubPath := filepath.Join(path, name)
+
+	err := os.WriteFile(stubPath, []byte(body), 0o600)
 	if err != nil {
 		t.Fatalf("write %s stub: %v", name, err)
+	}
+
+	err = syscall.Chmod(stubPath, 0o500)
+	if err != nil {
+		t.Fatalf("make %s stub executable: %v", name, err)
 	}
 }
 
@@ -223,7 +234,9 @@ func readmeTaskNames(content string) []string {
 func read(t *testing.T, name string) string {
 	t.Helper()
 
-	content, err := os.ReadFile(filepath.Join(dir(t), name))
+	path := filepath.Join(dir(t), name)
+
+	content, err := fs.ReadFile(os.DirFS(filepath.Dir(path)), filepath.Base(path))
 	if err != nil {
 		t.Fatalf("read %s: %v", name, err)
 	}

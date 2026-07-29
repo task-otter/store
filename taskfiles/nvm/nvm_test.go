@@ -681,7 +681,7 @@ func TestNodeInstallSkipsAlreadyInstalledVersion(t *testing.T) {
 
 	versionDir := filepath.Join(nvmDir, "versions", "node", "v18.0.0")
 
-	err := os.MkdirAll(versionDir, 0o755)
+	err := os.MkdirAll(versionDir, 0o700)
 	if err != nil {
 		t.Fatalf("failed to create stub version dir: %v", err)
 	}
@@ -718,7 +718,7 @@ func TestNodeUninstallWithInstalledVersionPrintsVersionInOutput(t *testing.T) {
 
 	versionDir := filepath.Join(nvmDir, "versions", "node", "v18.0.0")
 
-	err := os.MkdirAll(versionDir, 0o755)
+	err := os.MkdirAll(versionDir, 0o700)
 	if err != nil {
 		t.Fatalf("failed to create stub version dir: %v", err)
 	}
@@ -736,14 +736,14 @@ func dryRunEnv(t *testing.T) []string {
 	env := isolatedEnv(t)
 	nvmDir := tasktestutil.EnvValue(env, "NVM_DIR")
 
-	err := os.MkdirAll(nvmDir, 0o755)
+	err := os.MkdirAll(nvmDir, 0o700)
 	if err != nil {
 		t.Fatalf("failed to create fake NVM dir: %v", err)
 	}
 
 	stub := "nvm() { case \"$1\" in --version) echo 0.40.1 ;; version|current) echo stub ;; *) return 0 ;; esac; }\n"
 
-	err = os.WriteFile(filepath.Join(nvmDir, "nvm.sh"), []byte(stub), 0o644)
+	err = os.WriteFile(filepath.Join(nvmDir, "nvm.sh"), []byte(stub), 0o600)
 	if err != nil {
 		t.Fatalf("failed to create fake nvm.sh: %v", err)
 	}

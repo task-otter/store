@@ -1,6 +1,7 @@
 package taskfiles_test
 
 import (
+	"fmt"
 	"io/fs"
 	"os"
 	"path/filepath"
@@ -131,7 +132,7 @@ func discoverMetadataModule(
 
 	rel, err := filepath.Rel(taskfilesDir, filepath.Dir(path))
 	if err != nil {
-		return err
+		return fmt.Errorf("metadata module path relative to taskfiles: %w", err)
 	}
 
 	module := filepath.ToSlash(rel)
@@ -215,7 +216,7 @@ func familyRepresentatives(t *testing.T) []string {
 
 		rel, err := filepath.Rel(taskfilesDir, filepath.Dir(path))
 		if err != nil {
-			return err
+			return fmt.Errorf("family representative path relative to taskfiles: %w", err)
 		}
 
 		module := filepath.ToSlash(rel)
@@ -252,9 +253,9 @@ func assertMetadata(
 ) {
 	t.Helper()
 
-	metadataPath := filepath.Join(taskfilesDir, dir, "metadata.yml")
+	metadataPath := filepath.ToSlash(filepath.Join(dir, "metadata.yml"))
 
-	content, err := os.ReadFile(metadataPath)
+	content, err := fs.ReadFile(os.DirFS(taskfilesDir), metadataPath)
 	if err != nil {
 		t.Fatalf("read metadata.yml: %v; add or update it to match the module Taskfile", err)
 	}

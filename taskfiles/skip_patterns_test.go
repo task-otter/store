@@ -2,6 +2,8 @@ package taskfiles_test
 
 import (
 	"bytes"
+	"context"
+	"io/fs"
 	"os"
 	"os/exec"
 	"path/filepath"
@@ -286,7 +288,9 @@ func assertSharedSkipFileMatcher(
 	}
 
 	input := []byte(strings.Join(test.paths, separator) + separator)
-	command := exec.Command(
+	commandContext := exec.CommandContext
+	command := commandContext(
+		context.Background(),
 		"task", "--silent", "--taskfile", filter, "filter",
 		"SKIPFILES_PATTERN="+test.pattern,
 	)
@@ -327,7 +331,7 @@ func runConfigSkip(t *testing.T, project, module string, vars ...string) {
 func writeFixture(t *testing.T, project, name, content string) {
 	t.Helper()
 
-	err := os.WriteFile(filepath.Join(project, name), []byte(content), 0o644)
+	err := os.WriteFile(filepath.Join(project, name), []byte(content), 0o600)
 	if err != nil {
 		t.Fatalf("write %s: %v", name, err)
 	}
@@ -498,7 +502,9 @@ func testKnipConfigSkipRejectsDynamicJS(t *testing.T) {
 
 		project := t.TempDir()
 		writeFixture(t, project, "knip.config.js", "export default {};\n")
-		command := exec.Command("task", "--silent", "--taskfile",
+
+		commandContext := exec.CommandContext
+		command := commandContext(context.Background(), "task", "--silent", "--taskfile",
 			filepath.Join(tasktest.RepoRoot(t), "taskfiles", "knip", "bun", skipTaskfileYML),
 			"config:skip", "KNIP_LINT_SKIP_PATTERN=**/generated/**")
 		command.Dir = project
@@ -764,7 +770,7 @@ fi
 printf '%s\n' "$@" >"$TASKOTTER_ACTIONLINT_LOG"
 `
 
-	mustWriteFile(t, filepath.Join(binDirectory, "actionlint"), stub, 0o755)
+	mustWriteFile(t, filepath.Join(binDirectory, "actionlint"), stub, 0o500)
 
 	return actionlintSkipFixture{
 		taskfilePath: filepath.Join(root, "taskfiles", "actionlint", skipTaskfileYML),
@@ -781,7 +787,9 @@ printf '%s\n' "$@" >"$TASKOTTER_ACTIONLINT_LOG"
 }
 
 func (fixture actionlintSkipFixture) taskCommand(args ...string) *exec.Cmd {
-	command := exec.Command(
+	commandContext := exec.CommandContext
+	command := commandContext(
+		context.Background(),
 		"task",
 		append([]string{taskfileFlag, fixture.taskfilePath}, args...)...)
 	command.Dir = fixture.project
@@ -919,7 +927,7 @@ func newCargoSkipFixture(t *testing.T) cargoSkipFixture {
 printf '%s\n' "$@" >"$TASKOTTER_CARGO_LOG"
 `
 
-	mustWriteFile(t, filepath.Join(binDirectory, "cargo"), stub, 0o755)
+	mustWriteFile(t, filepath.Join(binDirectory, "cargo"), stub, 0o500)
 
 	return cargoSkipFixture{
 		taskfilePath: filepath.Join(root, "taskfiles", "cargo", skipTaskfileYML),
@@ -933,7 +941,9 @@ printf '%s\n' "$@" >"$TASKOTTER_CARGO_LOG"
 }
 
 func (fixture cargoSkipFixture) taskCommand(args ...string) *exec.Cmd {
-	command := exec.Command(
+	commandContext := exec.CommandContext
+	command := commandContext(
+		context.Background(),
 		"task",
 		append([]string{taskfileFlag, fixture.taskfilePath}, args...)...)
 	command.Dir = fixture.project
@@ -1026,7 +1036,7 @@ func newGoAnalysisSkipFixture(t *testing.T) goAnalysisSkipFixture {
 printf '%s\n' "$@" >"$TASKOTTER_GO_ANALYSIS_LOG"
 `
 
-	mustWriteFile(t, filepath.Join(binDirectory, "govulncheck"), stub, 0o755)
+	mustWriteFile(t, filepath.Join(binDirectory, "govulncheck"), stub, 0o500)
 
 	return goAnalysisSkipFixture{
 		taskfilePath: filepath.Join(root, "taskfiles", "go", skipTaskfileYML),
@@ -1041,7 +1051,9 @@ printf '%s\n' "$@" >"$TASKOTTER_GO_ANALYSIS_LOG"
 }
 
 func (fixture goAnalysisSkipFixture) taskCommand(args ...string) *exec.Cmd {
-	command := exec.Command(
+	commandContext := exec.CommandContext
+	command := commandContext(
+		context.Background(),
 		"task",
 		append([]string{taskfileFlag, fixture.taskfilePath}, args...)...)
 	command.Dir = fixture.project
@@ -1112,7 +1124,7 @@ func variantLeaves(t *testing.T, root, family string) []string {
 func readFile(t *testing.T, path string) string {
 	t.Helper()
 
-	content, err := os.ReadFile(path)
+	content, err := fs.ReadFile(os.DirFS(filepath.Dir(path)), filepath.Base(path))
 	if err != nil {
 		t.Fatalf("read %s: %v", path, err)
 	}
@@ -1123,7 +1135,7 @@ func readFile(t *testing.T, path string) string {
 func mustMkdirAll(t *testing.T, path string) {
 	t.Helper()
 
-	err := os.MkdirAll(path, 0o755)
+	err := os.MkdirAll(path, 0o700)
 	if err != nil {
 		t.Fatalf("create directory %s: %v", path, err)
 	}
@@ -1150,7 +1162,12 @@ func mustRemove(t *testing.T, path string) {
 func runCommand(t *testing.T, directory string, name string, arguments ...string) {
 	t.Helper()
 
-	command := exec.Command(name, arguments...)
+	if name != "task" {
+		t.Fatalf("unsupported command %q", name)
+	}
+
+	commandContext := exec.CommandContext
+	command := commandContext(context.Background(), "task", arguments...)
 
 	command.Dir = directory
 

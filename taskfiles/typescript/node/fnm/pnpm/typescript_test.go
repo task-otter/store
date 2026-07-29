@@ -1,7 +1,9 @@
 package typescriptnodefnmpnpm_test
 
 import (
+	"context"
 	"encoding/json"
+	"io/fs"
 	"os"
 	"os/exec"
 	"path/filepath"
@@ -346,15 +348,11 @@ func mustTask(t *testing.T, taskfile loadedTaskfile, name string) task {
 func runTask(t *testing.T, env []string, args ...string) commandResult {
 	t.Helper()
 
-	taskBin := os.Getenv("TASK_BIN")
-	if taskBin == "" {
-		taskBin = "task"
-	}
-
 	projectDir, projectEnv := fakeTypeScriptProject(t, env)
 	fullArgs := append([]string{"--taskfile", filepath.Join(dir(t), "Taskfile.yml")}, args...)
 
-	cmd := exec.Command(taskBin, fullArgs...)
+	commandContext := exec.CommandContext
+	cmd := commandContext(context.Background(), "task", fullArgs...)
 	cmd.Dir = projectDir
 	cmd.Env = projectEnv
 	out, err := cmd.CombinedOutput()
@@ -392,15 +390,15 @@ func fakeTypeScriptProject(t *testing.T, env []string) (string, []string) {
 		`{"scripts":{"build":"tsc"}}`+"\n",
 		0o644,
 	)
-	writeFile(t, filepath.Join(projectDir, "package-lock.json"), "{}\n", 0o644)
+	writeFile(t, filepath.Join(projectDir, "package-lock.json"), "{}\n", 0o600)
 	writeFile(
 		t,
 		filepath.Join(projectDir, "tsconfig.json"),
 		`{"compilerOptions":{"outDir":"dist"}}`+"\n",
 		0o644,
 	)
-	writeFile(t, filepath.Join(projectDir, "src", "index.ts"), "export {}\n", 0o644)
-	writeFile(t, filepath.Join(projectDir, "dist", "index.js"), "console.log('ok')\n", 0o644)
+	writeFile(t, filepath.Join(projectDir, "src", "index.ts"), "export {}\n", 0o600)
+	writeFile(t, filepath.Join(projectDir, "dist", "index.js"), "console.log('ok')\n", 0o600)
 
 	stubBody := "#!/usr/bin/env bash\n" +
 		"case \"$1\" in\n" +
@@ -409,15 +407,15 @@ func fakeTypeScriptProject(t *testing.T, env []string) (string, []string) {
 		"esac\n"
 
 	for _, name := range []string{"tsc", "tsx", "tsserver"} {
-		writeFile(t, filepath.Join(nodeBinDir, name), stubBody, 0o755)
+		writeFile(t, filepath.Join(nodeBinDir, name), stubBody, 0o500)
 	}
 
 	for _, name := range []string{"fnm", "node", "npx", "npm", "pnpm", "yarn", "bun"} {
-		writeFile(t, filepath.Join(binDir, name), stubBody, 0o755)
+		writeFile(t, filepath.Join(binDir, name), stubBody, 0o500)
 	}
 
-	writeFile(t, filepath.Join(envValue(env, "HOME"), ".bun", "bin", "bun"), stubBody, 0o755)
-	writeFile(t, filepath.Join(envValue(env, "HOME"), ".nvm", "nvm.sh"), "# nvm stub\n", 0o644)
+	writeFile(t, filepath.Join(envValue(env, "HOME"), ".bun", "bin", "bun"), stubBody, 0o500)
+	writeFile(t, filepath.Join(envValue(env, "HOME"), ".nvm", "nvm.sh"), "# nvm stub\n", 0o600)
 	writeFile(
 		t,
 		filepath.Join(envValue(env, "HOME"), ".local", "share", "fnm", "fnm"),
@@ -449,7 +447,7 @@ func createTypeScriptFixtureDirs(
 		filepath.Join(envValue(env, "HOME"), ".nvm"),
 		filepath.Join(envValue(env, "HOME"), ".local", "share", "fnm"),
 	} {
-		err := os.MkdirAll(path, 0o755)
+		err := os.MkdirAll(path, 0o700)
 		if err != nil {
 			t.Fatalf("create test project dir %s: %v", path, err)
 		}
@@ -634,7 +632,7 @@ func toolRoot(t *testing.T) string {
 func readTool(t *testing.T, name string) string {
 	t.Helper()
 
-	content, err := os.ReadFile(filepath.Join(toolRoot(t), name))
+	content, err := fs.ReadFile(os.DirFS(toolRoot(t)), filepath.ToSlash(name))
 	if err != nil {
 		t.Fatalf("read %s: %v", name, err)
 	}
@@ -647,7 +645,7 @@ func read(t *testing.T) string {
 
 	path := filepath.Join(dir(t), "Taskfile.yml")
 
-	content, err := os.ReadFile(path)
+	content, err := fs.ReadFile(os.DirFS(filepath.Dir(path)), filepath.Base(path))
 	if err != nil {
 		t.Fatalf("read %s: %v", path, err)
 	}

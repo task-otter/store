@@ -10,18 +10,17 @@ import (
 )
 
 const (
-	constGoTestGolangciLintFmtCheck          = "golangci-lint:fmt:check"
-	constGoTestGolangciLintLint              = "golangci-lint:lint"
-	constGoTestGosecLint                     = "gosec:lint"
-	constGoTestGovulncheckLint               = "govulncheck:lint"
-	constGoTestInstall                       = "install"
-	constGoTestInstallGoJunitReport          = "install:go-junit-report"
-	constGoTestInstallGolangciLint           = "install:golangci-lint"
-	constGoTestInstallGosec                  = "install:gosec"
-	constGoTestInstallGovulncheck            = "install:govulncheck"
-	constGoTestTest                          = "test"
-	constGoTestGOLANGCILINTCOVERLINTVERSION  = "GOLANGCI_LINT_COVERLINT_VERSION"
-	constGoTestGOLANGCILINTMODULARITYVERSION = "GOLANGCI_LINT_MODULARITY_VERSION"
+	constGoTestGolangciLintFmtCheck = "golangci-lint:fmt:check"
+	constGoTestGolangciLintLint     = "golangci-lint:lint"
+	constGoTestGosecLint            = "gosec:lint"
+	constGoTestGovulncheckLint      = "govulncheck:lint"
+	constGoTestGolangciLintVersion  = "GOLANGCI_LINT_VERSION"
+	constGoTestInstall              = "install"
+	constGoTestInstallGoJunitReport = "install:go-junit-report"
+	constGoTestInstallGolangciLint  = "install:golangci-lint"
+	constGoTestInstallGosec         = "install:gosec"
+	constGoTestInstallGovulncheck   = "install:govulncheck"
+	constGoTestTest                 = "test"
 )
 
 func publicTasks() []string {
@@ -66,9 +65,7 @@ func publicVars() []string {
 		"GO_VERSION",
 		"GO_ROOT_UNIX",
 		"GO_VERSION_URL",
-		constGoTestGOLANGCILINTCOVERLINTVERSION,
-		"GOLANGCI_LINT_VERSION",
-		constGoTestGOLANGCILINTMODULARITYVERSION,
+		constGoTestGolangciLintVersion,
 		"GOSEC_VERSION",
 		"GLOBAL_GO_BIN",
 		"GOVULNCHECK_VERSION",
@@ -141,7 +138,7 @@ func TestTestingTaskCommands(t *testing.T) {
 	}
 }
 
-func TestGolangciLintInstallerBuildsCustomPlugins(t *testing.T) {
+func TestGolangciLintInstallerUsesGoInstall(t *testing.T) {
 	t.Parallel()
 
 	taskfile := tasktest.LoadTaskfile(t, "go")
@@ -154,38 +151,47 @@ func TestGolangciLintInstallerBuildsCustomPlugins(t *testing.T) {
 	cmds := fmt.Sprintf("%v", task.Cmds)
 	for _, token := range []string{
 		"go install github.com/golangci/golangci-lint/v2/cmd/golangci-lint@",
-		"custom -v",
-		".custom-gcl.yml",
-		"name: golangci-lint",
-		"destination:",
-		"github.com/gostafa/modularity",
-		"github.com/gostafa/modularity/plugin",
-		"github.com/gostafa/coverlint",
-		constGoTestGOLANGCILINTCOVERLINTVERSION,
-		constGoTestGOLANGCILINTMODULARITYVERSION,
-		"golangci-lint.coverlint.version",
-		"golangci-lint.modularity.version",
-		"Go 1.26.5 or newer",
+		"default \"latest\" .GOLANGCI_LINT_VERSION",
+		"New-Item -ItemType Directory -Force",
 	} {
 		if !strings.Contains(cmds, token) {
 			t.Fatalf("install:golangci-lint cmds missing %q: %s", token, cmds)
 		}
 	}
 
+	for _, token := range []string{
+		"custom -v",
+		".custom-gcl.yml",
+		"github.com/gostafa/modularity",
+		"github.com/gostafa/coverlint",
+		"coverlint",
+		"modularity",
+	} {
+		if strings.Contains(cmds, token) {
+			t.Fatalf("install:golangci-lint cmds contain plugin token %q: %s", token, cmds)
+		}
+	}
+
 	status := fmt.Sprintf("%v", task.Status)
 	for _, token := range []string{
 		"golangci-lint\" version --short",
+		"GOLANGCI_LINT_VERSION",
+	} {
+		if !strings.Contains(status, token) {
+			t.Fatalf("install:golangci-lint status missing %q: %s", token, status)
+		}
+	}
+
+	for _, token := range []string{
 		"golangci-lint.coverlint.version",
 		"golangci-lint.modularity.version",
 		"linters --config",
 		"taskotter-golangci-status",
 		"coverlint",
 		"modularity",
-		constGoTestGOLANGCILINTCOVERLINTVERSION,
-		constGoTestGOLANGCILINTMODULARITYVERSION,
 	} {
-		if !strings.Contains(status, token) {
-			t.Fatalf("install:golangci-lint status missing %q: %s", token, status)
+		if strings.Contains(status, token) {
+			t.Fatalf("install:golangci-lint status contains plugin token %q: %s", token, status)
 		}
 	}
 }
@@ -285,20 +291,6 @@ func TestVersionVariablesAreIndependentAndOptional(t *testing.T) {
 
 		if value != "" {
 			t.Fatalf("%s default = %#v, want empty", name, value)
-		}
-	}
-
-	for _, name := range []string{
-		constGoTestGOLANGCILINTCOVERLINTVERSION,
-		constGoTestGOLANGCILINTMODULARITYVERSION,
-	} {
-		value, exists := taskfile.Vars[name]
-		if !exists {
-			t.Fatalf("%s must be defined", name)
-		}
-
-		if value != "v0.0.1" {
-			t.Fatalf("%s default = %#v, want v0.0.1", name, value)
 		}
 	}
 }
