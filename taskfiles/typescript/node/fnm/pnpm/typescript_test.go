@@ -384,20 +384,7 @@ func fakeTypeScriptProject(t *testing.T, env []string) (string, []string) {
 	binDir := filepath.Join(projectDir, ".stub-bin")
 	nodeBinDir := filepath.Join(projectDir, "node_modules", ".bin")
 
-	for _, path := range []string{
-		filepath.Join(projectDir, "src"),
-		filepath.Join(projectDir, "dist"),
-		binDir,
-		nodeBinDir,
-		filepath.Join(envValue(env, "HOME"), ".bun", "bin"),
-		filepath.Join(envValue(env, "HOME"), ".nvm"),
-		filepath.Join(envValue(env, "HOME"), ".local", "share", "fnm"),
-	} {
-		err := os.MkdirAll(path, 0o755)
-		if err != nil {
-			t.Fatalf("create test project dir %s: %v", path, err)
-		}
-	}
+	createTypeScriptFixtureDirs(t, projectDir, binDir, nodeBinDir, env)
 
 	writeFile(
 		t,
@@ -442,6 +429,31 @@ func fakeTypeScriptProject(t *testing.T, env []string) (string, []string) {
 	env = setEnv(env, "PATH", path)
 
 	return projectDir, env
+}
+
+func createTypeScriptFixtureDirs(
+	t *testing.T,
+	projectDir string,
+	binDir string,
+	nodeBinDir string,
+	env []string,
+) {
+	t.Helper()
+
+	for _, path := range []string{
+		filepath.Join(projectDir, "src"),
+		filepath.Join(projectDir, "dist"),
+		binDir,
+		nodeBinDir,
+		filepath.Join(envValue(env, "HOME"), ".bun", "bin"),
+		filepath.Join(envValue(env, "HOME"), ".nvm"),
+		filepath.Join(envValue(env, "HOME"), ".local", "share", "fnm"),
+	} {
+		err := os.MkdirAll(path, 0o755)
+		if err != nil {
+			t.Fatalf("create test project dir %s: %v", path, err)
+		}
+	}
 }
 
 func writeFile(t *testing.T, path, content string, mode os.FileMode) {

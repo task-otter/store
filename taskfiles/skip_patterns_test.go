@@ -425,6 +425,16 @@ func TestKnipConfigSkipTask(t *testing.T) {
 
 	const overlay = ".taskotter-knip-bun-skip.json"
 
+	testKnipConfigSkipNoProjectConfig(t, overlay)
+	testKnipConfigSkipMergesJSONC(t, overlay)
+	testKnipConfigSkipMergesPackageJSON(t, overlay)
+	testKnipConfigSkipRejectsDynamicJS(t)
+	testKnipConfigSkipRemovesStaleOverlay(t, overlay)
+}
+
+func testKnipConfigSkipNoProjectConfig(t *testing.T, overlay string) {
+	t.Helper()
+
 	t.Run("no project config", func(t *testing.T) {
 		t.Parallel()
 
@@ -438,6 +448,10 @@ func TestKnipConfigSkipTask(t *testing.T) {
 		)
 		assertOverlayContains(t, project, overlay, "**/generated/**")
 	})
+}
+
+func testKnipConfigSkipMergesJSONC(t *testing.T, overlay string) {
+	t.Helper()
 
 	t.Run("merges jsonc", func(t *testing.T) {
 		t.Parallel()
@@ -454,6 +468,10 @@ func TestKnipConfigSkipTask(t *testing.T) {
 		)
 		assertOverlayContains(t, project, overlay, "src/index.ts", "**/generated/**")
 	})
+}
+
+func testKnipConfigSkipMergesPackageJSON(t *testing.T, overlay string) {
+	t.Helper()
 
 	t.Run("merges the package.json knip section", func(t *testing.T) {
 		t.Parallel()
@@ -470,6 +488,10 @@ func TestKnipConfigSkipTask(t *testing.T) {
 		)
 		assertOverlayContains(t, project, overlay, "existing/**", "**/generated/**")
 	})
+}
+
+func testKnipConfigSkipRejectsDynamicJS(t *testing.T) {
+	t.Helper()
 
 	t.Run("rejects a dynamic JS config", func(t *testing.T) {
 		t.Parallel()
@@ -486,6 +508,10 @@ func TestKnipConfigSkipTask(t *testing.T) {
 			t.Fatalf("dynamic Knip config was not rejected clearly: err=%v\n%s", err, output)
 		}
 	})
+}
+
+func testKnipConfigSkipRemovesStaleOverlay(t *testing.T, overlay string) {
+	t.Helper()
 
 	t.Run("no pattern removes a stale overlay", func(t *testing.T) {
 		t.Parallel()

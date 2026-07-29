@@ -637,6 +637,27 @@ func runFnmIntegrationSteps(t *testing.T, root string, env []string, fnmBin, fnm
 
 	run := successfulIntegrationRun(root, env)
 
+	runFnmInstallSteps(t, run, fnmBin, fnmRoot)
+	runFnmNodeSteps(t, run, fnmRoot)
+	runIntegrationStep(t, "install:undo — fnm binary is removed", func(t *testing.T) {
+		t.Helper()
+		run(t, "--yes", "install:undo")
+
+		_, err := os.Stat(fnmBin)
+		if !os.IsNotExist(err) {
+			t.Fatalf("expected fnm binary to be removed: %s", fnmBin)
+		}
+	})
+}
+
+func runFnmInstallSteps(
+	t *testing.T,
+	run func(t *testing.T, args ...string) tasktestutil.CommandResult,
+	fnmBin string,
+	fnmRoot string,
+) {
+	t.Helper()
+
 	runIntegrationStep(t, "install — fnm binary is present on disk", func(t *testing.T) {
 		t.Helper()
 		run(t, "--yes", "install")
@@ -661,6 +682,14 @@ func runFnmIntegrationSteps(t *testing.T, root string, env []string, fnmBin, fnm
 		result := run(t, "ls")
 		tasktestutil.AssertNotEmpty(t, result.Combined(), "ls output is empty")
 	})
+}
+
+func runFnmNodeSteps(
+	t *testing.T,
+	run func(t *testing.T, args ...string) tasktestutil.CommandResult,
+	fnmRoot string,
+) {
+	t.Helper()
 
 	const secondary = "18.0.0"
 
@@ -698,15 +727,6 @@ func runFnmIntegrationSteps(t *testing.T, root string, env []string, fnmBin, fnm
 			tasktestutil.AssertContains(t, result.Combined(), "v")
 		},
 	)
-	runIntegrationStep(t, "install:undo — fnm binary is removed", func(t *testing.T) {
-		t.Helper()
-		run(t, "--yes", "install:undo")
-
-		_, err := os.Stat(fnmBin)
-		if !os.IsNotExist(err) {
-			t.Fatalf("expected fnm binary to be removed: %s", fnmBin)
-		}
-	})
 }
 
 func runIntegrationStep(t *testing.T, name string, fn func(t *testing.T)) {

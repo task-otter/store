@@ -684,6 +684,13 @@ func TestEnvironmentHelpers(t *testing.T) {
 func TestCollectionAndTextHelpers(t *testing.T) {
 	t.Parallel()
 
+	assertCollectionHelpers(t)
+	assertTextHelpers(t)
+}
+
+func assertCollectionHelpers(t *testing.T) {
+	t.Helper()
+
 	specs := []ttu.PublicTaskSpec{ttu.NewPublicTaskSpec(zetaName), ttu.NewPublicTaskSpec(alphaName)}
 	if got := ttu.ExpectedPublicTaskNames(
 		specs,
@@ -710,6 +717,10 @@ func TestCollectionAndTextHelpers(t *testing.T) {
 	if ttu.FormatList([]string{"a", "b"}) != "- a\n- b" || ttu.FormatList(nil) != "- " {
 		t.Fatal("ttu.FormatList mismatch")
 	}
+}
+
+func assertTextHelpers(t *testing.T) {
+	t.Helper()
 
 	tasks := map[string]any{
 		defaultTaskName: map[string]any{},

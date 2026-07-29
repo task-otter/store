@@ -469,6 +469,22 @@ func runNvmIntegrationSteps(t *testing.T, root string, env []string, nvmDir stri
 
 	run := successfulIntegrationRun(root, env)
 
+	runNvmInstallSteps(t, run, nvmDir)
+	runNvmNodeSteps(t, run, nvmDir)
+	runIntegrationStep(t, "install:undo — NVM directory is removed", func(t *testing.T) {
+		t.Helper()
+		run(t, "--yes", "install:undo")
+		tasktestutil.AssertDirNotExists(t, nvmDir)
+	})
+}
+
+func runNvmInstallSteps(
+	t *testing.T,
+	run func(t *testing.T, args ...string) tasktestutil.CommandResult,
+	nvmDir string,
+) {
+	t.Helper()
+
 	runIntegrationStep(t, "install — nvm.sh is present on disk", func(t *testing.T) {
 		t.Helper()
 		run(t, "--yes", "install")
@@ -493,6 +509,14 @@ func runNvmIntegrationSteps(t *testing.T, root string, env []string, nvmDir stri
 		result := run(t, "ls")
 		tasktestutil.AssertNotEmpty(t, result.Combined(), "ls output is empty")
 	})
+}
+
+func runNvmNodeSteps(
+	t *testing.T,
+	run func(t *testing.T, args ...string) tasktestutil.CommandResult,
+	nvmDir string,
+) {
+	t.Helper()
 
 	const secondary = "18.0.0"
 
@@ -533,11 +557,6 @@ func runNvmIntegrationSteps(t *testing.T, root string, env []string, nvmDir stri
 			tasktestutil.AssertContains(t, result.Combined(), "v")
 		},
 	)
-	runIntegrationStep(t, "install:undo — NVM directory is removed", func(t *testing.T) {
-		t.Helper()
-		run(t, "--yes", "install:undo")
-		tasktestutil.AssertDirNotExists(t, nvmDir)
-	})
 }
 
 func runIntegrationStep(t *testing.T, name string, fn func(t *testing.T)) {
