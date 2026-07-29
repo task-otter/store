@@ -5,26 +5,26 @@ run:
 linters:
   default: all
   disable: [wsl, gomodguard]
-  # enable:
+  enable:
   #   - gomodularity
-  #   - coverlint
+    - coverlint
   settings:
-    # custom:
+    custom:
     #   gomodularity:
     #     type: module
     #     description: Enforce Go modularity policy thresholds
-    #   coverlint:
-    #     type: module
-    #     description: Enforce minimum Go test coverage.
-    #     original-url: github.com/gostafa/coverlint
-    #     settings:
-    #       min: 100
-    #       packages:
-    #         - ./...
-    #       timeout: 10m
-    #       testArgs:
-    #         - -race
-    #         - -tags=integration
+      coverlint:
+        type: module
+        description: Enforce minimum Go test coverage.
+        original-url: github.com/gostafa/coverlint
+        settings:
+          min: 100
+          packages:
+            - ./...
+          timeout: 10m
+          testArgs:
+            - -race
+            - -tags=integration
     wsl_v5:
       allow-first-in-block: true
       allow-whole-block: false
