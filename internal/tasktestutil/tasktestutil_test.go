@@ -1,4 +1,4 @@
-package tasktestutil
+package tasktestutil_test
 
 import (
 	"errors"
@@ -8,13 +8,24 @@ import (
 	"path/filepath"
 	"slices"
 	"strings"
+	"syscall"
 	"testing"
 	"time"
 
+	ttu "github.com/task-otter/store/internal/tasktestutil"
 	"gopkg.in/yaml.v3"
 )
 
+const (
+	publicTasksHeading = "## Public Tasks"
+	alphaName          = "alpha"
+	zetaName           = "zeta"
+	defaultTaskName    = "default"
+)
+
 type fatalCall struct{ message string }
+
+var errSentinel = errors.New("sentinel")
 
 type fakeTest struct {
 	tempDirs []string
@@ -33,78 +44,104 @@ func (f *fakeTest) TempDir() string {
 	if f.nextDir < len(f.tempDirs) {
 		dir := f.tempDirs[f.nextDir]
 		f.nextDir++
+
 		return dir
 	}
+
 	dir, err := os.MkdirTemp("", "tasktestutil-fake-")
 	if err != nil {
 		panic(err)
 	}
+
 	f.tempDirs = append(f.tempDirs, dir)
 	f.nextDir++
+
 	return dir
 }
 
-func expectFatal(t *testing.T, want string, fn func(testT)) {
+func expectFatal(t *testing.T, want string, fatalFunc func(*fakeTest)) {
 	t.Helper()
+
 	defer func() {
 		recovered := recover()
+
 		fatal, ok := recovered.(fatalCall)
 		if !ok {
 			t.Fatalf("expected fatal call, recovered %#v", recovered)
 		}
+
 		if !strings.Contains(fatal.message, want) {
 			t.Fatalf("fatal message %q does not contain %q", fatal.message, want)
 		}
 	}()
-	fn(&fakeTest{})
+
+	fatalFunc(&fakeTest{tempDirs: nil, nextDir: 0})
 	panic("expected fatal call")
 }
 
-func expectFatalWith(t *testing.T, ft *fakeTest, want string, fn func()) {
+func expectFatalWith(t *testing.T, want string, fatalFunc func()) {
 	t.Helper()
+
 	defer func() {
 		recovered := recover()
+
 		fatal, ok := recovered.(fatalCall)
 		if !ok || !strings.Contains(fatal.message, want) {
 			t.Fatalf("fatal = %#v, want message containing %q", recovered, want)
 		}
 	}()
-	fn()
+
+	fatalFunc()
 	panic("expected fatal call")
 }
 
-func chdir(t *testing.T, dir string) {
+func inDir(t *testing.T, dir string, callback func()) {
 	t.Helper()
+
 	previous, err := os.Getwd()
 	if err != nil {
 		t.Fatal(err)
 	}
-	if err := os.Chdir(dir); err != nil {
+
+	err = syscall.Chdir(dir)
+	if err != nil {
 		t.Fatal(err)
 	}
-	t.Cleanup(func() {
-		if err := os.Chdir(previous); err != nil {
+
+	defer func() {
+		err := syscall.Chdir(previous)
+		if err != nil {
 			t.Fatalf("restore cwd: %v", err)
 		}
-	})
+	}()
+
+	callback()
 }
 
 func writeFile(t *testing.T, path, content string) {
 	t.Helper()
-	if err := os.MkdirAll(filepath.Dir(path), 0o755); err != nil {
+
+	err := os.MkdirAll(filepath.Dir(path), 0o755)
+	if err != nil {
 		t.Fatal(err)
 	}
-	if err := os.WriteFile(path, []byte(content), 0o644); err != nil {
+
+	err = os.WriteFile(path, []byte(content), 0o644)
+	if err != nil {
 		t.Fatal(err)
 	}
 }
 
 func writeExecutable(t *testing.T, body string) string {
 	t.Helper()
+
 	path := filepath.Join(t.TempDir(), "task")
-	if err := os.WriteFile(path, []byte("#!/bin/sh\n"+body+"\n"), 0o755); err != nil {
+
+	err := os.WriteFile(path, []byte("#!/bin/sh\n"+body+"\n"), 0o755)
+	if err != nil {
 		t.Fatal(err)
 	}
+
 	return path
 }
 
@@ -140,27 +177,132 @@ func makeModule(t *testing.T) string {
 	t.Helper()
 	root := t.TempDir()
 	writeFile(t, filepath.Join(root, "Taskfile.yml"), validTaskfile())
-	writeFile(t, filepath.Join(root, "README.md"), "# Fixture\n\n## Public Tasks\n\n| Task | Description |\n| --- | --- |\n| `alpha` | Alpha |\n\n## Variables\n")
+	writeFile(t, filepath.Join(root, "README.md"), strings.Join([]string{
+		"# Fixture",
+		"",
+		publicTasksHeading,
+		"",
+		"| Task | Description |",
+		"| --- | --- |",
+		"| `alpha` | Alpha |",
+		"",
+		"## Variables",
+		"",
+	}, "\n"))
+
 	return root
 }
 
 func parseYAML(t *testing.T, content string) *yaml.Node {
 	t.Helper()
+
 	var doc yaml.Node
-	if err := yaml.Unmarshal([]byte(content), &doc); err != nil {
+
+	err := yaml.Unmarshal([]byte(content), &doc)
+	if err != nil {
 		t.Fatalf("parse YAML: %v", err)
 	}
+
 	return &doc
+}
+
+func yamlScalar(value string) *yaml.Node {
+	return &yaml.Node{
+		Kind:        yaml.ScalarNode,
+		Value:       value,
+		Style:       0,
+		Tag:         "",
+		Anchor:      "",
+		Alias:       nil,
+		Content:     nil,
+		HeadComment: "",
+		LineComment: "",
+		FootComment: "",
+		Line:        0,
+		Column:      0,
+	}
+}
+
+func yamlMapping(content ...*yaml.Node) *yaml.Node {
+	return &yaml.Node{
+		Kind:        yaml.MappingNode,
+		Content:     content,
+		Style:       0,
+		Tag:         "",
+		Value:       "",
+		Anchor:      "",
+		Alias:       nil,
+		HeadComment: "",
+		LineComment: "",
+		FootComment: "",
+		Line:        0,
+		Column:      0,
+	}
+}
+
+func yamlSequence(content ...*yaml.Node) *yaml.Node {
+	return &yaml.Node{
+		Kind:        yaml.SequenceNode,
+		Content:     content,
+		Style:       0,
+		Tag:         "",
+		Value:       "",
+		Anchor:      "",
+		Alias:       nil,
+		HeadComment: "",
+		LineComment: "",
+		FootComment: "",
+		Line:        0,
+		Column:      0,
+	}
+}
+
+func yamlDocument(content ...*yaml.Node) *yaml.Node {
+	return &yaml.Node{
+		Kind:        yaml.DocumentNode,
+		Content:     content,
+		Style:       0,
+		Tag:         "",
+		Value:       "",
+		Anchor:      "",
+		Alias:       nil,
+		HeadComment: "",
+		LineComment: "",
+		FootComment: "",
+		Line:        0,
+		Column:      0,
+	}
+}
+
+func yamlAlias() *yaml.Node {
+	return &yaml.Node{
+		Kind:        yaml.AliasNode,
+		Style:       0,
+		Tag:         "",
+		Value:       "",
+		Anchor:      "",
+		Alias:       nil,
+		Content:     nil,
+		HeadComment: "",
+		LineComment: "",
+		FootComment: "",
+		Line:        0,
+		Column:      0,
+	}
 }
 
 func samePath(t *testing.T, left, right string) bool {
 	t.Helper()
+
 	leftInfo, leftErr := os.Stat(left)
 	rightInfo, rightErr := os.Stat(right)
+
 	return leftErr == nil && rightErr == nil && os.SameFile(leftInfo, rightInfo)
 }
 
 func TestTaskNodeAndYamlHelpers(t *testing.T) {
+	t.Parallel()
+
 	doc := parseYAML(t, `task:
   desc: "  description  "
   enabled: TRUE
@@ -169,137 +311,271 @@ func TestTaskNodeAndYamlHelpers(t *testing.T) {
     value: text
   sequence: [alpha, "", beta]
 `)
-	root := DocumentRoot(t, doc)
-	taskNode := MappingField(root, "task")
-	task := TaskNode{Name: "task", Node: taskNode}
+	root := ttu.DocumentRoot(t, doc)
+	taskNode := ttu.MappingField(root, "task")
+	task := ttu.TaskNode{Name: "task", Node: taskNode}
+
+	assertTaskNodeHelpers(t, task)
+	assertMappingHelpers(t, root, taskNode)
+	assertTextAndEmptyHelpers(t, taskNode)
+	assertDocumentRootFailures(t)
+}
+
+func assertTaskNodeHelpers(t *testing.T, task ttu.TaskNode) {
+	t.Helper()
+
+	assertTaskFieldLookup(t, task)
+	assertTaskScalarFields(t, task)
+	assertAliasHelpers(t, task)
+}
+
+func assertTaskFieldLookup(t *testing.T, task ttu.TaskNode) {
+	t.Helper()
 
 	if task.Field("desc") == nil || task.Field("missing") != nil {
-		t.Fatal("TaskNode.Field lookup failed")
+		t.Fatal("ttu.TaskNode.Field lookup failed")
 	}
-	if (&TaskNode{}).Field("anything") != nil {
-		t.Fatal("nil TaskNode returned a field")
+
+	if (&ttu.TaskNode{Name: "", Node: nil}).Field("anything") != nil {
+		t.Fatal("nil ttu.TaskNode returned a field")
 	}
-	if (TaskNode{Node: &yaml.Node{Kind: yaml.ScalarNode}}).Field("anything") != nil {
-		t.Fatal("scalar TaskNode returned a field")
+
+	if (ttu.TaskNode{Node: yamlScalar(""), Name: ""}).Field("anything") != nil {
+		t.Fatal("scalar ttu.TaskNode returned a field")
 	}
+}
+
+func assertTaskScalarFields(t *testing.T, task ttu.TaskNode) {
+	t.Helper()
+
 	if got := task.StringField("desc"); got != "description" {
 		t.Fatalf("StringField = %q", got)
 	}
+
 	if !task.BoolField("enabled") || task.BoolField("missing") || task.BoolField("desc") {
 		t.Fatal("BoolField result mismatch")
 	}
-	if !HasAlias(task, "two") || HasAlias(task, "missing") {
-		t.Fatal("HasAlias result mismatch")
+}
+
+func assertAliasHelpers(t *testing.T, task ttu.TaskNode) {
+	t.Helper()
+
+	if !ttu.HasAlias(task, "two") || ttu.HasAlias(task, "missing") {
+		t.Fatal("ttu.HasAlias result mismatch")
 	}
-	if HasAlias(TaskNode{}, "one") || HasAlias(TaskNode{Node: &yaml.Node{Kind: yaml.MappingNode, Content: []*yaml.Node{
-		{Kind: yaml.ScalarNode, Value: "aliases"}, {Kind: yaml.ScalarNode, Value: "one"},
-	}}}, "one") {
+
+	if ttu.HasAlias(ttu.TaskNode{Name: "", Node: nil}, "one") ||
+		ttu.HasAlias(ttu.TaskNode{Node: yamlMapping(
+			yamlScalar("aliases"),
+			yamlScalar("one"),
+		), Name: ""}, "one") {
 		t.Fatal("invalid aliases were accepted")
 	}
+}
 
-	if MappingField(root, "missing") != nil || MappingField(root, "task") == nil {
-		t.Fatal("MappingField mismatch")
+func assertMappingHelpers(t *testing.T, root, taskNode *yaml.Node) {
+	t.Helper()
+
+	assertMappingFieldHelpers(t, root)
+	assertNodeMappingValueHelpers(t, taskNode)
+}
+
+func assertMappingFieldHelpers(t *testing.T, root *yaml.Node) {
+	t.Helper()
+
+	if ttu.MappingField(root, "missing") != nil || ttu.MappingField(root, "task") == nil {
+		t.Fatal("ttu.MappingField mismatch")
 	}
-	if MappingField(root, "missing") != nil || MappingField(root, "task").Kind != yaml.MappingNode {
+
+	if ttu.MappingField(root, "missing") != nil ||
+		ttu.MappingField(root, "task").Kind != yaml.MappingNode {
 		t.Fatal("mapping kind mismatch")
 	}
-	if MappingField(root, "task").Kind == yaml.ScalarNode {
+
+	if ttu.MappingField(root, "task").Kind == yaml.ScalarNode {
 		t.Fatal("impossible mapping kind")
 	}
-	if ScalarField(taskNode, "desc") != "description" {
-		t.Fatal("ScalarField mismatch")
-	}
-	if NodeMappingValue(nil, "x") != nil || NodeMappingValue(&yaml.Node{Kind: yaml.ScalarNode}, "x") != nil {
-		t.Fatal("NodeMappingValue accepted invalid node")
-	}
-	if NodeMappingValue(taskNode, "missing") != nil || NodeMappingValue(taskNode, "desc") == nil {
-		t.Fatal("NodeMappingValue lookup mismatch")
+}
+
+func assertNodeMappingValueHelpers(t *testing.T, taskNode *yaml.Node) {
+	t.Helper()
+
+	if ttu.ScalarField(taskNode, "desc") != "description" {
+		t.Fatal("ttu.ScalarField mismatch")
 	}
 
-	if NodeText(nil) != "" || NodeText(&yaml.Node{Kind: yaml.ScalarNode, Value: " x "}) != "x" {
-		t.Fatal("NodeText scalar mismatch")
-	}
-	if got := NodeText(NodeMappingValue(taskNode, "sequence")); got != "alpha beta" {
-		t.Fatalf("NodeText sequence = %q", got)
-	}
-	if !IsEmptyNode(nil) || !IsEmptyNode(&yaml.Node{Kind: yaml.ScalarNode, Value: " "}) ||
-		IsEmptyNode(&yaml.Node{Kind: yaml.ScalarNode, Value: "x"}) ||
-		!IsEmptyNode(&yaml.Node{Kind: yaml.SequenceNode}) ||
-		IsEmptyNode(&yaml.Node{Kind: yaml.SequenceNode, Content: []*yaml.Node{{Kind: yaml.ScalarNode, Value: "x"}}}) {
-		t.Fatal("IsEmptyNode mismatch")
+	if ttu.NodeMappingValue(nil, "x") != nil || ttu.NodeMappingValue(yamlScalar(""), "x") != nil {
+		t.Fatal("ttu.NodeMappingValue accepted invalid node")
 	}
 
-	expectFatal(t, "invalid YAML document", func(ft testT) {
-		DocumentRoot(ft, &yaml.Node{Kind: yaml.ScalarNode})
+	if ttu.NodeMappingValue(taskNode, "missing") != nil ||
+		ttu.NodeMappingValue(taskNode, "desc") == nil {
+		t.Fatal("ttu.NodeMappingValue lookup mismatch")
+	}
+}
+
+func assertTextAndEmptyHelpers(t *testing.T, taskNode *yaml.Node) {
+	t.Helper()
+
+	if ttu.NodeText(nil) != "" || ttu.NodeText(yamlScalar(" x ")) != "x" {
+		t.Fatal("ttu.NodeText scalar mismatch")
+	}
+
+	if got := ttu.NodeText(ttu.NodeMappingValue(taskNode, "sequence")); got != "alpha beta" {
+		t.Fatalf("ttu.NodeText sequence = %q", got)
+	}
+
+	if !ttu.IsEmptyNode(nil) || !ttu.IsEmptyNode(yamlScalar(" ")) ||
+		ttu.IsEmptyNode(yamlScalar("x")) ||
+		!ttu.IsEmptyNode(yamlSequence()) ||
+		ttu.IsEmptyNode(yamlSequence(yamlScalar("x"))) {
+		t.Fatal("ttu.IsEmptyNode mismatch")
+	}
+}
+
+func assertDocumentRootFailures(t *testing.T) {
+	t.Helper()
+
+	expectFatal(t, "invalid YAML document", func(fakeTester *fakeTest) {
+		ttu.DocumentRoot(fakeTester, yamlScalar(""))
 	})
-	expectFatal(t, "root must be a YAML mapping", func(ft testT) {
-		DocumentRoot(ft, &yaml.Node{Kind: yaml.DocumentNode, Content: []*yaml.Node{{Kind: yaml.SequenceNode}}})
+	expectFatal(t, "root must be a YAML mapping", func(fakeTester *fakeTest) {
+		ttu.DocumentRoot(fakeTester, yamlDocument(yamlSequence()))
 	})
 }
 
 func TestModuleDiscoveryAndLoading(t *testing.T) {
+	t.Parallel()
+
 	root := makeModule(t)
+
 	nested := filepath.Join(root, "nested", "deeper")
-	if err := os.MkdirAll(nested, 0o755); err != nil {
+
+	err := os.MkdirAll(nested, 0o755)
+	if err != nil {
 		t.Fatal(err)
 	}
-	chdir(t, nested)
 
-	if got := ModuleRoot(t); !samePath(t, got, root) {
-		t.Fatalf("ModuleRoot = %s, want %s", got, root)
-	}
-	if got := ModuleTaskfilePath(t); !samePath(t, got, filepath.Join(root, "Taskfile.yml")) {
-		t.Fatalf("ModuleTaskfilePath = %s", got)
-	}
+	taskfile := assertModuleDiscoveryAndLoading(t, root, nested)
 
-	tf := LoadTaskfile(t)
-	if !samePath(t, tf.Path, filepath.Join(root, "Taskfile.yml")) || tf.Root.Name != "root" || len(tf.Tasks) != 5 {
-		t.Fatalf("unexpected LoadedTaskfile: %#v", tf)
-	}
-	if MustTask(t, tf, "alpha").Name != "alpha" {
-		t.Fatal("MustTask returned wrong task")
-	}
-	if got, want := PublicTaskNamesFromTaskfile(t, tf), []string{"alpha"}; !slices.Equal(got, want) {
-		t.Fatalf("public tasks = %v, want %v", got, want)
-	}
-
-	if err := os.Rename(filepath.Join(root, "Taskfile.yml"), filepath.Join(root, "Taskfile.yaml")); err != nil {
-		t.Fatal(err)
-	}
-	if got := ModuleTaskfilePath(t); !samePath(t, got, filepath.Join(root, "Taskfile.yaml")) {
-		t.Fatalf("YAML path = %s", got)
-	}
-
-	expectFatal(t, "is missing", func(ft testT) { MustTask(ft, tf, "missing") })
-	expectFatal(t, "could not find Taskfile", func(ft testT) { moduleTaskfilePath(ft, t.TempDir()) })
+	expectFatal(
+		t,
+		"is missing",
+		func(fakeTester *fakeTest) { ttu.MustTask(fakeTester, taskfile, "missing") },
+	)
+	inDir(t, t.TempDir(), func() {
+		expectFatal(
+			t,
+			"could not find Taskfile",
+			func(fakeTester *fakeTest) { ttu.ModuleTaskfilePath(fakeTester) },
+		)
+	})
 }
 
-func TestModuleDiscoveryFailures(t *testing.T) {
-	t.Run("getwd", func(t *testing.T) {
-		old := getWorkingDir
-		getWorkingDir = func() (string, error) { return "", errors.New("getwd sentinel") }
-		t.Cleanup(func() { getWorkingDir = old })
-		expectFatal(t, "failed to get working directory", func(ft testT) { ModuleRoot(ft) })
+func assertModuleDiscoveryAndLoading(t *testing.T, root, nested string) ttu.LoadedTaskfile {
+	t.Helper()
+
+	var taskfile ttu.LoadedTaskfile
+
+	inDir(t, nested, func() {
+		if got := ttu.ModuleRoot(t); !samePath(t, got, root) {
+			t.Fatalf("ttu.ModuleRoot = %s, want %s", got, root)
+		}
+
+		if got := ttu.ModuleTaskfilePath(
+			t,
+		); !samePath(
+			t,
+			got,
+			filepath.Join(root, "Taskfile.yml"),
+		) {
+			t.Fatalf("ttu.ModuleTaskfilePath = %s", got)
+		}
+
+		taskfile = ttu.LoadTaskfile(t)
+		assertLoadedTaskfile(t, root, taskfile)
+
+		err := os.Rename(filepath.Join(root, "Taskfile.yml"), filepath.Join(root, "Taskfile.yaml"))
+		if err != nil {
+			t.Fatal(err)
+		}
+
+		if got := ttu.ModuleTaskfilePath(
+			t,
+		); !samePath(
+			t,
+			got,
+			filepath.Join(root, "Taskfile.yaml"),
+		) {
+			t.Fatalf("YAML path = %s", got)
+		}
 	})
 
-	t.Run("no taskfile", func(t *testing.T) {
-		chdir(t, t.TempDir())
-		expectFatal(t, "could not find Taskfile", func(ft testT) { ModuleRoot(ft) })
+	return taskfile
+}
+
+func assertLoadedTaskfile(t *testing.T, root string, taskfile ttu.LoadedTaskfile) {
+	t.Helper()
+
+	if !samePath(t, taskfile.Path, filepath.Join(root, "Taskfile.yml")) ||
+		taskfile.Root.Name != "root" || len(taskfile.Tasks) != 5 {
+		t.Fatalf("unexpected ttu.LoadedTaskfile: %#v", taskfile)
+	}
+
+	if ttu.MustTask(t, taskfile, alphaName).Name != alphaName {
+		t.Fatal("ttu.MustTask returned wrong task")
+	}
+
+	if got, want := ttu.PublicTaskNamesFromTaskfile(
+		t,
+		taskfile,
+	), []string{
+		alphaName,
+	}; !slices.Equal(
+		got,
+		want,
+	) {
+		t.Fatalf("public tasks = %v, want %v", got, want)
+	}
+}
+
+func TestModuleDiscoveryMissingTaskfile(t *testing.T) {
+	inDir(t, t.TempDir(), func() {
+		expectFatal(
+			t,
+			"could not find Taskfile",
+			func(fakeTester *fakeTest) { ttu.ModuleRoot(fakeTester) },
+		)
 	})
+
+	t.Parallel()
 }
 
 func TestLoadTaskfileFailures(t *testing.T) {
 	root := makeModule(t)
-	chdir(t, root)
 	path := filepath.Join(root, "Taskfile.yml")
 
-	writeFile(t, path, "version: [\n")
-	expectFatal(t, "failed to parse Taskfile", func(ft testT) { LoadTaskfile(ft) })
+	inDir(t, root, func() {
+		writeFile(t, path, "version: [\n")
+		expectFatal(
+			t,
+			"failed to parse Taskfile",
+			func(fakeTester *fakeTest) { ttu.LoadTaskfile(fakeTester) },
+		)
 
-	writeFile(t, path, "version: \"3\"\n")
-	expectFatal(t, "has no tasks map", func(ft testT) { LoadTaskfile(ft) })
+		writeFile(t, path, "version: \"3\"\n")
+		expectFatal(
+			t,
+			"has no tasks map",
+			func(fakeTester *fakeTest) { ttu.LoadTaskfile(fakeTester) },
+		)
+	})
 
-	expectFatal(t, "failed to read", func(ft testT) { ReadFile(ft, filepath.Join(root, "missing")) })
+	expectFatal(t, "failed to read", func(fakeTester *fakeTest) {
+		ttu.ReadFile(fakeTester, filepath.Join(root, "missing"))
+	})
+
+	t.Parallel()
 }
 
 func TestCommandResultsAndRunners(t *testing.T) {
@@ -307,26 +583,29 @@ func TestCommandResultsAndRunners(t *testing.T) {
 	stub := writeExecutable(t, `printf 'stdout:%s' "$*"
 printf 'stderr' >&2
 if [ "${FAIL_TASK:-}" = yes ]; then exit 7; fi`)
-	t.Setenv("TASK_BIN", stub)
+	t.Setenv("PATH", filepath.Dir(stub)+string(os.PathListSeparator)+os.Getenv("PATH"))
 
-	result := RunTask(t, root, nil, "alpha", "B=2")
+	result := ttu.RunTask(t, root, nil, alphaName, "B=2")
 	if result.Stdout != "stdout:alpha B=2" || result.Stderr != "stderr" || result.Err != nil ||
-		!slices.Equal(result.Args, []string{"alpha", "B=2"}) {
-		t.Fatalf("unexpected RunTask result: %#v", result)
+		!slices.Equal(result.Args, []string{alphaName, "B=2"}) {
+		t.Fatalf("unexpected ttu.RunTask result: %#v", result)
 	}
+
 	if result.Combined() != "stdout:alpha B=2\nstderr" {
 		t.Fatalf("Combined = %q", result.Combined())
 	}
 
-	env := SetEnv(os.Environ(), "FAIL_TASK", "yes")
-	failed := RunTaskTimeout(t, root, env, time.Second, "alpha")
+	env := ttu.SetEnv(os.Environ(), "FAIL_TASK", "yes")
+
+	failed := ttu.RunTaskTimeout(t, root, env, time.Second, alphaName)
 	if failed.Err == nil {
-		t.Fatal("RunTaskTimeout succeeded unexpectedly")
+		t.Fatal("ttu.RunTaskTimeout succeeded unexpectedly")
 	}
 
 	sleeping := writeExecutable(t, "sleep 1")
-	t.Setenv("TASK_BIN", sleeping)
-	if timed := RunTaskTimeout(t, root, nil, 10*time.Millisecond, "alpha"); timed.Err == nil {
+	t.Setenv("PATH", filepath.Dir(sleeping)+string(os.PathListSeparator)+os.Getenv("PATH"))
+
+	if timed := ttu.RunTaskTimeout(t, root, nil, 10*time.Millisecond, alphaName); timed.Err == nil {
 		t.Fatal("timed command succeeded")
 	}
 }
@@ -334,101 +613,166 @@ if [ "${FAIL_TASK:-}" = yes ]; then exit 7; fi`)
 func TestDefaultTaskBinaryAndSimpleRunner(t *testing.T) {
 	root := t.TempDir()
 	bin := t.TempDir()
+
 	stub := filepath.Join(bin, "task")
-	if err := os.WriteFile(stub, []byte("#!/bin/sh\nprintf simple\n"), 0o755); err != nil {
+
+	err := os.WriteFile(stub, []byte("#!/bin/sh\nprintf simple\n"), 0o755)
+	if err != nil {
 		t.Fatal(err)
 	}
+
 	t.Setenv("PATH", bin+string(os.PathListSeparator)+os.Getenv("PATH"))
-	t.Setenv("TASK_BIN", "")
 
 	// Generous: this asserts the happy path, and the suite runs tests in
 	// parallel, so a short deadline turns CPU pressure into a flake.
-	if result := RunTaskTimeout(t, root, os.Environ(), 30*time.Second, "alpha"); result.Stdout != "simple" || result.Err != nil {
+	result := ttu.RunTaskTimeout(t, root, os.Environ(), 30*time.Second, alphaName)
+	if result.Stdout != "simple" || result.Err != nil {
 		t.Fatalf("default task result: %#v", result)
 	}
-	if result := RunSimpleTask(t, root, os.Environ(), "alpha"); result.Output != "simple" || result.Err != nil {
+
+	if result := ttu.RunSimpleTask(
+		t,
+		root,
+		os.Environ(),
+		alphaName,
+	); result.Output != "simple" ||
+		result.Err != nil {
 		t.Fatalf("simple task result: %#v", result)
 	}
 }
 
 func TestEnvironmentHelpers(t *testing.T) {
-	env := IsolatedEnv(t)
-	home := EnvValue(env, "HOME")
-	if home == "" || EnvValue(env, "PROFILE") != filepath.Join(home, ".bashrc") ||
-		EnvValue(env, "CI") != "true" || EnvValue(env, "MISSING") != "" {
+	t.Parallel()
+
+	env := ttu.IsolatedEnv(t)
+
+	home := ttu.EnvValue(env, "HOME")
+	if home == "" || ttu.EnvValue(env, "PROFILE") != filepath.Join(home, ".bashrc") ||
+		ttu.EnvValue(env, "CI") != "true" || ttu.EnvValue(env, "MISSING") != "" {
 		t.Fatalf("isolated env mismatch: %v", env)
 	}
-	if !FileExists(filepath.Join(home, ".bashrc")) || FileExists(filepath.Join(home, "missing")) {
-		t.Fatal("FileExists mismatch")
+
+	if !ttu.FileExists(filepath.Join(home, ".bashrc")) ||
+		ttu.FileExists(filepath.Join(home, "missing")) {
+		t.Fatal("ttu.FileExists mismatch")
 	}
 
 	values := []string{"A=old"}
-	values = SetEnv(values, "A", "new")
-	values = SetEnv(values, "B", "value")
-	if EnvValue(values, "A") != "new" || EnvValue(values, "B") != "value" {
-		t.Fatalf("SetEnv mismatch: %v", values)
+	values = ttu.SetEnv(values, "A", "new")
+
+	values = ttu.SetEnv(values, "B", "value")
+	if ttu.EnvValue(values, "A") != "new" || ttu.EnvValue(values, "B") != "value" {
+		t.Fatalf("ttu.SetEnv mismatch: %v", values)
 	}
 
 	homeFailure := t.TempDir()
-	if err := os.Mkdir(filepath.Join(homeFailure, ".bashrc"), 0o755); err != nil {
+
+	err := os.Mkdir(filepath.Join(homeFailure, ".bashrc"), 0o755)
+	if err != nil {
 		t.Fatal(err)
 	}
-	ft := &fakeTest{tempDirs: []string{homeFailure}}
-	expectFatalWith(t, ft, "failed to create fake shell profile", func() { IsolatedEnv(ft) })
+
+	fakeTester := &fakeTest{tempDirs: []string{homeFailure}, nextDir: 0}
+
+	expectFatalWith(
+		t,
+		"failed to create fake shell profile",
+		func() { ttu.IsolatedEnv(fakeTester) },
+	)
 }
 
 func TestCollectionAndTextHelpers(t *testing.T) {
-	specs := []PublicTaskSpec{{Name: "zeta"}, {Name: "alpha"}}
-	if got := ExpectedPublicTaskNames(specs); !slices.Equal(got, []string{"alpha", "zeta"}) {
+	t.Parallel()
+
+	specs := []ttu.PublicTaskSpec{ttu.NewPublicTaskSpec(zetaName), ttu.NewPublicTaskSpec(alphaName)}
+	if got := ttu.ExpectedPublicTaskNames(
+		specs,
+	); !slices.Equal(
+		got,
+		[]string{alphaName, zetaName},
+	) {
 		t.Fatalf("expected names = %v", got)
 	}
-	if TaskArgs(nil) != nil || TaskArgs(map[string]string{}) != nil {
-		t.Fatal("empty TaskArgs must be nil")
+
+	if ttu.TaskArgs(nil) != nil || ttu.TaskArgs(map[string]string{}) != nil {
+		t.Fatal("empty ttu.TaskArgs must be nil")
 	}
-	if got := TaskArgs(map[string]string{"Z": "2", "A": "1"}); !slices.Equal(got, []string{"A=1", "Z=2"}) {
-		t.Fatalf("TaskArgs = %v", got)
+
+	if got := ttu.TaskArgs(
+		map[string]string{"Z": "2", "A": "1"},
+	); !slices.Equal(
+		got,
+		[]string{"A=1", "Z=2"},
+	) {
+		t.Fatalf("ttu.TaskArgs = %v", got)
 	}
-	if FormatList([]string{"a", "b"}) != "- a\n- b" || FormatList(nil) != "- " {
-		t.Fatal("FormatList mismatch")
+
+	if ttu.FormatList([]string{"a", "b"}) != "- a\n- b" || ttu.FormatList(nil) != "- " {
+		t.Fatal("ttu.FormatList mismatch")
 	}
 
 	tasks := map[string]any{
-		"default":  map[string]any{},
-		"_private": map[string]any{},
-		"internal": map[string]any{"internal": true},
-		"alpha":    map[string]any{"desc": "alpha"},
-		"scalar":   "value",
+		defaultTaskName: map[string]any{},
+		"_private":      map[string]any{},
+		"internal":      map[string]any{"internal": true},
+		alphaName:       map[string]any{"desc": alphaName},
+		"scalar":        "value",
 	}
-	if got := SimplePublicTaskNames(tasks); !slices.Equal(got, []string{"alpha", "scalar"}) {
+	if got := ttu.SimplePublicTaskNames(tasks); !slices.Equal(got, []string{alphaName, "scalar"}) {
 		t.Fatalf("simple public names = %v", got)
 	}
 
-	readme := "# Module\n\n## Public Tasks\n\n| Task | Description |\n| --- | --- |\n| `zeta` | Z |\n| `alpha` | A |\n\n## Variables\n| Name | Value |\n"
-	if got := ReadmePublicTaskNames(readme); !slices.Equal(got, []string{"alpha", "zeta"}) {
+	readme := strings.Join([]string{
+		"# Module",
+		"",
+		publicTasksHeading,
+		"",
+		"| Task | Description |",
+		"| --- | --- |",
+		"| `zeta` | Z |",
+		"| `alpha` | A |",
+		"",
+		"## Variables",
+		"| Name | Value |",
+		"",
+	}, "\n")
+	if got := ttu.ReadmePublicTaskNames(readme); !slices.Equal(got, []string{alphaName, zetaName}) {
 		t.Fatalf("README names = %v", got)
 	}
-	if got := ReadmePublicTaskNames("# No table\n"); len(got) != 0 {
+
+	if got := ttu.ReadmePublicTaskNames("# No table\n"); len(got) != 0 {
 		t.Fatalf("unexpected README names: %v", got)
 	}
 }
 
 func TestFileHelpers(t *testing.T) {
+	t.Parallel()
+
 	dir := t.TempDir()
-	WriteStub(t, dir, "stub", "#!/bin/sh\necho stub\n")
+	ttu.WriteStub(t, dir, "stub", "#!/bin/sh\necho stub\n")
+
 	stub := filepath.Join(dir, "stub")
-	if got := MustRead(t, stub); !strings.Contains(got, "echo stub") {
-		t.Fatalf("MustRead = %q", got)
+	if got := ttu.MustRead(t, stub); !strings.Contains(got, "echo stub") {
+		t.Fatalf("ttu.MustRead = %q", got)
 	}
-	if got := ReadFile(t, stub); got == "" {
-		t.Fatal("ReadFile returned empty content")
+
+	if got := ttu.ReadFile(t, stub); got == "" {
+		t.Fatal("ttu.ReadFile returned empty content")
 	}
-	expectFatal(t, "write broken stub", func(ft testT) {
-		WriteStub(ft, filepath.Join(dir, "missing"), "broken", "body")
+
+	expectFatal(t, "write broken stub", func(fakeTester *fakeTest) {
+		ttu.WriteStub(fakeTester, filepath.Join(dir, "missing"), "broken", "body")
 	})
-	expectFatal(t, "read", func(ft testT) { MustRead(ft, filepath.Join(dir, "missing")) })
+	expectFatal(
+		t,
+		"read",
+		func(fakeTester *fakeTest) { ttu.MustRead(fakeTester, filepath.Join(dir, "missing")) },
+	)
 }
 
 func TestCommandStringExtraction(t *testing.T) {
+	t.Parallel()
+
 	doc := parseYAML(t, `cmds:
   - echo scalar
   - cmd: ./scripts/run.sh --flag
@@ -441,115 +785,222 @@ func TestCommandStringExtraction(t *testing.T) {
   - cmd:
       nested: ignored
 `)
-	root := DocumentRoot(t, doc)
-	commands := CollectCommandStrings(NodeMappingValue(root, "cmds"))
-	want := []string{"echo scalar", "./scripts/run.sh --flag", "echo shell", "echo status", "echo precondition"}
+	root := ttu.DocumentRoot(t, doc)
+	commands := ttu.CollectCommandStrings(ttu.NodeMappingValue(root, "cmds"))
+
+	want := []string{
+		"echo scalar",
+		"./scripts/run.sh --flag",
+		"echo shell",
+		"echo status",
+		"echo precondition",
+	}
 	if !slices.Equal(commands, want) {
 		t.Fatalf("commands = %v, want %v", commands, want)
 	}
-	if CollectCommandStrings(nil) != nil || len(CollectCommandStrings(&yaml.Node{Kind: yaml.ScalarNode, Value: " "})) != 0 {
+
+	if ttu.CollectCommandStrings(nil) != nil ||
+		len(ttu.CollectCommandStrings(yamlScalar(" "))) != 0 {
 		t.Fatal("empty command extraction mismatch")
 	}
-	if got := ReferencedLocalShellScripts("./one.sh --flag && echo x\n ./two/path.sh "); !slices.Equal(got, []string{"./one.sh", "./two/path.sh"}) {
+
+	got := ttu.ReferencedLocalShellScripts("./one.sh --flag && echo x\n ./two/path.sh ")
+	if !slices.Equal(got, []string{"./one.sh", "./two/path.sh"}) {
 		t.Fatalf("script references = %v", got)
 	}
-	if got := ReferencedLocalShellScripts("scripts/no-prefix.sh"); len(got) != 0 {
+
+	if got := ttu.ReferencedLocalShellScripts("scripts/no-prefix.sh"); len(got) != 0 {
 		t.Fatalf("unexpected references = %v", got)
 	}
 }
 
 func TestAssertExitCode(t *testing.T) {
-	AssertExitCode(t, CommandResult{Args: []string{"ok"}}, 0)
+	t.Parallel()
+
+	ttu.AssertExitCode(
+		t,
+		ttu.CommandResult{Args: []string{"ok"}, Stdout: "", Stderr: "", Err: nil},
+		0,
+	)
 
 	err := exec.Command("sh", "-c", "exit 7").Run()
-	AssertExitCode(t, CommandResult{Err: err, Args: []string{"exit"}}, 7)
+	ttu.AssertExitCode(t, ttu.CommandResult{
+		Err:  err,
+		Args: []string{"exit"}, Stdout: "", Stderr: "",
+	}, 7)
 
-	expectFatal(t, "without exit code", func(ft testT) {
-		AssertExitCode(ft, CommandResult{Err: errors.New("sentinel")}, 1)
+	expectFatal(t, "without exit code", func(fakeTester *fakeTest) {
+		ttu.AssertExitCode(fakeTester, ttu.CommandResult{
+			Err: errSentinel, Stdout: "", Stderr: "",
+			Args: nil,
+		}, 1)
 	})
-	expectFatal(t, "expected exit code", func(ft testT) {
-		AssertExitCode(ft, CommandResult{Args: []string{"ok"}}, 2)
+	expectFatal(t, "expected exit code", func(fakeTester *fakeTest) {
+		ttu.AssertExitCode(
+			fakeTester,
+			ttu.CommandResult{Args: []string{"ok"}, Stdout: "", Stderr: "", Err: nil},
+			2,
+		)
 	})
 }
 
 func TestBasicAssertions(t *testing.T) {
-	AssertContains(t, "alpha beta", "beta")
-	AssertNotContains(t, "alpha", "beta")
-	AssertNotEmpty(t, " value ", "must not be empty")
-	expectFatal(t, "expected output to contain", func(ft testT) { AssertContains(ft, "alpha", "beta") })
-	expectFatal(t, "expected output not to contain", func(ft testT) { AssertNotContains(ft, "alpha", "alpha") })
-	expectFatal(t, "empty sentinel", func(ft testT) { AssertNotEmpty(ft, " \n", "empty sentinel") })
+	t.Parallel()
+
+	ttu.AssertContains(t, "alpha beta", "beta")
+	ttu.AssertNotContains(t, alphaName, "beta")
+	ttu.AssertNotEmpty(t, " value ", "must not be empty")
+	expectFatal(t, "expected output to contain", func(fakeTester *fakeTest) {
+		ttu.AssertContains(fakeTester, alphaName, "beta")
+	})
+	expectFatal(t, "expected output not to contain", func(fakeTester *fakeTest) {
+		ttu.AssertNotContains(fakeTester, alphaName, alphaName)
+	})
+	expectFatal(t, "empty sentinel", func(fakeTester *fakeTest) {
+		ttu.AssertNotEmpty(fakeTester, " \n", "empty sentinel")
+	})
 }
 
 func TestFilesystemAssertions(t *testing.T) {
+	t.Parallel()
+
 	dir := t.TempDir()
 	file := filepath.Join(dir, "file")
 	writeFile(t, file, "content")
+
 	nonempty := filepath.Join(dir, "nonempty")
 	writeFile(t, filepath.Join(nonempty, "entry"), "entry")
+
 	empty := filepath.Join(dir, "empty")
-	if err := os.Mkdir(empty, 0o755); err != nil {
+
+	err := os.Mkdir(empty, 0o755)
+	if err != nil {
 		t.Fatal(err)
 	}
+
 	missing := filepath.Join(dir, "missing")
 
-	AssertFileExists(t, file)
-	AssertDirExists(t, dir)
-	AssertDirNotExists(t, missing)
-	AssertDirHasEntries(t, nonempty)
+	ttu.AssertFileExists(t, file)
+	ttu.AssertDirExists(t, dir)
+	ttu.AssertDirNotExists(t, missing)
+	ttu.AssertDirHasEntries(t, nonempty)
 
-	expectFatal(t, "expected file", func(ft testT) { AssertFileExists(ft, missing) })
-	expectFatal(t, "found directory", func(ft testT) { AssertFileExists(ft, dir) })
-	expectFatal(t, "expected directory", func(ft testT) { AssertDirExists(ft, missing) })
-	expectFatal(t, "found file", func(ft testT) { AssertDirExists(ft, file) })
-	expectFatal(t, "but it does", func(ft testT) { AssertDirNotExists(ft, dir) })
-	expectFatal(t, "failed to read directory", func(ft testT) { AssertDirHasEntries(ft, missing) })
-	expectFatal(t, "at least one entry", func(ft testT) { AssertDirHasEntries(ft, empty) })
+	expectFatal(
+		t,
+		"expected file",
+		func(fakeTester *fakeTest) { ttu.AssertFileExists(fakeTester, missing) },
+	)
+	expectFatal(
+		t,
+		"found directory",
+		func(fakeTester *fakeTest) { ttu.AssertFileExists(fakeTester, dir) },
+	)
+	expectFatal(
+		t,
+		"expected directory",
+		func(fakeTester *fakeTest) { ttu.AssertDirExists(fakeTester, missing) },
+	)
+	expectFatal(
+		t,
+		"found file",
+		func(fakeTester *fakeTest) { ttu.AssertDirExists(fakeTester, file) },
+	)
+	expectFatal(
+		t,
+		"but it does",
+		func(fakeTester *fakeTest) { ttu.AssertDirNotExists(fakeTester, dir) },
+	)
+	expectFatal(
+		t,
+		"failed to read directory",
+		func(fakeTester *fakeTest) { ttu.AssertDirHasEntries(fakeTester, missing) },
+	)
+	expectFatal(
+		t,
+		"at least one entry",
+		func(fakeTester *fakeTest) { ttu.AssertDirHasEntries(fakeTester, empty) },
+	)
 }
 
 func groupOutputNode(t *testing.T, begin, end string, errorOnly *string) *yaml.Node {
 	t.Helper()
+
 	value := ""
 	if errorOnly != nil {
 		value = "\n    error_only: " + *errorOnly
 	}
-	doc := parseYAML(t, "output:\n  group:\n    begin: \""+begin+"\"\n    end: \""+end+"\""+value+"\n")
-	return NodeMappingValue(DocumentRoot(t, doc), "output")
+
+	doc := parseYAML(
+		t,
+		"output:\n  group:\n    begin: \""+begin+"\"\n    end: \""+end+"\""+value+"\n",
+	)
+
+	return ttu.NodeMappingValue(ttu.DocumentRoot(t, doc), "output")
 }
 
 func TestGithubGroupAssertion(t *testing.T) {
-	falseValue := "false"
-	AssertGithubGroupOutput(t, "alpha", groupOutputNode(t, "::group::{{.TASK}}", "::endgroup::", &falseValue))
+	t.Parallel()
 
-	expectFatal(t, "no output config", func(ft testT) { AssertGithubGroupOutput(ft, "alpha", nil) })
-	expectFatal(t, "advanced object format", func(ft testT) {
-		AssertGithubGroupOutput(ft, "alpha", &yaml.Node{Kind: yaml.ScalarNode, Value: "group"})
+	falseValue := "false"
+	ttu.AssertGithubGroupOutput(
+		t,
+		alphaName,
+		groupOutputNode(t, "::group::{{.TASK}}", "::endgroup::", &falseValue),
+	)
+
+	expectFatal(t, "no output config", func(fakeTester *fakeTest) {
+		ttu.AssertGithubGroupOutput(fakeTester, alphaName, nil)
 	})
-	expectFatal(t, "include group config", func(ft testT) {
-		AssertGithubGroupOutput(ft, "alpha", &yaml.Node{Kind: yaml.MappingNode})
+	expectFatal(t, "advanced object format", func(fakeTester *fakeTest) {
+		ttu.AssertGithubGroupOutput(fakeTester, alphaName, yamlScalar("group"))
 	})
-	expectFatal(t, "include group config", func(ft testT) {
-		AssertGithubGroupOutput(ft, "alpha", &yaml.Node{Kind: yaml.MappingNode, Content: []*yaml.Node{
-			{Kind: yaml.ScalarNode, Value: "group"}, {Kind: yaml.ScalarNode, Value: "scalar"},
-		}})
+	expectFatal(t, "include group config", func(fakeTester *fakeTest) {
+		ttu.AssertGithubGroupOutput(fakeTester, alphaName, yamlMapping())
 	})
-	expectFatal(t, "output.group.begin", func(ft testT) {
-		AssertGithubGroupOutput(ft, "alpha", groupOutputNode(t, "bad", "::endgroup::", &falseValue))
+	expectFatal(t, "include group config", func(fakeTester *fakeTest) {
+		ttu.AssertGithubGroupOutput(fakeTester, alphaName, yamlMapping(
+			yamlScalar("group"),
+			yamlScalar("scalar"),
+		))
 	})
-	expectFatal(t, "output.group.end", func(ft testT) {
-		AssertGithubGroupOutput(ft, "alpha", groupOutputNode(t, "::group::{{.TASK}}", "bad", &falseValue))
+	expectFatal(t, "output.group.begin", func(fakeTester *fakeTest) {
+		ttu.AssertGithubGroupOutput(
+			fakeTester,
+			alphaName,
+			groupOutputNode(t, "bad", "::endgroup::", &falseValue),
+		)
 	})
-	expectFatal(t, "explicitly set", func(ft testT) {
-		AssertGithubGroupOutput(ft, "alpha", groupOutputNode(t, "::group::{{.TASK}}", "::endgroup::", nil))
+	expectFatal(t, "output.group.end", func(fakeTester *fakeTest) {
+		ttu.AssertGithubGroupOutput(
+			fakeTester,
+			alphaName,
+			groupOutputNode(t, "::group::{{.TASK}}", "bad", &falseValue),
+		)
 	})
+	expectFatal(t, "explicitly set", func(fakeTester *fakeTest) {
+		ttu.AssertGithubGroupOutput(
+			fakeTester,
+			alphaName,
+			groupOutputNode(t, "::group::{{.TASK}}", "::endgroup::", nil),
+		)
+	})
+
 	trueValue := "true"
-	expectFatal(t, "must be false", func(ft testT) {
-		AssertGithubGroupOutput(ft, "alpha", groupOutputNode(t, "::group::{{.TASK}}", "::endgroup::", &trueValue))
+
+	expectFatal(t, "must be false", func(fakeTester *fakeTest) {
+		ttu.AssertGithubGroupOutput(
+			fakeTester,
+			alphaName,
+			groupOutputNode(t, "::group::{{.TASK}}", "::endgroup::", &trueValue),
+		)
 	})
 }
 
 func TestTextFileAssertion(t *testing.T) {
-	AssertTextFileClean(t, "clean.yml", "key: value\n")
+	t.Parallel()
+
+	ttu.AssertTextFileClean(t, "clean.yml", "key: value\n")
+
 	tests := []struct {
 		content string
 		want    string
@@ -561,51 +1012,75 @@ func TestTextFileAssertion(t *testing.T) {
 		{content: "key: value \n", want: "trailing whitespace"},
 	}
 	for _, tt := range tests {
-		expectFatal(t, tt.want, func(ft testT) { AssertTextFileClean(ft, "bad.yml", tt.content) })
+		expectFatal(
+			t,
+			tt.want,
+			func(fakeTester *fakeTest) { ttu.AssertTextFileClean(fakeTester, "bad.yml", tt.content) },
+		)
 	}
 }
 
 func TestYamlStructureAssertions(t *testing.T) {
-	doc := parseYAML(t, "root:\n  list:\n    - name: one\n    - name: two\n")
-	AssertNoDuplicateMappingKeys(t, nil, "root")
-	AssertNoDuplicateMappingKeys(t, doc, "root")
-	AssertNoYamlAliases(t, nil, "root")
-	AssertNoYamlAliases(t, doc, "root")
+	t.Parallel()
 
-	duplicate := &yaml.Node{Kind: yaml.MappingNode, Content: []*yaml.Node{
-		{Kind: yaml.ScalarNode, Value: "same"}, {Kind: yaml.ScalarNode, Value: "one"},
-		{Kind: yaml.ScalarNode, Value: "same"}, {Kind: yaml.ScalarNode, Value: "two"},
-	}}
-	expectFatal(t, "duplicate YAML key", func(ft testT) {
-		AssertNoDuplicateMappingKeys(ft, duplicate, "root")
+	doc := parseYAML(t, "root:\n  list:\n    - name: one\n    - name: two\n")
+	ttu.AssertNoDuplicateMappingKeys(t, nil, "root")
+	ttu.AssertNoDuplicateMappingKeys(t, doc, "root")
+	ttu.AssertNoYamlAliases(t, nil, "root")
+	ttu.AssertNoYamlAliases(t, doc, "root")
+
+	duplicate := yamlMapping(
+		yamlScalar("same"),
+		yamlScalar("one"),
+		yamlScalar("same"),
+		yamlScalar("two"),
+	)
+
+	expectFatal(t, "duplicate YAML key", func(fakeTester *fakeTest) {
+		ttu.AssertNoDuplicateMappingKeys(fakeTester, duplicate, "root")
 	})
 
-	alias := &yaml.Node{Kind: yaml.MappingNode, Content: []*yaml.Node{
-		{Kind: yaml.ScalarNode, Value: "value"}, {Kind: yaml.AliasNode},
-	}}
-	expectFatal(t, "aliases/anchors are not allowed", func(ft testT) {
-		AssertNoYamlAliases(ft, alias, "root")
+	alias := yamlMapping(
+		yamlScalar("value"),
+		yamlAlias(),
+	)
+
+	expectFatal(t, "aliases/anchors are not allowed", func(fakeTester *fakeTest) {
+		ttu.AssertNoYamlAliases(fakeTester, alias, "root")
 	})
 }
 
 func TestPlaceholderJsonAndDangerousPatterns(t *testing.T) {
-	AssertNoPlaceholderText(t, "alpha", "ordinary task description")
-	expectFatal(t, "placeholder text", func(ft testT) {
-		AssertNoPlaceholderText(ft, "alpha", "fixme later")
+	t.Parallel()
+
+	ttu.AssertNoPlaceholderText(t, alphaName, "ordinary task description")
+	expectFatal(t, "placeholder text", func(fakeTester *fakeTest) {
+		ttu.AssertNoPlaceholderText(fakeTester, alphaName, "fixme later")
 	})
 
-	if err := ValidateJSON(`{"ok":true}`); err != nil {
+	err := ttu.ValidateJSON(`{"ok":true}`)
+	if err != nil {
 		t.Fatalf("valid JSON: %v", err)
 	}
-	if err := ValidateJSON(`{"bad":`); err == nil {
+
+	err = ttu.ValidateJSON(`{"bad":`)
+	if err == nil {
 		t.Fatal("invalid JSON accepted")
 	}
 
-	patterns := DangerousCommandPatterns()
-	unsafe := []string{"rm -rf / ", "sudo rm -rf /tmp/x", "chmod -R 777 /", "curl https://x -k ", "curl --insecure https://x"}
+	patterns := ttu.DangerousCommandPatterns()
+
+	unsafe := []string{
+		"rm -rf / ",
+		"sudo rm -rf /tmp/x",
+		"chmod -R 777 /",
+		"curl https://x -k ",
+		"curl --insecure https://x",
+	}
 	if len(patterns) != len(unsafe) {
 		t.Fatalf("dangerous patterns = %d", len(patterns))
 	}
+
 	for index, pattern := range patterns {
 		if !pattern.MatchString(unsafe[index]) {
 			t.Fatalf("pattern %d did not match %q", index, unsafe[index])

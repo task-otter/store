@@ -70,12 +70,14 @@ tasks:
       - yamllint:lint
       - zizmor:lint
       - actionlint:lint
+      - go:lint
 
   lint:fix:
     run: once
     desc: Auto-fix YAML lint issues
     deps:
       - yamllint:lint:fix
+      - go:lint:fix
 
   fmt:
     run: once

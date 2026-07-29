@@ -6,27 +6,31 @@ import (
 	"github.com/task-otter/store/internal/tasktest"
 )
 
-var publicTasks = []string{
-	"ci",
-	"help",
-	"install",
-	"install:undo",
-	"run",
-	"upgrade",
-	"version",
+func publicTasks() []string {
+	return []string{
+		"ci",
+		"help",
+		"install",
+		"install:undo",
+		"run",
+		"upgrade",
+		"version",
+	}
 }
 
-var publicVars = []string{
-	"COLLECTION",
-	"ENV",
-	"EXTRA_ARGS",
-	"VERSION",
+func publicVars() []string {
+	return []string{
+		"COLLECTION",
+		"ENV",
+		"EXTRA_ARGS",
+		"VERSION",
+	}
 }
 
 func TestTaskfileModuleContract(t *testing.T) {
 	t.Parallel()
 
-	tasktest.AssertModule(t, "bruno/node/fnm/yarn", publicTasks, publicVars)
+	tasktest.AssertModule(t, "bruno/node/fnm/yarn", publicTasks(), publicVars())
 }
 
 // covered by module contract

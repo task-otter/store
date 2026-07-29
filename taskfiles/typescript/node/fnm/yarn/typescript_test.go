@@ -2,7 +2,6 @@ package typescriptnodefnmyarn_test
 
 import (
 	"encoding/json"
-	"gopkg.in/yaml.v3"
 	"os"
 	"os/exec"
 	"path/filepath"
@@ -11,6 +10,12 @@ import (
 	"slices"
 	"strings"
 	"testing"
+
+	"gopkg.in/yaml.v3"
+)
+
+const (
+	constTypescriptTestListAll = "--list-all"
 )
 
 type publicTaskSpec struct {
@@ -20,39 +25,47 @@ type publicTaskSpec struct {
 	requiresSummary bool
 }
 
-var publicTasks = []publicTaskSpec{
-	{name: "build", requiresSummary: true},
-	{name: "build:clean", requiresSummary: true},
-	{name: "build:watch", requiresSummary: true},
-	{name: "ci", requiresSummary: true},
-	{name: "clean", requiresPrompt: true, requiresSummary: true},
-	{name: "clean:all", requiresPrompt: true, requiresSummary: true},
-	{name: "config:diagnostics", requiresSummary: true},
-	{name: "config:files", requiresSummary: true},
-	{name: "config:init", requiresSummary: true},
-	{name: "config:show", requiresSummary: true},
-	{name: "config:trace", requiresSummary: true},
-	{name: "dev", requiresSummary: true},
-	{name: "emit:dts", requiresSummary: true},
-	{name: "install", requiresSummary: true},
-	{name: "install:undo", requiresPrompt: true, requiresSummary: true},
-	{name: "run", requiresSummary: true},
-	{name: "start", requiresSummary: true},
-	{name: "tsserver:info", requiresSummary: true},
-	{name: "typecheck", requiresSummary: true},
-	{name: "typecheck:files", args: []string{"FILES=src/index.ts"}, requiresSummary: true},
-	{name: "typecheck:watch", requiresSummary: true},
-	{name: "upgrade", requiresSummary: true},
-	{name: "version", requiresSummary: true},
+func publicTasks() []publicTaskSpec {
+	return []publicTaskSpec{
+		{name: "build", requiresSummary: true, args: nil, requiresPrompt: false},
+		{name: "build:clean", requiresSummary: true, args: nil, requiresPrompt: false},
+		{name: "build:watch", requiresSummary: true, args: nil, requiresPrompt: false},
+		{name: "ci", requiresSummary: true, args: nil, requiresPrompt: false},
+		{name: "clean", requiresPrompt: true, requiresSummary: true, args: nil},
+		{name: "clean:all", requiresPrompt: true, requiresSummary: true, args: nil},
+		{name: "config:diagnostics", requiresSummary: true, args: nil, requiresPrompt: false},
+		{name: "config:files", requiresSummary: true, args: nil, requiresPrompt: false},
+		{name: "config:init", requiresSummary: true, args: nil, requiresPrompt: false},
+		{name: "config:show", requiresSummary: true, args: nil, requiresPrompt: false},
+		{name: "config:trace", requiresSummary: true, args: nil, requiresPrompt: false},
+		{name: "dev", requiresSummary: true, args: nil, requiresPrompt: false},
+		{name: "emit:dts", requiresSummary: true, args: nil, requiresPrompt: false},
+		{name: "install", requiresSummary: true, args: nil, requiresPrompt: false},
+		{name: "install:undo", requiresPrompt: true, requiresSummary: true, args: nil},
+		{name: "run", requiresSummary: true, args: nil, requiresPrompt: false},
+		{name: "start", requiresSummary: true, args: nil, requiresPrompt: false},
+		{name: "tsserver:info", requiresSummary: true, args: nil, requiresPrompt: false},
+		{name: "typecheck", requiresSummary: true, args: nil, requiresPrompt: false},
+		{
+			name:            "typecheck:files",
+			args:            []string{"FILES=src/index.ts"},
+			requiresSummary: true,
+			requiresPrompt:  false,
+		},
+		{name: "typecheck:watch", requiresSummary: true, args: nil, requiresPrompt: false},
+		{name: "upgrade", requiresSummary: true, args: nil, requiresPrompt: false},
+		{name: "version", requiresSummary: true, args: nil, requiresPrompt: false},
+	}
 }
 
 func TestTaskfileAndReadmePublicApi(t *testing.T) {
 	t.Parallel()
 
-	tf := loadTaskfile(t)
+	taskfile := loadTaskfile(t)
 
 	expected := publicTaskNames()
-	actual := taskNames(tf.tasks)
+
+	actual := taskNames(taskfile.tasks)
 	if !slices.Equal(expected, actual) {
 		t.Fatalf("public task drift\nexpected: %v\nactual:   %v", expected, actual)
 	}
@@ -66,22 +79,29 @@ func TestTaskfileAndReadmePublicApi(t *testing.T) {
 func TestTaskfileYamlIsCleanAndValid(t *testing.T) {
 	t.Parallel()
 
-	content := read(t, "Taskfile.yml")
+	content := read(t)
 
 	if strings.Contains(content, "\r\n") {
 		t.Fatal("Taskfile must use LF line endings")
 	}
+
 	if strings.TrimRight(content, " \t\r\n") != strings.TrimRight(content, "\r\n") {
 		t.Fatal("Taskfile has trailing whitespace")
 	}
 
 	var doc yaml.Node
-	if err := yaml.Unmarshal([]byte(content), &doc); err != nil {
+
+	err := yaml.Unmarshal([]byte(content), &doc)
+	if err != nil {
 		t.Fatalf("parse Taskfile: %v", err)
 	}
 
 	root := documentRoot(t, &doc)
-	if version := scalarField(root, "version"); version != "3" && !strings.HasPrefix(version, "3.") {
+	if version := scalarField(
+		root,
+		"version",
+	); version != "3" &&
+		!strings.HasPrefix(version, "3.") {
 		t.Fatalf("Taskfile version must be 3 or 3.x, got %q", version)
 	}
 
@@ -95,12 +115,13 @@ func TestTaskCliCanLoadTaskfile(t *testing.T) {
 
 	for _, args := range [][]string{
 		{"--list"},
-		{"--list-all"},
-		{"--list-all", "--sort", "alphanumeric"},
-		{"--list-all", "--json"},
+		{constTypescriptTestListAll},
+		{constTypescriptTestListAll, "--sort", "alphanumeric"},
+		{constTypescriptTestListAll, "--json"},
 	} {
-		args := args
 		t.Run(strings.Join(args, " "), func(t *testing.T) {
+			t.Parallel()
+
 			result := runTask(t, isolatedEnv(t), args...)
 			assertExitCode(t, result, 0)
 			assertNotContains(t, strings.ToLower(result.output), "taskfile does not exist")
@@ -112,26 +133,31 @@ func TestTaskCliCanLoadTaskfile(t *testing.T) {
 func TestTaskListAllJsonIsValid(t *testing.T) {
 	t.Parallel()
 
-	result := runTask(t, isolatedEnv(t), "--list-all", "--json")
+	result := runTask(t, isolatedEnv(t), constTypescriptTestListAll, "--json")
 	assertExitCode(t, result, 0)
 
 	var payload any
-	if err := json.Unmarshal([]byte(result.output), &payload); err != nil {
-		t.Fatalf("task --list-all --json did not produce valid JSON:\n%s\nerror: %v", result.output, err)
+
+	err := json.Unmarshal([]byte(result.output), &payload)
+	if err != nil {
+		t.Fatalf(
+			"task --list-all --json did not produce valid JSON:\n%s\nerror: %v",
+			result.output,
+			err,
+		)
 	}
 }
 
 func TestPublicTasksHaveMetadataAndCommands(t *testing.T) {
 	t.Parallel()
 
-	tf := loadTaskfile(t)
+	taskfile := loadTaskfile(t)
 
-	for _, spec := range publicTasks {
-		spec := spec
+	for _, spec := range publicTasks() {
 		t.Run(spec.name, func(t *testing.T) {
 			t.Parallel()
 
-			task := mustTask(t, tf, spec.name)
+			task := mustTask(t, taskfile, spec.name)
 			if task.node.Kind != yaml.MappingNode {
 				t.Fatalf("public task %q must use mapping syntax", spec.name)
 			}
@@ -146,7 +172,8 @@ func TestPublicTasksHaveMetadataAndCommands(t *testing.T) {
 				t.Fatalf("public task %q summary is missing or too short:\n%s", spec.name, summary)
 			}
 
-			if isEmptyNode(mappingValue(task.node, "cmds")) && isEmptyNode(mappingValue(task.node, "deps")) {
+			if isEmptyNode(mappingValue(task.node, "cmds")) &&
+				isEmptyNode(mappingValue(task.node, "deps")) {
 				t.Fatalf("public task %q must have cmds or deps", spec.name)
 			}
 		})
@@ -156,19 +183,22 @@ func TestPublicTasksHaveMetadataAndCommands(t *testing.T) {
 func TestDestructivePublicTasksHavePrompt(t *testing.T) {
 	t.Parallel()
 
-	tf := loadTaskfile(t)
+	taskfile := loadTaskfile(t)
 
-	for _, spec := range publicTasks {
-		spec := spec
+	for _, spec := range publicTasks() {
 		t.Run(spec.name, func(t *testing.T) {
 			t.Parallel()
+
 			if !spec.requiresPrompt {
 				return
 			}
 
-			task := mustTask(t, tf, spec.name)
+			task := mustTask(t, taskfile, spec.name)
+
 			prompt := strings.ToLower(nodeText(mappingValue(task.node, "prompt")))
-			if !strings.Contains(prompt, "delete") && !strings.Contains(prompt, "remove") && !strings.Contains(prompt, "continue") {
+			if !strings.Contains(prompt, "delete") &&
+				!strings.Contains(prompt, "remove") &&
+				!strings.Contains(prompt, "continue") {
 				t.Fatalf("destructive task %q needs an explicit prompt:\n%s", spec.name, prompt)
 			}
 		})
@@ -178,10 +208,10 @@ func TestDestructivePublicTasksHavePrompt(t *testing.T) {
 func TestTaskSummariesWork(t *testing.T) {
 	t.Parallel()
 
-	for _, spec := range publicTasks {
-		spec := spec
+	for _, spec := range publicTasks() {
 		t.Run(spec.name, func(t *testing.T) {
 			t.Parallel()
+
 			if !spec.requiresSummary {
 				return
 			}
@@ -202,13 +232,14 @@ func TestTypecheckFilesRequiresExplicitFiles(t *testing.T) {
 	if result.err == nil {
 		t.Fatalf("typecheck:files without FILES unexpectedly succeeded:\n%s", result.output)
 	}
+
 	assertContains(t, strings.ToLower(result.output), "files")
 }
 
 func TestTsserverGuidanceStaysEditorManaged(t *testing.T) {
 	t.Parallel()
 
-	content := read(t, "Taskfile.yml")
+	content := read(t)
 
 	for _, token := range []string{
 		"Never start tsserver manually",
@@ -223,7 +254,7 @@ func TestTsserverGuidanceStaysEditorManaged(t *testing.T) {
 func TestCommandsDoNotContainDangerousPatterns(t *testing.T) {
 	t.Parallel()
 
-	tf := loadTaskfile(t)
+	taskfile := loadTaskfile(t)
 	patterns := []*regexp.Regexp{
 		regexp.MustCompile(`(?m)\brm\s+-[a-zA-Z]*r[a-zA-Z]*f[a-zA-Z]*\s+/(?:\s|$)`),
 		regexp.MustCompile(`(?m)\bsudo\s+rm\s+-[a-zA-Z]*r[a-zA-Z]*f`),
@@ -232,12 +263,16 @@ func TestCommandsDoNotContainDangerousPatterns(t *testing.T) {
 		regexp.MustCompile(`(?m)\bcurl\b.*--insecure`),
 	}
 
-	for taskName, task := range tf.tasks {
-		taskName := taskName
+	for taskName, task := range taskfile.tasks {
 		for _, command := range collectScalars(task.node) {
 			for _, pattern := range patterns {
 				if pattern.MatchString(command) {
-					t.Fatalf("task %q contains dangerous command pattern %q:\n%s", taskName, pattern.String(), command)
+					t.Fatalf(
+						"task %q contains dangerous command pattern %q:\n%s",
+						taskName,
+						pattern.String(),
+						command,
+					)
 				}
 			}
 		}
@@ -248,7 +283,7 @@ func TestNoPlaceholderTextInTaskfileOrReadme(t *testing.T) {
 	t.Parallel()
 
 	files := map[string]string{
-		"Taskfile.yml": read(t, "Taskfile.yml"),
+		"Taskfile.yml": read(t),
 		"README.md":    readTool(t, "README.md"),
 	}
 	for name, content := range files {
@@ -278,7 +313,9 @@ func loadTaskfile(t *testing.T) loadedTaskfile {
 	t.Helper()
 
 	var doc yaml.Node
-	if err := yaml.Unmarshal([]byte(read(t, "Taskfile.yml")), &doc); err != nil {
+
+	err := yaml.Unmarshal([]byte(read(t)), &doc)
+	if err != nil {
 		t.Fatalf("parse Taskfile: %v", err)
 	}
 
@@ -295,12 +332,14 @@ func loadTaskfile(t *testing.T) loadedTaskfile {
 	return loadedTaskfile{tasks: tasks}
 }
 
-func mustTask(t *testing.T, tf loadedTaskfile, name string) task {
+func mustTask(t *testing.T, taskfile loadedTaskfile, name string) task {
 	t.Helper()
-	task, ok := tf.tasks[name]
+
+	task, ok := taskfile.tasks[name]
 	if !ok {
 		t.Fatalf("expected public task %q is missing", name)
 	}
+
 	return task
 }
 
@@ -334,6 +373,7 @@ func isolatedEnv(t *testing.T) []string {
 	env = setEnv(env, "TASK_COLOR", "0")
 	env = setEnv(env, "NO_COLOR", "1")
 	env = setEnv(env, "TASK_ASSUME_YES", "true")
+
 	return env
 }
 
@@ -353,16 +393,27 @@ func fakeTypeScriptProject(t *testing.T, env []string) (string, []string) {
 		filepath.Join(envValue(env, "HOME"), ".nvm"),
 		filepath.Join(envValue(env, "HOME"), ".local", "share", "fnm"),
 	} {
-		if err := os.MkdirAll(path, 0755); err != nil {
+		err := os.MkdirAll(path, 0o755)
+		if err != nil {
 			t.Fatalf("create test project dir %s: %v", path, err)
 		}
 	}
 
-	writeFile(t, filepath.Join(projectDir, "package.json"), `{"scripts":{"build":"tsc"}}`+"\n", 0644)
-	writeFile(t, filepath.Join(projectDir, "package-lock.json"), "{}\n", 0644)
-	writeFile(t, filepath.Join(projectDir, "tsconfig.json"), `{"compilerOptions":{"outDir":"dist"}}`+"\n", 0644)
-	writeFile(t, filepath.Join(projectDir, "src", "index.ts"), "export {}\n", 0644)
-	writeFile(t, filepath.Join(projectDir, "dist", "index.js"), "console.log('ok')\n", 0644)
+	writeFile(
+		t,
+		filepath.Join(projectDir, "package.json"),
+		`{"scripts":{"build":"tsc"}}`+"\n",
+		0o644,
+	)
+	writeFile(t, filepath.Join(projectDir, "package-lock.json"), "{}\n", 0o644)
+	writeFile(
+		t,
+		filepath.Join(projectDir, "tsconfig.json"),
+		`{"compilerOptions":{"outDir":"dist"}}`+"\n",
+		0o644,
+	)
+	writeFile(t, filepath.Join(projectDir, "src", "index.ts"), "export {}\n", 0o644)
+	writeFile(t, filepath.Join(projectDir, "dist", "index.js"), "console.log('ok')\n", 0o644)
 
 	stubBody := "#!/usr/bin/env bash\n" +
 		"case \"$1\" in\n" +
@@ -371,14 +422,21 @@ func fakeTypeScriptProject(t *testing.T, env []string) (string, []string) {
 		"esac\n"
 
 	for _, name := range []string{"tsc", "tsx", "tsserver"} {
-		writeFile(t, filepath.Join(nodeBinDir, name), stubBody, 0755)
+		writeFile(t, filepath.Join(nodeBinDir, name), stubBody, 0o755)
 	}
+
 	for _, name := range []string{"fnm", "node", "npx", "npm", "pnpm", "yarn", "bun"} {
-		writeFile(t, filepath.Join(binDir, name), stubBody, 0755)
+		writeFile(t, filepath.Join(binDir, name), stubBody, 0o755)
 	}
-	writeFile(t, filepath.Join(envValue(env, "HOME"), ".bun", "bin", "bun"), stubBody, 0755)
-	writeFile(t, filepath.Join(envValue(env, "HOME"), ".nvm", "nvm.sh"), "# nvm stub\n", 0644)
-	writeFile(t, filepath.Join(envValue(env, "HOME"), ".local", "share", "fnm", "fnm"), stubBody, 0755)
+
+	writeFile(t, filepath.Join(envValue(env, "HOME"), ".bun", "bin", "bun"), stubBody, 0o755)
+	writeFile(t, filepath.Join(envValue(env, "HOME"), ".nvm", "nvm.sh"), "# nvm stub\n", 0o644)
+	writeFile(
+		t,
+		filepath.Join(envValue(env, "HOME"), ".local", "share", "fnm", "fnm"),
+		stubBody,
+		0o755,
+	)
 
 	path := binDir + ":" + nodeBinDir + ":" + envValue(env, "PATH")
 	env = setEnv(env, "PATH", path)
@@ -388,7 +446,9 @@ func fakeTypeScriptProject(t *testing.T, env []string) (string, []string) {
 
 func writeFile(t *testing.T, path, content string, mode os.FileMode) {
 	t.Helper()
-	if err := os.WriteFile(path, []byte(content), mode); err != nil {
+
+	err := os.WriteFile(path, []byte(content), mode)
+	if err != nil {
 		t.Fatalf("write %s: %v", path, err)
 	}
 }
@@ -396,33 +456,40 @@ func writeFile(t *testing.T, path, content string, mode os.FileMode) {
 func envValue(env []string, key string) string {
 	prefix := key + "="
 	for _, item := range env {
-		if strings.HasPrefix(item, prefix) {
-			return strings.TrimPrefix(item, prefix)
+		if after, ok := strings.CutPrefix(item, prefix); ok {
+			return after
 		}
 	}
+
 	return os.Getenv(key)
 }
 
 func publicTaskNames() []string {
-	names := make([]string, 0, len(publicTasks))
-	for _, spec := range publicTasks {
+	names := make([]string, 0, len(publicTasks()))
+	for _, spec := range publicTasks() {
 		names = append(names, spec.name)
 	}
+
 	slices.Sort(names)
+
 	return names
 }
 
 func taskNames(tasks map[string]task) []string {
 	names := []string{}
+
 	for name, task := range tasks {
 		if name == "default" || strings.HasPrefix(name, "_") {
 			continue
 		}
+
 		if nodeText(mappingValue(task.node, "desc")) != "" {
 			names = append(names, name)
 		}
 	}
+
 	slices.Sort(names)
+
 	return names
 }
 
@@ -430,30 +497,42 @@ func readmeTaskNames(content string) []string {
 	row := regexp.MustCompile("^\\|\\s*`([^`]+)`\\s*\\|")
 	names := []string{}
 	active := false
-	for _, line := range strings.Split(content, "\n") {
+
+	for line := range strings.SplitSeq(content, "\n") {
 		trimmed := strings.TrimSpace(line)
 		if trimmed == "## Public Tasks" {
 			active = true
+
 			continue
 		}
+
 		if active && strings.HasPrefix(trimmed, "## ") {
 			break
 		}
+
 		if active {
 			if match := row.FindStringSubmatch(trimmed); len(match) == 2 {
 				names = append(names, match[1])
 			}
 		}
 	}
+
 	slices.Sort(names)
+
 	return names
 }
 
 func documentRoot(t *testing.T, doc *yaml.Node) *yaml.Node {
 	t.Helper()
+
 	if doc.Kind != yaml.DocumentNode || len(doc.Content) != 1 {
-		t.Fatalf("expected YAML document node, got kind=%d children=%d", doc.Kind, len(doc.Content))
+		t.Fatalf(
+			"expected YAML document node, got kind=%directory children=%directory",
+			doc.Kind,
+			len(doc.Content),
+		)
 	}
+
 	return doc.Content[0]
 }
 
@@ -461,6 +540,7 @@ func mappingField(root *yaml.Node, name string) *yaml.Node {
 	if root == nil || root.Kind != yaml.MappingNode {
 		return nil
 	}
+
 	return mappingValue(root, name)
 }
 
@@ -472,11 +552,13 @@ func mappingValue(node *yaml.Node, name string) *yaml.Node {
 	if node == nil || node.Kind != yaml.MappingNode {
 		return nil
 	}
+
 	for i := 0; i < len(node.Content); i += 2 {
 		if node.Content[i].Value == name {
 			return node.Content[i+1]
 		}
 	}
+
 	return nil
 }
 
@@ -484,15 +566,19 @@ func nodeText(node *yaml.Node) string {
 	if node == nil {
 		return ""
 	}
+
 	if node.Kind == yaml.ScalarNode {
 		return node.Value
 	}
+
 	parts := []string{}
+
 	for _, child := range node.Content {
 		if text := nodeText(child); text != "" {
 			parts = append(parts, text)
 		}
 	}
+
 	return strings.Join(parts, "\n")
 }
 
@@ -504,53 +590,67 @@ func collectScalars(node *yaml.Node) []string {
 	if node == nil {
 		return nil
 	}
+
 	if node.Kind == yaml.ScalarNode {
 		return []string{node.Value}
 	}
+
 	values := []string{}
 	for _, child := range node.Content {
 		values = append(values, collectScalars(child)...)
 	}
+
 	return values
 }
 
 func toolRoot(t *testing.T) string {
 	t.Helper()
-	d := dir(t)
-	for filepath.Base(filepath.Dir(d)) != "taskfiles" {
-		parent := filepath.Dir(d)
-		if parent == d {
+
+	directory := dir(t)
+	for filepath.Base(filepath.Dir(directory)) != "taskfiles" {
+		parent := filepath.Dir(directory)
+		if parent == directory {
 			t.Fatal("locate tool root")
 		}
-		d = parent
+
+		directory = parent
 	}
-	return d
+
+	return directory
 }
 
 func readTool(t *testing.T, name string) string {
 	t.Helper()
+
 	content, err := os.ReadFile(filepath.Join(toolRoot(t), name))
 	if err != nil {
 		t.Fatalf("read %s: %v", name, err)
 	}
+
 	return string(content)
 }
 
-func read(t *testing.T, name string) string {
+func read(t *testing.T) string {
 	t.Helper()
-	content, err := os.ReadFile(filepath.Join(dir(t), name))
+
+	path := filepath.Join(dir(t), "Taskfile.yml")
+
+	content, err := os.ReadFile(path)
 	if err != nil {
-		t.Fatalf("read %s: %v", name, err)
+		t.Fatalf("read %s: %v", path, err)
 	}
+
 	return string(content)
 }
 
 func dir(t *testing.T) string {
 	t.Helper()
+
 	_, file, _, ok := runtime.Caller(0)
 	if !ok {
 		t.Fatal("locate test file")
 	}
+
 	return filepath.Dir(file)
 }
 
@@ -559,20 +659,25 @@ func setEnv(env []string, key, value string) []string {
 	for i, item := range env {
 		if strings.HasPrefix(item, prefix) {
 			env[i] = prefix + value
+
 			return env
 		}
 	}
+
 	return append(env, prefix+value)
 }
 
 func assertExitCode(t *testing.T, result commandResult, want int) {
 	t.Helper()
+
 	if want == 0 {
 		if result.err != nil {
 			t.Fatalf("command failed: %v\n%s", result.err, result.output)
 		}
+
 		return
 	}
+
 	if result.err == nil {
 		t.Fatalf("command unexpectedly succeeded:\n%s", result.output)
 	}
@@ -580,6 +685,7 @@ func assertExitCode(t *testing.T, result commandResult, want int) {
 
 func assertContains(t *testing.T, haystack, needle string) {
 	t.Helper()
+
 	if !strings.Contains(haystack, needle) {
 		t.Fatalf("expected output to contain %q:\n%s", needle, haystack)
 	}
@@ -587,6 +693,7 @@ func assertContains(t *testing.T, haystack, needle string) {
 
 func assertNotContains(t *testing.T, haystack, needle string) {
 	t.Helper()
+
 	if strings.Contains(haystack, needle) {
 		t.Fatalf("expected output not to contain %q:\n%s", needle, haystack)
 	}

@@ -2,8 +2,6 @@ package go_test
 
 import (
 	"fmt"
-	"os/exec"
-
 	"slices"
 	"strings"
 	"testing"
@@ -11,76 +9,90 @@ import (
 	"github.com/task-otter/store/internal/tasktest"
 )
 
-var publicTasks = []string{
-	"bench",
-	"config:skip",
-	"fmt",
-	"fmt:check",
-	"fuzz",
-	"golangci-lint:fmt",
-	"golangci-lint:fmt:check",
-	"golangci-lint:lint",
-	"golangci-lint:lint:fix",
-	"gosec:lint",
-	"govulncheck:lint",
-	"install",
-	"install:go-junit-report",
-	"install:golangci-lint",
-	"install:gosec",
-	"install:govulncheck",
-	"install:undo",
-	"lint",
-	"lint:fix",
-	"test",
-	"upgrade",
-	"verify",
-	"version",
-	"which",
+const (
+	constGoTestGolangciLintFmtCheck          = "golangci-lint:fmt:check"
+	constGoTestGolangciLintLint              = "golangci-lint:lint"
+	constGoTestGosecLint                     = "gosec:lint"
+	constGoTestGovulncheckLint               = "govulncheck:lint"
+	constGoTestInstall                       = "install"
+	constGoTestInstallGoJunitReport          = "install:go-junit-report"
+	constGoTestInstallGolangciLint           = "install:golangci-lint"
+	constGoTestInstallGosec                  = "install:gosec"
+	constGoTestInstallGovulncheck            = "install:govulncheck"
+	constGoTestTest                          = "test"
+	constGoTestGOLANGCILINTCOVERLINTVERSION  = "GOLANGCI_LINT_COVERLINT_VERSION"
+	constGoTestGOLANGCILINTMODULARITYVERSION = "GOLANGCI_LINT_MODULARITY_VERSION"
+)
+
+func publicTasks() []string {
+	return []string{
+		"bench",
+		"config:skip",
+		"fmt",
+		"fmt:check",
+		"fuzz",
+		"golangci-lint:fmt",
+		constGoTestGolangciLintFmtCheck,
+		constGoTestGolangciLintLint,
+		"golangci-lint:lint:fix",
+		constGoTestGosecLint,
+		constGoTestGovulncheckLint,
+		constGoTestInstall,
+		constGoTestInstallGoJunitReport,
+		constGoTestInstallGolangciLint,
+		constGoTestInstallGosec,
+		constGoTestInstallGovulncheck,
+		"install:undo",
+		"lint",
+		"lint:fix",
+		constGoTestTest,
+		"upgrade",
+		"verify",
+		"version",
+		"which",
+	}
 }
 
-var publicVars = []string{
-	"GO_BIN_UNIX",
-	"GO_CMD_UNIX",
-	"GO_COVER_PROFILE",
-	"GO_DOWNLOAD_BASE_URL",
-	"GO_FMT_SKIP_PATTERN",
-	"GO_FUZZTIME",
-	"GO_JUNIT_REPORT",
-	"GO_LINT_SKIP_PATTERN",
-	"GO_VERSION",
-	"GO_ROOT_UNIX",
-	"GO_VERSION_URL",
-	"GOLANGCI_LINT_COVERLINT_VERSION",
-	"GOLANGCI_LINT_VERSION",
-	"GOLANGCI_LINT_MODULARITY_VERSION",
-	"GOSEC_VERSION",
-	"GLOBAL_GO_BIN",
-	"GOVULNCHECK_VERSION",
-	"INSTALL_DIR_UNIX",
-}
-
-func goAvailable() bool {
-	_, err := exec.LookPath("go")
-	return err == nil
+func publicVars() []string {
+	return []string{
+		"GO_BIN_UNIX",
+		"GO_CMD_UNIX",
+		"GO_COVER_PROFILE",
+		"GO_DOWNLOAD_BASE_URL",
+		"GO_FMT_SKIP_PATTERN",
+		"GO_FUZZTIME",
+		"GO_JUNIT_REPORT",
+		"GO_LINT_SKIP_PATTERN",
+		"GO_VERSION",
+		"GO_ROOT_UNIX",
+		"GO_VERSION_URL",
+		constGoTestGOLANGCILINTCOVERLINTVERSION,
+		"GOLANGCI_LINT_VERSION",
+		constGoTestGOLANGCILINTMODULARITYVERSION,
+		"GOSEC_VERSION",
+		"GLOBAL_GO_BIN",
+		"GOVULNCHECK_VERSION",
+		"INSTALL_DIR_UNIX",
+	}
 }
 
 func TestTaskfileModuleContract(t *testing.T) {
 	t.Parallel()
 
-	tasktest.AssertModule(t, "go", publicTasks, publicVars)
+	tasktest.AssertModule(t, "go", publicTasks(), publicVars())
 }
 
 func TestTestingTaskCommands(t *testing.T) {
 	t.Parallel()
 
-	tf := tasktest.LoadTaskfile(t, "go")
+	taskfile := tasktest.LoadTaskfile(t, "go")
 
 	tests := []struct {
 		task   string
 		tokens []string
 	}{
 		{
-			task: "test",
+			task: constGoTestTest,
 			tokens: []string{
 				"go test -v",
 				"-covermode atomic",
@@ -96,23 +108,25 @@ func TestTestingTaskCommands(t *testing.T) {
 		{task: "fuzz", tokens: []string{"go test", "-fuzz", "-fuzztime"}},
 	}
 
-	for _, tt := range tests {
-		t.Run(tt.task, func(t *testing.T) {
-			task, ok := tf.Tasks[tt.task]
+	for _, testCase := range tests {
+		t.Run(testCase.task, func(t *testing.T) {
+			t.Parallel()
+
+			task, ok := taskfile.Tasks[testCase.task]
 			if !ok {
-				t.Fatalf("go Taskfile missing task %q", tt.task)
+				t.Fatalf("go Taskfile missing task %q", testCase.task)
 			}
 
 			cmds := fmt.Sprintf("%v", task.Cmds)
-			for _, token := range tt.tokens {
+			for _, token := range testCase.tokens {
 				if !strings.Contains(cmds, token) {
-					t.Fatalf("go task %q cmds missing %q: %s", tt.task, token, cmds)
+					t.Fatalf("go task %q cmds missing %q: %s", testCase.task, token, cmds)
 				}
 			}
 		})
 	}
 
-	testVars := fmt.Sprintf("%v", tf.Tasks["test"].Vars)
+	testVars := fmt.Sprintf("%v", taskfile.Tasks[constGoTestTest].Vars)
 	for _, token := range []string{
 		"GO_JUNIT_REPORT_OUT",
 		"GO_JUNIT_REPORT",
@@ -130,8 +144,9 @@ func TestTestingTaskCommands(t *testing.T) {
 func TestGolangciLintInstallerBuildsCustomPlugins(t *testing.T) {
 	t.Parallel()
 
-	tf := tasktest.LoadTaskfile(t, "go")
-	task, ok := tf.Tasks["install:golangci-lint"]
+	taskfile := tasktest.LoadTaskfile(t, "go")
+
+	task, ok := taskfile.Tasks[constGoTestInstallGolangciLint]
 	if !ok {
 		t.Fatal("go Taskfile missing install:golangci-lint")
 	}
@@ -146,8 +161,8 @@ func TestGolangciLintInstallerBuildsCustomPlugins(t *testing.T) {
 		"github.com/gostafa/modularity",
 		"github.com/gostafa/modularity/plugin",
 		"github.com/gostafa/coverlint",
-		"GOLANGCI_LINT_COVERLINT_VERSION",
-		"GOLANGCI_LINT_MODULARITY_VERSION",
+		constGoTestGOLANGCILINTCOVERLINTVERSION,
+		constGoTestGOLANGCILINTMODULARITYVERSION,
 		"golangci-lint.coverlint.version",
 		"golangci-lint.modularity.version",
 		"Go 1.26.5 or newer",
@@ -166,8 +181,8 @@ func TestGolangciLintInstallerBuildsCustomPlugins(t *testing.T) {
 		"taskotter-golangci-status",
 		"coverlint",
 		"modularity",
-		"GOLANGCI_LINT_COVERLINT_VERSION",
-		"GOLANGCI_LINT_MODULARITY_VERSION",
+		constGoTestGOLANGCILINTCOVERLINTVERSION,
+		constGoTestGOLANGCILINTMODULARITYVERSION,
 	} {
 		if !strings.Contains(status, token) {
 			t.Fatalf("install:golangci-lint status missing %q: %s", token, status)
@@ -178,12 +193,13 @@ func TestGolangciLintInstallerBuildsCustomPlugins(t *testing.T) {
 func TestFmtSkipPatternDefaultsEmpty(t *testing.T) {
 	t.Parallel()
 
-	tf := tasktest.LoadTaskfile(t, "go")
+	taskfile := tasktest.LoadTaskfile(t, "go")
 
-	value, exists := tf.Vars["GO_FMT_SKIP_PATTERN"]
+	value, exists := taskfile.Vars["GO_FMT_SKIP_PATTERN"]
 	if !exists {
 		t.Fatal("GO_FMT_SKIP_PATTERN must be defined")
 	}
+
 	if value != "" {
 		t.Fatalf("GO_FMT_SKIP_PATTERN default = %#v, want empty", value)
 	}
@@ -192,12 +208,13 @@ func TestFmtSkipPatternDefaultsEmpty(t *testing.T) {
 func TestLintSkipPatternDefaultsEmpty(t *testing.T) {
 	t.Parallel()
 
-	tf := tasktest.LoadTaskfile(t, "go")
+	taskfile := tasktest.LoadTaskfile(t, "go")
 
-	value, exists := tf.Vars["GO_LINT_SKIP_PATTERN"]
+	value, exists := taskfile.Vars["GO_LINT_SKIP_PATTERN"]
 	if !exists {
 		t.Fatal("GO_LINT_SKIP_PATTERN must be defined")
 	}
+
 	if value != "" {
 		t.Fatalf("GO_LINT_SKIP_PATTERN default = %#v, want empty", value)
 	}
@@ -206,50 +223,52 @@ func TestLintSkipPatternDefaultsEmpty(t *testing.T) {
 func TestDevelopmentToolDependencies(t *testing.T) {
 	t.Parallel()
 
-	tf := tasktest.LoadTaskfile(t, "go")
+	taskfile := tasktest.LoadTaskfile(t, "go")
 
 	installTasks := map[string][]string{
-		"install:golangci-lint":   {"install"},
-		"install:go-junit-report": {"install"},
-		"install:govulncheck":     {"install"},
-		"install:gosec":           {"install"},
+		constGoTestInstallGolangciLint:  {constGoTestInstall},
+		constGoTestInstallGoJunitReport: {constGoTestInstall},
+		constGoTestInstallGovulncheck:   {constGoTestInstall},
+		constGoTestInstallGosec:         {constGoTestInstall},
 	}
 	lintTasks := map[string][]string{
-		"fmt:check":               {"golangci-lint:fmt:check"},
-		"golangci-lint:fmt":       {"install:golangci-lint"},
-		"golangci-lint:fmt:check": {"install:golangci-lint"},
-		"golangci-lint:lint":      {"install:golangci-lint"},
-		"golangci-lint:lint:fix":  {"install:golangci-lint"},
-		"govulncheck:lint":        {"install:govulncheck"},
-		"gosec:lint":              {"install:gosec"},
+		"fmt:check":                     {constGoTestGolangciLintFmtCheck},
+		"golangci-lint:fmt":             {constGoTestInstallGolangciLint},
+		constGoTestGolangciLintFmtCheck: {constGoTestInstallGolangciLint},
+		constGoTestGolangciLintLint:     {constGoTestInstallGolangciLint},
+		"golangci-lint:lint:fix":        {constGoTestInstallGolangciLint},
+		constGoTestGovulncheckLint:      {constGoTestInstallGovulncheck},
+		constGoTestGosecLint:            {constGoTestInstallGosec},
 		"lint": {
-			"golangci-lint:lint",
-			"golangci-lint:fmt:check",
-			"govulncheck:lint",
-			"gosec:lint",
+			constGoTestGolangciLintLint,
+			constGoTestGolangciLintFmtCheck,
+			constGoTestGovulncheckLint,
+			constGoTestGosecLint,
 		},
 	}
 	testTasks := map[string][]string{
-		"test": {"install:go-junit-report"},
+		constGoTestTest: {constGoTestInstallGoJunitReport},
 	}
 
 	for taskName, expected := range installTasks {
-		assertTaskDependencies(t, tf, taskName, expected)
+		assertTaskDependencies(t, taskfile, taskName, expected)
 	}
+
 	for taskName, expected := range lintTasks {
-		assertTaskDependencies(t, tf, taskName, expected)
+		assertTaskDependencies(t, taskfile, taskName, expected)
 	}
+
 	for taskName, expected := range testTasks {
-		assertTaskDependencies(t, tf, taskName, expected)
+		assertTaskDependencies(t, taskfile, taskName, expected)
 	}
 }
 
 func TestVersionVariablesAreIndependentAndOptional(t *testing.T) {
 	t.Parallel()
 
-	tf := tasktest.LoadTaskfile(t, "go")
+	taskfile := tasktest.LoadTaskfile(t, "go")
 
-	if _, exists := tf.Vars["VERSION"]; exists {
+	if _, exists := taskfile.Vars["VERSION"]; exists {
 		t.Fatal("shared VERSION variable must not be defined")
 	}
 
@@ -259,44 +278,52 @@ func TestVersionVariablesAreIndependentAndOptional(t *testing.T) {
 		"GOVULNCHECK_VERSION",
 		"GOSEC_VERSION",
 	} {
-		value, exists := tf.Vars[name]
+		value, exists := taskfile.Vars[name]
 		if !exists {
 			t.Fatalf("%s must be defined", name)
 		}
+
 		if value != "" {
 			t.Fatalf("%s default = %#v, want empty", name, value)
 		}
 	}
 
 	for _, name := range []string{
-		"GOLANGCI_LINT_COVERLINT_VERSION",
-		"GOLANGCI_LINT_MODULARITY_VERSION",
+		constGoTestGOLANGCILINTCOVERLINTVERSION,
+		constGoTestGOLANGCILINTMODULARITYVERSION,
 	} {
-		value, exists := tf.Vars[name]
+		value, exists := taskfile.Vars[name]
 		if !exists {
 			t.Fatalf("%s must be defined", name)
 		}
+
 		if value != "v0.0.1" {
 			t.Fatalf("%s default = %#v, want v0.0.1", name, value)
 		}
 	}
 }
 
-func assertTaskDependencies(t *testing.T, tf tasktest.Taskfile, taskName string, expected []string) {
+func assertTaskDependencies(
+	t *testing.T,
+	taskfile tasktest.Taskfile,
+	taskName string,
+	expected []string,
+) {
 	t.Helper()
 
-	rawDeps, ok := tf.Tasks[taskName].Deps.([]any)
+	rawDeps, ok := taskfile.Tasks[taskName].Deps.([]any)
 	if !ok {
-		t.Fatalf("%s deps have type %T, want []any", taskName, tf.Tasks[taskName].Deps)
+		t.Fatalf("%s deps have type %T, want []any", taskName, taskfile.Tasks[taskName].Deps)
 	}
 
 	actual := make([]string, len(rawDeps))
-	for i, rawDep := range rawDeps {
+	for index, rawDep := range rawDeps {
 		dep, ok := rawDep.(string)
 		if !ok {
-			t.Fatalf("%s dependency %d has type %T, want string", taskName, i, rawDep)
+			t.Fatalf("%s dependency %d has type %T, want string", taskName, index, rawDep)
 		}
-		actual[i] = dep
+
+		actual[index] = dep
 	}
 
 	if !slices.Equal(actual, expected) {

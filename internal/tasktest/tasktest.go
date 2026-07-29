@@ -1,26 +1,33 @@
+// Package tasktest provides shared assertions for Taskfile module tests.
 package tasktest
 
 import (
 	"context"
 	"encoding/json"
+	"errors"
+	"fmt"
+	"io/fs"
 	"os"
 	"os/exec"
 	"path/filepath"
 	"slices"
 	"sort"
 	"strings"
-	"sync"
 	"time"
 
 	"gopkg.in/yaml.v3"
 )
 
+const minTaskDescriptionLength = 12
+
+// Taskfile contains the top-level fields read from a Taskfile.yml.
 type Taskfile struct {
 	Version string          `yaml:"version"`
 	Vars    map[string]any  `yaml:"vars"`
 	Tasks   map[string]Task `yaml:"tasks"`
 }
 
+// Task contains the task fields validated by the shared test helpers.
 type Task struct {
 	Desc          string   `yaml:"desc"`
 	Summary       string   `yaml:"summary"`
@@ -41,83 +48,94 @@ type testT interface {
 	TempDir() string
 }
 
-var (
-	getWorkingDir = os.Getwd
-	taskBinary    = "task"
-	taskTimeout   = time.Minute
-)
+type taskCommandSettings struct {
+	binary  string
+	timeout time.Duration
+}
+
+func workingDir() (string, error) {
+	workingDirectory, err := os.Getwd()
+	if err != nil {
+		return "", fmt.Errorf("get working directory: %w", err)
+	}
+
+	return workingDirectory, nil
+}
+
+func currentTaskCommandSettings() taskCommandSettings {
+	return taskCommandSettings{binary: "task", timeout: time.Minute}
+}
 
 // AssertModule checks a module's README and Taskfile against its declared
 // public surface. It does not fork the task CLI: the Taskfile is parsed here,
 // and CLI loadability is covered once per family by AssertTaskCliCanLoad.
-func AssertModule(t testT, module string, expectedTasks, expectedVars []string) {
-	t.Helper()
+func AssertModule(tester testT, module string, expectedTasks, expectedVars []string) {
+	tester.Helper()
 
-	assertReadme(t, module, expectedTasks)
-	assertTaskfile(t, module, expectedTasks, expectedVars)
+	assertReadme(tester, module, expectedTasks)
+	assertTaskfile(tester, module, expectedTasks, expectedVars)
 }
 
 // AssertTaskCliCanLoad verifies the task CLI can parse a module's Taskfile.
-// This forks the CLI, so it is deduplicated per tool family within a test
-// binary — every variant of a family shares the same generated structure.
-func AssertTaskCliCanLoad(t testT, module string) {
-	t.Helper()
+func AssertTaskCliCanLoad(tester testT, module string) {
+	tester.Helper()
 
-	family, _, _ := strings.Cut(module, "/")
-	once, _ := cliLoadOnce.LoadOrStore(family, &sync.Once{})
-	once.(*sync.Once).Do(func() {
-		assertTaskCliCanLoad(t, module)
-	})
+	assertTaskCliCanLoad(tester, module)
 }
 
-var cliLoadOnce sync.Map // family -> *sync.Once
+// LoadTaskfile reads and parses the Taskfile for module.
+func LoadTaskfile(tester testT, module string) Taskfile {
+	tester.Helper()
 
-func LoadTaskfile(t testT, module string) Taskfile {
-	t.Helper()
-
-	content, err := os.ReadFile(taskfilePath(t, module))
+	content, err := readFile(taskfilePath(tester, module))
 	if err != nil {
-		t.Fatalf("read %s Taskfile: %v", module, err)
+		tester.Fatalf("read %s Taskfile: %v", module, err)
 	}
 
 	if strings.Contains(string(content), "\r\n") {
-		t.Fatalf("%s Taskfile must use LF line endings", module)
+		tester.Fatalf("%s Taskfile must use LF line endings", module)
 	}
+
 	if strings.TrimRight(string(content), " \t\r\n") != strings.TrimRight(string(content), "\r\n") {
-		t.Fatalf("%s Taskfile has trailing whitespace", module)
+		tester.Fatalf("%s Taskfile has trailing whitespace", module)
 	}
 
-	var tf Taskfile
-	if err := yaml.Unmarshal(content, &tf); err != nil {
-		t.Fatalf("parse %s Taskfile: %v", module, err)
+	var taskfile Taskfile
+
+	err = yaml.Unmarshal(content, &taskfile)
+	if err != nil {
+		tester.Fatalf("parse %s Taskfile: %v", module, err)
 	}
 
-	return tf
+	return taskfile
 }
 
-func RepoRoot(t testT) string {
-	t.Helper()
+// RepoRoot walks upward from the working directory to find the repository root.
+func RepoRoot(tester testT) string {
+	tester.Helper()
 
-	wd, err := getWorkingDir()
+	workingDirectory, err := workingDir()
 	if err != nil {
-		t.Fatalf("get working directory: %v", err)
+		tester.Fatalf("get working directory: %v", err)
 	}
 
 	for {
-		if _, err := os.Stat(filepath.Join(wd, "go.mod")); err == nil {
-			return wd
+		_, err = os.Stat(filepath.Join(workingDirectory, "go.mod"))
+		if err == nil {
+			return workingDirectory
 		}
 
-		parent := filepath.Dir(wd)
-		if parent == wd {
-			t.Fatal("could not find repository root with go.mod")
+		parent := filepath.Dir(workingDirectory)
+		if parent == workingDirectory {
+			tester.Fatal("could not find repository root with go.mod")
 		}
-		wd = parent
+
+		workingDirectory = parent
 	}
 }
 
-func assertReadme(t testT, module string, expectedTasks []string) {
-	t.Helper()
+func assertReadme(tester testT, module string, expectedTasks []string) {
+	tester.Helper()
 
 	// Nested tool families (e.g. "biome/node/fnm/npm") share a single README at
 	// the family root; flat modules keep their own. Resolve accordingly.
@@ -125,123 +143,179 @@ func assertReadme(t testT, module string, expectedTasks []string) {
 	if index := strings.IndexByte(readmeModule, '/'); index >= 0 {
 		readmeModule = readmeModule[:index]
 	}
-	path := filepath.Join(moduleDir(t, readmeModule), "README.md")
-	content, err := os.ReadFile(path)
+
+	path := filepath.Join(moduleDir(tester, readmeModule), "README.md")
+
+	content, err := readFile(path)
 	if err != nil {
-		t.Fatalf("%s must have README.md: %v", module, err)
+		tester.Fatalf("%s must have README.md: %v", module, err)
 	}
 
 	text := string(content)
 	if strings.TrimSpace(text) == "" {
-		t.Fatalf("%s README.md is empty", module)
+		tester.Fatalf("%s README.md is empty", module)
 	}
+
 	if !strings.Contains(text, "## Public Tasks") {
-		t.Fatalf("%s README.md must document public tasks", module)
+		tester.Fatalf("%s README.md must document public tasks", module)
 	}
+
 	for _, task := range expectedTasks {
 		if !strings.Contains(text, "`"+task+"`") {
-			t.Fatalf("%s README.md does not mention public task %q", module, task)
+			tester.Fatalf("%s README.md does not mention public task %q", module, task)
 		}
 	}
 }
 
-func assertTaskfile(t testT, module string, expectedTasks, expectedVars []string) {
-	t.Helper()
+func assertTaskfile(tester testT, module string, expectedTasks, expectedVars []string) {
+	tester.Helper()
 
-	tf := LoadTaskfile(t, module)
-	if tf.Version != "3" && !strings.HasPrefix(tf.Version, "3.") {
-		t.Fatalf("%s Taskfile version must be 3 or 3.x, got %q", module, tf.Version)
-	}
-	if len(tf.Tasks) == 0 {
-		t.Fatalf("%s Taskfile must define tasks", module)
+	taskfile := LoadTaskfile(tester, module)
+	if taskfile.Version != "3" && !strings.HasPrefix(taskfile.Version, "3.") {
+		tester.Fatalf("%s Taskfile version must be 3 or 3.x, got %q", module, taskfile.Version)
 	}
 
-	actualTasks := publicTaskNames(tf)
-	expectedTasks = sortedCopy(expectedTasks)
+	if len(taskfile.Tasks) == 0 {
+		tester.Fatalf("%s Taskfile must define tasks", module)
+	}
+
+	actualTasks := publicTaskNames(taskfile)
+	assertPublicTasks(tester, module, taskfile, sortedCopy(expectedTasks), actualTasks)
+	assertExpectedVars(tester, module, taskfile, expectedVars)
+}
+
+func assertPublicTasks(
+	tester testT,
+	module string,
+	taskfile Taskfile,
+	expectedTasks, actualTasks []string,
+) {
+	tester.Helper()
+
 	if !slices.Equal(expectedTasks, actualTasks) {
-		t.Fatalf("%s public task drift\nexpected: %v\nactual:   %v", module, expectedTasks, actualTasks)
+		tester.Fatalf(
+			"%s public task drift\nexpected: %v\nactual:   %v",
+			module,
+			expectedTasks,
+			actualTasks,
+		)
 	}
 
 	for _, name := range actualTasks {
-		task := tf.Tasks[name]
-		if len(strings.TrimSpace(task.Desc)) < 12 {
-			t.Fatalf("%s task %q desc is missing or too short: %q", module, name, task.Desc)
-		}
-		if task.Cmds == nil && task.Deps == nil {
-			t.Fatalf("%s task %q must define cmds or deps", module, name)
-		}
+		assertPublicTask(tester, module, name, taskfile.Tasks[name])
 	}
+}
+
+func assertPublicTask(tester testT, module, name string, task Task) {
+	tester.Helper()
+
+	if len(strings.TrimSpace(task.Desc)) < minTaskDescriptionLength {
+		tester.Fatalf("%s task %q desc is missing or too short: %q", module, name, task.Desc)
+	}
+
+	if task.Cmds == nil && task.Deps == nil {
+		tester.Fatalf("%s task %q must define cmds or deps", module, name)
+	}
+}
+
+func assertExpectedVars(tester testT, module string, taskfile Taskfile, expectedVars []string) {
+	tester.Helper()
 
 	for _, name := range expectedVars {
-		if _, ok := tf.Vars[name]; !ok {
-			t.Fatalf("%s Taskfile vars missing %q", module, name)
+		if _, ok := taskfile.Vars[name]; !ok {
+			tester.Fatalf("%s Taskfile vars missing %q", module, name)
 		}
 	}
 }
 
-func assertTaskCliCanLoad(t testT, module string) {
-	t.Helper()
+func assertTaskCliCanLoad(tester testT, module string) {
+	tester.Helper()
 
-	output, _ := runTaskOutput(t, "--taskfile", taskfilePath(t, module), "--list-all", "--json")
+	output, _ := runTaskOutput(
+		tester,
+		"--taskfile",
+		taskfilePath(tester, module),
+		"--list-all",
+		"--json",
+	)
+
 	var payload any
-	if err := json.Unmarshal([]byte(output), &payload); err != nil {
-		t.Fatalf("%s task --list-all --json produced invalid JSON:\n%s\nerror: %v", module, output, err)
+
+	err := json.Unmarshal([]byte(output), &payload)
+	if err != nil {
+		tester.Fatalf(
+			"%s task --list-all --json produced invalid JSON:\n%s\nerror: %v",
+			module,
+			output,
+			err,
+		)
 	}
 }
 
-func publicTaskNames(tf Taskfile) []string {
+func publicTaskNames(taskfile Taskfile) []string {
 	var names []string
-	for name, task := range tf.Tasks {
+
+	for name, task := range taskfile.Tasks {
 		if name == "default" || task.Internal {
 			continue
 		}
+
 		names = append(names, name)
 	}
+
 	sort.Strings(names)
+
 	return names
 }
 
 func sortedCopy(values []string) []string {
 	clone := slices.Clone(values)
 	sort.Strings(clone)
+
 	return clone
 }
 
-func taskfilePath(t testT, module string) string {
-	t.Helper()
-	return filepath.Join(moduleDir(t, module), "Taskfile.yml")
+func taskfilePath(tester testT, module string) string {
+	tester.Helper()
+
+	return filepath.Join(moduleDir(tester, module), "Taskfile.yml")
 }
 
-func moduleDir(t testT, module string) string {
-	t.Helper()
-	return filepath.Join(RepoRoot(t), "taskfiles", module)
+func moduleDir(tester testT, module string) string {
+	tester.Helper()
+
+	return filepath.Join(RepoRoot(tester), "taskfiles", module)
 }
 
-func runTask(t testT, args ...string) string {
-	t.Helper()
+func runTaskOutput(tester testT, args ...string) (string, error) {
+	tester.Helper()
 
-	output, err := runTaskOutput(t, args...)
-	if err != nil {
-		t.Fatalf("task command failed: task %s\nerror: %v\noutput:\n%s", strings.Join(args, " "), err, output)
-	}
+	settings := currentTaskCommandSettings()
 
-	return output
-}
-
-func runTaskOutput(t testT, args ...string) (string, error) {
-	t.Helper()
-
-	ctx, cancel := context.WithTimeout(context.Background(), taskTimeout)
+	ctx, cancel := context.WithTimeout(context.Background(), settings.timeout)
 	defer cancel()
 
-	cmd := exec.CommandContext(ctx, taskBinary, args...)
-	cmd.Dir = RepoRoot(t)
+	commandContext := exec.CommandContext
+	cmd := commandContext(ctx, settings.binary, args...)
+	cmd.Dir = RepoRoot(tester)
 	cmd.Env = os.Environ()
 
 	output, err := cmd.CombinedOutput()
-	if ctx.Err() == context.DeadlineExceeded {
-		t.Fatalf("task command timed out: task %s", strings.Join(args, " "))
+
+	if errors.Is(ctx.Err(), context.DeadlineExceeded) {
+		tester.Fatalf("task command timed out: task %s", strings.Join(args, " "))
 	}
 
 	return string(output), err
+}
+
+func readFile(path string) ([]byte, error) {
+	clean := filepath.Clean(path)
+
+	content, err := fs.ReadFile(os.DirFS(filepath.Dir(clean)), filepath.Base(clean))
+	if err != nil {
+		return nil, fmt.Errorf("read %s: %w", clean, err)
+	}
+
+	return content, nil
 }

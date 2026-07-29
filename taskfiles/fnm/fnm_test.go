@@ -13,66 +13,51 @@ import (
 	"gopkg.in/yaml.v3"
 )
 
-var expectedPublicTasks = []tasktestutil.PublicTaskSpec{
-	{
-		Name:                "install",
-		MustDryRunWithArgs:  true,
-		RequiresGroupOutput: true,
-		RequiresSummary:     true,
-	},
-	{
-		Name:                "install:undo",
-		MustDryRunWithArgs:  true,
-		RequiresGroupOutput: true,
-		RequiresPrompt:      true,
-		RequiresSummary:     true,
-	},
-	{
-		Name:               "ls",
-		MustDryRunWithArgs: true,
-		RequiresSummary:    true,
-	},
-	{
-		Name:                  "node:install",
-		Args:                  map[string]string{"VERSION": "24.0.0"},
-		MustDryRunWithoutArgs: true,
-		MustDryRunWithArgs:    true,
-		ExpectedDefaultTokens: []string{"--lts"},
-		RequiresGroupOutput:   true,
-		RequiresSummary:       true,
-	},
-	{
-		Name:                "node:uninstall",
-		Args:                map[string]string{"VERSION": "24.0.0"},
-		MustDryRunWithArgs:  true,
-		RequiresGroupOutput: true,
-		RequiresPrompt:      true,
-		RequiresSummary:     true,
-	},
-	{
-		Name:                  "node:use",
-		Args:                  map[string]string{"VERSION": "24.0.0"},
-		MustDryRunWithoutArgs: true,
-		MustDryRunWithArgs:    true,
-		ExpectedDefaultTokens: []string{"--lts"},
-		RequiresSummary:       true,
-	},
-	{
-		Name:               "node:version",
-		MustDryRunWithArgs: true,
-		RequiresSummary:    true,
-	},
-	{
-		Name:                "shell:setup",
-		MustDryRunWithArgs:  true,
-		RequiresGroupOutput: true,
-		RequiresSummary:     true,
-	},
-	{
-		Name:               "version",
-		MustDryRunWithArgs: true,
-		RequiresSummary:    true,
-	},
+const (
+	nodeInstallTask   = "node:install"
+	nodeVersion2400   = "24.0.0"
+	nodeUninstallTask = "node:uninstall"
+	versionArg        = "VERSION"
+	listAllFlag       = "--list-all"
+	windowsOS         = "windows"
+)
+
+func expectedPublicTasks() []tasktestutil.PublicTaskSpec {
+	spec := tasktestutil.NewPublicTaskSpec
+	versionArgs := map[string]string{versionArg: nodeVersion2400}
+
+	return []tasktestutil.PublicTaskSpec{
+		spec(
+			"install",
+			tasktestutil.WithDryRunArgs(),
+			tasktestutil.WithGroupOutput(),
+			tasktestutil.WithSummary(),
+		),
+		spec("install:undo", tasktestutil.WithDryRunArgs(), tasktestutil.WithGroupOutput(),
+			tasktestutil.WithPrompt(), tasktestutil.WithSummary()),
+		spec("ls", tasktestutil.WithDryRunArgs(), tasktestutil.WithSummary()),
+		spec(nodeInstallTask, tasktestutil.WithArgs(versionArgs), tasktestutil.WithDryRunArgs(),
+			tasktestutil.WithDryRunNoArgs(), tasktestutil.WithExpectedDefaultTokens("--lts"),
+			tasktestutil.WithGroupOutput(), tasktestutil.WithSummary()),
+		spec(nodeUninstallTask, tasktestutil.WithArgs(versionArgs), tasktestutil.WithDryRunArgs(),
+			tasktestutil.WithGroupOutput(), tasktestutil.WithPrompt(), tasktestutil.WithSummary()),
+		spec(
+			"node:use",
+			tasktestutil.WithArgs(versionArgs),
+			tasktestutil.WithDryRunArgs(),
+			tasktestutil.WithDryRunNoArgs(),
+			tasktestutil.WithExpectedDefaultTokens("--lts"),
+			tasktestutil.WithSummary(),
+		),
+		spec("node:version", tasktestutil.WithDryRunArgs(), tasktestutil.WithSummary()),
+		spec(
+			"shell:setup",
+			tasktestutil.WithDryRunArgs(),
+			tasktestutil.WithGroupOutput(),
+			tasktestutil.WithSummary(),
+		),
+		spec("version", tasktestutil.WithDryRunArgs(), tasktestutil.WithSummary()),
+	}
 }
 
 func TestTaskBinaryIsAvailable(t *testing.T) {
@@ -92,17 +77,22 @@ func TestTaskfileYamlIsCleanAndValid(t *testing.T) {
 	tasktestutil.AssertTextFileClean(t, path, content)
 
 	var doc yaml.Node
-	if err := yaml.Unmarshal([]byte(content), &doc); err != nil {
+
+	err := yaml.Unmarshal([]byte(content), &doc)
+	if err != nil {
 		t.Fatalf("Taskfile YAML is invalid: %v", err)
 	}
+
 	tasktestutil.AssertNoDuplicateMappingKeys(t, &doc, "Taskfile")
 	tasktestutil.AssertNoYamlAliases(t, &doc, "Taskfile")
 
 	root := tasktestutil.DocumentRoot(t, &doc)
+
 	version := tasktestutil.ScalarField(root, "version")
 	if version != "3" && !strings.HasPrefix(version, "3.") {
 		t.Fatalf("Taskfile version must be 3 or 3.x, got %q", version)
 	}
+
 	tasks := tasktestutil.MappingField(root, "tasks")
 	if tasks == nil || len(tasks.Content) == 0 {
 		t.Fatal("Taskfile must contain non-empty tasks map")
@@ -113,17 +103,23 @@ func TestTaskCliCanLoadTaskfile(t *testing.T) {
 	t.Parallel()
 
 	root := tasktestutil.ModuleRoot(t)
+
 	for _, args := range [][]string{
 		{"--list"},
-		{"--list-all"},
-		{"--list-all", "--sort", "alphanumeric"},
-		{"--list-all", "--json"},
+		{listAllFlag},
+		{listAllFlag, "--sort", "alphanumeric"},
+		{listAllFlag, "--json"},
 	} {
-		args := args
 		t.Run(strings.Join(args, " "), func(t *testing.T) {
+			t.Parallel()
+
 			result := tasktestutil.RunTask(t, root, tasktestutil.IsolatedEnv(t), args...)
 			tasktestutil.AssertExitCode(t, result, 0)
-			tasktestutil.AssertNotContains(t, strings.ToLower(result.Combined()), "taskfile does not exist")
+			tasktestutil.AssertNotContains(
+				t,
+				strings.ToLower(result.Combined()),
+				"taskfile does not exist",
+			)
 			tasktestutil.AssertNotContains(t, strings.ToLower(result.Combined()), "unknown")
 		})
 	}
@@ -133,9 +129,11 @@ func TestTaskListAllJsonIsValid(t *testing.T) {
 	t.Parallel()
 
 	root := tasktestutil.ModuleRoot(t)
-	result := tasktestutil.RunTask(t, root, tasktestutil.IsolatedEnv(t), "--list-all", "--json")
+	result := tasktestutil.RunTask(t, root, tasktestutil.IsolatedEnv(t), listAllFlag, "--json")
 	tasktestutil.AssertExitCode(t, result, 0)
-	if err := tasktestutil.ValidateJSON(result.Stdout); err != nil {
+
+	err := tasktestutil.ValidateJSON(result.Stdout)
+	if err != nil {
 		t.Fatalf("task --list-all --json produced invalid JSON:\n%s\nerror: %v", result.Stdout, err)
 	}
 }
@@ -143,12 +141,14 @@ func TestTaskListAllJsonIsValid(t *testing.T) {
 func TestPublicApiDoesNotDrift(t *testing.T) {
 	t.Parallel()
 
-	tf := tasktestutil.LoadTaskfile(t)
-	expected := tasktestutil.ExpectedPublicTaskNames(expectedPublicTasks)
-	actual := tasktestutil.PublicTaskNamesFromTaskfile(t, tf)
+	taskfile := tasktestutil.LoadTaskfile(t)
+	expected := tasktestutil.ExpectedPublicTaskNames(expectedPublicTasks())
+
+	actual := tasktestutil.PublicTaskNamesFromTaskfile(t, taskfile)
 	if !slices.Equal(expected, actual) {
 		t.Fatalf(
-			"public Taskfile API drift detected\n\nexpected:\n%s\n\nactual:\n%s\n\nFix either the Taskfile public tasks or expectedPublicTasks in the test.",
+			"public Taskfile API drift detected\n\nexpected:\n%s\n\nactual:\n%s\n\n"+
+				"Fix either the Taskfile public tasks or expectedPublicTasks in the test.",
 			tasktestutil.FormatList(expected), tasktestutil.FormatList(actual),
 		)
 	}
@@ -157,15 +157,20 @@ func TestPublicApiDoesNotDrift(t *testing.T) {
 func TestEveryTaskIsEitherPublicOrInternal(t *testing.T) {
 	t.Parallel()
 
-	tf := tasktestutil.LoadTaskfile(t)
-	for name, task := range tf.Tasks {
-		name, task := name, task
+	taskfile := tasktestutil.LoadTaskfile(t)
+	for name, task := range taskfile.Tasks {
 		t.Run(name, func(t *testing.T) {
+			t.Parallel()
+
 			if strings.HasPrefix(name, "_") || task.BoolField("internal") {
 				return
 			}
+
 			if task.StringField("desc") == "" {
-				t.Fatalf("task %q is not internal and has no desc. Either add desc/summary or mark it internal: true", name)
+				t.Fatalf(
+					"task %q is not internal and has no desc. Either add desc/summary or mark it internal: true",
+					name,
+				)
 			}
 		})
 	}
@@ -174,29 +179,36 @@ func TestEveryTaskIsEitherPublicOrInternal(t *testing.T) {
 func TestPublicTasksHaveMetadata(t *testing.T) {
 	t.Parallel()
 
-	tf := tasktestutil.LoadTaskfile(t)
-	for _, spec := range expectedPublicTasks {
-		spec := spec
+	taskfile := tasktestutil.LoadTaskfile(t)
+
+	for _, spec := range expectedPublicTasks() {
 		t.Run(spec.Name, func(t *testing.T) {
 			t.Parallel()
-			task := tasktestutil.MustTask(t, tf, spec.Name)
+
+			task := tasktestutil.MustTask(t, taskfile, spec.Name)
 			if task.Node.Kind != yaml.MappingNode {
 				t.Fatalf("public task %q must use full mapping syntax, not short syntax", spec.Name)
 			}
+
 			desc := task.StringField("desc")
 			summary := task.StringField("summary")
+
 			if strings.TrimSpace(desc) == "" {
 				t.Fatalf("public task %q is missing desc", spec.Name)
 			}
+
 			if len(strings.TrimSpace(desc)) < 12 {
 				t.Fatalf("public task %q desc is too short: %q", spec.Name, desc)
 			}
+
 			if spec.RequiresSummary && strings.TrimSpace(summary) == "" {
 				t.Fatalf("public task %q is missing summary", spec.Name)
 			}
+
 			if spec.RequiresSummary && len(strings.TrimSpace(summary)) < 25 {
 				t.Fatalf("public task %q summary is too short:\n%s", spec.Name, summary)
 			}
+
 			tasktestutil.AssertNoPlaceholderText(t, spec.Name, desc)
 			tasktestutil.AssertNoPlaceholderText(t, spec.Name, summary)
 		})
@@ -206,25 +218,19 @@ func TestPublicTasksHaveMetadata(t *testing.T) {
 func TestDestructivePublicTasksHavePrompt(t *testing.T) {
 	t.Parallel()
 
-	tf := tasktestutil.LoadTaskfile(t)
-	for _, spec := range expectedPublicTasks {
-		spec := spec
+	taskfile := tasktestutil.LoadTaskfile(t)
+
+	for _, spec := range expectedPublicTasks() {
 		t.Run(spec.Name, func(t *testing.T) {
 			t.Parallel()
+
 			if !spec.RequiresPrompt {
 				return
 			}
-			task := tasktestutil.MustTask(t, tf, spec.Name)
-			prompt := task.Field("prompt")
-			if prompt == nil || tasktestutil.NodeText(prompt) == "" {
-				t.Fatalf("destructive task %q must have a non-empty prompt", spec.Name)
-			}
-			text := strings.ToLower(tasktestutil.NodeText(prompt))
-			if !strings.Contains(text, "sure") && !strings.Contains(text, "confirm") &&
-				!strings.Contains(text, "remove") && !strings.Contains(text, "uninstall") &&
-				!strings.Contains(text, "delete") && !strings.Contains(text, "continue") {
-				t.Fatalf("prompt for task %q does not look explicit enough:\n%s", spec.Name, tasktestutil.NodeText(prompt))
-			}
+
+			task := tasktestutil.MustTask(t, taskfile, spec.Name)
+
+			tasktestutil.AssertDestructivePrompt(t, spec.Name, task.Field("prompt"))
 		})
 	}
 }
@@ -232,19 +238,23 @@ func TestDestructivePublicTasksHavePrompt(t *testing.T) {
 func TestInstallTasksUseGithubGroupOutput(t *testing.T) {
 	t.Parallel()
 
-	tf := tasktestutil.LoadTaskfile(t)
-	for _, spec := range expectedPublicTasks {
-		spec := spec
+	taskfile := tasktestutil.LoadTaskfile(t)
+
+	for _, spec := range expectedPublicTasks() {
 		t.Run(spec.Name, func(t *testing.T) {
 			t.Parallel()
+
 			if !spec.RequiresGroupOutput {
 				return
 			}
-			task := tasktestutil.MustTask(t, tf, spec.Name)
+
+			task := tasktestutil.MustTask(t, taskfile, spec.Name)
+
 			outputNode := task.Field("output")
 			if outputNode == nil {
-				outputNode = tf.Root.Field("output")
+				outputNode = taskfile.Root.Field("output")
 			}
+
 			tasktestutil.AssertGithubGroupOutput(t, spec.Name, outputNode)
 		})
 	}
@@ -253,13 +263,15 @@ func TestInstallTasksUseGithubGroupOutput(t *testing.T) {
 func TestPublicTasksHaveCommands(t *testing.T) {
 	t.Parallel()
 
-	tf := tasktestutil.LoadTaskfile(t)
-	for _, spec := range expectedPublicTasks {
-		spec := spec
+	taskfile := tasktestutil.LoadTaskfile(t)
+
+	for _, spec := range expectedPublicTasks() {
 		t.Run(spec.Name, func(t *testing.T) {
 			t.Parallel()
-			task := tasktestutil.MustTask(t, tf, spec.Name)
-			if tasktestutil.IsEmptyNode(task.Field("cmds")) && tasktestutil.IsEmptyNode(task.Field("deps")) {
+
+			task := tasktestutil.MustTask(t, taskfile, spec.Name)
+			if tasktestutil.IsEmptyNode(task.Field("cmds")) &&
+				tasktestutil.IsEmptyNode(task.Field("deps")) {
 				t.Fatalf("public task %q must have cmds or deps", spec.Name)
 			}
 		})
@@ -270,14 +282,22 @@ func TestTaskSummariesWork(t *testing.T) {
 	t.Parallel()
 
 	root := tasktestutil.ModuleRoot(t)
-	for _, spec := range expectedPublicTasks {
-		spec := spec
+
+	for _, spec := range expectedPublicTasks() {
 		t.Run(spec.Name, func(t *testing.T) {
 			t.Parallel()
+
 			if !spec.RequiresSummary {
 				return
 			}
-			result := tasktestutil.RunTask(t, root, tasktestutil.IsolatedEnv(t), "--summary", spec.Name)
+
+			result := tasktestutil.RunTask(
+				t,
+				root,
+				tasktestutil.IsolatedEnv(t),
+				"--summary",
+				spec.Name,
+			)
 			tasktestutil.AssertExitCode(t, result, 0)
 			out := result.Combined()
 			tasktestutil.AssertContains(t, out, spec.Name)
@@ -291,24 +311,27 @@ func TestTaskSummariesWork(t *testing.T) {
 func TestUndoPairsExist(t *testing.T) {
 	t.Parallel()
 
-	tf := tasktestutil.LoadTaskfile(t)
+	taskfile := tasktestutil.LoadTaskfile(t)
 	for task, undo := range map[string]string{"install": "install:undo"} {
-		if _, ok := tf.Tasks[task]; !ok {
+		if _, ok := taskfile.Tasks[task]; !ok {
 			t.Fatalf("task %q is missing", task)
 		}
-		if _, ok := tf.Tasks[undo]; !ok {
+
+		if _, ok := taskfile.Tasks[undo]; !ok {
 			t.Fatalf("undo task %q for %q is missing", undo, task)
 		}
 	}
-	for _, p := range []struct{ task, undoTarget string }{
-		{"node:install", "node:uninstall"},
-		{"node:uninstall", "node:install"},
+
+	for _, pair := range []struct{ task, undoTarget string }{
+		{nodeInstallTask, nodeUninstallTask},
+		{nodeUninstallTask, nodeInstallTask},
 	} {
-		if _, ok := tf.Tasks[p.task]; !ok {
-			t.Fatalf("task %q is missing", p.task)
+		if _, ok := taskfile.Tasks[pair.task]; !ok {
+			t.Fatalf("task %q is missing", pair.task)
 		}
-		if _, ok := tf.Tasks[p.undoTarget]; !ok {
-			t.Fatalf("undo target %q is missing for task %q", p.undoTarget, p.task)
+
+		if _, ok := taskfile.Tasks[pair.undoTarget]; !ok {
+			t.Fatalf("undo target %q is missing for task %q", pair.undoTarget, pair.task)
 		}
 	}
 }
@@ -317,21 +340,27 @@ func TestReferencedScriptsExist(t *testing.T) {
 	t.Parallel()
 
 	root := tasktestutil.ModuleRoot(t)
-	tf := tasktestutil.LoadTaskfile(t)
-	for taskName, task := range tf.Tasks {
-		taskName, task := taskName, task
+
+	taskfile := tasktestutil.LoadTaskfile(t)
+	for taskName, task := range taskfile.Tasks {
 		for _, command := range tasktestutil.CollectCommandStrings(task.Node) {
-			command := command
 			t.Run(taskName, func(t *testing.T) {
 				t.Parallel()
+
 				for _, scriptPath := range tasktestutil.ReferencedLocalShellScripts(command) {
 					abs := filepath.Join(root, scriptPath)
+
 					info, err := os.Stat(abs)
 					if err != nil {
 						t.Fatalf("task %q references missing script %q", taskName, scriptPath)
 					}
+
 					if info.IsDir() {
-						t.Fatalf("task %q references script path but it is a directory: %q", taskName, scriptPath)
+						t.Fatalf(
+							"task %q references script path but it is a directory: %q",
+							taskName,
+							scriptPath,
+						)
 					}
 				}
 			})
@@ -342,13 +371,17 @@ func TestReferencedScriptsExist(t *testing.T) {
 func TestCommandsDoNotContainDangerousPatterns(t *testing.T) {
 	t.Parallel()
 
-	tf := tasktestutil.LoadTaskfile(t)
-	for taskName, task := range tf.Tasks {
-		taskName := taskName
+	taskfile := tasktestutil.LoadTaskfile(t)
+	for taskName, task := range taskfile.Tasks {
 		for _, command := range tasktestutil.CollectCommandStrings(task.Node) {
 			for _, pattern := range tasktestutil.DangerousCommandPatterns() {
 				if pattern.MatchString(command) {
-					t.Fatalf("task %q contains dangerous command pattern %q:\n%s", taskName, pattern.String(), command)
+					t.Fatalf(
+						"task %q contains dangerous command pattern %q:\n%s",
+						taskName,
+						pattern.String(),
+						command,
+					)
 				}
 			}
 		}
@@ -359,6 +392,7 @@ func TestNoPlaceholderTextInTaskfile(t *testing.T) {
 	t.Parallel()
 
 	content := tasktestutil.ReadFile(t, tasktestutil.ModuleTaskfilePath(t))
+
 	upper := strings.ToUpper(content)
 	for _, p := range []string{"TODO", "FIXME", "CHANGEME", "REPLACE_ME", "YOUR VALUE HERE", "LOREM IPSUM"} {
 		if strings.Contains(upper, p) {
@@ -370,9 +404,10 @@ func TestNoPlaceholderTextInTaskfile(t *testing.T) {
 func TestVersionTaskExitsSuccessfully(t *testing.T) {
 	t.Parallel()
 
-	if runtime.GOOS == "windows" {
+	if runtime.GOOS == windowsOS {
 		t.Skip("stub fnm tests target Unix-like systems")
 	}
+
 	result := tasktestutil.RunTask(t, tasktestutil.ModuleRoot(t), fnmStubEnv(t), "--yes", "version")
 	tasktestutil.AssertExitCode(t, result, 0)
 }
@@ -380,9 +415,10 @@ func TestVersionTaskExitsSuccessfully(t *testing.T) {
 func TestLsTaskExitsSuccessfully(t *testing.T) {
 	t.Parallel()
 
-	if runtime.GOOS == "windows" {
+	if runtime.GOOS == windowsOS {
 		t.Skip("stub fnm tests target Unix-like systems")
 	}
+
 	result := tasktestutil.RunTask(t, tasktestutil.ModuleRoot(t), fnmStubEnv(t), "--yes", "ls")
 	tasktestutil.AssertExitCode(t, result, 0)
 }
@@ -390,9 +426,10 @@ func TestLsTaskExitsSuccessfully(t *testing.T) {
 func TestInstallIsIdempotentWithStubFnm(t *testing.T) {
 	t.Parallel()
 
-	if runtime.GOOS == "windows" {
+	if runtime.GOOS == windowsOS {
 		t.Skip("stub fnm tests target Unix-like systems")
 	}
+
 	root := tasktestutil.ModuleRoot(t)
 	env := fnmStubEnv(t)
 	tasktestutil.AssertExitCode(t, tasktestutil.RunTask(t, root, env, "--yes", "install"), 0)
@@ -402,15 +439,18 @@ func TestInstallIsIdempotentWithStubFnm(t *testing.T) {
 func TestInstallUndoRemovesFnmBinary(t *testing.T) {
 	t.Parallel()
 
-	if runtime.GOOS == "windows" {
+	if runtime.GOOS == windowsOS {
 		t.Skip("stub fnm tests target Unix-like systems")
 	}
+
 	root := tasktestutil.ModuleRoot(t)
 	env := fnmStubEnv(t)
 	stubBin := filepath.Join(tasktestutil.EnvValue(env, "HOME"), ".local", "bin", "fnm")
 	tasktestutil.AssertFileExists(t, stubBin)
 	tasktestutil.AssertExitCode(t, tasktestutil.RunTask(t, root, env, "--yes", "install:undo"), 0)
-	if _, err := os.Stat(stubBin); !os.IsNotExist(err) {
+
+	_, err := os.Stat(stubBin)
+	if !os.IsNotExist(err) {
 		t.Fatalf("expected fnm binary at %s to be removed after install:undo", stubBin)
 	}
 }
@@ -418,10 +458,18 @@ func TestInstallUndoRemovesFnmBinary(t *testing.T) {
 func TestNodeInstallWithVersionPrintsVersionInOutput(t *testing.T) {
 	t.Parallel()
 
-	if runtime.GOOS == "windows" {
+	if runtime.GOOS == windowsOS {
 		t.Skip("stub fnm tests target Unix-like systems")
 	}
-	result := tasktestutil.RunTask(t, tasktestutil.ModuleRoot(t), fnmStubEnv(t), "--yes", "node:install", "VERSION=18.0.0")
+
+	result := tasktestutil.RunTask(
+		t,
+		tasktestutil.ModuleRoot(t),
+		fnmStubEnv(t),
+		"--yes",
+		nodeInstallTask,
+		"VERSION=18.0.0",
+	)
 	tasktestutil.AssertExitCode(t, result, 0)
 	tasktestutil.AssertContains(t, result.Combined(), "18.0.0")
 }
@@ -429,10 +477,17 @@ func TestNodeInstallWithVersionPrintsVersionInOutput(t *testing.T) {
 func TestNodeInstallDefaultVersionUsesLts(t *testing.T) {
 	t.Parallel()
 
-	if runtime.GOOS == "windows" {
+	if runtime.GOOS == windowsOS {
 		t.Skip("stub fnm tests target Unix-like systems")
 	}
-	result := tasktestutil.RunTask(t, tasktestutil.ModuleRoot(t), fnmStubEnv(t), "--yes", "node:install")
+
+	result := tasktestutil.RunTask(
+		t,
+		tasktestutil.ModuleRoot(t),
+		fnmStubEnv(t),
+		"--yes",
+		nodeInstallTask,
+	)
 	tasktestutil.AssertExitCode(t, result, 0)
 	tasktestutil.AssertContains(t, result.Combined(), "--lts")
 }
@@ -440,10 +495,13 @@ func TestNodeInstallDefaultVersionUsesLts(t *testing.T) {
 func TestNodeUninstallWithInstalledVersionPrintsVersionInOutput(t *testing.T) {
 	t.Parallel()
 
-	if runtime.GOOS == "windows" {
+	if runtime.GOOS == windowsOS {
 		t.Skip("stub fnm tests target Unix-like systems")
 	}
-	result := tasktestutil.RunTask(t, tasktestutil.ModuleRoot(t), fnmStubEnv(t), "--yes", "node:uninstall", "VERSION=18.0.0")
+
+	result := tasktestutil.RunTask(
+		t, tasktestutil.ModuleRoot(t), fnmStubEnv(t), "--yes", nodeUninstallTask, "VERSION=18.0.0",
+	)
 	tasktestutil.AssertExitCode(t, result, 0)
 	tasktestutil.AssertContains(t, result.Combined(), "18.0.0")
 }
@@ -451,13 +509,15 @@ func TestNodeUninstallWithInstalledVersionPrintsVersionInOutput(t *testing.T) {
 func TestShellSetupAddsActivationToProfile(t *testing.T) {
 	t.Parallel()
 
-	if runtime.GOOS == "windows" {
+	if runtime.GOOS == windowsOS {
 		t.Skip("stub fnm tests target Unix-like systems")
 	}
+
 	root := tasktestutil.ModuleRoot(t)
 	env := fnmFreshProfileEnv(t)
 	home := tasktestutil.EnvValue(env, "HOME")
 	tasktestutil.AssertExitCode(t, tasktestutil.RunTask(t, root, env, "--yes", "shell:setup"), 0)
+
 	if !profileContains(home, "fnm env") {
 		t.Fatal("expected at least one shell profile to contain 'fnm env' after task shell:setup")
 	}
@@ -466,21 +526,28 @@ func TestShellSetupAddsActivationToProfile(t *testing.T) {
 func TestShellSetupIsIdempotent(t *testing.T) {
 	t.Parallel()
 
-	if runtime.GOOS == "windows" {
+	if runtime.GOOS == windowsOS {
 		t.Skip("stub fnm tests target Unix-like systems")
 	}
+
 	root := tasktestutil.ModuleRoot(t)
 	env := fnmFreshProfileEnv(t)
 	home := tasktestutil.EnvValue(env, "HOME")
 	tasktestutil.AssertExitCode(t, tasktestutil.RunTask(t, root, env, "--yes", "shell:setup"), 0)
 	tasktestutil.AssertExitCode(t, tasktestutil.RunTask(t, root, env, "--yes", "shell:setup"), 0)
-	for _, p := range shellProfilePaths(home) {
-		content, err := os.ReadFile(p)
+
+	for _, profilePath := range shellProfilePaths(home) {
+		content, err := os.ReadFile(profilePath)
 		if err != nil {
 			continue
 		}
+
 		if count := strings.Count(string(content), "fnm env"); count > 1 {
-			t.Fatalf("profile %s contains 'fnm env' %d times after two shell:setup runs; want at most 1", p, count)
+			t.Fatalf(
+				"profile %s contains fnm env %d times after two shell:setup runs; want at most 1",
+				profilePath,
+				count,
+			)
 		}
 	}
 }
@@ -488,15 +555,19 @@ func TestShellSetupIsIdempotent(t *testing.T) {
 func TestInstallAlsoConfiguresShellActivation(t *testing.T) {
 	t.Parallel()
 
-	if runtime.GOOS == "windows" {
+	if runtime.GOOS == windowsOS {
 		t.Skip("stub fnm tests target Unix-like systems")
 	}
+
 	root := tasktestutil.ModuleRoot(t)
 	env := fnmFreshProfileEnv(t)
 	home := tasktestutil.EnvValue(env, "HOME")
 	tasktestutil.AssertExitCode(t, tasktestutil.RunTask(t, root, env, "--yes", "install"), 0)
+
 	if !profileContains(home, "fnm env") {
-		t.Fatal("expected task install to configure shell activation but no profile contains 'fnm env'")
+		t.Fatal(
+			"expected task install to configure shell activation but no profile contains 'fnm env'",
+		)
 	}
 }
 
@@ -506,19 +577,35 @@ func TestRealInstallerFlowOnlyWhenExplicitlyEnabled(t *testing.T) {
 	if os.Getenv("RUN_INSTALLER_TESTS") != "1" {
 		t.Skip("set RUN_INSTALLER_TESTS=1 to run real install/uninstall tests")
 	}
-	if runtime.GOOS == "windows" {
+
+	if runtime.GOOS == windowsOS {
 		t.Skip("real fnm shell installer tests are intended for Unix-like systems")
 	}
+
 	root := tasktestutil.ModuleRoot(t)
 	env := tasktestutil.IsolatedEnv(t)
 	home := tasktestutil.EnvValue(env, "HOME")
 	fnmBin := filepath.Join(home, ".local", "bin", "fnm")
 
-	tasktestutil.AssertExitCode(t, tasktestutil.RunTaskTimeout(t, root, env, 10*time.Minute, "--yes", "install"), 0)
+	tasktestutil.AssertExitCode(
+		t,
+		tasktestutil.RunTaskTimeout(t, root, env, 10*time.Minute, "--yes", "install"),
+		0,
+	)
 	tasktestutil.AssertFileExists(t, fnmBin)
-	tasktestutil.AssertExitCode(t, tasktestutil.RunTaskTimeout(t, root, env, 10*time.Minute, "version"), 0)
-	tasktestutil.AssertExitCode(t, tasktestutil.RunTaskTimeout(t, root, env, 10*time.Minute, "--yes", "install:undo"), 0)
-	if _, err := os.Stat(fnmBin); !os.IsNotExist(err) {
+	tasktestutil.AssertExitCode(
+		t,
+		tasktestutil.RunTaskTimeout(t, root, env, 10*time.Minute, "version"),
+		0,
+	)
+	tasktestutil.AssertExitCode(
+		t,
+		tasktestutil.RunTaskTimeout(t, root, env, 10*time.Minute, "--yes", "install:undo"),
+		0,
+	)
+
+	_, err := os.Stat(fnmBin)
+	if !os.IsNotExist(err) {
 		t.Fatalf("expected fnm binary to be removed after install:undo: %s", fnmBin)
 	}
 }
@@ -527,67 +614,121 @@ func TestAllPublicTasksIntegration(t *testing.T) {
 	t.Parallel()
 
 	if os.Getenv("RUN_INTEGRATION_TESTS") != "1" {
-		t.Skip("set RUN_INTEGRATION_TESTS=1 to run integration tests (downloads and installs fnm and Node.js)")
+		t.Skip(
+			"set RUN_INTEGRATION_TESTS=1 to run integration tests (downloads and installs fnm and Node.js)",
+		)
 	}
-	if runtime.GOOS == "windows" {
+
+	if runtime.GOOS == windowsOS {
 		t.Skip("integration tests target Unix-like systems")
 	}
+
 	root := tasktestutil.ModuleRoot(t)
 	env := tasktestutil.IsolatedEnv(t)
 	home := tasktestutil.EnvValue(env, "HOME")
 	fnmBin := filepath.Join(home, ".local", "bin", "fnm")
 	fnmRoot := filepath.Join(home, ".local", "share", "fnm")
 
-	step := func(name string, fn func(t *testing.T)) {
-		t.Helper()
-		t.Run(name, fn)
-		if t.Failed() {
-			t.FailNow()
-		}
-	}
-	run := func(t *testing.T, args ...string) tasktestutil.CommandResult {
-		t.Helper()
-		result := tasktestutil.RunTaskTimeout(t, root, env, 10*time.Minute, args...)
-		tasktestutil.AssertExitCode(t, result, 0)
-		return result
-	}
+	runFnmIntegrationSteps(t, root, env, fnmBin, fnmRoot)
+}
 
-	step("install — fnm binary is present on disk", func(t *testing.T) {
+func runFnmIntegrationSteps(t *testing.T, root string, env []string, fnmBin, fnmRoot string) {
+	t.Helper()
+
+	run := successfulIntegrationRun(root, env)
+
+	runIntegrationStep(t, "install — fnm binary is present on disk", func(t *testing.T) {
+		t.Helper()
 		run(t, "--yes", "install")
 		tasktestutil.AssertFileExists(t, fnmBin)
 	})
-	step("version — fnm version string is printed", func(t *testing.T) {
+	runIntegrationStep(t, "version — fnm version string is printed", func(t *testing.T) {
+		t.Helper()
 		result := run(t, "version")
 		tasktestutil.AssertNotEmpty(t, result.Combined(), "version output is empty")
 	})
-	step("node:install — default LTS version directory is created", func(t *testing.T) {
-		run(t, "--yes", "node:install")
-		tasktestutil.AssertDirHasEntries(t, filepath.Join(fnmRoot, "node-versions"))
-	})
-	step("ls — installed versions appear in output", func(t *testing.T) {
+	runIntegrationStep(
+		t,
+		"node:install — default LTS version directory is created",
+		func(t *testing.T) {
+			t.Helper()
+			run(t, "--yes", nodeInstallTask)
+			tasktestutil.AssertDirHasEntries(t, filepath.Join(fnmRoot, "node-versions"))
+		},
+	)
+	runIntegrationStep(t, "ls — installed versions appear in output", func(t *testing.T) {
+		t.Helper()
 		result := run(t, "ls")
 		tasktestutil.AssertNotEmpty(t, result.Combined(), "ls output is empty")
 	})
+
 	const secondary = "18.0.0"
-	step("node:install VERSION=18.0.0 — specific version directory is created", func(t *testing.T) {
-		run(t, "--yes", "node:install", "VERSION="+secondary)
-		tasktestutil.AssertDirExists(t, filepath.Join(fnmRoot, "node-versions", "v"+secondary))
+
+	runIntegrationStep(
+		t,
+		"node:install VERSION=18.0.0 — specific version directory is created",
+		func(t *testing.T) {
+			t.Helper()
+			run(t, "--yes", nodeInstallTask, "VERSION="+secondary)
+			tasktestutil.AssertDirExists(t, filepath.Join(fnmRoot, "node-versions", "v"+secondary))
+		},
+	)
+	runIntegrationStep(
+		t,
+		"node:uninstall VERSION=18.0.0 — specific version directory is removed",
+		func(t *testing.T) {
+			t.Helper()
+			run(t, "--yes", nodeUninstallTask, "VERSION="+secondary)
+			tasktestutil.AssertDirNotExists(
+				t,
+				filepath.Join(fnmRoot, "node-versions", "v"+secondary),
+			)
+		},
+	)
+	runIntegrationStep(t, "node:use — LTS is activated without error", func(t *testing.T) {
+		t.Helper()
+		run(t, "--yes", "node:use")
 	})
-	step("node:uninstall VERSION=18.0.0 — specific version directory is removed", func(t *testing.T) {
-		run(t, "--yes", "node:uninstall", "VERSION="+secondary)
-		tasktestutil.AssertDirNotExists(t, filepath.Join(fnmRoot, "node-versions", "v"+secondary))
-	})
-	step("node:use — LTS is activated without error", func(t *testing.T) { run(t, "--yes", "node:use") })
-	step("node:version — active node and npm version strings are printed", func(t *testing.T) {
-		result := run(t, "node:version")
-		tasktestutil.AssertContains(t, result.Combined(), "v")
-	})
-	step("install:undo — fnm binary is removed", func(t *testing.T) {
+	runIntegrationStep(
+		t,
+		"node:version — active node and npm version strings are printed",
+		func(t *testing.T) {
+			t.Helper()
+			result := run(t, "node:version")
+			tasktestutil.AssertContains(t, result.Combined(), "v")
+		},
+	)
+	runIntegrationStep(t, "install:undo — fnm binary is removed", func(t *testing.T) {
+		t.Helper()
 		run(t, "--yes", "install:undo")
-		if _, err := os.Stat(fnmBin); !os.IsNotExist(err) {
+
+		_, err := os.Stat(fnmBin)
+		if !os.IsNotExist(err) {
 			t.Fatalf("expected fnm binary to be removed: %s", fnmBin)
 		}
 	})
+}
+
+func runIntegrationStep(t *testing.T, name string, fn func(t *testing.T)) {
+	t.Helper()
+	t.Run(name, fn)
+
+	if t.Failed() {
+		t.FailNow()
+	}
+}
+
+func successfulIntegrationRun(
+	root string,
+	env []string,
+) func(t *testing.T, args ...string) tasktestutil.CommandResult {
+	return func(t *testing.T, args ...string) tasktestutil.CommandResult {
+		t.Helper()
+		result := tasktestutil.RunTaskTimeout(t, root, env, 10*time.Minute, args...)
+		tasktestutil.AssertExitCode(t, result, 0)
+
+		return result
+	}
 }
 
 // fnmStubEnv returns an isolated environment with a stub fnm binary.
@@ -599,10 +740,14 @@ func TestAllPublicTasksIntegration(t *testing.T) {
 func fnmFreshProfileEnv(t *testing.T) []string {
 	t.Helper()
 	env := fnmStubEnv(t)
+
 	home := tasktestutil.EnvValue(env, "HOME")
-	if err := os.WriteFile(filepath.Join(home, ".bashrc"), []byte(""), 0644); err != nil {
+
+	err := os.WriteFile(filepath.Join(home, ".bashrc"), []byte(""), 0o644)
+	if err != nil {
 		t.Fatalf("failed to clear shell profile: %v", err)
 	}
+
 	return env
 }
 
@@ -618,15 +763,17 @@ func shellProfilePaths(home string) []string {
 }
 
 func profileContains(home, token string) bool {
-	for _, p := range shellProfilePaths(home) {
-		content, err := os.ReadFile(p)
+	for _, profilePath := range shellProfilePaths(home) {
+		content, err := os.ReadFile(profilePath)
 		if err != nil {
 			continue
 		}
+
 		if strings.Contains(string(content), token) {
 			return true
 		}
 	}
+
 	return false
 }
 
@@ -637,7 +784,9 @@ func fnmStubEnv(t *testing.T) []string {
 	home := tasktestutil.EnvValue(env, "HOME")
 
 	binDir := filepath.Join(home, ".local", "bin")
-	if err := os.MkdirAll(binDir, 0755); err != nil {
+
+	err := os.MkdirAll(binDir, 0o755)
+	if err != nil {
 		t.Fatalf("failed to create stub bin dir: %v", err)
 	}
 
@@ -652,18 +801,23 @@ func fnmStubEnv(t *testing.T) []string {
 		"  *) exit 0 ;;\n" +
 		"esac\n"
 
-	if err := os.WriteFile(filepath.Join(binDir, "fnm"), []byte(stub), 0755); err != nil {
+	err = os.WriteFile(filepath.Join(binDir, "fnm"), []byte(stub), 0o755)
+	if err != nil {
 		t.Fatalf("failed to create stub fnm binary: %v", err)
 	}
 
 	bashrc := filepath.Join(home, ".bashrc")
+
 	bashrcContent := "# fnm (Fast Node Manager)\n" +
 		"export PATH=\"$HOME/.local/share/fnm:$HOME/.local/bin:$PATH\"\n" +
 		"eval \"$(fnm env --use-on-cd --shell bash)\"\n"
-	if err := os.WriteFile(bashrc, []byte(bashrcContent), 0644); err != nil {
+
+	err = os.WriteFile(bashrc, []byte(bashrcContent), 0o644)
+	if err != nil {
 		t.Fatalf("failed to pre-populate shell profile: %v", err)
 	}
 
 	path := tasktestutil.EnvValue(env, "PATH")
+
 	return tasktestutil.SetEnv(env, "PATH", binDir+":"+path)
 }

@@ -7,29 +7,33 @@ import (
 	"github.com/task-otter/store/internal/tasktest"
 )
 
-var publicTasks = []string{
-	"gen",
-	"install",
-	"install:undo",
-	"upgrade",
-	"ungen",
-	"version",
+func publicTasks() []string {
+	return []string{
+		"gen",
+		"install",
+		"install:undo",
+		"upgrade",
+		"ungen",
+		"version",
+	}
 }
 
-var publicVars = []string{
-	"GO_CMD",
-	"GLOBAL_GO_BIN",
-	"PROTO_PATH",
-	"PROTO_PATTERN",
-	"PROTOC_GEN_GO_GRPC_VERSION",
-	"PROTOC_GEN_GO_VERSION",
-	"PROTOC_VERSION",
+func publicVars() []string {
+	return []string{
+		"GO_CMD",
+		"GLOBAL_GO_BIN",
+		"PROTO_PATH",
+		"PROTO_PATTERN",
+		"PROTOC_GEN_GO_GRPC_VERSION",
+		"PROTOC_GEN_GO_VERSION",
+		"PROTOC_VERSION",
+	}
 }
 
 func TestTaskfileModuleContract(t *testing.T) {
 	t.Parallel()
 
-	tasktest.AssertModule(t, "proto", publicTasks, publicVars)
+	tasktest.AssertModule(t, "proto", publicTasks(), publicVars())
 }
 
 func TestPluginWorkflowsInstallGoFirst(t *testing.T) {
