@@ -318,9 +318,9 @@ func assertTaskDependencies(
 
 	actual := make([]string, len(rawDeps))
 	for index, rawDep := range rawDeps {
-		dep, ok := rawDep.(string)
+		dep, ok := taskDependencyName(rawDep)
 		if !ok {
-			t.Fatalf("%s dependency %d has type %T, want string", taskName, index, rawDep)
+			t.Fatalf("%s dependency %d has unsupported value %v", taskName, index, rawDep)
 		}
 
 		actual[index] = dep
@@ -328,5 +328,17 @@ func assertTaskDependencies(
 
 	if !slices.Equal(actual, expected) {
 		t.Fatalf("%s deps mismatch\nexpected: %v\nactual:   %v", taskName, expected, actual)
+	}
+}
+
+func taskDependencyName(rawDep any) (string, bool) {
+	switch dep := rawDep.(type) {
+	case string:
+		return dep, true
+	case map[string]any:
+		name, ok := dep["task"].(string)
+		return name, ok
+	default:
+		return "", false
 	}
 }

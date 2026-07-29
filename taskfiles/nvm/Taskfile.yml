@@ -17,7 +17,7 @@ vars:
   NVM_SH_INSTALL_URL: https://raw.githubusercontent.com/nvm-sh/nvm/{{.NVM_SH_VERSION}}/install.sh
   DEFAULT_NODE_VERSION_UNIX: "--lts"
   DEFAULT_NODE_VERSION_WINDOWS: lts
-  NVM_LOAD: 'export NVM_DIR="$HOME/.nvm"; . "$NVM_DIR/nvm.sh"'
+  NVM_LOAD: 'export NVM_DIR="${NVM_DIR:-$HOME/.nvm}"; . "$NVM_DIR/nvm.sh"'
 
 tasks:
   default:
@@ -358,9 +358,10 @@ tasks:
     set: [errexit, nounset, pipefail]
     status:
       - >-
-        test -s "$HOME/.nvm/nvm.sh"
+        NVM_DIR="${NVM_DIR:-$HOME/.nvm}";
+        test -s "$NVM_DIR/nvm.sh"
         && { expected="{{.NVM_SH_VERSION}}"; expected="${expected#v}";
-        bash -c '. "$HOME/.nvm/nvm.sh"; nvm --version' | grep -Fqx "$expected"; }
+        bash -c 'export NVM_DIR="${NVM_DIR:-$HOME/.nvm}"; . "$NVM_DIR/nvm.sh"; nvm --version' | grep -Fqx "$expected"; }
     preconditions:
       - sh: command -v bash >/dev/null 2>&1
         msg: bash is required.
@@ -384,14 +385,14 @@ tasks:
     platforms: [linux, darwin]
     set: [errexit, nounset, pipefail]
     status:
-      - test ! -d "$HOME/.nvm"
+      - bash -c 'test ! -d "${NVM_DIR:-$HOME/.nvm}"'
     cmds:
-      - echo Removing nvm-sh from "$HOME/.nvm"...
+      - echo Removing nvm-sh from "${NVM_DIR:-$HOME/.nvm}"...
       - >-
         bash -lc 'export NVM_DIR="${NVM_DIR:-$HOME/.nvm}";
         [ -s "$NVM_DIR/nvm.sh" ] && . "$NVM_DIR/nvm.sh" && nvm unload || true'
-      - rm -rf "$HOME/.nvm"
-      - echo Removed "$HOME/.nvm".
+      - bash -c 'rm -rf "${NVM_DIR:-$HOME/.nvm}"'
+      - echo Removed "${NVM_DIR:-$HOME/.nvm}".
       - >-
         bash -c 'found=$(grep -rl "NVM_DIR\|nvm\.sh"
         "$HOME/.bashrc" "$HOME/.bash_profile" "$HOME/.profile" "$HOME/.zshrc"
@@ -408,7 +409,7 @@ tasks:
     platforms: [linux, darwin]
     set: [errexit, nounset, pipefail]
     preconditions:
-      - sh: test -s "$HOME/.nvm/nvm.sh"
+      - sh: test -s "${NVM_DIR:-$HOME/.nvm}/nvm.sh"
         msg: nvm-sh is not installed. Run task install first.
     cmds:
       - bash -lc '{{.NVM_LOAD}}; nvm --version'
@@ -430,9 +431,9 @@ tasks:
     status:
       - >-
         bash -lc 'if [ "{{.VERSION}}" = "--lts" ] || [ "{{.VERSION}}" = "node" ]; then exit 1; fi;
-        test -d "$HOME/.nvm/versions/node/v{{.VERSION}}"'
+        test -d "${NVM_DIR:-$HOME/.nvm}/versions/node/v{{.VERSION}}"'
     preconditions:
-      - sh: test -s "$HOME/.nvm/nvm.sh"
+      - sh: test -s "${NVM_DIR:-$HOME/.nvm}/nvm.sh"
         msg: nvm-sh is not installed. Run task install first.
     cmds:
       - echo Installing Node.js {{.VERSION}} with nvm-sh...
@@ -451,9 +452,9 @@ tasks:
     env:
       VERSION: "{{.VERSION}}"
     status:
-      - test ! -d "$HOME/.nvm/versions/node/v{{.VERSION}}"
+      - bash -c 'test ! -d "${NVM_DIR:-$HOME/.nvm}/versions/node/v{{.VERSION}}"'
     preconditions:
-      - sh: test -s "$HOME/.nvm/nvm.sh"
+      - sh: test -s "${NVM_DIR:-$HOME/.nvm}/nvm.sh"
         msg: nvm-sh is not installed. Run task install first.
     cmds:
       - echo Uninstalling Node.js {{.VERSION}} with nvm-sh...
@@ -474,7 +475,7 @@ tasks:
     env:
       VERSION: "{{.VERSION}}"
     preconditions:
-      - sh: test -s "$HOME/.nvm/nvm.sh"
+      - sh: test -s "${NVM_DIR:-$HOME/.nvm}/nvm.sh"
         msg: nvm-sh is not installed. Run task install first.
       - sh: bash -lc '{{.NVM_LOAD}}; nvm version "$VERSION" >/dev/null 2>&1'
         msg: Node.js {{.VERSION}} is not installed. Run task node:install VERSION={{.VERSION}} first.
@@ -493,7 +494,7 @@ tasks:
     platforms: [linux, darwin]
     set: [errexit, nounset, pipefail]
     preconditions:
-      - sh: test -s "$HOME/.nvm/nvm.sh"
+      - sh: test -s "${NVM_DIR:-$HOME/.nvm}/nvm.sh"
         msg: nvm-sh is not installed. Run task install first.
     cmds:
       - bash -lc '{{.NVM_LOAD}}; nvm ls'
@@ -506,7 +507,7 @@ tasks:
     platforms: [linux, darwin]
     set: [errexit, nounset, pipefail]
     preconditions:
-      - sh: test -s "$HOME/.nvm/nvm.sh"
+      - sh: test -s "${NVM_DIR:-$HOME/.nvm}/nvm.sh"
         msg: nvm-sh is not installed. Run task install first.
     cmds:
       - bash -lc '{{.NVM_LOAD}}; nvm current; node --version; npm --version'

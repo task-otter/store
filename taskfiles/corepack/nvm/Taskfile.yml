@@ -14,7 +14,7 @@ includes:
     taskfile: ../../nvm/Taskfile.yml
 
 vars:
-  NVM_LOAD: 'export NVM_DIR="$HOME/.nvm"; . "$NVM_DIR/nvm.sh"'
+  NVM_LOAD: 'export NVM_DIR="${NVM_DIR:-$HOME/.nvm}"; . "$NVM_DIR/nvm.sh"'
   NVM_USE: >-
     {{if .NODE_VERSION}}nvm use "{{.NODE_VERSION}}"
     {{- else}}if [ -f .node-version ] || [ -f .nvmrc ]; then nvm use; fi{{end}}
@@ -175,12 +175,12 @@ tasks:
     internal: true
     platforms: [linux, darwin]
     status:
-      - test -s "$HOME/.nvm/nvm.sh"
+      - test -s "${NVM_DIR:-$HOME/.nvm}/nvm.sh"
       - >-
         bash -c '{{.NVM_LOAD}}; {{.NVM_USE}}; command -v corepack >/dev/null 2>&1
         && corepack --version | grep -Fqx "{{.COREPACK_VERSION}}"'
     preconditions:
-      - sh: test -s "$HOME/.nvm/nvm.sh"
+      - sh: test -s "${NVM_DIR:-$HOME/.nvm}/nvm.sh"
         msg: 'nvm is not installed. Run: task node:setup'
     cmds:
       - bash -c '{{.NVM_LOAD}}; {{.NVM_USE}}; npm install --global "corepack@{{.COREPACK_VERSION}}"'
@@ -219,10 +219,10 @@ tasks:
     internal: true
     platforms: [linux, darwin]
     status:
-      - test -s "$HOME/.nvm/nvm.sh"
+      - test -s "${NVM_DIR:-$HOME/.nvm}/nvm.sh"
       - bash -c '{{.NVM_LOAD}}; {{.NVM_USE}}; ! command -v corepack >/dev/null 2>&1'
     preconditions:
-      - sh: test -s "$HOME/.nvm/nvm.sh"
+      - sh: test -s "${NVM_DIR:-$HOME/.nvm}/nvm.sh"
         msg: 'nvm is not installed. Run: task node:setup'
     cmds:
       - bash -c '{{.NVM_LOAD}}; {{.NVM_USE}}; npm uninstall --global corepack'
@@ -259,7 +259,7 @@ tasks:
     internal: true
     platforms: [linux, darwin]
     preconditions:
-      - sh: test -s "$HOME/.nvm/nvm.sh"
+      - sh: test -s "${NVM_DIR:-$HOME/.nvm}/nvm.sh"
         msg: 'nvm is not installed. Run: task node:setup'
     cmds:
       - bash -c '{{.NVM_LOAD}}; {{.NVM_USE}}; npm install --global "corepack@{{.COREPACK_VERSION}}"'
@@ -291,7 +291,7 @@ tasks:
     requires:
       vars: [ARGS]
     preconditions:
-      - sh: test -s "$HOME/.nvm/nvm.sh"
+      - sh: test -s "${NVM_DIR:-$HOME/.nvm}/nvm.sh"
         msg: 'nvm is not installed. Run: task node:setup'
     cmds:
       - >-

@@ -741,7 +741,7 @@ func dryRunEnv(t *testing.T) []string {
 		t.Fatalf("failed to create fake NVM dir: %v", err)
 	}
 
-	stub := "nvm() { case \"$1\" in version|current) echo stub ;; *) return 0 ;; esac; }\n"
+	stub := "nvm() { case \"$1\" in --version) echo 0.40.1 ;; version|current) echo stub ;; *) return 0 ;; esac; }\n"
 
 	err = os.WriteFile(filepath.Join(nvmDir, "nvm.sh"), []byte(stub), 0o644)
 	if err != nil {

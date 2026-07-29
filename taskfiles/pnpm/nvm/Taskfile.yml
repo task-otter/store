@@ -16,7 +16,7 @@ includes:
     taskfile: ../../nvm/Taskfile.yml
 
 vars:
-  NVM_LOAD: 'export NVM_DIR="$HOME/.nvm"; . "$NVM_DIR/nvm.sh"'
+  NVM_LOAD: 'export NVM_DIR="${NVM_DIR:-$HOME/.nvm}"; . "$NVM_DIR/nvm.sh"'
   NVM_USE: >-
     {{if .NODE_VERSION}}nvm use "{{.NODE_VERSION}}"
     {{- else}}if [ -f .node-version ] || [ -f .nvmrc ]; then nvm use; fi{{end}}

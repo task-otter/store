@@ -141,12 +141,13 @@ func stubEnv(t *testing.T) []string {
 		t,
 		binDir,
 		"corepack",
-		"#!/usr/bin/env bash\necho \"corepack $* stub\"\n",
+		"#!/usr/bin/env bash\ncase \"$1\" in --version) echo \"0.34.0\" ;; *) echo \"corepack $* stub\" ;; esac\n",
 	)
 
 	env := os.Environ()
 	env = tasktestutil.SetEnv(env, "HOME", home)
 	env = tasktestutil.SetEnv(env, "PATH", binDir+":"+os.Getenv("PATH"))
+	env = tasktestutil.SetEnv(env, "NVM_DIR", nvmDir)
 	env = tasktestutil.SetEnv(env, "TASK_ASSUME_YES", "true")
 	env = tasktestutil.SetEnv(env, "NO_COLOR", "1")
 

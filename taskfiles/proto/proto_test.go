@@ -1,7 +1,6 @@
 package proto_test
 
 import (
-	"slices"
 	"testing"
 
 	"github.com/task-otter/store/internal/tasktest"
@@ -47,8 +46,25 @@ func TestPluginWorkflowsInstallGoFirst(t *testing.T) {
 			t.Fatalf("%s deps have type %T, want []any", taskName, tf.Tasks[taskName].Deps)
 		}
 
-		if !slices.Contains(deps, any("go:install")) {
+		if !containsTaskDependency(deps, "go:install") {
 			t.Errorf("%s must depend on go:install; deps: %v", taskName, deps)
 		}
 	}
+}
+
+func containsTaskDependency(deps []any, expected string) bool {
+	for _, rawDep := range deps {
+		switch dep := rawDep.(type) {
+		case string:
+			if dep == expected {
+				return true
+			}
+		case map[string]any:
+			if dep["task"] == expected {
+				return true
+			}
+		}
+	}
+
+	return false
 }

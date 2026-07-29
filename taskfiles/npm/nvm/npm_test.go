@@ -742,7 +742,7 @@ func npmNvmStubEnv(t *testing.T) []string {
 		t,
 		binDir,
 		"corepack",
-		"#!/usr/bin/env bash\necho \"corepack $* stub\"\n",
+		"#!/usr/bin/env bash\ncase \"$1\" in --version) echo \"0.34.0\" ;; *) echo \"corepack $* stub\" ;; esac\n",
 	)
 
 	bashrc := filepath.Join(home, ".bashrc")
@@ -753,6 +753,8 @@ func npmNvmStubEnv(t *testing.T) []string {
 	}
 
 	path := tasktestutil.EnvValue(env, "PATH")
+	env = tasktestutil.SetEnv(env, "PATH", binDir+":"+path)
+	env = tasktestutil.SetEnv(env, "NVM_DIR", nvmDir)
 
-	return tasktestutil.SetEnv(env, "PATH", binDir+":"+path)
+	return env
 }
