@@ -41,7 +41,7 @@ tasks:
       latest. Bootstraps the Rust toolchain via the cargo module if cargo is
       not already present.
     deps:
-      - cargo:install
+      - task: cargo:install
     cmds:
       - task: _install:unix
       - task: _install:windows
@@ -65,7 +65,7 @@ tasks:
       DOTENV_LINTER_VERSION empty to upgrade to the latest release, or set an
       exact version.
     deps:
-      - cargo:install
+      - task: cargo:install
     cmds:
       - task: _install:unix
         vars:
@@ -84,7 +84,7 @@ tasks:
       missing.
     dir: "{{.USER_WORKING_DIR}}"
     deps:
-      - install
+      - task: install
     cmds:
       - task: _lint:unix
       - task: _lint:windows
@@ -98,7 +98,7 @@ tasks:
       EXTRA_ARGS for additional flags. Auto-installs dotenv-linter if missing.
     dir: "{{.USER_WORKING_DIR}}"
     deps:
-      - install
+      - task: install
     cmds:
       - task: _fix:unix
       - task: _fix:windows
@@ -112,7 +112,7 @@ tasks:
       Auto-installs dotenv-linter if missing.
     dir: "{{.USER_WORKING_DIR}}"
     deps:
-      - install
+      - task: install
     cmds:
       - task: _diff:unix
       - task: _diff:windows
@@ -122,7 +122,7 @@ tasks:
     desc: Show the installed dotenv-linter version
     summary: Print the active dotenv-linter version. Auto-installs dotenv-linter if missing.
     deps:
-      - install
+      - task: install
     cmds:
       - task: _version:unix
       - task: _version:windows

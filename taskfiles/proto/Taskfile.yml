@@ -62,7 +62,7 @@ tasks:
       the vars declared below outrank vars supplied by an inclusion, so the
       plain names are only settable from the environment.
     deps:
-      - install
+      - task: install
     cmds:
       - task: _gen:unix
         vars:
@@ -90,7 +90,7 @@ tasks:
       Windows uses Scoop for protoc. Go plugins are installed into the global
       Go bin (GOBIN or GOPATH/bin).
     deps:
-      - go:install
+      - task: go:install
     cmds:
       - task: _install:protoc:macos
       - task: _install:protoc:linux
@@ -120,7 +120,7 @@ tasks:
       Linux re-downloads the pinned PROTOC_VERSION release. Windows uses
       scoop update protobuf. Go plugins are reinstalled at their pinned versions.
     deps:
-      - go:install
+      - task: go:install
     cmds:
       - task: _upgrade:protoc:macos
       - task: _upgrade:protoc:linux
@@ -142,7 +142,7 @@ tasks:
     desc: Show the installed protoc version
     summary: Print the active protoc version via protoc --version. Auto-installs protoc if missing.
     deps:
-      - install
+      - task: install
     cmds:
       - protoc --version
   _gen:unix:

@@ -48,7 +48,7 @@ tasks:
       releases instead of the latest. Ansible does not support Windows as a
       control node.
     deps:
-      - uv:install
+      - task: uv:install
     cmds:
       - task: _install:unix
 
@@ -70,7 +70,7 @@ tasks:
       Upgrade ansible and ansible-lint via uv tool upgrade on macOS and Linux.
       Auto-installs if missing.
     deps:
-      - install
+      - task: install
     cmds:
       - task: _upgrade:unix
 
@@ -79,7 +79,7 @@ tasks:
     desc: Show the installed Ansible and ansible-lint versions
     summary: Print ansible --version and ansible-lint --version. Auto-installs if missing.
     deps:
-      - install
+      - task: install
     cmds:
       - task: _version:unix
 
@@ -91,7 +91,7 @@ tasks:
       Ansible best practices and YAML syntax checks.
       Pass EXTRA_ARGS for additional flags. Auto-installs if missing.
     deps:
-      - install
+      - task: install
     vars:
       TARGETS: "."
       EXTRA_ARGS: ""
@@ -107,7 +107,7 @@ tasks:
       resolve fixable lint violations. Pass EXTRA_ARGS for additional flags.
       Auto-installs if missing.
     deps:
-      - install
+      - task: install
     vars:
       TARGETS: "."
       EXTRA_ARGS: ""
@@ -123,7 +123,7 @@ tasks:
       without executing any tasks. Pass INVENTORY to specify the inventory file.
       Auto-installs if missing.
     deps:
-      - install
+      - task: install
     requires:
       vars:
         - PLAYBOOK
@@ -141,7 +141,7 @@ tasks:
       inventory file and EXTRA_ARGS for additional flags such as --check,
       --diff, or --tags. Auto-installs if missing.
     deps:
-      - install
+      - task: install
     requires:
       vars:
         - PLAYBOOK
@@ -159,7 +159,7 @@ tasks:
       specified INVENTORY. Confirms that Ansible can reach and authenticate
       to the target hosts. Auto-installs if missing.
     deps:
-      - install
+      - task: install
     requires:
       vars:
         - INVENTORY
@@ -177,7 +177,7 @@ tasks:
       executing any tasks. Useful for verifying inventory content.
       Auto-installs if missing.
     deps:
-      - install
+      - task: install
     requires:
       vars:
         - INVENTORY
@@ -195,7 +195,7 @@ tasks:
       to install all declared roles and collections. Pass EXTRA_ARGS for
       additional flags. Auto-installs if missing.
     deps:
-      - install
+      - task: install
     cmds:
       - task: _galaxy:install:unix
 
@@ -207,7 +207,7 @@ tasks:
       password. Pass EXTRA_ARGS for additional flags such as --vault-id.
       Auto-installs if missing.
     deps:
-      - install
+      - task: install
     requires:
       vars:
         - FILE
@@ -230,7 +230,7 @@ tasks:
       - This will decrypt and overwrite FILE with plaintext.
       - Continue?
     deps:
-      - install
+      - task: install
     requires:
       vars:
         - FILE

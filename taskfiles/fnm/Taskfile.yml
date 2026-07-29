@@ -65,7 +65,7 @@ tasks:
       Install the Node.js version provided through VERSION.
       If VERSION is not provided, install the latest LTS version.
     deps:
-      - install
+      - task: install
     cmds:
       - task: _node:install:unix
         vars:
@@ -79,7 +79,7 @@ tasks:
     desc: Uninstall a Node.js version managed by fnm
     summary: Remove the Node.js version provided through VERSION from the local fnm installation.
     deps:
-      - install
+      - task: install
     requires:
       vars:
         - VERSION

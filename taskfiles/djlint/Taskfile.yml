@@ -69,7 +69,7 @@ tasks:
     desc: Show the installed djLint version
     summary: Print the active djLint version via djlint --version. Auto-installs djLint if missing.
     deps:
-      - install
+      - task: install
     cmds:
       - cmd: bash -lc '{{.UV_LOAD}}; djlint --version'
         platforms: [linux, darwin]
@@ -125,7 +125,7 @@ tasks:
     run: when_changed
     dir: "{{.USER_WORKING_DIR}}"
     deps:
-      - install
+      - task: install
     vars:
       PATHS: '{{or .TARGETS_OVERRIDE .TARGETS "."}}'
       EXTRA: '{{default .EXTRA_ARGS .EXTRA_ARGS_OVERRIDE}}'
@@ -151,7 +151,7 @@ tasks:
         bash -lc '{{.UV_LOAD}}; command -v djlint >/dev/null 2>&1
         && { [ -z "{{.DJLINT_VERSION}}" ] || djlint --version | grep -Fq "{{.DJLINT_VERSION}}"; }'
     deps:
-      - uv:install
+      - task: uv:install
     cmds:
       - echo 'Installing djLint via uv...'
       - >-
@@ -173,7 +173,7 @@ tasks:
         -or ((& $djlint.Source --version) -like ('*' + $requested + '*'))) { exit 0 };
         exit 1"
     deps:
-      - uv:install
+      - task: uv:install
     cmds:
       - echo Installing djLint via uv...
       - uv tool install --force "djlint{{if .DJLINT_VERSION}}=={{.DJLINT_VERSION}}{{end}}"

@@ -84,8 +84,8 @@ tasks:
       Pass CLI arguments after -- to override TARGETS and EXTRA_ARGS directly.
       Ensures both Staticcheck and the Go toolchain are installed first.
     deps:
-      - install
-      - go:install
+      - task: install
+      - task: go:install
     cmds:
       - task: _lint:unix
       - task: _lint:windows
@@ -96,7 +96,7 @@ tasks:
     desc: Print the installed Staticcheck version
     summary: Print the pinned Staticcheck binary version. Installs Staticcheck first if missing.
     deps:
-      - install
+      - task: install
     cmds:
       - task: _version:unix
       - task: _version:windows

@@ -62,7 +62,7 @@ tasks:
     desc: Show the installed Bun version and revision
     summary: Print the currently installed Bun version and exact commit revision. Auto-installs Bun if missing.
     deps:
-      - install
+      - task: install
     cmds:
       - task: _version:unix
       - task: _version:windows
@@ -76,7 +76,7 @@ tasks:
       Scoop users should run scoop update bun instead to avoid conflicts.
       Auto-installs Bun if missing.
     deps:
-      - install
+      - task: install
     cmds:
       - task: _upgrade:unix
       - task: _upgrade:windows
@@ -89,7 +89,7 @@ tasks:
       Canary builds are untested and automatically upload crash reports to the Bun team.
       Auto-installs Bun if missing.
     deps:
-      - install
+      - task: install
     cmds:
       - task: _upgrade:canary:unix
       - task: _upgrade:canary:windows
@@ -102,7 +102,7 @@ tasks:
       using bun upgrade --stable.
       Auto-installs Bun if missing.
     deps:
-      - install
+      - task: install
     cmds:
       - task: _upgrade:stable:unix
       - task: _upgrade:stable:windows
@@ -113,7 +113,7 @@ tasks:
     requires:
       vars: [PACKAGES]
     deps:
-      - install
+      - task: install
     cmds:
       - task: _bun:unix
         vars:
@@ -128,7 +128,7 @@ tasks:
     requires:
       vars: [PACKAGES]
     deps:
-      - install
+      - task: install
     cmds:
       - task: _bun:unix
         vars:
@@ -143,7 +143,7 @@ tasks:
     requires:
       vars: [BINARY]
     deps:
-      - install
+      - task: install
     cmds:
       - task: _bun:unix
         vars:

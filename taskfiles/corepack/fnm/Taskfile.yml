@@ -84,7 +84,8 @@ tasks:
     summary: >-
       Ensure Corepack is available, then enable supported package manager shims
       for the fnm-managed Node.js runtime.
-    deps: [install]
+    deps:
+      - task: install
     cmds:
       - task: enable
 

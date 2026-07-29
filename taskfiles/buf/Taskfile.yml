@@ -41,7 +41,7 @@ tasks:
       options; BUF_LINT_SKIP_PATTERN remains active. Auto-installs Buf if missing.
     dir: "{{.USER_WORKING_DIR}}"
     deps:
-      - install
+      - task: install
     cmds:
       - task: _buf:unix
         vars:
@@ -72,7 +72,7 @@ tasks:
       apply fixes. Auto-installs Buf if missing.
     dir: "{{.USER_WORKING_DIR}}"
     deps:
-      - install
+      - task: install
     cmds:
       - task: _buf:unix
         vars:
@@ -98,7 +98,7 @@ tasks:
       place. Auto-installs Buf if missing.
     dir: "{{.USER_WORKING_DIR}}"
     deps:
-      - install
+      - task: install
     cmds:
       - task: _buf:unix
         vars:
@@ -194,7 +194,7 @@ tasks:
       arguments after -- to override all variables directly. Auto-installs
       Buf if missing.
     deps:
-      - install
+      - task: install
     dir: "{{.USER_WORKING_DIR}}"
     cmds:
       - task: _buf:unix
@@ -225,7 +225,7 @@ tasks:
       buf.gen.yaml in the project root or at the path given by CLI_ARGS.
       Auto-installs Buf if missing.
     deps:
-      - install
+      - task: install
     cmds:
       - >-
         buf generate
@@ -283,7 +283,7 @@ tasks:
     desc: Show the installed Buf version
     summary: Print the active Buf version via buf --version. Auto-installs Buf if missing.
     deps:
-      - install
+      - task: install
     cmds:
       - buf --version
 

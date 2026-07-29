@@ -39,7 +39,7 @@ tasks:
       after -- to override all variables directly. Auto-installs ShellCheck if missing.
     dir: "{{.USER_WORKING_DIR}}"
     deps:
-      - install
+      - task: install
     cmds:
       - task: _lint:unix
       - task: _lint:windows
@@ -173,7 +173,7 @@ tasks:
     desc: Show the installed ShellCheck version
     summary: Print the active ShellCheck version via shellcheck --version. Auto-installs ShellCheck if missing.
     deps:
-      - install
+      - task: install
     cmds:
       - shellcheck --version
 

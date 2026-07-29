@@ -73,7 +73,7 @@ tasks:
     desc: Show the installed jsonlint version
     summary: Print the active jsonlint version. Auto-installs jsonlint if missing.
     deps:
-      - install
+      - task: install
     cmds:
       - cmd: bash -lc '{{.UV_LOAD}}; jsonlint --version'
         platforms: [linux, darwin]
@@ -90,7 +90,7 @@ tasks:
       Auto-installs jsonlint if missing.
     dir: "{{.USER_WORKING_DIR}}"
     deps:
-      - install
+      - task: install
     cmds:
       - cmd: >-
           bash -lc '{{.UV_LOAD}};
@@ -142,7 +142,7 @@ tasks:
         && { [ -z "{{.JSONLINT_VERSION}}" ]
         || uv tool list 2>/dev/null | grep -Fq "demjson3 v{{.JSONLINT_VERSION}}"; }'
     deps:
-      - uv:install
+      - task: uv:install
     cmds:
       - echo 'Installing the jsonlint CLI via uv...'
       - >-
@@ -164,7 +164,7 @@ tasks:
         -or ((uv tool list | Out-String) -match ('demjson3 v' + [regex]::Escape($requested)))) { exit 0 };
         exit 1"
     deps:
-      - uv:install
+      - task: uv:install
     cmds:
       - echo Installing the jsonlint CLI via uv...
       - uv tool install --force "demjson3{{if .JSONLINT_VERSION}}=={{.JSONLINT_VERSION}}{{end}}"

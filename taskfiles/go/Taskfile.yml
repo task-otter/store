@@ -94,7 +94,7 @@ tasks:
       Install GOLANGCI_LINT_VERSION, defaulting to latest, into the global Go
       bin, then rebuild it with the coverlint and modularity module plugins.
     deps:
-      - install
+      - task: install
     cmds:
       - cmd: |
           required_go_version=1.26.5
@@ -261,7 +261,7 @@ tasks:
     desc: Install govulncheck globally
     summary: Install GOVULNCHECK_VERSION, defaulting to latest, into the global Go bin.
     deps:
-      - install
+      - task: install
     cmds:
       - >-
         GOBIN="{{.GLOBAL_GO_BIN}}" go install golang.org/x/vuln/cmd/govulncheck@{{default "latest"
@@ -276,7 +276,7 @@ tasks:
     desc: Install gosec globally
     summary: Install GOSEC_VERSION, defaulting to latest, into the global Go bin.
     deps:
-      - install
+      - task: install
     cmds:
       - >-
         GOBIN="{{.GLOBAL_GO_BIN}}" go install github.com/securego/gosec/v2/cmd/gosec@{{default "latest" .GOSEC_VERSION}}
@@ -290,7 +290,7 @@ tasks:
     desc: Install go-junit-report globally
     summary: Install go-junit-report v2.1.0 into the global Go bin.
     deps:
-      - install
+      - task: install
     cmds:
       - GOBIN="{{.GLOBAL_GO_BIN}}" go install github.com/jstemmer/go-junit-report/v2@v2.1.0
     status:
@@ -315,7 +315,7 @@ tasks:
       override the default target. Set GO_FMT_SKIP_PATTERN to a shell-style
       path glob for files to skip. Use fmt to apply fixes.
     deps:
-      - golangci-lint:fmt:check
+      - task: golangci-lint:fmt:check
   lint:
     run: once
     desc: Run all Go lint and security checks
@@ -324,10 +324,10 @@ tasks:
       Set GO_LINT_SKIP_PATTERN to a shell-style path glob for files that lint
       and security analysis should skip.
     deps:
-      - golangci-lint:lint
-      - golangci-lint:fmt:check
-      - govulncheck:lint
-      - gosec:lint
+      - task: golangci-lint:lint
+      - task: golangci-lint:fmt:check
+      - task: govulncheck:lint
+      - task: gosec:lint
   lint:fix:
     run: once
     desc: Auto-fix Go lint and formatting issues
@@ -348,7 +348,7 @@ tasks:
       CLI arguments after -- to override the default ./... target.
       Auto-installs golangci-lint if missing.
     deps:
-      - install:golangci-lint
+      - task: install:golangci-lint
     cmds:
       - task: _golangci-lint:lint
         vars:
@@ -363,7 +363,7 @@ tasks:
       be modified. Pass CLI arguments after -- to override the default ./...
       target. Auto-installs golangci-lint if missing.
     deps:
-      - install:golangci-lint
+      - task: install:golangci-lint
     cmds:
       - task: _golangci-lint:lint
         vars:
@@ -894,7 +894,7 @@ tasks:
       path glob for files to skip. Pass CLI arguments after -- to override the
       default target. Auto-installs golangci-lint if missing.
     deps:
-      - install:golangci-lint
+      - task: install:golangci-lint
     cmds:
       - task: _golangci-lint:fmt
         vars:
@@ -910,7 +910,7 @@ tasks:
       skip. Pass CLI arguments after -- to override the default target.
       Auto-installs golangci-lint if missing.
     deps:
-      - install:golangci-lint
+      - task: install:golangci-lint
     cmds:
       - task: _golangci-lint:fmt
         vars:
@@ -1017,7 +1017,7 @@ tasks:
       govulncheck if missing. Packages containing files matched by
       GO_LINT_SKIP_PATTERN are omitted.
     deps:
-      - install:govulncheck
+      - task: install:govulncheck
     cmds:
       - task: _go:package-analysis
         vars:
@@ -1032,7 +1032,7 @@ tasks:
       missing. Packages containing files matched by GO_LINT_SKIP_PATTERN are
       omitted.
     deps:
-      - install:gosec
+      - task: install:gosec
     cmds:
       - task: _go:package-analysis
         vars:
@@ -1128,7 +1128,7 @@ tasks:
     desc: Show the installed Go version
     summary: Print the active Go toolchain version via `go version`. Auto-installs Go if missing.
     deps:
-      - install
+      - task: install
     cmds:
       - task: _version:unix
       - task: _version:windows
@@ -1137,7 +1137,7 @@ tasks:
     desc: Show the path to the Go binary
     summary: Print the Go binary resolved from PATH, falling back to GO_CMD_UNIX on Linux. Auto-installs Go if missing.
     deps:
-      - install
+      - task: install
     cmds:
       - task: _which:unix
       - task: _which:windows
@@ -1149,7 +1149,7 @@ tasks:
       resolved GOROOT and GOPATH values for quick installation diagnostics.
       Auto-installs Go if missing.
     deps:
-      - install
+      - task: install
     cmds:
       - task: _verify:unix
       - task: _verify:windows
@@ -1164,7 +1164,7 @@ tasks:
       (default coverage.out). Pass CLI arguments after -- to override the
       default ./... target or add flags.
     deps:
-      - install:go-junit-report
+      - task: install:go-junit-report
     vars:
       GO_JUNIT_REPORT_OUT: '{{if .GO_JUNIT_REPORT}}{{.GO_JUNIT_REPORT}}{{else}}junit.xml{{end}}'
       GO_COVER_OUT: '{{if .GO_COVER_PROFILE}}{{.GO_COVER_PROFILE}}{{else}}coverage.out{{end}}'

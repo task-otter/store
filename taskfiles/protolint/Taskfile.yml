@@ -53,7 +53,7 @@ tasks:
       when GOBIN is unset. Leave PROTOLINT_VERSION empty to install the latest
       release, or set an exact module version such as v0.55.6.
     deps:
-      - go:install
+      - task: go:install
     cmds:
       - task: _install:unix
       - task: _install:windows
@@ -76,7 +76,7 @@ tasks:
       Reinstall protolint from its official Go module. Leave PROTOLINT_VERSION
       empty to upgrade to the latest release, or set an exact version.
     deps:
-      - go:install
+      - task: go:install
     cmds:
       - task: _install:unix
         vars:
@@ -94,7 +94,7 @@ tasks:
       Auto-installs protolint and its Go toolchain if needed.
     dir: "{{.USER_WORKING_DIR}}"
     deps:
-      - install
+      - task: install
     cmds:
       - task: _lint:unix
       - task: _lint:windows
@@ -108,7 +108,7 @@ tasks:
       Auto-installs protolint and its Go toolchain if needed.
     dir: "{{.USER_WORKING_DIR}}"
     deps:
-      - install
+      - task: install
     cmds:
       - task: _fix:unix
       - task: _fix:windows
@@ -118,7 +118,7 @@ tasks:
     desc: Show the installed protolint version
     summary: Print the active protolint version with protolint version. Auto-installs protolint if it is missing.
     deps:
-      - install
+      - task: install
     cmds:
       - task: _version:unix
       - task: _version:windows

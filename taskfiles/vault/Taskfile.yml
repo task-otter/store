@@ -87,7 +87,7 @@ tasks:
     desc: Show the installed Vault CLI version
     summary: Print the active Vault CLI version via vault version. Auto-installs if missing.
     deps:
-      - install
+      - task: install
     cmds:
       - vault version
 
@@ -99,7 +99,7 @@ tasks:
       the binary is installed and the server at VAULT_ADDR is reachable.
       Auto-installs the CLI if missing.
     deps:
-      - install
+      - task: install
     cmds:
       - vault version
       - vault status -address="{{.VAULT_ADDR_TARGET}}"
@@ -113,7 +113,7 @@ tasks:
       prevents task failure when the server is sealed or unreachable.
       Auto-installs the CLI if missing.
     deps:
-      - install
+      - task: install
     cmds:
       - vault status -address="{{.VAULT_ADDR_TARGET}}" || true
 
@@ -127,7 +127,7 @@ tasks:
       This task only uses curl and jq — it does not require the Vault CLI.
     set: [errexit, nounset, pipefail]
     deps:
-      - jq:install
+      - task: jq:install
     preconditions:
       - sh: command -v curl >/dev/null 2>&1
         msg: curl is required to query the Vault health endpoint.
@@ -207,7 +207,7 @@ tasks:
       required number of unseal key shares. Requires an authenticated session.
       Auto-installs the CLI if missing.
     deps:
-      - install
+      - task: install
     cmds:
       - vault operator seal -address="{{.VAULT_ADDR_TARGET}}"
 
@@ -395,7 +395,7 @@ tasks:
       scripting or when you need to pass the root token to another tool.
       KEYS_FILE must exist and contain the JSON produced by the init task.
     deps:
-      - jq:install
+      - task: jq:install
     preconditions:
       - sh: test -f "{{if .KEYS_FILE_OVERRIDE}}{{.KEYS_FILE_OVERRIDE}}{{else}}{{.KEYS_FILE}}{{end}}"
         msg: >-
@@ -413,7 +413,7 @@ tasks:
       Requires an authenticated session and an active Vault server.
       Auto-installs the CLI if missing.
     deps:
-      - install
+      - task: install
     cmds:
       - vault operator raft list-peers -address="{{.VAULT_ADDR_TARGET}}"
 
@@ -433,7 +433,7 @@ tasks:
         {{- else if .SNAPSHOT_FILE_OVERRIDE}}{{.SNAPSHOT_FILE_OVERRIDE -}}
         {{- else}}{{.SNAPSHOT_FILE}}{{end}}
     deps:
-      - install
+      - task: install
     cmds:
       - vault operator raft snapshot save -address="{{.VAULT_ADDR_TARGET}}" "{{.FILE_TARGET}}"
 

@@ -71,7 +71,7 @@ tasks:
       to the latest release. On macOS uses brew upgrade. On Windows uses winget
       upgrade. On Linux uses the detected package manager.
     deps:
-      - install
+      - task: install
     cmds:
       - task: _upgrade:auto:unix
       - task: _upgrade:auto:windows
@@ -81,7 +81,7 @@ tasks:
     desc: Show the installed GitHub CLI version
     summary: Print the installed gh version string via `gh --version`.
     deps:
-      - install
+      - task: install
     cmds:
       - task: _version:unix
       - task: _version:windows
@@ -93,7 +93,7 @@ tasks:
       Run `gh doctor` to check your gh configuration, authentication,
       and network connectivity to GitHub.
     deps:
-      - install
+      - task: install
     cmds:
       - task: _doctor:unix
       - task: _doctor:windows
@@ -103,7 +103,7 @@ tasks:
     desc: Show the path to the GitHub CLI binary
     summary: Print the filesystem path of the gh binary resolved from PATH.
     deps:
-      - install
+      - task: install
     cmds:
       - task: _which:unix
       - task: _which:windows
@@ -116,7 +116,7 @@ tasks:
       and report the current authentication status via `gh auth status`.
       Prints a clear message if the user is not yet authenticated.
     deps:
-      - install
+      - task: install
     cmds:
       - task: _verify:unix
       - task: _verify:windows
@@ -126,7 +126,7 @@ tasks:
     desc: Show the GitHub CLI built-in help
     summary: Display the built-in gh help output via `gh help`.
     deps:
-      - install
+      - task: install
     cmds:
       - gh help
 
@@ -138,7 +138,7 @@ tasks:
       Prompts for hostname, protocol, and authentication method.
       This task is interactive and requires a terminal.
     deps:
-      - install
+      - task: install
     cmds:
       - gh auth login
 
@@ -149,7 +149,7 @@ tasks:
       Authenticate with GitHub by opening a browser window for OAuth.
       Uses `gh auth login --web`. This task is interactive.
     deps:
-      - install
+      - task: install
     cmds:
       - gh auth login --web
 
@@ -160,7 +160,7 @@ tasks:
       Authenticate with GitHub using the SSH git protocol.
       Uses `gh auth login --git-protocol ssh`. This task is interactive.
     deps:
-      - install
+      - task: install
     cmds:
       - gh auth login --git-protocol ssh
 
@@ -171,7 +171,7 @@ tasks:
       Display the current GitHub authentication status for all configured
       hosts via `gh auth status`.
     deps:
-      - install
+      - task: install
     cmds:
       - gh auth status
 
@@ -182,7 +182,7 @@ tasks:
       Refresh the stored GitHub CLI credentials to extend their validity
       via `gh auth refresh`. This task is interactive.
     deps:
-      - install
+      - task: install
     cmds:
       - gh auth refresh
 
@@ -193,7 +193,7 @@ tasks:
       Remove locally stored GitHub credentials via `gh auth logout`.
       You will need to re-authenticate with `task auth:login` afterwards.
     deps:
-      - install
+      - task: install
     cmds:
       - gh auth logout
 
@@ -204,7 +204,7 @@ tasks:
       Configure git to delegate GitHub authentication to gh via
       `gh auth setup-git`. This enables seamless HTTPS git operations.
     deps:
-      - install
+      - task: install
     cmds:
       - gh auth setup-git
 
@@ -217,7 +217,7 @@ tasks:
       repository in the current working directory.
       Example: OWNER=github REPO=cli
     deps:
-      - install
+      - task: install
     cmds:
       - gh repo view {{if .OWNER}}{{.OWNER}}/{{end}}{{.REPO}}
 
@@ -232,7 +232,7 @@ tasks:
       vars:
         - REPO
     deps:
-      - install
+      - task: install
     cmds:
       - >-
         gh repo create
@@ -256,7 +256,7 @@ tasks:
       vars:
         - REPO
     deps:
-      - install
+      - task: install
     cmds:
       - task: _repo:clone:unix
       - task: _repo:clone:windows
@@ -271,7 +271,7 @@ tasks:
       Example: OWNER=github REPO=cli
       Private: OWNER=myorg REPO=private-repo PAT_TOKEN=ghp_xxx
     deps:
-      - install
+      - task: install
     cmds:
       - gh repo fork {{if .OWNER}}{{.OWNER}}/{{end}}{{.REPO}} --clone
 
@@ -283,7 +283,7 @@ tasks:
       repositories for a specific user or organisation instead.
       Example: OWNER=github
     deps:
-      - install
+      - task: install
     cmds:
       - gh repo list {{.OWNER}}
 
@@ -295,7 +295,7 @@ tasks:
       Optionally set BRANCH to sync a specific branch.
       Example: BRANCH=main
     deps:
-      - install
+      - task: install
     cmds:
       - gh repo sync {{if .BRANCH}}--branch {{.BRANCH}}{{end}}
 
@@ -310,7 +310,7 @@ tasks:
       vars:
         - REPO
     deps:
-      - install
+      - task: install
     cmds:
       - gh repo archive {{if .OWNER}}{{.OWNER}}/{{end}}{{.REPO}} --yes
 
@@ -330,7 +330,7 @@ tasks:
       - All code, issues, pull requests, and history will be permanently lost.
       - This action cannot be undone. Are you sure you want to continue?
     deps:
-      - install
+      - task: install
     cmds:
       - gh repo delete {{if .OWNER}}{{.OWNER}}/{{end}}{{.REPO}} --yes
 
@@ -339,7 +339,7 @@ tasks:
     desc: List open pull requests in the current repository
     summary: List open pull requests for the current repository via `gh pr list`.
     deps:
-      - install
+      - task: install
     cmds:
       - gh pr list
 
@@ -348,7 +348,7 @@ tasks:
     desc: Show pull request status for the current branch
     summary: Display the status of pull requests related to the current branch via `gh pr status`.
     deps:
-      - install
+      - task: install
     cmds:
       - gh pr status
 
@@ -359,7 +359,7 @@ tasks:
       View the pull request for the current branch, or the PR specified by
       PR_NUMBER. Example: PR_NUMBER=42
     deps:
-      - install
+      - task: install
     cmds:
       - gh pr view {{.PR_NUMBER}}
 
@@ -371,7 +371,7 @@ tasks:
       BASE (default: main), and HEAD to pre-fill fields.
       Example: PR_TITLE="Add feature" BASE=main
     deps:
-      - install
+      - task: install
     cmds:
       - >-
         gh pr create
@@ -390,7 +390,7 @@ tasks:
       vars:
         - PR_NUMBER
     deps:
-      - install
+      - task: install
     cmds:
       - gh pr checkout {{.PR_NUMBER}}
 
@@ -401,7 +401,7 @@ tasks:
       Show the diff for the current branch's PR, or for PR_NUMBER.
       Example: PR_NUMBER=42
     deps:
-      - install
+      - task: install
     cmds:
       - gh pr diff {{.PR_NUMBER}}
 
@@ -412,7 +412,7 @@ tasks:
       Open an interactive review for the current branch's PR, or for PR_NUMBER.
       Example: PR_NUMBER=42
     deps:
-      - install
+      - task: install
     cmds:
       - gh pr review {{.PR_NUMBER}}
 
@@ -427,7 +427,7 @@ tasks:
       vars:
         - PR_NUMBER
     deps:
-      - install
+      - task: install
     cmds:
       - gh pr merge {{.PR_NUMBER}} --{{default "merge" .MERGE_METHOD}}
 
@@ -441,7 +441,7 @@ tasks:
       vars:
         - PR_NUMBER
     deps:
-      - install
+      - task: install
     cmds:
       - gh pr close {{.PR_NUMBER}}
 
@@ -453,7 +453,7 @@ tasks:
       Optionally set PR_NUMBER; otherwise uses the current branch's PR.
       Example: PR_NUMBER=42
     deps:
-      - install
+      - task: install
     cmds:
       - gh pr ready {{.PR_NUMBER}}
 
@@ -468,7 +468,7 @@ tasks:
         - PR_NUMBER
         - PR_BODY
     deps:
-      - install
+      - task: install
     cmds:
       - gh pr comment {{.PR_NUMBER}} --body "{{.PR_BODY}}"
 
@@ -477,7 +477,7 @@ tasks:
     desc: List open issues in the current repository
     summary: List open issues for the current repository via `gh issue list`.
     deps:
-      - install
+      - task: install
     cmds:
       - gh issue list
 
@@ -491,7 +491,7 @@ tasks:
       vars:
         - ISSUE_NUMBER
     deps:
-      - install
+      - task: install
     cmds:
       - gh issue view {{.ISSUE_NUMBER}}
 
@@ -502,7 +502,7 @@ tasks:
       Create an issue interactively. Optionally set ISSUE_TITLE and ISSUE_BODY
       to pre-fill fields. Example: ISSUE_TITLE="Bug report" ISSUE_BODY="..."
     deps:
-      - install
+      - task: install
     cmds:
       - >-
         gh issue create
@@ -521,7 +521,7 @@ tasks:
         - ISSUE_NUMBER
         - ISSUE_BODY
     deps:
-      - install
+      - task: install
     cmds:
       - gh issue comment {{.ISSUE_NUMBER}} --body "{{.ISSUE_BODY}}"
 
@@ -535,7 +535,7 @@ tasks:
       vars:
         - ISSUE_NUMBER
     deps:
-      - install
+      - task: install
     cmds:
       - gh issue close {{.ISSUE_NUMBER}}
 
@@ -549,7 +549,7 @@ tasks:
       vars:
         - ISSUE_NUMBER
     deps:
-      - install
+      - task: install
     cmds:
       - gh issue reopen {{.ISSUE_NUMBER}}
 
@@ -565,7 +565,7 @@ tasks:
         - ISSUE_NUMBER
         - ASSIGNEE
     deps:
-      - install
+      - task: install
     cmds:
       - gh issue edit {{.ISSUE_NUMBER}} --add-assignee {{.ASSIGNEE}}
 
@@ -581,7 +581,7 @@ tasks:
         - ISSUE_NUMBER
         - LABEL
     deps:
-      - install
+      - task: install
     cmds:
       - gh issue edit {{.ISSUE_NUMBER}} --add-label {{.LABEL}}
 
@@ -590,7 +590,7 @@ tasks:
     desc: List GitHub Actions workflows in the current repository
     summary: List all available workflows via `gh workflow list`.
     deps:
-      - install
+      - task: install
     cmds:
       - gh workflow list
 
@@ -604,7 +604,7 @@ tasks:
       vars:
         - WORKFLOW
     deps:
-      - install
+      - task: install
     cmds:
       - gh workflow view {{.WORKFLOW}}
 
@@ -619,7 +619,7 @@ tasks:
       vars:
         - WORKFLOW
     deps:
-      - install
+      - task: install
     cmds:
       - gh workflow run {{.WORKFLOW}} {{if .BRANCH}}--ref {{.BRANCH}}{{end}}
 
@@ -633,8 +633,8 @@ tasks:
       vars:
         - WORKFLOW
     deps:
-      - install
-      - jq:install
+      - task: install
+      - task: jq:install
     cmds:
       - task: _workflow:watch:unix
       - task: _workflow:watch:windows
@@ -644,7 +644,7 @@ tasks:
     desc: List recent GitHub Actions runs in the current repository
     summary: List recent workflow runs via `gh run list`.
     deps:
-      - install
+      - task: install
     cmds:
       - gh run list
 
@@ -658,7 +658,7 @@ tasks:
       vars:
         - RUN_ID
     deps:
-      - install
+      - task: install
     cmds:
       - gh run view {{.RUN_ID}}
 
@@ -672,7 +672,7 @@ tasks:
       vars:
         - RUN_ID
     deps:
-      - install
+      - task: install
     cmds:
       - gh run view {{.RUN_ID}} --log
 
@@ -686,7 +686,7 @@ tasks:
       vars:
         - RUN_ID
     deps:
-      - install
+      - task: install
     cmds:
       - gh run rerun {{.RUN_ID}}
 
@@ -700,7 +700,7 @@ tasks:
       vars:
         - RUN_ID
     deps:
-      - install
+      - task: install
     cmds:
       - gh run cancel {{.RUN_ID}}
 
@@ -712,7 +712,7 @@ tasks:
       (requires PAT_TOKEN with repo scope).
       Example: OWNER=hashicorp REPO=terraform PAT_TOKEN=ghp_...
     deps:
-      - install
+      - task: install
     cmds:
       - gh release list {{if .OWNER}}--repo {{.OWNER}}/{{.REPO}}{{end}}
 
@@ -724,7 +724,7 @@ tasks:
       release. Set OWNER and REPO to target a repo not owned by you.
       Example: TAG=v1.0.0 OWNER=hashicorp REPO=terraform
     deps:
-      - install
+      - task: install
     cmds:
       - gh release view {{.TAG}} {{if .OWNER}}--repo {{.OWNER}}/{{.REPO}}{{end}}
 
@@ -741,7 +741,7 @@ tasks:
       vars:
         - TAG
     deps:
-      - install
+      - task: install
     cmds:
       - >-
         gh release create {{.TAG}}
@@ -762,7 +762,7 @@ tasks:
         - TAG
         - ASSET
     deps:
-      - install
+      - task: install
     cmds:
       - gh release upload {{.TAG}} {{.ASSET}} {{if .OWNER}}--repo {{.OWNER}}/{{.REPO}}{{end}}
 
@@ -776,7 +776,7 @@ tasks:
       (requires PAT_TOKEN with repo scope for private repos).
       Example: TAG=v1.0.0 OWNER=hashicorp REPO=terraform DOWNLOAD_DIR=./dist
     deps:
-      - install
+      - task: install
     cmds:
       - >-
         gh release download {{.TAG}}
@@ -792,8 +792,8 @@ tasks:
       (requires PAT_TOKEN with repo scope for private repos).
       Example: OWNER=hashicorp REPO=terraform DOWNLOAD_DIR=./releases
     deps:
-      - install
-      - jq:install
+      - task: install
+      - task: jq:install
     cmds:
       - task: _release:download:all:unix
       - task: _release:download:all:windows
@@ -848,7 +848,7 @@ tasks:
       - The git tag itself will be preserved, but the release record will be gone.
       - Are you sure you want to continue?
     deps:
-      - install
+      - task: install
     cmds:
       - gh release delete {{.TAG}} --yes {{if .OWNER}}--repo {{.OWNER}}/{{.REPO}}{{end}}
 
@@ -860,7 +860,7 @@ tasks:
       Optionally set ENVIRONMENT to list secrets for a specific environment.
       Example: ENVIRONMENT=production
     deps:
-      - install
+      - task: install
     cmds:
       - gh secret list {{if .ENVIRONMENT}}--env {{.ENVIRONMENT}}{{end}}
 
@@ -878,7 +878,7 @@ tasks:
         - SECRET_NAME
         - SECRET_VALUE
     deps:
-      - install
+      - task: install
     cmds:
       - task: _secret:set:unix
       - task: _secret:set:windows
@@ -898,7 +898,7 @@ tasks:
       - Any workflows depending on this secret will break until it is re-created.
       - Are you sure you want to continue?
     deps:
-      - install
+      - task: install
     cmds:
       - gh secret delete {{.SECRET_NAME}} {{if .ENVIRONMENT}}--env {{.ENVIRONMENT}}{{end}}
 
@@ -910,7 +910,7 @@ tasks:
       Optionally set ENVIRONMENT to list variables for a specific environment.
       Example: ENVIRONMENT=staging
     deps:
-      - install
+      - task: install
     cmds:
       - gh variable list {{if .ENVIRONMENT}}--env {{.ENVIRONMENT}}{{end}}
 
@@ -927,7 +927,7 @@ tasks:
         - VARIABLE_NAME
         - VARIABLE_VALUE
     deps:
-      - install
+      - task: install
     cmds:
       - >-
         gh variable set {{.VARIABLE_NAME}}
@@ -948,7 +948,7 @@ tasks:
       - "This will permanently delete the variable {{.VARIABLE_NAME}}."
       - Are you sure you want to continue?
     deps:
-      - install
+      - task: install
     cmds:
       - gh variable delete {{.VARIABLE_NAME}} {{if .ENVIRONMENT}}--env {{.ENVIRONMENT}}{{end}}
 
@@ -957,7 +957,7 @@ tasks:
     desc: List gists for the authenticated GitHub user
     summary: List all gists belonging to the authenticated user via `gh gist list`.
     deps:
-      - install
+      - task: install
     cmds:
       - gh gist list
 
@@ -971,7 +971,7 @@ tasks:
       vars:
         - GIST_ID
     deps:
-      - install
+      - task: install
     cmds:
       - gh gist view {{.GIST_ID}}
 
@@ -986,7 +986,7 @@ tasks:
       vars:
         - FILE
     deps:
-      - install
+      - task: install
     cmds:
       - gh gist create {{.FILE}} {{if .DESCRIPTION}}--desc "{{.DESCRIPTION}}"{{end}}
 
@@ -1003,7 +1003,7 @@ tasks:
       - "This will permanently delete gist {{.GIST_ID}}."
       - This action cannot be undone. Are you sure you want to continue?
     deps:
-      - install
+      - task: install
     cmds:
       - gh gist delete {{.GIST_ID}}
 
@@ -1017,7 +1017,7 @@ tasks:
       vars:
         - ENDPOINT
     deps:
-      - install
+      - task: install
     cmds:
       - gh api {{.ENDPOINT}}
 
@@ -1032,7 +1032,7 @@ tasks:
       vars:
         - ENDPOINT
     deps:
-      - install
+      - task: install
     cmds:
       - task: _api:post:unix
       - task: _api:post:windows
@@ -1048,7 +1048,7 @@ tasks:
       vars:
         - ENDPOINT
     deps:
-      - install
+      - task: install
     cmds:
       - task: _api:patch:unix
       - task: _api:patch:windows
@@ -1067,7 +1067,7 @@ tasks:
       - "This will send a DELETE request to the GitHub API: {{.ENDPOINT}}"
       - This may permanently remove resources. Are you sure you want to continue?
     deps:
-      - install
+      - task: install
     cmds:
       - gh api --method DELETE {{.ENDPOINT}}
 
@@ -1076,7 +1076,7 @@ tasks:
     desc: List installed GitHub CLI extensions
     summary: List all locally installed gh extensions via `gh extension list`.
     deps:
-      - install
+      - task: install
     cmds:
       - gh extension list
 
@@ -1090,7 +1090,7 @@ tasks:
       vars:
         - EXTENSION
     deps:
-      - install
+      - task: install
     cmds:
       - gh extension install {{.EXTENSION}}
 
@@ -1105,7 +1105,7 @@ tasks:
       vars:
         - EXTENSION
     deps:
-      - install
+      - task: install
     cmds:
       - gh extension upgrade {{.EXTENSION}}
 
@@ -1119,7 +1119,7 @@ tasks:
       vars:
         - EXTENSION
     deps:
-      - install
+      - task: install
     cmds:
       - gh extension remove {{.EXTENSION}}
 
@@ -1128,7 +1128,7 @@ tasks:
     desc: List all GitHub CLI configuration values
     summary: Display all current gh configuration settings via `gh config list`.
     deps:
-      - install
+      - task: install
     cmds:
       - gh config list
 
@@ -1142,7 +1142,7 @@ tasks:
       vars:
         - CONFIG_KEY
     deps:
-      - install
+      - task: install
     cmds:
       - gh config get {{.CONFIG_KEY}}
 
@@ -1158,7 +1158,7 @@ tasks:
         - CONFIG_KEY
         - CONFIG_VALUE
     deps:
-      - install
+      - task: install
     cmds:
       - gh config set {{.CONFIG_KEY}} {{.CONFIG_VALUE}}
 
@@ -1167,7 +1167,7 @@ tasks:
     desc: List SSH keys associated with the GitHub account
     summary: List all SSH keys for the authenticated GitHub user via `gh ssh-key list`.
     deps:
-      - install
+      - task: install
     cmds:
       - gh ssh-key list
 
@@ -1182,7 +1182,7 @@ tasks:
       vars:
         - SSH_KEY_FILE
     deps:
-      - install
+      - task: install
     cmds:
       - gh ssh-key add {{.SSH_KEY_FILE}} {{if .SSH_KEY_TITLE}}--title "{{.SSH_KEY_TITLE}}"{{end}}
 
@@ -1200,7 +1200,7 @@ tasks:
       - "This will permanently delete SSH key {{.SSH_KEY_ID}} from your GitHub account."
       - Are you sure you want to continue?
     deps:
-      - install
+      - task: install
     cmds:
       - gh ssh-key delete {{.SSH_KEY_ID}} --yes
 
@@ -1209,7 +1209,7 @@ tasks:
     desc: List all GitHub CLI command aliases
     summary: List all configured gh command aliases via `gh alias list`.
     deps:
-      - install
+      - task: install
     cmds:
       - gh alias list
 
@@ -1225,7 +1225,7 @@ tasks:
         - ALIAS_NAME
         - ALIAS_COMMAND
     deps:
-      - install
+      - task: install
     cmds:
       - task: _alias:set:unix
       - task: _alias:set:windows
@@ -1240,7 +1240,7 @@ tasks:
       vars:
         - ALIAS_NAME
     deps:
-      - install
+      - task: install
     cmds:
       - gh alias delete {{.ALIAS_NAME}}
 
@@ -1252,7 +1252,7 @@ tasks:
       projects for a specific user or organisation.
       Example: OWNER=myorg
     deps:
-      - install
+      - task: install
     cmds:
       - gh project list {{if .OWNER}}--owner {{.OWNER}}{{end}}
 
@@ -1267,7 +1267,7 @@ tasks:
       vars:
         - PROJECT_NUMBER
     deps:
-      - install
+      - task: install
     cmds:
       - gh project view {{.PROJECT_NUMBER}} {{if .OWNER}}--owner {{.OWNER}}{{end}}
 
@@ -1282,7 +1282,7 @@ tasks:
       vars:
         - PROJECT_TITLE
     deps:
-      - install
+      - task: install
     cmds:
       - gh project create --title "{{.PROJECT_TITLE}}" {{if .OWNER}}--owner {{.OWNER}}{{end}}
 
@@ -1291,7 +1291,7 @@ tasks:
     desc: Open the current repository in the browser
     summary: Open the current repository's GitHub page in the default web browser.
     deps:
-      - install
+      - task: install
     cmds:
       - gh repo view --web
 
@@ -1302,7 +1302,7 @@ tasks:
       Open the current branch of the repository in the default web browser
       via `gh browse`.
     deps:
-      - install
+      - task: install
     cmds:
       - gh browse
 
@@ -1316,7 +1316,7 @@ tasks:
       vars:
         - QUERY
     deps:
-      - install
+      - task: install
     cmds:
       - gh search repos "{{.QUERY}}"
 
@@ -1330,7 +1330,7 @@ tasks:
       vars:
         - QUERY
     deps:
-      - install
+      - task: install
     cmds:
       - gh search issues "{{.QUERY}}"
 
@@ -1344,7 +1344,7 @@ tasks:
       vars:
         - QUERY
     deps:
-      - install
+      - task: install
     cmds:
       - gh search prs "{{.QUERY}}"
 

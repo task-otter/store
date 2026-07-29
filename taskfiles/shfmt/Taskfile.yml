@@ -53,7 +53,7 @@ tasks:
       GOBIN is unset. Leave SHFMT_VERSION empty to install the latest stable v3
       release, or set an exact module version such as v3.13.1.
     deps:
-      - go:install
+      - task: go:install
     cmds:
       - task: _install:unix
       - task: _install:windows
@@ -76,7 +76,7 @@ tasks:
       Reinstall shfmt from its official Go module. Leave SHFMT_VERSION empty to
       upgrade to the latest stable v3 release, or set an exact version.
     deps:
-      - go:install
+      - task: go:install
     cmds:
       - task: _install:unix
         vars:
@@ -94,7 +94,7 @@ tasks:
       and its Go toolchain if needed.
     dir: "{{.USER_WORKING_DIR}}"
     deps:
-      - install
+      - task: install
     cmds:
       - task: _fmt:unix
       - task: _fmt:windows
@@ -108,7 +108,7 @@ tasks:
       -ci, -sr, or -ln bash. Auto-installs shfmt and its Go toolchain if needed.
     dir: "{{.USER_WORKING_DIR}}"
     deps:
-      - install
+      - task: install
     cmds:
       - task: _fmt:check:unix
       - task: _fmt:check:windows
@@ -118,7 +118,7 @@ tasks:
     desc: Show the installed shfmt version
     summary: Print the active shfmt version with shfmt -version. Auto-installs shfmt if it is missing.
     deps:
-      - install
+      - task: install
     cmds:
       - task: _version:unix
       - task: _version:windows

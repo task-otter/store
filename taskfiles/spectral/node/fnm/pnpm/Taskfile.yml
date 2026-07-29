@@ -94,7 +94,7 @@ tasks:
       flags. Auto-installs Spectral if missing.
     dir: "{{.USER_WORKING_DIR}}"
     deps:
-      - install
+      - task: install
     vars:
       RESOLVED_TARGETS: '{{default .TARGETS .TARGETS_OVERRIDE}}'
       RESOLVED_SKIP: '{{default .SPECTRAL_LINT_SKIP_PATTERN .SPECTRAL_LINT_SKIP_PATTERN_OVERRIDE}}'
@@ -114,7 +114,7 @@ tasks:
     run: once
     desc: Show the Spectral CLI help
     deps:
-      - install
+      - task: install
     cmds:
       - task: pnpm:exec
         vars:
@@ -125,7 +125,7 @@ tasks:
     run: once
     desc: Show the locally resolved Spectral version
     deps:
-      - install
+      - task: install
     cmds:
       - task: pnpm:exec
         vars:

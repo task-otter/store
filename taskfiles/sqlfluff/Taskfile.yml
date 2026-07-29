@@ -66,7 +66,7 @@ tasks:
     desc: Show the installed sqlfluff version
     summary: Print the active sqlfluff version via sqlfluff --version. Auto-installs sqlfluff if missing.
     deps:
-      - install
+      - task: install
     cmds:
       - bash -c '{{.UV_LOAD}}; sqlfluff --version'
 
@@ -78,7 +78,7 @@ tasks:
       custom config file via --config, DIALECT to override the SQL dialect,
       and EXTRA_ARGS for additional flags. Auto-installs sqlfluff if missing.
     deps:
-      - install
+      - task: install
     dir: "{{.USER_WORKING_DIR}}"
     vars:
       TARGETS: "."
@@ -136,7 +136,7 @@ tasks:
       lint violations. Pass CONFIG, DIALECT, and EXTRA_ARGS as needed.
       Auto-installs sqlfluff if missing.
     deps:
-      - install
+      - task: install
     dir: "{{.USER_WORKING_DIR}}"
     vars:
       TARGETS: "."
@@ -195,7 +195,7 @@ tasks:
       interprets a query. Pass CONFIG, DIALECT, and EXTRA_ARGS as needed.
       Auto-installs sqlfluff if missing.
     deps:
-      - install
+      - task: install
     dir: "{{.USER_WORKING_DIR}}"
     vars:
       TARGETS: "."
@@ -385,7 +385,7 @@ tasks:
         bash -c '{{.UV_LOAD}};
         sqlfluff --version | grep -q "version {{.SQLFLUFF_VERSION}}$"'
     deps:
-      - uv:install
+      - task: uv:install
     cmds:
       - echo 'Installing sqlfluff via uv...'
       - bash -c '{{.UV_LOAD}}; uv tool install --force "sqlfluff=={{.SQLFLUFF_VERSION}}"'
@@ -401,7 +401,7 @@ tasks:
         "if ((Get-Command sqlfluff -ErrorAction SilentlyContinue)
         -and ((sqlfluff --version) -match 'version {{.SQLFLUFF_VERSION}}$')) { exit 0 } else { exit 1 }"
     deps:
-      - uv:install
+      - task: uv:install
     cmds:
       - echo Installing sqlfluff via uv...
       - uv tool install --force sqlfluff=={{.SQLFLUFF_VERSION}}

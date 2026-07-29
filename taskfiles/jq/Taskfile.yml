@@ -69,7 +69,7 @@ tasks:
     desc: Show the installed jq version
     summary: Print the active jq version via jq --version. Auto-installs jq if missing.
     deps:
-      - install
+      - task: install
     cmds:
       - jq --version
 

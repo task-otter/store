@@ -58,7 +58,7 @@ tasks:
       Auto-installs the CLI if it is missing.
     dir: "{{.USER_WORKING_DIR}}"
     deps:
-      - install
+      - task: install
     cmds:
       - >-
         bencher run
@@ -74,7 +74,7 @@ tasks:
       Auto-installs the CLI if it is missing.
     dir: "{{.USER_WORKING_DIR}}"
     deps:
-      - install
+      - task: install
     cmds:
       - >-
         bencher
@@ -86,7 +86,7 @@ tasks:
     desc: Show the installed Bencher CLI version
     summary: Print the active Bencher CLI version via bencher --version. Auto-installs the CLI if it is missing.
     deps:
-      - install
+      - task: install
     cmds:
       - bencher --version
 

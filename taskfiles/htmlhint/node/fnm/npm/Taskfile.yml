@@ -103,7 +103,7 @@ tasks:
       flags. Auto-installs HTMLHint if missing.
     dir: "{{.USER_WORKING_DIR}}"
     deps:
-      - install
+      - task: install
     vars:
       RESOLVED_CONFIG: '{{default .CONFIG .CONFIG_OVERRIDE}}'
       RESOLVED_SKIP: '{{default .HTMLHINT_LINT_SKIP_PATTERN .HTMLHINT_LINT_SKIP_PATTERN_OVERRIDE}}'
@@ -123,7 +123,7 @@ tasks:
     run: once
     desc: Show the HTMLHint CLI help
     deps:
-      - install
+      - task: install
     cmds:
       - task: npm:exec
         vars:
@@ -134,7 +134,7 @@ tasks:
     run: once
     desc: Show the locally resolved HTMLHint version
     deps:
-      - install
+      - task: install
     cmds:
       - task: npm:exec
         vars:

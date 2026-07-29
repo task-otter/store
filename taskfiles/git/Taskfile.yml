@@ -116,7 +116,7 @@ tasks:
       vars:
         - REPO
     deps:
-      - gh:install
+      - task: gh:install
     cmds:
       - gh repo clone {{if .OWNER}}{{.OWNER}}/{{end}}{{.REPO}} {{if .CLONE_DIR}}{{.CLONE_DIR}}{{end}} {{.EXTRA_ARGS}}
 
@@ -215,7 +215,7 @@ tasks:
       Run `task auth:setup` first to configure git credentials via gh.
       Example: BRANCH=main
     deps:
-      - gh:install
+      - task: gh:install
     cmds:
       - gh repo sync {{if .BRANCH}}--branch {{.BRANCH}}{{end}} {{.EXTRA_ARGS}}
 
@@ -504,7 +504,7 @@ tasks:
       vars:
         - TITLE
     deps:
-      - gh:install
+      - task: gh:install
     cmds:
       - git push {{.REMOTE}} {{if .BRANCH}}{{.BRANCH}}{{else}}HEAD{{end}} {{.EXTRA_ARGS}}
       - >-
@@ -520,7 +520,7 @@ tasks:
       Open the pull request for the current branch on GitHub in the browser
       via `gh pr view --web`. Run `task auth:setup` first if needed.
     deps:
-      - gh:install
+      - task: gh:install
     cmds:
       - gh pr view --web
 
@@ -536,7 +536,7 @@ tasks:
       vars:
         - TAG
     deps:
-      - gh:install
+      - task: gh:install
     cmds:
       - git tag -a {{.TAG}} -m "{{default .TAG .TITLE}}"
       - git push {{.REMOTE}} {{.TAG}}

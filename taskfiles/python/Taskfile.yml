@@ -38,7 +38,7 @@ tasks:
       --default, which exposes it as python3/python on PATH through uv's
       shim directory. Auto-installs uv first if missing.
     deps:
-      - uv:install
+      - task: uv:install
     cmds:
       - task: _install:unix
       - task: _install:windows
@@ -64,7 +64,7 @@ tasks:
       Reinstall PYTHON_PIN_VERSION via uv python install --reinstall to pick up
       the latest available patch release. Auto-installs Python if missing.
     deps:
-      - install
+      - task: install
     cmds:
       - task: _upgrade:unix
       - task: _upgrade:windows
@@ -74,7 +74,7 @@ tasks:
     desc: Show the installed Python version
     summary: Print the active Python version. Auto-installs Python if missing.
     deps:
-      - install
+      - task: install
     cmds:
       - task: _version:unix
       - task: _version:windows
@@ -87,7 +87,7 @@ tasks:
       and reachable. Useful for diagnosing setup issues after install.
       Auto-installs Python if missing.
     deps:
-      - install
+      - task: install
     cmds:
       - task: _verify:unix
       - task: _verify:windows
