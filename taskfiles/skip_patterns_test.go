@@ -1,4 +1,4 @@
-// REPLACE_ME 2026
+// Copyright 2026 task-otter
 // SPDX-License-Identifier: Apache-2.0
 
 package taskfiles_test
@@ -32,17 +32,43 @@ const (
 	skipTaskfileYML      = "Taskfile.yml"
 )
 
-type skipPatternModule struct {
-	name string
-	vars []string
-}
+type (
+	skipPatternModule struct {
+		name string
+		vars []string
+	}
 
-type sharedSkipFileMatcherCase struct {
-	name     string
-	pattern  string
-	paths    []string
-	retained []string
-}
+	sharedSkipFileMatcherCase struct {
+		name     string
+		pattern  string
+		paths    []string
+		retained []string
+	}
+
+	actionlintSkipFixture struct {
+		taskfilePath string
+		project      string
+		binDirectory string
+		logPath      string
+		skippedPath  string
+		cliGoodPath  string
+		env          []string
+	}
+
+	cargoSkipFixture struct {
+		taskfilePath string
+		project      string
+		logPath      string
+		env          []string
+	}
+
+	goAnalysisSkipFixture struct {
+		taskfilePath string
+		project      string
+		logPath      string
+		env          []string
+	}
+)
 
 func skipPatternModules() []skipPatternModule {
 	return append(skipPatternFlatModules(), skipPatternVariantModules()...)
@@ -756,16 +782,6 @@ func TestActionlintSkipPatternFiltersFiles(t *testing.T) {
 	fixture.assertAllSkipped(t)
 }
 
-type actionlintSkipFixture struct {
-	taskfilePath string
-	project      string
-	binDirectory string
-	logPath      string
-	skippedPath  string
-	cliGoodPath  string
-	env          []string
-}
-
 func newActionlintSkipFixture(t *testing.T) actionlintSkipFixture {
 	t.Helper()
 
@@ -922,13 +938,6 @@ func TestCargoSkipPatternExcludesWorkspacePackages(t *testing.T) {
 	fixture.assertAllSkipped(t)
 }
 
-type cargoSkipFixture struct {
-	taskfilePath string
-	project      string
-	logPath      string
-	env          []string
-}
-
 func newCargoSkipFixture(t *testing.T) cargoSkipFixture {
 	t.Helper()
 
@@ -1037,13 +1046,6 @@ func TestGoAnalysisSkipPatternExcludesPackages(t *testing.T) {
 	fixture := newGoAnalysisSkipFixture(t)
 	fixture.assertRetainedPackage(t)
 	fixture.assertAllSkipped(t)
-}
-
-type goAnalysisSkipFixture struct {
-	taskfilePath string
-	project      string
-	logPath      string
-	env          []string
 }
 
 func newGoAnalysisSkipFixture(t *testing.T) goAnalysisSkipFixture {

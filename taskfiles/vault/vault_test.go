@@ -1,4 +1,4 @@
-// REPLACE_ME 2026
+// Copyright 2026 task-otter
 // SPDX-License-Identifier: Apache-2.0
 
 package vault_test
@@ -9,7 +9,7 @@ import (
 	"testing"
 
 	"github.com/task-otter/store/internal/tasktest"
-	yaml "gopkg.in/yaml.v3"
+	yaml "go.yaml.in/yaml/v3"
 )
 
 const (

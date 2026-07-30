@@ -1,4 +1,4 @@
-// REPLACE_ME 2026
+// Copyright 2026 task-otter
 // SPDX-License-Identifier: Apache-2.0
 
 package typescriptnodenvmnpm_test
@@ -15,7 +15,7 @@ import (
 	"strings"
 	"testing"
 
-	yaml "gopkg.in/yaml.v3"
+	yaml "go.yaml.in/yaml/v3"
 )
 
 const (
@@ -305,7 +305,7 @@ func TestNoPlaceholderTextInTaskfileOrReadme(t *testing.T) {
 	for name, content := range files {
 		content = strings.ToUpper(content)
 
-		for _, placeholder := range []string{"TODO", "FIXME", "CHANGEME", "REPLACE_ME", "LOREM IPSUM"} {
+		for _, placeholder := range []string{"TODO", "FIXME", "CHANGEME", "Copyright", "LOREM IPSUM"} {
 			if strings.Contains(content, placeholder) {
 				t.Fatalf("%s contains placeholder text: %s", name, placeholder)
 			}

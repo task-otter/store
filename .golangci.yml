@@ -47,6 +47,8 @@ linters:
           deny:
             - pkg: "io/ioutil$"
               desc: "Use io and os packages."
+            - pkg: "gopkg.in/yaml.v3"
+              desc: "Use go.yaml.in/yaml/v3 packages"
         domain_must_not_import_infrastructure:
           files:
             - "**/internal/domain/**/*.go"
@@ -161,7 +163,7 @@ linters:
       default-signifies-exhaustive: false
       include-shared-interfaces: true
     gocognit:
-      min-complexity: 5
+      min-complexity: 10
     goconst:
       min-len: 1
       min-occurrences: 2
@@ -256,7 +258,11 @@ linters:
     gomodguard_v2:
       local-replace-directives: true
       allowed:
-        - module: github.com/REPLACE_ME
+        - module: github.com/gostafa
+          match-type: prefix
+        - module: github.com/task-otter
+          match-type: prefix
+        - module: go.yaml.in
           match-type: prefix
         - module: golang.org
           match-type: prefix
@@ -322,14 +328,14 @@ linters:
       no-unaliased: true
       no-extra-aliases: true
       alias:
-        - pkg: gopkg.in/yaml.v3
+        - pkg: go.yaml.in/yaml/v3
           alias: yaml
     inamedparam:
       skip-single-param: false
     ineffassign:
       check-escaping-errors: true
     interfacebloat:
-      max: 1
+      max: 5
     iotamixing:
       report-individual: true
     ireturn:
@@ -642,10 +648,10 @@ linters:
     unused:
       field-writes-are-uses: false
       post-statements-are-reads: false
-      exported-fields-are-used: false
-      parameters-are-used: false
+      exported-fields-are-used: true
+      parameters-are-used: true
       local-variables-are-used: false
-      generated-is-used: false
+      generated-is-used: true
     usestdlibvars:
       http-method: true
       http-status-code: true

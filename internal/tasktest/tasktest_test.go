@@ -1,4 +1,4 @@
-// REPLACE_ME 2026
+// Copyright 2026 task-otter
 // SPDX-License-Identifier: Apache-2.0
 
 package tasktest_test
@@ -14,27 +14,29 @@ import (
 	"github.com/task-otter/store/internal/tasktest"
 )
 
+type (
+	taskfileValidationCase struct {
+		name    string
+		content string
+		want    string
+		tasks   []string
+		vars    []string
+	}
+
+	fatalCall struct{ message string }
+
+	fakeTest struct {
+		tempDirs []string
+		nextDir  int
+	}
+)
+
 const (
 	missingModule = "missing"
 	fixtureModule = "fixture"
 	buildTask     = "build"
 	fooVar        = "FOO"
 )
-
-type taskfileValidationCase struct {
-	name    string
-	content string
-	want    string
-	tasks   []string
-	vars    []string
-}
-
-type fatalCall struct{ message string }
-
-type fakeTest struct {
-	tempDirs []string
-	nextDir  int
-}
 
 func (*fakeTest) Helper() {}
 

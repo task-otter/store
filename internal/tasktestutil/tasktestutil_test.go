@@ -1,4 +1,4 @@
-// REPLACE_ME 2026
+// Copyright 2026 task-otter
 // SPDX-License-Identifier: Apache-2.0
 
 package tasktestutil_test
@@ -16,7 +16,18 @@ import (
 	"time"
 
 	"github.com/task-otter/store/internal/tasktestutil"
-	yaml "gopkg.in/yaml.v3"
+	yaml "go.yaml.in/yaml/v3"
+)
+
+type (
+	fatalCall struct {
+		message string
+	}
+
+	fakeTest struct {
+		tempDirs []string
+		nextDir  int
+	}
 )
 
 const (
@@ -26,14 +37,9 @@ const (
 	defaultTaskName    = "default"
 )
 
-type fatalCall struct{ message string }
-
-var errSentinel = errors.New("sentinel")
-
-type fakeTest struct {
-	tempDirs []string
-	nextDir  int
-}
+var (
+	errSentinel = errors.New("sentinel")
+)
 
 func (*fakeTest) Helper() {}
 

@@ -1,4 +1,4 @@
-// REPLACE_ME 2026
+// Copyright 2026 task-otter
 // SPDX-License-Identifier: Apache-2.0
 
 package tasktestutil
@@ -18,7 +18,58 @@ import (
 	"strings"
 	"time"
 
-	yaml "gopkg.in/yaml.v3"
+	yaml "go.yaml.in/yaml/v3"
+)
+
+type (
+	// PublicTaskSpec describes expectations for a single public task.
+	PublicTaskSpec struct {
+		Args                  map[string]string
+		Name                  string
+		ExpectedDefaultTokens []string
+		MustDryRunWithArgs    bool
+		MustDryRunWithoutArgs bool
+		RequiresGroupOutput   bool
+		RequiresPrompt        bool
+		RequiresSummary       bool
+	}
+
+	// PublicTaskSpecOption customizes a PublicTaskSpec built by NewPublicTaskSpec.
+	PublicTaskSpecOption func(*PublicTaskSpec)
+
+	// TaskNode wraps a YAML node with its task name for error messages.
+	TaskNode struct {
+		Node *yaml.Node
+		Name string
+	}
+
+	// LoadedTaskfile holds the parsed content of a Taskfile.
+	LoadedTaskfile struct {
+		Root  TaskNode
+		Tasks map[string]TaskNode
+		Path  string
+	}
+
+	// CommandResult holds the output of a task invocation.
+	CommandResult struct {
+		Stdout string
+		Stderr string
+		Err    error
+		Args   []string
+	}
+
+	// SimpleTaskResult holds the output of a simple (non-isolated) task run.
+	SimpleTaskResult struct {
+		Err    error
+		Output string
+	}
+
+	testT interface {
+		Helper()
+		Fatal(args ...any)
+		Fatalf(format string, args ...any)
+		TempDir() string
+	}
 )
 
 const (
@@ -30,21 +81,6 @@ const (
 	privateFileMode              = 0o600
 	stubExecutableMode           = 0o500
 )
-
-// PublicTaskSpec describes expectations for a single public task.
-type PublicTaskSpec struct {
-	Args                  map[string]string
-	Name                  string
-	ExpectedDefaultTokens []string
-	MustDryRunWithArgs    bool
-	MustDryRunWithoutArgs bool
-	RequiresGroupOutput   bool
-	RequiresPrompt        bool
-	RequiresSummary       bool
-}
-
-// PublicTaskSpecOption customizes a PublicTaskSpec built by NewPublicTaskSpec.
-type PublicTaskSpecOption func(*PublicTaskSpec)
 
 // NewPublicTaskSpec returns a public task spec with explicit zero defaults.
 func NewPublicTaskSpec(name string, options ...PublicTaskSpecOption) PublicTaskSpec {
@@ -115,42 +151,8 @@ func WithSummary() PublicTaskSpecOption {
 	}
 }
 
-// TaskNode wraps a YAML node with its task name for error messages.
-type TaskNode struct {
-	Node *yaml.Node
-	Name string
-}
-
-// LoadedTaskfile holds the parsed content of a Taskfile.
-type LoadedTaskfile struct {
-	Root  TaskNode
-	Tasks map[string]TaskNode
-	Path  string
-}
-
-// CommandResult holds the output of a task invocation.
-type CommandResult struct {
-	Stdout string
-	Stderr string
-	Err    error
-	Args   []string
-}
-
 // Combined returns stdout and stderr joined with a newline.
 func (result CommandResult) Combined() string { return result.Stdout + "\n" + result.Stderr }
-
-// SimpleTaskResult holds the output of a simple (non-isolated) task run.
-type SimpleTaskResult struct {
-	Err    error
-	Output string
-}
-
-type testT interface {
-	Helper()
-	Fatal(args ...any)
-	Fatalf(format string, args ...any)
-	TempDir() string
-}
 
 func workingDir() (string, error) {
 	workingDirectory, err := os.Getwd()
@@ -1065,7 +1067,7 @@ func AssertNoPlaceholderText(tester testT, taskName, value string) {
 
 	upper := strings.ToUpper(value)
 
-	for _, placeholder := range []string{"TODO", "FIXME", "CHANGEME", "REPLACE_ME", "LOREM IPSUM"} {
+	for _, placeholder := range []string{"TODO", "FIXME", "CHANGEME", "Copyright", "LOREM IPSUM"} {
 		if strings.Contains(upper, placeholder) {
 			tester.Fatalf("task %q contains placeholder text %q", taskName, placeholder)
 		}

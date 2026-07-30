@@ -1,4 +1,4 @@
-// REPLACE_ME 2026
+// Copyright 2026 task-otter
 // SPDX-License-Identifier: Apache-2.0
 
 package taskfiles_test
@@ -13,14 +13,28 @@ import (
 	"testing"
 
 	"github.com/task-otter/store/internal/tasktest"
-	yaml "gopkg.in/yaml.v3"
+	yaml "go.yaml.in/yaml/v3"
+)
+
+type (
+	moduleMetadata struct {
+		Schema        string   `yaml:"schema"`
+		Module        string   `yaml:"module"`
+		Taskfile      string   `yaml:"taskfile"`
+		ExportedTasks []string `yaml:"-"`
+		Variants      []string `yaml:"variants"`
+	}
+
+	discoveredMetadataModules struct {
+		toolLeaves  map[string][]string
+		flatModules []string
+	}
 )
 
 const (
 	constMetadataTestTaskfileYml = "Taskfile.yml"
+	metadataSchema               = "taskotter.dev/taskfile-metadata/v1"
 )
-
-const metadataSchema = "taskotter.dev/taskfile-metadata/v1"
 
 func toolFamilies() map[string]bool {
 	return map[string]bool{
@@ -30,19 +44,6 @@ func toolFamilies() map[string]bool {
 		// Package managers are families too: taskfiles/<pm>/{fnm,nvm}.
 		"npm": true, "pnpm": true, "yarn": true, "corepack": true,
 	}
-}
-
-type moduleMetadata struct {
-	Schema        string   `yaml:"schema"`
-	Module        string   `yaml:"module"`
-	Taskfile      string   `yaml:"taskfile"`
-	ExportedTasks []string `yaml:"-"`
-	Variants      []string `yaml:"variants"`
-}
-
-type discoveredMetadataModules struct {
-	toolLeaves  map[string][]string
-	flatModules []string
 }
 
 // exportedTasks returns the sorted public task names for a module (its path

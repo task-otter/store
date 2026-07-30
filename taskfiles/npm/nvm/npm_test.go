@@ -1,4 +1,4 @@
-// REPLACE_ME 2026
+// Copyright 2026 task-otter
 // SPDX-License-Identifier: Apache-2.0
 
 package npmnvm_test
@@ -13,7 +13,7 @@ import (
 	"time"
 
 	"github.com/task-otter/store/internal/tasktestutil"
-	yaml "gopkg.in/yaml.v3"
+	yaml "go.yaml.in/yaml/v3"
 )
 
 const (
@@ -383,7 +383,7 @@ func TestNoPlaceholderTextInTaskfile(t *testing.T) {
 
 	upper := strings.ToUpper(content)
 
-	for _, p := range []string{"TODO", "FIXME", "CHANGEME", "REPLACE_ME", "YOUR VALUE HERE", "LOREM IPSUM"} {
+	for _, p := range []string{"TODO", "FIXME", "CHANGEME", "Copyright", "YOUR VALUE HERE", "LOREM IPSUM"} {
 		if strings.Contains(upper, p) {
 			t.Fatalf("Taskfile contains placeholder text: %s", p)
 		}

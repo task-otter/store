@@ -1,4 +1,4 @@
-// REPLACE_ME 2026
+// Copyright 2026 task-otter
 // SPDX-License-Identifier: Apache-2.0
 
 package corepacknvm_test
@@ -15,7 +15,14 @@ import (
 	"syscall"
 	"testing"
 
-	yaml "gopkg.in/yaml.v3"
+	yaml "go.yaml.in/yaml/v3"
+)
+
+type (
+	result struct {
+		err    error
+		output string
+	}
 )
 
 const (
@@ -113,11 +120,6 @@ func TestCorepackVersionDefaultIsPinned(t *testing.T) {
 	if !strings.Contains(content, "override with COREPACK_VERSION=latest") {
 		t.Fatal("COREPACK_VERSION pin should include an override comment")
 	}
-}
-
-type result struct {
-	err    error
-	output string
 }
 
 func runTask(t *testing.T, env []string, args ...string) result {
