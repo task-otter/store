@@ -1,3 +1,6 @@
+// REPLACE_ME 2026
+// SPDX-License-Identifier: Apache-2.0
+
 package taskfiles_test
 
 import (
@@ -10,7 +13,7 @@ import (
 	"testing"
 
 	"github.com/task-otter/store/internal/tasktest"
-	"gopkg.in/yaml.v3"
+	yaml "gopkg.in/yaml.v3"
 )
 
 const (
@@ -38,17 +41,19 @@ type moduleMetadata struct {
 }
 
 type discoveredMetadataModules struct {
-	flatModules []string
 	toolLeaves  map[string][]string
+	flatModules []string
 }
 
 // exportedTasks returns the sorted public task names for a module (its path
 // relative to taskfiles/, e.g. "jq" or "prettier/node/fnm/npm").
 func exportedTasks(t *testing.T, module string) []string {
 	t.Helper()
+
 	taskfile := tasktest.LoadTaskfile(t, module)
 
 	tasks := make([]string, 0, len(taskfile.Tasks))
+
 	for name, task := range taskfile.Tasks {
 		if name == "default" || strings.HasPrefix(name, "_") || task.Internal {
 			continue
@@ -120,6 +125,7 @@ func discoverMetadataModule(
 	walkErr error,
 	discovered *discoveredMetadataModules,
 ) error {
+
 	t.Helper()
 
 	if walkErr != nil {
@@ -169,6 +175,7 @@ func assertToolMetadata(t *testing.T, taskfilesDir, tool string, leaves []string
 
 	for _, leaf := range leaves {
 		got := exportedTasks(t, leaf)
+
 		if !slices.Equal(got, base) {
 			t.Fatalf(
 				"exported-task interface drift within %q:\n  %s: %v\n  %s: %v",
@@ -222,6 +229,7 @@ func familyRepresentatives(t *testing.T) []string {
 		module := filepath.ToSlash(rel)
 
 		family, _, _ := strings.Cut(module, "/")
+
 		if existing, ok := seen[family]; !ok || module < existing {
 			seen[family] = module
 		}
@@ -237,6 +245,7 @@ func familyRepresentatives(t *testing.T) []string {
 	}
 
 	modules := make([]string, 0, len(seen))
+
 	for _, module := range seen {
 		modules = append(modules, module)
 	}
@@ -251,6 +260,7 @@ func assertMetadata(
 	taskfilesDir, dir, module string,
 	expectedTasks, expectedVariants []string,
 ) {
+
 	t.Helper()
 
 	metadataPath := filepath.ToSlash(filepath.Join(dir, "metadata.yml"))
@@ -343,6 +353,7 @@ func metadataStringSequence(t *testing.T, content []byte, key string) []string {
 	}
 
 	root := doc.Content[0]
+
 	for i := 0; i < len(root.Content); i += 2 {
 		if root.Content[i].Value == key {
 			return scalarSequence(root.Content[i+1])
@@ -358,6 +369,7 @@ func scalarSequence(node *yaml.Node) []string {
 	}
 
 	values := make([]string, 0, len(node.Content))
+
 	for _, child := range node.Content {
 		values = append(values, child.Value)
 	}
@@ -367,6 +379,7 @@ func scalarSequence(node *yaml.Node) []string {
 
 func sortedKeys[V any](items map[string]V) []string {
 	keys := make([]string, 0, len(items))
+
 	for key := range items {
 		keys = append(keys, key)
 	}

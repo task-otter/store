@@ -1,3 +1,6 @@
+// REPLACE_ME 2026
+// SPDX-License-Identifier: Apache-2.0
+
 package go_test
 
 import (
@@ -115,11 +118,13 @@ func TestTestingTaskCommands(t *testing.T) {
 			t.Parallel()
 
 			task, ok := taskfile.Tasks[testCase.task]
+
 			if !ok {
 				t.Fatalf("go Taskfile missing task %q", testCase.task)
 			}
 
 			cmds := fmt.Sprintf("%v", task.Cmds)
+
 			for _, token := range testCase.tokens {
 				if !strings.Contains(cmds, token) {
 					t.Fatalf("go task %q cmds missing %q: %s", testCase.task, token, cmds)
@@ -129,6 +134,7 @@ func TestTestingTaskCommands(t *testing.T) {
 	}
 
 	testVars := fmt.Sprintf("%v", taskfile.Tasks[constGoTestTest].Vars)
+
 	for _, token := range []string{
 		"GO_JUNIT_REPORT_OUT",
 		"GO_JUNIT_REPORT",
@@ -149,11 +155,13 @@ func TestGolangciLintInstallerUsesGoInstall(t *testing.T) {
 	taskfile := tasktest.LoadTaskfile(t, "go")
 
 	task, ok := taskfile.Tasks[constGoTestInstallGolangciLint]
+
 	if !ok {
 		t.Fatal("go Taskfile missing install:golangci-lint")
 	}
 
 	cmds := fmt.Sprintf("%v", task.Cmds)
+
 	for _, token := range []string{
 		"go install github.com/golangci/golangci-lint/v2/cmd/golangci-lint@",
 		"default \"latest\" .GOLANGCI_LINT_VERSION",
@@ -178,6 +186,7 @@ func TestGolangciLintInstallerUsesGoInstall(t *testing.T) {
 	}
 
 	status := fmt.Sprintf("%v", task.Status)
+
 	for _, token := range []string{
 		"golangci-lint\" version --short",
 		"GOLANGCI_LINT_VERSION",
@@ -360,9 +369,11 @@ func (fixture customGolangciLintFixture) writeConfig(
 	destination string,
 	pluginVersion string,
 ) {
+
 	t.Helper()
 
 	var builder strings.Builder
+
 	builder.WriteString("version: v2.12.2\n")
 
 	if name != "" {
@@ -404,7 +415,9 @@ func (fixture customGolangciLintFixture) runCommand(
 	extraEnv []string,
 	args ...string,
 ) ([]byte, error) {
+
 	taskArgs := make([]string, 0, 4+len(args))
+
 	taskArgs = append(taskArgs,
 		"--taskfile",
 		fixture.taskfile,
@@ -415,6 +428,7 @@ func (fixture customGolangciLintFixture) runCommand(
 
 	// #nosec G204 -- every subprocess argument is assembled by this test fixture.
 	cmd := exec.CommandContext(ctx, "task", taskArgs...)
+
 	cmd.Dir = fixture.project
 	cmd.Env = append(os.Environ(),
 		"CUSTOM_GCL_TEMPLATE="+fixture.template,
@@ -449,6 +463,7 @@ func (fixture customGolangciLintFixture) assertLog(t *testing.T, expected ...str
 	}
 
 	actual := strings.Split(strings.TrimSpace(string(content)), "\n")
+
 	if !slices.Equal(actual, expected) {
 		t.Fatalf("golangci-lint log mismatch\nexpected: %v\nactual:   %v", expected, actual)
 	}
@@ -474,6 +489,7 @@ func TestFmtSkipPatternDefaultsEmpty(t *testing.T) {
 	taskfile := tasktest.LoadTaskfile(t, "go")
 
 	value, exists := taskfile.Vars["GO_FMT_SKIP_PATTERN"]
+
 	if !exists {
 		t.Fatal("GO_FMT_SKIP_PATTERN must be defined")
 	}
@@ -489,6 +505,7 @@ func TestLintSkipPatternDefaultsEmpty(t *testing.T) {
 	taskfile := tasktest.LoadTaskfile(t, "go")
 
 	value, exists := taskfile.Vars["GO_LINT_SKIP_PATTERN"]
+
 	if !exists {
 		t.Fatal("GO_LINT_SKIP_PATTERN must be defined")
 	}
@@ -557,6 +574,7 @@ func TestVersionVariablesAreIndependentAndOptional(t *testing.T) {
 		"GOSEC_VERSION",
 	} {
 		value, exists := taskfile.Vars[name]
+
 		if !exists {
 			t.Fatalf("%s must be defined", name)
 		}
@@ -573,16 +591,20 @@ func assertTaskDependencies(
 	taskName string,
 	expected []string,
 ) {
+
 	t.Helper()
 
 	rawDeps, ok := taskfile.Tasks[taskName].Deps.([]any)
+
 	if !ok {
 		t.Fatalf("%s deps have type %T, want []any", taskName, taskfile.Tasks[taskName].Deps)
 	}
 
 	actual := make([]string, len(rawDeps))
+
 	for index, rawDep := range rawDeps {
 		dep, ok := taskDependencyName(rawDep)
+
 		if !ok {
 			t.Fatalf("%s dependency %d has unsupported value %v", taskName, index, rawDep)
 		}

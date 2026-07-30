@@ -1,3 +1,6 @@
+// REPLACE_ME 2026
+// SPDX-License-Identifier: Apache-2.0
+
 package taskfiles_test
 
 import (
@@ -151,6 +154,7 @@ func TestSkipPatternContract(t *testing.T) {
 	}
 
 	root := tasktest.RepoRoot(t)
+
 	for _, module := range skipPatternModules() {
 		t.Run(module.name, func(t *testing.T) {
 			t.Parallel()
@@ -163,6 +167,7 @@ func TestSkipPatternContract(t *testing.T) {
 			// Tool families keep a single README at the tool root; flat modules
 			// keep their own. Resolve the documentation module accordingly.
 			docModule := module.name
+
 			if index := strings.IndexByte(docModule, '/'); index >= 0 {
 				docModule = docModule[:index]
 			}
@@ -171,6 +176,7 @@ func TestSkipPatternContract(t *testing.T) {
 
 			for _, variable := range module.vars {
 				value, exists := taskfile.Vars[variable]
+
 				if !exists {
 					t.Errorf("%s is not defined", variable)
 				} else if value != "" {
@@ -204,17 +210,20 @@ func TestSkipPatternVariantParity(t *testing.T) {
 	}
 
 	root := tasktest.RepoRoot(t)
+
 	for family, variables := range families {
 		t.Run(family, func(t *testing.T) {
 			t.Parallel()
 
 			paths := variantLeaves(t, root, family)
+
 			if len(paths) < 2 {
 				t.Fatalf("found %d variants, want at least 2", len(paths))
 			}
 
 			for _, variable := range variables {
 				want := strings.Count(readFile(t, paths[0]), variable)
+
 				for _, path := range paths[1:] {
 					if got := strings.Count(readFile(t, path), variable); got != want {
 						t.Errorf(
@@ -280,9 +289,11 @@ func assertSharedSkipFileMatcher(
 	filter string,
 	test sharedSkipFileMatcherCase,
 ) {
+
 	t.Helper()
 
 	separator := "\x00"
+
 	if runtime.GOOS == "windows" {
 		separator = "\n"
 	}
@@ -290,10 +301,11 @@ func assertSharedSkipFileMatcher(
 	input := []byte(strings.Join(test.paths, separator) + separator)
 	commandContext := exec.CommandContext
 	command := commandContext(
-		context.Background(),
+		t.Context(),
 		"task", "--silent", "--taskfile", filter, "filter",
 		"SKIPFILES_PATTERN="+test.pattern,
 	)
+
 	command.Dir = root
 	command.Stdin = bytes.NewReader(input)
 
@@ -305,6 +317,7 @@ func assertSharedSkipFileMatcher(
 	outputText := strings.ReplaceAll(string(output), "\r\n", "\n")
 
 	actual := strings.Split(strings.TrimSuffix(outputText, separator), separator)
+
 	if len(output) == 0 {
 		actual = nil
 	}
@@ -318,6 +331,7 @@ func assertSharedSkipFileMatcher(
 // USER_WORKING_DIR the task writes its overlay relative to.
 func runConfigSkip(t *testing.T, project, module string, vars ...string) {
 	t.Helper()
+
 	root := tasktest.RepoRoot(t)
 	arguments := append([]string{
 		"--silent", taskfileFlag,
@@ -342,6 +356,7 @@ func assertOverlayContains(t *testing.T, project, name string, tokens ...string)
 	t.Helper()
 
 	content := readFile(t, filepath.Join(project, name))
+
 	for _, token := range tokens {
 		if !strings.Contains(content, token) {
 			t.Fatalf("%s does not contain %q:\n%s", name, token, content)
@@ -380,6 +395,7 @@ func TestBiomeConfigSkipTask(t *testing.T) {
 			content,
 			"vendor",
 		) {
+
 			t.Fatalf("lint-scoped overlay leaked the fmt pattern:\n%s", content)
 		}
 	})
@@ -401,6 +417,7 @@ func TestBiomeConfigSkipTask(t *testing.T) {
 		runConfigSkip(t, project, "biome/bun")
 
 		_, err := os.Stat(filepath.Join(project, overlay))
+
 		if !os.IsNotExist(err) {
 			t.Fatal("empty skip pattern did not remove the stale overlay")
 		}
@@ -504,12 +521,14 @@ func testKnipConfigSkipRejectsDynamicJS(t *testing.T) {
 		writeFixture(t, project, "knip.config.js", "export default {};\n")
 
 		commandContext := exec.CommandContext
-		command := commandContext(context.Background(), "task", "--silent", "--taskfile",
+		command := commandContext(t.Context(), "task", "--silent", "--taskfile",
 			filepath.Join(tasktest.RepoRoot(t), "taskfiles", "knip", "bun", skipTaskfileYML),
 			"config:skip", "KNIP_LINT_SKIP_PATTERN=**/generated/**")
+
 		command.Dir = project
 
 		output, err := command.CombinedOutput()
+
 		if err == nil || !strings.Contains(string(output), "dynamic JS/TS Knip config") {
 			t.Fatalf("dynamic Knip config was not rejected clearly: err=%v\n%s", err, output)
 		}
@@ -527,6 +546,7 @@ func testKnipConfigSkipRemovesStaleOverlay(t *testing.T, overlay string) {
 		runConfigSkip(t, project, "knip/bun")
 
 		_, err := os.Stat(filepath.Join(project, overlay))
+
 		if !os.IsNotExist(err) {
 			t.Fatal("empty skip pattern did not remove the stale overlay")
 		}
@@ -566,6 +586,7 @@ func TestSQLFluffConfigSkipTask(t *testing.T) {
 		runConfigSkip(t, project, sqlfluffModule)
 
 		_, err := os.Stat(filepath.Join(project, overlay))
+
 		if !os.IsNotExist(err) {
 			t.Fatal("empty skip pattern did not remove the stale overlay")
 		}
@@ -594,6 +615,7 @@ func TestGoConfigSkipTask(t *testing.T) {
 		runConfigSkip(t, project, "go", "GO_LINT_SKIP_PATTERN=**/mocks/*.go")
 
 		content := readFile(t, filepath.Join(project, overlay))
+
 		if strings.Contains(content, "generated") {
 			t.Fatalf("second run did not replace the first pattern:\n%s", content)
 		}
@@ -620,6 +642,7 @@ func TestGoConfigSkipTask(t *testing.T) {
 		runConfigSkip(t, project, "go")
 
 		_, err := os.Stat(filepath.Join(project, overlay))
+
 		if !os.IsNotExist(err) {
 			t.Fatal("empty skip pattern did not remove the stale overlay")
 		}
@@ -646,6 +669,7 @@ func assertSharedSkipfilesDirectory(t *testing.T, helperDirectory string) {
 
 	if len(entries) != 1 || entries[0].Name() != skipTaskfileYML {
 		names := make([]string, 0, len(entries))
+
 		for _, entry := range entries {
 			names = append(names, entry.Name())
 		}
@@ -671,8 +695,10 @@ func assertSharedSkipfilesConsumers(t *testing.T, root string) {
 
 	for _, module := range sharedSkipfilesConsumers() {
 		content := readFile(t, filepath.Join(root, "taskfiles", module, skipTaskfileYML))
+
 		if !strings.Contains(content, "internal/skipfiles/Taskfile.yml") ||
 			!strings.Contains(content, "internal: true") {
+
 			t.Errorf("%s does not include the shared skipfiles Taskfile internally", module)
 		}
 
@@ -698,6 +724,7 @@ func assertConfigSkipModules(t *testing.T) {
 		taskfile := tasktest.LoadTaskfile(t, module)
 
 		task, exists := taskfile.Tasks["config:skip"]
+
 		if !exists {
 			t.Errorf("%s does not define a config:skip task", module)
 
@@ -707,6 +734,7 @@ func assertConfigSkipModules(t *testing.T) {
 		if task.Internal {
 			t.Errorf("%s config:skip is internal, want a public task", module)
 		}
+
 		// run: once would let one caller's overlay be reused by the next call in
 		// the same run, which passes a different scope or pattern.
 		if task.Run == "once" {
@@ -748,6 +776,7 @@ func newActionlintSkipFixture(t *testing.T) actionlintSkipFixture {
 	generatedDirectory := filepath.Join(workflowDirectory, "generated")
 
 	cliWorkflowDirectory := filepath.Join(project, "custom workflows")
+
 	for _, directory := range []string{binDirectory, generatedDirectory, cliWorkflowDirectory} {
 		mustMkdirAll(t, directory)
 	}
@@ -756,6 +785,7 @@ func newActionlintSkipFixture(t *testing.T) actionlintSkipFixture {
 	skippedPath := filepath.Join(generatedDirectory, "bad.yml")
 
 	cliGoodPath := filepath.Join(cliWorkflowDirectory, "cli good.yml")
+
 	for _, path := range []string{goodPath, skippedPath, cliGoodPath} {
 		mustWriteFile(t, path, "name: test\n", 0o644)
 	}
@@ -792,6 +822,7 @@ func (fixture actionlintSkipFixture) taskCommand(args ...string) *exec.Cmd {
 		context.Background(),
 		"task",
 		append([]string{taskfileFlag, fixture.taskfilePath}, args...)...)
+
 	command.Dir = fixture.project
 	command.Env = fixture.env
 
@@ -824,6 +855,7 @@ func (fixture actionlintSkipFixture) assertCliTargets(t *testing.T) {
 	)
 
 	arguments := fixture.readLog(t, output)
+
 	if !strings.Contains(arguments, "cli good.yml") || !strings.Contains(arguments, "-oneline") {
 		t.Fatalf("actionlint CLI targets or options were not retained:\n%s", arguments)
 	}
@@ -841,6 +873,7 @@ func (fixture actionlintSkipFixture) assertAllSkipped(t *testing.T) {
 	fixture.runTask(t, "--yes", "lint", "ACTIONLINT_LINT_SKIP_PATTERN=**")
 
 	_, err := os.Stat(fixture.logPath)
+
 	if !os.IsNotExist(err) {
 		t.Fatalf("actionlint ran even though every workflow was skipped")
 	}
@@ -906,6 +939,7 @@ func newCargoSkipFixture(t *testing.T) cargoSkipFixture {
 	generatedDirectory := filepath.Join(project, "generated package")
 
 	generatedSourceDirectory := filepath.Join(generatedDirectory, "src")
+
 	for _, directory := range []string{binDirectory, goodSourceDirectory, generatedSourceDirectory} {
 		mustMkdirAll(t, directory)
 	}
@@ -917,6 +951,7 @@ func newCargoSkipFixture(t *testing.T) cargoSkipFixture {
 		filepath.Join(goodSourceDirectory, "lib.rs"):      "pub fn good() {}\n",
 		filepath.Join(generatedSourceDirectory, "lib.rs"): "pub fn generated() {}\n",
 	}
+
 	for path, content := range files {
 		mustWriteFile(t, path, content, 0o644)
 	}
@@ -946,6 +981,7 @@ func (fixture cargoSkipFixture) taskCommand(args ...string) *exec.Cmd {
 		context.Background(),
 		"task",
 		append([]string{taskfileFlag, fixture.taskfilePath}, args...)...)
+
 	command.Dir = fixture.project
 	command.Env = fixture.env
 
@@ -958,6 +994,7 @@ func (fixture cargoSkipFixture) assertRetainedPackage(t *testing.T) {
 	fixture.runTask(t, "--yes", "lint", "CARGO_LINT_SKIP_PATTERN=**/generated package/**")
 
 	arguments := readFile(t, fixture.logPath)
+
 	if !strings.Contains(arguments, "clippy") || !strings.Contains(arguments, "good_package") {
 		t.Fatalf("Cargo did not lint retained package:\n%s", arguments)
 	}
@@ -975,6 +1012,7 @@ func (fixture cargoSkipFixture) assertAllSkipped(t *testing.T) {
 	fixture.runTask(t, "--yes", "lint", "CARGO_LINT_SKIP_PATTERN=**/*.rs")
 
 	_, err := os.Stat(fixture.logPath)
+
 	if !os.IsNotExist(err) {
 		t.Fatalf("Cargo ran even though every workspace package was skipped")
 	}
@@ -1017,6 +1055,7 @@ func newGoAnalysisSkipFixture(t *testing.T) goAnalysisSkipFixture {
 	goodDirectory := filepath.Join(project, "good")
 
 	generatedDirectory := filepath.Join(project, "generated")
+
 	for _, directory := range []string{binDirectory, goodDirectory, generatedDirectory} {
 		mustMkdirAll(t, directory)
 	}
@@ -1026,6 +1065,7 @@ func newGoAnalysisSkipFixture(t *testing.T) goAnalysisSkipFixture {
 		filepath.Join(goodDirectory, "good.go"):     "package good\n",
 		filepath.Join(generatedDirectory, "bad.go"): "package generated\n",
 	}
+
 	for path, content := range files {
 		mustWriteFile(t, path, content, 0o644)
 	}
@@ -1056,6 +1096,7 @@ func (fixture goAnalysisSkipFixture) taskCommand(args ...string) *exec.Cmd {
 		context.Background(),
 		"task",
 		append([]string{taskfileFlag, fixture.taskfilePath}, args...)...)
+
 	command.Dir = fixture.project
 	command.Env = fixture.env
 
@@ -1068,6 +1109,7 @@ func (fixture goAnalysisSkipFixture) assertRetainedPackage(t *testing.T) {
 	fixture.runTask(t, "--yes", "govulncheck:lint", "GO_LINT_SKIP_PATTERN=generated/**")
 
 	arguments := readFile(t, fixture.logPath)
+
 	if !strings.Contains(arguments, "example.com/skipfixture/good") {
 		t.Fatalf("govulncheck did not receive retained package:\n%s", arguments)
 	}
@@ -1085,6 +1127,7 @@ func (fixture goAnalysisSkipFixture) assertAllSkipped(t *testing.T) {
 	fixture.runTask(t, "--yes", "govulncheck:lint", "GO_LINT_SKIP_PATTERN=**/*.go")
 
 	_, err := os.Stat(fixture.logPath)
+
 	if !os.IsNotExist(err) {
 		t.Fatalf("govulncheck ran even though every Go package was skipped")
 	}
@@ -1167,7 +1210,7 @@ func runCommand(t *testing.T, directory string, name string, arguments ...string
 	}
 
 	commandContext := exec.CommandContext
-	command := commandContext(context.Background(), "task", arguments...)
+	command := commandContext(t.Context(), "task", arguments...)
 
 	command.Dir = directory
 

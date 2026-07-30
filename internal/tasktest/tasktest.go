@@ -1,4 +1,6 @@
-// Package tasktest provides shared assertions for Taskfile module tests.
+// REPLACE_ME 2026
+// SPDX-License-Identifier: Apache-2.0
+
 package tasktest
 
 import (
@@ -15,30 +17,30 @@ import (
 	"strings"
 	"time"
 
-	"gopkg.in/yaml.v3"
+	yaml "gopkg.in/yaml.v3"
 )
 
 const minTaskDescriptionLength = 12
 
 // Taskfile contains the top-level fields read from a Taskfile.yml.
 type Taskfile struct {
-	Version string          `yaml:"version"`
 	Vars    map[string]any  `yaml:"vars"`
 	Tasks   map[string]Task `yaml:"tasks"`
+	Version string          `yaml:"version"`
 }
 
 // Task contains the task fields validated by the shared test helpers.
 type Task struct {
-	Desc          string   `yaml:"desc"`
-	Summary       string   `yaml:"summary"`
-	Internal      bool     `yaml:"internal"`
-	Run           string   `yaml:"run"`
-	Set           []string `yaml:"set"`
 	Preconditions any      `yaml:"preconditions"`
 	Cmds          any      `yaml:"cmds"`
 	Deps          any      `yaml:"deps"`
 	Vars          any      `yaml:"vars"`
 	Status        any      `yaml:"status"`
+	Desc          string   `yaml:"desc"`
+	Summary       string   `yaml:"summary"`
+	Run           string   `yaml:"run"`
+	Set           []string `yaml:"set"`
+	Internal      bool     `yaml:"internal"`
 }
 
 type testT interface {
@@ -126,6 +128,7 @@ func RepoRoot(tester testT) string {
 		}
 
 		parent := filepath.Dir(workingDirectory)
+
 		if parent == workingDirectory {
 			tester.Fatal("could not find repository root with go.mod")
 		}
@@ -140,6 +143,7 @@ func assertReadme(tester testT, module string, expectedTasks []string) {
 	// Nested tool families (e.g. "biome/node/fnm/npm") share a single README at
 	// the family root; flat modules keep their own. Resolve accordingly.
 	readmeModule := module
+
 	if index := strings.IndexByte(readmeModule, '/'); index >= 0 {
 		readmeModule = readmeModule[:index]
 	}
@@ -152,6 +156,7 @@ func assertReadme(tester testT, module string, expectedTasks []string) {
 	}
 
 	text := string(content)
+
 	if strings.TrimSpace(text) == "" {
 		tester.Fatalf("%s README.md is empty", module)
 	}
@@ -171,6 +176,7 @@ func assertTaskfile(tester testT, module string, expectedTasks, expectedVars []s
 	tester.Helper()
 
 	taskfile := LoadTaskfile(tester, module)
+
 	if taskfile.Version != "3" && !strings.HasPrefix(taskfile.Version, "3.") {
 		tester.Fatalf("%s Taskfile version must be 3 or 3.x, got %q", module, taskfile.Version)
 	}
@@ -190,6 +196,7 @@ func assertPublicTasks(
 	taskfile Taskfile,
 	expectedTasks, actualTasks []string,
 ) {
+
 	tester.Helper()
 
 	if !slices.Equal(expectedTasks, actualTasks) {
@@ -293,10 +300,12 @@ func runTaskOutput(tester testT, args ...string) (string, error) {
 	settings := currentTaskCommandSettings()
 
 	ctx, cancel := context.WithTimeout(context.Background(), settings.timeout)
+
 	defer cancel()
 
 	commandContext := exec.CommandContext
 	cmd := commandContext(ctx, settings.binary, args...)
+
 	cmd.Dir = RepoRoot(tester)
 	cmd.Env = os.Environ()
 

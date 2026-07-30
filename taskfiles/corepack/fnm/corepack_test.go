@@ -1,7 +1,9 @@
+// REPLACE_ME 2026
+// SPDX-License-Identifier: Apache-2.0
+
 package corepackfnm_test
 
 import (
-	"context"
 	"io/fs"
 	"os"
 	"os/exec"
@@ -13,7 +15,7 @@ import (
 	"syscall"
 	"testing"
 
-	"gopkg.in/yaml.v3"
+	yaml "gopkg.in/yaml.v3"
 )
 
 const (
@@ -54,16 +56,19 @@ func TestTaskfileAndReadmePublicApi(t *testing.T) {
 	}
 
 	tasks, ok := root["tasks"].(map[string]any)
+
 	if !ok || len(tasks) == 0 {
 		t.Fatal("Taskfile tasks map is missing")
 	}
 
 	actual := taskNames(tasks)
+
 	if !slices.Equal(publicTasks(), actual) {
 		t.Fatalf("public task drift\nexpected: %v\nactual:   %v", publicTasks(), actual)
 	}
 
 	readmeTasks := readmeTaskNames(read(t, filepath.Join("..", "README.md")))
+
 	if !slices.Equal(publicTasks(), readmeTasks) {
 		t.Fatalf("README public task drift\nexpected: %v\nactual:   %v", publicTasks(), readmeTasks)
 	}
@@ -73,6 +78,7 @@ func TestTaskCliAndCorepackFlows(t *testing.T) {
 	t.Parallel()
 
 	env := stubEnv(t)
+
 	for _, args := range [][]string{
 		{"--list"},
 		{"--list-all", "--json"},
@@ -82,12 +88,14 @@ func TestTaskCliAndCorepackFlows(t *testing.T) {
 		{constCorepackTestYes, "use", "PACKAGE_MANAGER=pnpm", "VERSION=latest"},
 	} {
 		result := runTask(t, env, args...)
+
 		if result.err != nil {
 			t.Fatalf("task %v failed:\n%s", args, result.output)
 		}
 	}
 
 	result := runTask(t, env, constCorepackTestYes, "use", "PACKAGE_MANAGER=bad", "VERSION=latest")
+
 	if result.err == nil {
 		t.Fatalf("invalid package manager unexpectedly succeeded:\n%s", result.output)
 	}
@@ -97,6 +105,7 @@ func TestCorepackVersionDefaultIsPinned(t *testing.T) {
 	t.Parallel()
 
 	content := read(t, "Taskfile.yml")
+
 	if !strings.Contains(content, "COREPACK_VERSION: 0.34.0") {
 		t.Fatalf("COREPACK_VERSION default should stay pinned for reproducibility:\n%s", content)
 	}
@@ -107,17 +116,19 @@ func TestCorepackVersionDefaultIsPinned(t *testing.T) {
 }
 
 type result struct {
-	output string
 	err    error
+	output string
 }
 
 func runTask(t *testing.T, env []string, args ...string) result {
 	t.Helper()
 
 	commandContext := exec.CommandContext
-	cmd := commandContext(context.Background(), "task", args...)
+	cmd := commandContext(t.Context(), "task", args...)
+
 	cmd.Dir = dir(t)
 	cmd.Env = env
+
 	out, err := cmd.CombinedOutput()
 
 	return result{output: string(out), err: err}
@@ -146,6 +157,7 @@ func stubEnv(t *testing.T) []string {
 	stub(t, bin, "npm", "#!/usr/bin/env bash\necho \"npm $* stub\"\n")
 
 	env := os.Environ()
+
 	env = setEnv(env, "HOME", home)
 	env = setEnv(env, "PATH", bin+":"+os.Getenv("PATH"))
 	env = setEnv(env, "NO_COLOR", "1")
@@ -197,6 +209,7 @@ func readmeTaskNames(content string) []string {
 
 	for line := range strings.SplitSeq(content, "\n") {
 		trimmed := strings.TrimSpace(line)
+
 		if trimmed == "## Public Tasks" {
 			active = true
 
@@ -236,6 +249,7 @@ func dir(t *testing.T) string {
 	t.Helper()
 
 	_, file, _, ok := runtime.Caller(0)
+
 	if !ok {
 		t.Fatal("locate test file")
 	}
@@ -245,6 +259,7 @@ func dir(t *testing.T) string {
 
 func setEnv(env []string, key, value string) []string {
 	prefix := key + "="
+
 	for i, item := range env {
 		if strings.HasPrefix(item, prefix) {
 			env[i] = prefix + value

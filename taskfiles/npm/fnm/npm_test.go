@@ -1,3 +1,6 @@
+// REPLACE_ME 2026
+// SPDX-License-Identifier: Apache-2.0
+
 package npmfnm_test
 
 import (
@@ -10,7 +13,7 @@ import (
 	"time"
 
 	"github.com/task-otter/store/internal/tasktestutil"
-	"gopkg.in/yaml.v3"
+	yaml "gopkg.in/yaml.v3"
 )
 
 const (
@@ -101,11 +104,13 @@ func TestTaskfileYamlIsCleanAndValid(t *testing.T) {
 	root := tasktestutil.DocumentRoot(t, &doc)
 
 	version := tasktestutil.ScalarField(root, "version")
+
 	if version != "3" && !strings.HasPrefix(version, "3.") {
 		t.Fatalf("Taskfile version must be 3 or 3.x, got %q", version)
 	}
 
 	tasks := tasktestutil.MappingField(root, "tasks")
+
 	if tasks == nil || len(tasks.Content) == 0 {
 		t.Fatal("Taskfile must contain non-empty tasks map")
 	}
@@ -163,6 +168,7 @@ func TestPublicApiDoesNotDrift(t *testing.T) {
 	expected := tasktestutil.ExpectedPublicTaskNames(expectedPublicTasks())
 
 	actual := tasktestutil.PublicTaskNamesFromTaskfile(t, taskfile)
+
 	if !slices.Equal(expected, actual) {
 		t.Fatalf(
 			"public Taskfile API drift detected\n\nexpected:\n%s\n\nactual:\n%s\n\n"+
@@ -179,6 +185,7 @@ func TestReadmePublicTaskTableDoesNotDrift(t *testing.T) {
 	expected := tasktestutil.ExpectedPublicTaskNames(expectedPublicTasks())
 
 	actual := readmePublicTaskNames(content)
+
 	if !slices.Equal(expected, actual) {
 		t.Fatalf(
 			"README public task table drift detected\n\nexpected:\n%s\n\nactual:\n%s\n\n"+
@@ -192,6 +199,7 @@ func TestEveryTaskIsEitherPublicOrInternal(t *testing.T) {
 	t.Parallel()
 
 	taskfile := tasktestutil.LoadTaskfile(t)
+
 	for name, task := range taskfile.Tasks {
 		t.Run(name, func(t *testing.T) {
 			t.Parallel()
@@ -220,6 +228,7 @@ func TestPublicTasksHaveMetadata(t *testing.T) {
 			t.Parallel()
 
 			task := tasktestutil.MustTask(t, taskfile, spec.Name)
+
 			if task.Node.Kind != yaml.MappingNode {
 				t.Fatalf("public task %q must use full mapping syntax, not short syntax", spec.Name)
 			}
@@ -285,6 +294,7 @@ func TestInstallTasksUseGithubGroupOutput(t *testing.T) {
 			task := tasktestutil.MustTask(t, taskfile, spec.Name)
 
 			outputNode := task.Field("output")
+
 			if outputNode == nil {
 				outputNode = taskfile.Root.Field("output")
 			}
@@ -304,8 +314,10 @@ func TestPublicTasksHaveCommands(t *testing.T) {
 			t.Parallel()
 
 			task := tasktestutil.MustTask(t, taskfile, spec.Name)
+
 			if tasktestutil.IsEmptyNode(task.Field("cmds")) &&
 				tasktestutil.IsEmptyNode(task.Field("deps")) {
+
 				t.Fatalf("public task %q must have cmds or deps", spec.Name)
 			}
 		})
@@ -333,6 +345,7 @@ func TestTaskSummariesWork(t *testing.T) {
 				spec.Name,
 			)
 			tasktestutil.AssertExitCode(t, result, 0)
+
 			out := result.Combined()
 			tasktestutil.AssertContains(t, out, spec.Name)
 			tasktestutil.AssertNotContains(t, strings.ToLower(out), "task not found")
@@ -346,6 +359,7 @@ func TestCommandsDoNotContainDangerousPatterns(t *testing.T) {
 	t.Parallel()
 
 	taskfile := tasktestutil.LoadTaskfile(t)
+
 	for taskName, task := range taskfile.Tasks {
 		for _, command := range tasktestutil.CollectCommandStrings(task.Node) {
 			for _, pattern := range tasktestutil.DangerousCommandPatterns() {
@@ -368,6 +382,7 @@ func TestNoPlaceholderTextInTaskfile(t *testing.T) {
 	content := tasktestutil.ReadFile(t, tasktestutil.ModuleTaskfilePath(t))
 
 	upper := strings.ToUpper(content)
+
 	for _, p := range []string{"TODO", "FIXME", "CHANGEME", "REPLACE_ME", "YOUR VALUE HERE", "LOREM IPSUM"} {
 		if strings.Contains(upper, p) {
 			t.Fatalf("Taskfile contains placeholder text: %s", p)
@@ -383,6 +398,7 @@ func TestRunTaskRequiresScriptVariable(t *testing.T) {
 	}
 
 	result := tasktestutil.RunTask(t, tasktestutil.ModuleRoot(t), npmStubEnv(t), "--yes", "run")
+
 	if result.Err == nil {
 		t.Fatal("expected task run to fail without SCRIPT variable but it succeeded")
 	}
@@ -541,6 +557,7 @@ func TestRunTaskCliArgsWiredInYaml(t *testing.T) {
 	task := tasktestutil.MustTask(t, taskfile, "_run:unix")
 
 	cmds := task.Field("cmds")
+
 	if cmds == nil {
 		t.Fatal("_run:unix task has no cmds")
 	}
@@ -577,6 +594,7 @@ func TestInstallFailsOutsideProjectRoot(t *testing.T) {
 		"--taskfile", filepath.Join(taskfileDir, "Taskfile.yml"),
 		"--yes", "install",
 	)
+
 	if result.Err == nil {
 		t.Fatal("expected task install to fail outside a project root but it succeeded")
 	}
@@ -610,11 +628,13 @@ func TestCiFailsWithoutLockfile(t *testing.T) {
 		"--taskfile", filepath.Join(taskfileDir, "Taskfile.yml"),
 		"--yes", "ci",
 	)
+
 	if result.Err == nil {
 		t.Fatal("expected task ci to fail without package-lock.json but it succeeded")
 	}
 
 	out := strings.ToLower(result.Combined())
+
 	if !strings.Contains(out, "package-lock.json") && !strings.Contains(out, "lockfile") {
 		t.Fatalf("expected error mentioning lockfile, got:\n%s", result.Combined())
 	}
@@ -635,11 +655,13 @@ func TestRunTaskRejectsUnsafeScript(t *testing.T) {
 		"run",
 		"SCRIPT=dev; rm -rf /",
 	)
+
 	if result.Err == nil {
 		t.Fatal("expected task run to reject unsafe SCRIPT but it succeeded")
 	}
 
 	out := strings.ToLower(result.Combined())
+
 	if !strings.Contains(out, "invalid") && !strings.Contains(out, "script") {
 		t.Fatalf("expected error about invalid SCRIPT characters, got:\n%s", result.Combined())
 	}
@@ -663,7 +685,7 @@ func TestRealNpmFlowOnlyWhenExplicitlyEnabled(t *testing.T) {
 	tasktestutil.AssertNotEmpty(t, result.Combined(), "version output is empty")
 }
 
-// npmStubEnv returns an isolated environment with stub fnm, node, npm, and
+// NpmStubEnv returns an isolated environment with stub fnm, node, npm, and
 // corepack binaries so all preconditions pass without real installations.
 
 // readmePublicTaskNames parses the npm README and returns sorted task names

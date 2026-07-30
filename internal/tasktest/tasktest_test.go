@@ -1,3 +1,6 @@
+// REPLACE_ME 2026
+// SPDX-License-Identifier: Apache-2.0
+
 package tasktest_test
 
 import (
@@ -8,7 +11,7 @@ import (
 	"syscall"
 	"testing"
 
-	tasktest "github.com/task-otter/store/internal/tasktest"
+	"github.com/task-otter/store/internal/tasktest"
 )
 
 const (
@@ -21,9 +24,9 @@ const (
 type taskfileValidationCase struct {
 	name    string
 	content string
+	want    string
 	tasks   []string
 	vars    []string
-	want    string
 }
 
 type fatalCall struct{ message string }
@@ -67,6 +70,7 @@ func expectFatal(t *testing.T, want string, fatalFunc func(*fakeTest)) {
 		recovered := recover()
 
 		fatal, ok := recovered.(fatalCall)
+
 		if !ok {
 			t.Fatalf("expected fatal call, recovered %#v", recovered)
 		}
@@ -140,8 +144,10 @@ func validReadme() string {
 
 func makeRepo(t *testing.T) (string, string) {
 	t.Helper()
+
 	root := t.TempDir()
 	writeFile(t, filepath.Join(root, "go.mod"), "module example.com/fixture\n\ngo 1.22\n")
+
 	module := filepath.Join(root, "taskfiles", fixtureModule)
 	writeFile(t, filepath.Join(module, "Taskfile.yml"), validTaskfile())
 	writeFile(t, filepath.Join(module, "README.md"), validReadme())
@@ -165,6 +171,7 @@ func TestRepositoryAndTaskfilePaths(t *testing.T) {
 		}
 
 		taskfile := tasktest.LoadTaskfile(t, fixtureModule)
+
 		if taskfile.Version != "3.5" {
 			t.Fatalf("LoadTaskfile version = %s", taskfile.Version)
 		}
@@ -199,8 +206,10 @@ func TestLoadTaskfile(t *testing.T) {
 
 	inDir(t, module, func() {
 		taskfile := tasktest.LoadTaskfile(t, fixtureModule)
+
 		if taskfile.Version != "3.5" || taskfile.Vars[fooVar] != "value" ||
 			len(taskfile.Tasks) != 3 {
+
 			t.Fatalf("unexpected Taskfile: %#v", taskfile)
 		}
 	})
@@ -231,9 +240,11 @@ func TestLoadTaskfile(t *testing.T) {
 			want:    "parse fixture Taskfile",
 		},
 	}
+
 	for _, testCase := range tests {
 		t.Run(testCase.name, func(t *testing.T) {
 			_, module := makeRepo(t)
+
 			if testCase.content != "" {
 				writeFile(t, filepath.Join(module, "Taskfile.yml"), testCase.content)
 			}
@@ -273,11 +284,13 @@ func TestReadmeValidation(t *testing.T) {
 			want:    "does not mention public task",
 		},
 	}
+
 	for _, testCase := range tests {
 		t.Run(testCase.name, func(t *testing.T) {
 			_, module := makeRepo(t)
 
 			path := filepath.Join(module, "README.md")
+
 			if testCase.content == nil {
 				err := os.Remove(path)
 				if err != nil {
@@ -333,6 +346,7 @@ func prepareTaskfileValidationFixture(
 	module string,
 	testCase taskfileValidationCase,
 ) {
+
 	t.Helper()
 
 	writeFile(t, filepath.Join(module, "Taskfile.yml"), testCase.content)

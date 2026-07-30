@@ -1,4 +1,6 @@
-// Package tasktestutil provides shared fixtures and assertions for Taskfile tests.
+// REPLACE_ME 2026
+// SPDX-License-Identifier: Apache-2.0
+
 package tasktestutil
 
 import (
@@ -16,7 +18,7 @@ import (
 	"strings"
 	"time"
 
-	"gopkg.in/yaml.v3"
+	yaml "gopkg.in/yaml.v3"
 )
 
 const (
@@ -31,11 +33,11 @@ const (
 
 // PublicTaskSpec describes expectations for a single public task.
 type PublicTaskSpec struct {
-	Name                  string
 	Args                  map[string]string
+	Name                  string
+	ExpectedDefaultTokens []string
 	MustDryRunWithArgs    bool
 	MustDryRunWithoutArgs bool
-	ExpectedDefaultTokens []string
 	RequiresGroupOutput   bool
 	RequiresPrompt        bool
 	RequiresSummary       bool
@@ -115,15 +117,15 @@ func WithSummary() PublicTaskSpecOption {
 
 // TaskNode wraps a YAML node with its task name for error messages.
 type TaskNode struct {
-	Name string
 	Node *yaml.Node
+	Name string
 }
 
 // LoadedTaskfile holds the parsed content of a Taskfile.
 type LoadedTaskfile struct {
-	Path  string
 	Root  TaskNode
 	Tasks map[string]TaskNode
+	Path  string
 }
 
 // CommandResult holds the output of a task invocation.
@@ -139,8 +141,8 @@ func (result CommandResult) Combined() string { return result.Stdout + "\n" + re
 
 // SimpleTaskResult holds the output of a simple (non-isolated) task run.
 type SimpleTaskResult struct {
-	Output string
 	Err    error
+	Output string
 }
 
 type testT interface {
@@ -164,6 +166,7 @@ func MustTask(tester testT, taskfile LoadedTaskfile, name string) TaskNode {
 	tester.Helper()
 
 	task, ok := taskfile.Tasks[name]
+
 	if !ok {
 		tester.Fatalf("expected public task %q is missing", name)
 	}
@@ -192,6 +195,7 @@ func (n TaskNode) StringField(name string) string { return NodeText(n.Field(name
 // BoolField returns true when the mapping field is the string "true" (case-insensitive).
 func (n TaskNode) BoolField(name string) bool {
 	field := n.Field(name)
+
 	if field == nil {
 		return false
 	}
@@ -211,13 +215,16 @@ func ModuleRoot(tester testT) string {
 	}
 
 	current := workingDirectory
+
 	for {
 		if FileExists(filepath.Join(current, "Taskfile.yml")) ||
 			FileExists(filepath.Join(current, "Taskfile.yaml")) {
+
 			return current
 		}
 
 		parent := filepath.Dir(current)
+
 		if parent == current {
 			tester.Fatal("could not find Taskfile.yml or Taskfile.yaml")
 		}
@@ -255,12 +262,14 @@ func ModuleReadmePath(tester testT) string {
 	tester.Helper()
 
 	current := ModuleRoot(tester)
+
 	for {
 		if path := filepath.Join(current, "README.md"); FileExists(path) {
 			return path
 		}
 
 		parent := filepath.Dir(current)
+
 		if parent == current || filepath.Base(current) == "taskfiles" {
 			tester.Fatal("could not find README.md for module")
 
@@ -288,6 +297,7 @@ func LoadTaskfile(tester testT) LoadedTaskfile {
 	root := DocumentRoot(tester, &doc)
 
 	tasksNode := MappingField(root, "tasks")
+
 	if tasksNode == nil {
 		tester.Fatal("Taskfile has no tasks map")
 	}
@@ -296,6 +306,7 @@ func LoadTaskfile(tester testT) LoadedTaskfile {
 
 	for i := 0; i < len(tasksNode.Content); i += 2 {
 		key := tasksNode.Content[i]
+
 		tasks[key.Value] = TaskNode{Name: key.Value, Node: tasksNode.Content[i+1]}
 	}
 
@@ -309,6 +320,7 @@ func LoadTaskfile(tester testT) LoadedTaskfile {
 // HasAlias reports whether the task declares the given alias.
 func HasAlias(task TaskNode, alias string) bool {
 	aliases := task.Field("aliases")
+
 	if aliases == nil || aliases.Kind != yaml.SequenceNode {
 		return false
 	}
@@ -337,13 +349,16 @@ func RunTaskTimeout(
 	timeout time.Duration,
 	args ...string,
 ) CommandResult {
+
 	tester.Helper()
 
 	ctx, cancel := context.WithTimeout(context.Background(), timeout)
+
 	defer cancel()
 
 	commandContext := exec.CommandContext
 	cmd := commandContext(ctx, "task", args...)
+
 	cmd.Dir = root
 
 	if env != nil {
@@ -372,12 +387,15 @@ func RunSimpleTask(tester testT, dir string, env []string, args ...string) Simpl
 	tester.Helper()
 
 	ctx, cancel := context.WithTimeout(context.Background(), defaultTaskTimeout)
+
 	defer cancel()
 
 	commandContext := exec.CommandContext
 	cmd := commandContext(ctx, "task", args...)
+
 	cmd.Dir = dir
 	cmd.Env = env
+
 	out, err := cmd.CombinedOutput()
 
 	return SimpleTaskResult{Output: string(out), Err: err}
@@ -397,6 +415,7 @@ func IsolatedEnv(tester testT) []string {
 	}
 
 	env := os.Environ()
+
 	env = SetEnv(env, "HOME", home)
 	env = SetEnv(env, "PROFILE", profile)
 	env = SetEnv(env, "ZDOTDIR", home)
@@ -411,6 +430,7 @@ func IsolatedEnv(tester testT) []string {
 // SetEnv sets or replaces a key=value pair in an env slice.
 func SetEnv(env []string, key, value string) []string {
 	prefix := key + "="
+
 	for i, item := range env {
 		if strings.HasPrefix(item, prefix) {
 			env[i] = prefix + value
@@ -425,6 +445,7 @@ func SetEnv(env []string, key, value string) []string {
 // EnvValue returns the value for the given key from an env slice.
 func EnvValue(env []string, key string) string {
 	prefix := key + "="
+
 	for _, item := range env {
 		if after, ok := strings.CutPrefix(item, prefix); ok {
 			return after
@@ -437,6 +458,7 @@ func EnvValue(env []string, key string) string {
 // ExpectedPublicTaskNames returns sorted task names from a PublicTaskSpec slice.
 func ExpectedPublicTaskNames(specs []PublicTaskSpec) []string {
 	names := make([]string, 0, len(specs))
+
 	for _, spec := range specs {
 		names = append(names, spec.Name)
 	}
@@ -455,6 +477,7 @@ func PublicTaskNamesFromTaskfile(tester testT, taskfile LoadedTaskfile) []string
 	for name, task := range taskfile.Tasks {
 		if name == constTasktestutilDefault || strings.HasPrefix(name, "_") ||
 			task.BoolField("internal") {
+
 			continue
 		}
 
@@ -475,6 +498,7 @@ func TaskArgs(args map[string]string) []string {
 	}
 
 	keys := make([]string, 0, len(args))
+
 	for key := range args {
 		keys = append(keys, key)
 	}
@@ -482,6 +506,7 @@ func TaskArgs(args map[string]string) []string {
 	slices.Sort(keys)
 
 	out := make([]string, 0, len(keys))
+
 	for _, key := range keys {
 		out = append(out, fmt.Sprintf("%s=%s", key, args[key]))
 	}
@@ -541,6 +566,7 @@ func ReadmePublicTaskNames(content string) []string {
 
 	for line := range strings.SplitSeq(content, "\n") {
 		trimmed := strings.TrimSpace(line)
+
 		if trimmed == constTasktestutilPublicTasks {
 			inTable = true
 
@@ -575,7 +601,7 @@ func MustRead(tester testT, path string) string {
 	return string(content)
 }
 
-// --- YAML helpers ---
+// --- YAML helpers ---.
 
 // DocumentRoot returns the root mapping node of a YAML document node.
 func DocumentRoot(tester testT, doc *yaml.Node) *yaml.Node {
@@ -586,6 +612,7 @@ func DocumentRoot(tester testT, doc *yaml.Node) *yaml.Node {
 	}
 
 	root := doc.Content[0]
+
 	if root.Kind != yaml.MappingNode {
 		tester.Fatal("Taskfile root must be a YAML mapping")
 	}
@@ -596,6 +623,7 @@ func DocumentRoot(tester testT, doc *yaml.Node) *yaml.Node {
 // MappingField returns the mapping-typed child of root named name, or nil.
 func MappingField(root *yaml.Node, name string) *yaml.Node {
 	node := NodeMappingValue(root, name)
+
 	if node == nil || node.Kind != yaml.MappingNode {
 		return nil
 	}
@@ -763,6 +791,7 @@ func AssertExitCode(tester testT, result CommandResult, expected int) {
 		exitErr := new(exec.ExitError)
 
 		ok := errors.As(result.Err, &exitErr)
+
 		if !ok {
 			tester.Fatalf(
 				"command failed without exit code\nargs: %v\nerror: %v\nstdout:\n%s\nstderr:\n%s",
@@ -841,6 +870,7 @@ func AssertDirNotExists(tester testT, path string) {
 	tester.Helper()
 
 	_, err := os.Stat(path)
+
 	if !os.IsNotExist(err) {
 		tester.Fatalf("expected %s to not exist, but it does", path)
 	}
@@ -880,6 +910,7 @@ func AssertGithubGroupOutput(tester testT, taskName string, outputNode *yaml.Nod
 	}
 
 	groupNode := NodeMappingValue(outputNode, "group")
+
 	if groupNode == nil || groupNode.Kind != yaml.MappingNode {
 		tester.Fatalf("task %q output must include group config", taskName)
 
@@ -1033,6 +1064,7 @@ func AssertNoPlaceholderText(tester testT, taskName, value string) {
 	tester.Helper()
 
 	upper := strings.ToUpper(value)
+
 	for _, placeholder := range []string{"TODO", "FIXME", "CHANGEME", "REPLACE_ME", "LOREM IPSUM"} {
 		if strings.Contains(upper, placeholder) {
 			tester.Fatalf("task %q contains placeholder text %q", taskName, placeholder)

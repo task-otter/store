@@ -1,7 +1,9 @@
+// REPLACE_ME 2026
+// SPDX-License-Identifier: Apache-2.0
+
 package typescriptbun_test
 
 import (
-	"context"
 	"encoding/json"
 	"io/fs"
 	"os"
@@ -13,7 +15,7 @@ import (
 	"strings"
 	"testing"
 
-	"gopkg.in/yaml.v3"
+	yaml "gopkg.in/yaml.v3"
 )
 
 const (
@@ -68,11 +70,13 @@ func TestTaskfileAndReadmePublicApi(t *testing.T) {
 	expected := publicTaskNames()
 
 	actual := taskNames(taskfile.tasks)
+
 	if !slices.Equal(expected, actual) {
 		t.Fatalf("public task drift\nexpected: %v\nactual:   %v", expected, actual)
 	}
 
 	readmeTasks := readmeTaskNames(readTool(t, "README.md"))
+
 	if !slices.Equal(expected, readmeTasks) {
 		t.Fatalf("README public task drift\nexpected: %v\nactual:   %v", expected, readmeTasks)
 	}
@@ -99,11 +103,13 @@ func TestTaskfileYamlIsCleanAndValid(t *testing.T) {
 	}
 
 	root := documentRoot(t, &doc)
+
 	if version := scalarField(
 		root,
 		"version",
 	); version != "3" &&
 		!strings.HasPrefix(version, "3.") {
+
 		t.Fatalf("Taskfile version must be 3 or 3.x, got %q", version)
 	}
 
@@ -160,22 +166,26 @@ func TestPublicTasksHaveMetadataAndCommands(t *testing.T) {
 			t.Parallel()
 
 			task := mustTask(t, taskfile, spec.name)
+
 			if task.node.Kind != yaml.MappingNode {
 				t.Fatalf("public task %q must use mapping syntax", spec.name)
 			}
 
 			desc := nodeText(mappingValue(task.node, "desc"))
+
 			if len(strings.TrimSpace(desc)) < 12 {
 				t.Fatalf("public task %q desc is missing or too short: %q", spec.name, desc)
 			}
 
 			summary := nodeText(mappingValue(task.node, "summary"))
+
 			if spec.requiresSummary && len(strings.TrimSpace(summary)) < 25 {
 				t.Fatalf("public task %q summary is missing or too short:\n%s", spec.name, summary)
 			}
 
 			if isEmptyNode(mappingValue(task.node, "cmds")) &&
 				isEmptyNode(mappingValue(task.node, "deps")) {
+
 				t.Fatalf("public task %q must have cmds or deps", spec.name)
 			}
 		})
@@ -198,9 +208,11 @@ func TestDestructivePublicTasksHavePrompt(t *testing.T) {
 			task := mustTask(t, taskfile, spec.name)
 
 			prompt := strings.ToLower(nodeText(mappingValue(task.node, "prompt")))
+
 			if !strings.Contains(prompt, "delete") &&
 				!strings.Contains(prompt, "remove") &&
 				!strings.Contains(prompt, "continue") {
+
 				t.Fatalf("destructive task %q needs an explicit prompt:\n%s", spec.name, prompt)
 			}
 		})
@@ -231,6 +243,7 @@ func TestTypecheckFilesRequiresExplicitFiles(t *testing.T) {
 	t.Parallel()
 
 	result := runTask(t, isolatedEnv(t), "--dry", "--yes", "typecheck:files")
+
 	if result.err == nil {
 		t.Fatalf("typecheck:files without FILES unexpectedly succeeded:\n%s", result.output)
 	}
@@ -288,8 +301,10 @@ func TestNoPlaceholderTextInTaskfileOrReadme(t *testing.T) {
 		"Taskfile.yml": read(t),
 		"README.md":    readTool(t, "README.md"),
 	}
+
 	for name, content := range files {
 		content = strings.ToUpper(content)
+
 		for _, placeholder := range []string{"TODO", "FIXME", "CHANGEME", "REPLACE_ME", "LOREM IPSUM"} {
 			if strings.Contains(content, placeholder) {
 				t.Fatalf("%s contains placeholder text: %s", name, placeholder)
@@ -307,8 +322,8 @@ type task struct {
 }
 
 type commandResult struct {
-	output string
 	err    error
+	output string
 }
 
 func loadTaskfile(t *testing.T) loadedTaskfile {
@@ -322,11 +337,13 @@ func loadTaskfile(t *testing.T) loadedTaskfile {
 	}
 
 	tasksNode := mappingField(documentRoot(t, &doc), "tasks")
+
 	if tasksNode == nil {
 		t.Fatal("Taskfile has no tasks map")
 	}
 
 	tasks := map[string]task{}
+
 	for i := 0; i < len(tasksNode.Content); i += 2 {
 		tasks[tasksNode.Content[i].Value] = task{node: tasksNode.Content[i+1]}
 	}
@@ -338,6 +355,7 @@ func mustTask(t *testing.T, taskfile loadedTaskfile, name string) task {
 	t.Helper()
 
 	task, ok := taskfile.tasks[name]
+
 	if !ok {
 		t.Fatalf("expected public task %q is missing", name)
 	}
@@ -352,9 +370,11 @@ func runTask(t *testing.T, env []string, args ...string) commandResult {
 	fullArgs := append([]string{"--taskfile", filepath.Join(dir(t), "Taskfile.yml")}, args...)
 
 	commandContext := exec.CommandContext
-	cmd := commandContext(context.Background(), "task", fullArgs...)
+	cmd := commandContext(t.Context(), "task", fullArgs...)
+
 	cmd.Dir = projectDir
 	cmd.Env = projectEnv
+
 	out, err := cmd.CombinedOutput()
 
 	return commandResult{output: string(out), err: err}
@@ -365,6 +385,7 @@ func isolatedEnv(t *testing.T) []string {
 
 	home := t.TempDir()
 	env := os.Environ()
+
 	env = setEnv(env, "HOME", home)
 	env = setEnv(env, "ZDOTDIR", home)
 	env = setEnv(env, "CI", "true")
@@ -424,6 +445,7 @@ func fakeTypeScriptProject(t *testing.T, env []string) (string, []string) {
 	)
 
 	path := binDir + ":" + nodeBinDir + ":" + envValue(env, "PATH")
+
 	env = setEnv(env, "PATH", path)
 
 	return projectDir, env
@@ -436,6 +458,7 @@ func createTypeScriptFixtureDirs(
 	nodeBinDir string,
 	env []string,
 ) {
+
 	t.Helper()
 
 	for _, path := range []string{
@@ -465,6 +488,7 @@ func writeFile(t *testing.T, path, content string, mode os.FileMode) {
 
 func envValue(env []string, key string) string {
 	prefix := key + "="
+
 	for _, item := range env {
 		if after, ok := strings.CutPrefix(item, prefix); ok {
 			return after
@@ -476,6 +500,7 @@ func envValue(env []string, key string) string {
 
 func publicTaskNames() []string {
 	names := make([]string, 0, len(publicTasks()))
+
 	for _, spec := range publicTasks() {
 		names = append(names, spec.name)
 	}
@@ -510,6 +535,7 @@ func readmeTaskNames(content string) []string {
 
 	for line := range strings.SplitSeq(content, "\n") {
 		trimmed := strings.TrimSpace(line)
+
 		if trimmed == "## Public Tasks" {
 			active = true
 
@@ -606,6 +632,7 @@ func collectScalars(node *yaml.Node) []string {
 	}
 
 	values := []string{}
+
 	for _, child := range node.Content {
 		values = append(values, collectScalars(child)...)
 	}
@@ -617,8 +644,10 @@ func toolRoot(t *testing.T) string {
 	t.Helper()
 
 	directory := dir(t)
+
 	for filepath.Base(filepath.Dir(directory)) != "taskfiles" {
 		parent := filepath.Dir(directory)
+
 		if parent == directory {
 			t.Fatal("locate tool root")
 		}
@@ -657,6 +686,7 @@ func dir(t *testing.T) string {
 	t.Helper()
 
 	_, file, _, ok := runtime.Caller(0)
+
 	if !ok {
 		t.Fatal("locate test file")
 	}
@@ -666,6 +696,7 @@ func dir(t *testing.T) string {
 
 func setEnv(env []string, key, value string) []string {
 	prefix := key + "="
+
 	for i, item := range env {
 		if strings.HasPrefix(item, prefix) {
 			env[i] = prefix + value

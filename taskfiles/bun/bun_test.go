@@ -1,3 +1,6 @@
+// REPLACE_ME 2026
+// SPDX-License-Identifier: Apache-2.0
+
 package bun_test
 
 import (
@@ -11,7 +14,7 @@ import (
 	"time"
 
 	"github.com/task-otter/store/internal/tasktestutil"
-	"gopkg.in/yaml.v3"
+	yaml "gopkg.in/yaml.v3"
 )
 
 const (
@@ -89,11 +92,13 @@ func TestTaskfileYamlIsCleanAndValid(t *testing.T) {
 	root := tasktestutil.DocumentRoot(t, &doc)
 
 	version := tasktestutil.ScalarField(root, "version")
+
 	if version != "3" && !strings.HasPrefix(version, "3.") {
 		t.Fatalf("Taskfile version must be 3 or 3.x, got %q", version)
 	}
 
 	tasks := tasktestutil.MappingField(root, "tasks")
+
 	if tasks == nil || len(tasks.Content) == 0 {
 		t.Fatal("Taskfile must contain non-empty tasks map")
 	}
@@ -151,6 +156,7 @@ func TestPublicApiDoesNotDrift(t *testing.T) {
 	expected := tasktestutil.ExpectedPublicTaskNames(expectedPublicTasks())
 
 	actual := tasktestutil.PublicTaskNamesFromTaskfile(t, taskfile)
+
 	if !slices.Equal(expected, actual) {
 		t.Fatalf(
 			"public Taskfile API drift detected\n\nexpected:\n%s\n\nactual:\n%s\n\n"+
@@ -164,6 +170,7 @@ func TestEveryTaskIsEitherPublicOrInternal(t *testing.T) {
 	t.Parallel()
 
 	taskfile := tasktestutil.LoadTaskfile(t)
+
 	for name, task := range taskfile.Tasks {
 		t.Run(name, func(t *testing.T) {
 			t.Parallel()
@@ -192,6 +199,7 @@ func TestPublicTasksHaveMetadata(t *testing.T) {
 			t.Parallel()
 
 			task := tasktestutil.MustTask(t, taskfile, spec.Name)
+
 			if task.Node.Kind != yaml.MappingNode {
 				t.Fatalf("public task %q must use full mapping syntax, not short syntax", spec.Name)
 			}
@@ -257,6 +265,7 @@ func TestInstallTasksUseGithubGroupOutput(t *testing.T) {
 			task := tasktestutil.MustTask(t, taskfile, spec.Name)
 
 			outputNode := task.Field("output")
+
 			if outputNode == nil {
 				outputNode = taskfile.Root.Field("output")
 			}
@@ -276,8 +285,10 @@ func TestPublicTasksHaveCommands(t *testing.T) {
 			t.Parallel()
 
 			task := tasktestutil.MustTask(t, taskfile, spec.Name)
+
 			if tasktestutil.IsEmptyNode(task.Field("cmds")) &&
 				tasktestutil.IsEmptyNode(task.Field("deps")) {
+
 				t.Fatalf("public task %q must have cmds or deps", spec.Name)
 			}
 		})
@@ -305,6 +316,7 @@ func TestTaskSummariesWork(t *testing.T) {
 				spec.Name,
 			)
 			tasktestutil.AssertExitCode(t, result, 0)
+
 			out := result.Combined()
 			tasktestutil.AssertContains(t, out, spec.Name)
 			tasktestutil.AssertNotContains(t, strings.ToLower(out), "task not found")
@@ -318,6 +330,7 @@ func TestUndoPairsExist(t *testing.T) {
 	t.Parallel()
 
 	taskfile := tasktestutil.LoadTaskfile(t)
+
 	for task, undo := range map[string]string{"install": "install:undo"} {
 		if _, ok := taskfile.Tasks[task]; !ok {
 			t.Fatalf("task %q is missing", task)
@@ -335,6 +348,7 @@ func TestReferencedScriptsExist(t *testing.T) {
 	root := tasktestutil.ModuleRoot(t)
 
 	taskfile := tasktestutil.LoadTaskfile(t)
+
 	for taskName, task := range taskfile.Tasks {
 		for _, command := range tasktestutil.CollectCommandStrings(task.Node) {
 			t.Run(taskName, func(t *testing.T) {
@@ -367,6 +381,7 @@ func TestCommandsDoNotContainDangerousPatterns(t *testing.T) {
 	dangerousPatterns := tasktestutil.DangerousCommandPatterns()
 
 	taskfile := tasktestutil.LoadTaskfile(t)
+
 	for taskName, task := range taskfile.Tasks {
 		for _, command := range tasktestutil.CollectCommandStrings(task.Node) {
 			for _, pattern := range dangerousPatterns {
@@ -389,6 +404,7 @@ func TestNoPlaceholderTextInTaskfile(t *testing.T) {
 	content := tasktestutil.ReadFile(t, tasktestutil.ModuleTaskfilePath(t))
 
 	upper := strings.ToUpper(content)
+
 	for _, p := range []string{"TODO", "FIXME", "CHANGEME", "REPLACE_ME", "YOUR VALUE HERE", "LOREM IPSUM"} {
 		if strings.Contains(upper, p) {
 			t.Fatalf("Taskfile contains placeholder text: %s", p)
@@ -551,6 +567,7 @@ func TestRealInstallerFlowOnlyWhenExplicitlyEnabled(t *testing.T) {
 	)
 
 	_, err := os.Stat(filepath.Join(home, ".bun"))
+
 	if !os.IsNotExist(err) {
 		t.Fatalf("expected .bun directory to be removed after install:undo: %s", home)
 	}
@@ -588,6 +605,7 @@ func runBunIntegrationSteps(t *testing.T, root string, env []string, home, bunBi
 	}
 	run := func(t *testing.T, args ...string) tasktestutil.CommandResult {
 		t.Helper()
+
 		result := tasktestutil.RunTaskTimeout(t, root, env, 10*time.Minute, args...)
 		tasktestutil.AssertExitCode(t, result, 0)
 
@@ -601,6 +619,7 @@ func runBunIntegrationSteps(t *testing.T, root string, env []string, home, bunBi
 	})
 	step("version — bun version string is printed", func(t *testing.T) {
 		t.Helper()
+
 		result := run(t, "version")
 		tasktestutil.AssertNotEmpty(t, result.Combined(), "version output is empty")
 	})
@@ -626,7 +645,7 @@ func runBunIntegrationSteps(t *testing.T, root string, env []string, home, bunBi
 	})
 }
 
-// bunStubEnv returns an isolated environment with a stub bun binary that
+// BunStubEnv returns an isolated environment with a stub bun binary that
 // satisfies precondition checks without performing real operations.
 
 func bunStubEnv(t *testing.T) []string {

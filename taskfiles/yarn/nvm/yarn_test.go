@@ -1,3 +1,6 @@
+// REPLACE_ME 2026
+// SPDX-License-Identifier: Apache-2.0
+
 package yarnnvm_test
 
 import (
@@ -8,7 +11,7 @@ import (
 	"testing"
 
 	"github.com/task-otter/store/internal/tasktestutil"
-	"gopkg.in/yaml.v3"
+	yaml "gopkg.in/yaml.v3"
 )
 
 const (
@@ -58,11 +61,13 @@ func TestTaskfileAndReadmePublicApi(t *testing.T) {
 	}
 
 	tasks, ok := root["tasks"].(map[string]any)
+
 	if !ok || len(tasks) == 0 {
 		t.Fatal("Taskfile tasks map is missing")
 	}
 
 	actual := tasktestutil.SimplePublicTaskNames(tasks)
+
 	if !slices.Equal(publicTasks(), actual) {
 		t.Fatalf("public task drift\nexpected: %v\nactual:   %v", publicTasks(), actual)
 	}
@@ -70,6 +75,7 @@ func TestTaskfileAndReadmePublicApi(t *testing.T) {
 	readmeTasks := tasktestutil.ReadmePublicTaskNames(
 		tasktestutil.MustRead(t, tasktestutil.ModuleReadmePath(t)),
 	)
+
 	if !slices.Equal(publicTasks(), readmeTasks) {
 		t.Fatalf("README public task drift\nexpected: %v\nactual:   %v", publicTasks(), readmeTasks)
 	}
@@ -83,6 +89,7 @@ func TestStubbedYarnFlows(t *testing.T) {
 	}
 
 	env := stubEnv(t)
+
 	for _, args := range [][]string{
 		{constYarnTestYes, "version"},
 		{constYarnTestYes, "install"},
@@ -90,12 +97,14 @@ func TestStubbedYarnFlows(t *testing.T) {
 		{constYarnTestYes, "run", "SCRIPT=test", "--", "--watch"},
 	} {
 		result := tasktestutil.RunSimpleTask(t, ".", env, args...)
+
 		if result.Err != nil {
 			t.Fatalf("task %v failed:\n%s", args, result.Output)
 		}
 	}
 
 	result := tasktestutil.RunSimpleTask(t, ".", env, constYarnTestYes, "run", "SCRIPT=dev; exit 1")
+
 	if result.Err == nil {
 		t.Fatalf("unsafe SCRIPT unexpectedly succeeded:\n%s", result.Output)
 	}
@@ -145,6 +154,7 @@ func stubEnv(t *testing.T) []string {
 	)
 
 	env := os.Environ()
+
 	env = tasktestutil.SetEnv(env, "HOME", home)
 	env = tasktestutil.SetEnv(env, "PATH", binDir+":"+os.Getenv("PATH"))
 	env = tasktestutil.SetEnv(env, "NVM_DIR", nvmDir)

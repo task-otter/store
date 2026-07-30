@@ -1,3 +1,6 @@
+// REPLACE_ME 2026
+// SPDX-License-Identifier: Apache-2.0
+
 package vault_test
 
 import (
@@ -6,7 +9,7 @@ import (
 	"testing"
 
 	"github.com/task-otter/store/internal/tasktest"
-	"gopkg.in/yaml.v3"
+	yaml "gopkg.in/yaml.v3"
 )
 
 const (
@@ -89,6 +92,7 @@ func TestInputValidatedTasksDoNotInstallBeforePreconditions(t *testing.T) {
 		unsealTask,
 	} {
 		task := taskfile.Tasks[name]
+
 		if task.Deps != nil {
 			t.Fatalf(
 				"%s should run install from cmds after local preconditions, got deps: %#v",
@@ -255,6 +259,7 @@ func TestLinuxParentTasksGuardUnsupportedPackageManagers(t *testing.T) {
 
 	for _, name := range []string{"_install:linux", "_install:undo:linux", "_upgrade:linux"} {
 		preconditions := taskFieldYAML(t, taskfile.Tasks[name].Preconditions)
+
 		for _, token := range []string{"apt-get", "dnf"} {
 			if !strings.Contains(preconditions, token) {
 				t.Fatalf(
@@ -286,6 +291,7 @@ func TestStrictShellSetOnSensitiveTasks(t *testing.T) {
 		unsealTask,
 	} {
 		task := taskfile.Tasks[name]
+
 		for _, option := range []string{"errexit", "nounset", "pipefail"} {
 			if !slices.Contains(task.Set, option) {
 				t.Fatalf("%s should set %s, got %#v", name, option, task.Set)

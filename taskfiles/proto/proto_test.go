@@ -1,3 +1,6 @@
+// REPLACE_ME 2026
+// SPDX-License-Identifier: Apache-2.0
+
 package proto_test
 
 import (
@@ -42,6 +45,7 @@ func TestPluginWorkflowsInstallGoFirst(t *testing.T) {
 
 	for _, taskName := range []string{"install", "upgrade"} {
 		deps, ok := tf.Tasks[taskName].Deps.([]any)
+
 		if !ok {
 			t.Fatalf("%s deps have type %T, want []any", taskName, tf.Tasks[taskName].Deps)
 		}
