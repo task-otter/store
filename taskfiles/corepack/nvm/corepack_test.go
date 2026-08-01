@@ -1,5 +1,5 @@
-// Copyright 2026 task-otter
-// SPDX-License-Identifier: Apache-2.0
+// Taskotter 2026.
+// SPDX-License-Identifier: Apache-2.0.
 
 package corepacknvm_test
 
@@ -180,20 +180,53 @@ func stubEnv(t *testing.T) []string {
 	return env
 }
 
-func stub(t *testing.T, path, name, body string) {
+type stubFile struct {
+	path string
+	name string
+	body string
+}
+
+func stub(t *testing.T, fileValue any, parts ...string) {
+	file := normalizeStubFile(t, fileValue, parts)
 	t.Helper()
 
-	stubPath := filepath.Join(path, name)
+	t.Helper()
 
-	err := os.WriteFile(stubPath, []byte(body), 0o600)
+	stubPath := filepath.Join(file.path, file.name)
+
+	err := os.WriteFile(stubPath, []byte(file.body), 0o600)
 	if err != nil {
-		t.Fatalf("write %s stub: %v", name, err)
+		t.Fatalf("write %s stub: %v", file.name, err)
 	}
 
 	err = syscall.Chmod(stubPath, 0o500)
 	if err != nil {
-		t.Fatalf("make %s stub executable: %v", name, err)
+		t.Fatalf("make %s stub executable: %v", file.name, err)
 	}
+}
+
+func normalizeStubFile(t *testing.T, fileValue any, parts []string) stubFile {
+	t.Helper()
+
+	if file, ok := fileValue.(stubFile); ok {
+		if len(parts) != 0 {
+			t.Fatalf("stubFile does not accept positional arguments: %v", parts)
+		}
+
+		return file
+	}
+
+	path, ok := fileValue.(string)
+
+	if !ok {
+		t.Fatalf("stub path must be string or stubFile, got %T", fileValue)
+	}
+
+	if len(parts) != 2 {
+		t.Fatalf("stub requires name and body, got %d values", len(parts))
+	}
+
+	return stubFile{path: path, name: parts[0], body: parts[1]}
 }
 
 func taskNames(tasks map[string]any) []string {

@@ -1,5 +1,5 @@
-// Copyright 2026 task-otter
-// SPDX-License-Identifier: Apache-2.0
+// Taskotter 2026.
+// SPDX-License-Identifier: Apache-2.0.
 
 package fnm_test
 
@@ -70,7 +70,10 @@ func TestTaskBinaryIsAvailable(t *testing.T) {
 	t.Parallel()
 
 	root := tasktestutil.ModuleRoot(t)
-	result := tasktestutil.RunTask(t, root, nil, "--version")
+	result := tasktestutil.RunTask(
+		t,
+		tasktestutil.TaskRun{Root: root, Env: nil, Args: []string{"--version"}},
+	)
 	tasktestutil.AssertExitCode(t, result, 0)
 	tasktestutil.AssertNotEmpty(t, result.Combined(), "task --version output is empty")
 }
@@ -121,7 +124,10 @@ func TestTaskCliCanLoadTaskfile(t *testing.T) {
 		t.Run(strings.Join(args, " "), func(t *testing.T) {
 			t.Parallel()
 
-			result := tasktestutil.RunTask(t, root, tasktestutil.IsolatedEnv(t), args...)
+			result := tasktestutil.RunTask(
+				t,
+				tasktestutil.TaskRun{Root: root, Env: tasktestutil.IsolatedEnv(t), Args: args},
+			)
 			tasktestutil.AssertExitCode(t, result, 0)
 			tasktestutil.AssertNotContains(
 				t,
@@ -137,7 +143,14 @@ func TestTaskListAllJsonIsValid(t *testing.T) {
 	t.Parallel()
 
 	root := tasktestutil.ModuleRoot(t)
-	result := tasktestutil.RunTask(t, root, tasktestutil.IsolatedEnv(t), listAllFlag, "--json")
+	result := tasktestutil.RunTask(
+		t,
+		tasktestutil.TaskRun{
+			Root: root,
+			Env:  tasktestutil.IsolatedEnv(t),
+			Args: []string{listAllFlag, "--json"},
+		},
+	)
 	tasktestutil.AssertExitCode(t, result, 0)
 
 	err := tasktestutil.ValidateJSON(result.Stdout)
@@ -285,7 +298,6 @@ func TestPublicTasksHaveCommands(t *testing.T) {
 
 			if tasktestutil.IsEmptyNode(task.Field("cmds")) &&
 				tasktestutil.IsEmptyNode(task.Field("deps")) {
-
 				t.Fatalf("public task %q must have cmds or deps", spec.Name)
 			}
 		})
@@ -307,11 +319,12 @@ func TestTaskSummariesWork(t *testing.T) {
 
 			result := tasktestutil.RunTask(
 				t,
-				root,
-				tasktestutil.IsolatedEnv(t),
-				"--summary",
-				spec.Name,
+				tasktestutil.TaskRun{Root: root, Env: tasktestutil.IsolatedEnv(t), Args: []string{
+					"--summary",
+					spec.Name,
+				}},
 			)
+
 			tasktestutil.AssertExitCode(t, result, 0)
 
 			out := result.Combined()
@@ -427,7 +440,14 @@ func TestVersionTaskExitsSuccessfully(t *testing.T) {
 		t.Skip("stub fnm tests target Unix-like systems")
 	}
 
-	result := tasktestutil.RunTask(t, tasktestutil.ModuleRoot(t), fnmStubEnv(t), "--yes", "version")
+	result := tasktestutil.RunTask(
+		t,
+		tasktestutil.TaskRun{
+			Root: tasktestutil.ModuleRoot(t),
+			Env:  fnmStubEnv(t),
+			Args: []string{"--yes", "version"},
+		},
+	)
 	tasktestutil.AssertExitCode(t, result, 0)
 }
 
@@ -438,7 +458,14 @@ func TestLsTaskExitsSuccessfully(t *testing.T) {
 		t.Skip("stub fnm tests target Unix-like systems")
 	}
 
-	result := tasktestutil.RunTask(t, tasktestutil.ModuleRoot(t), fnmStubEnv(t), "--yes", "ls")
+	result := tasktestutil.RunTask(
+		t,
+		tasktestutil.TaskRun{
+			Root: tasktestutil.ModuleRoot(t),
+			Env:  fnmStubEnv(t),
+			Args: []string{"--yes", "ls"},
+		},
+	)
 	tasktestutil.AssertExitCode(t, result, 0)
 }
 
@@ -451,8 +478,22 @@ func TestInstallIsIdempotentWithStubFnm(t *testing.T) {
 
 	root := tasktestutil.ModuleRoot(t)
 	env := fnmStubEnv(t)
-	tasktestutil.AssertExitCode(t, tasktestutil.RunTask(t, root, env, "--yes", "install"), 0)
-	tasktestutil.AssertExitCode(t, tasktestutil.RunTask(t, root, env, "--yes", "install"), 0)
+	tasktestutil.AssertExitCode(
+		t,
+		tasktestutil.RunTask(
+			t,
+			tasktestutil.TaskRun{Root: root, Env: env, Args: []string{"--yes", "install"}},
+		),
+		0,
+	)
+	tasktestutil.AssertExitCode(
+		t,
+		tasktestutil.RunTask(
+			t,
+			tasktestutil.TaskRun{Root: root, Env: env, Args: []string{"--yes", "install"}},
+		),
+		0,
+	)
 }
 
 func TestInstallUndoRemovesFnmBinary(t *testing.T) {
@@ -466,7 +507,14 @@ func TestInstallUndoRemovesFnmBinary(t *testing.T) {
 	env := fnmStubEnv(t)
 	stubBin := filepath.Join(tasktestutil.EnvValue(env, "HOME"), ".local", "bin", "fnm")
 	tasktestutil.AssertFileExists(t, stubBin)
-	tasktestutil.AssertExitCode(t, tasktestutil.RunTask(t, root, env, "--yes", "install:undo"), 0)
+	tasktestutil.AssertExitCode(
+		t,
+		tasktestutil.RunTask(
+			t,
+			tasktestutil.TaskRun{Root: root, Env: env, Args: []string{"--yes", "install:undo"}},
+		),
+		0,
+	)
 
 	_, err := os.Stat(stubBin)
 
@@ -503,11 +551,12 @@ func TestNodeInstallDefaultVersionUsesLts(t *testing.T) {
 
 	result := tasktestutil.RunTask(
 		t,
-		tasktestutil.ModuleRoot(t),
-		fnmStubEnv(t),
-		"--yes",
-		nodeInstallTask,
+		tasktestutil.TaskRun{Root: tasktestutil.ModuleRoot(t), Env: fnmStubEnv(t), Args: []string{
+			"--yes",
+			nodeInstallTask,
+		}},
 	)
+
 	tasktestutil.AssertExitCode(t, result, 0)
 	tasktestutil.AssertContains(t, result.Combined(), "--lts")
 }
@@ -536,7 +585,14 @@ func TestShellSetupAddsActivationToProfile(t *testing.T) {
 	root := tasktestutil.ModuleRoot(t)
 	env := fnmFreshProfileEnv(t)
 	home := tasktestutil.EnvValue(env, "HOME")
-	tasktestutil.AssertExitCode(t, tasktestutil.RunTask(t, root, env, "--yes", "shell:setup"), 0)
+	tasktestutil.AssertExitCode(
+		t,
+		tasktestutil.RunTask(
+			t,
+			tasktestutil.TaskRun{Root: root, Env: env, Args: []string{"--yes", "shell:setup"}},
+		),
+		0,
+	)
 
 	if !profileContains(home, "fnm env") {
 		t.Fatal("expected at least one shell profile to contain 'fnm env' after task shell:setup")
@@ -553,8 +609,22 @@ func TestShellSetupIsIdempotent(t *testing.T) {
 	root := tasktestutil.ModuleRoot(t)
 	env := fnmFreshProfileEnv(t)
 	home := tasktestutil.EnvValue(env, "HOME")
-	tasktestutil.AssertExitCode(t, tasktestutil.RunTask(t, root, env, "--yes", "shell:setup"), 0)
-	tasktestutil.AssertExitCode(t, tasktestutil.RunTask(t, root, env, "--yes", "shell:setup"), 0)
+	tasktestutil.AssertExitCode(
+		t,
+		tasktestutil.RunTask(
+			t,
+			tasktestutil.TaskRun{Root: root, Env: env, Args: []string{"--yes", "shell:setup"}},
+		),
+		0,
+	)
+	tasktestutil.AssertExitCode(
+		t,
+		tasktestutil.RunTask(
+			t,
+			tasktestutil.TaskRun{Root: root, Env: env, Args: []string{"--yes", "shell:setup"}},
+		),
+		0,
+	)
 
 	for _, profilePath := range shellProfilePaths(home) {
 		content, err := readProfile(profilePath)
@@ -582,7 +652,14 @@ func TestInstallAlsoConfiguresShellActivation(t *testing.T) {
 	root := tasktestutil.ModuleRoot(t)
 	env := fnmFreshProfileEnv(t)
 	home := tasktestutil.EnvValue(env, "HOME")
-	tasktestutil.AssertExitCode(t, tasktestutil.RunTask(t, root, env, "--yes", "install"), 0)
+	tasktestutil.AssertExitCode(
+		t,
+		tasktestutil.RunTask(
+			t,
+			tasktestutil.TaskRun{Root: root, Env: env, Args: []string{"--yes", "install"}},
+		),
+		0,
+	)
 
 	if !profileContains(home, "fnm env") {
 		t.Fatal(
@@ -609,18 +686,30 @@ func TestRealInstallerFlowOnlyWhenExplicitlyEnabled(t *testing.T) {
 
 	tasktestutil.AssertExitCode(
 		t,
-		tasktestutil.RunTaskTimeout(t, root, env, 10*time.Minute, "--yes", "install"),
+		tasktestutil.RunTaskTimeout(
+			t,
+			tasktestutil.TaskRun{Root: root, Env: env, Args: []string{"--yes", "install"}},
+			10*time.Minute,
+		),
 		0,
 	)
 	tasktestutil.AssertFileExists(t, fnmBin)
 	tasktestutil.AssertExitCode(
 		t,
-		tasktestutil.RunTaskTimeout(t, root, env, 10*time.Minute, "version"),
+		tasktestutil.RunTaskTimeout(
+			t,
+			tasktestutil.TaskRun{Root: root, Env: env, Args: []string{"version"}},
+			10*time.Minute,
+		),
 		0,
 	)
 	tasktestutil.AssertExitCode(
 		t,
-		tasktestutil.RunTaskTimeout(t, root, env, 10*time.Minute, "--yes", "install:undo"),
+		tasktestutil.RunTaskTimeout(
+			t,
+			tasktestutil.TaskRun{Root: root, Env: env, Args: []string{"--yes", "install:undo"}},
+			10*time.Minute,
+		),
 		0,
 	)
 
@@ -650,46 +739,62 @@ func TestAllPublicTasksIntegration(t *testing.T) {
 	fnmBin := filepath.Join(home, ".local", "bin", "fnm")
 	fnmRoot := filepath.Join(home, ".local", "share", "fnm")
 
-	runFnmIntegrationSteps(t, root, env, fnmBin, fnmRoot)
+	runFnmIntegrationSteps(t, fnmIntegration{
+		root:    root,
+		env:     env,
+		fnmBin:  fnmBin,
+		fnmRoot: fnmRoot,
+	})
 }
 
-func runFnmIntegrationSteps(t *testing.T, root string, env []string, fnmBin, fnmRoot string) {
+type fnmIntegration struct {
+	root    string
+	fnmBin  string
+	fnmRoot string
+	env     []string
+}
+
+func runFnmIntegrationSteps(t *testing.T, integration fnmIntegration) {
 	t.Helper()
 
-	run := successfulIntegrationRun(root, env)
+	run := successfulIntegrationRun(integration.root, integration.env)
 
-	runFnmInstallSteps(t, run, fnmBin, fnmRoot)
-	runFnmNodeSteps(t, run, fnmRoot)
+	runFnmInstallSteps(t, fnmInstallSteps{
+		run:     run,
+		fnmBin:  integration.fnmBin,
+		fnmRoot: integration.fnmRoot,
+	})
+	runFnmNodeSteps(t, run, integration.fnmRoot)
 	runIntegrationStep(t, "install:undo — fnm binary is removed", func(t *testing.T) {
 		t.Helper()
 		run(t, "--yes", "install:undo")
 
-		_, err := os.Stat(fnmBin)
+		_, err := os.Stat(integration.fnmBin)
 
 		if !os.IsNotExist(err) {
-			t.Fatalf("expected fnm binary to be removed: %s", fnmBin)
+			t.Fatalf("expected fnm binary to be removed: %s", integration.fnmBin)
 		}
 	})
 }
 
-func runFnmInstallSteps(
-	t *testing.T,
-	run func(t *testing.T, args ...string) tasktestutil.CommandResult,
-	fnmBin string,
-	fnmRoot string,
-) {
+type fnmInstallSteps struct {
+	run     func(t *testing.T, args ...string) tasktestutil.CommandResult
+	fnmBin  string
+	fnmRoot string
+}
 
+func runFnmInstallSteps(t *testing.T, steps fnmInstallSteps) {
 	t.Helper()
 
 	runIntegrationStep(t, "install — fnm binary is present on disk", func(t *testing.T) {
 		t.Helper()
-		run(t, "--yes", "install")
-		tasktestutil.AssertFileExists(t, fnmBin)
+		steps.run(t, "--yes", "install")
+		tasktestutil.AssertFileExists(t, steps.fnmBin)
 	})
 	runIntegrationStep(t, "version — fnm version string is printed", func(t *testing.T) {
 		t.Helper()
 
-		result := run(t, "version")
+		result := steps.run(t, "version")
 		tasktestutil.AssertNotEmpty(t, result.Combined(), "version output is empty")
 	})
 	runIntegrationStep(
@@ -697,14 +802,14 @@ func runFnmInstallSteps(
 		"node:install — default LTS version directory is created",
 		func(t *testing.T) {
 			t.Helper()
-			run(t, "--yes", nodeInstallTask)
-			tasktestutil.AssertDirHasEntries(t, filepath.Join(fnmRoot, "node-versions"))
+			steps.run(t, "--yes", nodeInstallTask)
+			tasktestutil.AssertDirHasEntries(t, filepath.Join(steps.fnmRoot, "node-versions"))
 		},
 	)
 	runIntegrationStep(t, "ls — installed versions appear in output", func(t *testing.T) {
 		t.Helper()
 
-		result := run(t, "ls")
+		result := steps.run(t, "ls")
 		tasktestutil.AssertNotEmpty(t, result.Combined(), "ls output is empty")
 	})
 }
@@ -714,7 +819,6 @@ func runFnmNodeSteps(
 	run func(t *testing.T, args ...string) tasktestutil.CommandResult,
 	fnmRoot string,
 ) {
-
 	t.Helper()
 
 	const secondary = "18.0.0"
@@ -769,11 +873,14 @@ func successfulIntegrationRun(
 	root string,
 	env []string,
 ) func(t *testing.T, args ...string) tasktestutil.CommandResult {
-
 	return func(t *testing.T, args ...string) tasktestutil.CommandResult {
 		t.Helper()
 
-		result := tasktestutil.RunTaskTimeout(t, root, env, 10*time.Minute, args...)
+		result := tasktestutil.RunTaskTimeout(
+			t,
+			tasktestutil.TaskRun{Root: root, Env: env, Args: args},
+			10*time.Minute,
+		)
 		tasktestutil.AssertExitCode(t, result, 0)
 
 		return result

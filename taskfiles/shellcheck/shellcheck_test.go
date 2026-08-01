@@ -1,5 +1,5 @@
-// Copyright 2026 task-otter
-// SPDX-License-Identifier: Apache-2.0
+// Taskotter 2026.
+// SPDX-License-Identifier: Apache-2.0.
 
 package shellcheck_test
 
@@ -31,5 +31,9 @@ func publicVars() []string {
 func TestTaskfileModuleContract(t *testing.T) {
 	t.Parallel()
 
-	tasktest.AssertModule(t, "shellcheck", publicTasks(), publicVars())
+	tasktest.AssertModule(
+		t,
+		"shellcheck",
+		&tasktest.ModuleExpectations{Tasks: publicTasks(), Vars: publicVars()},
+	)
 }

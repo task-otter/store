@@ -1,5 +1,5 @@
-// Copyright 2026 task-otter
-// SPDX-License-Identifier: Apache-2.0
+// Taskotter 2026.
+// SPDX-License-Identifier: Apache-2.0.
 
 package bun_test
 
@@ -67,7 +67,10 @@ func TestTaskBinaryIsAvailable(t *testing.T) {
 	t.Parallel()
 
 	root := tasktestutil.ModuleRoot(t)
-	result := tasktestutil.RunTask(t, root, nil, "--version")
+	result := tasktestutil.RunTask(
+		t,
+		tasktestutil.TaskRun{Root: root, Env: nil, Args: []string{"--version"}},
+	)
 	tasktestutil.AssertExitCode(t, result, 0)
 	tasktestutil.AssertNotEmpty(t, result.Combined(), "task --version output is empty")
 }
@@ -118,7 +121,10 @@ func TestTaskCliCanLoadTaskfile(t *testing.T) {
 		t.Run(strings.Join(args, " "), func(t *testing.T) {
 			t.Parallel()
 
-			result := tasktestutil.RunTask(t, root, tasktestutil.IsolatedEnv(t), args...)
+			result := tasktestutil.RunTask(
+				t,
+				tasktestutil.TaskRun{Root: root, Env: tasktestutil.IsolatedEnv(t), Args: args},
+			)
 			tasktestutil.AssertExitCode(t, result, 0)
 			tasktestutil.AssertNotContains(
 				t,
@@ -135,12 +141,11 @@ func TestTaskListAllJsonIsValid(t *testing.T) {
 
 	root := tasktestutil.ModuleRoot(t)
 	result := tasktestutil.RunTask(
-		t,
-		root,
-		tasktestutil.IsolatedEnv(t),
-		constBunTestListAll,
-		"--json",
-	)
+		t, tasktestutil.TaskRun{Root: root, Env: tasktestutil.IsolatedEnv(t), Args: []string{
+			constBunTestListAll,
+			"--json",
+		}})
+
 	tasktestutil.AssertExitCode(t, result, 0)
 
 	err := tasktestutil.ValidateJSON(result.Stdout)
@@ -288,7 +293,6 @@ func TestPublicTasksHaveCommands(t *testing.T) {
 
 			if tasktestutil.IsEmptyNode(task.Field("cmds")) &&
 				tasktestutil.IsEmptyNode(task.Field("deps")) {
-
 				t.Fatalf("public task %q must have cmds or deps", spec.Name)
 			}
 		})
@@ -310,11 +314,12 @@ func TestTaskSummariesWork(t *testing.T) {
 
 			result := tasktestutil.RunTask(
 				t,
-				root,
-				tasktestutil.IsolatedEnv(t),
-				"--summary",
-				spec.Name,
+				tasktestutil.TaskRun{Root: root, Env: tasktestutil.IsolatedEnv(t), Args: []string{
+					"--summary",
+					spec.Name,
+				}},
 			)
+
 			tasktestutil.AssertExitCode(t, result, 0)
 
 			out := result.Combined()
@@ -419,7 +424,14 @@ func TestVersionTaskExitsSuccessfully(t *testing.T) {
 		t.Skip("stub bun tests target Unix-like systems")
 	}
 
-	result := tasktestutil.RunTask(t, tasktestutil.ModuleRoot(t), bunStubEnv(t), "--yes", "version")
+	result := tasktestutil.RunTask(
+		t,
+		tasktestutil.TaskRun{
+			Root: tasktestutil.ModuleRoot(t),
+			Env:  bunStubEnv(t),
+			Args: []string{"--yes", "version"},
+		},
+	)
 	tasktestutil.AssertExitCode(t, result, 0)
 }
 
@@ -430,7 +442,14 @@ func TestVersionTaskPrintsBunVersion(t *testing.T) {
 		t.Skip("stub bun tests target Unix-like systems")
 	}
 
-	result := tasktestutil.RunTask(t, tasktestutil.ModuleRoot(t), bunStubEnv(t), "--yes", "version")
+	result := tasktestutil.RunTask(
+		t,
+		tasktestutil.TaskRun{
+			Root: tasktestutil.ModuleRoot(t),
+			Env:  bunStubEnv(t),
+			Args: []string{"--yes", "version"},
+		},
+	)
 	tasktestutil.AssertExitCode(t, result, 0)
 	tasktestutil.AssertContains(t, result.Combined(), "1.")
 }
@@ -444,8 +463,22 @@ func TestInstallIsIdempotentWithStubBun(t *testing.T) {
 
 	root := tasktestutil.ModuleRoot(t)
 	env := bunStubEnv(t)
-	tasktestutil.AssertExitCode(t, tasktestutil.RunTask(t, root, env, "--yes", "install"), 0)
-	tasktestutil.AssertExitCode(t, tasktestutil.RunTask(t, root, env, "--yes", "install"), 0)
+	tasktestutil.AssertExitCode(
+		t,
+		tasktestutil.RunTask(
+			t,
+			tasktestutil.TaskRun{Root: root, Env: env, Args: []string{"--yes", "install"}},
+		),
+		0,
+	)
+	tasktestutil.AssertExitCode(
+		t,
+		tasktestutil.RunTask(
+			t,
+			tasktestutil.TaskRun{Root: root, Env: env, Args: []string{"--yes", "install"}},
+		),
+		0,
+	)
 }
 
 func TestInstallSkipsWhenBunIsAlreadyPresent(t *testing.T) {
@@ -455,7 +488,14 @@ func TestInstallSkipsWhenBunIsAlreadyPresent(t *testing.T) {
 		t.Skip("stub bun tests target Unix-like systems")
 	}
 
-	result := tasktestutil.RunTask(t, tasktestutil.ModuleRoot(t), bunStubEnv(t), "--yes", "install")
+	result := tasktestutil.RunTask(
+		t,
+		tasktestutil.TaskRun{
+			Root: tasktestutil.ModuleRoot(t),
+			Env:  bunStubEnv(t),
+			Args: []string{"--yes", "install"},
+		},
+	)
 	tasktestutil.AssertExitCode(t, result, 0)
 	tasktestutil.AssertNotContains(t, result.Combined(), "Installing Bun")
 }
@@ -471,7 +511,14 @@ func TestInstallUndoRemovesBunDir(t *testing.T) {
 	env := bunStubEnv(t)
 	bunDir := filepath.Join(tasktestutil.EnvValue(env, "HOME"), ".bun")
 	tasktestutil.AssertDirExists(t, bunDir)
-	tasktestutil.AssertExitCode(t, tasktestutil.RunTask(t, root, env, "--yes", "install:undo"), 0)
+	tasktestutil.AssertExitCode(
+		t,
+		tasktestutil.RunTask(
+			t,
+			tasktestutil.TaskRun{Root: root, Env: env, Args: []string{"--yes", "install:undo"}},
+		),
+		0,
+	)
 	tasktestutil.AssertDirNotExists(t, bunDir)
 }
 
@@ -484,8 +531,22 @@ func TestInstallUndoIsIdempotent(t *testing.T) {
 
 	root := tasktestutil.ModuleRoot(t)
 	env := bunStubEnv(t)
-	tasktestutil.AssertExitCode(t, tasktestutil.RunTask(t, root, env, "--yes", "install:undo"), 0)
-	tasktestutil.AssertExitCode(t, tasktestutil.RunTask(t, root, env, "--yes", "install:undo"), 0)
+	tasktestutil.AssertExitCode(
+		t,
+		tasktestutil.RunTask(
+			t,
+			tasktestutil.TaskRun{Root: root, Env: env, Args: []string{"--yes", "install:undo"}},
+		),
+		0,
+	)
+	tasktestutil.AssertExitCode(
+		t,
+		tasktestutil.RunTask(
+			t,
+			tasktestutil.TaskRun{Root: root, Env: env, Args: []string{"--yes", "install:undo"}},
+		),
+		0,
+	)
 }
 
 func TestUpgradeExitsSuccessfully(t *testing.T) {
@@ -495,7 +556,14 @@ func TestUpgradeExitsSuccessfully(t *testing.T) {
 		t.Skip("stub bun tests target Unix-like systems")
 	}
 
-	result := tasktestutil.RunTask(t, tasktestutil.ModuleRoot(t), bunStubEnv(t), "--yes", "upgrade")
+	result := tasktestutil.RunTask(
+		t,
+		tasktestutil.TaskRun{
+			Root: tasktestutil.ModuleRoot(t),
+			Env:  bunStubEnv(t),
+			Args: []string{"--yes", "upgrade"},
+		},
+	)
 	tasktestutil.AssertExitCode(t, result, 0)
 }
 
@@ -508,11 +576,12 @@ func TestUpgradeCanaryExitsSuccessfully(t *testing.T) {
 
 	result := tasktestutil.RunTask(
 		t,
-		tasktestutil.ModuleRoot(t),
-		bunStubEnv(t),
-		"--yes",
-		"upgrade:canary",
+		tasktestutil.TaskRun{Root: tasktestutil.ModuleRoot(t), Env: bunStubEnv(t), Args: []string{
+			"--yes",
+			"upgrade:canary",
+		}},
 	)
+
 	tasktestutil.AssertExitCode(t, result, 0)
 }
 
@@ -525,11 +594,12 @@ func TestUpgradeStableExitsSuccessfully(t *testing.T) {
 
 	result := tasktestutil.RunTask(
 		t,
-		tasktestutil.ModuleRoot(t),
-		bunStubEnv(t),
-		"--yes",
-		"upgrade:stable",
+		tasktestutil.TaskRun{Root: tasktestutil.ModuleRoot(t), Env: bunStubEnv(t), Args: []string{
+			"--yes",
+			"upgrade:stable",
+		}},
 	)
+
 	tasktestutil.AssertExitCode(t, result, 0)
 }
 
@@ -551,18 +621,30 @@ func TestRealInstallerFlowOnlyWhenExplicitlyEnabled(t *testing.T) {
 
 	tasktestutil.AssertExitCode(
 		t,
-		tasktestutil.RunTaskTimeout(t, root, env, 10*time.Minute, "--yes", "install"),
+		tasktestutil.RunTaskTimeout(
+			t,
+			tasktestutil.TaskRun{Root: root, Env: env, Args: []string{"--yes", "install"}},
+			10*time.Minute,
+		),
 		0,
 	)
 	tasktestutil.AssertFileExists(t, bunBin)
 	tasktestutil.AssertExitCode(
 		t,
-		tasktestutil.RunTaskTimeout(t, root, env, 10*time.Minute, "version"),
+		tasktestutil.RunTaskTimeout(
+			t,
+			tasktestutil.TaskRun{Root: root, Env: env, Args: []string{"version"}},
+			10*time.Minute,
+		),
 		0,
 	)
 	tasktestutil.AssertExitCode(
 		t,
-		tasktestutil.RunTaskTimeout(t, root, env, 10*time.Minute, "--yes", "install:undo"),
+		tasktestutil.RunTaskTimeout(
+			t,
+			tasktestutil.TaskRun{Root: root, Env: env, Args: []string{"--yes", "install:undo"}},
+			10*time.Minute,
+		),
 		0,
 	)
 
@@ -589,10 +671,22 @@ func TestAllPublicTasksIntegration(t *testing.T) {
 	home := tasktestutil.EnvValue(env, "HOME")
 	bunBin := filepath.Join(home, ".bun", "bin", "bun")
 
-	runBunIntegrationSteps(t, root, env, home, bunBin)
+	runBunIntegrationSteps(t, bunIntegration{
+		root:   root,
+		env:    env,
+		home:   home,
+		bunBin: bunBin,
+	})
 }
 
-func runBunIntegrationSteps(t *testing.T, root string, env []string, home, bunBin string) {
+type bunIntegration struct {
+	root   string
+	home   string
+	bunBin string
+	env    []string
+}
+
+func runBunIntegrationSteps(t *testing.T, integration bunIntegration) {
 	t.Helper()
 
 	step := func(name string, fn func(t *testing.T)) {
@@ -606,7 +700,11 @@ func runBunIntegrationSteps(t *testing.T, root string, env []string, home, bunBi
 	run := func(t *testing.T, args ...string) tasktestutil.CommandResult {
 		t.Helper()
 
-		result := tasktestutil.RunTaskTimeout(t, root, env, 10*time.Minute, args...)
+		result := tasktestutil.RunTaskTimeout(
+			t,
+			tasktestutil.TaskRun{Root: integration.root, Env: integration.env, Args: args},
+			10*time.Minute,
+		)
 		tasktestutil.AssertExitCode(t, result, 0)
 
 		return result
@@ -615,7 +713,7 @@ func runBunIntegrationSteps(t *testing.T, root string, env []string, home, bunBi
 	step("install — bun binary is present on disk", func(t *testing.T) {
 		t.Helper()
 		run(t, "--yes", "install")
-		tasktestutil.AssertFileExists(t, bunBin)
+		tasktestutil.AssertFileExists(t, integration.bunBin)
 	})
 	step("version — bun version string is printed", func(t *testing.T) {
 		t.Helper()
@@ -626,22 +724,22 @@ func runBunIntegrationSteps(t *testing.T, root string, env []string, home, bunBi
 	step("upgrade — bun upgrades without error", func(t *testing.T) {
 		t.Helper()
 		run(t, "--yes", "upgrade")
-		tasktestutil.AssertFileExists(t, bunBin)
+		tasktestutil.AssertFileExists(t, integration.bunBin)
 	})
 	step("upgrade:canary — bun switches to canary without error", func(t *testing.T) {
 		t.Helper()
 		run(t, "--yes", "upgrade:canary")
-		tasktestutil.AssertFileExists(t, bunBin)
+		tasktestutil.AssertFileExists(t, integration.bunBin)
 	})
 	step("upgrade:stable — bun switches back to stable without error", func(t *testing.T) {
 		t.Helper()
 		run(t, "--yes", "upgrade:stable")
-		tasktestutil.AssertFileExists(t, bunBin)
+		tasktestutil.AssertFileExists(t, integration.bunBin)
 	})
 	step("install:undo — .bun directory is removed", func(t *testing.T) {
 		t.Helper()
 		run(t, "--yes", "install:undo")
-		tasktestutil.AssertDirNotExists(t, filepath.Join(home, ".bun"))
+		tasktestutil.AssertDirNotExists(t, filepath.Join(integration.home, ".bun"))
 	})
 }
 

@@ -1,5 +1,5 @@
-// Copyright 2026 task-otter
-// SPDX-License-Identifier: Apache-2.0
+// Taskotter 2026.
+// SPDX-License-Identifier: Apache-2.0.
 
 package yarnfnm_test
 
@@ -96,14 +96,21 @@ func TestStubbedYarnFlows(t *testing.T) {
 		{constYarnTestYes, "ci"},
 		{constYarnTestYes, "run", "SCRIPT=test", "--", "--watch"},
 	} {
-		result := tasktestutil.RunSimpleTask(t, ".", env, args...)
+		result := tasktestutil.RunSimpleTask(
+			t,
+			tasktestutil.SimpleTaskRun{Dir: ".", Env: env, Args: args},
+		)
 
 		if result.Err != nil {
 			t.Fatalf("task %v failed:\n%s", args, result.Output)
 		}
 	}
 
-	result := tasktestutil.RunSimpleTask(t, ".", env, constYarnTestYes, "run", "SCRIPT=dev; exit 1")
+	result := tasktestutil.RunSimpleTask(t, tasktestutil.SimpleTaskRun{
+		Dir:  ".",
+		Env:  env,
+		Args: []string{constYarnTestYes, "run", "SCRIPT=dev; exit 1"},
+	})
 
 	if result.Err == nil {
 		t.Fatalf("unsafe SCRIPT unexpectedly succeeded:\n%s", result.Output)

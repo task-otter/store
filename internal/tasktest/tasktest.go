@@ -1,5 +1,5 @@
-// Copyright 2026 task-otter
-// SPDX-License-Identifier: Apache-2.0
+// Taskotter 2026.
+// SPDX-License-Identifier: Apache-2.0.
 
 // Package tasktest provides shared helpers for validating Taskfile modules.
 package tasktest
@@ -15,7 +15,6 @@ import (
 	"os/exec"
 	"path/filepath"
 	"slices"
-	"sort"
 	"strings"
 	"time"
 
@@ -44,6 +43,7 @@ type (
 		Internal      bool     `yaml:"internal"`
 	}
 
+	// TestingT is the subset of [testing.TB] used by the shared helpers.
 	TestingT interface {
 		Helper()
 		Fatal(args ...any)
@@ -51,14 +51,53 @@ type (
 		TempDir() string
 	}
 
+	// ModuleExpectations describes the public surface a module should expose.
+	ModuleExpectations struct {
+		Tasks []string
+		Vars  []string
+	}
+
+	readmeCheck struct {
+		text          string
+		expectedTasks []string
+	}
+
+	publicTaskCheck struct {
+		taskfile      *Taskfile
+		expectedTasks []string
+		actualTasks   []string
+	}
+
+	taskCheck struct {
+		task *Task
+		name string
+	}
+
+	varCheck struct {
+		taskfile     *Taskfile
+		expectedVars []string
+	}
+
+	taskCliLoadFailure struct {
+		err    error
+		module string
+		output string
+	}
+
 	taskCommandSettings struct {
-		binary  string
 		timeout time.Duration
 	}
 )
 
 const (
 	minTaskDescriptionLength = 12
+	emptyLength              = 0
+	taskJSONFlag             = "--json"
+	taskListAllFlag          = "--list-all"
+	taskBinary               = "task"
+	taskfileFlag             = "--taskfile"
+	taskfileName             = "Taskfile.yml"
+	windowsLineEnding        = "\r\n"
 )
 
 func workingDir() (string, error) {
@@ -71,24 +110,24 @@ func workingDir() (string, error) {
 }
 
 func currentTaskCommandSettings() taskCommandSettings {
-	return taskCommandSettings{binary: "task", timeout: time.Minute}
+	return taskCommandSettings{timeout: time.Minute}
 }
 
 // AssertModule checks a module's README and Taskfile against its declared
 // public surface. It does not fork the task CLI: the Taskfile is parsed here,
 // and CLI loadability is covered once per family by AssertTaskCliCanLoad.
-func AssertModule(tester TestingT, module string, expectedTasks, expectedVars []string) {
+func AssertModule(tester TestingT, module string, expected *ModuleExpectations) {
 	tester.Helper()
 
-	assertReadme(tester, module, expectedTasks)
-	assertTaskfile(tester, module, expectedTasks, expectedVars)
+	assertReadme(tester, module, expected.Tasks)
+	assertTaskfile(tester, module, expected)
 }
 
 // AssertTaskCliCanLoad verifies the task CLI can parse a module's Taskfile.
 func AssertTaskCliCanLoad(tester TestingT, module string) {
 	tester.Helper()
 
-	assertTaskCliCanLoad(tester, module)
+	assertTaskCLIParse(tester, module)
 }
 
 // LoadTaskfile reads and parses the Taskfile for module.
@@ -111,12 +150,12 @@ func mustReadTaskfile(tester TestingT, module string) []byte {
 }
 
 func validateTaskfileFormatting(tester TestingT, module string, content []byte) {
-	if bytes.Contains(content, []byte("\r\n")) {
+	if bytes.Contains(content, []byte(windowsLineEnding)) {
 		tester.Fatalf("%s Taskfile must use LF line endings", module)
 	}
 
 	trimmedWhitespace := bytes.TrimRight(content, " \t\r\n")
-	trimmedLineEndings := bytes.TrimRight(content, "\r\n")
+	trimmedLineEndings := bytes.TrimRight(content, windowsLineEnding)
 
 	if !bytes.Equal(trimmedWhitespace, trimmedLineEndings) {
 		tester.Fatalf("%s Taskfile has trailing whitespace", module)
@@ -163,9 +202,9 @@ func findRepoRoot(tester TestingT, directory string) string {
 }
 
 func pathExists(path string) bool {
-	_, err := os.Stat(path)
+	info, err := os.Stat(path)
 
-	return err == nil
+	return err == nil && info != nil
 }
 
 func assertReadme(tester TestingT, module string, expectedTasks []string) {
@@ -173,7 +212,7 @@ func assertReadme(tester TestingT, module string, expectedTasks []string) {
 
 	text := string(mustReadReadme(tester, module))
 	validateReadme(tester, module, text)
-	assertReadmeTasks(tester, module, text, expectedTasks)
+	assertReadmeTasks(tester, module, &readmeCheck{text: text, expectedTasks: expectedTasks})
 }
 
 func mustReadReadme(tester TestingT, module string) []byte {
@@ -205,15 +244,19 @@ func validateReadme(tester TestingT, module, text string) {
 	}
 }
 
-func assertReadmeTasks(tester TestingT, module, text string, expectedTasks []string) {
-	for i := range expectedTasks {
-		if !strings.Contains(text, "`"+expectedTasks[i]+"`") {
-			tester.Fatalf("%s README.md does not mention public task %q", module, expectedTasks[i])
+func assertReadmeTasks(tester TestingT, module string, check *readmeCheck) {
+	for i := range check.expectedTasks {
+		if !strings.Contains(check.text, "`"+check.expectedTasks[i]+"`") {
+			tester.Fatalf(
+				"%s README.md does not mention public task %q",
+				module,
+				check.expectedTasks[i],
+			)
 		}
 	}
 }
 
-func assertTaskfile(tester TestingT, module string, expectedTasks, expectedVars []string) {
+func assertTaskfile(tester TestingT, module string, expected *ModuleExpectations) {
 	tester.Helper()
 
 	taskfile := LoadTaskfile(tester, module)
@@ -222,86 +265,90 @@ func assertTaskfile(tester TestingT, module string, expectedTasks, expectedVars 
 		tester.Fatalf("%s Taskfile version must be 3 or 3.x, got %q", module, taskfile.Version)
 	}
 
-	if len(taskfile.Tasks) == 0 {
+	if len(taskfile.Tasks) == emptyLength {
 		tester.Fatalf("%s Taskfile must define tasks", module)
 	}
 
 	actualTasks := publicTaskNames(taskfile)
-	assertPublicTasks(tester, module, taskfile, sortedCopy(expectedTasks), actualTasks)
-	assertExpectedVars(tester, module, taskfile, expectedVars)
+	assertPublicTasks(tester, module, &publicTaskCheck{
+		taskfile:      taskfile,
+		expectedTasks: sortedCopy(expected.Tasks),
+		actualTasks:   actualTasks,
+	})
+	assertExpectedVars(tester, module, &varCheck{taskfile: taskfile, expectedVars: expected.Vars})
 }
 
-func assertPublicTasks(
-	tester TestingT,
-	module string,
-	taskfile *Taskfile,
-	expectedTasks, actualTasks []string,
-) {
+func assertPublicTasks(tester TestingT, module string, check *publicTaskCheck) {
 	tester.Helper()
 
-	if !slices.Equal(expectedTasks, actualTasks) {
+	if !slices.Equal(check.expectedTasks, check.actualTasks) {
 		tester.Fatalf(
 			"%s public task drift\nexpected: %v\nactual:   %v",
 			module,
-			expectedTasks,
-			actualTasks,
+			check.expectedTasks,
+			check.actualTasks,
 		)
 	}
 
-	for i := range actualTasks {
-		assertPublicTask(tester, module, actualTasks[i], taskfile.Tasks[actualTasks[i]])
+	for i := range check.actualTasks {
+		name := check.actualTasks[i]
+		assertPublicTask(tester, module, &taskCheck{name: name, task: check.taskfile.Tasks[name]})
 	}
 }
 
-func assertPublicTask(tester TestingT, module, name string, task *Task) {
+func assertPublicTask(tester TestingT, module string, check *taskCheck) {
 	tester.Helper()
 
-	if len(strings.TrimSpace(task.Desc)) < minTaskDescriptionLength {
-		tester.Fatalf("%s task %q desc is missing or too short: %q", module, name, task.Desc)
+	if len(strings.TrimSpace(check.task.Desc)) < minTaskDescriptionLength {
+		tester.Fatalf(
+			"%s task %q desc is missing or too short: %q",
+			module,
+			check.name,
+			check.task.Desc,
+		)
 	}
 
-	if task.Cmds == nil && task.Deps == nil {
-		tester.Fatalf("%s task %q must define cmds or deps", module, name)
+	if check.task.Cmds == nil && check.task.Deps == nil {
+		tester.Fatalf("%s task %q must define cmds or deps", module, check.name)
 	}
 }
 
-func assertExpectedVars(tester TestingT, module string, taskfile *Taskfile, expectedVars []string) {
+func assertExpectedVars(tester TestingT, module string, check *varCheck) {
 	tester.Helper()
 
-	for i := range expectedVars {
-		if _, ok := taskfile.Vars[expectedVars[i]]; !ok {
-			tester.Fatalf("%s Taskfile vars missing %q", module, expectedVars[i])
+	for i := range check.expectedVars {
+		if _, ok := check.taskfile.Vars[check.expectedVars[i]]; !ok {
+			tester.Fatalf("%s Taskfile vars missing %q", module, check.expectedVars[i])
 		}
 	}
 }
 
-func assertTaskCliCanLoad(tester TestingT, module string) {
+func assertTaskCLIParse(tester TestingT, module string) {
 	tester.Helper()
 
 	output, err := taskListJSONOutput(tester, module)
 	if err != nil {
-		failTaskCliLoad(tester, module, output, err)
+		failTaskCliLoad(tester, &taskCliLoadFailure{module: module, output: output, err: err})
 	}
 
 	assertValidJSON(tester, module, output)
 }
 
 func taskListJSONOutput(tester TestingT, module string) (string, error) {
-	return runTaskOutput(
-		tester,
-		"--taskfile",
-		taskfilePath(tester, module),
-		"--list-all",
-		"--json",
-	)
+	output, err := runTaskListJSONOutput(tester, module)
+	if err != nil {
+		return output, fmt.Errorf("list %s tasks as JSON: %w", module, err)
+	}
+
+	return output, nil
 }
 
-func failTaskCliLoad(tester TestingT, module, output string, err error) {
+func failTaskCliLoad(tester TestingT, failure *taskCliLoadFailure) {
 	tester.Fatalf(
 		"%s task --list-all --json failed:\n%s\nerror: %v",
-		module,
-		output,
-		err,
+		failure.module,
+		failure.output,
+		failure.err,
 	)
 }
 
@@ -320,7 +367,7 @@ func assertValidJSON(tester TestingT, module, output string) {
 }
 
 func publicTaskNames(taskfile *Taskfile) []string {
-	names := make([]string, 0, len(taskfile.Tasks))
+	names := make([]string, emptyLength, len(taskfile.Tasks))
 
 	for name := range taskfile.Tasks {
 		if name == "default" || taskfile.Tasks[name].Internal {
@@ -330,14 +377,14 @@ func publicTaskNames(taskfile *Taskfile) []string {
 		names = append(names, name)
 	}
 
-	sort.Strings(names)
+	slices.Sort(names)
 
 	return names
 }
 
 func sortedCopy(values []string) []string {
 	clone := slices.Clone(values)
-	sort.Strings(clone)
+	slices.Sort(clone)
 
 	return clone
 }
@@ -345,7 +392,7 @@ func sortedCopy(values []string) []string {
 func taskfilePath(tester TestingT, module string) string {
 	tester.Helper()
 
-	return filepath.Join(moduleDir(tester, module), "Taskfile.yml")
+	return filepath.Join(moduleDir(tester, module), taskfileName)
 }
 
 func moduleDir(tester TestingT, module string) string {
@@ -354,7 +401,7 @@ func moduleDir(tester TestingT, module string) string {
 	return filepath.Join(RepoRoot(tester), "taskfiles", module)
 }
 
-func runTaskOutput(tester TestingT, args ...string) (string, error) {
+func runTaskListJSONOutput(tester TestingT, module string) (string, error) {
 	tester.Helper()
 
 	settings := currentTaskCommandSettings()
@@ -362,37 +409,38 @@ func runTaskOutput(tester TestingT, args ...string) (string, error) {
 
 	defer cancel()
 
-	cmd := newTaskCommand(tester, ctx, settings.binary, args)
+	cmd := newTaskListJSONCommand(ctx, tester, module)
 	output, err := cmd.CombinedOutput()
 
-	assertTaskCommandDidNotTimeout(tester, ctx, args)
+	assertTaskCommandDidNotTimeout(ctx, tester, []string{
+		taskfileFlag,
+		taskfileName,
+		taskListAllFlag,
+		taskJSONFlag,
+	})
 
 	return string(output), err
 }
 
-func newTaskCommand(
-	tester TestingT,
-	ctx context.Context,
-	binary string,
-	args []string,
-) *exec.Cmd {
-	if binary != "task" {
-		tester.Fatalf("unsupported task command binary %q", binary)
+func newTaskListJSONCommand(ctx context.Context, tester TestingT, module string) *exec.Cmd {
+	cmd := exec.CommandContext(
+		ctx,
+		taskBinary,
+		taskfileFlag,
+		taskfileName,
+		taskListAllFlag,
+		taskJSONFlag,
+	)
 
-		return nil
-	}
-
-	cmd := exec.CommandContext(ctx, "task", args...)
-
-	cmd.Dir = RepoRoot(tester)
+	cmd.Dir = moduleDir(tester, module)
 	cmd.Env = os.Environ()
 
 	return cmd
 }
 
-func assertTaskCommandDidNotTimeout(tester TestingT, ctx context.Context, args []string) {
+func assertTaskCommandDidNotTimeout(ctx context.Context, tester TestingT, args []string) {
 	if errors.Is(ctx.Err(), context.DeadlineExceeded) {
-		tester.Fatalf("task command timed out: task %s", strings.Join(args, " "))
+		tester.Fatalf("task command timed out: %s %s", taskBinary, strings.Join(args, " "))
 	}
 }
 

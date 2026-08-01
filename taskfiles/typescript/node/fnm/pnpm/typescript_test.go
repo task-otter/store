@@ -1,5 +1,5 @@
-// Copyright 2026 task-otter
-// SPDX-License-Identifier: Apache-2.0
+// Taskotter 2026.
+// SPDX-License-Identifier: Apache-2.0.
 
 package typescriptnodefnmpnpm_test
 
@@ -109,7 +109,6 @@ func TestTaskfileYamlIsCleanAndValid(t *testing.T) {
 		"version",
 	); version != "3" &&
 		!strings.HasPrefix(version, "3.") {
-
 		t.Fatalf("Taskfile version must be 3 or 3.x, got %q", version)
 	}
 
@@ -185,7 +184,6 @@ func TestPublicTasksHaveMetadataAndCommands(t *testing.T) {
 
 			if isEmptyNode(mappingValue(task.node, "cmds")) &&
 				isEmptyNode(mappingValue(task.node, "deps")) {
-
 				t.Fatalf("public task %q must have cmds or deps", spec.name)
 			}
 		})
@@ -212,7 +210,6 @@ func TestDestructivePublicTasksHavePrompt(t *testing.T) {
 			if !strings.Contains(prompt, "delete") &&
 				!strings.Contains(prompt, "remove") &&
 				!strings.Contains(prompt, "continue") {
-
 				t.Fatalf("destructive task %q needs an explicit prompt:\n%s", spec.name, prompt)
 			}
 		})
@@ -399,27 +396,28 @@ func isolatedEnv(t *testing.T) []string {
 func fakeTypeScriptProject(t *testing.T, env []string) (string, []string) {
 	t.Helper()
 
-	projectDir := t.TempDir()
-	binDir := filepath.Join(projectDir, ".stub-bin")
-	nodeBinDir := filepath.Join(projectDir, "node_modules", ".bin")
+	dirs := typeScriptFixtureDirs{projectDir: t.TempDir(), env: env}
 
-	createTypeScriptFixtureDirs(t, projectDir, binDir, nodeBinDir, env)
+	dirs.binDir = filepath.Join(dirs.projectDir, ".stub-bin")
+	dirs.nodeBinDir = filepath.Join(dirs.projectDir, "node_modules", ".bin")
+
+	createTypeScriptFixtureDirs(t, dirs)
 
 	writeFile(
 		t,
-		filepath.Join(projectDir, "package.json"),
+		filepath.Join(dirs.projectDir, "package.json"),
 		`{"scripts":{"build":"tsc"}}`+"\n",
 		0o644,
 	)
-	writeFile(t, filepath.Join(projectDir, "package-lock.json"), "{}\n", 0o600)
+	writeFile(t, filepath.Join(dirs.projectDir, "package-lock.json"), "{}\n", 0o600)
 	writeFile(
 		t,
-		filepath.Join(projectDir, "tsconfig.json"),
+		filepath.Join(dirs.projectDir, "tsconfig.json"),
 		`{"compilerOptions":{"outDir":"dist"}}`+"\n",
 		0o644,
 	)
-	writeFile(t, filepath.Join(projectDir, "src", "index.ts"), "export {}\n", 0o600)
-	writeFile(t, filepath.Join(projectDir, "dist", "index.js"), "console.log('ok')\n", 0o600)
+	writeFile(t, filepath.Join(dirs.projectDir, "src", "index.ts"), "export {}\n", 0o600)
+	writeFile(t, filepath.Join(dirs.projectDir, "dist", "index.js"), "console.log('ok')\n", 0o600)
 
 	stubBody := "#!/usr/bin/env bash\n" +
 		"case \"$1\" in\n" +
@@ -428,47 +426,47 @@ func fakeTypeScriptProject(t *testing.T, env []string) (string, []string) {
 		"esac\n"
 
 	for _, name := range []string{"tsc", "tsx", "tsserver"} {
-		writeFile(t, filepath.Join(nodeBinDir, name), stubBody, 0o500)
+		writeFile(t, filepath.Join(dirs.nodeBinDir, name), stubBody, 0o500)
 	}
 
 	for _, name := range []string{"fnm", "node", "npx", "npm", "pnpm", "yarn", "bun"} {
-		writeFile(t, filepath.Join(binDir, name), stubBody, 0o500)
+		writeFile(t, filepath.Join(dirs.binDir, name), stubBody, 0o500)
 	}
 
-	writeFile(t, filepath.Join(envValue(env, "HOME"), ".bun", "bin", "bun"), stubBody, 0o500)
-	writeFile(t, filepath.Join(envValue(env, "HOME"), ".nvm", "nvm.sh"), "# nvm stub\n", 0o600)
+	writeFile(t, filepath.Join(envValue(dirs.env, "HOME"), ".bun", "bin", "bun"), stubBody, 0o500)
+	writeFile(t, filepath.Join(envValue(dirs.env, "HOME"), ".nvm", "nvm.sh"), "# nvm stub\n", 0o600)
 	writeFile(
 		t,
-		filepath.Join(envValue(env, "HOME"), ".local", "share", "fnm", "fnm"),
+		filepath.Join(envValue(dirs.env, "HOME"), ".local", "share", "fnm", "fnm"),
 		stubBody,
 		0o755,
 	)
 
-	path := binDir + ":" + nodeBinDir + ":" + envValue(env, "PATH")
+	path := dirs.binDir + ":" + dirs.nodeBinDir + ":" + envValue(dirs.env, "PATH")
 
 	env = setEnv(env, "PATH", path)
 
-	return projectDir, env
+	return dirs.projectDir, env
 }
 
-func createTypeScriptFixtureDirs(
-	t *testing.T,
-	projectDir string,
-	binDir string,
-	nodeBinDir string,
-	env []string,
-) {
+type typeScriptFixtureDirs struct {
+	projectDir string
+	binDir     string
+	nodeBinDir string
+	env        []string
+}
 
+func createTypeScriptFixtureDirs(t *testing.T, dirs typeScriptFixtureDirs) {
 	t.Helper()
 
 	for _, path := range []string{
-		filepath.Join(projectDir, "src"),
-		filepath.Join(projectDir, "dist"),
-		binDir,
-		nodeBinDir,
-		filepath.Join(envValue(env, "HOME"), ".bun", "bin"),
-		filepath.Join(envValue(env, "HOME"), ".nvm"),
-		filepath.Join(envValue(env, "HOME"), ".local", "share", "fnm"),
+		filepath.Join(dirs.projectDir, "src"),
+		filepath.Join(dirs.projectDir, "dist"),
+		dirs.binDir,
+		dirs.nodeBinDir,
+		filepath.Join(envValue(dirs.env, "HOME"), ".bun", "bin"),
+		filepath.Join(envValue(dirs.env, "HOME"), ".nvm"),
+		filepath.Join(envValue(dirs.env, "HOME"), ".local", "share", "fnm"),
 	} {
 		err := os.MkdirAll(path, 0o700)
 		if err != nil {
@@ -477,13 +475,65 @@ func createTypeScriptFixtureDirs(
 	}
 }
 
-func writeFile(t *testing.T, path, content string, mode os.FileMode) {
+type testFile struct {
+	path    string
+	content string
+	mode    os.FileMode
+}
+
+func writeFile(t *testing.T, fileValue any, parts ...any) {
+	file := normalizeTestFile(t, fileValue, parts)
 	t.Helper()
 
-	err := os.WriteFile(path, []byte(content), mode)
+	err := os.WriteFile(file.path, []byte(file.content), file.mode)
 	if err != nil {
-		t.Fatalf("write %s: %v", path, err)
+		t.Fatalf("write %s: %v", file.path, err)
 	}
+}
+
+func normalizeTestFile(t *testing.T, fileValue any, parts []any) testFile {
+	t.Helper()
+
+	if file, ok := fileValue.(testFile); ok {
+		if len(parts) != 0 {
+			t.Fatalf("testFile does not accept positional arguments: %v", parts)
+		}
+
+		return file
+	}
+
+	path, ok := fileValue.(string)
+
+	if !ok {
+		t.Fatalf("file path must be string or testFile, got %T", fileValue)
+	}
+
+	if len(parts) != 2 {
+		t.Fatalf("writeFile requires content and mode, got %d values", len(parts))
+	}
+
+	content, ok := parts[0].(string)
+
+	if !ok {
+		t.Fatalf("file content must be string, got %T", parts[0])
+	}
+
+	return testFile{path: path, content: content, mode: fileMode(t, parts[1])}
+}
+
+func fileMode(t *testing.T, value any) os.FileMode {
+	t.Helper()
+
+	switch mode := value.(type) {
+	case os.FileMode:
+		return mode
+	case int:
+		return os.FileMode(mode)
+	default:
+		t.Fatalf("file mode must be os.FileMode, got %T", value)
+	}
+
+	return 0
 }
 
 func envValue(env []string, key string) string {

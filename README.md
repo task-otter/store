@@ -11,7 +11,7 @@ Reusable, tested [Taskfile](https://taskfile.dev) modules for installing and run
 
 ```sh
 task -t taskfiles/go/Taskfile.yml install
-task -t taskfiles/go/Taskfile.yml lint
+task -t taskfiles/go/Taskfile.yml verify
 ```
 
 ### Included in your Taskfile
@@ -25,7 +25,7 @@ Then run:
 
 ```sh
 task go:install
-task go:lint
+task go:verify
 ```
 
 ## Tools catalog
@@ -35,7 +35,7 @@ task go:lint
 | Node runtimes | `fnm`, `nvm`, `bun` | 3 | [`fnm`](taskfiles/fnm/README.md) |
 | Package managers | `npm`, `pnpm`, `yarn`, `corepack` — each a nested family with 2 leaves (`{fnm,nvm}`) | 8 | [`npm`](taskfiles/npm/README.md) |
 | JS lint/format/check | `biome`, `bruno`, `depcheck`, `eslint`, `knip`, `prettier`, `stylelint`, `typescript` — each a nested family with 7 leaves (`bun`, `node/{fnm,nvm}/{npm,pnpm,yarn}`) | 56 | [`eslint`](taskfiles/eslint/README.md) |
-| Languages & runtimes | `go`, `python`, `uv`, `cargo`, `proto`, `staticcheck` | 6 | [`go`](taskfiles/go/README.md) |
+| Languages & runtimes | `go`, `golangci-lint`, `govulncheck`, `python`, `uv`, `cargo`, `proto` | 8 | [`go`](taskfiles/go/README.md) |
 | CI & infra | `actionlint`, `bash-exec`, `bencher`, `shellcheck`, `shfmt`, `yamllint`, `zizmor`, `hadolint`, `buf`, `docker`, `git`, `gh`, `jq`, `vault`, `ansible`, `sqlfluff`, `dotenv-linter`, `htmlhint`, `djlint`, `jsonlint`, `rumdl`, `protolint`, `spectral`, `adrs` | 30 | [`actionlint`](taskfiles/actionlint/README.md) |
 
 **103 modules** total. Per-module docs: `taskfiles/<name>/README.md`. Each module's
@@ -89,7 +89,6 @@ flowchart BT
   bun --> eslint_bun["eslint:bun"]
 
   uv --> python
-  go --> staticcheck
   jq --> gh
   gh --> git
 ```

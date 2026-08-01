@@ -2,7 +2,7 @@
 version: '2'
 linters:
   default: all
-  disable: [wsl, gomodguard]
+  disable: [wsl, gomodguard, nonamedreturns, testpackage]
   settings:
     asasalint:
       exclude: []
@@ -180,36 +180,23 @@ linters:
     gocritic:
       disable-all: false
       enable-all: true
-      disabled-checks: []
-      disabled-tags:
-        - experimental
       settings:
         captLocal:
           paramsOnly: false
-        commentedOutCode:
-          minLength: 1
         elseif:
           skipBalanced: false
         hugeParam:
           sizeThreshold: 32
         ifElseChain:
           minThreshold: 2
-        nestingReduce:
-          bodyWidth: 3
         rangeExprCopy:
           sizeThreshold: 1
           skipTestFuncs: false
         rangeValCopy:
           sizeThreshold: 1
           skipTestFuncs: false
-        tooManyResultsChecker:
-          maxResults: 2
-        truncateCmp:
-          skipArchDependent: true
         underef:
           skipRecvDeref: false
-        unnamedResult:
-          checkExported: true
     gocyclo:
       min-complexity: 5
     godoclint:
@@ -220,9 +207,13 @@ linters:
           ignore-unexported: true
         start-with-name:
           include-unexported: false
+        max-len:
+          length: 127
     godot:
       scope: all
-      exclude: []
+      exclude:
+        - "^SPDX-License-Identifier:"
+        - "^Taskotter"
       period: true
       capital: true
     godox:
@@ -237,12 +228,12 @@ linters:
     goheader:
       values:
         const:
-          COMPANY: REPLACE_ME
+          COMPANY: Taskotter
           SPDX: Apache-2.0
         regexp: {}
-      template: '{{ COMPANY }} {{ YEAR }}
+      template: '{{ COMPANY }} {{ YEAR }}.
 
-        SPDX-License-Identifier: {{ SPDX }}'
+        SPDX-License-Identifier: {{ SPDX }}.'
     gomoddirectives:
       replace-local: false
       replace-allow-list: []
@@ -265,6 +256,8 @@ linters:
         - module: go.yaml.in
           match-type: prefix
         - module: golang.org
+          match-type: prefix
+        - module: github.com/golangci
           match-type: prefix
       blocked: []
     gosec:
@@ -314,19 +307,15 @@ linters:
       type-require-single-type: true
       type-require-grouping: true
       var-require-single-var: true
-      var-require-grouping: true
+      var-require-grouping: false
     iface:
       enable:
         - identical
-        - unused
         - opaque
         - unexported
-      settings:
-        unused:
-          exclude: []
     importas:
       no-unaliased: true
-      no-extra-aliases: true
+      no-extra-aliases: false
       alias:
         - pkg: go.yaml.in/yaml/v3
           alias: yaml
@@ -467,8 +456,7 @@ linters:
         - name: function-length
           severity: error
           disabled: false
-          arguments:
-            - 20
+          arguments: [10, 0]
         - name: line-length-limit
           severity: error
           disabled: false
@@ -597,9 +585,6 @@ linters:
         fn-pattern: ''
       suite-extra-assert-call:
         mode: require
-    testpackage:
-      skip-regexp: a^
-      allow-packages: []
     thelper:
       test:
         first: true
@@ -688,6 +673,8 @@ linters:
         - db
         - err
         - dir
+        - t
+        - i
       ignore-decls: []
     whitespace:
       multi-if: true
@@ -774,3 +761,11 @@ run:
 severity:
   default: error
   rules: []
+formatters:
+  enable:
+    - gci
+    - gofmt
+    - gofumpt
+    - goimports
+    - golines
+    - swaggo

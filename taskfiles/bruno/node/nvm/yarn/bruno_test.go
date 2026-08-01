@@ -1,5 +1,5 @@
-// Copyright 2026 task-otter
-// SPDX-License-Identifier: Apache-2.0
+// Taskotter 2026.
+// SPDX-License-Identifier: Apache-2.0.
 
 package brunonodenvmyarn_test
 
@@ -33,7 +33,11 @@ func publicVars() []string {
 func TestTaskfileModuleContract(t *testing.T) {
 	t.Parallel()
 
-	tasktest.AssertModule(t, "bruno/node/nvm/yarn", publicTasks(), publicVars())
+	tasktest.AssertModule(
+		t,
+		"bruno/node/nvm/yarn",
+		&tasktest.ModuleExpectations{Tasks: publicTasks(), Vars: publicVars()},
+	)
 }
 
 // covered by module contract

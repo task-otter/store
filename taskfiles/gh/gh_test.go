@@ -1,5 +1,5 @@
-// Copyright 2026 task-otter
-// SPDX-License-Identifier: Apache-2.0
+// Taskotter 2026.
+// SPDX-License-Identifier: Apache-2.0.
 
 package gh_test
 
@@ -141,5 +141,9 @@ func expectedVars() []string {
 func TestModule(t *testing.T) {
 	t.Parallel()
 
-	tasktest.AssertModule(t, "gh", expectedPublicTasks(), expectedVars())
+	tasktest.AssertModule(
+		t,
+		"gh",
+		&tasktest.ModuleExpectations{Tasks: expectedPublicTasks(), Vars: expectedVars()},
+	)
 }

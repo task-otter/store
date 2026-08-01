@@ -1,5 +1,5 @@
-// Copyright 2026 task-otter
-// SPDX-License-Identifier: Apache-2.0
+// Taskotter 2026.
+// SPDX-License-Identifier: Apache-2.0.
 
 package proto_test
 
@@ -35,7 +35,11 @@ func publicVars() []string {
 func TestTaskfileModuleContract(t *testing.T) {
 	t.Parallel()
 
-	tasktest.AssertModule(t, "proto", publicTasks(), publicVars())
+	tasktest.AssertModule(
+		t,
+		"proto",
+		&tasktest.ModuleExpectations{Tasks: publicTasks(), Vars: publicVars()},
+	)
 }
 
 func TestPluginWorkflowsInstallGoFirst(t *testing.T) {

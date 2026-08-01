@@ -30,6 +30,8 @@ includes:
   gh: taskfiles/gh/Taskfile.yml
   git: taskfiles/git/Taskfile.yml
   go: taskfiles/go/Taskfile.yml
+  golangci-lint: taskfiles/golangci-lint/Taskfile.yml
+  govulncheck: taskfiles/govulncheck/Taskfile.yml
   hadolint: taskfiles/hadolint/Taskfile.yml
   htmlhint: taskfiles/htmlhint/Taskfile.yml
   jq: taskfiles/jq/Taskfile.yml
@@ -47,7 +49,6 @@ includes:
   shfmt: taskfiles/shfmt/Taskfile.yml
   spectral: taskfiles/spectral/Taskfile.yml
   sqlfluff: taskfiles/sqlfluff/Taskfile.yml
-  staticcheck: taskfiles/staticcheck/Taskfile.yml
   stylelint: taskfiles/stylelint/Taskfile.yml
   typescript: taskfiles/typescript/Taskfile.yml
   uv: taskfiles/uv/Taskfile.yml
@@ -70,14 +71,17 @@ tasks:
       - task: yamllint:lint
       - task: zizmor:lint
       - task: actionlint:lint
-      - task: go:lint
+      - task: golangci-lint:lint
+      - task: golangci-lint:fmt:check
+      - task: govulncheck:lint
 
   lint:fix:
     run: once
     desc: Auto-fix YAML lint issues
     cmds:
       - task: yamllint:lint:fix
-      - task: go:lint:fix
+      - task: golangci-lint:lint:fix
+      - task: golangci-lint:fmt
 
   fmt:
     run: once

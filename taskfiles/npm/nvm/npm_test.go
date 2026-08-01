@@ -1,5 +1,5 @@
-// Copyright 2026 task-otter
-// SPDX-License-Identifier: Apache-2.0
+// Taskotter 2026.
+// SPDX-License-Identifier: Apache-2.0.
 
 package npmnvm_test
 
@@ -79,7 +79,10 @@ func TestTaskBinaryIsAvailable(t *testing.T) {
 	t.Parallel()
 
 	root := tasktestutil.ModuleRoot(t)
-	result := tasktestutil.RunTask(t, root, nil, "--version")
+	result := tasktestutil.RunTask(
+		t,
+		tasktestutil.TaskRun{Root: root, Env: nil, Args: []string{"--version"}},
+	)
 	tasktestutil.AssertExitCode(t, result, 0)
 	tasktestutil.AssertNotEmpty(t, result.Combined(), "task --version output is empty")
 }
@@ -130,7 +133,10 @@ func TestTaskCliCanLoadTaskfile(t *testing.T) {
 		t.Run(strings.Join(args, " "), func(t *testing.T) {
 			t.Parallel()
 
-			result := tasktestutil.RunTask(t, root, tasktestutil.IsolatedEnv(t), args...)
+			result := tasktestutil.RunTask(
+				t,
+				tasktestutil.TaskRun{Root: root, Env: tasktestutil.IsolatedEnv(t), Args: args},
+			)
 			tasktestutil.AssertExitCode(t, result, 0)
 			tasktestutil.AssertNotContains(
 				t,
@@ -147,12 +153,11 @@ func TestTaskListAllJsonIsValid(t *testing.T) {
 
 	root := tasktestutil.ModuleRoot(t)
 	result := tasktestutil.RunTask(
-		t,
-		root,
-		tasktestutil.IsolatedEnv(t),
-		constNpmTestListAll,
-		"--json",
-	)
+		t, tasktestutil.TaskRun{Root: root, Env: tasktestutil.IsolatedEnv(t), Args: []string{
+			constNpmTestListAll,
+			"--json",
+		}})
+
 	tasktestutil.AssertExitCode(t, result, 0)
 
 	err := tasktestutil.ValidateJSON(result.Stdout)
@@ -317,7 +322,6 @@ func TestPublicTasksHaveCommands(t *testing.T) {
 
 			if tasktestutil.IsEmptyNode(task.Field("cmds")) &&
 				tasktestutil.IsEmptyNode(task.Field("deps")) {
-
 				t.Fatalf("public task %q must have cmds or deps", spec.Name)
 			}
 		})
@@ -339,11 +343,12 @@ func TestTaskSummariesWork(t *testing.T) {
 
 			result := tasktestutil.RunTask(
 				t,
-				root,
-				tasktestutil.IsolatedEnv(t),
-				"--summary",
-				spec.Name,
+				tasktestutil.TaskRun{Root: root, Env: tasktestutil.IsolatedEnv(t), Args: []string{
+					"--summary",
+					spec.Name,
+				}},
 			)
+
 			tasktestutil.AssertExitCode(t, result, 0)
 
 			out := result.Combined()
@@ -397,7 +402,14 @@ func TestRunTaskRequiresScriptVariable(t *testing.T) {
 		t.Skip("stub npm tests target Unix-like systems")
 	}
 
-	result := tasktestutil.RunTask(t, tasktestutil.ModuleRoot(t), npmNvmStubEnv(t), "--yes", "run")
+	result := tasktestutil.RunTask(
+		t,
+		tasktestutil.TaskRun{
+			Root: tasktestutil.ModuleRoot(t),
+			Env:  npmNvmStubEnv(t),
+			Args: []string{"--yes", "run"},
+		},
+	)
 
 	if result.Err == nil {
 		t.Fatal("expected task run to fail without SCRIPT variable but it succeeded")
@@ -413,11 +425,16 @@ func TestVersionTaskExitsSuccessfully(t *testing.T) {
 
 	result := tasktestutil.RunTask(
 		t,
-		tasktestutil.ModuleRoot(t),
-		npmNvmStubEnv(t),
-		"--yes",
-		"version",
+		tasktestutil.TaskRun{
+			Root: tasktestutil.ModuleRoot(t),
+			Env:  npmNvmStubEnv(t),
+			Args: []string{
+				"--yes",
+				"version",
+			},
+		},
 	)
+
 	tasktestutil.AssertExitCode(t, result, 0)
 	tasktestutil.AssertContains(t, result.Combined(), "stub")
 }
@@ -431,11 +448,16 @@ func TestInstallTaskExitsSuccessfully(t *testing.T) {
 
 	result := tasktestutil.RunTask(
 		t,
-		tasktestutil.ModuleRoot(t),
-		npmNvmStubEnv(t),
-		"--yes",
-		"install",
+		tasktestutil.TaskRun{
+			Root: tasktestutil.ModuleRoot(t),
+			Env:  npmNvmStubEnv(t),
+			Args: []string{
+				"--yes",
+				"install",
+			},
+		},
 	)
+
 	tasktestutil.AssertExitCode(t, result, 0)
 }
 
@@ -446,7 +468,14 @@ func TestCiTaskExitsSuccessfully(t *testing.T) {
 		t.Skip("stub npm tests target Unix-like systems")
 	}
 
-	result := tasktestutil.RunTask(t, tasktestutil.ModuleRoot(t), npmNvmStubEnv(t), "--yes", "ci")
+	result := tasktestutil.RunTask(
+		t,
+		tasktestutil.TaskRun{
+			Root: tasktestutil.ModuleRoot(t),
+			Env:  npmNvmStubEnv(t),
+			Args: []string{"--yes", "ci"},
+		},
+	)
 	tasktestutil.AssertExitCode(t, result, 0)
 }
 
@@ -459,11 +488,16 @@ func TestBuildTaskExitsSuccessfully(t *testing.T) {
 
 	result := tasktestutil.RunTask(
 		t,
-		tasktestutil.ModuleRoot(t),
-		npmNvmStubEnv(t),
-		"--yes",
-		"build",
+		tasktestutil.TaskRun{
+			Root: tasktestutil.ModuleRoot(t),
+			Env:  npmNvmStubEnv(t),
+			Args: []string{
+				"--yes",
+				"build",
+			},
+		},
 	)
+
 	tasktestutil.AssertExitCode(t, result, 0)
 }
 
@@ -476,12 +510,17 @@ func TestRunTaskExitsSuccessfully(t *testing.T) {
 
 	result := tasktestutil.RunTask(
 		t,
-		tasktestutil.ModuleRoot(t),
-		npmNvmStubEnv(t),
-		"--yes",
-		"run",
-		"SCRIPT=build",
+		tasktestutil.TaskRun{
+			Root: tasktestutil.ModuleRoot(t),
+			Env:  npmNvmStubEnv(t),
+			Args: []string{
+				"--yes",
+				"run",
+				"SCRIPT=build",
+			},
+		},
 	)
+
 	tasktestutil.AssertExitCode(t, result, 0)
 	tasktestutil.AssertContains(t, result.Combined(), "build")
 }
@@ -495,11 +534,16 @@ func TestCleanTaskSkipsWhenNodeModulesAbsent(t *testing.T) {
 
 	result := tasktestutil.RunTask(
 		t,
-		tasktestutil.ModuleRoot(t),
-		npmNvmStubEnv(t),
-		"--yes",
-		"clean",
+		tasktestutil.TaskRun{
+			Root: tasktestutil.ModuleRoot(t),
+			Env:  npmNvmStubEnv(t),
+			Args: []string{
+				"--yes",
+				"clean",
+			},
+		},
 	)
+
 	tasktestutil.AssertExitCode(t, result, 0)
 }
 
@@ -512,11 +556,16 @@ func TestOutdatedTaskExitsSuccessfully(t *testing.T) {
 
 	result := tasktestutil.RunTask(
 		t,
-		tasktestutil.ModuleRoot(t),
-		npmNvmStubEnv(t),
-		"--yes",
-		"outdated",
+		tasktestutil.TaskRun{
+			Root: tasktestutil.ModuleRoot(t),
+			Env:  npmNvmStubEnv(t),
+			Args: []string{
+				"--yes",
+				"outdated",
+			},
+		},
 	)
+
 	tasktestutil.AssertExitCode(t, result, 0)
 }
 
@@ -529,11 +578,16 @@ func TestOutdatedStrictTaskExitsSuccessfully(t *testing.T) {
 
 	result := tasktestutil.RunTask(
 		t,
-		tasktestutil.ModuleRoot(t),
-		npmNvmStubEnv(t),
-		"--yes",
-		"outdated:strict",
+		tasktestutil.TaskRun{
+			Root: tasktestutil.ModuleRoot(t),
+			Env:  npmNvmStubEnv(t),
+			Args: []string{
+				"--yes",
+				"outdated:strict",
+			},
+		},
 	)
+
 	tasktestutil.AssertExitCode(t, result, 0)
 }
 
@@ -546,11 +600,16 @@ func TestAuditReportTaskExitsSuccessfully(t *testing.T) {
 
 	result := tasktestutil.RunTask(
 		t,
-		tasktestutil.ModuleRoot(t),
-		npmNvmStubEnv(t),
-		"--yes",
-		"audit:report",
+		tasktestutil.TaskRun{
+			Root: tasktestutil.ModuleRoot(t),
+			Env:  npmNvmStubEnv(t),
+			Args: []string{
+				"--yes",
+				"audit:report",
+			},
+		},
 	)
+
 	tasktestutil.AssertExitCode(t, result, 0)
 }
 
@@ -600,7 +659,14 @@ func TestDevTaskExitsSuccessfully(t *testing.T) {
 		t.Skip("stub npm tests target Unix-like systems")
 	}
 
-	result := tasktestutil.RunTask(t, tasktestutil.ModuleRoot(t), npmNvmStubEnv(t), "--yes", "dev")
+	result := tasktestutil.RunTask(
+		t,
+		tasktestutil.TaskRun{
+			Root: tasktestutil.ModuleRoot(t),
+			Env:  npmNvmStubEnv(t),
+			Args: []string{"--yes", "dev"},
+		},
+	)
 	tasktestutil.AssertExitCode(t, result, 0)
 }
 
@@ -614,10 +680,16 @@ func TestInstallFailsOutsideProjectRoot(t *testing.T) {
 	taskfileDir := tasktestutil.ModuleRoot(t)
 	projectDir := t.TempDir()
 
-	result := tasktestutil.RunTask(t, projectDir, npmNvmStubEnv(t),
-		"--taskfile", filepath.Join(taskfileDir, "Taskfile.yml"),
-		"--yes", "install",
-	)
+	result := tasktestutil.RunTask(t, tasktestutil.TaskRun{
+		Root: projectDir,
+		Env:  npmNvmStubEnv(t),
+		Args: []string{
+			"--taskfile",
+			filepath.Join(taskfileDir, "Taskfile.yml"),
+			"--yes",
+			"install",
+		},
+	})
 
 	if result.Err == nil {
 		t.Fatal("expected task install to fail outside a project root but it succeeded")
@@ -648,10 +720,11 @@ func TestCiFailsWithoutLockfile(t *testing.T) {
 		t.Fatalf("failed to create package.json: %v", err)
 	}
 
-	result := tasktestutil.RunTask(t, projectDir, npmNvmStubEnv(t),
-		"--taskfile", filepath.Join(taskfileDir, "Taskfile.yml"),
-		"--yes", "ci",
-	)
+	result := tasktestutil.RunTask(t, tasktestutil.TaskRun{
+		Root: projectDir,
+		Env:  npmNvmStubEnv(t),
+		Args: []string{"--taskfile", filepath.Join(taskfileDir, "Taskfile.yml"), "--yes", "ci"},
+	})
 
 	if result.Err == nil {
 		t.Fatal("expected task ci to fail without package-lock.json but it succeeded")
@@ -673,11 +746,15 @@ func TestRunTaskRejectsUnsafeScript(t *testing.T) {
 
 	result := tasktestutil.RunTask(
 		t,
-		tasktestutil.ModuleRoot(t),
-		npmNvmStubEnv(t),
-		"--yes",
-		"run",
-		"SCRIPT=dev; rm -rf /",
+		tasktestutil.TaskRun{
+			Root: tasktestutil.ModuleRoot(t),
+			Env:  npmNvmStubEnv(t),
+			Args: []string{
+				"--yes",
+				"run",
+				"SCRIPT=dev; rm -rf /",
+			},
+		},
 	)
 
 	if result.Err == nil {
@@ -704,7 +781,11 @@ func TestRealNpmFlowOnlyWhenExplicitlyEnabled(t *testing.T) {
 
 	root := tasktestutil.ModuleRoot(t)
 	env := tasktestutil.IsolatedEnv(t)
-	result := tasktestutil.RunTaskTimeout(t, root, env, 10*time.Minute, "--yes", "version")
+	result := tasktestutil.RunTaskTimeout(
+		t,
+		tasktestutil.TaskRun{Root: root, Env: env, Args: []string{"--yes", "version"}},
+		10*time.Minute,
+	)
 	tasktestutil.AssertExitCode(t, result, 0)
 	tasktestutil.AssertNotEmpty(t, result.Combined(), "version output is empty")
 }
@@ -743,23 +824,27 @@ func npmNvmStubEnv(t *testing.T) []string {
 		t.Fatalf("failed to create nvm.sh stub: %v", err)
 	}
 
-	tasktestutil.WriteStub(t, binDir, "nvm",
-		"#!/usr/bin/env bash\ncase \"$1\" in\n"+
-			"  --version) echo \"nvm 0.40.1 stub\" ;;\n"+
-			"  use) echo \"Using Node.js stub\" ;;\n"+
+	tasktestutil.WriteStub(t, tasktestutil.Stub{
+		Dir:  binDir,
+		Name: "nvm",
+		Body: "#!/usr/bin/env bash\ncase \"$1\" in\n" +
+			"  --version) echo \"nvm 0.40.1 stub\" ;;\n" +
+			"  use) echo \"Using Node.js stub\" ;;\n" +
 			"  *) exit 0 ;;\nesac\n",
-	)
+	})
 	tasktestutil.WriteStub(
 		t,
 		binDir,
 		"node",
 		"#!/usr/bin/env bash\ncase \"$1\" in\n  --version) echo \"v20.11.0 stub\" ;;\n  *) exit 0 ;;\nesac\n",
 	)
-	tasktestutil.WriteStub(t, binDir, "npm",
-		"#!/usr/bin/env bash\ncase \"$1\" in\n"+
-			"  --version) echo \"10.9.0 stub\" ;;\n"+
+	tasktestutil.WriteStub(t, tasktestutil.Stub{
+		Dir:  binDir,
+		Name: "npm",
+		Body: "#!/usr/bin/env bash\ncase \"$1\" in\n" +
+			"  --version) echo \"10.9.0 stub\" ;;\n" +
 			"  *) echo \"npm $* stub\"; exit 0 ;;\nesac\n",
-	)
+	})
 	tasktestutil.WriteStub(
 		t,
 		binDir,

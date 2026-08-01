@@ -1,5 +1,5 @@
-// Copyright 2026 task-otter
-// SPDX-License-Identifier: Apache-2.0
+// Taskotter 2026.
+// SPDX-License-Identifier: Apache-2.0.
 
 package brunonodenvmnpm_test
 
@@ -33,5 +33,9 @@ func publicVars() []string {
 func TestTaskfileModuleContract(t *testing.T) {
 	t.Parallel()
 
-	tasktest.AssertModule(t, "bruno/node/nvm/npm", publicTasks(), publicVars())
+	tasktest.AssertModule(
+		t,
+		"bruno/node/nvm/npm",
+		&tasktest.ModuleExpectations{Tasks: publicTasks(), Vars: publicVars()},
+	)
 }

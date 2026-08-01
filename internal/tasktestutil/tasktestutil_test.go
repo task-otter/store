@@ -1,5 +1,5 @@
-// Copyright 2026 task-otter
-// SPDX-License-Identifier: Apache-2.0
+// Taskotter 2026.
+// SPDX-License-Identifier: Apache-2.0.
 
 package tasktestutil_test
 
@@ -37,9 +37,7 @@ const (
 	defaultTaskName    = "default"
 )
 
-var (
-	errSentinel = errors.New("sentinel")
-)
+var errSentinel = errors.New("sentinel")
 
 func (*fakeTest) Helper() {}
 
@@ -391,7 +389,6 @@ func assertAliasHelpers(t *testing.T, task tasktestutil.TaskNode) {
 			yamlScalar("aliases"),
 			yamlScalar("one"),
 		), Name: ""}, "one") {
-
 		t.Fatal("invalid aliases were accepted")
 	}
 }
@@ -406,13 +403,13 @@ func assertMappingHelpers(t *testing.T, root, taskNode *yaml.Node) {
 func assertMappingFieldHelpers(t *testing.T, root *yaml.Node) {
 	t.Helper()
 
-	if tasktestutil.MappingField(root, "missing") != nil || tasktestutil.MappingField(root, "task") == nil {
+	if tasktestutil.MappingField(root, "missing") != nil ||
+		tasktestutil.MappingField(root, "task") == nil {
 		t.Fatal("ttu.MappingField mismatch")
 	}
 
 	if tasktestutil.MappingField(root, "missing") != nil ||
 		tasktestutil.MappingField(root, "task").Kind != yaml.MappingNode {
-
 		t.Fatal("mapping kind mismatch")
 	}
 
@@ -428,13 +425,13 @@ func assertNodeMappingValueHelpers(t *testing.T, taskNode *yaml.Node) {
 		t.Fatal("ttu.ScalarField mismatch")
 	}
 
-	if tasktestutil.NodeMappingValue(nil, "x") != nil || tasktestutil.NodeMappingValue(yamlScalar(""), "x") != nil {
+	if tasktestutil.NodeMappingValue(nil, "x") != nil ||
+		tasktestutil.NodeMappingValue(yamlScalar(""), "x") != nil {
 		t.Fatal("ttu.NodeMappingValue accepted invalid node")
 	}
 
 	if tasktestutil.NodeMappingValue(taskNode, "missing") != nil ||
 		tasktestutil.NodeMappingValue(taskNode, "desc") == nil {
-
 		t.Fatal("ttu.NodeMappingValue lookup mismatch")
 	}
 }
@@ -446,7 +443,9 @@ func assertTextAndEmptyHelpers(t *testing.T, taskNode *yaml.Node) {
 		t.Fatal("ttu.NodeText scalar mismatch")
 	}
 
-	if got := tasktestutil.NodeText(tasktestutil.NodeMappingValue(taskNode, "sequence")); got != "alpha beta" {
+	if got := tasktestutil.NodeText(
+		tasktestutil.NodeMappingValue(taskNode, "sequence"),
+	); got != "alpha beta" {
 		t.Fatalf("ttu.NodeText sequence = %q", got)
 	}
 
@@ -454,7 +453,6 @@ func assertTextAndEmptyHelpers(t *testing.T, taskNode *yaml.Node) {
 		tasktestutil.IsEmptyNode(yamlScalar("x")) ||
 		!tasktestutil.IsEmptyNode(yamlSequence()) ||
 		tasktestutil.IsEmptyNode(yamlSequence(yamlScalar("x"))) {
-
 		t.Fatal("ttu.IsEmptyNode mismatch")
 	}
 }
@@ -498,7 +496,10 @@ func TestModuleDiscoveryAndLoading(t *testing.T) {
 	})
 }
 
-func assertModuleDiscoveryAndLoading(t *testing.T, root, nested string) tasktestutil.LoadedTaskfile {
+func assertModuleDiscoveryAndLoading(
+	t *testing.T,
+	root, nested string,
+) tasktestutil.LoadedTaskfile {
 	t.Helper()
 
 	var taskfile tasktestutil.LoadedTaskfile
@@ -515,7 +516,6 @@ func assertModuleDiscoveryAndLoading(t *testing.T, root, nested string) tasktest
 			got,
 			filepath.Join(root, "Taskfile.yml"),
 		) {
-
 			t.Fatalf("ttu.ModuleTaskfilePath = %s", got)
 		}
 
@@ -534,7 +534,6 @@ func assertModuleDiscoveryAndLoading(t *testing.T, root, nested string) tasktest
 			got,
 			filepath.Join(root, "Taskfile.yaml"),
 		) {
-
 			t.Fatalf("YAML path = %s", got)
 		}
 	})
@@ -547,7 +546,6 @@ func assertLoadedTaskfile(t *testing.T, root string, taskfile tasktestutil.Loade
 
 	if !samePath(t, taskfile.Path, filepath.Join(root, "Taskfile.yml")) ||
 		taskfile.Root.Name != "root" || len(taskfile.Tasks) != 5 {
-
 		t.Fatalf("unexpected ttu.LoadedTaskfile: %#v", taskfile)
 	}
 
@@ -564,7 +562,6 @@ func assertLoadedTaskfile(t *testing.T, root string, taskfile tasktestutil.Loade
 		got,
 		want,
 	) {
-
 		t.Fatalf("public tasks = %v, want %v", got, want)
 	}
 }
@@ -615,11 +612,13 @@ printf 'stderr' >&2
 if [ "${FAIL_TASK:-}" = yes ]; then exit 7; fi`)
 	t.Setenv("PATH", filepath.Dir(stub)+string(os.PathListSeparator)+os.Getenv("PATH"))
 
-	result := tasktestutil.RunTask(t, root, nil, alphaName, "B=2")
+	result := tasktestutil.RunTask(
+		t,
+		tasktestutil.TaskRun{Root: root, Env: nil, Args: []string{alphaName, "B=2"}},
+	)
 
 	if result.Stdout != "stdout:alpha B=2" || result.Stderr != "stderr" || result.Err != nil ||
 		!slices.Equal(result.Args, []string{alphaName, "B=2"}) {
-
 		t.Fatalf("unexpected ttu.RunTask result: %#v", result)
 	}
 
@@ -629,7 +628,11 @@ if [ "${FAIL_TASK:-}" = yes ]; then exit 7; fi`)
 
 	env := tasktestutil.SetEnv(os.Environ(), "FAIL_TASK", "yes")
 
-	failed := tasktestutil.RunTaskTimeout(t, root, env, time.Second, alphaName)
+	failed := tasktestutil.RunTaskTimeout(
+		t,
+		tasktestutil.TaskRun{Root: root, Env: env, Args: []string{alphaName}},
+		time.Second,
+	)
 
 	if failed.Err == nil {
 		t.Fatal("ttu.RunTaskTimeout succeeded unexpectedly")
@@ -638,7 +641,12 @@ if [ "${FAIL_TASK:-}" = yes ]; then exit 7; fi`)
 	sleeping := writeExecutable(t, "sleep 1")
 	t.Setenv("PATH", filepath.Dir(sleeping)+string(os.PathListSeparator)+os.Getenv("PATH"))
 
-	if timed := tasktestutil.RunTaskTimeout(t, root, nil, 10*time.Millisecond, alphaName); timed.Err == nil {
+	if timed := tasktestutil.RunTaskTimeout(
+		t, tasktestutil.TaskRun{Root: root, Env: nil, Args: []string{
+			alphaName,
+		}},
+
+		10*time.Millisecond); timed.Err == nil {
 		t.Fatal("timed command succeeded")
 	}
 }
@@ -655,7 +663,11 @@ func TestDefaultTaskBinaryAndSimpleRunner(t *testing.T) {
 
 	// Generous: this asserts the happy path, and the suite runs tests in
 	// parallel, so a short deadline turns CPU pressure into a flake.
-	result := tasktestutil.RunTaskTimeout(t, root, os.Environ(), 30*time.Second, alphaName)
+	result := tasktestutil.RunTaskTimeout(
+		t,
+		tasktestutil.TaskRun{Root: root, Env: os.Environ(), Args: []string{alphaName}},
+		30*time.Second,
+	)
 
 	if result.Stdout != "simple" || result.Err != nil {
 		t.Fatalf("default task result: %#v", result)
@@ -668,7 +680,6 @@ func TestDefaultTaskBinaryAndSimpleRunner(t *testing.T) {
 		alphaName,
 	); result.Output != "simple" ||
 		result.Err != nil {
-
 		t.Fatalf("simple task result: %#v", result)
 	}
 }
@@ -682,13 +693,11 @@ func TestEnvironmentHelpers(t *testing.T) {
 
 	if home == "" || tasktestutil.EnvValue(env, "PROFILE") != filepath.Join(home, ".bashrc") ||
 		tasktestutil.EnvValue(env, "CI") != "true" || tasktestutil.EnvValue(env, "MISSING") != "" {
-
 		t.Fatalf("isolated env mismatch: %v", env)
 	}
 
 	if !tasktestutil.FileExists(filepath.Join(home, ".bashrc")) ||
 		tasktestutil.FileExists(filepath.Join(home, "missing")) {
-
 		t.Fatal("ttu.FileExists mismatch")
 	}
 
@@ -698,7 +707,8 @@ func TestEnvironmentHelpers(t *testing.T) {
 
 	values = tasktestutil.SetEnv(values, "B", "value")
 
-	if tasktestutil.EnvValue(values, "A") != "new" || tasktestutil.EnvValue(values, "B") != "value" {
+	if tasktestutil.EnvValue(values, "A") != "new" ||
+		tasktestutil.EnvValue(values, "B") != "value" {
 		t.Fatalf("ttu.SetEnv mismatch: %v", values)
 	}
 
@@ -728,7 +738,10 @@ func TestCollectionAndTextHelpers(t *testing.T) {
 func assertCollectionHelpers(t *testing.T) {
 	t.Helper()
 
-	specs := []tasktestutil.PublicTaskSpec{tasktestutil.NewPublicTaskSpec(zetaName), tasktestutil.NewPublicTaskSpec(alphaName)}
+	specs := []tasktestutil.PublicTaskSpec{
+		tasktestutil.NewPublicTaskSpec(zetaName),
+		tasktestutil.NewPublicTaskSpec(alphaName),
+	}
 
 	if got := tasktestutil.ExpectedPublicTaskNames(
 		specs,
@@ -736,7 +749,6 @@ func assertCollectionHelpers(t *testing.T) {
 		got,
 		[]string{alphaName, zetaName},
 	) {
-
 		t.Fatalf("expected names = %v", got)
 	}
 
@@ -750,11 +762,11 @@ func assertCollectionHelpers(t *testing.T) {
 		got,
 		[]string{"A=1", "Z=2"},
 	) {
-
 		t.Fatalf("ttu.TaskArgs = %v", got)
 	}
 
-	if tasktestutil.FormatList([]string{"a", "b"}) != "- a\n- b" || tasktestutil.FormatList(nil) != "- " {
+	if tasktestutil.FormatList([]string{"a", "b"}) != "- a\n- b" ||
+		tasktestutil.FormatList(nil) != "- " {
 		t.Fatal("ttu.FormatList mismatch")
 	}
 }
@@ -770,7 +782,12 @@ func assertTextHelpers(t *testing.T) {
 		"scalar":        "value",
 	}
 
-	if got := tasktestutil.SimplePublicTaskNames(tasks); !slices.Equal(got, []string{alphaName, "scalar"}) {
+	if got := tasktestutil.SimplePublicTaskNames(
+		tasks,
+	); !slices.Equal(
+		got,
+		[]string{alphaName, "scalar"},
+	) {
 		t.Fatalf("simple public names = %v", got)
 	}
 
@@ -789,7 +806,12 @@ func assertTextHelpers(t *testing.T) {
 		"",
 	}, "\n")
 
-	if got := tasktestutil.ReadmePublicTaskNames(readme); !slices.Equal(got, []string{alphaName, zetaName}) {
+	if got := tasktestutil.ReadmePublicTaskNames(
+		readme,
+	); !slices.Equal(
+		got,
+		[]string{alphaName, zetaName},
+	) {
 		t.Fatalf("README names = %v", got)
 	}
 
@@ -802,7 +824,11 @@ func TestFileHelpers(t *testing.T) {
 	t.Parallel()
 
 	dir := t.TempDir()
-	tasktestutil.WriteStub(t, dir, "stub", "#!/bin/sh\necho stub\n")
+	tasktestutil.WriteStub(t, tasktestutil.Stub{
+		Dir:  dir,
+		Name: "stub",
+		Body: "#!/bin/sh\necho stub\n",
+	})
 
 	stub := filepath.Join(dir, "stub")
 
@@ -815,7 +841,11 @@ func TestFileHelpers(t *testing.T) {
 	}
 
 	expectFatal(t, "write broken stub", func(fakeTester *fakeTest) {
-		tasktestutil.WriteStub(fakeTester, filepath.Join(dir, "missing"), "broken", "body")
+		tasktestutil.WriteStub(fakeTester, tasktestutil.Stub{
+			Dir:  filepath.Join(dir, "missing"),
+			Name: "broken",
+			Body: "body",
+		})
 	})
 	expectFatal(
 		t,
@@ -856,7 +886,6 @@ func TestCommandStringExtraction(t *testing.T) {
 
 	if tasktestutil.CollectCommandStrings(nil) != nil ||
 		len(tasktestutil.CollectCommandStrings(yamlScalar(" "))) != 0 {
-
 		t.Fatal("empty command extraction mismatch")
 	}
 
@@ -979,21 +1008,65 @@ func TestFilesystemAssertions(t *testing.T) {
 	)
 }
 
-func groupOutputNode(t *testing.T, begin, end string, errorOnly *string) *yaml.Node {
+type groupOutput struct {
+	errorOnly *string
+	begin     string
+	end       string
+}
+
+func groupOutputNode(t *testing.T, groupValue any, parts ...any) *yaml.Node {
 	t.Helper()
+
+	group := normalizeGroupOutput(t, groupValue, parts)
 
 	value := ""
 
-	if errorOnly != nil {
-		value = "\n    error_only: " + *errorOnly
+	if group.errorOnly != nil {
+		value = "\n    error_only: " + *group.errorOnly
 	}
 
 	doc := parseYAML(
 		t,
-		"output:\n  group:\n    begin: \""+begin+"\"\n    end: \""+end+"\""+value+"\n",
+		"output:\n  group:\n    begin: \""+group.begin+"\"\n    end: \""+group.end+"\""+value+"\n",
 	)
 
 	return tasktestutil.NodeMappingValue(tasktestutil.DocumentRoot(t, doc), "output")
+}
+
+func normalizeGroupOutput(t *testing.T, groupValue any, parts []any) groupOutput {
+	t.Helper()
+
+	if group, ok := groupValue.(groupOutput); ok {
+		if len(parts) != 0 {
+			t.Fatalf("groupOutput does not accept positional arguments: %v", parts)
+		}
+
+		return group
+	}
+
+	begin, ok := groupValue.(string)
+
+	if !ok {
+		t.Fatalf("group begin must be string or groupOutput, got %T", groupValue)
+	}
+
+	if len(parts) != 2 {
+		t.Fatalf("group output requires end and error_only values; got %d values", len(parts))
+	}
+
+	end, ok := parts[0].(string)
+
+	if !ok {
+		t.Fatalf("group end must be string, got %T", parts[0])
+	}
+
+	errorOnly, ok := parts[1].(*string)
+
+	if parts[1] != nil && !ok {
+		t.Fatalf("group error_only must be *string, got %T", parts[1])
+	}
+
+	return groupOutput{begin: begin, end: end, errorOnly: errorOnly}
 }
 
 func TestGithubGroupAssertion(t *testing.T) {

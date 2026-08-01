@@ -1,5 +1,5 @@
-// Copyright 2026 task-otter
-// SPDX-License-Identifier: Apache-2.0
+// Taskotter 2026.
+// SPDX-License-Identifier: Apache-2.0.
 
 package knipnodefnmpnpm_test
 
@@ -42,5 +42,9 @@ func publicVars() []string {
 func TestTaskfileModuleContract(t *testing.T) {
 	t.Parallel()
 
-	tasktest.AssertModule(t, "knip/node/fnm/pnpm", publicTasks(), publicVars())
+	tasktest.AssertModule(
+		t,
+		"knip/node/fnm/pnpm",
+		&tasktest.ModuleExpectations{Tasks: publicTasks(), Vars: publicVars()},
+	)
 }

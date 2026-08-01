@@ -1,5 +1,5 @@
-// Copyright 2026 task-otter
-// SPDX-License-Identifier: Apache-2.0
+// Taskotter 2026.
+// SPDX-License-Identifier: Apache-2.0.
 
 package nvm_test
 
@@ -70,7 +70,10 @@ func TestTaskBinaryIsAvailable(t *testing.T) {
 	t.Parallel()
 
 	root := tasktestutil.ModuleRoot(t)
-	result := tasktestutil.RunTask(t, root, nil, "--version")
+	result := tasktestutil.RunTask(
+		t,
+		tasktestutil.TaskRun{Root: root, Env: nil, Args: []string{"--version"}},
+	)
 	tasktestutil.AssertExitCode(t, result, 0)
 	tasktestutil.AssertNotEmpty(t, result.Combined(), "task --version output is empty")
 }
@@ -121,7 +124,10 @@ func TestTaskCliCanLoadTaskfile(t *testing.T) {
 		t.Run(strings.Join(args, " "), func(t *testing.T) {
 			t.Parallel()
 
-			result := tasktestutil.RunTask(t, root, isolatedEnv(t), args...)
+			result := tasktestutil.RunTask(
+				t,
+				tasktestutil.TaskRun{Root: root, Env: isolatedEnv(t), Args: args},
+			)
 			tasktestutil.AssertExitCode(t, result, 0)
 			tasktestutil.AssertNotContains(
 				t,
@@ -137,7 +143,14 @@ func TestTaskListAllJsonIsValid(t *testing.T) {
 	t.Parallel()
 
 	root := tasktestutil.ModuleRoot(t)
-	result := tasktestutil.RunTask(t, root, isolatedEnv(t), listAllFlag, "--json")
+	result := tasktestutil.RunTask(
+		t,
+		tasktestutil.TaskRun{
+			Root: root,
+			Env:  isolatedEnv(t),
+			Args: []string{listAllFlag, "--json"},
+		},
+	)
 	tasktestutil.AssertExitCode(t, result, 0)
 
 	err := tasktestutil.ValidateJSON(result.Stdout)
@@ -285,7 +298,6 @@ func TestPublicTasksHaveCommands(t *testing.T) {
 
 			if tasktestutil.IsEmptyNode(task.Field("cmds")) &&
 				tasktestutil.IsEmptyNode(task.Field("deps")) {
-
 				t.Fatalf("public task %q must have cmds or deps", spec.Name)
 			}
 		})
@@ -305,7 +317,14 @@ func TestTaskSummariesWork(t *testing.T) {
 				return
 			}
 
-			result := tasktestutil.RunTask(t, root, isolatedEnv(t), "--summary", spec.Name)
+			result := tasktestutil.RunTask(
+				t,
+				tasktestutil.TaskRun{
+					Root: root,
+					Env:  isolatedEnv(t),
+					Args: []string{"--summary", spec.Name},
+				},
+			)
 			tasktestutil.AssertExitCode(t, result, 0)
 
 			out := result.Combined()
@@ -436,7 +455,11 @@ func TestRealInstallerFlowOnlyWhenExplicitlyEnabled(t *testing.T) {
 
 	tasktestutil.AssertExitCode(
 		t,
-		tasktestutil.RunTaskTimeout(t, root, env, 10*time.Minute, "--yes", "install"),
+		tasktestutil.RunTaskTimeout(
+			t,
+			tasktestutil.TaskRun{Root: root, Env: env, Args: []string{"--yes", "install"}},
+			10*time.Minute,
+		),
 		0,
 	)
 
@@ -447,12 +470,20 @@ func TestRealInstallerFlowOnlyWhenExplicitlyEnabled(t *testing.T) {
 
 	tasktestutil.AssertExitCode(
 		t,
-		tasktestutil.RunTaskTimeout(t, root, env, 10*time.Minute, "version"),
+		tasktestutil.RunTaskTimeout(
+			t,
+			tasktestutil.TaskRun{Root: root, Env: env, Args: []string{"version"}},
+			10*time.Minute,
+		),
 		0,
 	)
 	tasktestutil.AssertExitCode(
 		t,
-		tasktestutil.RunTaskTimeout(t, root, env, 10*time.Minute, "--yes", "install:undo"),
+		tasktestutil.RunTaskTimeout(
+			t,
+			tasktestutil.TaskRun{Root: root, Env: env, Args: []string{"--yes", "install:undo"}},
+			10*time.Minute,
+		),
 		0,
 	)
 
@@ -480,20 +511,26 @@ func TestAllPublicTasksIntegration(t *testing.T) {
 	env := isolatedEnv(t)
 	nvmDir := tasktestutil.EnvValue(env, "NVM_DIR")
 
-	runNvmIntegrationSteps(t, root, env, nvmDir)
+	runNvmIntegrationSteps(t, nvmIntegration{root: root, env: env, nvmDir: nvmDir})
 }
 
-func runNvmIntegrationSteps(t *testing.T, root string, env []string, nvmDir string) {
+type nvmIntegration struct {
+	root   string
+	nvmDir string
+	env    []string
+}
+
+func runNvmIntegrationSteps(t *testing.T, integration nvmIntegration) {
 	t.Helper()
 
-	run := successfulIntegrationRun(root, env)
+	run := successfulIntegrationRun(integration.root, integration.env)
 
-	runNvmInstallSteps(t, run, nvmDir)
-	runNvmNodeSteps(t, run, nvmDir)
+	runNvmInstallSteps(t, run, integration.nvmDir)
+	runNvmNodeSteps(t, run, integration.nvmDir)
 	runIntegrationStep(t, "install:undo — NVM directory is removed", func(t *testing.T) {
 		t.Helper()
 		run(t, "--yes", "install:undo")
-		tasktestutil.AssertDirNotExists(t, nvmDir)
+		tasktestutil.AssertDirNotExists(t, integration.nvmDir)
 	})
 }
 
@@ -502,7 +539,6 @@ func runNvmInstallSteps(
 	run func(t *testing.T, args ...string) tasktestutil.CommandResult,
 	nvmDir string,
 ) {
-
 	t.Helper()
 
 	runIntegrationStep(t, "install — nvm.sh is present on disk", func(t *testing.T) {
@@ -538,7 +574,6 @@ func runNvmNodeSteps(
 	run func(t *testing.T, args ...string) tasktestutil.CommandResult,
 	nvmDir string,
 ) {
-
 	t.Helper()
 
 	const secondary = "18.0.0"
@@ -596,11 +631,14 @@ func successfulIntegrationRun(
 	root string,
 	env []string,
 ) func(t *testing.T, args ...string) tasktestutil.CommandResult {
-
 	return func(t *testing.T, args ...string) tasktestutil.CommandResult {
 		t.Helper()
 
-		result := tasktestutil.RunTaskTimeout(t, root, env, 10*time.Minute, args...)
+		result := tasktestutil.RunTaskTimeout(
+			t,
+			tasktestutil.TaskRun{Root: root, Env: env, Args: args},
+			10*time.Minute,
+		)
 		tasktestutil.AssertExitCode(t, result, 0)
 
 		return result
@@ -614,7 +652,14 @@ func TestVersionTaskExitsSuccessfully(t *testing.T) {
 		t.Skip("stub nvm tests target Unix-like systems")
 	}
 
-	result := tasktestutil.RunTask(t, tasktestutil.ModuleRoot(t), dryRunEnv(t), "--yes", "version")
+	result := tasktestutil.RunTask(
+		t,
+		tasktestutil.TaskRun{
+			Root: tasktestutil.ModuleRoot(t),
+			Env:  dryRunEnv(t),
+			Args: []string{"--yes", "version"},
+		},
+	)
 	tasktestutil.AssertExitCode(t, result, 0)
 }
 
@@ -625,7 +670,14 @@ func TestLsTaskExitsSuccessfully(t *testing.T) {
 		t.Skip("stub nvm tests target Unix-like systems")
 	}
 
-	result := tasktestutil.RunTask(t, tasktestutil.ModuleRoot(t), dryRunEnv(t), "--yes", "ls")
+	result := tasktestutil.RunTask(
+		t,
+		tasktestutil.TaskRun{
+			Root: tasktestutil.ModuleRoot(t),
+			Env:  dryRunEnv(t),
+			Args: []string{"--yes", "ls"},
+		},
+	)
 	tasktestutil.AssertExitCode(t, result, 0)
 }
 
@@ -638,8 +690,22 @@ func TestInstallIsIdempotentWithStubNvm(t *testing.T) {
 
 	root := tasktestutil.ModuleRoot(t)
 	env := dryRunEnv(t)
-	tasktestutil.AssertExitCode(t, tasktestutil.RunTask(t, root, env, "--yes", "install"), 0)
-	tasktestutil.AssertExitCode(t, tasktestutil.RunTask(t, root, env, "--yes", "install"), 0)
+	tasktestutil.AssertExitCode(
+		t,
+		tasktestutil.RunTask(
+			t,
+			tasktestutil.TaskRun{Root: root, Env: env, Args: []string{"--yes", "install"}},
+		),
+		0,
+	)
+	tasktestutil.AssertExitCode(
+		t,
+		tasktestutil.RunTask(
+			t,
+			tasktestutil.TaskRun{Root: root, Env: env, Args: []string{"--yes", "install"}},
+		),
+		0,
+	)
 }
 
 func TestInstallUndoRemovesNvmDir(t *testing.T) {
@@ -653,7 +719,14 @@ func TestInstallUndoRemovesNvmDir(t *testing.T) {
 	env := dryRunEnv(t)
 	nvmDir := tasktestutil.EnvValue(env, "NVM_DIR")
 	tasktestutil.AssertDirExists(t, nvmDir)
-	tasktestutil.AssertExitCode(t, tasktestutil.RunTask(t, root, env, "--yes", "install:undo"), 0)
+	tasktestutil.AssertExitCode(
+		t,
+		tasktestutil.RunTask(
+			t,
+			tasktestutil.TaskRun{Root: root, Env: env, Args: []string{"--yes", "install:undo"}},
+		),
+		0,
+	)
 	tasktestutil.AssertDirNotExists(t, nvmDir)
 }
 
@@ -665,13 +738,12 @@ func TestNodeInstallWithVersionPrintsVersionInOutput(t *testing.T) {
 	}
 
 	result := tasktestutil.RunTask(
-		t,
-		tasktestutil.ModuleRoot(t),
-		dryRunEnv(t),
-		"--yes",
-		nodeInstallTask,
-		"VERSION=18.0.0",
-	)
+		t, tasktestutil.TaskRun{Root: tasktestutil.ModuleRoot(t), Env: dryRunEnv(t), Args: []string{
+			"--yes",
+			nodeInstallTask,
+			"VERSION=18.0.0",
+		}})
+
 	tasktestutil.AssertExitCode(t, result, 0)
 	tasktestutil.AssertContains(t, result.Combined(), "18.0.0")
 }
@@ -684,12 +756,11 @@ func TestNodeInstallDefaultVersionUsesLts(t *testing.T) {
 	}
 
 	result := tasktestutil.RunTask(
-		t,
-		tasktestutil.ModuleRoot(t),
-		dryRunEnv(t),
-		"--yes",
-		nodeInstallTask,
-	)
+		t, tasktestutil.TaskRun{Root: tasktestutil.ModuleRoot(t), Env: dryRunEnv(t), Args: []string{
+			"--yes",
+			nodeInstallTask,
+		}})
+
 	tasktestutil.AssertExitCode(t, result, 0)
 	tasktestutil.AssertContains(t, result.Combined(), "--lts")
 }
@@ -712,7 +783,14 @@ func TestNodeInstallSkipsAlreadyInstalledVersion(t *testing.T) {
 		t.Fatalf("failed to create stub version dir: %v", err)
 	}
 
-	result := tasktestutil.RunTask(t, root, env, "--yes", nodeInstallTask, "VERSION=18.0.0")
+	result := tasktestutil.RunTask(
+		t,
+		tasktestutil.TaskRun{
+			Root: root,
+			Env:  env,
+			Args: []string{"--yes", nodeInstallTask, "VERSION=18.0.0"},
+		},
+	)
 	tasktestutil.AssertExitCode(t, result, 0)
 	tasktestutil.AssertNotContains(t, result.Combined(), "Installing Node.js 18.0.0")
 }
@@ -725,8 +803,10 @@ func TestNodeUninstallSkipsWhenVersionNotInstalled(t *testing.T) {
 	}
 
 	result := tasktestutil.RunTask(
-		t, tasktestutil.ModuleRoot(t), dryRunEnv(t), "--yes", nodeUninstallTask, "VERSION=18.0.0",
-	)
+		t, tasktestutil.TaskRun{Root: tasktestutil.ModuleRoot(t), Env: dryRunEnv(t), Args: []string{
+			"--yes", nodeUninstallTask, "VERSION=18.0.0",
+		}})
+
 	tasktestutil.AssertExitCode(t, result, 0)
 	tasktestutil.AssertNotContains(t, result.Combined(), "Uninstalling Node.js 18.0.0")
 }
@@ -749,7 +829,14 @@ func TestNodeUninstallWithInstalledVersionPrintsVersionInOutput(t *testing.T) {
 		t.Fatalf("failed to create stub version dir: %v", err)
 	}
 
-	result := tasktestutil.RunTask(t, root, env, "--yes", nodeUninstallTask, "VERSION=18.0.0")
+	result := tasktestutil.RunTask(
+		t,
+		tasktestutil.TaskRun{
+			Root: root,
+			Env:  env,
+			Args: []string{"--yes", nodeUninstallTask, "VERSION=18.0.0"},
+		},
+	)
 	tasktestutil.AssertExitCode(t, result, 0)
 	tasktestutil.AssertContains(t, result.Combined(), "18.0.0")
 }

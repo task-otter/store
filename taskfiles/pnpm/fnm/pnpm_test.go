@@ -1,5 +1,5 @@
-// Copyright 2026 task-otter
-// SPDX-License-Identifier: Apache-2.0
+// Taskotter 2026.
+// SPDX-License-Identifier: Apache-2.0.
 
 package pnpmfnm_test
 
@@ -99,14 +99,21 @@ func TestStubbedPnpmFlows(t *testing.T) {
 		{constPnpmTestYes, "ci"},
 		{constPnpmTestYes, "run", "SCRIPT=test", "--", "--watch"},
 	} {
-		result := tasktestutil.RunSimpleTask(t, ".", env, args...)
+		result := tasktestutil.RunSimpleTask(
+			t,
+			tasktestutil.SimpleTaskRun{Dir: ".", Env: env, Args: args},
+		)
 
 		if result.Err != nil {
 			t.Fatalf("task %v failed:\n%s", args, result.Output)
 		}
 	}
 
-	result := tasktestutil.RunSimpleTask(t, ".", env, constPnpmTestYes, "run", "SCRIPT=dev; exit 1")
+	result := tasktestutil.RunSimpleTask(t, tasktestutil.SimpleTaskRun{
+		Dir:  ".",
+		Env:  env,
+		Args: []string{constPnpmTestYes, "run", "SCRIPT=dev; exit 1"},
+	})
 
 	if result.Err == nil {
 		t.Fatalf("unsafe SCRIPT unexpectedly succeeded:\n%s", result.Output)

@@ -1,5 +1,5 @@
-// Copyright 2026 task-otter
-// SPDX-License-Identifier: Apache-2.0
+// Taskotter 2026.
+// SPDX-License-Identifier: Apache-2.0.
 
 package tasktestutil
 
@@ -62,6 +62,27 @@ type (
 	SimpleTaskResult struct {
 		Err    error
 		Output string
+	}
+
+	// TaskRun describes one task command invocation.
+	TaskRun struct {
+		Root string
+		Env  []string
+		Args []string
+	}
+
+	// SimpleTaskRun describes a task invocation that only needs combined output.
+	SimpleTaskRun struct {
+		Dir  string
+		Env  []string
+		Args []string
+	}
+
+	// Stub describes a shell stub to write into a test directory.
+	Stub struct {
+		Dir  string
+		Name string
+		Body string
 	}
 
 	testT interface {
@@ -221,7 +242,6 @@ func ModuleRoot(tester testT) string {
 	for {
 		if FileExists(filepath.Join(current, "Taskfile.yml")) ||
 			FileExists(filepath.Join(current, "Taskfile.yaml")) {
-
 			return current
 		}
 
@@ -337,34 +357,29 @@ func HasAlias(task TaskNode, alias string) bool {
 }
 
 // RunTask runs the task binary with the given args and returns the result.
-func RunTask(tester testT, root string, env []string, args ...string) CommandResult {
+func RunTask(tester testT, run any, parts ...any) CommandResult {
 	tester.Helper()
 
-	return RunTaskTimeout(tester, root, env, defaultTaskTimeout, args...)
+	return RunTaskTimeout(tester, normalizeTaskRun(tester, run, parts), defaultTaskTimeout)
 }
 
 // RunTaskTimeout runs the task binary with a custom timeout.
-func RunTaskTimeout(
-	tester testT,
-	root string,
-	env []string,
-	timeout time.Duration,
-	args ...string,
-) CommandResult {
-
+func RunTaskTimeout(tester testT, run any, timeoutParts ...any) CommandResult {
 	tester.Helper()
+
+	normalizedRun, timeout := normalizeTaskRunTimeout(tester, run, timeoutParts)
 
 	ctx, cancel := context.WithTimeout(context.Background(), timeout)
 
 	defer cancel()
 
 	commandContext := exec.CommandContext
-	cmd := commandContext(ctx, "task", args...)
+	cmd := commandContext(ctx, "task", normalizedRun.Args...)
 
-	cmd.Dir = root
+	cmd.Dir = normalizedRun.Root
 
-	if env != nil {
-		cmd.Env = env
+	if normalizedRun.Env != nil {
+		cmd.Env = normalizedRun.Env
 	}
 
 	var stdout, stderr bytes.Buffer
@@ -379,28 +394,141 @@ func RunTaskTimeout(
 		Stdout: stdout.String(),
 		Stderr: stderr.String(),
 		Err:    err,
-		Args:   args,
+		Args:   normalizedRun.Args,
 	}
 }
 
 // RunSimpleTask runs task in the given directory and returns combined output.
 // Use this for the simple pnpm/yarn-style tests that don'tester need separate stdout/stderr.
-func RunSimpleTask(tester testT, dir string, env []string, args ...string) SimpleTaskResult {
+func RunSimpleTask(tester testT, run any, parts ...any) SimpleTaskResult {
 	tester.Helper()
+
+	normalizedRun := normalizeSimpleTaskRun(tester, run, parts)
 
 	ctx, cancel := context.WithTimeout(context.Background(), defaultTaskTimeout)
 
 	defer cancel()
 
 	commandContext := exec.CommandContext
-	cmd := commandContext(ctx, "task", args...)
+	cmd := commandContext(ctx, "task", normalizedRun.Args...)
 
-	cmd.Dir = dir
-	cmd.Env = env
+	cmd.Dir = normalizedRun.Dir
+	cmd.Env = normalizedRun.Env
 
 	out, err := cmd.CombinedOutput()
 
 	return SimpleTaskResult{Output: string(out), Err: err}
+}
+
+func normalizeTaskRun(tester testT, run any, parts []any) TaskRun {
+	tester.Helper()
+
+	if normalized, ok := run.(TaskRun); ok {
+		if len(parts) != 0 {
+			tester.Fatalf("TaskRun does not accept positional arguments: %v", parts)
+		}
+
+		return normalized
+	}
+
+	root, ok := run.(string)
+
+	if !ok {
+		tester.Fatalf("task run root must be string or TaskRun, got %T", run)
+	}
+
+	if len(parts) == 0 {
+		tester.Fatal("task run environment is required")
+	}
+
+	env, ok := parts[0].([]string)
+
+	if !ok && parts[0] != nil {
+		tester.Fatalf("task run environment must be []string, got %T", parts[0])
+	}
+
+	return TaskRun{Root: root, Env: env, Args: stringArgs(tester, parts[1:])}
+}
+
+func normalizeTaskRunTimeout(tester testT, run any, parts []any) (TaskRun, time.Duration) {
+	tester.Helper()
+
+	if _, ok := run.(TaskRun); ok {
+		if len(parts) != 1 {
+			tester.Fatalf(
+				"TaskRun timeout call requires exactly one timeout, got %d values",
+				len(parts),
+			)
+		}
+
+		timeout, ok := parts[0].(time.Duration)
+
+		if !ok {
+			tester.Fatalf("task timeout must be time.Duration, got %T", parts[0])
+		}
+
+		return normalizeTaskRun(tester, run, nil), timeout
+	}
+
+	if len(parts) < 2 {
+		tester.Fatal("legacy timeout call requires env and timeout")
+	}
+
+	timeout, ok := parts[1].(time.Duration)
+
+	if !ok {
+		tester.Fatalf("task timeout must be time.Duration, got %T", parts[1])
+	}
+
+	return normalizeTaskRun(tester, run, append([]any{parts[0]}, parts[2:]...)), timeout
+}
+
+func normalizeSimpleTaskRun(tester testT, run any, parts []any) SimpleTaskRun {
+	tester.Helper()
+
+	if normalized, ok := run.(SimpleTaskRun); ok {
+		if len(parts) != 0 {
+			tester.Fatalf("SimpleTaskRun does not accept positional arguments: %v", parts)
+		}
+
+		return normalized
+	}
+
+	dir, ok := run.(string)
+
+	if !ok {
+		tester.Fatalf("simple task dir must be string or SimpleTaskRun, got %T", run)
+	}
+
+	if len(parts) == 0 {
+		tester.Fatal("simple task environment is required")
+	}
+
+	env, ok := parts[0].([]string)
+
+	if !ok && parts[0] != nil {
+		tester.Fatalf("simple task environment must be []string, got %T", parts[0])
+	}
+
+	return SimpleTaskRun{Dir: dir, Env: env, Args: stringArgs(tester, parts[1:])}
+}
+
+func stringArgs(tester testT, values []any) []string {
+	tester.Helper()
+
+	args := make([]string, 0, len(values))
+
+	for _, value := range values {
+		arg, ok := value.(string)
+
+		if !ok {
+			tester.Fatalf("task argument must be string, got %T", value)
+		}
+
+		args = append(args, arg)
+	}
+
+	return args
 }
 
 // IsolatedEnv returns a clean environment with a temporary HOME for tests that
@@ -479,7 +607,6 @@ func PublicTaskNamesFromTaskfile(tester testT, taskfile LoadedTaskfile) []string
 	for name, task := range taskfile.Tasks {
 		if name == constTasktestutilDefault || strings.HasPrefix(name, "_") ||
 			task.BoolField("internal") {
-
 			continue
 		}
 
@@ -520,20 +647,46 @@ func TaskArgs(args map[string]string) []string {
 func FormatList(values []string) string { return "- " + strings.Join(values, "\n- ") }
 
 // WriteStub writes a stub shell script to dir/name with the given body.
-func WriteStub(tester testT, dir, name, body string) {
+func WriteStub(tester testT, stub any, parts ...string) {
 	tester.Helper()
 
-	path := filepath.Join(dir, name)
+	normalizedStub := normalizeStub(tester, stub, parts)
 
-	err := os.WriteFile(path, []byte(body), privateFileMode)
+	path := filepath.Join(normalizedStub.Dir, normalizedStub.Name)
+
+	err := os.WriteFile(path, []byte(normalizedStub.Body), privateFileMode)
 	if err != nil {
-		tester.Fatalf("write %s stub: %v", name, err)
+		tester.Fatalf("write %s stub: %v", normalizedStub.Name, err)
 	}
 
 	err = os.Chmod(path, stubExecutableMode)
 	if err != nil {
-		tester.Fatalf("mark %s stub executable: %v", name, err)
+		tester.Fatalf("mark %s stub executable: %v", normalizedStub.Name, err)
 	}
+}
+
+func normalizeStub(tester testT, stub any, parts []string) Stub {
+	tester.Helper()
+
+	if normalized, ok := stub.(Stub); ok {
+		if len(parts) != 0 {
+			tester.Fatalf("Stub does not accept positional arguments: %v", parts)
+		}
+
+		return normalized
+	}
+
+	dir, ok := stub.(string)
+
+	if !ok {
+		tester.Fatalf("stub dir must be string or Stub, got %T", stub)
+	}
+
+	if len(parts) != 2 {
+		tester.Fatalf("stub requires name and body, got %d values", len(parts))
+	}
+
+	return Stub{Dir: dir, Name: parts[0], Body: parts[1]}
 }
 
 // SimplePublicTaskNames extracts public task names from a decoded tasks map.

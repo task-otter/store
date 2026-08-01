@@ -2,7 +2,7 @@
 
 This document reflects the module dependencies declared in [`.deps.yml`](.deps.yml).
 
-**104 modules** total.
+**106 modules** total.
 
 ## Standalone
 
@@ -162,10 +162,11 @@ yarn/nvm
 - `adrs` → `cargo`
 - `dotenv-linter` → `cargo`, `internal/skipfiles`
 - `git` → `gh`
+- `golangci-lint` → `go`, `internal/skipfiles`
+- `govulncheck` → `go`, `internal/skipfiles`
 - `proto` → `go`
 - `protolint` → `go`, `internal/skipfiles`
 - `shfmt` → `go`, `internal/skipfiles`
-- `staticcheck` → `go`
 
 ### Depth 3
 
@@ -569,6 +570,24 @@ go
     └── internal/skipfiles
 ```
 
+**`golangci-lint`**
+
+```
+golangci-lint
+    ├── go
+    │   └── internal/skipfiles
+    └── internal/skipfiles
+```
+
+**`govulncheck`**
+
+```
+govulncheck
+    ├── go
+    │   └── internal/skipfiles
+    └── internal/skipfiles
+```
+
 **`hadolint`**
 
 ```
@@ -853,14 +872,6 @@ sqlfluff
     └── uv
 ```
 
-**`staticcheck`**
-
-```
-staticcheck
-    └── go
-        └── internal/skipfiles
-```
-
 **`stylelint/bun`**
 
 ```
@@ -1065,13 +1076,15 @@ For each module, modules that depend on it (direct dependents only).
 - `fnm` ← `corepack/fnm`, `npm/fnm`, `pnpm/fnm`, `yarn/fnm`
 - `gh` ← `git`
 - `git` — *(none)*
-- `go` ← `proto`, `protolint`, `shfmt`, `staticcheck`
+- `go` ← `golangci-lint`, `govulncheck`, `proto`, `protolint`, `shfmt`
+- `golangci-lint` — *(none)*
+- `govulncheck` — *(none)*
 - `hadolint` — *(none)*
 - `htmlhint/node/fnm/npm` — *(none)*
 - `htmlhint/node/fnm/pnpm` — *(none)*
 - `htmlhint/node/nvm/npm` — *(none)*
 - `htmlhint/node/nvm/pnpm` — *(none)*
-- `internal/skipfiles` ← `actionlint`, `ansible`, `buf`, `cargo`, `dotenv-linter`, `go`, `hadolint`, `jsonlint`, `protolint`, `shellcheck`, `shfmt`, `sqlfluff`, `yamllint`, `zizmor`
+- `internal/skipfiles` ← `actionlint`, `ansible`, `buf`, `cargo`, `dotenv-linter`, `go`, `golangci-lint`, `govulncheck`, `hadolint`, `jsonlint`, `protolint`, `shellcheck`, `shfmt`, `sqlfluff`, `yamllint`, `zizmor`
 - `jq` ← `gh`, `vault`
 - `jsonlint` — *(none)*
 - `knip/bun` — *(none)*
@@ -1104,7 +1117,6 @@ For each module, modules that depend on it (direct dependents only).
 - `spectral/node/nvm/npm` — *(none)*
 - `spectral/node/nvm/pnpm` — *(none)*
 - `sqlfluff` — *(none)*
-- `staticcheck` — *(none)*
 - `stylelint/bun` — *(none)*
 - `stylelint/node/fnm/npm` — *(none)*
 - `stylelint/node/fnm/pnpm` — *(none)*

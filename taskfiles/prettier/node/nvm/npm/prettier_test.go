@@ -1,5 +1,5 @@
-// Copyright 2026 task-otter
-// SPDX-License-Identifier: Apache-2.0
+// Taskotter 2026.
+// SPDX-License-Identifier: Apache-2.0.
 
 package prettiernodenvmnpm_test
 
@@ -38,7 +38,11 @@ func publicVars() []string {
 func TestTaskfileModuleContract(t *testing.T) {
 	t.Parallel()
 
-	tasktest.AssertModule(t, "prettier/node/nvm/npm", publicTasks(), publicVars())
+	tasktest.AssertModule(
+		t,
+		"prettier/node/nvm/npm",
+		&tasktest.ModuleExpectations{Tasks: publicTasks(), Vars: publicVars()},
+	)
 }
 
 // covered by module contract

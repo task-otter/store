@@ -1,0 +1,11 @@
+---
+schema: taskotter.dev/taskfile-metadata/v1
+module: golangci-lint
+taskfile: Taskfile.yml
+exported_tasks:
+  - config:skip
+  - fmt
+  - fmt:check
+  - install
+  - lint
+  - lint:fix

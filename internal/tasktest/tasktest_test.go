@@ -1,5 +1,5 @@
-// Copyright 2026 task-otter
-// SPDX-License-Identifier: Apache-2.0
+// Taskotter 2026.
+// SPDX-License-Identifier: Apache-2.0.
 
 package tasktest_test
 
@@ -7,9 +7,11 @@ import (
 	"fmt"
 	"os"
 	"path/filepath"
+	"runtime"
 	"strings"
 	"syscall"
 	"testing"
+	"time"
 
 	"github.com/task-otter/store/internal/tasktest"
 )
@@ -23,101 +25,206 @@ type (
 		vars    []string
 	}
 
-	fatalCall struct{ message string }
+	loadTaskfileCase struct {
+		name    string
+		module  string
+		content string
+		want    string
+	}
+
+	readmeValidationCase struct {
+		name    string
+		content *string
+		want    string
+	}
+
+	namedTestCase interface {
+		testName() string
+	}
+
+	caseAssert[caseT namedTestCase] func(*testing.T, caseT)
+
+	repoFixture struct {
+		root   string
+		module string
+	}
 
 	fakeTest struct {
-		tempDirs []string
-		nextDir  int
+		fatalMessages chan string
 	}
 )
 
 const (
-	missingModule = "missing"
-	fixtureModule = "fixture"
-	buildTask     = "build"
-	fooVar        = "FOO"
+	missingModule      = "missing"
+	fixtureModule      = "fixture"
+	buildTask          = "build"
+	fooVar             = "FOO"
+	taskfileName       = "Taskfile.yml"
+	readmeName         = "README.md"
+	taskfileVersion    = "3.5"
+	trailingWhitespace = "trailing whitespace"
+	driftCaseName      = "drift"
+	buildCommandLine   = "    cmds: [echo build]\n"
+	emptyContent       = ""
+	once               = 1
+	dirMode            = 0o700
+	fileMode           = 0o600
+	chdirLockRetry     = time.Millisecond
+	expectedTaskCount  = 3
 )
+
+func (tester *fakeTest) Fatal(args ...any) { tester.reportFatal(fmt.Sprint(args...)) }
+
+func (tester *fakeTest) Fatalf(format string, args ...any) {
+	tester.reportFatal(fmt.Sprintf(format, args...))
+}
 
 func (*fakeTest) Helper() {}
 
-func (*fakeTest) Fatal(args ...any) { panic(fatalCall{message: fmt.Sprint(args...)}) }
-
-func (*fakeTest) Fatalf(format string, args ...any) {
-	panic(fatalCall{message: fmt.Sprintf(format, args...)})
-}
-
-func (f *fakeTest) TempDir() string {
-	if f.nextDir < len(f.tempDirs) {
-		dir := f.tempDirs[f.nextDir]
-		f.nextDir++
-
-		return dir
-	}
-
+func (tester *fakeTest) TempDir() string {
 	dir, err := os.MkdirTemp("", "tasktest-fake-")
 	if err != nil {
-		panic(err)
+		tester.Fatalf("create temporary directory: %v", err)
+
+		return emptyContent
 	}
 
-	f.tempDirs = append(f.tempDirs, dir)
-	f.nextDir++
-
 	return dir
+}
+
+func (tester *fakeTest) reportFatal(message string) {
+	tester.fatalMessages <- message
+
+	runtime.Goexit()
 }
 
 func expectFatal(t *testing.T, want string, fatalFunc func(*fakeTest)) {
 	t.Helper()
 
-	defer func() {
-		recovered := recover()
+	fatalMessages := make(chan string, once)
+	done := make(chan struct{})
 
-		fatal, ok := recovered.(fatalCall)
+	runFatalFunc(done, fatalMessages, fatalFunc)
+	assertFatalMessage(t, want, fatalMessages)
+}
 
-		if !ok {
-			t.Fatalf("expected fatal call, recovered %#v", recovered)
-		}
+func runFatalFunc(done chan struct{}, fatalMessages chan string, fatalFunc func(*fakeTest)) {
+	go func() {
+		defer close(done)
 
-		if !strings.Contains(fatal.message, want) {
-			t.Fatalf("fatal message %q does not contain %q", fatal.message, want)
-		}
+		fatalFunc(&fakeTest{fatalMessages: fatalMessages})
 	}()
 
-	fatalFunc(&fakeTest{tempDirs: nil, nextDir: 0})
-	panic("expected fatal call")
+	<-done
+}
+
+func assertFatalMessage(t *testing.T, want string, fatalMessages <-chan string) {
+	t.Helper()
+
+	fatalMessage, ok := receivedFatalMessage(fatalMessages)
+
+	if !ok {
+		t.Fatal("expected fatal call")
+	}
+
+	if !strings.Contains(fatalMessage, want) {
+		t.Fatalf("fatal message %q does not contain %q", fatalMessage, want)
+	}
+}
+
+func receivedFatalMessage(fatalMessages <-chan string) (message string, ok bool) {
+	select {
+	case message = <-fatalMessages:
+		return message, true
+	default:
+		return emptyContent, false
+	}
 }
 
 func inDir(t *testing.T, dir string, callback func()) {
 	t.Helper()
+
+	unlock := lockWorkingDirectory(t)
+
+	defer unlock()
 
 	previous, err := os.Getwd()
 	if err != nil {
 		t.Fatalf("get current directory: %v", err)
 	}
 
-	err = syscall.Chdir(dir)
+	changeDir(t, dir)
+
+	defer restoreDir(t, previous)
+
+	callback()
+}
+
+func lockWorkingDirectory(t *testing.T) func() {
+	t.Helper()
+
+	lockPath := workingDirectoryLockPath(t)
+
+	for {
+		if lockAcquired(t, lockPath) {
+			return func() { removePath(t, lockPath) }
+		}
+
+		time.Sleep(chdirLockRetry)
+	}
+}
+
+func workingDirectoryLockPath(t *testing.T) string {
+	t.Helper()
+
+	return filepath.Join(
+		filepath.Dir(filepath.Dir(t.TempDir())),
+		fmt.Sprintf("tasktest-chdir-%d.lock", os.Getpid()),
+	)
+}
+
+func lockAcquired(t *testing.T, lockPath string) bool {
+	t.Helper()
+
+	err := os.Mkdir(lockPath, dirMode)
+	if err == nil {
+		return true
+	}
+
+	if !os.IsExist(err) {
+		t.Fatalf("lock working directory: %v", err)
+	}
+
+	return false
+}
+
+func changeDir(t *testing.T, dir string) {
+	t.Helper()
+
+	err := syscall.Chdir(dir)
 	if err != nil {
 		t.Fatalf("change directory to %s: %v", dir, err)
 	}
+}
 
-	defer func() {
-		err := syscall.Chdir(previous)
-		if err != nil {
-			t.Fatalf("restore directory: %v", err)
-		}
-	}()
+func restoreDir(t *testing.T, previous string) {
+	t.Helper()
 
-	callback()
+	err := syscall.Chdir(previous)
+	if err != nil {
+		t.Fatalf("restore directory: %v", err)
+	}
 }
 
 func writeFile(t *testing.T, path, content string) {
 	t.Helper()
 
-	err := os.MkdirAll(filepath.Dir(path), 0o700)
+	err := os.MkdirAll(filepath.Dir(path), dirMode)
 	if err != nil {
 		t.Fatalf("create parent directory: %v", err)
 	}
 
-	err = os.WriteFile(path, []byte(content), 0o600)
+	err = os.WriteFile(path, []byte(content), fileMode)
 	if err != nil {
 		t.Fatalf("write %s: %v", path, err)
 	}
@@ -144,44 +251,50 @@ func validReadme() string {
 	return "# Fixture\n\n## Public Tasks\n\n| Task | Description |\n| --- | --- |\n| `build` | Build fixture |\n"
 }
 
-func makeRepo(t *testing.T) (string, string) {
+func makeRepo(t *testing.T) repoFixture {
 	t.Helper()
 
 	root := t.TempDir()
 	writeFile(t, filepath.Join(root, "go.mod"), "module example.com/fixture\n\ngo 1.22\n")
 
 	module := filepath.Join(root, "taskfiles", fixtureModule)
-	writeFile(t, filepath.Join(module, "Taskfile.yml"), validTaskfile())
-	writeFile(t, filepath.Join(module, "README.md"), validReadme())
+	writeFile(t, filepath.Join(module, taskfileName), validTaskfile())
+	writeFile(t, filepath.Join(module, readmeName), validReadme())
 
-	return root, module
+	return repoFixture{root: root, module: module}
 }
 
+// TestRepositoryAndTaskfilePaths verifies repo discovery from nested module paths.
 func TestRepositoryAndTaskfilePaths(t *testing.T) {
-	root, module := makeRepo(t)
+	fixture := makeRepo(t)
+	assertRepositoryAndTaskfilePaths(t, &fixture)
+	t.Parallel()
+}
 
-	nested := filepath.Join(module, "nested")
+func assertRepositoryAndTaskfilePaths(t *testing.T, fixture *repoFixture) {
+	t.Helper()
 
-	err := os.MkdirAll(nested, 0o700)
+	nested := filepath.Join(fixture.module, "nested")
+
+	err := os.MkdirAll(nested, dirMode)
 	if err != nil {
 		t.Fatal(err)
 	}
 
 	inDir(t, nested, func() {
-		if got := tasktest.RepoRoot(t); !samePath(t, got, root) {
-			t.Fatalf("RepoRoot = %s, want %s", got, root)
+		if got := tasktest.RepoRoot(t); !samePath(t, got, fixture.root) {
+			t.Fatalf("RepoRoot = %s, want %s", got, fixture.root)
 		}
 
 		taskfile := tasktest.LoadTaskfile(t, fixtureModule)
 
-		if taskfile.Version != "3.5" {
+		if taskfile.Version != taskfileVersion {
 			t.Fatalf("LoadTaskfile version = %s", taskfile.Version)
 		}
 	})
-
-	t.Parallel()
 }
 
+// TestRepoRootMissingGoMod verifies repo discovery fails outside a Go module.
 func TestRepoRootMissingGoMod(t *testing.T) {
 	inDir(t, t.TempDir(), func() {
 		expectFatal(
@@ -203,37 +316,87 @@ func samePath(t *testing.T, left, right string) bool {
 	return leftErr == nil && rightErr == nil && os.SameFile(leftInfo, rightInfo)
 }
 
+// TestLoadTaskfile verifies valid and invalid Taskfile loading behavior.
 func TestLoadTaskfile(t *testing.T) {
-	_, module := makeRepo(t)
+	t.Parallel()
+	assertValidLoadTaskfile(t)
+	runCases(t, loadTaskfileCases(), assertInvalidLoadTaskfile)
+}
 
-	inDir(t, module, func() {
+func runCases[caseT namedTestCase](t *testing.T, cases []caseT, assert caseAssert[caseT]) {
+	t.Helper()
+
+	for index := range cases {
+		testCase := cases[index]
+		t.Run(testCase.testName(), func(t *testing.T) {
+			t.Parallel()
+			assert(t, testCase)
+		})
+	}
+}
+
+func (testCase *loadTaskfileCase) testName() string {
+	return testCase.name
+}
+
+func assertValidLoadTaskfile(t *testing.T) {
+	t.Helper()
+
+	fixture := makeRepo(t)
+
+	inDir(t, fixture.module, func() {
 		taskfile := tasktest.LoadTaskfile(t, fixtureModule)
 
-		if taskfile.Version != "3.5" || taskfile.Vars[fooVar] != "value" ||
-			len(taskfile.Tasks) != 3 {
-
+		if !loadedTaskfileMatchesFixture(taskfile) {
 			t.Fatalf("unexpected Taskfile: %#v", taskfile)
 		}
 	})
+}
 
-	tests := []struct {
-		name    string
-		module  string
-		content string
-		want    string
-	}{
-		{name: missingModule, module: missingModule, content: "", want: "read missing Taskfile"},
+func loadedTaskfileMatchesFixture(taskfile *tasktest.Taskfile) bool {
+	return taskfile.Version == taskfileVersion &&
+		taskfile.Vars[fooVar] == "value" &&
+		len(taskfile.Tasks) == expectedTaskCount
+}
+
+func assertInvalidLoadTaskfile(t *testing.T, testCase *loadTaskfileCase) {
+	t.Helper()
+
+	fixture := makeRepo(t)
+
+	if testCase.content != emptyContent {
+		writeFile(t, filepath.Join(fixture.module, taskfileName), testCase.content)
+	}
+
+	inDir(t, fixture.module, func() {
+		expectFatal(
+			t,
+			testCase.want,
+			func(fakeTester *fakeTest) { tasktest.LoadTaskfile(fakeTester, testCase.module) },
+		)
+	})
+}
+
+func loadTaskfileCases() []*loadTaskfileCase {
+	testCases := []*loadTaskfileCase{
 		{
-			name:    "crlf",
-			module:  fixtureModule,
-			content: "version: \"3\"\r\ntasks: {}\r\n",
-			want:    "LF line endings",
+			name:    missingModule,
+			module:  missingModule,
+			content: emptyContent,
+			want:    "read missing Taskfile",
 		},
+	}
+
+	return append(testCases, invalidLoadTaskfileFormattingCases()...)
+}
+
+func invalidLoadTaskfileFormattingCases() []*loadTaskfileCase {
+	return []*loadTaskfileCase{
 		{
-			name:    "trailing whitespace",
+			name:    trailingWhitespace,
 			module:  fixtureModule,
 			content: "version: \"3\"\ntasks: {} \n",
-			want:    "trailing whitespace",
+			want:    trailingWhitespace,
 		},
 		{
 			name:    "invalid yaml",
@@ -241,42 +404,62 @@ func TestLoadTaskfile(t *testing.T) {
 			content: "version: [\n",
 			want:    "parse fixture Taskfile",
 		},
+		{
+			name:    "crlf",
+			module:  fixtureModule,
+			content: "version: \"3\"\r\ntasks: {}\r\n",
+			want:    "LF line endings",
+		},
 	}
-
-	for _, testCase := range tests {
-		t.Run(testCase.name, func(t *testing.T) {
-			_, module := makeRepo(t)
-
-			if testCase.content != "" {
-				writeFile(t, filepath.Join(module, "Taskfile.yml"), testCase.content)
-			}
-
-			inDir(t, module, func() {
-				expectFatal(
-					t,
-					testCase.want,
-					func(fakeTester *fakeTest) { tasktest.LoadTaskfile(fakeTester, testCase.module) },
-				)
-			})
-
-			t.Parallel()
-		})
-	}
-
-	t.Parallel()
 }
 
+// TestReadmeValidation verifies README validation for Taskfile modules.
 func TestReadmeValidation(t *testing.T) {
-	_, module := makeRepo(t)
-	inDir(t, module, func() {
-		tasktest.AssertModule(t, fixtureModule, []string{buildTask}, []string{fooVar})
-	})
+	t.Parallel()
+	assertValidModule(t)
+	runCases(t, readmeValidationCases(), assertInvalidReadme)
+}
 
-	tests := []struct {
-		name    string
-		content *string
-		want    string
-	}{
+func assertValidModule(t *testing.T) {
+	t.Helper()
+
+	fixture := makeRepo(t)
+	expected := moduleExpectations([]string{buildTask}, []string{fooVar})
+
+	inDir(t, fixture.module, func() {
+		tasktest.AssertModule(t, fixtureModule, expected)
+	})
+}
+
+func assertInvalidReadme(t *testing.T, testCase *readmeValidationCase) {
+	t.Helper()
+
+	fixture := makeRepo(t)
+	prepareReadmeValidationFixture(t, fixture.module, testCase)
+
+	expected := moduleExpectations([]string{buildTask}, []string{fooVar})
+
+	inDir(t, fixture.module, func() {
+		expectModuleFatal(t, testCase.want, expected)
+	})
+}
+
+func prepareReadmeValidationFixture(t *testing.T, module string, testCase *readmeValidationCase) {
+	t.Helper()
+
+	path := filepath.Join(module, readmeName)
+
+	if testCase.content == nil {
+		removeFile(t, path)
+
+		return
+	}
+
+	writeFile(t, path, *testCase.content)
+}
+
+func readmeValidationCases() []*readmeValidationCase {
+	return []*readmeValidationCase{
 		{name: missingModule, content: nil, want: "must have README.md"},
 		{name: "empty", content: new("\n"), want: "README.md is empty"},
 		{name: "section", content: new("# Fixture\n"), want: "document public tasks"},
@@ -286,87 +469,85 @@ func TestReadmeValidation(t *testing.T) {
 			want:    "does not mention public task",
 		},
 	}
-
-	for _, testCase := range tests {
-		t.Run(testCase.name, func(t *testing.T) {
-			_, module := makeRepo(t)
-
-			path := filepath.Join(module, "README.md")
-
-			if testCase.content == nil {
-				err := os.Remove(path)
-				if err != nil {
-					t.Fatal(err)
-				}
-			} else {
-				writeFile(t, path, *testCase.content)
-			}
-
-			inDir(t, module, func() {
-				expectFatal(t, testCase.want, func(fakeTester *fakeTest) {
-					tasktest.AssertModule(
-						fakeTester,
-						fixtureModule,
-						[]string{buildTask},
-						[]string{fooVar},
-					)
-				})
-			})
-
-			t.Parallel()
-		})
-	}
-
-	t.Parallel()
 }
 
-func TestTaskfileValidation(t *testing.T) {
-	t.Parallel()
-
-	_, module := makeRepo(t)
-	inDir(t, module, func() {
-		tasktest.AssertModule(t, fixtureModule, []string{buildTask}, []string{fooVar})
-	})
-
-	for _, testCase := range taskfileValidationCases() {
-		t.Run(testCase.name, func(t *testing.T) {
-			_, module := makeRepo(t)
-			prepareTaskfileValidationFixture(t, module, testCase)
-			inDir(t, module, func() {
-				expectFatal(t, testCase.want, func(fakeTester *fakeTest) {
-					tasktest.AssertModule(fakeTester, fixtureModule, testCase.tasks, testCase.vars)
-				})
-			})
-
-			t.Parallel()
-		})
-	}
+func (testCase *readmeValidationCase) testName() string {
+	return testCase.name
 }
 
-func prepareTaskfileValidationFixture(
-	t *testing.T,
-	module string,
-	testCase taskfileValidationCase,
-) {
-
+func removeFile(t *testing.T, path string) {
 	t.Helper()
 
-	writeFile(t, filepath.Join(module, "Taskfile.yml"), testCase.content)
+	removePath(t, path)
+}
 
-	if testCase.name == "drift" {
+func removePath(t *testing.T, path string) {
+	t.Helper()
+
+	err := os.Remove(path)
+	if err != nil {
+		t.Fatal(err)
+	}
+}
+
+func moduleExpectations(tasks, vars []string) *tasktest.ModuleExpectations {
+	return &tasktest.ModuleExpectations{Tasks: tasks, Vars: vars}
+}
+
+func expectModuleFatal(t *testing.T, want string, expected *tasktest.ModuleExpectations) {
+	t.Helper()
+
+	expectFatal(t, want, func(fakeTester *fakeTest) {
+		tasktest.AssertModule(fakeTester, fixtureModule, expected)
+	})
+}
+
+// TestTaskfileValidation verifies Taskfile content validation for modules.
+func TestTaskfileValidation(t *testing.T) {
+	t.Parallel()
+	assertValidModule(t)
+	runCases(t, taskfileValidationCases(), assertInvalidTaskfile)
+}
+
+func assertInvalidTaskfile(t *testing.T, testCase *taskfileValidationCase) {
+	t.Helper()
+
+	fixture := makeRepo(t)
+	prepareTaskfileFixture(t, fixture.module, testCase)
+	inDir(t, fixture.module, func() {
+		expectModuleFatal(t, testCase.want, moduleExpectations(testCase.tasks, testCase.vars))
+	})
+}
+
+func (testCase *taskfileValidationCase) testName() string {
+	return testCase.name
+}
+
+func prepareTaskfileFixture(t *testing.T, module string, testCase *taskfileValidationCase) {
+	t.Helper()
+
+	writeFile(t, filepath.Join(module, taskfileName), testCase.content)
+
+	if testCase.name == driftCaseName {
 		writeFile(
 			t,
-			filepath.Join(module, "README.md"),
-			strings.Replace(validReadme(), "`build`", "`other`", 1),
+			filepath.Join(module, readmeName),
+			strings.Replace(validReadme(), "`build`", "`other`", once),
 		)
 	}
 }
 
-func taskfileValidationCases() []taskfileValidationCase {
-	return []taskfileValidationCase{
+func taskfileValidationCases() []*taskfileValidationCase {
+	testCases := taskfileValidationBaseCases()
+
+	return append(testCases, taskfileValidationExpectationCases()...)
+}
+
+func taskfileValidationBaseCases() []*taskfileValidationCase {
+	return []*taskfileValidationCase{
 		{
 			name:    "version",
-			content: strings.Replace(validTaskfile(), `version: "3.5"`, `version: "2"`, 1),
+			content: strings.Replace(validTaskfile(), `version: "3.5"`, `version: "2"`, once),
 			tasks:   []string{buildTask},
 			vars:    []string{fooVar},
 			want:    "version must be 3",
@@ -378,8 +559,19 @@ func taskfileValidationCases() []taskfileValidationCase {
 			vars:    nil,
 			want:    "must define tasks",
 		},
+	}
+}
+
+func taskfileValidationExpectationCases() []*taskfileValidationCase {
+	testCases := taskfileValidationReadmeCases()
+
+	return append(testCases, taskfileValidationCommandCases()...)
+}
+
+func taskfileValidationReadmeCases() []*taskfileValidationCase {
+	return []*taskfileValidationCase{
 		{
-			name:    "drift",
+			name:    driftCaseName,
 			content: validTaskfile(),
 			tasks:   []string{"other"},
 			vars:    []string{fooVar},
@@ -387,14 +579,19 @@ func taskfileValidationCases() []taskfileValidationCase {
 		},
 		{
 			name:    "description",
-			content: strings.Replace(validTaskfile(), "Build the fixture project", "short", 1),
+			content: strings.Replace(validTaskfile(), "Build the fixture project", "short", once),
 			tasks:   []string{buildTask},
 			vars:    []string{fooVar},
 			want:    "desc is missing or too short",
 		},
+	}
+}
+
+func taskfileValidationCommandCases() []*taskfileValidationCase {
+	return []*taskfileValidationCase{
 		{
 			name:    "commands",
-			content: strings.Replace(validTaskfile(), "    cmds: [echo build]\n", "", 1),
+			content: strings.Replace(validTaskfile(), buildCommandLine, emptyContent, once),
 			tasks:   []string{buildTask},
 			vars:    []string{fooVar},
 			want:    "must define cmds or deps",

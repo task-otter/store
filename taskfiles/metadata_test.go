@@ -1,5 +1,5 @@
-// Copyright 2026 task-otter
-// SPDX-License-Identifier: Apache-2.0
+// Taskotter 2026.
+// SPDX-License-Identifier: Apache-2.0.
 
 package taskfiles_test
 
@@ -84,7 +84,13 @@ func TestModuleMetadataListsEveryExportedTask(t *testing.T) {
 		t.Run(module, func(t *testing.T) {
 			t.Parallel()
 
-			assertMetadata(t, taskfilesDir, module, module, exportedTasks(t, module), nil)
+			assertMetadata(t, metadataCheck{
+				taskfilesDir:     taskfilesDir,
+				dir:              module,
+				module:           module,
+				expectedTasks:    exportedTasks(t, module),
+				expectedVariants: nil,
+			})
 		})
 	}
 
@@ -94,7 +100,11 @@ func TestModuleMetadataListsEveryExportedTask(t *testing.T) {
 		t.Run(tool, func(t *testing.T) {
 			t.Parallel()
 
-			assertToolMetadata(t, taskfilesDir, tool, leaves)
+			assertToolMetadata(t, toolMetadataCheck{
+				taskfilesDir: taskfilesDir,
+				tool:         tool,
+				leaves:       leaves,
+			})
 		})
 	}
 }
@@ -103,10 +113,9 @@ func discoverMetadataModules(t *testing.T, taskfilesDir string) discoveredMetada
 	t.Helper()
 
 	discovered := discoveredMetadataModules{flatModules: nil, toolLeaves: map[string][]string{}}
+	discoverer := metadataDiscoverer{t: t, taskfilesDir: taskfilesDir, discovered: &discovered}
 
-	err := filepath.WalkDir(taskfilesDir, func(path string, dirEntry fs.DirEntry, err error) error {
-		return discoverMetadataModule(t, taskfilesDir, path, dirEntry, err, &discovered)
-	})
+	err := filepath.WalkDir(taskfilesDir, discoverer.discover)
 	if err != nil {
 		t.Fatalf("walk taskfiles: %v", err)
 	}
@@ -118,16 +127,18 @@ func discoverMetadataModules(t *testing.T, taskfilesDir string) discoveredMetada
 	return discovered
 }
 
-func discoverMetadataModule(
-	t *testing.T,
-	taskfilesDir string,
+type metadataDiscoverer struct {
+	t            *testing.T
+	discovered   *discoveredMetadataModules
+	taskfilesDir string
+}
+
+func (discoverer metadataDiscoverer) discover(
 	path string,
 	dirEntry fs.DirEntry,
 	walkErr error,
-	discovered *discoveredMetadataModules,
 ) error {
-
-	t.Helper()
+	discoverer.t.Helper()
 
 	if walkErr != nil {
 		return walkErr
@@ -137,7 +148,7 @@ func discoverMetadataModule(
 		return nil
 	}
 
-	rel, err := filepath.Rel(taskfilesDir, filepath.Dir(path))
+	rel, err := filepath.Rel(discoverer.taskfilesDir, filepath.Dir(path))
 	if err != nil {
 		return fmt.Errorf("metadata module path relative to taskfiles: %w", err)
 	}
@@ -146,48 +157,70 @@ func discoverMetadataModule(
 	segments := strings.Split(module, "/")
 
 	if toolFamilies()[segments[0]] {
-		addToolLeaf(t, discovered.toolLeaves, segments[0], module)
+		addToolLeaf(discoverer.t, toolLeaf{
+			leaves: discoverer.discovered.toolLeaves,
+			tool:   segments[0],
+			module: module,
+		})
 
 		return nil
 	}
 
 	if len(segments) == 1 {
-		discovered.flatModules = append(discovered.flatModules, module)
+		discoverer.discovered.flatModules = append(discoverer.discovered.flatModules, module)
 	}
 
 	return nil
 }
 
-func addToolLeaf(t *testing.T, toolLeaves map[string][]string, tool, module string) {
+type toolLeaf struct {
+	leaves map[string][]string
+	tool   string
+	module string
+}
+
+func addToolLeaf(t *testing.T, leaf toolLeaf) {
 	t.Helper()
 
-	if tool == module || len(exportedTasks(t, module)) == 0 {
+	if leaf.tool == leaf.module || len(exportedTasks(t, leaf.module)) == 0 {
 		return
 	}
 
-	toolLeaves[tool] = append(toolLeaves[tool], module)
+	leaf.leaves[leaf.tool] = append(leaf.leaves[leaf.tool], leaf.module)
 }
 
-func assertToolMetadata(t *testing.T, taskfilesDir, tool string, leaves []string) {
+type toolMetadataCheck struct {
+	taskfilesDir string
+	tool         string
+	leaves       []string
+}
+
+func assertToolMetadata(t *testing.T, check toolMetadataCheck) {
 	t.Helper()
 
-	base := exportedTasks(t, leaves[0])
-	variants := make([]string, 0, len(leaves))
+	base := exportedTasks(t, check.leaves[0])
+	variants := make([]string, 0, len(check.leaves))
 
-	for _, leaf := range leaves {
+	for _, leaf := range check.leaves {
 		got := exportedTasks(t, leaf)
 
 		if !slices.Equal(got, base) {
 			t.Fatalf(
 				"exported-task interface drift within %q:\n  %s: %v\n  %s: %v",
-				tool, leaves[0], base, leaf, got,
+				check.tool, check.leaves[0], base, leaf, got,
 			)
 		}
 
-		variants = append(variants, strings.TrimPrefix(leaf, tool+"/"))
+		variants = append(variants, strings.TrimPrefix(leaf, check.tool+"/"))
 	}
 
-	assertMetadata(t, taskfilesDir, tool, tool, base, variants)
+	assertMetadata(t, metadataCheck{
+		taskfilesDir:     check.taskfilesDir,
+		dir:              check.tool,
+		module:           check.tool,
+		expectedTasks:    base,
+		expectedVariants: variants,
+	})
 }
 
 // TestTaskCliLoadsEveryFamily forks the task CLI once per family to prove every
@@ -256,17 +289,20 @@ func familyRepresentatives(t *testing.T) []string {
 	return modules
 }
 
-func assertMetadata(
-	t *testing.T,
-	taskfilesDir, dir, module string,
-	expectedTasks, expectedVariants []string,
-) {
+type metadataCheck struct {
+	taskfilesDir     string
+	dir              string
+	module           string
+	expectedTasks    []string
+	expectedVariants []string
+}
 
+func assertMetadata(t *testing.T, check metadataCheck) {
 	t.Helper()
 
-	metadataPath := filepath.ToSlash(filepath.Join(dir, "metadata.yml"))
+	metadataPath := filepath.ToSlash(filepath.Join(check.dir, "metadata.yml"))
 
-	content, err := fs.ReadFile(os.DirFS(taskfilesDir), metadataPath)
+	content, err := fs.ReadFile(os.DirFS(check.taskfilesDir), metadataPath)
 	if err != nil {
 		t.Fatalf("read metadata.yml: %v; add or update it to match the module Taskfile", err)
 	}
@@ -288,9 +324,9 @@ func assertMetadata(
 
 	metadata.ExportedTasks = metadataStringSequence(t, content, "exported_tasks")
 
-	assertMetadataHeader(t, metadata, module)
-	assertMetadataTasks(t, metadata, expectedTasks)
-	assertMetadataVariants(t, metadata, expectedVariants)
+	assertMetadataHeader(t, metadata, check.module)
+	assertMetadataTasks(t, metadata, check.expectedTasks)
+	assertMetadataVariants(t, metadata, check.expectedVariants)
 }
 
 func assertMetadataHeader(t *testing.T, metadata moduleMetadata, module string) {

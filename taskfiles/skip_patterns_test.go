@@ -1,5 +1,5 @@
-// Copyright 2026 task-otter
-// SPDX-License-Identifier: Apache-2.0
+// Taskotter 2026.
+// SPDX-License-Identifier: Apache-2.0.
 
 package taskfiles_test
 
@@ -62,7 +62,7 @@ type (
 		env          []string
 	}
 
-	goAnalysisSkipFixture struct {
+	govulncheckSkipFixture struct {
 		taskfilePath string
 		project      string
 		logPath      string
@@ -82,7 +82,11 @@ func skipPatternFlatModules() []skipPatternModule {
 		{name: "cargo", vars: []string{"CARGO_LINT_SKIP_PATTERN", "CARGO_FMT_SKIP_PATTERN"}},
 		{name: "djlint", vars: []string{"DJLINT_LINT_SKIP_PATTERN", "DJLINT_FMT_SKIP_PATTERN"}},
 		{name: "dotenv-linter", vars: []string{"DOTENV_LINTER_LINT_SKIP_PATTERN"}},
-		{name: "go", vars: []string{"GO_LINT_SKIP_PATTERN", "GO_FMT_SKIP_PATTERN"}},
+		{
+			name: "golangci-lint",
+			vars: []string{"GOLANGCI_LINT_LINT_SKIP_PATTERN", "GOLANGCI_LINT_FMT_SKIP_PATTERN"},
+		},
+		{name: "govulncheck", vars: []string{"GOVULNCHECK_LINT_SKIP_PATTERN"}},
 		{name: "hadolint", vars: []string{"HADOLINT_LINT_SKIP_PATTERN"}},
 		{name: "jsonlint", vars: []string{"JSONLINT_LINT_SKIP_PATTERN"}},
 		{name: "protolint", vars: []string{"PROTOLINT_LINT_SKIP_PATTERN"}},
@@ -90,7 +94,6 @@ func skipPatternFlatModules() []skipPatternModule {
 		{name: "shellcheck", vars: []string{"SHELLCHECK_LINT_SKIP_PATTERN"}},
 		{name: "shfmt", vars: []string{"SHFMT_FMT_SKIP_PATTERN"}},
 		{name: sqlfluffModule, vars: []string{"SQLFLUFF_LINT_SKIP_PATTERN"}},
-		{name: "staticcheck", vars: []string{"STATICCHECK_LINT_SKIP_PATTERN"}},
 		{name: "yamllint", vars: []string{"YAMLLINT_LINT_SKIP_PATTERN"}},
 		{name: "zizmor", vars: []string{"ZIZMOR_LINT_SKIP_PATTERN"}},
 	}
@@ -153,11 +156,13 @@ func skipPatternVariantModules() []skipPatternModule {
 
 // Modules that still delegate to the shared skipfiles helper. Biome and Knip
 // dropped out when their config overlays moved into their own config:skip
-// tasks; SQLFluff and Go stay because they still use filter / go-packages.
+// tasks; SQLFluff, golangci-lint, and govulncheck stay because they still use
+// filter / go-packages.
 func sharedSkipfilesConsumers() []string {
 	return []string{
-		"actionlint", "ansible", "buf", "cargo", "dotenv-linter", "go", "hadolint",
-		"jsonlint", "protolint", "shellcheck", "shfmt", sqlfluffModule, "yamllint", "zizmor",
+		"actionlint", "ansible", "buf", "cargo", "dotenv-linter", "golangci-lint",
+		"govulncheck", "hadolint", "jsonlint", "protolint", "shellcheck", "shfmt",
+		sqlfluffModule, "yamllint", "zizmor",
 	}
 }
 
@@ -166,7 +171,7 @@ func configSkipModules() []string {
 	return []string{
 		"biome/bun", "biome/node/fnm/npm", "biome/node/nvm/npm",
 		"biome/node/fnm/pnpm", "biome/node/nvm/pnpm", "biome/node/fnm/yarn", "biome/node/nvm/yarn",
-		"go", "knip/bun",
+		"golangci-lint", "knip/bun",
 		"knip/node/fnm/npm", "knip/node/nvm/npm", "knip/node/fnm/pnpm", "knip/node/nvm/pnpm",
 		"knip/node/fnm/yarn", "knip/node/nvm/yarn", sqlfluffModule,
 	}
@@ -275,7 +280,11 @@ func TestSharedSkipFileMatcher(t *testing.T) {
 	for _, test := range sharedSkipFileMatcherCases() {
 		t.Run(test.name, func(t *testing.T) {
 			t.Parallel()
-			assertSharedSkipFileMatcher(t, root, filter, test)
+			assertSharedSkipFileMatcher(t, sharedSkipFileMatcher{
+				root:   root,
+				filter: filter,
+				test:   test,
+			})
 		})
 	}
 }
@@ -309,13 +318,13 @@ func sharedSkipFileMatcherCases() []sharedSkipFileMatcherCase {
 	}
 }
 
-func assertSharedSkipFileMatcher(
-	t *testing.T,
-	root string,
-	filter string,
-	test sharedSkipFileMatcherCase,
-) {
+type sharedSkipFileMatcher struct {
+	root   string
+	filter string
+	test   sharedSkipFileMatcherCase
+}
 
+func assertSharedSkipFileMatcher(t *testing.T, matcher sharedSkipFileMatcher) {
 	t.Helper()
 
 	separator := "\x00"
@@ -324,15 +333,15 @@ func assertSharedSkipFileMatcher(
 		separator = "\n"
 	}
 
-	input := []byte(strings.Join(test.paths, separator) + separator)
+	input := []byte(strings.Join(matcher.test.paths, separator) + separator)
 	commandContext := exec.CommandContext
 	command := commandContext(
 		t.Context(),
-		"task", "--silent", "--taskfile", filter, "filter",
-		"SKIPFILES_PATTERN="+test.pattern,
+		"task", "--silent", "--taskfile", matcher.filter, "filter",
+		"SKIPFILES_PATTERN="+matcher.test.pattern,
 	)
 
-	command.Dir = root
+	command.Dir = matcher.root
 	command.Stdin = bytes.NewReader(input)
 
 	output, err := command.Output()
@@ -348,28 +357,41 @@ func assertSharedSkipFileMatcher(
 		actual = nil
 	}
 
-	if strings.Join(actual, "\x00") != strings.Join(test.retained, "\x00") {
-		t.Fatalf("retained paths = %q, want %q", actual, test.retained)
+	if strings.Join(actual, "\x00") != strings.Join(matcher.test.retained, "\x00") {
+		t.Fatalf("retained paths = %q, want %q", actual, matcher.test.retained)
 	}
 }
 
 // runConfigSkip runs a module's config:skip task inside project, which is the
 // USER_WORKING_DIR the task writes its overlay relative to.
-func runConfigSkip(t *testing.T, project, module string, vars ...string) {
+func runConfigSkip(t *testing.T, project string, moduleAndVars ...string) {
 	t.Helper()
 
+	if len(moduleAndVars) == 0 {
+		t.Fatal("module is required")
+	}
+
 	root := tasktest.RepoRoot(t)
+	module := moduleAndVars[0]
+	vars := moduleAndVars[1:]
 	arguments := append([]string{
 		"--silent", taskfileFlag,
 		filepath.Join(root, "taskfiles", module, skipTaskfileYML),
 		"config:skip",
 	}, vars...)
-	runCommand(t, project, "task", arguments...)
+	runCommand(t, project, arguments...)
 }
 
 // writeFixture creates a file inside a fresh project directory.
-func writeFixture(t *testing.T, project, name, content string) {
+func writeFixture(t *testing.T, project string, fixture ...string) {
 	t.Helper()
+
+	if len(fixture) != 2 {
+		t.Fatalf("fixture requires name and content, got %d values", len(fixture))
+	}
+
+	name := fixture[0]
+	content := fixture[1]
 
 	err := os.WriteFile(filepath.Join(project, name), []byte(content), 0o600)
 	if err != nil {
@@ -378,9 +400,15 @@ func writeFixture(t *testing.T, project, name, content string) {
 }
 
 // assertOverlayContains reads an overlay written into project and checks tokens.
-func assertOverlayContains(t *testing.T, project, name string, tokens ...string) {
+func assertOverlayContains(t *testing.T, project string, nameAndTokens ...string) {
 	t.Helper()
 
+	if len(nameAndTokens) == 0 {
+		t.Fatal("overlay name is required")
+	}
+
+	name := nameAndTokens[0]
+	tokens := nameAndTokens[1:]
 	content := readFile(t, filepath.Join(project, name))
 
 	for _, token := range tokens {
@@ -421,7 +449,6 @@ func TestBiomeConfigSkipTask(t *testing.T) {
 			content,
 			"vendor",
 		) {
-
 			t.Fatalf("lint-scoped overlay leaked the fmt pattern:\n%s", content)
 		}
 	})
@@ -619,7 +646,7 @@ func TestSQLFluffConfigSkipTask(t *testing.T) {
 	})
 }
 
-func TestGoConfigSkipTask(t *testing.T) {
+func TestGolangciLintConfigSkipTask(t *testing.T) {
 	t.Parallel()
 
 	const overlay = ".golangci-taskotter-skip.yml"
@@ -628,7 +655,12 @@ func TestGoConfigSkipTask(t *testing.T) {
 		t.Parallel()
 
 		project := t.TempDir()
-		runConfigSkip(t, project, "go", "GO_LINT_SKIP_PATTERN=**/generated/**")
+		runConfigSkip(
+			t,
+			project,
+			"golangci-lint",
+			"GOLANGCI_LINT_LINT_SKIP_PATTERN=**/generated/**",
+		)
 		assertOverlayContains(t, project, overlay,
 			"linters:", "exclusions:", "paths:", `^(?:.*/)?generated/.*$`)
 	})
@@ -637,8 +669,13 @@ func TestGoConfigSkipTask(t *testing.T) {
 		t.Parallel()
 
 		project := t.TempDir()
-		runConfigSkip(t, project, "go", "GO_LINT_SKIP_PATTERN=**/generated/**")
-		runConfigSkip(t, project, "go", "GO_LINT_SKIP_PATTERN=**/mocks/*.go")
+		runConfigSkip(
+			t,
+			project,
+			"golangci-lint",
+			"GOLANGCI_LINT_LINT_SKIP_PATTERN=**/generated/**",
+		)
+		runConfigSkip(t, project, "golangci-lint", "GOLANGCI_LINT_LINT_SKIP_PATTERN=**/mocks/*.go")
 
 		content := readFile(t, filepath.Join(project, overlay))
 
@@ -665,7 +702,7 @@ func TestGoConfigSkipTask(t *testing.T) {
 
 		project := t.TempDir()
 		writeFixture(t, project, overlay, "stale\n")
-		runConfigSkip(t, project, "go")
+		runConfigSkip(t, project, "golangci-lint")
 
 		_, err := os.Stat(filepath.Join(project, overlay))
 
@@ -715,8 +752,8 @@ func assertSharedSkipfilesDirectory(t *testing.T, helperDirectory string) {
 func assertSharedSkipfilesConsumers(t *testing.T, root string) {
 	t.Helper()
 
-	if len(sharedSkipfilesConsumers()) != 14 {
-		t.Fatalf("shared skipfiles consumer count = %d, want 14", len(sharedSkipfilesConsumers()))
+	if len(sharedSkipfilesConsumers()) != 15 {
+		t.Fatalf("shared skipfiles consumer count = %d, want 15", len(sharedSkipfilesConsumers()))
 	}
 
 	for _, module := range sharedSkipfilesConsumers() {
@@ -724,7 +761,6 @@ func assertSharedSkipfilesConsumers(t *testing.T, root string) {
 
 		if !strings.Contains(content, "internal/skipfiles/Taskfile.yml") ||
 			!strings.Contains(content, "internal: true") {
-
 			t.Errorf("%s does not include the shared skipfiles Taskfile internally", module)
 		}
 
@@ -1036,19 +1072,19 @@ func (fixture cargoSkipFixture) runTask(t *testing.T, args ...string) {
 	}
 }
 
-func TestGoAnalysisSkipPatternExcludesPackages(t *testing.T) {
+func TestGovulncheckSkipPatternExcludesPackages(t *testing.T) {
 	t.Parallel()
 
 	if testing.Short() {
 		t.Skip("skipping task integration test in short mode")
 	}
 
-	fixture := newGoAnalysisSkipFixture(t)
+	fixture := newGovulncheckSkipFixture(t)
 	fixture.assertRetainedPackage(t)
 	fixture.assertAllSkipped(t)
 }
 
-func newGoAnalysisSkipFixture(t *testing.T) goAnalysisSkipFixture {
+func newGovulncheckSkipFixture(t *testing.T) govulncheckSkipFixture {
 	t.Helper()
 
 	root := tasktest.RepoRoot(t)
@@ -1080,8 +1116,8 @@ printf '%s\n' "$@" >"$TASKOTTER_GO_ANALYSIS_LOG"
 
 	mustWriteFile(t, filepath.Join(binDirectory, "govulncheck"), stub, 0o500)
 
-	return goAnalysisSkipFixture{
-		taskfilePath: filepath.Join(root, "taskfiles", "go", skipTaskfileYML),
+	return govulncheckSkipFixture{
+		taskfilePath: filepath.Join(root, "taskfiles", "govulncheck", skipTaskfileYML),
 		project:      project,
 		logPath:      logPath,
 		env: append(os.Environ(),
@@ -1092,7 +1128,7 @@ printf '%s\n' "$@" >"$TASKOTTER_GO_ANALYSIS_LOG"
 	}
 }
 
-func (fixture goAnalysisSkipFixture) taskCommand(args ...string) *exec.Cmd {
+func (fixture govulncheckSkipFixture) taskCommand(args ...string) *exec.Cmd {
 	commandContext := exec.CommandContext
 	command := commandContext(
 		context.Background(),
@@ -1105,10 +1141,10 @@ func (fixture goAnalysisSkipFixture) taskCommand(args ...string) *exec.Cmd {
 	return command
 }
 
-func (fixture goAnalysisSkipFixture) assertRetainedPackage(t *testing.T) {
+func (fixture govulncheckSkipFixture) assertRetainedPackage(t *testing.T) {
 	t.Helper()
 
-	fixture.runTask(t, "--yes", "govulncheck:lint", "GO_LINT_SKIP_PATTERN=generated/**")
+	fixture.runTask(t, "--yes", "lint", "GOVULNCHECK_LINT_SKIP_PATTERN=generated/**")
 
 	arguments := readFile(t, fixture.logPath)
 
@@ -1123,10 +1159,10 @@ func (fixture goAnalysisSkipFixture) assertRetainedPackage(t *testing.T) {
 	mustRemove(t, fixture.logPath)
 }
 
-func (fixture goAnalysisSkipFixture) assertAllSkipped(t *testing.T) {
+func (fixture govulncheckSkipFixture) assertAllSkipped(t *testing.T) {
 	t.Helper()
 
-	fixture.runTask(t, "--yes", "govulncheck:lint", "GO_LINT_SKIP_PATTERN=**/*.go")
+	fixture.runTask(t, "--yes", "lint", "GOVULNCHECK_LINT_SKIP_PATTERN=**/*.go")
 
 	_, err := os.Stat(fixture.logPath)
 
@@ -1135,7 +1171,7 @@ func (fixture goAnalysisSkipFixture) assertAllSkipped(t *testing.T) {
 	}
 }
 
-func (fixture goAnalysisSkipFixture) runTask(t *testing.T, args ...string) {
+func (fixture govulncheckSkipFixture) runTask(t *testing.T, args ...string) {
 	t.Helper()
 
 	output, err := fixture.taskCommand(args...).CombinedOutput()
@@ -1186,13 +1222,67 @@ func mustMkdirAll(t *testing.T, path string) {
 	}
 }
 
-func mustWriteFile(t *testing.T, path, content string, perm os.FileMode) {
+type fileWrite struct {
+	content string
+	perm    os.FileMode
+}
+
+func mustWriteFile(t *testing.T, values ...any) {
 	t.Helper()
 
-	err := os.WriteFile(path, []byte(content), perm)
+	path, file := normalizeFileWrite(t, values)
+
+	err := os.WriteFile(path, []byte(file.content), file.perm)
 	if err != nil {
 		t.Fatalf("write %s: %v", path, err)
 	}
+}
+
+func normalizeFileWrite(t *testing.T, values []any) (string, fileWrite) {
+	t.Helper()
+
+	if len(values) != 2 && len(values) != 3 {
+		t.Fatalf("mustWriteFile requires path plus file data, got %d values", len(values))
+	}
+
+	path, ok := values[0].(string)
+
+	if !ok {
+		t.Fatalf("file path must be string, got %T", values[0])
+	}
+
+	if len(values) == 2 {
+		file, ok := values[1].(fileWrite)
+
+		if !ok {
+			t.Fatalf("file data must be fileWrite, got %T", values[1])
+		}
+
+		return path, file
+	}
+
+	content, ok := values[1].(string)
+
+	if !ok {
+		t.Fatalf("file content must be string, got %T", values[1])
+	}
+
+	return path, fileWrite{content: content, perm: filePerm(t, values[2])}
+}
+
+func filePerm(t *testing.T, value any) os.FileMode {
+	t.Helper()
+
+	switch perm := value.(type) {
+	case os.FileMode:
+		return perm
+	case int:
+		return os.FileMode(perm)
+	default:
+		t.Fatalf("file permission must be os.FileMode, got %T", value)
+	}
+
+	return 0
 }
 
 func mustRemove(t *testing.T, path string) {
@@ -1204,12 +1294,8 @@ func mustRemove(t *testing.T, path string) {
 	}
 }
 
-func runCommand(t *testing.T, directory string, name string, arguments ...string) {
+func runCommand(t *testing.T, directory string, arguments ...string) {
 	t.Helper()
-
-	if name != "task" {
-		t.Fatalf("unsupported command %q", name)
-	}
 
 	commandContext := exec.CommandContext
 	command := commandContext(t.Context(), "task", arguments...)
@@ -1218,6 +1304,6 @@ func runCommand(t *testing.T, directory string, name string, arguments ...string
 
 	output, err := command.CombinedOutput()
 	if err != nil {
-		t.Fatalf("run %s: %v\n%s", name, err, output)
+		t.Fatalf("run task: %v\n%s", err, output)
 	}
 }
