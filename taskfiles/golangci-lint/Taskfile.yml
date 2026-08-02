@@ -755,7 +755,8 @@ tasks:
         platforms: [linux, darwin]
       - cmd: >-
           powershell -NoProfile -ExecutionPolicy Bypass -Command "$ErrorActionPreference='Stop'; $skipPattern = '{{if
-          .GOLANGCI_LINT_FMT_SKIP_PATTERN_OVERRIDE}}{{.GOLANGCI_LINT_FMT_SKIP_PATTERN_OVERRIDE}} {{- else}}{{.GOLANGCI_LINT_FMT_SKIP_PATTERN}}{{end}}';
+          .GOLANGCI_LINT_FMT_SKIP_PATTERN_OVERRIDE}}{{.GOLANGCI_LINT_FMT_SKIP_PATTERN_OVERRIDE}} {{-
+          else}}{{.GOLANGCI_LINT_FMT_SKIP_PATTERN}}{{end}}';
           if (-not $skipPattern) {
 
             & '{{.GLOBAL_GO_BIN}}/golangci-lint' fmt

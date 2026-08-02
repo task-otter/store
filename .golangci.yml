@@ -25,11 +25,7 @@ linters:
       max-complexity: 5
       package-average: 3.0
     decorder:
-      dec-order:
-        - type
-        - const
-        - var
-        - func
+      dec-order: [type, const, var, func]
       ignore-underscore-vars: false
       disable-dec-order-check: false
       disable-init-func-first-check: false
@@ -40,41 +36,33 @@ linters:
     depguard:
       rules:
         production:
-          files:
-            - "$all"
-            - "!$test"
+          files: [$all, '!$test']
           list-mode: lax
           deny:
-            - pkg: "io/ioutil$"
-              desc: "Use io and os packages."
-            - pkg: "gopkg.in/yaml.v3"
-              desc: "Use go.yaml.in/yaml/v3 packages"
+            - pkg: io/ioutil$
+              desc: Use io and os packages.
+            - pkg: gopkg.in/yaml.v3
+              desc: Use go.yaml.in/yaml/v3 packages
         domain_must_not_import_infrastructure:
-          files:
-            - "**/internal/domain/**/*.go"
-
+          files: ['**/internal/domain/**/*.go']
           list-mode: lax
-
           deny:
-            - pkg: "github.com/your-org/your-app/internal/infrastructure"
-              desc: "Domain code must not depend on infrastructure."
-
-            - pkg: "github.com/your-org/your-app/internal/transport"
-              desc: "Domain code must not depend on HTTP, gRPC, or transport code."
+            - pkg: github.com/your-org/your-app/internal/infrastructure
+              desc: Domain code must not depend on infrastructure.
+            - pkg: github.com/your-org/your-app/internal/transport
+              desc: Domain code must not depend on HTTP, gRPC, or transport code.
         application_must_not_import_transport:
-          files:
-            - "**/internal/application/**/*.go"
+          files: ['**/internal/application/**/*.go']
           list-mode: lax
           deny:
-            - pkg: "github.com/your-org/your-app/internal/transport"
-              desc: "Application services must not depend on transport handlers."
+            - pkg: github.com/your-org/your-app/internal/transport
+              desc: Application services must not depend on transport handlers.
         tests:
-          files:
-            - "$test"
+          files: [$test]
           list-mode: lax
           deny:
-            - pkg: "io/ioutil$"
-              desc: "Use io and os packages."
+            - pkg: io/ioutil$
+              desc: Use io and os packages.
     dogsled:
       max-blank-identifiers: 0
     dupl:
@@ -103,9 +91,7 @@ linters:
       allowed-errors: []
       allowed-errors-wildcard: []
     exhaustive:
-      check:
-        - switch
-        - map
+      check: [switch, map]
       default-signifies-exhaustive: false
       ignore-enum-members: a^
       ignore-enum-types: a^
@@ -114,8 +100,7 @@ linters:
       explicit-exhaustive-map: false
       default-case-required: true
     exhaustruct:
-      include:
-        - .*
+      include: [.*]
       exclude: []
       allow-empty: false
       allow-empty-rx: []
@@ -211,29 +196,18 @@ linters:
           length: 127
     godot:
       scope: all
-      exclude:
-        - "^SPDX-License-Identifier:"
-        - "^Taskotter"
+      exclude: ['^SPDX-License-Identifier:', ^Taskotter]
       period: true
       capital: true
     godox:
-      keywords:
-        - TODO
-        - BUG
-        - FIXME
-        - HACK
-        - XXX
-        - OPTIMIZE
-        - NOTE
+      keywords: [TODO, BUG, FIXME, HACK, XXX, OPTIMIZE, NOTE]
     goheader:
       values:
         const:
           COMPANY: Taskotter
           SPDX: Apache-2.0
         regexp: {}
-      template: '{{ COMPANY }} {{ YEAR }}.
-
-        SPDX-License-Identifier: {{ SPDX }}.'
+      template: "{{ COMPANY }} {{ YEAR }}.\nSPDX-License-Identifier: {{ SPDX }}."
     gomoddirectives:
       replace-local: false
       replace-allow-list: []
@@ -309,10 +283,7 @@ linters:
       var-require-single-var: true
       var-require-grouping: false
     iface:
-      enable:
-        - identical
-        - opaque
-        - unexported
+      enable: [identical, opaque, unexported]
     importas:
       no-unaliased: true
       no-extra-aliases: false
@@ -328,8 +299,7 @@ linters:
     iotamixing:
       report-individual: true
     ireturn:
-      allow:
-        - error
+      allow: [error]
     lll:
       line-length: 120
       tab-width: 2
@@ -352,13 +322,7 @@ linters:
       extra-words: []
       mode: default
     mnd:
-      checks:
-        - argument
-        - case
-        - condition
-        - operation
-        - return
-        - assign
+      checks: [argument, case, condition, operation, return, assign]
       ignored-numbers: []
       ignored-files: []
       ignored-functions: []
@@ -423,8 +387,7 @@ linters:
       skip-any-generated: false
       replace-first-arg-in-append: true
     reassign:
-      patterns:
-        - .*
+      patterns: [.*]
     recvcheck:
       disable-builtin: true
       exclusions: []
@@ -441,18 +404,15 @@ linters:
         - name: argument-limit
           severity: error
           disabled: false
-          arguments:
-            - 3
+          arguments: [3]
         - name: cognitive-complexity
           severity: error
           disabled: false
-          arguments:
-            - 5
+          arguments: [5]
         - name: cyclomatic
           severity: error
           disabled: false
-          arguments:
-            - 5
+          arguments: [5]
         - name: function-length
           severity: error
           disabled: false
@@ -460,8 +420,7 @@ linters:
         - name: line-length-limit
           severity: error
           disabled: false
-          arguments:
-            - 120
+          arguments: [120]
     rowserrcheck:
       packages: []
     sloglint:
@@ -475,18 +434,11 @@ linters:
       args-on-sep-lines: true
       no-raw-keys: true
       allowed-keys: []
-      forbidden-keys:
-        - time
-        - level
-        - msg
-        - source
+      forbidden-keys: [time, level, msg, source]
       key-naming-case: snake
       custom-funcs: []
     spancheck:
-      checks:
-        - end
-        - record-error
-        - set-status
+      checks: [end, record-error, set-status]
       ignore-check-signatures: []
       extra-start-span-signatures: []
     staticcheck:
@@ -535,8 +487,7 @@ linters:
         - DB
         - TS
       http-status-code-whitelist: []
-      checks:
-        - all
+      checks: [all]
     tagalign:
       align: true
       sort: true
@@ -666,15 +617,7 @@ linters:
       ignore-type-assert-ok: false
       ignore-map-index-ok: false
       ignore-chan-recv-ok: false
-      ignore-names:
-        - id
-        - ok
-        - idx
-        - db
-        - err
-        - dir
-        - t
-        - i
+      ignore-names: [id, ok, idx, db, err, dir, t, i]
       ignore-decls: []
     whitespace:
       multi-if: true
@@ -741,10 +684,7 @@ output:
       colors: true
   path-prefix: ''
   path-mode: ''
-  sort-order:
-    - severity
-    - linter
-    - file
+  sort-order: [severity, linter, file]
   show-stats: true
 run:
   timeout: '0'
@@ -762,10 +702,4 @@ severity:
   default: error
   rules: []
 formatters:
-  enable:
-    - gci
-    - gofmt
-    - gofumpt
-    - goimports
-    - golines
-    - swaggo
+  enable: [gci, gofmt, gofumpt, goimports, golines, swaggo]
