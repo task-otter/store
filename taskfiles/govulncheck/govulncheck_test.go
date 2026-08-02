@@ -10,10 +10,25 @@ import (
 	"github.com/task-otter/store/internal/tasktest"
 )
 
+type (
+	dependencyCheck struct {
+		taskfile *tasktest.Taskfile
+		taskName string
+		expected []string
+	}
+)
+
 const (
 	constGovulncheckInstall = "install"
 	constGovulncheckLint    = "lint"
 	constGoInstall          = "go:install"
+	constGovulncheckModule  = "govulncheck"
+
+	envVarGovulncheckVersion         = "GOVULNCHECK_VERSION"
+	envVarGovulncheckLintSkipPattern = "GOVULNCHECK_LINT_SKIP_PATTERN"
+
+	emptyString = ""
+	zeroLen     = 0
 )
 
 func publicTasks() []string {
@@ -25,79 +40,90 @@ func publicTasks() []string {
 
 func publicVars() []string {
 	return []string{
-		"GOVULNCHECK_VERSION",
-		"GOVULNCHECK_LINT_SKIP_PATTERN",
+		envVarGovulncheckVersion,
+		envVarGovulncheckLintSkipPattern,
 		"GLOBAL_GO_BIN",
 	}
 }
 
+// TestTaskfileModuleContract validates the behavior covered by this test case.
 func TestTaskfileModuleContract(t *testing.T) {
 	t.Parallel()
 
 	tasktest.AssertModule(
 		t,
-		"govulncheck",
+		constGovulncheckModule,
 		&tasktest.ModuleExpectations{Tasks: publicTasks(), Vars: publicVars()},
 	)
 }
 
+// TestLintSkipPatternDefaultsEmpty validates the behavior covered by this test case.
 func TestLintSkipPatternDefaultsEmpty(t *testing.T) {
 	t.Parallel()
 
-	taskfile := tasktest.LoadTaskfile(t, "govulncheck")
-
-	value, exists := taskfile.Vars["GOVULNCHECK_LINT_SKIP_PATTERN"]
-
-	if !exists {
-		t.Fatal("GOVULNCHECK_LINT_SKIP_PATTERN must be defined")
-	}
-
-	if value != "" {
-		t.Fatalf("GOVULNCHECK_LINT_SKIP_PATTERN default = %#v, want empty", value)
-	}
+	assertEmptyVarDefault(t, envVarGovulncheckLintSkipPattern)
 }
 
+// TestVersionVariableIsOptional validates the behavior covered by this test case.
 func TestVersionVariableIsOptional(t *testing.T) {
 	t.Parallel()
 
-	taskfile := tasktest.LoadTaskfile(t, "govulncheck")
+	assertEmptyVarDefault(t, envVarGovulncheckVersion)
+}
 
-	value, exists := taskfile.Vars["GOVULNCHECK_VERSION"]
+func assertEmptyVarDefault(t *testing.T, name string) {
+	t.Helper()
+
+	taskfile := tasktest.LoadTaskfile(t, constGovulncheckModule)
+
+	value, exists := taskfile.Vars[name]
 
 	if !exists {
-		t.Fatal("GOVULNCHECK_VERSION must be defined")
+		t.Fatalf("%s must be defined", name)
 	}
 
-	if value != "" {
-		t.Fatalf("GOVULNCHECK_VERSION default = %#v, want empty", value)
+	if value != emptyString {
+		t.Fatalf("%s default = %#v, want empty", name, value)
 	}
 }
 
+// TestDevelopmentToolDependencies validates the behavior covered by this test case.
 func TestDevelopmentToolDependencies(t *testing.T) {
 	t.Parallel()
 
-	taskfile := tasktest.LoadTaskfile(t, "govulncheck")
+	taskfile := tasktest.LoadTaskfile(t, constGovulncheckModule)
 
 	dependencies := map[string][]string{
 		constGovulncheckInstall: {constGoInstall},
 		constGovulncheckLint:    {constGovulncheckInstall},
 	}
 
-	for taskName, expected := range dependencies {
+	for taskName := range dependencies {
+		expected := dependencies[taskName]
 		assertTaskDependencies(
 			t,
-			dependencyCheck{taskfile: taskfile, taskName: taskName, expected: expected},
+			&dependencyCheck{taskfile: taskfile, taskName: taskName, expected: expected},
 		)
 	}
 }
 
-type dependencyCheck struct {
-	taskfile *tasktest.Taskfile
-	taskName string
-	expected []string
+func assertTaskDependencies(t *testing.T, check *dependencyCheck) {
+	t.Helper()
+
+	rawDeps := rawTaskDeps(t, check)
+	actual := taskDependencyNames(t, check.taskName, rawDeps)
+
+	if !slices.Equal(actual, check.expected) {
+		t.Fatalf(
+			"%s deps mismatch\nexpected: %v\nactual:   %v",
+			check.taskName,
+			check.expected,
+			actual,
+		)
+	}
 }
 
-func assertTaskDependencies(t *testing.T, check dependencyCheck) {
+func rawTaskDeps(t *testing.T, check *dependencyCheck) []any {
 	t.Helper()
 
 	rawDeps, ok := check.taskfile.Tasks[check.taskName].Deps.([]any)
@@ -110,26 +136,26 @@ func assertTaskDependencies(t *testing.T, check dependencyCheck) {
 		)
 	}
 
-	actual := make([]string, len(rawDeps))
+	return rawDeps
+}
 
-	for index, rawDep := range rawDeps {
+func taskDependencyNames(t *testing.T, taskName string, rawDeps []any) []string {
+	t.Helper()
+
+	actual := make([]string, zeroLen, len(rawDeps))
+
+	for index := range rawDeps {
+		rawDep := rawDeps[index]
 		dep, ok := taskDependencyName(rawDep)
 
 		if !ok {
-			t.Fatalf("%s dependency %d has unsupported value %v", check.taskName, index, rawDep)
+			t.Fatalf("%s dependency %d has unsupported value %v", taskName, index, rawDep)
 		}
 
-		actual[index] = dep
+		actual = append(actual, dep)
 	}
 
-	if !slices.Equal(actual, check.expected) {
-		t.Fatalf(
-			"%s deps mismatch\nexpected: %v\nactual:   %v",
-			check.taskName,
-			check.expected,
-			actual,
-		)
-	}
+	return actual
 }
 
 func taskDependencyName(rawDep any) (string, bool) {
@@ -141,6 +167,6 @@ func taskDependencyName(rawDep any) (string, bool) {
 
 		return name, ok
 	default:
-		return "", false
+		return emptyString, false
 	}
 }

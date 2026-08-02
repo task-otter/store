@@ -3,3 +3,5 @@
 vault-snapshot.snap
 coverage.out
 junit.xml
+.gocache
+.golangci-cache

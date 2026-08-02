@@ -17,6 +17,10 @@ func expectedPublicTasks() []string {
 }
 
 func ghCoreTasks() []string {
+	return slices.Concat(ghAuthAndAliasTasks(), ghExtensionAndGistTasks())
+}
+
+func ghAuthAndAliasTasks() []string {
 	return []string{
 		"alias:delete",
 		"alias:list",
@@ -33,6 +37,11 @@ func ghCoreTasks() []string {
 		"auth:setup-git",
 		"auth:status",
 		"browse",
+	}
+}
+
+func ghExtensionAndGistTasks() []string {
+	return []string{
 		"config:get",
 		"config:list",
 		"config:set",
@@ -52,6 +61,10 @@ func ghCoreTasks() []string {
 }
 
 func ghIssueAndPRTasks() []string {
+	return slices.Concat(ghIssueTasks(), ghPRTasks(), ghProjectAndReleaseTasks())
+}
+
+func ghIssueTasks() []string {
 	return []string{
 		"issue:assign",
 		"issue:close",
@@ -62,6 +75,11 @@ func ghIssueAndPRTasks() []string {
 		"issue:reopen",
 		"issue:view",
 		"open",
+	}
+}
+
+func ghPRTasks() []string {
+	return []string{
 		"pr:checkout",
 		"pr:close",
 		"pr:comment",
@@ -73,6 +91,11 @@ func ghIssueAndPRTasks() []string {
 		"pr:review",
 		"pr:status",
 		"pr:view",
+	}
+}
+
+func ghProjectAndReleaseTasks() []string {
+	return []string{
 		"project:create",
 		"project:list",
 		"project:view",
@@ -87,6 +110,10 @@ func ghIssueAndPRTasks() []string {
 }
 
 func ghRepoAndWorkflowTasks() []string {
+	return slices.Concat(ghRepoAndRunTasks(), ghSecretAndWorkflowTasks())
+}
+
+func ghRepoAndRunTasks() []string {
 	return []string{
 		"repo:archive",
 		"repo:clone",
@@ -104,6 +131,11 @@ func ghRepoAndWorkflowTasks() []string {
 		"search:issues",
 		"search:prs",
 		"search:repos",
+	}
+}
+
+func ghSecretAndWorkflowTasks() []string {
+	return []string{
 		"secret:delete:danger",
 		"secret:list",
 		"secret:set",
@@ -138,6 +170,7 @@ func expectedVars() []string {
 	}
 }
 
+// TestModule
 func TestModule(t *testing.T) {
 	t.Parallel()
 

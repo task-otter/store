@@ -1,7 +1,7 @@
 // Taskotter 2026.
 // SPDX-License-Identifier: Apache-2.0.
 
-package corepacknvm_test
+package nvm_test
 
 import (
 	"io/fs"
@@ -19,40 +19,115 @@ import (
 )
 
 type (
-	result struct {
+	taskResult struct {
 		err    error
 		output string
+	}
+
+	taskNameComparison struct {
+		label    string
+		expected []string
+		actual   []string
+	}
+
+	stubFile struct {
+		path string
+		name string
+		body string
+	}
+
+	readmeScanner struct {
+		names  []string
+		active bool
 	}
 )
 
 const (
 	constCorepackTestYes = "--yes"
+	flagList             = "--list"
+	flagListAll          = "--list-all"
+	flagJSON             = "--json"
+	flagDry              = "--dry"
+	packageManagerPnpm   = "PACKAGE_MANAGER=pnpm"
+	enableTask           = "enable"
+	setupTask            = "setup"
+	useTask              = "use"
+	versionTask          = "version"
+	taskfileYML          = "Taskfile.yml"
+	versionLatestArg     = "VERSION=latest"
+	pathEnvVar           = "PATH"
+	twoLiteral           = 2
+	emptyLen             = 0
+	secondArgIndex       = 1
+	dirPerm              = fs.FileMode(0o700)
+	filePerm             = fs.FileMode(0o600)
+	execPerm             = 0o500
 )
+
+var readmeTaskRow = regexp.MustCompile("^\\|\\s*`([^`]+)`\\s*\\|")
 
 func publicTasks() []string {
 	return []string{
 		"cache:clean",
 		"disable",
-		"enable",
+		enableTask,
 		"install",
 		"install:undo",
 		"node:setup",
-		"setup",
+		setupTask,
 		"upgrade",
-		"use",
-		"version",
+		useTask,
+		versionTask,
 	}
 }
 
+// TestTaskfileAndReadmePublicApi
 func TestTaskfileAndReadmePublicApi(t *testing.T) {
 	t.Parallel()
+
+	tasks := parseTaskfileTasks(t, read(t, taskfileYML))
+	actual := taskNames(tasks)
+
+	assertTaskNamesEqual(
+		t,
+		&taskNameComparison{label: "public task", expected: publicTasks(), actual: actual},
+	)
+
+	readmeTasks := readmeTaskNames(read(t, filepath.Join("..", "README.md")))
+
+	assertTaskNamesEqual(
+		t,
+		&taskNameComparison{
+			label:    "README public task",
+			expected: publicTasks(),
+			actual:   readmeTasks,
+		},
+	)
+}
+
+func parseTaskfileTasks(t *testing.T, content string) map[string]any {
+	t.Helper()
+
+	root := decodeTaskfileRoot(t, content)
+
+	tasks, ok := root["tasks"].(map[string]any)
+
+	if !ok || len(tasks) == emptyLen {
+		t.Fatal("Taskfile tasks map is missing")
+	}
+
+	return tasks
+}
+
+func decodeTaskfileRoot(t *testing.T, content string) map[string]any {
+	t.Helper()
 
 	var (
 		root map[string]any
 		doc  yaml.Node
 	)
 
-	err := yaml.Unmarshal([]byte(read(t, "Taskfile.yml")), &doc)
+	err := yaml.Unmarshal([]byte(content), &doc)
 	if err != nil {
 		t.Fatalf("parse Taskfile: %v", err)
 	}
@@ -62,56 +137,75 @@ func TestTaskfileAndReadmePublicApi(t *testing.T) {
 		t.Fatalf("decode Taskfile: %v", err)
 	}
 
-	tasks, ok := root["tasks"].(map[string]any)
+	return root
+}
 
-	if !ok || len(tasks) == 0 {
-		t.Fatal("Taskfile tasks map is missing")
-	}
+func assertTaskNamesEqual(t *testing.T, cmp *taskNameComparison) {
+	t.Helper()
 
-	actual := taskNames(tasks)
-
-	if !slices.Equal(publicTasks(), actual) {
-		t.Fatalf("public task drift\nexpected: %v\nactual:   %v", publicTasks(), actual)
-	}
-
-	readmeTasks := readmeTaskNames(read(t, filepath.Join("..", "README.md")))
-
-	if !slices.Equal(publicTasks(), readmeTasks) {
-		t.Fatalf("README public task drift\nexpected: %v\nactual:   %v", publicTasks(), readmeTasks)
+	if !slices.Equal(cmp.expected, cmp.actual) {
+		t.Fatalf("%s drift\nexpected: %v\nactual:   %v", cmp.label, cmp.expected, cmp.actual)
 	}
 }
 
-func TestTaskCliAndCorepackFlows(t *testing.T) {
-	t.Parallel()
+func corepackFlowArgVariants() [][]string {
+	return [][]string{
+		{flagList},
+		{flagListAll, flagJSON},
+		{flagDry, constCorepackTestYes, setupTask},
+		{constCorepackTestYes, versionTask},
+		{constCorepackTestYes, enableTask},
+		{constCorepackTestYes, useTask, packageManagerPnpm, versionLatestArg},
+	}
+}
 
-	env := stubEnv(t)
+func assertCorepackFlowsSucceed(t *testing.T, env []string) {
+	t.Helper()
 
-	for _, args := range [][]string{
-		{"--list"},
-		{"--list-all", "--json"},
-		{"--dry", constCorepackTestYes, "setup"},
-		{constCorepackTestYes, "version"},
-		{constCorepackTestYes, "enable"},
-		{constCorepackTestYes, "use", "PACKAGE_MANAGER=pnpm", "VERSION=latest"},
-	} {
+	variants := corepackFlowArgVariants()
+
+	for i := range variants {
+		args := variants[i]
 		result := runTask(t, env, args...)
 
 		if result.err != nil {
 			t.Fatalf("task %v failed:\n%s", args, result.output)
 		}
 	}
+}
 
-	result := runTask(t, env, constCorepackTestYes, "use", "PACKAGE_MANAGER=bad", "VERSION=latest")
+func assertInvalidPackageManagerFails(t *testing.T, env []string) {
+	t.Helper()
+
+	result := runTask(
+		t,
+		env,
+		constCorepackTestYes,
+		useTask,
+		"PACKAGE_MANAGER=bad",
+		versionLatestArg,
+	)
 
 	if result.err == nil {
 		t.Fatalf("invalid package manager unexpectedly succeeded:\n%s", result.output)
 	}
 }
 
+// TestTaskCliAndCorepackFlows
+func TestTaskCliAndCorepackFlows(t *testing.T) {
+	t.Parallel()
+
+	env := stubEnv(t)
+
+	assertCorepackFlowsSucceed(t, env)
+	assertInvalidPackageManagerFails(t, env)
+}
+
+// TestCorepackVersionDefaultIsPinned
 func TestCorepackVersionDefaultIsPinned(t *testing.T) {
 	t.Parallel()
 
-	content := read(t, "Taskfile.yml")
+	content := read(t, taskfileYML)
 
 	if !strings.Contains(content, "COREPACK_VERSION: 0.34.0") {
 		t.Fatalf("COREPACK_VERSION default should stay pinned for reproducibility:\n%s", content)
@@ -122,7 +216,7 @@ func TestCorepackVersionDefaultIsPinned(t *testing.T) {
 	}
 }
 
-func runTask(t *testing.T, env []string, args ...string) result {
+func runTask(t *testing.T, env []string, args ...string) *taskResult {
 	t.Helper()
 
 	commandContext := exec.CommandContext
@@ -133,29 +227,43 @@ func runTask(t *testing.T, env []string, args ...string) result {
 
 	out, err := cmd.CombinedOutput()
 
-	return result{output: string(out), err: err}
+	return &taskResult{output: string(out), err: err}
 }
 
 func stubEnv(t *testing.T) []string {
 	t.Helper()
 
 	home := t.TempDir()
+	nvmDir := setupNvmDir(t, home)
+	bin := setupStubBin(t, home)
+
+	return buildStubEnv(home, bin, nvmDir)
+}
+
+func setupNvmDir(t *testing.T, home string) string {
+	t.Helper()
 
 	nvmDir := filepath.Join(home, ".nvm")
 
-	err := os.MkdirAll(nvmDir, 0o700)
+	err := os.MkdirAll(nvmDir, dirPerm)
 	if err != nil {
 		t.Fatalf("create nvm dir: %v", err)
 	}
 
-	err = os.WriteFile(filepath.Join(nvmDir, "nvm.sh"), []byte("# nvm stub\n"), 0o600)
+	err = os.WriteFile(filepath.Join(nvmDir, "nvm.sh"), []byte("# nvm stub\n"), filePerm)
 	if err != nil {
 		t.Fatalf("write nvm.sh stub: %v", err)
 	}
 
+	return nvmDir
+}
+
+func setupStubBin(t *testing.T, home string) string {
+	t.Helper()
+
 	bin := filepath.Join(home, ".local", "bin")
 
-	err = os.MkdirAll(bin, 0o700)
+	err := os.MkdirAll(bin, dirPerm)
 	if err != nil {
 		t.Fatalf("create stub bin: %v", err)
 	}
@@ -169,10 +277,14 @@ func stubEnv(t *testing.T) []string {
 	)
 	stub(t, bin, "npm", "#!/usr/bin/env bash\necho \"npm $* stub\"\n")
 
+	return bin
+}
+
+func buildStubEnv(home, bin, nvmDir string) []string {
 	env := os.Environ()
 
 	env = setEnv(env, "HOME", home)
-	env = setEnv(env, "PATH", bin+":"+os.Getenv("PATH"))
+	env = setEnv(env, pathEnvVar, bin+":"+os.Getenv(pathEnvVar))
 	env = setEnv(env, "NVM_DIR", nvmDir)
 	env = setEnv(env, "NO_COLOR", "1")
 	env = setEnv(env, "TASK_ASSUME_YES", "true")
@@ -180,26 +292,19 @@ func stubEnv(t *testing.T) []string {
 	return env
 }
 
-type stubFile struct {
-	path string
-	name string
-	body string
-}
-
 func stub(t *testing.T, fileValue any, parts ...string) {
-	file := normalizeStubFile(t, fileValue, parts)
 	t.Helper()
 
-	t.Helper()
+	file := normalizeStubFile(t, fileValue, parts)
 
 	stubPath := filepath.Join(file.path, file.name)
 
-	err := os.WriteFile(stubPath, []byte(file.body), 0o600)
+	err := os.WriteFile(stubPath, []byte(file.body), filePerm)
 	if err != nil {
 		t.Fatalf("write %s stub: %v", file.name, err)
 	}
 
-	err = syscall.Chmod(stubPath, 0o500)
+	err = syscall.Chmod(stubPath, execPerm)
 	if err != nil {
 		t.Fatalf("make %s stub executable: %v", file.name, err)
 	}
@@ -209,12 +314,24 @@ func normalizeStubFile(t *testing.T, fileValue any, parts []string) stubFile {
 	t.Helper()
 
 	if file, ok := fileValue.(stubFile); ok {
-		if len(parts) != 0 {
-			t.Fatalf("stubFile does not accept positional arguments: %v", parts)
-		}
+		requireNoExtraParts(t, parts)
 
 		return file
 	}
+
+	return newStubFileFromParts(t, fileValue, parts)
+}
+
+func requireNoExtraParts(t *testing.T, parts []string) {
+	t.Helper()
+
+	if len(parts) != emptyLen {
+		t.Fatalf("stubFile does not accept positional arguments: %v", parts)
+	}
+}
+
+func newStubFileFromParts(t *testing.T, fileValue any, parts []string) stubFile {
+	t.Helper()
 
 	path, ok := fileValue.(string)
 
@@ -222,22 +339,20 @@ func normalizeStubFile(t *testing.T, fileValue any, parts []string) stubFile {
 		t.Fatalf("stub path must be string or stubFile, got %T", fileValue)
 	}
 
-	if len(parts) != 2 {
+	if len(parts) != twoLiteral {
 		t.Fatalf("stub requires name and body, got %d values", len(parts))
 	}
 
-	return stubFile{path: path, name: parts[0], body: parts[1]}
+	return stubFile{path: path, name: parts[emptyLen], body: parts[secondArgIndex]}
 }
 
 func taskNames(tasks map[string]any) []string {
-	names := []string{}
+	names := make([]string, emptyLen, len(tasks))
 
-	for name, raw := range tasks {
-		if name == "default" || strings.HasPrefix(name, "_") {
-			continue
-		}
+	for name := range tasks {
+		raw := tasks[name]
 
-		if task, ok := raw.(map[string]any); ok && task["internal"] == true {
+		if isSkippableTask(name, raw) {
 			continue
 		}
 
@@ -249,34 +364,70 @@ func taskNames(tasks map[string]any) []string {
 	return names
 }
 
+func isSkippableTask(name string, raw any) bool {
+	if name == "default" || strings.HasPrefix(name, "_") {
+		return true
+	}
+
+	task, ok := raw.(map[string]any)
+
+	if !ok {
+		return false
+	}
+
+	internal, ok := task["internal"].(bool)
+
+	return ok && internal
+}
+
+func (scanner *readmeScanner) processLine(trimmed string) (stop bool) {
+	if trimmed == "## Public Tasks" {
+		scanner.active = true
+
+		return false
+	}
+
+	if !scanner.active {
+		return false
+	}
+
+	if strings.HasPrefix(trimmed, "## ") {
+		return true
+	}
+
+	scanner.recordRow(trimmed)
+
+	return false
+}
+
+func (scanner *readmeScanner) recordRow(trimmed string) {
+	if name, ok := readmeTaskRowName(trimmed); ok {
+		scanner.names = append(scanner.names, name)
+	}
+}
+
 func readmeTaskNames(content string) []string {
-	row := regexp.MustCompile("^\\|\\s*`([^`]+)`\\s*\\|")
-	names := []string{}
-	active := false
+	scanner := &readmeScanner{names: nil, active: false}
 
 	for line := range strings.SplitSeq(content, "\n") {
-		trimmed := strings.TrimSpace(line)
-
-		if trimmed == "## Public Tasks" {
-			active = true
-
-			continue
-		}
-
-		if active && strings.HasPrefix(trimmed, "## ") {
+		if scanner.processLine(strings.TrimSpace(line)) {
 			break
-		}
-
-		if active {
-			if match := row.FindStringSubmatch(trimmed); len(match) == 2 {
-				names = append(names, match[1])
-			}
 		}
 	}
 
-	slices.Sort(names)
+	slices.Sort(scanner.names)
 
-	return names
+	return scanner.names
+}
+
+func readmeTaskRowName(trimmed string) (string, bool) {
+	match := readmeTaskRow.FindStringSubmatch(trimmed)
+
+	if len(match) != twoLiteral {
+		return "", false
+	}
+
+	return match[secondArgIndex], true
 }
 
 func read(t *testing.T, name string) string {
@@ -295,9 +446,9 @@ func read(t *testing.T, name string) string {
 func dir(t *testing.T) string {
 	t.Helper()
 
-	_, file, _, ok := runtime.Caller(0)
+	programCounter, file, line, ok := runtime.Caller(emptyLen)
 
-	if !ok {
+	if !ok || programCounter == emptyLen || line == emptyLen {
 		t.Fatal("locate test file")
 	}
 
@@ -307,7 +458,9 @@ func dir(t *testing.T) string {
 func setEnv(env []string, key, value string) []string {
 	prefix := key + "="
 
-	for i, item := range env {
+	for i := range env {
+		item := env[i]
+
 		if strings.HasPrefix(item, prefix) {
 			env[i] = prefix + value
 

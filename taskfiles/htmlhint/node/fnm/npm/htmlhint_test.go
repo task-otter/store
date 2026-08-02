@@ -1,7 +1,7 @@
 // Taskotter 2026.
 // SPDX-License-Identifier: Apache-2.0.
 
-package htmlhintnodefnmnpm_test
+package npm_test
 
 import (
 	"testing"
@@ -31,6 +31,7 @@ func publicVars() []string {
 	}
 }
 
+// TestTaskfileModuleContract
 func TestTaskfileModuleContract(t *testing.T) {
 	t.Parallel()
 

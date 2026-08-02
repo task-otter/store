@@ -6,6 +6,7 @@ package bun_test
 import (
 	"os"
 	"path/filepath"
+	"regexp"
 	"runtime"
 	"slices"
 	"strings"
@@ -17,52 +18,148 @@ import (
 	yaml "go.yaml.in/yaml/v3"
 )
 
+type (
+	scriptRef struct {
+		root     string
+		taskName string
+		command  string
+	}
+
+	taskScriptsRef struct {
+		root     string
+		taskName string
+		task     tasktestutil.TaskNode
+	}
+
+	dangerousCheck struct {
+		taskName string
+		command  string
+		patterns []*regexp.Regexp
+	}
+
+	publicTaskCheck struct {
+		spec *tasktestutil.PublicTaskSpec
+		task tasktestutil.TaskNode
+	}
+
+	installerFlowArgs struct {
+		root   string
+		bunBin string
+		env    []string
+	}
+
+	bunIntegration struct {
+		root   string
+		home   string
+		bunBin string
+		env    []string
+	}
+
+	bunStepFunc func(name string, fn func(t *testing.T))
+	bunRunFunc  func(t *testing.T, args ...string) tasktestutil.CommandResult
+)
+
 const (
 	constBunTestPrettier = "prettier"
 	constBunTestListAll  = "--list-all"
 	constBunTestWindows  = "windows"
+	flagList             = "--list"
+	flagSort             = "--sort"
+	sortAlphanumeric     = "alphanumeric"
+	packagesArgKey       = "PACKAGES"
+	installTask          = "install"
+	installUndoTask      = "install:undo"
+	upgradeTask          = "upgrade"
+	upgradeCanaryTask    = "upgrade:canary"
+	upgradeStableTask    = "upgrade:stable"
+	versionTask          = "version"
+	taskfileLabel        = "Taskfile"
+	jsonFlag             = "--json"
+	descField            = "desc"
+	outputField          = "output"
+	skipUnixOnlyMsg      = "stub bun tests target Unix-like systems"
+	yesFlag              = "--yes"
+	homeEnvKey           = "HOME"
+	bunDirName           = ".bun"
+	binDirName           = "bin"
+	bunBinName           = "bun"
+	pathEnvKey           = "PATH"
+	exitSuccess          = 0
+	bunDirMode           = 0o700
+	bunFileMode          = 0o600
+	bunExecMode          = 0o500
+	minDescLen           = 12
+	minSummaryLen        = 25
+	emptyString          = ""
 )
 
-func expectedPublicTasks() []tasktestutil.PublicTaskSpec {
+func expectedPublicTasksPackageOps() []tasktestutil.PublicTaskSpec {
 	spec := tasktestutil.NewPublicTaskSpec
 
 	return []tasktestutil.PublicTaskSpec{
-		spec("add", tasktestutil.WithArgs(map[string]string{"PACKAGES": constBunTestPrettier}),
+		spec("add", tasktestutil.WithArgs(map[string]string{packagesArgKey: constBunTestPrettier}),
 			tasktestutil.WithDryRunArgs(), tasktestutil.WithGroupOutput()),
 		spec("exec", tasktestutil.WithArgs(map[string]string{"BINARY": constBunTestPrettier}),
 			tasktestutil.WithDryRunArgs(), tasktestutil.WithGroupOutput()),
-		spec("remove", tasktestutil.WithArgs(map[string]string{"PACKAGES": constBunTestPrettier}),
-			tasktestutil.WithDryRunArgs(), tasktestutil.WithGroupOutput()),
 		spec(
-			"install",
+			"remove",
+			tasktestutil.WithArgs(map[string]string{packagesArgKey: constBunTestPrettier}),
 			tasktestutil.WithDryRunArgs(),
 			tasktestutil.WithGroupOutput(),
-			tasktestutil.WithSummary(),
 		),
-		spec("install:undo", tasktestutil.WithDryRunArgs(), tasktestutil.WithGroupOutput(),
-			tasktestutil.WithPrompt(), tasktestutil.WithSummary()),
-		spec(
-			"upgrade",
-			tasktestutil.WithDryRunArgs(),
-			tasktestutil.WithGroupOutput(),
-			tasktestutil.WithSummary(),
-		),
-		spec(
-			"upgrade:canary",
-			tasktestutil.WithDryRunArgs(),
-			tasktestutil.WithGroupOutput(),
-			tasktestutil.WithSummary(),
-		),
-		spec(
-			"upgrade:stable",
-			tasktestutil.WithDryRunArgs(),
-			tasktestutil.WithGroupOutput(),
-			tasktestutil.WithSummary(),
-		),
-		spec("version", tasktestutil.WithDryRunArgs(), tasktestutil.WithSummary()),
 	}
 }
 
+func expectedPublicTasksInstall() []tasktestutil.PublicTaskSpec {
+	spec := tasktestutil.NewPublicTaskSpec
+
+	return []tasktestutil.PublicTaskSpec{
+		spec(
+			installTask,
+			tasktestutil.WithDryRunArgs(),
+			tasktestutil.WithGroupOutput(),
+			tasktestutil.WithSummary(),
+		),
+		spec(installUndoTask, tasktestutil.WithDryRunArgs(), tasktestutil.WithGroupOutput(),
+			tasktestutil.WithPrompt(), tasktestutil.WithSummary()),
+	}
+}
+
+func upgradeTaskSpec(name string) tasktestutil.PublicTaskSpec {
+	return tasktestutil.NewPublicTaskSpec(
+		name,
+		tasktestutil.WithDryRunArgs(),
+		tasktestutil.WithGroupOutput(),
+		tasktestutil.WithSummary(),
+	)
+}
+
+func expectedPublicTasksUpgradeVariants() []tasktestutil.PublicTaskSpec {
+	return []tasktestutil.PublicTaskSpec{
+		upgradeTaskSpec(upgradeTask),
+		upgradeTaskSpec(upgradeCanaryTask),
+		upgradeTaskSpec(upgradeStableTask),
+	}
+}
+
+func expectedPublicTasksUpgrade() []tasktestutil.PublicTaskSpec {
+	spec := tasktestutil.NewPublicTaskSpec
+
+	return append(
+		expectedPublicTasksUpgradeVariants(),
+		spec(versionTask, tasktestutil.WithDryRunArgs(), tasktestutil.WithSummary()),
+	)
+}
+
+func expectedPublicTasksLifecycle() []tasktestutil.PublicTaskSpec {
+	return append(expectedPublicTasksInstall(), expectedPublicTasksUpgrade()...)
+}
+
+func expectedPublicTasks() []tasktestutil.PublicTaskSpec {
+	return append(expectedPublicTasksPackageOps(), expectedPublicTasksLifecycle()...)
+}
+
+// TestTaskBinaryIsAvailable
 func TestTaskBinaryIsAvailable(t *testing.T) {
 	t.Parallel()
 
@@ -71,16 +168,31 @@ func TestTaskBinaryIsAvailable(t *testing.T) {
 		t,
 		tasktestutil.TaskRun{Root: root, Env: nil, Args: []string{"--version"}},
 	)
-	tasktestutil.AssertExitCode(t, result, 0)
+	tasktestutil.AssertExitCode(t, result, exitSuccess)
 	tasktestutil.AssertNotEmpty(t, result.Combined(), "task --version output is empty")
 }
 
+// TestTaskfileYamlIsCleanAndValid
 func TestTaskfileYamlIsCleanAndValid(t *testing.T) {
 	t.Parallel()
 
 	path := tasktestutil.ModuleTaskfilePath(t)
 	content := tasktestutil.ReadFile(t, path)
 	tasktestutil.AssertTextFileClean(t, path, content)
+
+	doc := parseTaskfileYaml(t, content)
+
+	tasktestutil.AssertNoDuplicateMappingKeys(t, &doc, taskfileLabel)
+	tasktestutil.AssertNoYamlAliases(t, &doc, taskfileLabel)
+
+	root := tasktestutil.DocumentRoot(t, &doc)
+
+	assertTaskfileVersionValid(t, root)
+	assertTaskfileHasTasks(t, root)
+}
+
+func parseTaskfileYaml(t *testing.T, content string) yaml.Node {
+	t.Helper()
 
 	var doc yaml.Node
 
@@ -89,53 +201,73 @@ func TestTaskfileYamlIsCleanAndValid(t *testing.T) {
 		t.Fatalf("Taskfile YAML is invalid: %v", err)
 	}
 
-	tasktestutil.AssertNoDuplicateMappingKeys(t, &doc, "Taskfile")
-	tasktestutil.AssertNoYamlAliases(t, &doc, "Taskfile")
+	return doc
+}
 
-	root := tasktestutil.DocumentRoot(t, &doc)
+func assertTaskfileVersionValid(t *testing.T, root *yaml.Node) {
+	t.Helper()
 
-	version := tasktestutil.ScalarField(root, "version")
+	version := tasktestutil.ScalarField(root, versionTask)
 
 	if version != "3" && !strings.HasPrefix(version, "3.") {
 		t.Fatalf("Taskfile version must be 3 or 3.x, got %q", version)
 	}
+}
+
+func assertTaskfileHasTasks(t *testing.T, root *yaml.Node) {
+	t.Helper()
 
 	tasks := tasktestutil.MappingField(root, "tasks")
 
-	if tasks == nil || len(tasks.Content) == 0 {
+	if tasks == nil || len(tasks.Content) == exitSuccess {
 		t.Fatal("Taskfile must contain non-empty tasks map")
 	}
 }
 
+// TestTaskCliCanLoadTaskfile
 func TestTaskCliCanLoadTaskfile(t *testing.T) {
 	t.Parallel()
 
 	root := tasktestutil.ModuleRoot(t)
 
-	for _, args := range [][]string{
-		{"--list"},
-		{constBunTestListAll},
-		{constBunTestListAll, "--sort", "alphanumeric"},
-		{constBunTestListAll, "--json"},
-	} {
+	variants := taskCliListArgVariants()
+
+	for i := range variants {
+		args := variants[i]
 		t.Run(strings.Join(args, " "), func(t *testing.T) {
 			t.Parallel()
 
-			result := tasktestutil.RunTask(
-				t,
-				tasktestutil.TaskRun{Root: root, Env: tasktestutil.IsolatedEnv(t), Args: args},
-			)
-			tasktestutil.AssertExitCode(t, result, 0)
-			tasktestutil.AssertNotContains(
-				t,
-				strings.ToLower(result.Combined()),
-				"taskfile does not exist",
-			)
-			tasktestutil.AssertNotContains(t, strings.ToLower(result.Combined()), "unknown")
+			assertTaskCliListSucceeds(t, root, args)
 		})
 	}
 }
 
+func taskCliListArgVariants() [][]string {
+	return [][]string{
+		{flagList},
+		{constBunTestListAll},
+		{constBunTestListAll, flagSort, sortAlphanumeric},
+		{constBunTestListAll, jsonFlag},
+	}
+}
+
+func assertTaskCliListSucceeds(t *testing.T, root string, args []string) {
+	t.Helper()
+
+	result := tasktestutil.RunTask(
+		t,
+		tasktestutil.TaskRun{Root: root, Env: tasktestutil.IsolatedEnv(t), Args: args},
+	)
+	tasktestutil.AssertExitCode(t, result, exitSuccess)
+	tasktestutil.AssertNotContains(
+		t,
+		strings.ToLower(result.Combined()),
+		"taskfile does not exist",
+	)
+	tasktestutil.AssertNotContains(t, strings.ToLower(result.Combined()), "unknown")
+}
+
+// TestTaskListAllJsonIsValid
 func TestTaskListAllJsonIsValid(t *testing.T) {
 	t.Parallel()
 
@@ -143,10 +275,10 @@ func TestTaskListAllJsonIsValid(t *testing.T) {
 	result := tasktestutil.RunTask(
 		t, tasktestutil.TaskRun{Root: root, Env: tasktestutil.IsolatedEnv(t), Args: []string{
 			constBunTestListAll,
-			"--json",
+			jsonFlag,
 		}})
 
-	tasktestutil.AssertExitCode(t, result, 0)
+	tasktestutil.AssertExitCode(t, result, exitSuccess)
 
 	err := tasktestutil.ValidateJSON(result.Stdout)
 	if err != nil {
@@ -154,6 +286,7 @@ func TestTaskListAllJsonIsValid(t *testing.T) {
 	}
 }
 
+// TestPublicApiDoesNotDrift
 func TestPublicApiDoesNotDrift(t *testing.T) {
 	t.Parallel()
 
@@ -171,75 +304,106 @@ func TestPublicApiDoesNotDrift(t *testing.T) {
 	}
 }
 
+// TestEveryTaskIsEitherPublicOrInternal
 func TestEveryTaskIsEitherPublicOrInternal(t *testing.T) {
 	t.Parallel()
 
 	taskfile := tasktestutil.LoadTaskfile(t)
 
-	for name, task := range taskfile.Tasks {
+	for name := range taskfile.Tasks {
+		task := taskfile.Tasks[name]
 		t.Run(name, func(t *testing.T) {
 			t.Parallel()
 
-			if strings.HasPrefix(name, "_") || task.BoolField("internal") {
-				return
-			}
-
-			if task.StringField("desc") == "" {
-				t.Fatalf(
-					"task %q is not internal and has no desc. Either add desc/summary or mark it internal: true",
-					name,
-				)
-			}
+			assertTaskIsPublicOrInternal(t, name, task)
 		})
 	}
 }
 
+func assertTaskIsPublicOrInternal(t *testing.T, name string, task tasktestutil.TaskNode) {
+	t.Helper()
+
+	if strings.HasPrefix(name, "_") || task.BoolField("internal") {
+		return
+	}
+
+	if task.StringField(descField) == emptyString {
+		t.Fatalf(
+			"task %q is not internal and has no desc. Either add desc/summary or mark it internal: true",
+			name,
+		)
+	}
+}
+
+// TestPublicTasksHaveMetadata
 func TestPublicTasksHaveMetadata(t *testing.T) {
 	t.Parallel()
 
 	taskfile := tasktestutil.LoadTaskfile(t)
 
-	for _, spec := range expectedPublicTasks() {
+	for i := range expectedPublicTasks() {
+		spec := expectedPublicTasks()[i]
 		t.Run(spec.Name, func(t *testing.T) {
 			t.Parallel()
 
 			task := tasktestutil.MustTask(t, taskfile, spec.Name)
+			check := &publicTaskCheck{spec: &spec, task: task}
 
-			if task.Node.Kind != yaml.MappingNode {
-				t.Fatalf("public task %q must use full mapping syntax, not short syntax", spec.Name)
-			}
-
-			desc := task.StringField("desc")
-			summary := task.StringField("summary")
-
-			if strings.TrimSpace(desc) == "" {
-				t.Fatalf("public task %q is missing desc", spec.Name)
-			}
-
-			if len(strings.TrimSpace(desc)) < 12 {
-				t.Fatalf("public task %q desc is too short: %q", spec.Name, desc)
-			}
-
-			if spec.RequiresSummary && strings.TrimSpace(summary) == "" {
-				t.Fatalf("public task %q is missing summary", spec.Name)
-			}
-
-			if spec.RequiresSummary && len(strings.TrimSpace(summary)) < 25 {
-				t.Fatalf("public task %q summary is too short:\n%s", spec.Name, summary)
-			}
-
-			tasktestutil.AssertNoPlaceholderText(t, spec.Name, desc)
-			tasktestutil.AssertNoPlaceholderText(t, spec.Name, summary)
+			assertTaskUsesFullMappingSyntax(t, check)
+			assertTaskDescValid(t, check)
+			assertTaskSummaryValid(t, check)
 		})
 	}
 }
 
+func assertTaskUsesFullMappingSyntax(t *testing.T, check *publicTaskCheck) {
+	t.Helper()
+
+	if check.task.Node.Kind != yaml.MappingNode {
+		t.Fatalf("public task %q must use full mapping syntax, not short syntax", check.spec.Name)
+	}
+}
+
+func assertTaskDescValid(t *testing.T, check *publicTaskCheck) {
+	t.Helper()
+
+	desc := check.task.StringField(descField)
+
+	if strings.TrimSpace(desc) == emptyString {
+		t.Fatalf("public task %q is missing desc", check.spec.Name)
+	}
+
+	if len(strings.TrimSpace(desc)) < minDescLen {
+		t.Fatalf("public task %q desc is too short: %q", check.spec.Name, desc)
+	}
+
+	tasktestutil.AssertNoPlaceholderText(t, check.spec.Name, desc)
+}
+
+func assertTaskSummaryValid(t *testing.T, check *publicTaskCheck) {
+	t.Helper()
+
+	summary := check.task.StringField("summary")
+
+	if check.spec.RequiresSummary && strings.TrimSpace(summary) == emptyString {
+		t.Fatalf("public task %q is missing summary", check.spec.Name)
+	}
+
+	if check.spec.RequiresSummary && len(strings.TrimSpace(summary)) < minSummaryLen {
+		t.Fatalf("public task %q summary is too short:\n%s", check.spec.Name, summary)
+	}
+
+	tasktestutil.AssertNoPlaceholderText(t, check.spec.Name, summary)
+}
+
+// TestDestructivePublicTasksHavePrompt
 func TestDestructivePublicTasksHavePrompt(t *testing.T) {
 	t.Parallel()
 
 	taskfile := tasktestutil.LoadTaskfile(t)
 
-	for _, spec := range expectedPublicTasks() {
+	for i := range expectedPublicTasks() {
+		spec := expectedPublicTasks()[i]
 		t.Run(spec.Name, func(t *testing.T) {
 			t.Parallel()
 
@@ -254,12 +418,14 @@ func TestDestructivePublicTasksHavePrompt(t *testing.T) {
 	}
 }
 
+// TestInstallTasksUseGithubGroupOutput
 func TestInstallTasksUseGithubGroupOutput(t *testing.T) {
 	t.Parallel()
 
 	taskfile := tasktestutil.LoadTaskfile(t)
 
-	for _, spec := range expectedPublicTasks() {
+	for i := range expectedPublicTasks() {
+		spec := expectedPublicTasks()[i]
 		t.Run(spec.Name, func(t *testing.T) {
 			t.Parallel()
 
@@ -267,76 +433,109 @@ func TestInstallTasksUseGithubGroupOutput(t *testing.T) {
 				return
 			}
 
-			task := tasktestutil.MustTask(t, taskfile, spec.Name)
-
-			outputNode := task.Field("output")
-
-			if outputNode == nil {
-				outputNode = taskfile.Root.Field("output")
-			}
-
-			tasktestutil.AssertGithubGroupOutput(t, spec.Name, outputNode)
+			assertTaskUsesGroupOutput(t, &taskfile, spec.Name)
 		})
 	}
 }
 
+func assertTaskUsesGroupOutput(t *testing.T, taskfile *tasktestutil.LoadedTaskfile, name string) {
+	t.Helper()
+
+	task := tasktestutil.MustTask(t, taskfile, name)
+
+	outputNode := task.Field(outputField)
+
+	if outputNode == nil {
+		outputNode = taskfile.Root.Field(outputField)
+	}
+
+	tasktestutil.AssertGithubGroupOutput(t, name, outputNode)
+}
+
+// TestPublicTasksHaveCommands
 func TestPublicTasksHaveCommands(t *testing.T) {
 	t.Parallel()
 
 	taskfile := tasktestutil.LoadTaskfile(t)
 
-	for _, spec := range expectedPublicTasks() {
+	for i := range expectedPublicTasks() {
+		spec := expectedPublicTasks()[i]
 		t.Run(spec.Name, func(t *testing.T) {
 			t.Parallel()
 
-			task := tasktestutil.MustTask(t, taskfile, spec.Name)
-
-			if tasktestutil.IsEmptyNode(task.Field("cmds")) &&
-				tasktestutil.IsEmptyNode(task.Field("deps")) {
-				t.Fatalf("public task %q must have cmds or deps", spec.Name)
-			}
+			assertTaskHasCommands(t, &taskfile, spec.Name)
 		})
 	}
 }
 
+func assertTaskHasCommands(t *testing.T, taskfile *tasktestutil.LoadedTaskfile, name string) {
+	t.Helper()
+
+	task := tasktestutil.MustTask(t, taskfile, name)
+	missingCmdsAndDeps := tasktestutil.IsEmptyNode(task.Field("cmds")) &&
+		tasktestutil.IsEmptyNode(task.Field("deps"))
+
+	if missingCmdsAndDeps {
+		t.Fatalf("public task %q must have cmds or deps", name)
+	}
+}
+
+// TestTaskSummariesWork
+func runTaskSummary(t *testing.T, root, name string) tasktestutil.CommandResult {
+	t.Helper()
+
+	return tasktestutil.RunTask(
+		t,
+		tasktestutil.TaskRun{Root: root, Env: tasktestutil.IsolatedEnv(t), Args: []string{
+			"--summary",
+			name,
+		}},
+	)
+}
+
+func assertTaskSummaryWorks(t *testing.T, root string, spec *tasktestutil.PublicTaskSpec) {
+	t.Helper()
+
+	if !spec.RequiresSummary {
+		return
+	}
+
+	result := runTaskSummary(t, root, spec.Name)
+	tasktestutil.AssertExitCode(t, result, exitSuccess)
+
+	out := result.Combined()
+	tasktestutil.AssertContains(t, out, spec.Name)
+	tasktestutil.AssertNotContains(t, strings.ToLower(out), "task not found")
+	tasktestutil.AssertNotContains(t, strings.ToLower(out), "unknown task")
+	tasktestutil.AssertNotContains(t, strings.ToLower(out), "no summary")
+}
+
+// TestTaskSummariesWork validates the behavior covered by this test case.
 func TestTaskSummariesWork(t *testing.T) {
 	t.Parallel()
 
 	root := tasktestutil.ModuleRoot(t)
+	specs := expectedPublicTasks()
 
-	for _, spec := range expectedPublicTasks() {
+	for i := range specs {
+		spec := specs[i]
 		t.Run(spec.Name, func(t *testing.T) {
 			t.Parallel()
 
-			if !spec.RequiresSummary {
-				return
-			}
-
-			result := tasktestutil.RunTask(
-				t,
-				tasktestutil.TaskRun{Root: root, Env: tasktestutil.IsolatedEnv(t), Args: []string{
-					"--summary",
-					spec.Name,
-				}},
-			)
-
-			tasktestutil.AssertExitCode(t, result, 0)
-
-			out := result.Combined()
-			tasktestutil.AssertContains(t, out, spec.Name)
-			tasktestutil.AssertNotContains(t, strings.ToLower(out), "task not found")
-			tasktestutil.AssertNotContains(t, strings.ToLower(out), "unknown task")
-			tasktestutil.AssertNotContains(t, strings.ToLower(out), "no summary")
+			assertTaskSummaryWorks(t, root, &spec)
 		})
 	}
 }
 
+// TestUndoPairsExist
 func TestUndoPairsExist(t *testing.T) {
 	t.Parallel()
 
 	taskfile := tasktestutil.LoadTaskfile(t)
 
-	for task, undo := range map[string]string{"install": "install:undo"} {
+	for task := range map[string]string{installTask: installUndoTask} {
+		undo := map[string]string{installTask: installUndoTask}[task]
+
 		if _, ok := taskfile.Tasks[task]; !ok {
 			t.Fatalf("task %q is missing", task)
 		}
@@ -347,39 +546,64 @@ func TestUndoPairsExist(t *testing.T) {
 	}
 }
 
+// TestReferencedScriptsExist
+func assertReferencedScriptsExistForTask(t *testing.T, ref *taskScriptsRef) {
+	t.Helper()
+
+	commands := tasktestutil.CollectCommandStrings(ref.task.Node)
+
+	for i := range commands {
+		command := commands[i]
+
+		t.Run(ref.taskName, func(t *testing.T) {
+			t.Parallel()
+
+			assertReferencedScriptsExist(
+				t,
+				&scriptRef{root: ref.root, taskName: ref.taskName, command: command},
+			)
+		})
+	}
+}
+
+// TestReferencedScriptsExist validates the behavior covered by this test case.
 func TestReferencedScriptsExist(t *testing.T) {
 	t.Parallel()
 
 	root := tasktestutil.ModuleRoot(t)
-
 	taskfile := tasktestutil.LoadTaskfile(t)
 
-	for taskName, task := range taskfile.Tasks {
-		for _, command := range tasktestutil.CollectCommandStrings(task.Node) {
-			t.Run(taskName, func(t *testing.T) {
-				t.Parallel()
+	for taskName := range taskfile.Tasks {
+		assertReferencedScriptsExistForTask(
+			t,
+			&taskScriptsRef{root: root, taskName: taskName, task: taskfile.Tasks[taskName]},
+		)
+	}
+}
 
-				for _, scriptPath := range tasktestutil.ReferencedLocalShellScripts(command) {
-					abs := filepath.Join(root, scriptPath)
+func assertReferencedScriptsExist(t *testing.T, ref *scriptRef) {
+	t.Helper()
 
-					info, err := os.Stat(abs)
-					if err != nil {
-						t.Fatalf("task %q references missing script %q", taskName, scriptPath)
-					}
+	for i := range tasktestutil.ReferencedLocalShellScripts(ref.command) {
+		scriptPath := tasktestutil.ReferencedLocalShellScripts(ref.command)[i]
+		abs := filepath.Join(ref.root, scriptPath)
 
-					if info.IsDir() {
-						t.Fatalf(
-							"task %q references script path but it is a directory: %q",
-							taskName,
-							scriptPath,
-						)
-					}
-				}
-			})
+		info, err := os.Stat(abs)
+		if err != nil {
+			t.Fatalf("task %q references missing script %q", ref.taskName, scriptPath)
+		}
+
+		if info.IsDir() {
+			t.Fatalf(
+				"task %q references script path but it is a directory: %q",
+				ref.taskName,
+				scriptPath,
+			)
 		}
 	}
 }
 
+// TestCommandsDoNotContainDangerousPatterns
 func TestCommandsDoNotContainDangerousPatterns(t *testing.T) {
 	t.Parallel()
 
@@ -387,22 +611,38 @@ func TestCommandsDoNotContainDangerousPatterns(t *testing.T) {
 
 	taskfile := tasktestutil.LoadTaskfile(t)
 
-	for taskName, task := range taskfile.Tasks {
-		for _, command := range tasktestutil.CollectCommandStrings(task.Node) {
-			for _, pattern := range dangerousPatterns {
-				if pattern.MatchString(command) {
-					t.Fatalf(
-						"task %q contains dangerous command pattern %q:\n%s",
-						taskName,
-						pattern.String(),
-						command,
-					)
-				}
-			}
+	for taskName := range taskfile.Tasks {
+		task := taskfile.Tasks[taskName]
+
+		for i := range tasktestutil.CollectCommandStrings(task.Node) {
+			command := tasktestutil.CollectCommandStrings(task.Node)[i]
+			assertCommandHasNoDangerousPattern(t, &dangerousCheck{
+				taskName: taskName,
+				command:  command,
+				patterns: dangerousPatterns,
+			})
 		}
 	}
 }
 
+func assertCommandHasNoDangerousPattern(t *testing.T, check *dangerousCheck) {
+	t.Helper()
+
+	for i := range check.patterns {
+		pattern := check.patterns[i]
+
+		if pattern.MatchString(check.command) {
+			t.Fatalf(
+				"task %q contains dangerous command pattern %q:\n%s",
+				check.taskName,
+				pattern.String(),
+				check.command,
+			)
+		}
+	}
+}
+
+// TestNoPlaceholderTextInTaskfile
 func TestNoPlaceholderTextInTaskfile(t *testing.T) {
 	t.Parallel()
 
@@ -410,201 +650,144 @@ func TestNoPlaceholderTextInTaskfile(t *testing.T) {
 
 	upper := strings.ToUpper(content)
 
-	for _, p := range []string{"TODO", "FIXME", "CHANGEME", "Copyright", "YOUR VALUE HERE", "LOREM IPSUM"} {
-		if strings.Contains(upper, p) {
-			t.Fatalf("Taskfile contains placeholder text: %s", p)
+	placeholders := []string{
+		"TODO",
+		"FIXME",
+		"CHANGEME",
+		"Copyright",
+		"YOUR VALUE HERE",
+		"LOREM IPSUM",
+	}
+
+	for i := range placeholders {
+		if strings.Contains(upper, placeholders[i]) {
+			t.Fatalf("Taskfile contains placeholder text: %s", placeholders[i])
 		}
 	}
 }
 
+// TestVersionTaskExitsSuccessfully
 func TestVersionTaskExitsSuccessfully(t *testing.T) {
 	t.Parallel()
 
-	if runtime.GOOS == constBunTestWindows {
-		t.Skip("stub bun tests target Unix-like systems")
-	}
-
-	result := tasktestutil.RunTask(
-		t,
-		tasktestutil.TaskRun{
-			Root: tasktestutil.ModuleRoot(t),
-			Env:  bunStubEnv(t),
-			Args: []string{"--yes", "version"},
-		},
-	)
-	tasktestutil.AssertExitCode(t, result, 0)
+	assertStubbedBunTaskExits(t, versionTask)
 }
 
+// TestVersionTaskPrintsBunVersion
 func TestVersionTaskPrintsBunVersion(t *testing.T) {
 	t.Parallel()
 
-	if runtime.GOOS == constBunTestWindows {
-		t.Skip("stub bun tests target Unix-like systems")
-	}
-
-	result := tasktestutil.RunTask(
-		t,
-		tasktestutil.TaskRun{
-			Root: tasktestutil.ModuleRoot(t),
-			Env:  bunStubEnv(t),
-			Args: []string{"--yes", "version"},
-		},
-	)
-	tasktestutil.AssertExitCode(t, result, 0)
+	result := runStubbedBunTask(t, versionTask)
 	tasktestutil.AssertContains(t, result.Combined(), "1.")
 }
 
+// TestInstallIsIdempotentWithStubBun
 func TestInstallIsIdempotentWithStubBun(t *testing.T) {
 	t.Parallel()
 
-	if runtime.GOOS == constBunTestWindows {
-		t.Skip("stub bun tests target Unix-like systems")
-	}
-
-	root := tasktestutil.ModuleRoot(t)
-	env := bunStubEnv(t)
-	tasktestutil.AssertExitCode(
-		t,
-		tasktestutil.RunTask(
-			t,
-			tasktestutil.TaskRun{Root: root, Env: env, Args: []string{"--yes", "install"}},
-		),
-		0,
-	)
-	tasktestutil.AssertExitCode(
-		t,
-		tasktestutil.RunTask(
-			t,
-			tasktestutil.TaskRun{Root: root, Env: env, Args: []string{"--yes", "install"}},
-		),
-		0,
-	)
+	assertStubbedBunTaskExits(t, installTask)
+	assertStubbedBunTaskExits(t, installTask)
 }
 
+// TestInstallSkipsWhenBunIsAlreadyPresent
 func TestInstallSkipsWhenBunIsAlreadyPresent(t *testing.T) {
 	t.Parallel()
 
-	if runtime.GOOS == constBunTestWindows {
-		t.Skip("stub bun tests target Unix-like systems")
-	}
-
-	result := tasktestutil.RunTask(
-		t,
-		tasktestutil.TaskRun{
-			Root: tasktestutil.ModuleRoot(t),
-			Env:  bunStubEnv(t),
-			Args: []string{"--yes", "install"},
-		},
-	)
-	tasktestutil.AssertExitCode(t, result, 0)
+	result := runStubbedBunTask(t, installTask)
 	tasktestutil.AssertNotContains(t, result.Combined(), "Installing Bun")
 }
 
+// TestInstallUndoRemovesBunDir
 func TestInstallUndoRemovesBunDir(t *testing.T) {
 	t.Parallel()
 
 	if runtime.GOOS == constBunTestWindows {
-		t.Skip("stub bun tests target Unix-like systems")
+		t.Skip(skipUnixOnlyMsg)
 	}
 
 	root := tasktestutil.ModuleRoot(t)
 	env := bunStubEnv(t)
-	bunDir := filepath.Join(tasktestutil.EnvValue(env, "HOME"), ".bun")
+	bunDir := filepath.Join(tasktestutil.EnvValue(env, homeEnvKey), bunDirName)
 	tasktestutil.AssertDirExists(t, bunDir)
 	tasktestutil.AssertExitCode(
 		t,
 		tasktestutil.RunTask(
 			t,
-			tasktestutil.TaskRun{Root: root, Env: env, Args: []string{"--yes", "install:undo"}},
+			tasktestutil.TaskRun{Root: root, Env: env, Args: []string{yesFlag, installUndoTask}},
 		),
-		0,
+		exitSuccess,
 	)
 	tasktestutil.AssertDirNotExists(t, bunDir)
 }
 
+// TestInstallUndoIsIdempotent
 func TestInstallUndoIsIdempotent(t *testing.T) {
 	t.Parallel()
 
-	if runtime.GOOS == constBunTestWindows {
-		t.Skip("stub bun tests target Unix-like systems")
-	}
-
-	root := tasktestutil.ModuleRoot(t)
-	env := bunStubEnv(t)
-	tasktestutil.AssertExitCode(
-		t,
-		tasktestutil.RunTask(
-			t,
-			tasktestutil.TaskRun{Root: root, Env: env, Args: []string{"--yes", "install:undo"}},
-		),
-		0,
-	)
-	tasktestutil.AssertExitCode(
-		t,
-		tasktestutil.RunTask(
-			t,
-			tasktestutil.TaskRun{Root: root, Env: env, Args: []string{"--yes", "install:undo"}},
-		),
-		0,
-	)
+	assertStubbedBunTaskExits(t, installUndoTask)
+	assertStubbedBunTaskExits(t, installUndoTask)
 }
 
+// TestUpgradeExitsSuccessfully
 func TestUpgradeExitsSuccessfully(t *testing.T) {
 	t.Parallel()
 
-	if runtime.GOOS == constBunTestWindows {
-		t.Skip("stub bun tests target Unix-like systems")
-	}
-
-	result := tasktestutil.RunTask(
-		t,
-		tasktestutil.TaskRun{
-			Root: tasktestutil.ModuleRoot(t),
-			Env:  bunStubEnv(t),
-			Args: []string{"--yes", "upgrade"},
-		},
-	)
-	tasktestutil.AssertExitCode(t, result, 0)
+	assertStubbedBunTaskExits(t, upgradeTask)
 }
 
+// TestUpgradeCanaryExitsSuccessfully
 func TestUpgradeCanaryExitsSuccessfully(t *testing.T) {
 	t.Parallel()
 
-	if runtime.GOOS == constBunTestWindows {
-		t.Skip("stub bun tests target Unix-like systems")
-	}
-
-	result := tasktestutil.RunTask(
-		t,
-		tasktestutil.TaskRun{Root: tasktestutil.ModuleRoot(t), Env: bunStubEnv(t), Args: []string{
-			"--yes",
-			"upgrade:canary",
-		}},
-	)
-
-	tasktestutil.AssertExitCode(t, result, 0)
+	assertStubbedBunTaskExits(t, upgradeCanaryTask)
 }
 
+// TestUpgradeStableExitsSuccessfully
 func TestUpgradeStableExitsSuccessfully(t *testing.T) {
 	t.Parallel()
 
-	if runtime.GOOS == constBunTestWindows {
-		t.Skip("stub bun tests target Unix-like systems")
-	}
-
-	result := tasktestutil.RunTask(
-		t,
-		tasktestutil.TaskRun{Root: tasktestutil.ModuleRoot(t), Env: bunStubEnv(t), Args: []string{
-			"--yes",
-			"upgrade:stable",
-		}},
-	)
-
-	tasktestutil.AssertExitCode(t, result, 0)
+	assertStubbedBunTaskExits(t, upgradeStableTask)
 }
 
+func assertStubbedBunTaskExits(t *testing.T, task string) {
+	t.Helper()
+
+	tasktestutil.AssertExitCode(t, runStubbedBunTask(t, task), exitSuccess)
+}
+
+func runStubbedBunTask(t *testing.T, task string) tasktestutil.CommandResult {
+	t.Helper()
+
+	if runtime.GOOS == constBunTestWindows {
+		t.Skip(skipUnixOnlyMsg)
+	}
+
+	return tasktestutil.RunTask(
+		t,
+		tasktestutil.TaskRun{Root: tasktestutil.ModuleRoot(t), Env: bunStubEnv(t), Args: []string{
+			yesFlag,
+			task,
+		}},
+	)
+}
+
+// TestRealInstallerFlowOnlyWhenExplicitlyEnabled
 func TestRealInstallerFlowOnlyWhenExplicitlyEnabled(t *testing.T) {
 	t.Parallel()
+
+	skipUnlessRealInstallerTestsEnabled(t)
+
+	root := tasktestutil.ModuleRoot(t)
+	env := tasktestutil.IsolatedEnv(t)
+	home := tasktestutil.EnvValue(env, homeEnvKey)
+	bunBin := filepath.Join(home, bunDirName, binDirName, bunBinName)
+
+	runRealInstallerFlow(t, &installerFlowArgs{root: root, env: env, bunBin: bunBin})
+	assertBunDirRemoved(t, home)
+}
+
+func skipUnlessRealInstallerTestsEnabled(t *testing.T) {
+	t.Helper()
 
 	if os.Getenv("RUN_INSTALLER_TESTS") != "1" {
 		t.Skip("set RUN_INSTALLER_TESTS=1 to run real install/uninstall tests")
@@ -613,50 +796,83 @@ func TestRealInstallerFlowOnlyWhenExplicitlyEnabled(t *testing.T) {
 	if runtime.GOOS == constBunTestWindows {
 		t.Skip("real bun installer tests are intended for Unix-like systems")
 	}
+}
 
-	root := tasktestutil.ModuleRoot(t)
-	env := tasktestutil.IsolatedEnv(t)
-	home := tasktestutil.EnvValue(env, "HOME")
-	bunBin := filepath.Join(home, ".bun", "bin", "bun")
+func runRealInstallerInstallStep(t *testing.T, args *installerFlowArgs) {
+	t.Helper()
 
 	tasktestutil.AssertExitCode(
 		t,
 		tasktestutil.RunTaskTimeout(
 			t,
-			tasktestutil.TaskRun{Root: root, Env: env, Args: []string{"--yes", "install"}},
+			tasktestutil.TaskRun{
+				Root: args.root,
+				Env:  args.env,
+				Args: []string{yesFlag, installTask},
+			},
 			10*time.Minute,
 		),
-		0,
+		exitSuccess,
 	)
-	tasktestutil.AssertFileExists(t, bunBin)
-	tasktestutil.AssertExitCode(
-		t,
-		tasktestutil.RunTaskTimeout(
-			t,
-			tasktestutil.TaskRun{Root: root, Env: env, Args: []string{"version"}},
-			10*time.Minute,
-		),
-		0,
-	)
-	tasktestutil.AssertExitCode(
-		t,
-		tasktestutil.RunTaskTimeout(
-			t,
-			tasktestutil.TaskRun{Root: root, Env: env, Args: []string{"--yes", "install:undo"}},
-			10*time.Minute,
-		),
-		0,
-	)
+	tasktestutil.AssertFileExists(t, args.bunBin)
+}
 
-	_, err := os.Stat(filepath.Join(home, ".bun"))
+func runRealInstallerVersionStep(t *testing.T, args *installerFlowArgs) {
+	t.Helper()
+
+	tasktestutil.AssertExitCode(
+		t,
+		tasktestutil.RunTaskTimeout(
+			t,
+			tasktestutil.TaskRun{Root: args.root, Env: args.env, Args: []string{versionTask}},
+			10*time.Minute,
+		),
+		exitSuccess,
+	)
+}
+
+func runRealInstallerUndoStep(t *testing.T, args *installerFlowArgs) {
+	t.Helper()
+
+	tasktestutil.AssertExitCode(
+		t,
+		tasktestutil.RunTaskTimeout(
+			t,
+			tasktestutil.TaskRun{
+				Root: args.root,
+				Env:  args.env,
+				Args: []string{yesFlag, installUndoTask},
+			},
+			10*time.Minute,
+		),
+		exitSuccess,
+	)
+}
+
+func runRealInstallerFlow(t *testing.T, args *installerFlowArgs) {
+	t.Helper()
+
+	runRealInstallerInstallStep(t, args)
+	runRealInstallerVersionStep(t, args)
+	runRealInstallerUndoStep(t, args)
+}
+
+func assertBunDirRemoved(t *testing.T, home string) {
+	t.Helper()
+
+	info, err := os.Stat(filepath.Join(home, bunDirName))
+
+	if err == nil && info != nil {
+		t.Fatalf("expected path to not exist: %s", filepath.Join(home, bunDirName))
+	}
 
 	if !os.IsNotExist(err) {
 		t.Fatalf("expected .bun directory to be removed after install:undo: %s", home)
 	}
 }
 
-func TestAllPublicTasksIntegration(t *testing.T) {
-	t.Parallel()
+func skipUnlessIntegrationTestsEnabled(t *testing.T) {
+	t.Helper()
 
 	if os.Getenv("RUN_INTEGRATION_TESTS") != "1" {
 		t.Skip("set RUN_INTEGRATION_TESTS=1 to run integration tests (downloads and installs Bun)")
@@ -665,13 +881,20 @@ func TestAllPublicTasksIntegration(t *testing.T) {
 	if runtime.GOOS == constBunTestWindows {
 		t.Skip("integration tests target Unix-like systems")
 	}
+}
+
+// TestAllPublicTasksIntegration
+func TestAllPublicTasksIntegration(t *testing.T) {
+	t.Parallel()
+
+	skipUnlessIntegrationTestsEnabled(t)
 
 	root := tasktestutil.ModuleRoot(t)
 	env := tasktestutil.IsolatedEnv(t)
-	home := tasktestutil.EnvValue(env, "HOME")
-	bunBin := filepath.Join(home, ".bun", "bin", "bun")
+	home := tasktestutil.EnvValue(env, homeEnvKey)
+	bunBin := filepath.Join(home, bunDirName, binDirName, bunBinName)
 
-	runBunIntegrationSteps(t, bunIntegration{
+	runBunIntegrationSteps(t, &bunIntegration{
 		root:   root,
 		env:    env,
 		home:   home,
@@ -679,17 +902,24 @@ func TestAllPublicTasksIntegration(t *testing.T) {
 	})
 }
 
-type bunIntegration struct {
-	root   string
-	home   string
-	bunBin string
-	env    []string
-}
-
-func runBunIntegrationSteps(t *testing.T, integration bunIntegration) {
+func runBunIntegrationSteps(t *testing.T, integration *bunIntegration) {
 	t.Helper()
 
-	step := func(name string, fn func(t *testing.T)) {
+	step, run := bunIntegrationHelpers(t, integration)
+
+	registerBunIntegrationSteps(step, run, integration)
+}
+
+func bunIntegrationHelpers(t *testing.T, integration *bunIntegration) (bunStepFunc, bunRunFunc) {
+	t.Helper()
+
+	return bunStepRunner(t), bunTaskRunner(t, integration)
+}
+
+func bunStepRunner(t *testing.T) bunStepFunc {
+	t.Helper()
+
+	return func(name string, fn func(t *testing.T)) {
 		t.Helper()
 		t.Run(name, fn)
 
@@ -697,7 +927,12 @@ func runBunIntegrationSteps(t *testing.T, integration bunIntegration) {
 			t.FailNow()
 		}
 	}
-	run := func(t *testing.T, args ...string) tasktestutil.CommandResult {
+}
+
+func bunTaskRunner(t *testing.T, integration *bunIntegration) bunRunFunc {
+	t.Helper()
+
+	return func(t *testing.T, args ...string) tasktestutil.CommandResult {
 		t.Helper()
 
 		result := tasktestutil.RunTaskTimeout(
@@ -705,41 +940,51 @@ func runBunIntegrationSteps(t *testing.T, integration bunIntegration) {
 			tasktestutil.TaskRun{Root: integration.root, Env: integration.env, Args: args},
 			10*time.Minute,
 		)
-		tasktestutil.AssertExitCode(t, result, 0)
+		tasktestutil.AssertExitCode(t, result, exitSuccess)
 
 		return result
 	}
+}
 
+func registerBunIntegrationSteps(step bunStepFunc, run bunRunFunc, integration *bunIntegration) {
+	registerBunInstallSteps(step, run, integration)
+	registerBunUpgradeSteps(step, run, integration)
+}
+
+func registerBunInstallSteps(step bunStepFunc, run bunRunFunc, integration *bunIntegration) {
 	step("install — bun binary is present on disk", func(t *testing.T) {
 		t.Helper()
-		run(t, "--yes", "install")
+		run(t, yesFlag, installTask)
 		tasktestutil.AssertFileExists(t, integration.bunBin)
 	})
 	step("version — bun version string is printed", func(t *testing.T) {
 		t.Helper()
 
-		result := run(t, "version")
+		result := run(t, versionTask)
 		tasktestutil.AssertNotEmpty(t, result.Combined(), "version output is empty")
 	})
+	step("install:undo — .bun directory is removed", func(t *testing.T) {
+		t.Helper()
+		run(t, yesFlag, installUndoTask)
+		tasktestutil.AssertDirNotExists(t, filepath.Join(integration.home, bunDirName))
+	})
+}
+
+func registerBunUpgradeSteps(step bunStepFunc, run bunRunFunc, integration *bunIntegration) {
 	step("upgrade — bun upgrades without error", func(t *testing.T) {
 		t.Helper()
-		run(t, "--yes", "upgrade")
+		run(t, yesFlag, upgradeTask)
 		tasktestutil.AssertFileExists(t, integration.bunBin)
 	})
 	step("upgrade:canary — bun switches to canary without error", func(t *testing.T) {
 		t.Helper()
-		run(t, "--yes", "upgrade:canary")
+		run(t, yesFlag, upgradeCanaryTask)
 		tasktestutil.AssertFileExists(t, integration.bunBin)
 	})
 	step("upgrade:stable — bun switches back to stable without error", func(t *testing.T) {
 		t.Helper()
-		run(t, "--yes", "upgrade:stable")
+		run(t, yesFlag, upgradeStableTask)
 		tasktestutil.AssertFileExists(t, integration.bunBin)
-	})
-	step("install:undo — .bun directory is removed", func(t *testing.T) {
-		t.Helper()
-		run(t, "--yes", "install:undo")
-		tasktestutil.AssertDirNotExists(t, filepath.Join(integration.home, ".bun"))
 	})
 }
 
@@ -750,14 +995,31 @@ func bunStubEnv(t *testing.T) []string {
 	t.Helper()
 
 	env := tasktestutil.IsolatedEnv(t)
-	home := tasktestutil.EnvValue(env, "HOME")
+	home := tasktestutil.EnvValue(env, homeEnvKey)
+	bunBinDir := filepath.Join(home, bunDirName, binDirName)
 
-	bunBinDir := filepath.Join(home, ".bun", "bin")
+	writeBunStubBinary(t, bunBinDir)
 
-	err := os.MkdirAll(bunBinDir, 0o700)
+	path := tasktestutil.EnvValue(env, pathEnvKey)
+
+	return tasktestutil.SetEnv(env, pathEnvKey, bunBinDir+":"+path)
+}
+
+func writeBunStubBinary(t *testing.T, bunBinDir string) {
+	t.Helper()
+
+	err := os.MkdirAll(bunBinDir, bunDirMode)
 	if err != nil {
 		t.Fatalf("failed to create stub bun dir: %v", err)
 	}
+
+	bunPath := filepath.Join(bunBinDir, bunBinName)
+
+	writeBunStubScript(t, bunPath)
+}
+
+func writeBunStubScript(t *testing.T, bunPath string) {
+	t.Helper()
 
 	stub := "#!/usr/bin/env bash\n" +
 		"case \"$1\" in\n" +
@@ -767,19 +1029,13 @@ func bunStubEnv(t *testing.T) []string {
 		"  *) exit 0 ;;\n" +
 		"esac\n"
 
-	bunPath := filepath.Join(bunBinDir, "bun")
-
-	err = os.WriteFile(bunPath, []byte(stub), 0o600)
+	err := os.WriteFile(bunPath, []byte(stub), bunFileMode)
 	if err != nil {
 		t.Fatalf("failed to create stub bun binary: %v", err)
 	}
 
-	err = syscall.Chmod(bunPath, 0o500)
+	err = syscall.Chmod(bunPath, bunExecMode)
 	if err != nil {
 		t.Fatalf("make stub bun executable: %v", err)
 	}
-
-	path := tasktestutil.EnvValue(env, "PATH")
-
-	return tasktestutil.SetEnv(env, "PATH", bunBinDir+":"+path)
 }

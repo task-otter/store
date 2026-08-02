@@ -1,7 +1,7 @@
 // Taskotter 2026.
 // SPDX-License-Identifier: Apache-2.0.
 
-package yarnnvm_test
+package nvm_test
 
 import (
 	"os"
@@ -15,10 +15,26 @@ import (
 )
 
 const (
-	constYarnTestYes = "--yes"
+	constYarnTestYes     = "--yes"
+	constYarnTaskCi      = "ci"
+	constYarnTaskInstall = "install"
+	constYarnTaskRun     = "run"
+	constYarnTaskVersion = "version"
+	constYarnCurrentDir  = "."
+	constYarnDirMode     = 0o700
+	constYarnFileMode    = 0o600
+	constYarnPathEnvVar  = "PATH"
+	constYarnMinTasks    = 0
+	constYarnScriptTest  = "SCRIPT=test"
+	constYarnDoubleDash  = "--"
+	constYarnWatchFlag   = "--watch"
 )
 
 func publicTasks() []string {
+	return append(publicTasksCore(), publicTasksExtra()...)
+}
+
+func publicTasksCore() []string {
 	return []string{
 		"add",
 		"audit",
@@ -26,30 +42,49 @@ func publicTasks() []string {
 		"audit:report",
 		"build",
 		"cache:clean",
-		"ci",
+		constYarnTaskCi,
 		"clean",
 		"clean:all",
 		"dev",
 		"exec",
 		"format",
-		"install",
+		constYarnTaskInstall,
 		"install:undo",
+	}
+}
+
+func publicTasksExtra() []string {
+	return []string{
 		"lint",
 		"manager:pin",
 		"manager:setup",
 		"node:setup",
 		"remove",
-		"run",
+		constYarnTaskRun,
 		"test",
 		"typecheck",
 		"update",
 		"upgrade",
-		"version",
+		constYarnTaskVersion,
 	}
 }
 
+// TestTaskfileAndReadmePublicApi
 func TestTaskfileAndReadmePublicApi(t *testing.T) {
 	t.Parallel()
+
+	tasks := loadTaskfileTasks(t)
+	actual := tasktestutil.SimplePublicTaskNames(tasks)
+
+	if !slices.Equal(publicTasks(), actual) {
+		t.Fatalf("public task drift\nexpected: %v\nactual:   %v", publicTasks(), actual)
+	}
+
+	assertReadmeTasksMatch(t)
+}
+
+func loadTaskfileTasks(t *testing.T) map[string]any {
+	t.Helper()
 
 	doc := loadTaskfile(t)
 
@@ -62,15 +97,15 @@ func TestTaskfileAndReadmePublicApi(t *testing.T) {
 
 	tasks, ok := root["tasks"].(map[string]any)
 
-	if !ok || len(tasks) == 0 {
+	if !ok || len(tasks) == constYarnMinTasks {
 		t.Fatal("Taskfile tasks map is missing")
 	}
 
-	actual := tasktestutil.SimplePublicTaskNames(tasks)
+	return tasks
+}
 
-	if !slices.Equal(publicTasks(), actual) {
-		t.Fatalf("public task drift\nexpected: %v\nactual:   %v", publicTasks(), actual)
-	}
+func assertReadmeTasksMatch(t *testing.T) {
+	t.Helper()
 
 	readmeTasks := tasktestutil.ReadmePublicTaskNames(
 		tasktestutil.MustRead(t, tasktestutil.ModuleReadmePath(t)),
@@ -81,6 +116,7 @@ func TestTaskfileAndReadmePublicApi(t *testing.T) {
 	}
 }
 
+// TestStubbedYarnFlows
 func TestStubbedYarnFlows(t *testing.T) {
 	t.Parallel()
 
@@ -90,30 +126,54 @@ func TestStubbedYarnFlows(t *testing.T) {
 
 	env := stubEnv(t)
 
-	for _, args := range [][]string{
-		{constYarnTestYes, "version"},
-		{constYarnTestYes, "install"},
-		{constYarnTestYes, "ci"},
-		{constYarnTestYes, "run", "SCRIPT=test", "--", "--watch"},
-	} {
+	runStubbedYarnTasks(t, env)
+	assertUnsafeScriptRejected(t, env)
+}
+
+func stubbedYarnTaskArgs() [][]string {
+	return [][]string{
+		{constYarnTestYes, constYarnTaskVersion},
+		{constYarnTestYes, constYarnTaskInstall},
+		{constYarnTestYes, constYarnTaskCi},
+		{
+			constYarnTestYes,
+			constYarnTaskRun,
+			constYarnScriptTest,
+			constYarnDoubleDash,
+			constYarnWatchFlag,
+		},
+	}
+}
+
+func runStubbedYarnTasks(t *testing.T, env []string) {
+	t.Helper()
+
+	variants := stubbedYarnTaskArgs()
+
+	for i := range variants {
+		args := variants[i]
 		result := tasktestutil.RunSimpleTask(
 			t,
-			tasktestutil.SimpleTaskRun{Dir: ".", Env: env, Args: args},
+			tasktestutil.TaskRun{Root: constYarnCurrentDir, Env: env, Args: args},
 		)
 
 		if result.Err != nil {
-			t.Fatalf("task %v failed:\n%s", args, result.Output)
+			t.Fatalf("task %v failed:\n%s", args, result.Stdout)
 		}
 	}
+}
 
-	result := tasktestutil.RunSimpleTask(t, tasktestutil.SimpleTaskRun{
-		Dir:  ".",
+func assertUnsafeScriptRejected(t *testing.T, env []string) {
+	t.Helper()
+
+	result := tasktestutil.RunSimpleTask(t, tasktestutil.TaskRun{
+		Root: constYarnCurrentDir,
 		Env:  env,
-		Args: []string{constYarnTestYes, "run", "SCRIPT=dev; exit 1"},
+		Args: []string{constYarnTestYes, constYarnTaskRun, "SCRIPT=dev; exit 1"},
 	})
 
 	if result.Err == nil {
-		t.Fatalf("unsafe SCRIPT unexpectedly succeeded:\n%s", result.Output)
+		t.Fatalf("unsafe SCRIPT unexpectedly succeeded:\n%s", result.Stdout)
 	}
 }
 
@@ -121,25 +181,48 @@ func stubEnv(t *testing.T) []string {
 	t.Helper()
 
 	home := t.TempDir()
-
 	binDir := filepath.Join(home, ".local", "bin")
+	nvmDir := filepath.Join(home, ".nvm")
 
-	err := os.MkdirAll(binDir, 0o700)
+	createNvmStubDirs(t, binDir, nvmDir)
+	writeNvmStubs(t, binDir)
+
+	return stubEnvVars(home, binDir, nvmDir)
+}
+
+func stubEnvVars(home, binDir, nvmDir string) []string {
+	env := os.Environ()
+
+	env = tasktestutil.SetEnv(env, "HOME", home)
+	env = tasktestutil.SetEnv(env, constYarnPathEnvVar, binDir+":"+os.Getenv(constYarnPathEnvVar))
+	env = tasktestutil.SetEnv(env, "NVM_DIR", nvmDir)
+	env = tasktestutil.SetEnv(env, "TASK_ASSUME_YES", "true")
+	env = tasktestutil.SetEnv(env, "NO_COLOR", "1")
+
+	return env
+}
+
+func createNvmStubDirs(t *testing.T, binDir, nvmDir string) {
+	t.Helper()
+
+	err := os.MkdirAll(binDir, constYarnDirMode)
 	if err != nil {
 		t.Fatalf("create stub bin dir: %v", err)
 	}
 
-	nvmDir := filepath.Join(home, ".nvm")
-
-	err = os.MkdirAll(nvmDir, 0o700)
+	err = os.MkdirAll(nvmDir, constYarnDirMode)
 	if err != nil {
 		t.Fatalf("create nvm dir: %v", err)
 	}
 
-	err = os.WriteFile(filepath.Join(nvmDir, "nvm.sh"), []byte("# nvm stub\n"), 0o600)
+	err = os.WriteFile(filepath.Join(nvmDir, "nvm.sh"), []byte("# nvm stub\n"), constYarnFileMode)
 	if err != nil {
 		t.Fatalf("create nvm.sh stub: %v", err)
 	}
+}
+
+func writeNvmStubs(t *testing.T, binDir string) {
+	t.Helper()
 
 	tasktestutil.WriteStub(
 		t,
@@ -159,16 +242,6 @@ func stubEnv(t *testing.T) []string {
 		"corepack",
 		"#!/usr/bin/env bash\ncase \"$1\" in --version) echo \"0.34.0\" ;; *) echo \"corepack $* stub\" ;; esac\n",
 	)
-
-	env := os.Environ()
-
-	env = tasktestutil.SetEnv(env, "HOME", home)
-	env = tasktestutil.SetEnv(env, "PATH", binDir+":"+os.Getenv("PATH"))
-	env = tasktestutil.SetEnv(env, "NVM_DIR", nvmDir)
-	env = tasktestutil.SetEnv(env, "TASK_ASSUME_YES", "true")
-	env = tasktestutil.SetEnv(env, "NO_COLOR", "1")
-
-	return env
 }
 
 func loadTaskfile(t *testing.T) yaml.Node {
@@ -177,7 +250,7 @@ func loadTaskfile(t *testing.T) yaml.Node {
 	var doc yaml.Node
 
 	err := yaml.Unmarshal(
-		[]byte(tasktestutil.MustRead(t, filepath.Join(".", "Taskfile.yml"))),
+		[]byte(tasktestutil.MustRead(t, filepath.Join(constYarnCurrentDir, "Taskfile.yml"))),
 		&doc,
 	)
 	if err != nil {

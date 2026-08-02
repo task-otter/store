@@ -12,14 +12,45 @@ import (
 	"github.com/task-otter/store/internal/tasktest"
 )
 
-const constGoTestTest = "test"
+type (
+	taskCmdsTokenCheck struct {
+		taskfile *tasktest.Taskfile
+		taskName string
+		tokens   []string
+	}
+
+	dependencyCheck struct {
+		taskfile *tasktest.Taskfile
+		taskName string
+		expected []string
+	}
+
+	taskCommandCase struct {
+		task   string
+		tokens []string
+	}
+)
+
+const (
+	constGoTestTest      = "test"
+	benchTask            = "bench"
+	fuzzTask             = "fuzz"
+	installTask          = "install"
+	installGoJunitReport = "install:go-junit-report"
+	goCoverProfileVar    = "GO_COVER_PROFILE"
+	goJunitReportVar     = "GO_JUNIT_REPORT"
+	goModuleName         = "go"
+	goTestCmd            = "go test"
+	fmtPercentV          = "%v"
+	zeroLen              = 0
+)
 
 func publicTasks() []string {
 	return []string{
-		"bench",
-		"fuzz",
-		"install",
-		"install:go-junit-report",
+		benchTask,
+		fuzzTask,
+		installTask,
+		installGoJunitReport,
 		"install:undo",
 		constGoTestTest,
 		"upgrade",
@@ -33,10 +64,10 @@ func publicVars() []string {
 	return []string{
 		"GO_BIN_UNIX",
 		"GO_CMD_UNIX",
-		"GO_COVER_PROFILE",
+		goCoverProfileVar,
 		"GO_DOWNLOAD_BASE_URL",
 		"GO_FUZZTIME",
-		"GO_JUNIT_REPORT",
+		goJunitReportVar,
 		"GO_VERSION",
 		"GO_ROOT_UNIX",
 		"GO_VERSION_URL",
@@ -45,82 +76,114 @@ func publicVars() []string {
 	}
 }
 
+// TestTaskfileModuleContract
 func TestTaskfileModuleContract(t *testing.T) {
 	t.Parallel()
 
 	tasktest.AssertModule(
 		t,
-		"go",
+		goModuleName,
 		&tasktest.ModuleExpectations{Tasks: publicTasks(), Vars: publicVars()},
 	)
 }
 
+func goTestTaskTokens() []string {
+	return []string{
+		"go test -v",
+		"-covermode atomic",
+		"-coverprofile",
+		"./...",
+		"go-junit-report",
+		"-set-exit-code",
+		"-iocopy",
+		"-out",
+	}
+}
+
+func taskCommandCases() []taskCommandCase {
+	return []taskCommandCase{
+		{task: constGoTestTest, tokens: goTestTaskTokens()},
+		{task: benchTask, tokens: []string{goTestCmd, "-bench", "-benchmem"}},
+		{task: fuzzTask, tokens: []string{goTestCmd, "-fuzz", "-fuzztime"}},
+	}
+}
+
+func runTaskCommandCase(t *testing.T, taskfile *tasktest.Taskfile, testCase *taskCommandCase) {
+	t.Helper()
+	t.Run(testCase.task, func(t *testing.T) {
+		t.Parallel()
+
+		assertTaskCmdsContainTokens(
+			t,
+			&taskCmdsTokenCheck{
+				taskfile: taskfile,
+				taskName: testCase.task,
+				tokens:   testCase.tokens,
+			},
+		)
+	})
+}
+
+// TestTestingTaskCommands
 func TestTestingTaskCommands(t *testing.T) {
 	t.Parallel()
 
-	taskfile := tasktest.LoadTaskfile(t, "go")
+	taskfile := tasktest.LoadTaskfile(t, goModuleName)
+	tests := taskCommandCases()
 
-	tests := []struct {
-		task   string
-		tokens []string
-	}{
-		{
-			task: constGoTestTest,
-			tokens: []string{
-				"go test -v",
-				"-covermode atomic",
-				"-coverprofile",
-				"./...",
-				"go-junit-report",
-				"-set-exit-code",
-				"-iocopy",
-				"-out",
-			},
-		},
-		{task: "bench", tokens: []string{"go test", "-bench", "-benchmem"}},
-		{task: "fuzz", tokens: []string{"go test", "-fuzz", "-fuzztime"}},
+	for i := range tests {
+		runTaskCommandCase(t, taskfile, &tests[i])
 	}
 
-	for _, testCase := range tests {
-		t.Run(testCase.task, func(t *testing.T) {
-			t.Parallel()
+	assertGoTestVarsContainTokens(t, taskfile)
+}
 
-			task, ok := taskfile.Tasks[testCase.task]
+func assertTaskCmdsContainTokens(t *testing.T, check *taskCmdsTokenCheck) {
+	t.Helper()
 
-			if !ok {
-				t.Fatalf("go Taskfile missing task %q", testCase.task)
-			}
+	task, ok := check.taskfile.Tasks[check.taskName]
 
-			cmds := fmt.Sprintf("%v", task.Cmds)
-
-			for _, token := range testCase.tokens {
-				if !strings.Contains(cmds, token) {
-					t.Fatalf("go task %q cmds missing %q: %s", testCase.task, token, cmds)
-				}
-			}
-		})
+	if !ok {
+		t.Fatalf("go Taskfile missing task %q", check.taskName)
 	}
 
-	testVars := fmt.Sprintf("%v", taskfile.Tasks[constGoTestTest].Vars)
+	cmds := fmt.Sprintf(fmtPercentV, task.Cmds)
 
-	for _, token := range []string{
-		"GO_JUNIT_REPORT_OUT",
-		"GO_JUNIT_REPORT",
-		"junit.xml",
-		"GO_COVER_OUT",
-		"GO_COVER_PROFILE",
-		"coverage.out",
-	} {
-		if !strings.Contains(testVars, token) {
-			t.Fatalf("go test vars missing %q: %s", token, testVars)
+	for i := range check.tokens {
+		token := check.tokens[i]
+
+		if !strings.Contains(cmds, token) {
+			t.Fatalf("go task %q cmds missing %q: %s", check.taskName, token, cmds)
 		}
 	}
 }
 
+func assertGoTestVarsContainTokens(t *testing.T, taskfile *tasktest.Taskfile) {
+	t.Helper()
+
+	testVars := fmt.Sprintf(fmtPercentV, taskfile.Tasks[constGoTestTest].Vars)
+
+	tokens := []string{
+		"GO_JUNIT_REPORT_OUT",
+		goJunitReportVar,
+		"junit.xml",
+		"GO_COVER_OUT",
+		goCoverProfileVar,
+		"coverage.out",
+	}
+
+	for i := range tokens {
+		if !strings.Contains(testVars, tokens[i]) {
+			t.Fatalf("go test vars missing %q: %s", tokens[i], testVars)
+		}
+	}
+}
+
+// TestVersionVariableIsOptional
 func TestVersionVariableIsOptional(t *testing.T) {
 	t.Parallel()
 
-	taskfile := tasktest.LoadTaskfile(t, "go")
+	taskfile := tasktest.LoadTaskfile(t, goModuleName)
 
 	if _, exists := taskfile.Vars["VERSION"]; exists {
 		t.Fatal("shared VERSION variable must not be defined")
@@ -137,40 +200,52 @@ func TestVersionVariableIsOptional(t *testing.T) {
 	}
 }
 
+// TestDevelopmentToolDependencies
 func TestDevelopmentToolDependencies(t *testing.T) {
 	t.Parallel()
 
-	taskfile := tasktest.LoadTaskfile(t, "go")
+	taskfile := tasktest.LoadTaskfile(t, goModuleName)
 
 	installTasks := map[string][]string{
-		"install:go-junit-report": {"install"},
+		installGoJunitReport: {installTask},
 	}
 	testTasks := map[string][]string{
-		constGoTestTest: {"install:go-junit-report"},
+		constGoTestTest: {installGoJunitReport},
 	}
 
-	for taskName, expected := range installTasks {
-		assertTaskDependencies(
-			t,
-			dependencyCheck{taskfile: taskfile, taskName: taskName, expected: expected},
-		)
-	}
+	assertDependencyMap(t, taskfile, installTasks)
+	assertDependencyMap(t, taskfile, testTasks)
+}
 
-	for taskName, expected := range testTasks {
+func assertDependencyMap(t *testing.T, taskfile *tasktest.Taskfile, deps map[string][]string) {
+	t.Helper()
+
+	for taskName := range deps {
+		expected := deps[taskName]
 		assertTaskDependencies(
 			t,
-			dependencyCheck{taskfile: taskfile, taskName: taskName, expected: expected},
+			&dependencyCheck{taskfile: taskfile, taskName: taskName, expected: expected},
 		)
 	}
 }
 
-type dependencyCheck struct {
-	taskfile *tasktest.Taskfile
-	taskName string
-	expected []string
+func assertTaskDependencies(t *testing.T, check *dependencyCheck) {
+	t.Helper()
+
+	rawDeps := rawTaskDeps(t, check)
+	actual := taskDependencyNames(t, check.taskName, rawDeps)
+
+	if !slices.Equal(actual, check.expected) {
+		t.Fatalf(
+			"%s deps mismatch\nexpected: %v\nactual:   %v",
+			check.taskName,
+			check.expected,
+			actual,
+		)
+	}
 }
 
-func assertTaskDependencies(t *testing.T, check dependencyCheck) {
+func rawTaskDeps(t *testing.T, check *dependencyCheck) []any {
 	t.Helper()
 
 	rawDeps, ok := check.taskfile.Tasks[check.taskName].Deps.([]any)
@@ -183,26 +258,26 @@ func assertTaskDependencies(t *testing.T, check dependencyCheck) {
 		)
 	}
 
-	actual := make([]string, len(rawDeps))
+	return rawDeps
+}
 
-	for index, rawDep := range rawDeps {
+func taskDependencyNames(t *testing.T, taskName string, rawDeps []any) []string {
+	t.Helper()
+
+	actual := make([]string, zeroLen, len(rawDeps))
+
+	for index := range rawDeps {
+		rawDep := rawDeps[index]
 		dep, ok := taskDependencyName(rawDep)
 
 		if !ok {
-			t.Fatalf("%s dependency %d has unsupported value %v", check.taskName, index, rawDep)
+			t.Fatalf("%s dependency %d has unsupported value %v", taskName, index, rawDep)
 		}
 
-		actual[index] = dep
+		actual = append(actual, dep)
 	}
 
-	if !slices.Equal(actual, check.expected) {
-		t.Fatalf(
-			"%s deps mismatch\nexpected: %v\nactual:   %v",
-			check.taskName,
-			check.expected,
-			actual,
-		)
-	}
+	return actual
 }
 
 func taskDependencyName(rawDep any) (string, bool) {

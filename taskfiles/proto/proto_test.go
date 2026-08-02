@@ -9,12 +9,18 @@ import (
 	"github.com/task-otter/store/internal/tasktest"
 )
 
+const (
+	constProtoModule      = "proto"
+	constProtoTaskInstall = "install"
+	constProtoTaskUpgrade = "upgrade"
+)
+
 func publicTasks() []string {
 	return []string{
 		"gen",
-		"install",
+		constProtoTaskInstall,
 		"install:undo",
-		"upgrade",
+		constProtoTaskUpgrade,
 		"ungen",
 		"version",
 	}
@@ -32,26 +38,29 @@ func publicVars() []string {
 	}
 }
 
+// TestTaskfileModuleContract
 func TestTaskfileModuleContract(t *testing.T) {
 	t.Parallel()
 
 	tasktest.AssertModule(
 		t,
-		"proto",
+		constProtoModule,
 		&tasktest.ModuleExpectations{Tasks: publicTasks(), Vars: publicVars()},
 	)
 }
 
+// TestPluginWorkflowsInstallGoFirst
 func TestPluginWorkflowsInstallGoFirst(t *testing.T) {
 	t.Parallel()
 
-	tf := tasktest.LoadTaskfile(t, "proto")
+	taskfile := tasktest.LoadTaskfile(t, constProtoModule)
 
-	for _, taskName := range []string{"install", "upgrade"} {
-		deps, ok := tf.Tasks[taskName].Deps.([]any)
+	for i := range []string{constProtoTaskInstall, constProtoTaskUpgrade} {
+		taskName := []string{constProtoTaskInstall, constProtoTaskUpgrade}[i]
+		deps, ok := taskfile.Tasks[taskName].Deps.([]any)
 
 		if !ok {
-			t.Fatalf("%s deps have type %T, want []any", taskName, tf.Tasks[taskName].Deps)
+			t.Fatalf("%s deps have type %T, want []any", taskName, taskfile.Tasks[taskName].Deps)
 		}
 
 		if !containsTaskDependency(deps, "go:install") {
@@ -61,18 +70,24 @@ func TestPluginWorkflowsInstallGoFirst(t *testing.T) {
 }
 
 func containsTaskDependency(deps []any, expected string) bool {
-	for _, rawDep := range deps {
-		switch dep := rawDep.(type) {
-		case string:
-			if dep == expected {
-				return true
-			}
-		case map[string]any:
-			if dep["task"] == expected {
-				return true
-			}
+	for i := range deps {
+		rawDep := deps[i]
+
+		if taskDependencyMatches(rawDep, expected) {
+			return true
 		}
 	}
 
 	return false
+}
+
+func taskDependencyMatches(rawDep any, expected string) bool {
+	switch dep := rawDep.(type) {
+	case string:
+		return dep == expected
+	case map[string]any:
+		return dep["task"] == expected
+	default:
+		return false
+	}
 }

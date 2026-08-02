@@ -1,7 +1,7 @@
 // Taskotter 2026.
 // SPDX-License-Identifier: Apache-2.0.
 
-package npmfnm_test
+package fnm_test
 
 import (
 	"os"
@@ -16,41 +16,108 @@ import (
 	yaml "go.yaml.in/yaml/v3"
 )
 
-const (
-	constNpmTestPrettier = "prettier"
-	constNpmTestListAll  = "--list-all"
-	constNpmTestWindows  = "windows"
+type (
+	errCheck struct {
+		noErrMsg string
+		substrA  string
+		substrB  string
+		msgFmt   string
+	}
+
+	publicTaskCase struct {
+		taskfile *tasktestutil.LoadedTaskfile
+		spec     *tasktestutil.PublicTaskSpec
+	}
 )
 
-func expectedPublicTasks() []tasktestutil.PublicTaskSpec {
-	spec := tasktestutil.NewPublicTaskSpec
-	withArgs := tasktestutil.WithArgs
-	dryGroupSummary := []tasktestutil.PublicTaskSpecOption{
+const (
+	constNpmTestPrettier       = "prettier"
+	constNpmTestListAll        = "--list-all"
+	constNpmTestWindows        = "windows"
+	constNpmTestPackages       = "PACKAGES"
+	constNpmTestAuditReport    = "audit:report"
+	constNpmTestBuild          = "build"
+	constNpmTestCi             = "ci"
+	constNpmTestClean          = "clean"
+	constNpmTestDev            = "dev"
+	constNpmTestInstall        = "install"
+	constNpmTestOutdated       = "outdated"
+	constNpmTestOutdatedStrict = "outdated:strict"
+	constNpmTestRun            = "run"
+	constNpmTestVersion        = "version"
+	constNpmTestTaskfile       = "Taskfile"
+	constNpmTestJSON           = "--json"
+	constNpmTestDesc           = "desc"
+	constNpmTestOutput         = "output"
+	constNpmTestCmds           = "cmds"
+	constNpmTestUnixSkipMsg    = "stub npm tests target Unix-like systems"
+	constNpmTestYes            = "--yes"
+	constNpmTestTaskfileFlag   = "--taskfile"
+	constNpmTestTaskfileYml    = "Taskfile.yml"
+	constNpmTestPackageJSON    = "package.json"
+	constNpmTestFileMode0600   = 0o600
+	constNpmTestFileMode0700   = 0o700
+	constNpmTestPath           = "PATH"
+	constNpmTestExitSuccess    = 0
+	constNpmTestEmpty          = ""
+	constNpmTestFlagList       = "--list"
+	constNpmTestFlagSort       = "--sort"
+	constNpmTestSortAlpha      = "alphanumeric"
+	constNpmTestMinDescLen     = 12
+	constNpmTestMinSummaryLen  = 25
+)
+
+func dryGroupSummaryOptions() []tasktestutil.PublicTaskSpecOption {
+	return []tasktestutil.PublicTaskSpecOption{
 		tasktestutil.WithDryRunArgs(),
 		tasktestutil.WithGroupOutput(),
 		tasktestutil.WithSummary(),
 	}
+}
+
+func expectedPublicTasksA() []tasktestutil.PublicTaskSpec {
+	spec := tasktestutil.NewPublicTaskSpec
+	withArgs := tasktestutil.WithArgs
+	dryGroupSummary := dryGroupSummaryOptions()
 
 	return []tasktestutil.PublicTaskSpec{
-		spec("add", withArgs(map[string]string{"PACKAGES": constNpmTestPrettier}),
+		spec("add", withArgs(map[string]string{constNpmTestPackages: constNpmTestPrettier}),
 			tasktestutil.WithDryRunArgs(), tasktestutil.WithGroupOutput()),
 		spec("audit", dryGroupSummary...),
 		spec("audit:fix", dryGroupSummary...),
 		spec("audit:json", dryGroupSummary...),
-		spec("audit:report", dryGroupSummary...),
-		spec("build", dryGroupSummary...),
+		spec(constNpmTestAuditReport, dryGroupSummary...),
+		spec(constNpmTestBuild, dryGroupSummary...),
 		spec("cache:clean", dryGroupSummary...),
-		spec("ci", dryGroupSummary...),
-		spec("clean", append(dryGroupSummary, tasktestutil.WithPrompt())...),
+		spec(constNpmTestCi, dryGroupSummary...),
+	}
+}
+
+func expectedPublicTasksB() []tasktestutil.PublicTaskSpec {
+	spec := tasktestutil.NewPublicTaskSpec
+	withArgs := tasktestutil.WithArgs
+	dryGroupSummary := dryGroupSummaryOptions()
+
+	return []tasktestutil.PublicTaskSpec{
+		spec(constNpmTestClean, append(dryGroupSummary, tasktestutil.WithPrompt())...),
 		spec("clean:all", append(dryGroupSummary, tasktestutil.WithPrompt())...),
-		spec("dev", dryGroupSummary...),
+		spec(constNpmTestDev, dryGroupSummary...),
 		spec("exec", withArgs(map[string]string{"BINARY": constNpmTestPrettier}),
 			tasktestutil.WithDryRunArgs(), tasktestutil.WithGroupOutput()),
 		spec("doctor", dryGroupSummary...),
 		spec("format", dryGroupSummary...),
-		spec("install", dryGroupSummary...),
+		spec(constNpmTestInstall, dryGroupSummary...),
 		spec("install:undo", dryGroupSummary...),
 		spec("lint", dryGroupSummary...),
+	}
+}
+
+func expectedPublicTasksC1() []tasktestutil.PublicTaskSpec {
+	spec := tasktestutil.NewPublicTaskSpec
+	withArgs := tasktestutil.WithArgs
+	dryGroupSummary := dryGroupSummaryOptions()
+
+	return []tasktestutil.PublicTaskSpec{
 		spec("manager:pin", append(
 			[]tasktestutil.PublicTaskSpecOption{
 				withArgs(map[string]string{"PACKAGE_MANAGER_VERSION": "latest"}),
@@ -59,22 +126,42 @@ func expectedPublicTasks() []tasktestutil.PublicTaskSpec {
 		)...),
 		spec("manager:setup", dryGroupSummary...),
 		spec("node:setup", dryGroupSummary...),
-		spec("outdated", dryGroupSummary...),
-		spec("outdated:strict", dryGroupSummary...),
-		spec("remove", withArgs(map[string]string{"PACKAGES": constNpmTestPrettier}),
+		spec(constNpmTestOutdated, dryGroupSummary...),
+		spec(constNpmTestOutdatedStrict, dryGroupSummary...),
+		spec("remove", withArgs(map[string]string{constNpmTestPackages: constNpmTestPrettier}),
 			tasktestutil.WithDryRunArgs(), tasktestutil.WithGroupOutput()),
-		spec("run", append(
-			[]tasktestutil.PublicTaskSpecOption{withArgs(map[string]string{"SCRIPT": "build"})},
+	}
+}
+
+func expectedPublicTasksC2() []tasktestutil.PublicTaskSpec {
+	spec := tasktestutil.NewPublicTaskSpec
+	withArgs := tasktestutil.WithArgs
+	dryGroupSummary := dryGroupSummaryOptions()
+
+	return []tasktestutil.PublicTaskSpec{
+		spec(constNpmTestRun, append(
+			[]tasktestutil.PublicTaskSpecOption{
+				withArgs(map[string]string{"SCRIPT": constNpmTestBuild}),
+			},
 			dryGroupSummary...,
 		)...),
 		spec("test", dryGroupSummary...),
 		spec("typecheck", dryGroupSummary...),
 		spec("update", dryGroupSummary...),
 		spec("upgrade", dryGroupSummary...),
-		spec("version", tasktestutil.WithDryRunArgs(), tasktestutil.WithSummary()),
+		spec(constNpmTestVersion, tasktestutil.WithDryRunArgs(), tasktestutil.WithSummary()),
 	}
 }
 
+func expectedPublicTasksC() []tasktestutil.PublicTaskSpec {
+	return append(expectedPublicTasksC1(), expectedPublicTasksC2()...)
+}
+
+func expectedPublicTasks() []tasktestutil.PublicTaskSpec {
+	return slices.Concat(expectedPublicTasksA(), expectedPublicTasksB(), expectedPublicTasksC())
+}
+
+// TestTaskBinaryIsAvailable
 func TestTaskBinaryIsAvailable(t *testing.T) {
 	t.Parallel()
 
@@ -83,16 +170,12 @@ func TestTaskBinaryIsAvailable(t *testing.T) {
 		t,
 		tasktestutil.TaskRun{Root: root, Env: nil, Args: []string{"--version"}},
 	)
-	tasktestutil.AssertExitCode(t, result, 0)
+	tasktestutil.AssertExitCode(t, result, constNpmTestExitSuccess)
 	tasktestutil.AssertNotEmpty(t, result.Combined(), "task --version output is empty")
 }
 
-func TestTaskfileYamlIsCleanAndValid(t *testing.T) {
-	t.Parallel()
-
-	path := tasktestutil.ModuleTaskfilePath(t)
-	content := tasktestutil.ReadFile(t, path)
-	tasktestutil.AssertTextFileClean(t, path, content)
+func parseTaskfileYamlDoc(t *testing.T, content string) yaml.Node {
+	t.Helper()
 
 	var doc yaml.Node
 
@@ -101,53 +184,90 @@ func TestTaskfileYamlIsCleanAndValid(t *testing.T) {
 		t.Fatalf("Taskfile YAML is invalid: %v", err)
 	}
 
-	tasktestutil.AssertNoDuplicateMappingKeys(t, &doc, "Taskfile")
-	tasktestutil.AssertNoYamlAliases(t, &doc, "Taskfile")
+	return doc
+}
 
-	root := tasktestutil.DocumentRoot(t, &doc)
+func assertTaskfileVersionIsV3(t *testing.T, root *yaml.Node) {
+	t.Helper()
 
-	version := tasktestutil.ScalarField(root, "version")
+	version := tasktestutil.ScalarField(root, constNpmTestVersion)
 
 	if version != "3" && !strings.HasPrefix(version, "3.") {
 		t.Fatalf("Taskfile version must be 3 or 3.x, got %q", version)
 	}
+}
+
+func assertTaskfileHasTasks(t *testing.T, root *yaml.Node) {
+	t.Helper()
 
 	tasks := tasktestutil.MappingField(root, "tasks")
 
-	if tasks == nil || len(tasks.Content) == 0 {
+	if tasks == nil || len(tasks.Content) == constNpmTestExitSuccess {
 		t.Fatal("Taskfile must contain non-empty tasks map")
 	}
 }
 
+// TestTaskfileYamlIsCleanAndValid
+func TestTaskfileYamlIsCleanAndValid(t *testing.T) {
+	t.Parallel()
+
+	path := tasktestutil.ModuleTaskfilePath(t)
+	content := tasktestutil.ReadFile(t, path)
+	tasktestutil.AssertTextFileClean(t, path, content)
+
+	doc := parseTaskfileYamlDoc(t, content)
+
+	tasktestutil.AssertNoDuplicateMappingKeys(t, &doc, constNpmTestTaskfile)
+	tasktestutil.AssertNoYamlAliases(t, &doc, constNpmTestTaskfile)
+
+	root := tasktestutil.DocumentRoot(t, &doc)
+
+	assertTaskfileVersionIsV3(t, root)
+	assertTaskfileHasTasks(t, root)
+}
+
+func taskCliLoadTaskfileArgs() [][]string {
+	return [][]string{
+		{constNpmTestFlagList},
+		{constNpmTestListAll},
+		{constNpmTestListAll, constNpmTestFlagSort, constNpmTestSortAlpha},
+		{constNpmTestListAll, constNpmTestJSON},
+	}
+}
+
+func runTaskCliCanLoadTaskfileCase(t *testing.T, root string, args []string) {
+	t.Helper()
+	t.Run(strings.Join(args, " "), func(t *testing.T) {
+		t.Parallel()
+
+		result := tasktestutil.RunTask(
+			t,
+			tasktestutil.TaskRun{Root: root, Env: tasktestutil.IsolatedEnv(t), Args: args},
+		)
+		tasktestutil.AssertExitCode(t, result, constNpmTestExitSuccess)
+		tasktestutil.AssertNotContains(
+			t,
+			strings.ToLower(result.Combined()),
+			"taskfile does not exist",
+		)
+		tasktestutil.AssertNotContains(t, strings.ToLower(result.Combined()), "unknown")
+	})
+}
+
+// TestTaskCliCanLoadTaskfile
 func TestTaskCliCanLoadTaskfile(t *testing.T) {
 	t.Parallel()
 
 	root := tasktestutil.ModuleRoot(t)
 
-	for _, args := range [][]string{
-		{"--list"},
-		{constNpmTestListAll},
-		{constNpmTestListAll, "--sort", "alphanumeric"},
-		{constNpmTestListAll, "--json"},
-	} {
-		t.Run(strings.Join(args, " "), func(t *testing.T) {
-			t.Parallel()
+	variants := taskCliLoadTaskfileArgs()
 
-			result := tasktestutil.RunTask(
-				t,
-				tasktestutil.TaskRun{Root: root, Env: tasktestutil.IsolatedEnv(t), Args: args},
-			)
-			tasktestutil.AssertExitCode(t, result, 0)
-			tasktestutil.AssertNotContains(
-				t,
-				strings.ToLower(result.Combined()),
-				"taskfile does not exist",
-			)
-			tasktestutil.AssertNotContains(t, strings.ToLower(result.Combined()), "unknown")
-		})
+	for i := range variants {
+		runTaskCliCanLoadTaskfileCase(t, root, variants[i])
 	}
 }
 
+// TestTaskListAllJsonIsValid
 func TestTaskListAllJsonIsValid(t *testing.T) {
 	t.Parallel()
 
@@ -155,10 +275,10 @@ func TestTaskListAllJsonIsValid(t *testing.T) {
 	result := tasktestutil.RunTask(
 		t, tasktestutil.TaskRun{Root: root, Env: tasktestutil.IsolatedEnv(t), Args: []string{
 			constNpmTestListAll,
-			"--json",
+			constNpmTestJSON,
 		}})
 
-	tasktestutil.AssertExitCode(t, result, 0)
+	tasktestutil.AssertExitCode(t, result, constNpmTestExitSuccess)
 
 	err := tasktestutil.ValidateJSON(result.Stdout)
 	if err != nil {
@@ -166,6 +286,7 @@ func TestTaskListAllJsonIsValid(t *testing.T) {
 	}
 }
 
+// TestPublicApiDoesNotDrift
 func TestPublicApiDoesNotDrift(t *testing.T) {
 	t.Parallel()
 
@@ -183,6 +304,7 @@ func TestPublicApiDoesNotDrift(t *testing.T) {
 	}
 }
 
+// TestReadmePublicTaskTableDoesNotDrift
 func TestReadmePublicTaskTableDoesNotDrift(t *testing.T) {
 	t.Parallel()
 
@@ -200,75 +322,112 @@ func TestReadmePublicTaskTableDoesNotDrift(t *testing.T) {
 	}
 }
 
+func assertTaskIsPublicOrInternal(t *testing.T, name string, task tasktestutil.TaskNode) {
+	t.Helper()
+
+	if strings.HasPrefix(name, "_") || task.BoolField("internal") {
+		return
+	}
+
+	if task.StringField(constNpmTestDesc) == "" {
+		t.Fatalf(
+			"task %q is not internal and has no desc. Either add desc/summary or mark it internal: true",
+			name,
+		)
+	}
+}
+
+// TestEveryTaskIsEitherPublicOrInternal
 func TestEveryTaskIsEitherPublicOrInternal(t *testing.T) {
 	t.Parallel()
 
 	taskfile := tasktestutil.LoadTaskfile(t)
 
-	for name, task := range taskfile.Tasks {
+	for name := range taskfile.Tasks {
+		task := taskfile.Tasks[name]
 		t.Run(name, func(t *testing.T) {
 			t.Parallel()
-
-			if strings.HasPrefix(name, "_") || task.BoolField("internal") {
-				return
-			}
-
-			if task.StringField("desc") == "" {
-				t.Fatalf(
-					"task %q is not internal and has no desc. Either add desc/summary or mark it internal: true",
-					name,
-				)
-			}
+			assertTaskIsPublicOrInternal(t, name, task)
 		})
 	}
 }
 
+func assertTaskUsesMappingSyntax(t *testing.T, task tasktestutil.TaskNode, name string) {
+	t.Helper()
+
+	if task.Node.Kind != yaml.MappingNode {
+		t.Fatalf("public task %q must use full mapping syntax, not short syntax", name)
+	}
+}
+
+func assertTaskDescMeetsRequirements(t *testing.T, desc, name string) {
+	t.Helper()
+
+	if strings.TrimSpace(desc) == constNpmTestEmpty {
+		t.Fatalf("public task %q is missing desc", name)
+	}
+
+	if len(strings.TrimSpace(desc)) < constNpmTestMinDescLen {
+		t.Fatalf("public task %q desc is too short: %q", name, desc)
+	}
+}
+
+func assertTaskSummaryValid(t *testing.T, spec *tasktestutil.PublicTaskSpec, summary string) {
+	t.Helper()
+
+	if !spec.RequiresSummary {
+		return
+	}
+
+	if strings.TrimSpace(summary) == constNpmTestEmpty {
+		t.Fatalf("public task %q is missing summary", spec.Name)
+	}
+
+	if len(strings.TrimSpace(summary)) < constNpmTestMinSummaryLen {
+		t.Fatalf("public task %q summary is too short:\n%s", spec.Name, summary)
+	}
+}
+
+// TestPublicTasksHaveMetadata
+func runPublicTaskMetadataCase(t *testing.T, check *publicTaskCase) {
+	t.Helper()
+	t.Run(check.spec.Name, func(t *testing.T) {
+		t.Parallel()
+
+		task := tasktestutil.MustTask(t, check.taskfile, check.spec.Name)
+		assertTaskUsesMappingSyntax(t, task, check.spec.Name)
+
+		desc := task.StringField(constNpmTestDesc)
+		summary := task.StringField("summary")
+
+		assertTaskDescMeetsRequirements(t, desc, check.spec.Name)
+		assertTaskSummaryValid(t, check.spec, summary)
+
+		tasktestutil.AssertNoPlaceholderText(t, check.spec.Name, desc)
+		tasktestutil.AssertNoPlaceholderText(t, check.spec.Name, summary)
+	})
+}
+
+// TestPublicTasksHaveMetadata validates the behavior covered by this test case.
 func TestPublicTasksHaveMetadata(t *testing.T) {
 	t.Parallel()
 
 	taskfile := tasktestutil.LoadTaskfile(t)
+	specs := expectedPublicTasks()
 
-	for _, spec := range expectedPublicTasks() {
-		t.Run(spec.Name, func(t *testing.T) {
-			t.Parallel()
-
-			task := tasktestutil.MustTask(t, taskfile, spec.Name)
-
-			if task.Node.Kind != yaml.MappingNode {
-				t.Fatalf("public task %q must use full mapping syntax, not short syntax", spec.Name)
-			}
-
-			desc := task.StringField("desc")
-			summary := task.StringField("summary")
-
-			if strings.TrimSpace(desc) == "" {
-				t.Fatalf("public task %q is missing desc", spec.Name)
-			}
-
-			if len(strings.TrimSpace(desc)) < 12 {
-				t.Fatalf("public task %q desc is too short: %q", spec.Name, desc)
-			}
-
-			if spec.RequiresSummary && strings.TrimSpace(summary) == "" {
-				t.Fatalf("public task %q is missing summary", spec.Name)
-			}
-
-			if spec.RequiresSummary && len(strings.TrimSpace(summary)) < 25 {
-				t.Fatalf("public task %q summary is too short:\n%s", spec.Name, summary)
-			}
-
-			tasktestutil.AssertNoPlaceholderText(t, spec.Name, desc)
-			tasktestutil.AssertNoPlaceholderText(t, spec.Name, summary)
-		})
+	for i := range specs {
+		runPublicTaskMetadataCase(t, &publicTaskCase{taskfile: &taskfile, spec: &specs[i]})
 	}
 }
 
+// TestDestructivePublicTasksHavePrompt
 func TestDestructivePublicTasksHavePrompt(t *testing.T) {
 	t.Parallel()
 
 	taskfile := tasktestutil.LoadTaskfile(t)
 
-	for _, spec := range expectedPublicTasks() {
+	for i := range expectedPublicTasks() {
+		spec := expectedPublicTasks()[i]
 		t.Run(spec.Name, func(t *testing.T) {
 			t.Parallel()
 
@@ -283,104 +442,146 @@ func TestDestructivePublicTasksHavePrompt(t *testing.T) {
 	}
 }
 
+func assertTaskUsesGithubGroupOutput(t *testing.T, check *publicTaskCase) {
+	t.Helper()
+
+	if !check.spec.RequiresGroupOutput {
+		return
+	}
+
+	task := tasktestutil.MustTask(t, check.taskfile, check.spec.Name)
+
+	outputNode := task.Field(constNpmTestOutput)
+
+	if outputNode == nil {
+		outputNode = check.taskfile.Root.Field(constNpmTestOutput)
+	}
+
+	tasktestutil.AssertGithubGroupOutput(t, check.spec.Name, outputNode)
+}
+
+func forEachPublicTask(t *testing.T, callback func(*testing.T, *publicTaskCase)) {
+	t.Helper()
+
+	taskfile := tasktestutil.LoadTaskfile(t)
+	specs := expectedPublicTasks()
+
+	for i := range specs {
+		spec := specs[i]
+
+		t.Run(spec.Name, func(t *testing.T) {
+			t.Parallel()
+			callback(t, &publicTaskCase{taskfile: &taskfile, spec: &spec})
+		})
+	}
+}
+
+// TestInstallTasksUseGithubGroupOutput
 func TestInstallTasksUseGithubGroupOutput(t *testing.T) {
 	t.Parallel()
 
-	taskfile := tasktestutil.LoadTaskfile(t)
+	forEachPublicTask(t, assertTaskUsesGithubGroupOutput)
+}
 
-	for _, spec := range expectedPublicTasks() {
-		t.Run(spec.Name, func(t *testing.T) {
-			t.Parallel()
+func assertTaskHasCommands(t *testing.T, check *publicTaskCase) {
+	t.Helper()
 
-			if !spec.RequiresGroupOutput {
-				return
-			}
+	task := tasktestutil.MustTask(t, check.taskfile, check.spec.Name)
+	missingCmdsAndDeps := tasktestutil.IsEmptyNode(task.Field(constNpmTestCmds)) &&
+		tasktestutil.IsEmptyNode(task.Field("deps"))
 
-			task := tasktestutil.MustTask(t, taskfile, spec.Name)
-
-			outputNode := task.Field("output")
-
-			if outputNode == nil {
-				outputNode = taskfile.Root.Field("output")
-			}
-
-			tasktestutil.AssertGithubGroupOutput(t, spec.Name, outputNode)
-		})
+	if missingCmdsAndDeps {
+		t.Fatalf("public task %q must have cmds or deps", check.spec.Name)
 	}
 }
 
+// TestPublicTasksHaveCommands
 func TestPublicTasksHaveCommands(t *testing.T) {
 	t.Parallel()
 
-	taskfile := tasktestutil.LoadTaskfile(t)
-
-	for _, spec := range expectedPublicTasks() {
-		t.Run(spec.Name, func(t *testing.T) {
-			t.Parallel()
-
-			task := tasktestutil.MustTask(t, taskfile, spec.Name)
-
-			if tasktestutil.IsEmptyNode(task.Field("cmds")) &&
-				tasktestutil.IsEmptyNode(task.Field("deps")) {
-				t.Fatalf("public task %q must have cmds or deps", spec.Name)
-			}
-		})
-	}
+	forEachPublicTask(t, assertTaskHasCommands)
 }
 
+// TestTaskSummariesWork
+func runTaskSummary(t *testing.T, root, name string) tasktestutil.CommandResult {
+	t.Helper()
+
+	return tasktestutil.RunTask(
+		t,
+		tasktestutil.TaskRun{Root: root, Env: tasktestutil.IsolatedEnv(t), Args: []string{
+			"--summary",
+			name,
+		}},
+	)
+}
+
+func runTaskSummaryCase(t *testing.T, root string, spec *tasktestutil.PublicTaskSpec) {
+	t.Helper()
+	t.Run(spec.Name, func(t *testing.T) {
+		t.Parallel()
+
+		if !spec.RequiresSummary {
+			return
+		}
+
+		result := runTaskSummary(t, root, spec.Name)
+		tasktestutil.AssertExitCode(t, result, constNpmTestExitSuccess)
+
+		out := result.Combined()
+		tasktestutil.AssertContains(t, out, spec.Name)
+		tasktestutil.AssertNotContains(t, strings.ToLower(out), "task not found")
+		tasktestutil.AssertNotContains(t, strings.ToLower(out), "unknown task")
+		tasktestutil.AssertNotContains(t, strings.ToLower(out), "no summary")
+	})
+}
+
+// TestTaskSummariesWork validates the behavior covered by this test case.
 func TestTaskSummariesWork(t *testing.T) {
 	t.Parallel()
 
 	root := tasktestutil.ModuleRoot(t)
 
-	for _, spec := range expectedPublicTasks() {
-		t.Run(spec.Name, func(t *testing.T) {
-			t.Parallel()
+	specs := expectedPublicTasks()
 
-			if !spec.RequiresSummary {
-				return
-			}
-
-			result := tasktestutil.RunTask(
-				t,
-				tasktestutil.TaskRun{Root: root, Env: tasktestutil.IsolatedEnv(t), Args: []string{
-					"--summary",
-					spec.Name,
-				}},
-			)
-
-			tasktestutil.AssertExitCode(t, result, 0)
-
-			out := result.Combined()
-			tasktestutil.AssertContains(t, out, spec.Name)
-			tasktestutil.AssertNotContains(t, strings.ToLower(out), "task not found")
-			tasktestutil.AssertNotContains(t, strings.ToLower(out), "unknown task")
-			tasktestutil.AssertNotContains(t, strings.ToLower(out), "no summary")
-		})
+	for i := range specs {
+		runTaskSummaryCase(t, root, &specs[i])
 	}
 }
 
+func assertCommandHasNoDangerousPattern(t *testing.T, taskName, command string) {
+	t.Helper()
+
+	for i := range tasktestutil.DangerousCommandPatterns() {
+		pattern := tasktestutil.DangerousCommandPatterns()[i]
+
+		if pattern.MatchString(command) {
+			t.Fatalf(
+				"task %q contains dangerous command pattern %q:\n%s",
+				taskName,
+				pattern.String(),
+				command,
+			)
+		}
+	}
+}
+
+// TestCommandsDoNotContainDangerousPatterns
 func TestCommandsDoNotContainDangerousPatterns(t *testing.T) {
 	t.Parallel()
 
 	taskfile := tasktestutil.LoadTaskfile(t)
 
-	for taskName, task := range taskfile.Tasks {
-		for _, command := range tasktestutil.CollectCommandStrings(task.Node) {
-			for _, pattern := range tasktestutil.DangerousCommandPatterns() {
-				if pattern.MatchString(command) {
-					t.Fatalf(
-						"task %q contains dangerous command pattern %q:\n%s",
-						taskName,
-						pattern.String(),
-						command,
-					)
-				}
-			}
+	for taskName := range taskfile.Tasks {
+		task := taskfile.Tasks[taskName]
+
+		for i := range tasktestutil.CollectCommandStrings(task.Node) {
+			command := tasktestutil.CollectCommandStrings(task.Node)[i]
+			assertCommandHasNoDangerousPattern(t, taskName, command)
 		}
 	}
 }
 
+// TestNoPlaceholderTextInTaskfile
 func TestNoPlaceholderTextInTaskfile(t *testing.T) {
 	t.Parallel()
 
@@ -388,18 +589,28 @@ func TestNoPlaceholderTextInTaskfile(t *testing.T) {
 
 	upper := strings.ToUpper(content)
 
-	for _, p := range []string{"TODO", "FIXME", "CHANGEME", "Copyright", "YOUR VALUE HERE", "LOREM IPSUM"} {
-		if strings.Contains(upper, p) {
-			t.Fatalf("Taskfile contains placeholder text: %s", p)
+	placeholders := []string{
+		"TODO",
+		"FIXME",
+		"CHANGEME",
+		"Copyright",
+		"YOUR VALUE HERE",
+		"LOREM IPSUM",
+	}
+
+	for i := range placeholders {
+		if strings.Contains(upper, placeholders[i]) {
+			t.Fatalf("Taskfile contains placeholder text: %s", placeholders[i])
 		}
 	}
 }
 
+// TestRunTaskRequiresScriptVariable
 func TestRunTaskRequiresScriptVariable(t *testing.T) {
 	t.Parallel()
 
 	if runtime.GOOS == constNpmTestWindows {
-		t.Skip("stub npm tests target Unix-like systems")
+		t.Skip(constNpmTestUnixSkipMsg)
 	}
 
 	result := tasktestutil.RunTask(
@@ -407,7 +618,7 @@ func TestRunTaskRequiresScriptVariable(t *testing.T) {
 		tasktestutil.TaskRun{
 			Root: tasktestutil.ModuleRoot(t),
 			Env:  npmStubEnv(t),
-			Args: []string{"--yes", "run"},
+			Args: []string{constNpmTestYes, constNpmTestRun},
 		},
 	)
 
@@ -416,11 +627,12 @@ func TestRunTaskRequiresScriptVariable(t *testing.T) {
 	}
 }
 
+// TestVersionTaskExitsSuccessfully
 func TestVersionTaskExitsSuccessfully(t *testing.T) {
 	t.Parallel()
 
 	if runtime.GOOS == constNpmTestWindows {
-		t.Skip("stub npm tests target Unix-like systems")
+		t.Skip(constNpmTestUnixSkipMsg)
 	}
 
 	result := tasktestutil.RunTask(
@@ -428,185 +640,120 @@ func TestVersionTaskExitsSuccessfully(t *testing.T) {
 		tasktestutil.TaskRun{
 			Root: tasktestutil.ModuleRoot(t),
 			Env:  npmStubEnv(t),
-			Args: []string{"--yes", "version"},
+			Args: []string{constNpmTestYes, constNpmTestVersion},
 		},
 	)
-	tasktestutil.AssertExitCode(t, result, 0)
+	tasktestutil.AssertExitCode(t, result, constNpmTestExitSuccess)
 	tasktestutil.AssertContains(t, result.Combined(), "stub")
 }
 
+// TestInstallTaskExitsSuccessfully
 func TestInstallTaskExitsSuccessfully(t *testing.T) {
 	t.Parallel()
 
-	if runtime.GOOS == constNpmTestWindows {
-		t.Skip("stub npm tests target Unix-like systems")
-	}
-
-	result := tasktestutil.RunTask(
-		t,
-		tasktestutil.TaskRun{
-			Root: tasktestutil.ModuleRoot(t),
-			Env:  npmStubEnv(t),
-			Args: []string{"--yes", "install"},
-		},
-	)
-	tasktestutil.AssertExitCode(t, result, 0)
+	assertStubbedNpmTaskExits(t, constNpmTestInstall)
 }
 
+// TestCiTaskExitsSuccessfully
 func TestCiTaskExitsSuccessfully(t *testing.T) {
 	t.Parallel()
 
-	if runtime.GOOS == constNpmTestWindows {
-		t.Skip("stub npm tests target Unix-like systems")
-	}
-
-	result := tasktestutil.RunTask(
-		t,
-		tasktestutil.TaskRun{
-			Root: tasktestutil.ModuleRoot(t),
-			Env:  npmStubEnv(t),
-			Args: []string{"--yes", "ci"},
-		},
-	)
-	tasktestutil.AssertExitCode(t, result, 0)
+	assertStubbedNpmTaskExits(t, constNpmTestCi)
 }
 
+// TestBuildTaskExitsSuccessfully
 func TestBuildTaskExitsSuccessfully(t *testing.T) {
 	t.Parallel()
 
-	if runtime.GOOS == constNpmTestWindows {
-		t.Skip("stub npm tests target Unix-like systems")
-	}
-
-	result := tasktestutil.RunTask(
-		t,
-		tasktestutil.TaskRun{
-			Root: tasktestutil.ModuleRoot(t),
-			Env:  npmStubEnv(t),
-			Args: []string{"--yes", "build"},
-		},
-	)
-	tasktestutil.AssertExitCode(t, result, 0)
+	assertStubbedNpmTaskExits(t, constNpmTestBuild)
 }
 
+// TestRunTaskExitsSuccessfully
 func TestRunTaskExitsSuccessfully(t *testing.T) {
 	t.Parallel()
 
-	if runtime.GOOS == constNpmTestWindows {
-		t.Skip("stub npm tests target Unix-like systems")
-	}
-
-	result := tasktestutil.RunTask(
-		t,
-		tasktestutil.ModuleRoot(t),
-		npmStubEnv(t),
-		"--yes",
-		"run",
-		"SCRIPT=build",
-	)
-	tasktestutil.AssertExitCode(t, result, 0)
-	tasktestutil.AssertContains(t, result.Combined(), "build")
+	result := runStubbedNpmTask(t, constNpmTestRun, "SCRIPT=build")
+	tasktestutil.AssertContains(t, result.Combined(), constNpmTestBuild)
 }
 
+// TestCleanTaskSkipsWhenNodeModulesAbsent
 func TestCleanTaskSkipsWhenNodeModulesAbsent(t *testing.T) {
 	t.Parallel()
 
-	if runtime.GOOS == constNpmTestWindows {
-		t.Skip("stub npm tests target Unix-like systems")
-	}
-
-	result := tasktestutil.RunTask(
-		t,
-		tasktestutil.TaskRun{
-			Root: tasktestutil.ModuleRoot(t),
-			Env:  npmStubEnv(t),
-			Args: []string{"--yes", "clean"},
-		},
-	)
-	tasktestutil.AssertExitCode(t, result, 0)
+	assertStubbedNpmTaskExits(t, constNpmTestClean)
 }
 
+// TestOutdatedTaskExitsSuccessfully
 func TestOutdatedTaskExitsSuccessfully(t *testing.T) {
 	t.Parallel()
 
-	if runtime.GOOS == constNpmTestWindows {
-		t.Skip("stub npm tests target Unix-like systems")
-	}
-
-	result := tasktestutil.RunTask(
-		t,
-		tasktestutil.TaskRun{Root: tasktestutil.ModuleRoot(t), Env: npmStubEnv(t), Args: []string{
-			"--yes",
-			"outdated",
-		}},
-	)
-
-	tasktestutil.AssertExitCode(t, result, 0)
+	assertStubbedNpmTaskExits(t, constNpmTestOutdated)
 }
 
+// TestOutdatedStrictTaskExitsSuccessfully
 func TestOutdatedStrictTaskExitsSuccessfully(t *testing.T) {
 	t.Parallel()
 
-	if runtime.GOOS == constNpmTestWindows {
-		t.Skip("stub npm tests target Unix-like systems")
-	}
-
-	result := tasktestutil.RunTask(
-		t,
-		tasktestutil.TaskRun{Root: tasktestutil.ModuleRoot(t), Env: npmStubEnv(t), Args: []string{
-			"--yes",
-			"outdated:strict",
-		}},
-	)
-
-	tasktestutil.AssertExitCode(t, result, 0)
+	assertStubbedNpmTaskExits(t, constNpmTestOutdatedStrict)
 }
 
+// TestAuditReportTaskExitsSuccessfully
 func TestAuditReportTaskExitsSuccessfully(t *testing.T) {
 	t.Parallel()
 
-	if runtime.GOOS == constNpmTestWindows {
-		t.Skip("stub npm tests target Unix-like systems")
-	}
-
-	result := tasktestutil.RunTask(
-		t,
-		tasktestutil.TaskRun{Root: tasktestutil.ModuleRoot(t), Env: npmStubEnv(t), Args: []string{
-			"--yes",
-			"audit:report",
-		}},
-	)
-
-	tasktestutil.AssertExitCode(t, result, 0)
+	assertStubbedNpmTaskExits(t, constNpmTestAuditReport)
 }
 
+func assertStubbedNpmTaskExits(t *testing.T, task string) {
+	t.Helper()
+
+	tasktestutil.AssertExitCode(t, runStubbedNpmTask(t, task), constNpmTestExitSuccess)
+}
+
+func runStubbedNpmTask(t *testing.T, task string, args ...string) tasktestutil.CommandResult {
+	t.Helper()
+
+	if runtime.GOOS == constNpmTestWindows {
+		t.Skip(constNpmTestUnixSkipMsg)
+	}
+
+	taskArgs := append([]string{constNpmTestYes, task}, args...)
+
+	return tasktestutil.RunTask(
+		t,
+		tasktestutil.TaskRun{Root: tasktestutil.ModuleRoot(t), Env: npmStubEnv(t), Args: taskArgs},
+	)
+}
+
+// TestRunTaskForwardsCliArgs
 func TestRunTaskForwardsCliArgs(t *testing.T) {
 	t.Parallel()
 
 	if runtime.GOOS == constNpmTestWindows {
-		t.Skip("stub npm tests target Unix-like systems")
+		t.Skip(constNpmTestUnixSkipMsg)
 	}
 
 	result := tasktestutil.RunTask(
 		t,
 		tasktestutil.ModuleRoot(t),
 		npmStubEnv(t),
-		"--yes",
-		"run",
+		constNpmTestYes,
+		constNpmTestRun,
 		"SCRIPT=test",
 		"--",
 		"--watch",
 	)
-	tasktestutil.AssertExitCode(t, result, 0)
+	tasktestutil.AssertExitCode(t, result, constNpmTestExitSuccess)
 }
 
+// TestRunTaskCliArgsWiredInYaml
 func TestRunTaskCliArgsWiredInYaml(t *testing.T) {
 	t.Parallel()
 
 	taskfile := tasktestutil.LoadTaskfile(t)
 	task := tasktestutil.MustTask(t, taskfile, "_run:unix")
 
-	cmds := task.Field("cmds")
+	cmds := task.Field(constNpmTestCmds)
 
 	if cmds == nil {
 		t.Fatal("_run:unix task has no cmds")
@@ -619,11 +766,12 @@ func TestRunTaskCliArgsWiredInYaml(t *testing.T) {
 	}
 }
 
+// TestDevTaskExitsSuccessfully
 func TestDevTaskExitsSuccessfully(t *testing.T) {
 	t.Parallel()
 
 	if runtime.GOOS == constNpmTestWindows {
-		t.Skip("stub npm tests target Unix-like systems")
+		t.Skip(constNpmTestUnixSkipMsg)
 	}
 
 	result := tasktestutil.RunTask(
@@ -631,108 +779,128 @@ func TestDevTaskExitsSuccessfully(t *testing.T) {
 		tasktestutil.TaskRun{
 			Root: tasktestutil.ModuleRoot(t),
 			Env:  npmStubEnv(t),
-			Args: []string{"--yes", "dev"},
+			Args: []string{constNpmTestYes, constNpmTestDev},
 		},
 	)
-	tasktestutil.AssertExitCode(t, result, 0)
+	tasktestutil.AssertExitCode(t, result, constNpmTestExitSuccess)
 }
 
+func runNpmTaskFor(t *testing.T, projectDir, taskName string) tasktestutil.CommandResult {
+	t.Helper()
+
+	taskfileDir := tasktestutil.ModuleRoot(t)
+
+	return tasktestutil.RunTask(t, tasktestutil.TaskRun{
+		Root: projectDir,
+		Env:  npmStubEnv(t),
+		Args: []string{
+			constNpmTestTaskfileFlag,
+			filepath.Join(taskfileDir, constNpmTestTaskfileYml),
+			constNpmTestYes,
+			taskName,
+		},
+	})
+}
+
+// TestInstallFailsOutsideProjectRoot validates the behavior covered by this test case.
 func TestInstallFailsOutsideProjectRoot(t *testing.T) {
 	t.Parallel()
 
 	if runtime.GOOS == constNpmTestWindows {
-		t.Skip("stub npm tests target Unix-like systems")
+		t.Skip(constNpmTestUnixSkipMsg)
 	}
 
-	taskfileDir := tasktestutil.ModuleRoot(t)
 	projectDir := t.TempDir()
-
-	result := tasktestutil.RunTask(t, tasktestutil.TaskRun{
-		Root: projectDir,
-		Env:  npmStubEnv(t),
-		Args: []string{
-			"--taskfile",
-			filepath.Join(taskfileDir, "Taskfile.yml"),
-			"--yes",
-			"install",
-		},
-	})
+	result := runNpmTaskFor(t, projectDir, constNpmTestInstall)
 
 	if result.Err == nil {
 		t.Fatal("expected task install to fail outside a project root but it succeeded")
 	}
 
-	if !strings.Contains(strings.ToLower(result.Combined()), "package.json") {
+	if !strings.Contains(strings.ToLower(result.Combined()), constNpmTestPackageJSON) {
 		t.Fatalf("expected error mentioning package.json, got:\n%s", result.Combined())
 	}
 }
 
-func TestCiFailsWithoutLockfile(t *testing.T) {
-	t.Parallel()
-
-	if runtime.GOOS == constNpmTestWindows {
-		t.Skip("stub npm tests target Unix-like systems")
-	}
-
-	taskfileDir := tasktestutil.ModuleRoot(t)
-
-	projectDir := t.TempDir()
+func writeProjectPackageJSON(t *testing.T, projectDir string) {
+	t.Helper()
 
 	err := os.WriteFile(
-		filepath.Join(projectDir, "package.json"),
+		filepath.Join(projectDir, constNpmTestPackageJSON),
 		[]byte(`{"name":"test","version":"1.0.0"}`),
-		0o600,
+		constNpmTestFileMode0600,
 	)
 	if err != nil {
 		t.Fatalf("failed to create package.json: %v", err)
 	}
+}
 
-	result := tasktestutil.RunTask(t, tasktestutil.TaskRun{
-		Root: projectDir,
-		Env:  npmStubEnv(t),
-		Args: []string{"--taskfile", filepath.Join(taskfileDir, "Taskfile.yml"), "--yes", "ci"},
-	})
+func assertResultErrContains(t *testing.T, result *tasktestutil.CommandResult, check *errCheck) {
+	t.Helper()
 
 	if result.Err == nil {
-		t.Fatal("expected task ci to fail without package-lock.json but it succeeded")
+		t.Fatal(check.noErrMsg)
 	}
 
 	out := strings.ToLower(result.Combined())
 
-	if !strings.Contains(out, "package-lock.json") && !strings.Contains(out, "lockfile") {
-		t.Fatalf("expected error mentioning lockfile, got:\n%s", result.Combined())
+	if !strings.Contains(out, check.substrA) && !strings.Contains(out, check.substrB) {
+		t.Fatalf(check.msgFmt, result.Combined())
 	}
 }
 
-func TestRunTaskRejectsUnsafeScript(t *testing.T) {
-	t.Parallel()
+func skipUnlessUnixShell(t *testing.T) {
+	t.Helper()
 
 	if runtime.GOOS == constNpmTestWindows {
-		t.Skip("stub npm tests target Unix-like systems")
+		t.Skip(constNpmTestUnixSkipMsg)
 	}
+}
+
+// TestCiFailsWithoutLockfile validates the behavior covered by this test case.
+func TestCiFailsWithoutLockfile(t *testing.T) {
+	t.Parallel()
+	skipUnlessUnixShell(t)
+
+	projectDir := t.TempDir()
+
+	writeProjectPackageJSON(t, projectDir)
+
+	result := runNpmTaskFor(t, projectDir, constNpmTestCi)
+
+	assertResultErrContains(t, &result, &errCheck{
+		noErrMsg: "expected task ci to fail without package-lock.json but it succeeded",
+		substrA:  "package-lock.json",
+		substrB:  "lockfile",
+		msgFmt:   "expected error mentioning lockfile, got:\n%s",
+	})
+}
+
+// TestRunTaskRejectsUnsafeScript validates the behavior covered by this test case.
+func TestRunTaskRejectsUnsafeScript(t *testing.T) {
+	t.Parallel()
+	skipUnlessUnixShell(t)
 
 	result := tasktestutil.RunTask(
 		t,
 		tasktestutil.ModuleRoot(t),
 		npmStubEnv(t),
-		"--yes",
-		"run",
+		constNpmTestYes,
+		constNpmTestRun,
 		"SCRIPT=dev; rm -rf /",
 	)
 
-	if result.Err == nil {
-		t.Fatal("expected task run to reject unsafe SCRIPT but it succeeded")
-	}
-
-	out := strings.ToLower(result.Combined())
-
-	if !strings.Contains(out, "invalid") && !strings.Contains(out, "script") {
-		t.Fatalf("expected error about invalid SCRIPT characters, got:\n%s", result.Combined())
-	}
+	assertResultErrContains(t, &result, &errCheck{
+		noErrMsg: "expected task run to reject unsafe SCRIPT but it succeeded",
+		substrA:  "invalid",
+		substrB:  "script",
+		msgFmt:   "expected error about invalid SCRIPT characters, got:\n%s",
+	})
 }
 
-func TestRealNpmFlowOnlyWhenExplicitlyEnabled(t *testing.T) {
-	t.Parallel()
+// TestRealNpmFlowOnlyWhenExplicitlyEnabled
+func skipUnlessRealNpmFlowEnabled(t *testing.T) {
+	t.Helper()
 
 	if os.Getenv("RUN_INSTALLER_TESTS") != "1" {
 		t.Skip("set RUN_INSTALLER_TESTS=1 to run real npm install/build/test tests")
@@ -741,15 +909,25 @@ func TestRealNpmFlowOnlyWhenExplicitlyEnabled(t *testing.T) {
 	if runtime.GOOS == constNpmTestWindows {
 		t.Skip("real npm flow tests target Unix-like systems")
 	}
+}
+
+// TestRealNpmFlowOnlyWhenExplicitlyEnabled validates the behavior covered by this test case.
+func TestRealNpmFlowOnlyWhenExplicitlyEnabled(t *testing.T) {
+	t.Parallel()
+	skipUnlessRealNpmFlowEnabled(t)
 
 	root := tasktestutil.ModuleRoot(t)
 	env := tasktestutil.IsolatedEnv(t)
 	result := tasktestutil.RunTaskTimeout(
 		t,
-		tasktestutil.TaskRun{Root: root, Env: env, Args: []string{"--yes", "version"}},
+		tasktestutil.TaskRun{
+			Root: root,
+			Env:  env,
+			Args: []string{constNpmTestYes, constNpmTestVersion},
+		},
 		10*time.Minute,
 	)
-	tasktestutil.AssertExitCode(t, result, 0)
+	tasktestutil.AssertExitCode(t, result, constNpmTestExitSuccess)
 	tasktestutil.AssertNotEmpty(t, result.Combined(), "version output is empty")
 }
 
@@ -762,56 +940,86 @@ func readmePublicTaskNames(content string) []string {
 	return tasktestutil.ReadmePublicTaskNames(content)
 }
 
-func npmStubEnv(t *testing.T) []string {
+func makeStubBinDir(t *testing.T, home string) string {
 	t.Helper()
-
-	env := tasktestutil.IsolatedEnv(t)
-	home := tasktestutil.EnvValue(env, "HOME")
 
 	binDir := filepath.Join(home, ".local", "bin")
 
-	err := os.MkdirAll(binDir, 0o700)
+	err := os.MkdirAll(binDir, constNpmTestFileMode0700)
 	if err != nil {
 		t.Fatalf("failed to create stub bin dir: %v", err)
 	}
 
-	tasktestutil.WriteStub(t, tasktestutil.Stub{
-		Dir:  binDir,
-		Name: "fnm",
-		Body: "#!/usr/bin/env bash\ncase \"$1\" in\n" +
-			"  --version) echo \"fnm 1.37.1 stub\" ;;\n" +
-			"  env) echo \"# fnm env stub\" ;;\n" +
-			"  use) echo \"Using Node.js stub\" ;;\n" +
+	return binDir
+}
+
+func writeNpmFnmAndNodeStubs(t *testing.T, binDir string) {
+	t.Helper()
+
+	tasktestutil.WriteStub(
+		t,
+		binDir,
+		"fnm",
+		"#!/usr/bin/env bash\ncase \"$1\" in\n"+
+			"  --version) echo \"fnm 1.37.1 stub\" ;;\n"+
+			"  env) echo \"# fnm env stub\" ;;\n"+
+			"  use) echo \"Using Node.js stub\" ;;\n"+
 			"  *) exit 0 ;;\nesac\n",
-	})
+	)
 	tasktestutil.WriteStub(
 		t,
 		binDir,
 		"node",
 		"#!/usr/bin/env bash\ncase \"$1\" in\n  --version) echo \"v20.11.0 stub\" ;;\n  *) exit 0 ;;\nesac\n",
 	)
-	tasktestutil.WriteStub(t, tasktestutil.Stub{
-		Dir:  binDir,
-		Name: "npm",
-		Body: "#!/usr/bin/env bash\ncase \"$1\" in\n" +
-			"  --version) echo \"10.9.0 stub\" ;;\n" +
+}
+
+func writeNpmToolchainStubs(t *testing.T, binDir string) {
+	t.Helper()
+
+	writeNpmFnmAndNodeStubs(t, binDir)
+	tasktestutil.WriteStub(
+		t,
+		binDir,
+		"npm",
+		"#!/usr/bin/env bash\ncase \"$1\" in\n"+
+			"  --version) echo \"10.9.0 stub\" ;;\n"+
 			"  *) echo \"npm $* stub\"; exit 0 ;;\nesac\n",
-	})
+	)
 	tasktestutil.WriteStub(
 		t,
 		binDir,
 		"corepack",
 		"#!/usr/bin/env bash\necho \"corepack $* stub\"\n",
 	)
+}
+
+func writeStubBashrc(t *testing.T, home string) {
+	t.Helper()
 
 	bashrc := filepath.Join(home, ".bashrc")
 
-	err = os.WriteFile(bashrc, []byte("export PATH=\"$HOME/.local/bin:$PATH\"\n"), 0o600)
+	err := os.WriteFile(
+		bashrc,
+		[]byte("export PATH=\"$HOME/.local/bin:$PATH\"\n"),
+		constNpmTestFileMode0600,
+	)
 	if err != nil {
 		t.Fatalf("failed to pre-populate shell profile: %v", err)
 	}
+}
 
-	path := tasktestutil.EnvValue(env, "PATH")
+func npmStubEnv(t *testing.T) []string {
+	t.Helper()
 
-	return tasktestutil.SetEnv(env, "PATH", binDir+":"+path)
+	env := tasktestutil.IsolatedEnv(t)
+	home := tasktestutil.EnvValue(env, "HOME")
+
+	binDir := makeStubBinDir(t, home)
+	writeNpmToolchainStubs(t, binDir)
+	writeStubBashrc(t, home)
+
+	path := tasktestutil.EnvValue(env, constNpmTestPath)
+
+	return tasktestutil.SetEnv(env, constNpmTestPath, binDir+":"+path)
 }

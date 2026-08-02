@@ -29,20 +29,68 @@ type (
 		toolLeaves  map[string][]string
 		flatModules []string
 	}
+
+	metadataDiscoverer struct {
+		t            *testing.T
+		discovered   *discoveredMetadataModules
+		taskfilesDir string
+	}
+
+	toolLeaf struct {
+		leaves map[string][]string
+		tool   string
+		module string
+	}
+
+	toolMetadataCheck struct {
+		taskfilesDir string
+		tool         string
+		leaves       []string
+	}
+
+	familyRepScanner struct {
+		seen         map[string]string
+		taskfilesDir string
+	}
+
+	toolMetadataVariantCheck struct {
+		check *toolMetadataCheck
+		leaf  string
+		base  []string
+	}
+
+	metadataCheck struct {
+		taskfilesDir     string
+		dir              string
+		module           string
+		expectedTasks    []string
+		expectedVariants []string
+	}
 )
 
 const (
-	constMetadataTestTaskfileYml = "Taskfile.yml"
-	metadataSchema               = "taskotter.dev/taskfile-metadata/v1"
+	metadataSchema = "taskotter.dev/taskfile-metadata/v1"
+
+	brunoFamily      = "bruno"
+	typescriptFamily = "typescript"
+	npmFamily        = "npm"
+	pnpmFamily       = "pnpm"
+	yarnFamily       = "yarn"
+	corepackFamily   = "corepack"
+
+	walkTaskfilesErrFormat = "walk taskfiles: %v"
+	noModulesDiscoveredMsg = "no modules discovered"
+	pathSeparator          = "/"
+	parseMetadataErrFormat = "parse metadata.yml: %v"
 )
 
 func toolFamilies() map[string]bool {
 	return map[string]bool{
-		"eslint": true, "prettier": true, "biome": true, "bruno": true,
-		"depcheck": true, "knip": true, "stylelint": true, "typescript": true,
-		"htmlhint": true, "spectral": true,
+		eslintFamily: true, prettierFamily: true, biomeFamily: true, brunoFamily: true,
+		depcheckFamily: true, knipFamily: true, stylelintFamily: true, typescriptFamily: true,
+		htmlhintFamily: true, spectralFamily: true,
 		// Package managers are families too: taskfiles/<pm>/{fnm,nvm}.
-		"npm": true, "pnpm": true, "yarn": true, "corepack": true,
+		npmFamily: true, pnpmFamily: true, yarnFamily: true, corepackFamily: true,
 	}
 }
 
@@ -53,9 +101,11 @@ func exportedTasks(t *testing.T, module string) []string {
 
 	taskfile := tasktest.LoadTaskfile(t, module)
 
-	tasks := make([]string, 0, len(taskfile.Tasks))
+	tasks := make([]string, constZero, len(taskfile.Tasks))
 
-	for name, task := range taskfile.Tasks {
+	for name := range taskfile.Tasks {
+		task := taskfile.Tasks[name]
+
 		if name == "default" || strings.HasPrefix(name, "_") || task.Internal {
 			continue
 		}
@@ -73,18 +123,27 @@ func exportedTasks(t *testing.T, module string) []string {
 // family carries one metadata.yml at its root whose exported_tasks must match
 // every one of its variant leaves (the shared-interface guarantee) and whose
 // variants list must match the leaves actually present on disk.
+// TestModuleMetadataListsEveryExportedTask
 func TestModuleMetadataListsEveryExportedTask(t *testing.T) {
 	t.Parallel()
 
 	root := tasktest.RepoRoot(t)
-	taskfilesDir := filepath.Join(root, "taskfiles")
+	taskfilesDir := filepath.Join(root, taskfilesDirName)
 	discovered := discoverMetadataModules(t, taskfilesDir)
 
-	for _, module := range discovered.flatModules {
+	assertFlatMetadataModules(t, taskfilesDir, discovered.flatModules)
+	assertToolMetadataModules(t, taskfilesDir, discovered.toolLeaves)
+}
+
+func assertFlatMetadataModules(t *testing.T, taskfilesDir string, modules []string) {
+	t.Helper()
+
+	for i := range modules {
+		module := modules[i]
 		t.Run(module, func(t *testing.T) {
 			t.Parallel()
 
-			assertMetadata(t, metadataCheck{
+			assertMetadata(t, &metadataCheck{
 				taskfilesDir:     taskfilesDir,
 				dir:              module,
 				module:           module,
@@ -93,14 +152,19 @@ func TestModuleMetadataListsEveryExportedTask(t *testing.T) {
 			})
 		})
 	}
+}
 
-	for _, tool := range sortedKeys(discovered.toolLeaves) {
-		leaves := discovered.toolLeaves[tool]
+func assertToolMetadataModules(t *testing.T, taskfilesDir string, toolLeaves map[string][]string) {
+	t.Helper()
+
+	for i := range sortedKeys(toolLeaves) {
+		tool := sortedKeys(toolLeaves)[i]
+		leaves := toolLeaves[tool]
 		slices.Sort(leaves)
 		t.Run(tool, func(t *testing.T) {
 			t.Parallel()
 
-			assertToolMetadata(t, toolMetadataCheck{
+			assertToolMetadata(t, &toolMetadataCheck{
 				taskfilesDir: taskfilesDir,
 				tool:         tool,
 				leaves:       leaves,
@@ -117,104 +181,121 @@ func discoverMetadataModules(t *testing.T, taskfilesDir string) discoveredMetada
 
 	err := filepath.WalkDir(taskfilesDir, discoverer.discover)
 	if err != nil {
-		t.Fatalf("walk taskfiles: %v", err)
+		t.Fatalf(walkTaskfilesErrFormat, err)
 	}
 
-	if len(discovered.flatModules) == 0 || len(discovered.toolLeaves) == 0 {
-		t.Fatal("no modules discovered")
+	if len(discovered.flatModules) == constZero || len(discovered.toolLeaves) == constZero {
+		t.Fatal(noModulesDiscoveredMsg)
 	}
 
 	return discovered
 }
 
-type metadataDiscoverer struct {
-	t            *testing.T
-	discovered   *discoveredMetadataModules
-	taskfilesDir string
-}
-
-func (discoverer metadataDiscoverer) discover(
-	path string,
-	dirEntry fs.DirEntry,
-	walkErr error,
-) error {
+func (discoverer *metadataDiscoverer) discover(path string, entry fs.DirEntry, err error) error {
 	discoverer.t.Helper()
 
-	if walkErr != nil {
-		return walkErr
-	}
-
-	if dirEntry.IsDir() || dirEntry.Name() != constMetadataTestTaskfileYml {
-		return nil
-	}
-
-	rel, err := filepath.Rel(discoverer.taskfilesDir, filepath.Dir(path))
 	if err != nil {
-		return fmt.Errorf("metadata module path relative to taskfiles: %w", err)
+		return err
 	}
 
-	module := filepath.ToSlash(rel)
-	segments := strings.Split(module, "/")
-
-	if toolFamilies()[segments[0]] {
-		addToolLeaf(discoverer.t, toolLeaf{
-			leaves: discoverer.discovered.toolLeaves,
-			tool:   segments[0],
-			module: module,
-		})
-
+	if entry.IsDir() || entry.Name() != skipTaskfileYML {
 		return nil
 	}
 
-	if len(segments) == 1 {
-		discoverer.discovered.flatModules = append(discoverer.discovered.flatModules, module)
+	moduleErr := discoverer.recordModuleFor(path)
+	if moduleErr != nil {
+		return fmt.Errorf("record metadata module: %w", moduleErr)
 	}
 
 	return nil
 }
 
-type toolLeaf struct {
-	leaves map[string][]string
-	tool   string
-	module string
+func (discoverer *metadataDiscoverer) moduleFor(path string) (string, error) {
+	rel, err := filepath.Rel(discoverer.taskfilesDir, filepath.Dir(path))
+	if err != nil {
+		return "", fmt.Errorf("metadata module path relative to taskfiles: %w", err)
+	}
+
+	return filepath.ToSlash(rel), nil
 }
 
-func addToolLeaf(t *testing.T, leaf toolLeaf) {
+func (discoverer *metadataDiscoverer) record(module string) {
+	segments := strings.Split(module, pathSeparator)
+
+	if toolFamilies()[segments[constZero]] {
+		addToolLeaf(discoverer.t, &toolLeaf{
+			leaves: discoverer.discovered.toolLeaves,
+			tool:   segments[constZero],
+			module: module,
+		})
+
+		return
+	}
+
+	if len(segments) == constOne {
+		discoverer.discovered.flatModules = append(discoverer.discovered.flatModules, module)
+	}
+}
+
+func (discoverer *metadataDiscoverer) recordModuleFor(path string) error {
+	module, err := discoverer.moduleFor(path)
+	if err != nil {
+		return fmt.Errorf("discover metadata module: %w", err)
+	}
+
+	discoverer.record(module)
+
+	return nil
+}
+
+func addToolLeaf(t *testing.T, leaf *toolLeaf) {
 	t.Helper()
 
-	if leaf.tool == leaf.module || len(exportedTasks(t, leaf.module)) == 0 {
+	if leaf.tool == leaf.module || len(exportedTasks(t, leaf.module)) == constZero {
 		return
 	}
 
 	leaf.leaves[leaf.tool] = append(leaf.leaves[leaf.tool], leaf.module)
 }
 
-type toolMetadataCheck struct {
-	taskfilesDir string
-	tool         string
-	leaves       []string
-}
-
-func assertToolMetadata(t *testing.T, check toolMetadataCheck) {
+func assertToolMetadataVariantMatches(t *testing.T, variant *toolMetadataVariantCheck) {
 	t.Helper()
 
-	base := exportedTasks(t, check.leaves[0])
-	variants := make([]string, 0, len(check.leaves))
+	got := exportedTasks(t, variant.leaf)
 
-	for _, leaf := range check.leaves {
-		got := exportedTasks(t, leaf)
+	if !slices.Equal(got, variant.base) {
+		t.Fatalf(
+			"exported-task interface drift within %q:\n  %s: %v\n  %s: %v",
+			variant.check.tool, variant.check.leaves[0], variant.base, variant.leaf, got,
+		)
+	}
+}
 
-		if !slices.Equal(got, base) {
-			t.Fatalf(
-				"exported-task interface drift within %q:\n  %s: %v\n  %s: %v",
-				check.tool, check.leaves[0], base, leaf, got,
-			)
-		}
+func assertToolVariantsMatch(t *testing.T, check *toolMetadataCheck, base []string) []string {
+	t.Helper()
+
+	variants := make([]string, constZero, len(check.leaves))
+
+	for i := range check.leaves {
+		leaf := check.leaves[i]
+		assertToolMetadataVariantMatches(
+			t,
+			&toolMetadataVariantCheck{check: check, base: base, leaf: leaf},
+		)
 
 		variants = append(variants, strings.TrimPrefix(leaf, check.tool+"/"))
 	}
 
-	assertMetadata(t, metadataCheck{
+	return variants
+}
+
+func assertToolMetadata(t *testing.T, check *toolMetadataCheck) {
+	t.Helper()
+
+	base := exportedTasks(t, check.leaves[0])
+	variants := assertToolVariantsMatch(t, check, base)
+
+	assertMetadata(t, &metadataCheck{
 		taskfilesDir:     check.taskfilesDir,
 		dir:              check.tool,
 		module:           check.tool,
@@ -226,10 +307,12 @@ func assertToolMetadata(t *testing.T, check toolMetadataCheck) {
 // TestTaskCliLoadsEveryFamily forks the task CLI once per family to prove every
 // shipped Taskfile still parses. Per-module contract tests only parse the YAML
 // themselves; this is the single place that pays for the CLI round trip.
+// TestTaskCliLoadsEveryFamily
 func TestTaskCliLoadsEveryFamily(t *testing.T) {
 	t.Parallel()
 
-	for _, module := range familyRepresentatives(t) {
+	for i := range familyRepresentatives(t) {
+		module := familyRepresentatives(t)[i]
 		t.Run(module, func(t *testing.T) {
 			t.Parallel()
 			tasktest.AssertTaskCliCanLoad(t, module)
@@ -243,44 +326,69 @@ func TestTaskCliLoadsEveryFamily(t *testing.T) {
 func familyRepresentatives(t *testing.T) []string {
 	t.Helper()
 
-	taskfilesDir := filepath.Join(tasktest.RepoRoot(t), "taskfiles")
-	seen := map[string]string{}
+	scanner := familyRepScanner{
+		taskfilesDir: filepath.Join(tasktest.RepoRoot(t), taskfilesDirName),
+		seen:         map[string]string{},
+	}
 
-	err := filepath.WalkDir(taskfilesDir, func(path string, d fs.DirEntry, err error) error {
-		if err != nil {
-			return err
-		}
-
-		if d.IsDir() || d.Name() != constMetadataTestTaskfileYml {
-			return nil
-		}
-
-		rel, err := filepath.Rel(taskfilesDir, filepath.Dir(path))
-		if err != nil {
-			return fmt.Errorf("family representative path relative to taskfiles: %w", err)
-		}
-
-		module := filepath.ToSlash(rel)
-
-		family, _, _ := strings.Cut(module, "/")
-
-		if existing, ok := seen[family]; !ok || module < existing {
-			seen[family] = module
-		}
-
-		return nil
-	})
+	err := filepath.WalkDir(scanner.taskfilesDir, scanner.scan)
 	if err != nil {
-		t.Fatalf("walk taskfiles: %v", err)
+		t.Fatalf(walkTaskfilesErrFormat, err)
 	}
 
-	if len(seen) == 0 {
-		t.Fatal("no modules discovered")
+	if len(scanner.seen) == constZero {
+		t.Fatal(noModulesDiscoveredMsg)
 	}
 
-	modules := make([]string, 0, len(seen))
+	return sortedFamilyModules(scanner.seen)
+}
 
-	for _, module := range seen {
+func (scanner familyRepScanner) moduleFor(path string) (string, error) {
+	rel, err := filepath.Rel(scanner.taskfilesDir, filepath.Dir(path))
+	if err != nil {
+		return "", fmt.Errorf("family representative path relative to taskfiles: %w", err)
+	}
+
+	return filepath.ToSlash(rel), nil
+}
+
+func (scanner familyRepScanner) record(module string) {
+	family := module
+
+	if prefix, _, ok := strings.Cut(module, pathSeparator); ok {
+		family = prefix
+	}
+
+	if existing, ok := scanner.seen[family]; !ok || module < existing {
+		scanner.seen[family] = module
+	}
+}
+
+func (scanner familyRepScanner) scan(path string, d fs.DirEntry, walkErr error) error {
+	if walkErr != nil {
+		return walkErr
+	}
+
+	if d.IsDir() || d.Name() != skipTaskfileYML {
+		return nil
+	}
+
+	module, err := scanner.moduleFor(path)
+	if err != nil {
+		return fmt.Errorf("scan family representative module: %w", err)
+	}
+
+	scanner.record(module)
+
+	return nil
+}
+
+func sortedFamilyModules(seen map[string]string) []string {
+	modules := make([]string, constZero, len(seen))
+
+	for i := range seen {
+		module := seen[i]
+
 		modules = append(modules, module)
 	}
 
@@ -289,15 +397,35 @@ func familyRepresentatives(t *testing.T) []string {
 	return modules
 }
 
-type metadataCheck struct {
-	taskfilesDir     string
-	dir              string
-	module           string
-	expectedTasks    []string
-	expectedVariants []string
+func assertMetadata(t *testing.T, check *metadataCheck) {
+	t.Helper()
+
+	content := loadMetadataContent(t, check)
+	assertMetadataContentFormat(t, content)
+
+	metadata := parseMetadata(t, content)
+
+	assertMetadataHeader(t, &metadata, check.module)
+	assertMetadataTasks(t, &metadata, check.expectedTasks)
+	assertMetadataVariants(t, &metadata, check.expectedVariants)
 }
 
-func assertMetadata(t *testing.T, check metadataCheck) {
+func parseMetadata(t *testing.T, content []byte) moduleMetadata {
+	t.Helper()
+
+	var metadata moduleMetadata
+
+	err := yaml.Unmarshal(content, &metadata)
+	if err != nil {
+		t.Fatalf(parseMetadataErrFormat, err)
+	}
+
+	metadata.ExportedTasks = metadataStringSequence(t, content, "exported_tasks")
+
+	return metadata
+}
+
+func loadMetadataContent(t *testing.T, check *metadataCheck) []byte {
 	t.Helper()
 
 	metadataPath := filepath.ToSlash(filepath.Join(check.dir, "metadata.yml"))
@@ -307,29 +435,25 @@ func assertMetadata(t *testing.T, check metadataCheck) {
 		t.Fatalf("read metadata.yml: %v; add or update it to match the module Taskfile", err)
 	}
 
-	if strings.Contains(string(content), "\r\n") {
+	return content
+}
+
+func assertMetadataContentFormat(t *testing.T, content []byte) {
+	t.Helper()
+
+	if strings.Contains(string(content), crlfSeparator) {
 		t.Fatal("metadata.yml must use LF line endings")
 	}
 
-	if strings.TrimRight(string(content), " \t\r\n") != strings.TrimRight(string(content), "\r\n") {
+	trimmedAllWhitespace := strings.TrimRight(string(content), " \t\r\n")
+	trimmedNewlinesOnly := strings.TrimRight(string(content), crlfSeparator)
+
+	if trimmedAllWhitespace != trimmedNewlinesOnly {
 		t.Fatal("metadata.yml has trailing whitespace")
 	}
-
-	var metadata moduleMetadata
-
-	err = yaml.Unmarshal(content, &metadata)
-	if err != nil {
-		t.Fatalf("parse metadata.yml: %v", err)
-	}
-
-	metadata.ExportedTasks = metadataStringSequence(t, content, "exported_tasks")
-
-	assertMetadataHeader(t, metadata, check.module)
-	assertMetadataTasks(t, metadata, check.expectedTasks)
-	assertMetadataVariants(t, metadata, check.expectedVariants)
 }
 
-func assertMetadataHeader(t *testing.T, metadata moduleMetadata, module string) {
+func assertMetadataHeader(t *testing.T, metadata *moduleMetadata, module string) {
 	t.Helper()
 
 	if metadata.Schema != metadataSchema {
@@ -340,20 +464,20 @@ func assertMetadataHeader(t *testing.T, metadata moduleMetadata, module string) 
 		t.Errorf("module = %q, want %q", metadata.Module, module)
 	}
 
-	if metadata.Taskfile != constMetadataTestTaskfileYml {
-		t.Errorf("taskfile = %q, want %q", metadata.Taskfile, constMetadataTestTaskfileYml)
+	if metadata.Taskfile != skipTaskfileYML {
+		t.Errorf("taskfile = %q, want %q", metadata.Taskfile, skipTaskfileYML)
 	}
 }
 
-func assertMetadataTasks(t *testing.T, metadata moduleMetadata, expectedTasks []string) {
+func assertMetadataTasks(t *testing.T, metadata *moduleMetadata, expectedTasks []string) {
 	t.Helper()
 
 	if !slices.IsSorted(metadata.ExportedTasks) {
 		t.Errorf("exported_tasks must be sorted: %v", metadata.ExportedTasks)
 	}
 
-	for i := 1; i < len(metadata.ExportedTasks); i++ {
-		if metadata.ExportedTasks[i] == metadata.ExportedTasks[i-1] {
+	for i := constOne; i < len(metadata.ExportedTasks); i++ {
+		if metadata.ExportedTasks[i] == metadata.ExportedTasks[i-constOne] {
 			t.Errorf("exported_tasks contains duplicate %q", metadata.ExportedTasks[i])
 		}
 	}
@@ -367,7 +491,7 @@ func assertMetadataTasks(t *testing.T, metadata moduleMetadata, expectedTasks []
 	}
 }
 
-func assertMetadataVariants(t *testing.T, metadata moduleMetadata, expectedVariants []string) {
+func assertMetadataVariants(t *testing.T, metadata *moduleMetadata, expectedVariants []string) {
 	t.Helper()
 
 	if !slices.Equal(metadata.Variants, expectedVariants) {
@@ -386,12 +510,12 @@ func metadataStringSequence(t *testing.T, content []byte, key string) []string {
 
 	err := yaml.Unmarshal(content, &doc)
 	if err != nil {
-		t.Fatalf("parse metadata.yml: %v", err)
+		t.Fatalf(parseMetadataErrFormat, err)
 	}
 
-	root := doc.Content[0]
+	root := doc.Content[constZero]
 
-	for i := 0; i < len(root.Content); i += 2 {
+	for i := constZero; i < len(root.Content); i += constTwo {
 		if root.Content[i].Value == key {
 			return scalarSequence(root.Content[i+1])
 		}
@@ -405,9 +529,11 @@ func scalarSequence(node *yaml.Node) []string {
 		return nil
 	}
 
-	values := make([]string, 0, len(node.Content))
+	values := make([]string, constZero, len(node.Content))
 
-	for _, child := range node.Content {
+	for i := range node.Content {
+		child := node.Content[i]
+
 		values = append(values, child.Value)
 	}
 
@@ -415,7 +541,7 @@ func scalarSequence(node *yaml.Node) []string {
 }
 
 func sortedKeys[V any](items map[string]V) []string {
-	keys := make([]string, 0, len(items))
+	keys := make([]string, constZero, len(items))
 
 	for key := range items {
 		keys = append(keys, key)

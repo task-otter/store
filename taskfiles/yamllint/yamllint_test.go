@@ -34,6 +34,7 @@ func publicVars() []string {
 	}
 }
 
+// TestTaskfileModuleContract
 func TestTaskfileModuleContract(t *testing.T) {
 	t.Parallel()
 

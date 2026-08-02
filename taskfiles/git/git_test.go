@@ -10,6 +10,10 @@ import (
 )
 
 func publicTasks() []string {
+	return append(publicTasksCore(), publicTasksReleaseAndSync()...)
+}
+
+func publicTasksCoreA() []string {
 	return []string{
 		"add",
 		"add:all",
@@ -22,6 +26,11 @@ func publicTasks() []string {
 		"clean",
 		"clone",
 		"commit",
+	}
+}
+
+func publicTasksCoreB() []string {
+	return []string{
 		"commit:amend",
 		"config:list",
 		"config:user",
@@ -34,6 +43,15 @@ func publicTasks() []string {
 		"install:undo",
 		"log",
 		"log:graph",
+	}
+}
+
+func publicTasksCore() []string {
+	return append(publicTasksCoreA(), publicTasksCoreB()...)
+}
+
+func publicTasksReleaseAndSyncA() []string {
+	return []string{
 		"pr:create",
 		"pr:open",
 		"pull",
@@ -46,6 +64,11 @@ func publicTasks() []string {
 		"remote:set-url",
 		"reset:hard",
 		"reset:soft",
+	}
+}
+
+func publicTasksReleaseAndSyncB() []string {
+	return []string{
 		"stash",
 		"stash:drop",
 		"stash:list",
@@ -61,7 +84,15 @@ func publicTasks() []string {
 	}
 }
 
+func publicTasksReleaseAndSync() []string {
+	return append(publicTasksReleaseAndSyncA(), publicTasksReleaseAndSyncB()...)
+}
+
 func publicVars() []string {
+	return append(publicVarsCore(), publicVarsExtra()...)
+}
+
+func publicVarsCore() []string {
 	return []string{
 		"BASE",
 		"BODY",
@@ -73,6 +104,11 @@ func publicVars() []string {
 		"EXTRA_ARGS",
 		"FILES",
 		"MERGE_METHOD",
+	}
+}
+
+func publicVarsExtra() []string {
+	return []string{
 		"MESSAGE",
 		"NAME",
 		"NOTES",
@@ -87,6 +123,7 @@ func publicVars() []string {
 	}
 }
 
+// TestTaskfileModuleContract
 func TestTaskfileModuleContract(t *testing.T) {
 	t.Parallel()
 

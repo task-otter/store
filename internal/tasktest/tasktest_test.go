@@ -265,6 +265,7 @@ func makeRepo(t *testing.T) repoFixture {
 }
 
 // TestRepositoryAndTaskfilePaths verifies repo discovery from nested module paths.
+// TestRepositoryAndTaskfilePaths
 func TestRepositoryAndTaskfilePaths(t *testing.T) {
 	fixture := makeRepo(t)
 	assertRepositoryAndTaskfilePaths(t, &fixture)
@@ -295,6 +296,7 @@ func assertRepositoryAndTaskfilePaths(t *testing.T, fixture *repoFixture) {
 }
 
 // TestRepoRootMissingGoMod verifies repo discovery fails outside a Go module.
+// TestRepoRootMissingGoMod
 func TestRepoRootMissingGoMod(t *testing.T) {
 	inDir(t, t.TempDir(), func() {
 		expectFatal(
@@ -317,6 +319,7 @@ func samePath(t *testing.T, left, right string) bool {
 }
 
 // TestLoadTaskfile verifies valid and invalid Taskfile loading behavior.
+// TestLoadTaskfile
 func TestLoadTaskfile(t *testing.T) {
 	t.Parallel()
 	assertValidLoadTaskfile(t)
@@ -414,6 +417,7 @@ func invalidLoadTaskfileFormattingCases() []*loadTaskfileCase {
 }
 
 // TestReadmeValidation verifies README validation for Taskfile modules.
+// TestReadmeValidation
 func TestReadmeValidation(t *testing.T) {
 	t.Parallel()
 	assertValidModule(t)
@@ -503,6 +507,7 @@ func expectModuleFatal(t *testing.T, want string, expected *tasktest.ModuleExpec
 }
 
 // TestTaskfileValidation verifies Taskfile content validation for modules.
+// TestTaskfileValidation
 func TestTaskfileValidation(t *testing.T) {
 	t.Parallel()
 	assertValidModule(t)
