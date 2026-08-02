@@ -858,12 +858,8 @@ func assertSimpleTaskRunnerResult(t *testing.T, root string) {
 
 // TestDefaultTaskBinaryAndSimpleRunner validates the behavior covered by this test case.
 //
-// This test cannot call t.Parallel(): it must call t.Setenv to put a stub
-// "task" binary on PATH so [exec.Command]'s LookPath resolves to it, and
-// t.Setenv panics when called from (or before) a parallel test.
+//nolint:paralleltest // This test cannot call t.Parallel()
 func TestDefaultTaskBinaryAndSimpleRunner(t *testing.T) {
-	t.Parallel()
-
 	root := t.TempDir()
 
 	setupDefaultTaskBinary(t, root)
