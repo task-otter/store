@@ -106,7 +106,7 @@ func exportedTasks(t *testing.T, module string) []string {
 	for name := range taskfile.Tasks {
 		task := taskfile.Tasks[name]
 
-		if name == "default" || strings.HasPrefix(name, "_") || task.Internal {
+		if name == "default" || strings.HasPrefix(name, underscoreChar) || task.Internal {
 			continue
 		}
 

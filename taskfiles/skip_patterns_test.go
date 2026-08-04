@@ -262,6 +262,9 @@ const (
 	constSixtySeven = 67
 	perm0600        = 0o600
 
+	underscoreChar = "_"
+	hyphenChar     = "-"
+
 	constDecimalBase   = 10
 	constUint32BitSize = 32
 	perm0700           = 0o700

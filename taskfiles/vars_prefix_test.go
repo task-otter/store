@@ -15,10 +15,6 @@ import (
 	"github.com/task-otter/store/internal/tasktest"
 )
 
-const (
-	varsPrefixTestName = "TestTopLevelVarsPrefix"
-)
-
 type (
 	varsPrefixViolation struct {
 		module string
@@ -31,64 +27,115 @@ type (
 		foreignPrefixes   []string
 		companionPrefixes []string
 	}
+
+	varsPrefixCollector struct {
+		t            *testing.T
+		taskfilesDir string
+		allowlists   *varsPrefixAllowlists
+		violations   []varsPrefixViolation
+	}
 )
 
+const (
+	varsPrefixTestName = "TestTopLevelVarsPrefix"
+)
+
+// TestTopLevelVarsPrefix enforces ADR 0002: top-level Taskfile vars must use
+// the owning module prefix, or an allowlisted shared/foreign/companion prefix.
 func TestTopLevelVarsPrefix(t *testing.T) {
 	t.Parallel()
 
 	root := tasktest.RepoRoot(t)
 	taskfilesDir := filepath.Join(root, taskfilesDirName)
 	allowlists := buildVarsPrefixAllowlists(t, taskfilesDir)
+	collector := varsPrefixCollector{
+		t:            t,
+		taskfilesDir: taskfilesDir,
+		allowlists:   &allowlists,
+		violations:   nil,
+	}
 
-	var violations []varsPrefixViolation
-
-	err := filepath.WalkDir(taskfilesDir, func(path string, d fs.DirEntry, walkErr error) error {
-		if walkErr != nil {
-			return walkErr
-		}
-
-		if d.IsDir() || d.Name() != skipTaskfileYML {
-			return nil
-		}
-
-		module, err := modulePathForTaskfile(taskfilesDir, path)
-		if err != nil {
-			return err
-		}
-
-		if module == "." {
-			return nil
-		}
-
-		taskfile := tasktest.LoadTaskfile(t, module)
-		if len(taskfile.Vars) == constZero {
-			return nil
-		}
-
-		owned := ownedVarsPrefix(module)
-		for name := range taskfile.Vars {
-			if varsPrefixAllowed(name, owned, allowlists) {
-				continue
-			}
-
-			violations = append(violations, varsPrefixViolation{
-				module: module,
-				name:   name,
-				want:   owned,
-			})
-		}
-
-		return nil
-	})
+	err := filepath.WalkDir(taskfilesDir, collector.collect)
 	if err != nil {
 		t.Fatalf(walkTaskfilesErrFormat, err)
 	}
 
-	if len(violations) == constZero {
+	collector.failIfViolations()
+}
+
+func (collector *varsPrefixCollector) appendModuleViolations(module string) {
+	collector.t.Helper()
+
+	if module == "." {
 		return
 	}
 
-	slices.SortFunc(violations, func(left, right varsPrefixViolation) int {
+	taskfile := tasktest.LoadTaskfile(collector.t, module)
+
+	if len(taskfile.Vars) == constZero {
+		return
+	}
+
+	owned := ownedVarsPrefix(module)
+	collector.recordVars(module, owned, taskfile.Vars)
+}
+
+func (collector *varsPrefixCollector) collect(path string, entry fs.DirEntry, walkErr error) error {
+	collector.t.Helper()
+
+	if walkErr != nil {
+		return walkErr
+	}
+
+	if entry.IsDir() || entry.Name() != skipTaskfileYML {
+		return nil
+	}
+
+	module, err := modulePathForTaskfile(collector.taskfilesDir, path)
+	if err != nil {
+		return fmt.Errorf("vars prefix module path: %w", err)
+	}
+
+	collector.appendModuleViolations(module)
+
+	return nil
+}
+
+func (collector *varsPrefixCollector) failIfViolations() {
+	collector.t.Helper()
+
+	if len(collector.violations) == constZero {
+		return
+	}
+
+	collector.t.Fatalf(
+		"%s: %d top-level var(s) missing owned/shared/foreign prefix:\n%s",
+		varsPrefixTestName,
+		len(collector.violations),
+		strings.Join(collector.violationLines(), "\n"),
+	)
+}
+
+func (collector *varsPrefixCollector) recordVars(module, owned string, vars map[string]any) {
+	collector.t.Helper()
+
+	for name := range vars {
+		if varsPrefixAllowed(name, owned, collector.allowlists) {
+			continue
+		}
+
+		collector.violations = append(collector.violations, varsPrefixViolation{
+			module: module,
+			name:   name,
+			want:   owned,
+		})
+	}
+}
+
+func (collector *varsPrefixCollector) violationLines() []string {
+	collector.t.Helper()
+
+	slices.SortFunc(collector.violations, func(left, right varsPrefixViolation) int {
 		if left.module != right.module {
 			return strings.Compare(left.module, right.module)
 		}
@@ -96,9 +143,15 @@ func TestTopLevelVarsPrefix(t *testing.T) {
 		return strings.Compare(left.name, right.name)
 	})
 
+	return formatVarsPrefixViolations(collector.violations)
+}
+
+func formatVarsPrefixViolations(violations []varsPrefixViolation) []string {
 	lines := make([]string, constZero, len(violations))
+
 	for i := range violations {
-		violation := violations[i]
+		violation := &violations[i]
+
 		lines = append(lines, fmt.Sprintf(
 			"%s: %s (want %s… or allowlisted)",
 			violation.module,
@@ -107,12 +160,7 @@ func TestTopLevelVarsPrefix(t *testing.T) {
 		))
 	}
 
-	t.Fatalf(
-		"%s: %d top-level var(s) missing owned/shared/foreign prefix:\n%s",
-		varsPrefixTestName,
-		len(violations),
-		strings.Join(lines, "\n"),
-	)
+	return lines
 }
 
 func buildVarsPrefixAllowlists(t *testing.T, taskfilesDir string) varsPrefixAllowlists {
@@ -144,17 +192,24 @@ func moduleForeignPrefixes(t *testing.T, taskfilesDir string) []string {
 		t.Fatalf("read taskfiles dir: %v", err)
 	}
 
+	prefixes := dirEntriesToVarsPrefixes(entries)
+	slices.Sort(prefixes)
+
+	return prefixes
+}
+
+func dirEntriesToVarsPrefixes(entries []os.DirEntry) []string {
 	prefixes := make([]string, constZero, len(entries))
+
 	for i := range entries {
 		entry := entries[i]
+
 		if !entry.IsDir() {
 			continue
 		}
 
 		prefixes = append(prefixes, dirNameToVarsPrefix(entry.Name()))
 	}
-
-	slices.Sort(prefixes)
 
 	return prefixes
 }
@@ -171,18 +226,19 @@ func modulePathForTaskfile(taskfilesDir, path string) (string, error) {
 func ownedVarsPrefix(module string) string {
 	parts := strings.Split(module, pathSeparator)
 	family := parts[constZero]
-	if family == "internal" && len(parts) > 1 {
-		family = parts[1]
+
+	if family == "internal" && len(parts) > constOne {
+		family = parts[constOne]
 	}
 
 	return dirNameToVarsPrefix(family)
 }
 
 func dirNameToVarsPrefix(name string) string {
-	return strings.ToUpper(strings.ReplaceAll(name, "-", "_")) + "_"
+	return strings.ToUpper(strings.ReplaceAll(name, hyphenChar, underscoreChar)) + underscoreChar
 }
 
-func varsPrefixAllowed(name, owned string, allowlists varsPrefixAllowlists) bool {
+func varsPrefixAllowed(name, owned string, allowlists *varsPrefixAllowlists) bool {
 	if strings.HasPrefix(name, owned) {
 		return true
 	}
@@ -191,14 +247,27 @@ func varsPrefixAllowed(name, owned string, allowlists varsPrefixAllowlists) bool
 		return true
 	}
 
-	for i := range allowlists.companionPrefixes {
-		if strings.HasPrefix(name, allowlists.companionPrefixes[i]) {
+	if hasAnyPrefix(name, allowlists.companionPrefixes) {
+		return true
+	}
+
+	return hasForeignPrefix(name, owned, allowlists.foreignPrefixes)
+}
+
+func hasAnyPrefix(name string, prefixes []string) bool {
+	for i := range prefixes {
+		if strings.HasPrefix(name, prefixes[i]) {
 			return true
 		}
 	}
 
-	for i := range allowlists.foreignPrefixes {
-		prefix := allowlists.foreignPrefixes[i]
+	return false
+}
+
+func hasForeignPrefix(name, owned string, prefixes []string) bool {
+	for i := range prefixes {
+		prefix := prefixes[i]
+
 		if prefix == owned {
 			continue
 		}
