@@ -19,35 +19,32 @@ The Taskfile provides one cross-platform interface for installing, removing, and
 
 Linux and macOS use the official Bun install script. Windows uses the official PowerShell script.
 
+Tool Taskfiles that need the Bun CLI should depend only on `bun:install` and invoke `bun` directly (for example `bun add -d`, `bun remove`, `bun x`).
+
 ---
 
 ## Auto-install behaviour
 
-Every task that requires Bun automatically installs it first if it is not already present — you do not need to run `task install` manually before using `version` or any `upgrade` task.
+Every task that requires Bun automatically installs it first if it is not already present — you do not need to run `task install` manually before using `version` or `upgrade`.
 
 Installs are **idempotent**: the internal install task has a `status` check that exits early when Bun is already present and no specific version was requested, so running any task multiple times is safe.
 
-| Task                                          | Auto-installs                                     |
-| --------------------------------------------- | ------------------------------------------------- |
-| `version`                                     | Bun (if missing)                                  |
-| `upgrade`, `upgrade:canary`, `upgrade:stable` | Bun (if missing)                                  |
-| `install:undo`                                | — (removal; Bun being absent is already the goal) |
+| Task           | Auto-installs                                     |
+| -------------- | ------------------------------------------------- |
+| `version`      | Bun (if missing)                                  |
+| `upgrade`      | Bun (if missing)                                  |
+| `install:undo` | — (removal; Bun being absent is already the goal) |
 
 ---
 
 ## Public Tasks
 
-| Task             | Variables                                        | Description                                                                                |
-| ---------------- | ------------------------------------------------ | ------------------------------------------------------------------------------------------ |
-| `add`            | Required `PACKAGES`; optional `EXTRA_ARGS`       | Add packages as devDependencies with `bun add -d`.                                         |
-| `remove`         | Required `PACKAGES`; optional `EXTRA_ARGS`       | Remove globally-installed packages with `bun remove -g`.                                   |
-| `exec`           | Required `BINARY`; optional `ARGS`, `EXTRA_ARGS` | Execute a local project binary via `bun x`.                                                |
-| `install`        | Optional `VERSION`                               | Install Bun for the current operating system. Pass `VERSION=1.x.y` for a specific release. |
-| `install:undo`   | —                                                | Remove Bun from the current operating system.                                              |
-| `version`        | —                                                | Show the installed Bun version and revision. Auto-installs Bun if missing.                 |
-| `upgrade`        | —                                                | Upgrade Bun to the latest stable release. Auto-installs Bun if missing.                    |
-| `upgrade:canary` | —                                                | Switch Bun to the latest canary (pre-release) build. Auto-installs Bun if missing.         |
-| `upgrade:stable` | —                                                | Switch Bun back from canary to the latest stable release. Auto-installs Bun if missing.    |
+| Task           | Variables          | Description                                                                                |
+| -------------- | ------------------ | ------------------------------------------------------------------------------------------ |
+| `install`      | Optional `VERSION` | Install Bun for the current operating system. Pass `VERSION=1.x.y` for a specific release. |
+| `install:undo` | —                  | Remove Bun from the current operating system.                                              |
+| `version`      | —                  | Show the installed Bun version and revision. Auto-installs Bun if missing.                 |
+| `upgrade`      | —                  | Upgrade Bun to the latest stable release. Auto-installs Bun if missing.                    |
 
 ---
 
@@ -99,21 +96,7 @@ Upgrade to the latest stable release:
 task upgrade
 ```
 
-Switch to the latest canary (pre-release) build:
-
-```bash
-task upgrade:canary
-```
-
-Canary builds are untested and automatically upload crash reports to the Bun team. Use only in non-production environments.
-
-Switch back from canary to the latest stable release:
-
-```bash
-task upgrade:stable
-```
-
-All upgrade tasks install Bun first if it is not already present.
+The upgrade task installs Bun first if it is not already present.
 
 ---
 

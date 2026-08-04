@@ -47,11 +47,16 @@ tasks:
         const requested = '{{.RESOLVED_VERSION}}';
         process.exit(!requested || installed.version === requested ? 0 : 1)"
     cmds:
-      - task: bun:add
+      - task: _bun:unix
         vars:
-          PACKAGES: >-
-            stylelint{{if .RESOLVED_VERSION}}@{{.RESOLVED_VERSION}}{{end}} stylelint-config-standard
-          EXTRA_ARGS: '{{.RESOLVED_EXTRA_ARGS}}{{if .CLI_ARGS}} {{.CLI_ARGS}}{{end}}'
+          ARGS: >-
+            add -d --silent stylelint{{if .RESOLVED_VERSION}}@{{.RESOLVED_VERSION}}{{end}} stylelint-config-standard
+            {{.RESOLVED_EXTRA_ARGS}}{{if .CLI_ARGS}} {{.CLI_ARGS}}{{end}}
+      - task: _bun:windows
+        vars:
+          ARGS: >-
+            add -d --silent stylelint{{if .RESOLVED_VERSION}}@{{.RESOLVED_VERSION}}{{end}} stylelint-config-standard
+            {{.RESOLVED_EXTRA_ARGS}}{{if .CLI_ARGS}} {{.CLI_ARGS}}{{end}}
 
   install:undo:
     run: once
@@ -61,20 +66,28 @@ tasks:
       - This will remove stylelint and stylelint-config-standard from local devDependencies.
       - Continue?
     cmds:
-      - task: bun:remove
+      - task: _bun:unix
         vars:
-          PACKAGES: "stylelint stylelint-config-standard"
-          EXTRA_ARGS: '{{default .EXTRA_ARGS .EXTRA_ARGS_OVERRIDE}}'
+          ARGS: remove --silent stylelint stylelint-config-standard {{default .EXTRA_ARGS .EXTRA_ARGS_OVERRIDE}}
+      - task: _bun:windows
+        vars:
+          ARGS: remove --silent stylelint stylelint-config-standard {{default .EXTRA_ARGS .EXTRA_ARGS_OVERRIDE}}
 
   upgrade:
     run: once
     desc: Upgrade Stylelint to the latest release
     summary: Reinstall stylelint and stylelint-config-standard at their latest versions.
     cmds:
-      - task: bun:add
+      - task: _bun:unix
         vars:
-          PACKAGES: "stylelint@latest stylelint-config-standard@latest"
-          EXTRA_ARGS: '{{default .EXTRA_ARGS .EXTRA_ARGS_OVERRIDE}}'
+          ARGS: >-
+            add -d --silent stylelint@latest stylelint-config-standard@latest
+            {{default .EXTRA_ARGS .EXTRA_ARGS_OVERRIDE}}
+      - task: _bun:windows
+        vars:
+          ARGS: >-
+            add -d --silent stylelint@latest stylelint-config-standard@latest
+            {{default .EXTRA_ARGS .EXTRA_ARGS_OVERRIDE}}
 
   config:init:
     run: once
@@ -108,17 +121,28 @@ tasks:
         {{or .ALLOW_EMPTY_INPUT_OVERRIDE .ALLOW_EMPTY_INPUT .STYLELINT_DEFAULT_ALLOW_EMPTY_INPUT}}
       RESOLVED_EXTRA_ARGS: '{{default .EXTRA_ARGS .EXTRA_ARGS_OVERRIDE}}'
     cmds:
-      - task: bun:exec
+      - task: _bun:unix
         vars:
-          BINARY: stylelint
           ARGS: >-
+            x stylelint
             {{.RESOLVED_TARGETS}}
             {{- if .MODE_ARGS}} {{.MODE_ARGS}}{{end}}
             {{- if .RESOLVED_SKIP}} --ignore-pattern "{{.RESOLVED_SKIP}}"{{end}}
             {{- if .RESOLVED_CONFIG}} --config "{{.RESOLVED_CONFIG}}"{{end}}
             {{- if eq .RESOLVED_CACHE "true"}} --cache --cache-location .cache/stylelint/{{end}}
             {{- if eq .RESOLVED_EMPTY "true"}} --allow-empty-input{{end}}
-          EXTRA_ARGS: '{{.RESOLVED_EXTRA_ARGS}}{{if .CLI_ARGS}} {{.CLI_ARGS}}{{end}}'
+            {{.RESOLVED_EXTRA_ARGS}}{{if .CLI_ARGS}} {{.CLI_ARGS}}{{end}}
+      - task: _bun:windows
+        vars:
+          ARGS: >-
+            x stylelint
+            {{.RESOLVED_TARGETS}}
+            {{- if .MODE_ARGS}} {{.MODE_ARGS}}{{end}}
+            {{- if .RESOLVED_SKIP}} --ignore-pattern "{{.RESOLVED_SKIP}}"{{end}}
+            {{- if .RESOLVED_CONFIG}} --config "{{.RESOLVED_CONFIG}}"{{end}}
+            {{- if eq .RESOLVED_CACHE "true"}} --cache --cache-location .cache/stylelint/{{end}}
+            {{- if eq .RESOLVED_EMPTY "true"}} --allow-empty-input{{end}}
+            {{.RESOLVED_EXTRA_ARGS}}{{if .CLI_ARGS}} {{.CLI_ARGS}}{{end}}
 
   lint:
     run: once
@@ -157,17 +181,62 @@ tasks:
     run: once
     desc: Show the locally resolved Stylelint version
     cmds:
-      - task: bun:exec
+      - task: _bun:unix
         vars:
-          BINARY: stylelint
-          ARGS: "--version"
+          ARGS: x stylelint --version
+      - task: _bun:windows
+        vars:
+          ARGS: x stylelint --version
 
   help:
     run: once
     desc: Show Stylelint CLI help
     cmds:
-      - task: bun:exec
+      - task: _bun:unix
         vars:
-          BINARY: stylelint
-          ARGS: "--help"
-          EXTRA_ARGS: '{{default .EXTRA_ARGS .EXTRA_ARGS_OVERRIDE}}{{if .CLI_ARGS}} {{.CLI_ARGS}}{{end}}'
+          ARGS: >-
+            x stylelint --help
+            {{default .EXTRA_ARGS .EXTRA_ARGS_OVERRIDE}}{{if .CLI_ARGS}} {{.CLI_ARGS}}{{end}}
+      - task: _bun:windows
+        vars:
+          ARGS: >-
+            x stylelint --help
+            {{default .EXTRA_ARGS .EXTRA_ARGS_OVERRIDE}}{{if .CLI_ARGS}} {{.CLI_ARGS}}{{end}}
+
+
+  _bun:unix:
+    run: when_changed
+    internal: true
+    platforms: [linux, darwin]
+    dir: "{{.USER_WORKING_DIR}}"
+    set: [errexit, nounset, pipefail]
+    requires:
+      vars: [ARGS]
+    deps:
+      - task: bun:install
+    env:
+      CI: "1"
+    cmds:
+      - >-
+        BUN_INSTALL="${BUN_INSTALL:-$HOME/.bun}"
+        PATH="$BUN_INSTALL/bin:$PATH"
+        bun {{.ARGS}}
+
+  _bun:windows:
+    run: when_changed
+    internal: true
+    platforms: [windows]
+    dir: "{{.USER_WORKING_DIR}}"
+    requires:
+      vars: [ARGS]
+    deps:
+      - task: bun:install
+    env:
+      CI: "1"
+    cmds:
+      - >-
+        powershell -NoProfile -NonInteractive -ExecutionPolicy Bypass -Command
+        "$ErrorActionPreference = 'Stop';
+        $env:CI = '1';
+        $bun = if (Get-Command bun -ErrorAction SilentlyContinue) { 'bun' }
+        else { \"$env:USERPROFILE\.bun\bin\bun.exe\" }; & $bun {{.ARGS}}"

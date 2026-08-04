@@ -79,7 +79,7 @@ This delegates to `task fnm:node:install` or `task nvm:node:install` depending o
 | `install`         | Optional `NODE_VERSION`                    | Run `npm install` to install all dependencies from `package.json`.        |
 | `install:undo`    | —                                                           | Explain how to remove npm, which ships bundled with Node.js.              |
 | `upgrade`         | —                                                           | Upgrade npm with `npm install -g npm@latest`.                             |
-| `remove`          | Required `PACKAGES`; optional `EXTRA_ARGS`                 | Remove globally-installed packages with `npm uninstall -g`.               |
+| `remove`          | Required `PACKAGES`; optional `EXTRA_ARGS`                 | Remove local packages with `npm uninstall`.                               |
 | `ci`              | Optional `NODE_VERSION`                    | Run `npm ci` for a clean, reproducible install from `package-lock.json`.  |
 | `run`             | Required `SCRIPT` | Run a `package.json` script by name. Example: `SCRIPT=dev`.               |
 | `dev`             | Optional `NODE_VERSION`                    | Run `npm run dev`.                                                        |

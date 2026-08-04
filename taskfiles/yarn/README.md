@@ -60,7 +60,7 @@ task yarn:node:setup NODE_VERSION=22
 | `install`       | Optional `NODE_VERSION`                    | Run `yarn install`.                                         |
 | `install:undo`  | —                                                           | Disable the Yarn Corepack shim.                              |
 | `upgrade`       | —                                                           | Upgrade Yarn via `corepack prepare yarn@latest --activate`. |
-| `remove`        | Required `PACKAGES`; optional `EXTRA_ARGS`                 | Remove globally-installed packages with `yarn global remove`. |
+| `remove`        | Required `PACKAGES`; optional `EXTRA_ARGS`                 | Remove local packages with `yarn remove`.                     |
 | `ci`            | Optional `NODE_VERSION`                    | Run `yarn install --immutable` with a required `yarn.lock`. |
 | `run`           | Required `SCRIPT` | Run a script via `yarn run`.                                |
 | `dev`           | Optional `NODE_VERSION`                    | Run `yarn run dev`.                                         |

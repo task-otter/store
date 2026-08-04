@@ -81,110 +81,6 @@ tasks:
       - task: _upgrade:unix
       - task: _upgrade:windows
 
-  upgrade:canary:
-    run: once
-    desc: Upgrade Bun to the latest canary (pre-release) build
-    summary: |
-      Switch the installed Bun binary to the latest canary build using bun upgrade --canary.
-      Canary builds are untested and automatically upload crash reports to the Bun team.
-      Auto-installs Bun if missing.
-    deps:
-      - task: install
-    cmds:
-      - task: _upgrade:canary:unix
-      - task: _upgrade:canary:windows
-
-  upgrade:stable:
-    run: once
-    desc: Switch Bun back to the latest stable release from canary
-    summary: |
-      Downgrade or switch from a canary build back to the latest stable Bun release
-      using bun upgrade --stable.
-      Auto-installs Bun if missing.
-    deps:
-      - task: install
-    cmds:
-      - task: _upgrade:stable:unix
-      - task: _upgrade:stable:windows
-
-  add:
-    run: once
-    desc: Install packages globally with Bun (PACKAGES=<pkgs>)
-    requires:
-      vars: [PACKAGES]
-    deps:
-      - task: install
-    cmds:
-      - task: _bun:unix
-        vars:
-          ARGS: "add -g {{.PACKAGES}} {{.EXTRA_ARGS}}"
-      - task: _bun:windows
-        vars:
-          ARGS: "add -g {{.PACKAGES}} {{.EXTRA_ARGS}}"
-
-  remove:
-    run: once
-    desc: Remove globally-installed packages with Bun (PACKAGES=<pkgs>)
-    requires:
-      vars: [PACKAGES]
-    deps:
-      - task: install
-    cmds:
-      - task: _bun:unix
-        vars:
-          ARGS: "remove -g {{.PACKAGES}} {{.EXTRA_ARGS}}"
-      - task: _bun:windows
-        vars:
-          ARGS: "remove -g {{.PACKAGES}} {{.EXTRA_ARGS}}"
-
-  exec:
-    run: once
-    desc: Execute a local project binary via bunx (BINARY=<name>)
-    requires:
-      vars: [BINARY]
-    deps:
-      - task: install
-    cmds:
-      - task: _bun:unix
-        vars:
-          ARGS: "x {{.BINARY}} {{.ARGS}} {{.EXTRA_ARGS}}"
-      - task: _bun:windows
-        vars:
-          ARGS: "x {{.BINARY}} {{.ARGS}} {{.EXTRA_ARGS}}"
-
-  _bun:unix:
-    run: once
-    internal: true
-    platforms: [linux, darwin]
-    dir: "{{.USER_WORKING_DIR}}"
-    set: [errexit, nounset, pipefail]
-    requires:
-      vars: [ARGS]
-    preconditions:
-      - sh: test -f "$HOME/.bun/bin/bun" || command -v bun >/dev/null 2>&1
-        msg: Bun is not installed. Run task bun:install first.
-    cmds:
-      - bash -lc '{{.BUN_LOAD}}; bun {{.ARGS}}'
-
-  _bun:windows:
-    run: once
-    internal: true
-    platforms: [windows]
-    dir: "{{.USER_WORKING_DIR}}"
-    requires:
-      vars: [ARGS]
-    preconditions:
-      - sh: >-
-          powershell -NoProfile -ExecutionPolicy Bypass -Command
-          "if ((Get-Command bun -ErrorAction SilentlyContinue) -or
-          (Test-Path \"$env:USERPROFILE\.bun\bin\bun.exe\")) { exit 0 } else { exit 1 }"
-        msg: Bun is not installed or not in PATH. Run task bun:install first.
-    cmds:
-      - >-
-        powershell -NoProfile -ExecutionPolicy Bypass -Command
-        "$bun = if (Get-Command bun -ErrorAction SilentlyContinue) { 'bun' }
-        else { \"$env:USERPROFILE\.bun\bin\bun.exe\" }; & $bun {{.ARGS}}"
-
   _install:unix:
     run: once
     internal: true
@@ -322,7 +218,10 @@ tasks:
       - sh: test -f "$HOME/.bun/bin/bun" || command -v bun >/dev/null 2>&1
         msg: Bun is not installed. Run task install first.
     cmds:
-      - bash -lc '{{.BUN_LOAD}}; bun --version; bun --revision'
+      - >-
+        BUN_INSTALL="${BUN_INSTALL:-$HOME/.bun}"
+        PATH="$BUN_INSTALL/bin:$PATH"
+        bun --version; bun --revision
 
   _version:windows:
     run: once
@@ -340,8 +239,9 @@ tasks:
         msg: Bun is not installed or not available. Run task install first.
     cmds:
       - >-
-        powershell -NoProfile -ExecutionPolicy Bypass -Command
-        "$bun = if (Get-Command bun -ErrorAction SilentlyContinue) { 'bun' }
+        powershell -NoProfile -NonInteractive -ExecutionPolicy Bypass -Command
+        "$ErrorActionPreference = 'Stop';
+        $bun = if (Get-Command bun -ErrorAction SilentlyContinue) { 'bun' }
         else { \"$env:USERPROFILE\.bun\bin\bun.exe\" };
         & $bun --version; & $bun --revision"
 
@@ -357,7 +257,10 @@ tasks:
         msg: Bun is not installed. Run task install first.
     cmds:
       - echo Upgrading Bun to the latest stable release...
-      - bash -lc '{{.BUN_LOAD}}; bun upgrade'
+      - >-
+        BUN_INSTALL="${BUN_INSTALL:-$HOME/.bun}"
+        PATH="$BUN_INSTALL/bin:$PATH"
+        CI=1 bun upgrade
 
   _upgrade:windows:
     run: once
@@ -376,76 +279,8 @@ tasks:
     cmds:
       - echo Upgrading Bun to the latest stable release...
       - >-
-        powershell -NoProfile -ExecutionPolicy Bypass -Command
-        "$bun = if (Get-Command bun -ErrorAction SilentlyContinue) { 'bun' }
+        powershell -NoProfile -NonInteractive -ExecutionPolicy Bypass -Command
+        "$ErrorActionPreference = 'Stop';
+        $env:CI = '1';
+        $bun = if (Get-Command bun -ErrorAction SilentlyContinue) { 'bun' }
         else { \"$env:USERPROFILE\.bun\bin\bun.exe\" }; & $bun upgrade"
-
-  _upgrade:canary:unix:
-    run: once
-    internal: true
-    desc: Upgrade Bun to the latest canary build on macOS or Linux
-    summary: Run bun upgrade --canary on macOS or Linux to switch to the latest untested canary build.
-    platforms: [linux, darwin]
-    set: [errexit, nounset, pipefail]
-    preconditions:
-      - sh: test -f "$HOME/.bun/bin/bun" || command -v bun >/dev/null 2>&1
-        msg: Bun is not installed. Run task install first.
-    cmds:
-      - echo Upgrading Bun to the latest canary build...
-      - bash -lc '{{.BUN_LOAD}}; bun upgrade --canary'
-
-  _upgrade:canary:windows:
-    run: once
-    internal: true
-    desc: Upgrade Bun to the latest canary build on Windows
-    summary: |
-      Run bun upgrade --canary on Windows to switch to the latest untested canary build.
-      Detects Bun in PATH or at the default install location (~\.bun\bin\bun.exe).
-    platforms: [windows]
-    preconditions:
-      - sh: >-
-          powershell -NoProfile -ExecutionPolicy Bypass -Command
-          "if ((Get-Command bun -ErrorAction SilentlyContinue) -or
-          (Test-Path \"$env:USERPROFILE\.bun\bin\bun.exe\")) { exit 0 } else { exit 1 }"
-        msg: Bun is not installed or not available in PATH. Run task install first.
-    cmds:
-      - echo Upgrading Bun to the latest canary build...
-      - >-
-        powershell -NoProfile -ExecutionPolicy Bypass -Command
-        "$bun = if (Get-Command bun -ErrorAction SilentlyContinue) { 'bun' }
-        else { \"$env:USERPROFILE\.bun\bin\bun.exe\" }; & $bun upgrade --canary"
-
-  _upgrade:stable:unix:
-    run: once
-    internal: true
-    desc: Switch Bun back to stable from canary on macOS or Linux
-    summary: Run bun upgrade --stable on macOS or Linux to switch from a canary build back to the latest stable release.
-    platforms: [linux, darwin]
-    set: [errexit, nounset, pipefail]
-    preconditions:
-      - sh: test -f "$HOME/.bun/bin/bun" || command -v bun >/dev/null 2>&1
-        msg: Bun is not installed. Run task install first.
-    cmds:
-      - echo Switching Bun back to the latest stable release...
-      - bash -lc '{{.BUN_LOAD}}; bun upgrade --stable'
-
-  _upgrade:stable:windows:
-    run: once
-    internal: true
-    desc: Switch Bun back to stable from canary on Windows
-    summary: |
-      Run bun upgrade --stable on Windows to switch from a canary build back to the latest stable release.
-      Detects Bun in PATH or at the default install location (~\.bun\bin\bun.exe).
-    platforms: [windows]
-    preconditions:
-      - sh: >-
-          powershell -NoProfile -ExecutionPolicy Bypass -Command
-          "if ((Get-Command bun -ErrorAction SilentlyContinue) -or
-          (Test-Path \"$env:USERPROFILE\.bun\bin\bun.exe\")) { exit 0 } else { exit 1 }"
-        msg: Bun is not installed or not available in PATH. Run task install first.
-    cmds:
-      - echo Switching Bun back to the latest stable release...
-      - >-
-        powershell -NoProfile -ExecutionPolicy Bypass -Command
-        "$bun = if (Get-Command bun -ErrorAction SilentlyContinue) { 'bun' }
-        else { \"$env:USERPROFILE\.bun\bin\bun.exe\" }; & $bun upgrade --stable"

@@ -3,12 +3,7 @@ schema: taskotter.dev/taskfile-metadata/v1
 module: bun
 taskfile: Taskfile.yml
 exported_tasks:
-  - add
-  - exec
   - install
   - install:undo
-  - remove
   - upgrade
-  - upgrade:canary
-  - upgrade:stable
   - version

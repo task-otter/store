@@ -97,10 +97,10 @@ tasks:
     cmds:
       - task: _npm:unix
         vars:
-          ARGS: install
+          ARGS: install --silent --no-fund --no-audit
       - task: _npm:windows
         vars:
-          ARGS: install
+          ARGS: install --silent --no-fund --no-audit
 
   ci:
     run: once
@@ -116,29 +116,35 @@ tasks:
 
   add:
     run: once
-    desc: Install packages globally with npm (PACKAGES=<pkgs>)
+    desc: Install packages as local devDependencies with npm (PACKAGES=<pkgs>)
+    summary: |
+      Install PACKAGES as local devDependencies via npm install -D.
+      Pass EXTRA_ARGS for additional npm flags.
     requires:
       vars: [PACKAGES]
     cmds:
       - task: _npm:unix
         vars:
-          ARGS: "install -g {{.PACKAGES}} {{.EXTRA_ARGS}}"
+          ARGS: "install -D --silent --no-fund --no-audit {{.PACKAGES}} {{.EXTRA_ARGS}}"
       - task: _npm:windows
         vars:
-          ARGS: "install -g {{.PACKAGES}} {{.EXTRA_ARGS}}"
+          ARGS: "install -D --silent --no-fund --no-audit {{.PACKAGES}} {{.EXTRA_ARGS}}"
 
   remove:
     run: once
-    desc: Remove globally-installed packages with npm (PACKAGES=<pkgs>)
+    desc: Remove local packages with npm (PACKAGES=<pkgs>)
+    summary: |
+      Uninstall PACKAGES from the local project via npm uninstall.
+      Pass EXTRA_ARGS for additional npm flags.
     requires:
       vars: [PACKAGES]
     cmds:
       - task: _npm:unix
         vars:
-          ARGS: "uninstall -g {{.PACKAGES}} {{.EXTRA_ARGS}}"
+          ARGS: "uninstall --silent --no-fund --no-audit {{.PACKAGES}} {{.EXTRA_ARGS}}"
       - task: _npm:windows
         vars:
-          ARGS: "uninstall -g {{.PACKAGES}} {{.EXTRA_ARGS}}"
+          ARGS: "uninstall --silent --no-fund --no-audit {{.PACKAGES}} {{.EXTRA_ARGS}}"
 
   install:undo:
     run: once
@@ -155,15 +161,15 @@ tasks:
     run: once
     desc: Upgrade npm to the latest release
     summary: |
-      Run npm install -g npm@latest to upgrade the npm binary bundled with
+      Run npm install -g --silent npm@latest to upgrade the npm binary bundled with
       the active Node.js runtime to the latest release.
     cmds:
       - task: _npm:unix
         vars:
-          ARGS: "install -g npm@latest"
+          ARGS: "install -g --silent npm@latest"
       - task: _npm:windows
         vars:
-          ARGS: "install -g npm@latest"
+          ARGS: "install -g --silent npm@latest"
 
   exec:
     run: once
@@ -173,10 +179,10 @@ tasks:
     cmds:
       - task: _npm:unix
         vars:
-          ARGS: "exec -- {{.BINARY}} {{.ARGS}} {{.EXTRA_ARGS}}"
+          ARGS: "exec --yes -- {{.BINARY}} {{.ARGS}} {{.EXTRA_ARGS}}"
       - task: _npm:windows
         vars:
-          ARGS: "exec -- {{.BINARY}} {{.ARGS}} {{.EXTRA_ARGS}}"
+          ARGS: "exec --yes -- {{.BINARY}} {{.ARGS}} {{.EXTRA_ARGS}}"
 
   run:
     run: once
@@ -513,6 +519,7 @@ tasks:
         - ARGS
     env:
       COREPACK_ENABLE_AUTO_PIN: "1"
+      CI: "1"
     preconditions:
       - sh: test -s "$HOME/.nvm/nvm.sh"
         msg: 'nvm is not installed. Run: task node:setup'
@@ -536,6 +543,7 @@ tasks:
     env:
       NODE_VERSION: "{{.NODE_VERSION}}"
       COREPACK_ENABLE_AUTO_PIN: "1"
+      CI: "1"
     preconditions:
       - sh: >-
           powershell -NoProfile -ExecutionPolicy Bypass -Command
@@ -547,8 +555,9 @@ tasks:
         msg: "package.json not found. Run this task from the Node.js project root."
     cmds:
       - >-
-        powershell -NoProfile -ExecutionPolicy Bypass -Command
+        powershell -NoProfile -NonInteractive -ExecutionPolicy Bypass -Command
         "$ErrorActionPreference = 'Stop';
+        $env:CI = '1';
         $env:NODE_VERSION = '{{.NODE_VERSION}}';
         {{.WINDOWS_NODE_ACTIVATE}};
         if (-not (Get-Command corepack -ErrorAction SilentlyContinue)) {
@@ -566,7 +575,7 @@ tasks:
     cmds:
       - task: _npm:unix
         vars:
-          ARGS: ci
+          ARGS: ci --silent --no-fund --no-audit
 
   _ci:windows:
     run: once
@@ -580,7 +589,7 @@ tasks:
     cmds:
       - task: _npm:windows
         vars:
-          ARGS: ci
+          ARGS: ci --silent --no-fund --no-audit
 
   _run:unix:
     run: when_changed

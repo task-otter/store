@@ -81,13 +81,12 @@ tasks:
 
   config:init:
     run: once
-    desc: Run the ESLint config initialization wizard
+    desc: Create a starter ESLint flat config when none exists
     summary: |
-      Run eslint --init to scaffold an ESLint config file interactively.
+      Write a minimal eslint.config.mjs with recommended defaults.
+      Non-interactive — does not run the eslint --init wizard.
       Skipped if a recognized ESLint config file already exists in the
       current directory (eslint.config.js/mjs/cjs or .eslintrc.*).
-    vars:
-      RESOLVED_EXTRA_ARGS: '{{default .EXTRA_ARGS .EXTRA_ARGS_OVERRIDE}}'
     status:
       - >-
         test -f eslint.config.js ||
@@ -99,12 +98,18 @@ tasks:
         test -f .eslintrc.yml ||
         test -f .eslintrc.yaml
     cmds:
-      - task: pnpm:exec
-        vars:
-          BINARY: eslint
-          ARGS: "--init"
-          EXTRA_ARGS: '{{.RESOLVED_EXTRA_ARGS}}{{if .CLI_ARGS}} {{.CLI_ARGS}}{{end}}'
-
+      - |
+        printf '%s\n' \
+          '/** @type {import("eslint").Linter.Config[]} */' \
+          'export default [' \
+          '  {' \
+          '    languageOptions: {' \
+          '      ecmaVersion: "latest",' \
+          '      sourceType: "module",' \
+          '    },' \
+          '  },' \
+          '];' > eslint.config.mjs
+      - echo 'Created eslint.config.mjs.'
   # Shared implementation of lint / lint:fix / ci. Each override is resolved
   # exactly once here; the three public tasks differ only by MODE_ARGS.
   _run:

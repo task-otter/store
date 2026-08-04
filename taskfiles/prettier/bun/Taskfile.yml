@@ -45,10 +45,16 @@ tasks:
         const requested = '{{.RESOLVED_VERSION}}';
         process.exit(!requested || installed.version === requested ? 0 : 1)"
     cmds:
-      - task: bun:add
+      - task: _bun:unix
         vars:
-          PACKAGES: 'prettier{{if .RESOLVED_VERSION}}@{{.RESOLVED_VERSION}}{{end}}'
-          EXTRA_ARGS: '{{.RESOLVED_EXTRA_ARGS}}{{if .CLI_ARGS}} {{.CLI_ARGS}}{{end}}'
+          ARGS: >-
+            add -d --silent prettier{{if .RESOLVED_VERSION}}@{{.RESOLVED_VERSION}}{{end}}
+            {{.RESOLVED_EXTRA_ARGS}}{{if .CLI_ARGS}} {{.CLI_ARGS}}{{end}}
+      - task: _bun:windows
+        vars:
+          ARGS: >-
+            add -d --silent prettier{{if .RESOLVED_VERSION}}@{{.RESOLVED_VERSION}}{{end}}
+            {{.RESOLVED_EXTRA_ARGS}}{{if .CLI_ARGS}} {{.CLI_ARGS}}{{end}}
 
   install:undo:
     run: once
@@ -58,20 +64,24 @@ tasks:
       - This will remove prettier from local devDependencies.
       - Continue?
     cmds:
-      - task: bun:remove
+      - task: _bun:unix
         vars:
-          PACKAGES: prettier
-          EXTRA_ARGS: '{{default .EXTRA_ARGS .EXTRA_ARGS_OVERRIDE}}'
+          ARGS: remove --silent prettier {{default .EXTRA_ARGS .EXTRA_ARGS_OVERRIDE}}
+      - task: _bun:windows
+        vars:
+          ARGS: remove --silent prettier {{default .EXTRA_ARGS .EXTRA_ARGS_OVERRIDE}}
 
   upgrade:
     run: once
     desc: Upgrade Prettier to the latest release
     summary: Reinstall prettier at the latest version as a local devDependency.
     cmds:
-      - task: bun:add
+      - task: _bun:unix
         vars:
-          PACKAGES: prettier@latest
-          EXTRA_ARGS: '{{default .EXTRA_ARGS .EXTRA_ARGS_OVERRIDE}}'
+          ARGS: add -d --silent prettier@latest {{default .EXTRA_ARGS .EXTRA_ARGS_OVERRIDE}}
+      - task: _bun:windows
+        vars:
+          ARGS: add -d --silent prettier@latest {{default .EXTRA_ARGS .EXTRA_ARGS_OVERRIDE}}
 
   config:init:
     run: once
@@ -144,20 +154,27 @@ tasks:
     run: once
     desc: Show the locally resolved Prettier version
     cmds:
-      - task: bun:exec
+      - task: _bun:unix
         vars:
-          BINARY: prettier
-          ARGS: "--version"
+          ARGS: x prettier --version
+      - task: _bun:windows
+        vars:
+          ARGS: x prettier --version
 
   help:
     run: once
     desc: Show Prettier CLI help
     cmds:
-      - task: bun:exec
+      - task: _bun:unix
         vars:
-          BINARY: prettier
-          ARGS: "--help"
-          EXTRA_ARGS: '{{default .EXTRA_ARGS .EXTRA_ARGS_OVERRIDE}}{{if .CLI_ARGS}} {{.CLI_ARGS}}{{end}}'
+          ARGS: >-
+            x prettier --help
+            {{default .EXTRA_ARGS .EXTRA_ARGS_OVERRIDE}}{{if .CLI_ARGS}} {{.CLI_ARGS}}{{end}}
+      - task: _bun:windows
+        vars:
+          ARGS: >-
+            x prettier --help
+            {{default .EXTRA_ARGS .EXTRA_ARGS_OVERRIDE}}{{if .CLI_ARGS}} {{.CLI_ARGS}}{{end}}
 
   _exec:ignore:
     run: once
@@ -173,8 +190,51 @@ tasks:
             echo "{{.IGNORE_FLAG}} {{.IGNORE_PATH}}"
           fi
     cmds:
-      - task: bun:exec
+      - task: _bun:unix
         vars:
-          BINARY: "{{.BINARY}}"
-          ARGS: "{{.ARGS}} {{._IGNORE_ARGS}}"
-          EXTRA_ARGS: "{{.EXTRA_ARGS}}{{if .CLI_ARGS}} {{.CLI_ARGS}}{{end}}"
+          ARGS: >-
+            x {{.BINARY}} {{.ARGS}} {{._IGNORE_ARGS}}
+            {{.EXTRA_ARGS}}{{if .CLI_ARGS}} {{.CLI_ARGS}}{{end}}
+      - task: _bun:windows
+        vars:
+          ARGS: >-
+            x {{.BINARY}} {{.ARGS}} {{._IGNORE_ARGS}}
+            {{.EXTRA_ARGS}}{{if .CLI_ARGS}} {{.CLI_ARGS}}{{end}}
+
+
+  _bun:unix:
+    run: when_changed
+    internal: true
+    platforms: [linux, darwin]
+    dir: "{{.USER_WORKING_DIR}}"
+    set: [errexit, nounset, pipefail]
+    requires:
+      vars: [ARGS]
+    deps:
+      - task: bun:install
+    env:
+      CI: "1"
+    cmds:
+      - >-
+        BUN_INSTALL="${BUN_INSTALL:-$HOME/.bun}"
+        PATH="$BUN_INSTALL/bin:$PATH"
+        bun {{.ARGS}}
+
+  _bun:windows:
+    run: when_changed
+    internal: true
+    platforms: [windows]
+    dir: "{{.USER_WORKING_DIR}}"
+    requires:
+      vars: [ARGS]
+    deps:
+      - task: bun:install
+    env:
+      CI: "1"
+    cmds:
+      - >-
+        powershell -NoProfile -NonInteractive -ExecutionPolicy Bypass -Command
+        "$ErrorActionPreference = 'Stop';
+        $env:CI = '1';
+        $bun = if (Get-Command bun -ErrorAction SilentlyContinue) { 'bun' }
+        else { \"$env:USERPROFILE\.bun\bin\bun.exe\" }; & $bun {{.ARGS}}"

@@ -54,7 +54,7 @@ includes:
 | `install`         | Optional `NODE_VERSION`                | Run `pnpm install`.                                         |
 | `install:undo`    | —                                       | Disable the pnpm Corepack shim.                              |
 | `upgrade`         | —                                       | Upgrade pnpm via `corepack prepare pnpm@latest --activate`. |
-| `remove`          | Required `PACKAGES`; optional `EXTRA_ARGS` | Remove globally-installed packages with `pnpm remove -g`.   |
+| `remove`          | Required `PACKAGES`; optional `EXTRA_ARGS` | Remove local packages with `pnpm remove`.                   |
 | `ci`              | Optional `NODE_VERSION`                | Run `pnpm install --frozen-lockfile` with `pnpm-lock.yaml`. |
 | `run`             | Required `SCRIPT`; optional `NODE_VERSION` | Run a script via `pnpm run`.                                |
 | `dev`             | Optional `NODE_VERSION`                | Run `pnpm run dev`.                                         |

@@ -42,10 +42,16 @@ tasks:
     vars:
       RESOLVED_VERSION: '{{default .VERSION .VERSION_OVERRIDE}}'
     cmds:
-      - task: bun:add
+      - task: _bun:unix
         vars:
-          PACKAGES: 'knip{{if .RESOLVED_VERSION}}@{{.RESOLVED_VERSION}}{{end}}'
-          EXTRA_ARGS: '{{default .EXTRA_ARGS .EXTRA_ARGS_OVERRIDE}}{{if .CLI_ARGS}} {{.CLI_ARGS}}{{end}}'
+          ARGS: >-
+            add -d --silent knip{{if .RESOLVED_VERSION}}@{{.RESOLVED_VERSION}}{{end}}
+            {{default .EXTRA_ARGS .EXTRA_ARGS_OVERRIDE}}{{if .CLI_ARGS}} {{.CLI_ARGS}}{{end}}
+      - task: _bun:windows
+        vars:
+          ARGS: >-
+            add -d --silent knip{{if .RESOLVED_VERSION}}@{{.RESOLVED_VERSION}}{{end}}
+            {{default .EXTRA_ARGS .EXTRA_ARGS_OVERRIDE}}{{if .CLI_ARGS}} {{.CLI_ARGS}}{{end}}
 
   install:undo:
     run: once
@@ -55,20 +61,28 @@ tasks:
       - This will remove knip from local devDependencies.
       - Continue?
     cmds:
-      - task: bun:remove
+      - task: _bun:unix
         vars:
-          PACKAGES: knip
-          EXTRA_ARGS: '{{default .EXTRA_ARGS .EXTRA_ARGS_OVERRIDE}}'
+          ARGS: remove --silent knip {{default .EXTRA_ARGS .EXTRA_ARGS_OVERRIDE}}
+      - task: _bun:windows
+        vars:
+          ARGS: remove --silent knip {{default .EXTRA_ARGS .EXTRA_ARGS_OVERRIDE}}
 
   upgrade:
     run: once
     desc: Upgrade Knip to the latest release
     summary: Reinstall knip at the latest version as a local devDependency.
     cmds:
-      - task: bun:add
+      - task: _bun:unix
         vars:
-          PACKAGES: knip@latest
-          EXTRA_ARGS: '{{default .EXTRA_ARGS .EXTRA_ARGS_OVERRIDE}}'
+          ARGS: >-
+            add -d --silent knip@latest
+            {{default .EXTRA_ARGS .EXTRA_ARGS_OVERRIDE}}
+      - task: _bun:windows
+        vars:
+          ARGS: >-
+            add -d --silent knip@latest
+            {{default .EXTRA_ARGS .EXTRA_ARGS_OVERRIDE}}
 
   init:
     run: once
@@ -267,6 +281,7 @@ tasks:
 
   # Shared implementation of every analysis task. Each override is resolved
   # exactly once here; callers supply only the mode flag.
+
   _run:
     internal: true
     run: when_changed
@@ -275,14 +290,22 @@ tasks:
       RESOLVED_CONFIG: '{{default .CONFIG .CONFIG_OVERRIDE}}'
     cmds:
       - task: config:skip
-      - task: bun:exec
+      - task: _bun:unix
         vars:
-          BINARY: knip
           ARGS: >-
+            x knip
             {{if .MODE}}{{.MODE}} {{end}}
             {{- if .RESOLVED_SKIP}}--config "{{.KNIP_INTERNAL_SKIP_CONFIG}}"
             {{- else if .RESOLVED_CONFIG}}--config "{{.RESOLVED_CONFIG}}"{{end}}
-          EXTRA_ARGS: '{{default .EXTRA_ARGS .EXTRA_ARGS_OVERRIDE}}{{if .CLI_ARGS}} {{.CLI_ARGS}}{{end}}'
+            {{default .EXTRA_ARGS .EXTRA_ARGS_OVERRIDE}}{{if .CLI_ARGS}} {{.CLI_ARGS}}{{end}}
+      - task: _bun:windows
+        vars:
+          ARGS: >-
+            x knip
+            {{if .MODE}}{{.MODE}} {{end}}
+            {{- if .RESOLVED_SKIP}}--config "{{.KNIP_INTERNAL_SKIP_CONFIG}}"
+            {{- else if .RESOLVED_CONFIG}}--config "{{.RESOLVED_CONFIG}}"{{end}}
+            {{default .EXTRA_ARGS .EXTRA_ARGS_OVERRIDE}}{{if .CLI_ARGS}} {{.CLI_ARGS}}{{end}}
 
   lint:
     run: once
@@ -362,18 +385,62 @@ tasks:
     run: once
     desc: Show the locally resolved Knip version
     cmds:
-      - task: bun:exec
+      - task: _bun:unix
         vars:
-          PM: '{{default .PM .PM_OVERRIDE}}'
-          BINARY: knip
-          ARGS: "--version"
+          ARGS: x knip --version
+      - task: _bun:windows
+        vars:
+          ARGS: x knip --version
 
   help:
     run: once
     desc: Show Knip CLI help
     cmds:
-      - task: bun:exec
+      - task: _bun:unix
         vars:
-          BINARY: knip
-          ARGS: "--help"
-          EXTRA_ARGS: '{{default .EXTRA_ARGS .EXTRA_ARGS_OVERRIDE}}{{if .CLI_ARGS}} {{.CLI_ARGS}}{{end}}'
+          ARGS: >-
+            x knip --help
+            {{default .EXTRA_ARGS .EXTRA_ARGS_OVERRIDE}}{{if .CLI_ARGS}} {{.CLI_ARGS}}{{end}}
+      - task: _bun:windows
+        vars:
+          ARGS: >-
+            x knip --help
+            {{default .EXTRA_ARGS .EXTRA_ARGS_OVERRIDE}}{{if .CLI_ARGS}} {{.CLI_ARGS}}{{end}}
+
+
+  _bun:unix:
+    run: when_changed
+    internal: true
+    platforms: [linux, darwin]
+    dir: "{{.USER_WORKING_DIR}}"
+    set: [errexit, nounset, pipefail]
+    requires:
+      vars: [ARGS]
+    deps:
+      - task: bun:install
+    env:
+      CI: "1"
+    cmds:
+      - >-
+        BUN_INSTALL="${BUN_INSTALL:-$HOME/.bun}"
+        PATH="$BUN_INSTALL/bin:$PATH"
+        bun {{.ARGS}}
+
+  _bun:windows:
+    run: when_changed
+    internal: true
+    platforms: [windows]
+    dir: "{{.USER_WORKING_DIR}}"
+    requires:
+      vars: [ARGS]
+    deps:
+      - task: bun:install
+    env:
+      CI: "1"
+    cmds:
+      - >-
+        powershell -NoProfile -NonInteractive -ExecutionPolicy Bypass -Command
+        "$ErrorActionPreference = 'Stop';
+        $env:CI = '1';
+        $bun = if (Get-Command bun -ErrorAction SilentlyContinue) { 'bun' }
+        else { \"$env:USERPROFILE\.bun\bin\bun.exe\" }; & $bun {{.ARGS}}"

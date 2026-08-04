@@ -81,9 +81,9 @@ tasks:
     summary: Run pnpm install from a project root that contains package.json.
     cmds:
       - task: _pnpm:unix
-        vars: { ARGS: install }
+        vars: { ARGS: install --silent }
       - task: _pnpm:windows
-        vars: { ARGS: install }
+        vars: { ARGS: install --silent }
 
   ci:
     run: once
@@ -95,29 +95,35 @@ tasks:
 
   add:
     run: once
-    desc: Install packages globally with pnpm (PACKAGES=<pkgs>)
+    desc: Install packages as local devDependencies with pnpm (PACKAGES=<pkgs>)
+    summary: |
+      Install PACKAGES as local devDependencies via pnpm add -D.
+      Pass EXTRA_ARGS for additional pnpm flags.
     requires:
       vars: [PACKAGES]
     cmds:
       - task: _pnpm:unix
         vars:
-          ARGS: "add -g {{.PACKAGES}} {{.EXTRA_ARGS}}"
+          ARGS: "add -D --silent {{.PACKAGES}} {{.EXTRA_ARGS}}"
       - task: _pnpm:windows
         vars:
-          ARGS: "add -g {{.PACKAGES}} {{.EXTRA_ARGS}}"
+          ARGS: "add -D --silent {{.PACKAGES}} {{.EXTRA_ARGS}}"
 
   remove:
     run: once
-    desc: Remove globally-installed packages with pnpm (PACKAGES=<pkgs>)
+    desc: Remove local packages with pnpm (PACKAGES=<pkgs>)
+    summary: |
+      Remove PACKAGES from the local project via pnpm remove.
+      Pass EXTRA_ARGS for additional pnpm flags.
     requires:
       vars: [PACKAGES]
     cmds:
       - task: _pnpm:unix
         vars:
-          ARGS: "remove -g {{.PACKAGES}} {{.EXTRA_ARGS}}"
+          ARGS: "remove --silent {{.PACKAGES}} {{.EXTRA_ARGS}}"
       - task: _pnpm:windows
         vars:
-          ARGS: "remove -g {{.PACKAGES}} {{.EXTRA_ARGS}}"
+          ARGS: "remove --silent {{.PACKAGES}} {{.EXTRA_ARGS}}"
 
   install:undo:
     run: once
@@ -417,6 +423,7 @@ tasks:
     env:
       COREPACK_ENABLE_AUTO_PIN: "1"
       COREPACK_ENABLE_STRICT: "0"
+      CI: "1"
     preconditions:
       - sh: test -s "$HOME/.nvm/nvm.sh"
         msg: 'nvm is not installed. Run: task node:setup'
@@ -439,6 +446,7 @@ tasks:
     env:
       NODE_VERSION: "{{.NODE_VERSION}}"
       COREPACK_ENABLE_AUTO_PIN: "1"
+      CI: "1"
     preconditions:
       - sh: >-
           powershell -NoProfile -ExecutionPolicy Bypass -Command
@@ -450,8 +458,9 @@ tasks:
         msg: "package.json not found. Run this task from the pnpm project root."
     cmds:
       - >-
-        powershell -NoProfile -ExecutionPolicy Bypass -Command
+        powershell -NoProfile -NonInteractive -ExecutionPolicy Bypass -Command
         "$ErrorActionPreference = 'Stop';
+        $env:CI = '1';
         $env:NODE_VERSION = '{{.NODE_VERSION}}';
         {{.WINDOWS_NODE_ACTIVATE}};
         if (-not (Get-Command corepack -ErrorAction SilentlyContinue)) {
@@ -467,7 +476,7 @@ tasks:
         msg: "pnpm-lock.yaml not found. pnpm CI installs require a lockfile."
     cmds:
       - task: _pnpm:unix
-        vars: { ARGS: install --frozen-lockfile }
+        vars: { ARGS: install --frozen-lockfile --silent }
 
   _ci:windows:
     run: once
@@ -480,7 +489,7 @@ tasks:
         msg: "pnpm-lock.yaml not found. pnpm CI installs require a lockfile."
     cmds:
       - task: _pnpm:windows
-        vars: { ARGS: install --frozen-lockfile }
+        vars: { ARGS: install --frozen-lockfile --silent }
 
   _run:unix:
     run: when_changed

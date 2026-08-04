@@ -84,9 +84,9 @@ tasks:
     summary: Install dependencies from package.json using the Yarn version available to the project.
     cmds:
       - task: _yarn:unix
-        vars: { ARGS: install }
+        vars: { ARGS: install --silent }
       - task: _yarn:windows
-        vars: { ARGS: install }
+        vars: { ARGS: install --silent }
 
   ci:
     run: once
@@ -98,29 +98,35 @@ tasks:
 
   add:
     run: once
-    desc: Install packages globally with Yarn (PACKAGES=<pkgs>)
+    desc: Install packages as local devDependencies with Yarn (PACKAGES=<pkgs>)
+    summary: |
+      Install PACKAGES as local devDependencies via yarn add -D.
+      Pass EXTRA_ARGS for additional Yarn flags.
     requires:
       vars: [PACKAGES]
     cmds:
       - task: _yarn:unix
         vars:
-          ARGS: "global add {{.PACKAGES}} {{.EXTRA_ARGS}}"
+          ARGS: "add -D --silent {{.PACKAGES}} {{.EXTRA_ARGS}}"
       - task: _yarn:windows
         vars:
-          ARGS: "global add {{.PACKAGES}} {{.EXTRA_ARGS}}"
+          ARGS: "add -D --silent {{.PACKAGES}} {{.EXTRA_ARGS}}"
 
   remove:
     run: once
-    desc: Remove globally-installed packages with Yarn (PACKAGES=<pkgs>)
+    desc: Remove local packages with Yarn (PACKAGES=<pkgs>)
+    summary: |
+      Remove PACKAGES from the local project via yarn remove.
+      Pass EXTRA_ARGS for additional Yarn flags.
     requires:
       vars: [PACKAGES]
     cmds:
       - task: _yarn:unix
         vars:
-          ARGS: "global remove {{.PACKAGES}} {{.EXTRA_ARGS}}"
+          ARGS: "remove --silent {{.PACKAGES}} {{.EXTRA_ARGS}}"
       - task: _yarn:windows
         vars:
-          ARGS: "global remove {{.PACKAGES}} {{.EXTRA_ARGS}}"
+          ARGS: "remove --silent {{.PACKAGES}} {{.EXTRA_ARGS}}"
 
   install:undo:
     run: once
@@ -366,6 +372,7 @@ tasks:
       vars: [ARGS]
     env:
       COREPACK_ENABLE_AUTO_PIN: "1"
+      CI: "1"
     preconditions:
       - sh: test -s "$HOME/.nvm/nvm.sh"
         msg: 'nvm is not installed. Run: task node:setup'
@@ -388,6 +395,7 @@ tasks:
     env:
       NODE_VERSION: "{{.NODE_VERSION}}"
       COREPACK_ENABLE_AUTO_PIN: "1"
+      CI: "1"
     preconditions:
       - sh: >-
           powershell -NoProfile -ExecutionPolicy Bypass -Command
@@ -399,8 +407,9 @@ tasks:
         msg: "package.json not found. Run this task from the Yarn project root."
     cmds:
       - >-
-        powershell -NoProfile -ExecutionPolicy Bypass -Command
+        powershell -NoProfile -NonInteractive -ExecutionPolicy Bypass -Command
         "$ErrorActionPreference = 'Stop';
+        $env:CI = '1';
         $env:NODE_VERSION = '{{.NODE_VERSION}}';
         {{.WINDOWS_NODE_ACTIVATE}};
         if (-not (Get-Command corepack -ErrorAction SilentlyContinue)) {
@@ -416,7 +425,7 @@ tasks:
         msg: "yarn.lock not found. Yarn CI installs require a lockfile."
     cmds:
       - task: _yarn:unix
-        vars: { ARGS: install --immutable }
+        vars: { ARGS: install --immutable --silent }
 
   _ci:windows:
     run: once
@@ -429,7 +438,7 @@ tasks:
         msg: "yarn.lock not found. Yarn CI installs require a lockfile."
     cmds:
       - task: _yarn:windows
-        vars: { ARGS: install --immutable }
+        vars: { ARGS: install --immutable --silent }
 
   _run:unix:
     run: once

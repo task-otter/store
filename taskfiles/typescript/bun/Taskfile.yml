@@ -83,11 +83,14 @@ tasks:
         const requested = '{{.RESOLVED_VERSION}}';
         process.exit(!requested || installed.version === requested ? 0 : 1)"
     cmds:
-      - task: bun:add
+      - task: _bun:unix
         vars:
-          PACKAGES: 'typescript{{if .RESOLVED_VERSION}}@{{.RESOLVED_VERSION}}{{end}} tsx @types/node'
-          PM: "{{.PM}}"
-      - task: _install:windows
+          ARGS: >-
+            add -d --silent typescript{{if .RESOLVED_VERSION}}@{{.RESOLVED_VERSION}}{{end}} tsx @types/node
+      - task: _bun:windows
+        vars:
+          ARGS: >-
+            add -d --silent typescript{{if .RESOLVED_VERSION}}@{{.RESOLVED_VERSION}}{{end}} tsx @types/node
 
   install:undo:
     run: once
@@ -97,20 +100,24 @@ tasks:
       - This will remove typescript, tsx, and @types/node from local devDependencies.
       - Continue?
     cmds:
-      - task: bun:remove
+      - task: _bun:unix
         vars:
-          PACKAGES: "typescript tsx @types/node"
-          PM: "{{.PM}}"
+          ARGS: remove --silent typescript tsx @types/node
+      - task: _bun:windows
+        vars:
+          ARGS: remove --silent typescript tsx @types/node
 
   upgrade:
     run: once
     desc: Upgrade TypeScript dev dependencies to the latest release
     summary: Reinstall typescript, tsx, and @types/node at their latest versions.
     cmds:
-      - task: bun:add
+      - task: _bun:unix
         vars:
-          PACKAGES: "typescript@latest tsx@latest @types/node@latest"
-          PM: "{{.PM}}"
+          ARGS: add -d --silent typescript@latest tsx@latest @types/node@latest
+      - task: _bun:windows
+        vars:
+          ARGS: add -d --silent typescript@latest tsx@latest @types/node@latest
 
   run:
     run: once
@@ -562,23 +569,43 @@ tasks:
         "if (Test-Path 'node_modules\.bin\tsx.cmd') { & node_modules\.bin\tsx.cmd {{.ARGS}} }
         else { tsx {{.ARGS}} }"
 
-  _install:windows:
-    run: once
+
+  _bun:unix:
+    run: when_changed
+    internal: true
+    platforms: [linux, darwin]
+    dir: "{{.USER_WORKING_DIR}}"
+    set: [errexit, nounset, pipefail]
+    requires:
+      vars: [ARGS]
+    deps:
+      - task: bun:install
+    env:
+      CI: "1"
+    cmds:
+      - >-
+        BUN_INSTALL="${BUN_INSTALL:-$HOME/.bun}"
+        PATH="$BUN_INSTALL/bin:$PATH"
+        bun {{.ARGS}}
+
+  _bun:windows:
+    run: when_changed
     internal: true
     platforms: [windows]
     dir: "{{.USER_WORKING_DIR}}"
+    requires:
+      vars: [ARGS]
+    deps:
+      - task: bun:install
     env:
-      TS_VERSION: "{{.VERSION}}"
-    preconditions:
-      - sh: >-
-          powershell -NoProfile -ExecutionPolicy Bypass -Command
-          "if (Test-Path '{{.USER_WORKING_DIR}}\\package.json') { exit 0 } else { exit 1 }"
-        msg: "package.json not found. Run this task from the Node.js project root."
+      CI: "1"
     cmds:
-      - task: bun:add
-        vars:
-          PACKAGES: >-
-            {{if .VERSION}}typescript@{{.VERSION}} tsx @types/node{{else}}typescript tsx @types/node{{end}}
+      - >-
+        powershell -NoProfile -NonInteractive -ExecutionPolicy Bypass -Command
+        "$ErrorActionPreference = 'Stop';
+        $env:CI = '1';
+        $bun = if (Get-Command bun -ErrorAction SilentlyContinue) { 'bun' }
+        else { \"$env:USERPROFILE\.bun\bin\bun.exe\" }; & $bun {{.ARGS}}"
 
   _version:unix:
     run: once

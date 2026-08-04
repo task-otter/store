@@ -45,10 +45,16 @@ tasks:
     vars:
       RESOLVED_VERSION: '{{default .VERSION .VERSION_OVERRIDE}}'
     cmds:
-      - task: bun:add
+      - task: _bun:unix
         vars:
-          PACKAGES: '@biomejs/biome{{if .RESOLVED_VERSION}}@{{.RESOLVED_VERSION}}{{end}}'
-          EXTRA_ARGS: '{{default .EXTRA_ARGS .EXTRA_ARGS_OVERRIDE}}{{if .CLI_ARGS}} {{.CLI_ARGS}}{{end}}'
+          ARGS: >-
+            add -d --silent @biomejs/biome{{if .RESOLVED_VERSION}}@{{.RESOLVED_VERSION}}{{end}}
+            {{default .EXTRA_ARGS .EXTRA_ARGS_OVERRIDE}}{{if .CLI_ARGS}} {{.CLI_ARGS}}{{end}}
+      - task: _bun:windows
+        vars:
+          ARGS: >-
+            add -d --silent @biomejs/biome{{if .RESOLVED_VERSION}}@{{.RESOLVED_VERSION}}{{end}}
+            {{default .EXTRA_ARGS .EXTRA_ARGS_OVERRIDE}}{{if .CLI_ARGS}} {{.CLI_ARGS}}{{end}}
 
   install:undo:
     run: once
@@ -58,20 +64,28 @@ tasks:
       - This will remove @biomejs/biome from local devDependencies.
       - Continue?
     cmds:
-      - task: bun:remove
+      - task: _bun:unix
         vars:
-          PACKAGES: "@biomejs/biome"
-          EXTRA_ARGS: '{{default .EXTRA_ARGS .EXTRA_ARGS_OVERRIDE}}'
+          ARGS: remove --silent @biomejs/biome {{default .EXTRA_ARGS .EXTRA_ARGS_OVERRIDE}}
+      - task: _bun:windows
+        vars:
+          ARGS: remove --silent @biomejs/biome {{default .EXTRA_ARGS .EXTRA_ARGS_OVERRIDE}}
 
   upgrade:
     run: once
     desc: Upgrade Biome to the latest release
     summary: Reinstall @biomejs/biome at the latest version as a local devDependency.
     cmds:
-      - task: bun:add
+      - task: _bun:unix
         vars:
-          PACKAGES: "@biomejs/biome@latest"
-          EXTRA_ARGS: '{{default .EXTRA_ARGS .EXTRA_ARGS_OVERRIDE}}'
+          ARGS: >-
+            add -d --silent @biomejs/biome@latest
+            {{default .EXTRA_ARGS .EXTRA_ARGS_OVERRIDE}}
+      - task: _bun:windows
+        vars:
+          ARGS: >-
+            add -d --silent @biomejs/biome@latest
+            {{default .EXTRA_ARGS .EXTRA_ARGS_OVERRIDE}}
 
   init:
     run: once
@@ -88,12 +102,16 @@ tasks:
     status:
       - test -f biome.json || test -f biome.jsonc
     cmds:
-      - task: bun:exec
+      - task: _bun:unix
         vars:
-          BINARY: biome
-          ARGS: init
-          EXTRA_ARGS: '{{default .EXTRA_ARGS .EXTRA_ARGS_OVERRIDE}}{{if .CLI_ARGS}} {{.CLI_ARGS}}{{end}}'
-
+          ARGS: >-
+            x biome init
+            {{default .EXTRA_ARGS .EXTRA_ARGS_OVERRIDE}}{{if .CLI_ARGS}} {{.CLI_ARGS}}{{end}}
+      - task: _bun:windows
+        vars:
+          ARGS: >-
+            x biome init
+            {{default .EXTRA_ARGS .EXTRA_ARGS_OVERRIDE}}{{if .CLI_ARGS}} {{.CLI_ARGS}}{{end}}
   config:skip:
     desc: Write a Biome config overlay that excludes the skip patterns
     summary: |
@@ -211,6 +229,7 @@ tasks:
   # Shared implementation of check / lint / format / ci. Callers supply the
   # subcommand, which skip scope the config overlay is generated for, and the
   # resolved pattern that decides whether the overlay is used at all.
+
   _run:
     internal: true
     run: when_changed
@@ -228,15 +247,24 @@ tasks:
       - task: config:skip
         vars:
           SKIP_SCOPE: "{{.SKIP_SCOPE}}"
-      - task: bun:exec
+      - task: _bun:unix
         vars:
-          BINARY: biome
           ARGS: >-
+            x biome
             {{.SUBCMD}}
             {{- if .GATE}} --config-path "{{.BIOME_INTERNAL_SKIP_CONFIG}}"
             {{- else if .RESOLVED_CONFIG}} --config-path "{{.RESOLVED_CONFIG}}"{{end}}
             {{- if .RESOLVED_TARGETS}} {{.RESOLVED_TARGETS}}{{end}}
-          EXTRA_ARGS: '{{default .EXTRA_ARGS .EXTRA_ARGS_OVERRIDE}}{{if .CLI_ARGS}} {{.CLI_ARGS}}{{end}}'
+            {{default .EXTRA_ARGS .EXTRA_ARGS_OVERRIDE}}{{if .CLI_ARGS}} {{.CLI_ARGS}}{{end}}
+      - task: _bun:windows
+        vars:
+          ARGS: >-
+            x biome
+            {{.SUBCMD}}
+            {{- if .GATE}} --config-path "{{.BIOME_INTERNAL_SKIP_CONFIG}}"
+            {{- else if .RESOLVED_CONFIG}} --config-path "{{.RESOLVED_CONFIG}}"{{end}}
+            {{- if .RESOLVED_TARGETS}} {{.RESOLVED_TARGETS}}{{end}}
+            {{default .EXTRA_ARGS .EXTRA_ARGS_OVERRIDE}}{{if .CLI_ARGS}} {{.CLI_ARGS}}{{end}}
 
   check:
     run: once
@@ -324,17 +352,62 @@ tasks:
     run: once
     desc: Show the locally resolved Biome version
     cmds:
-      - task: bun:exec
+      - task: _bun:unix
         vars:
-          BINARY: biome
-          ARGS: "--version"
+          ARGS: x biome --version
+      - task: _bun:windows
+        vars:
+          ARGS: x biome --version
 
   help:
     run: once
     desc: Show Biome CLI help
     cmds:
-      - task: bun:exec
+      - task: _bun:unix
         vars:
-          BINARY: biome
-          ARGS: "--help"
-          EXTRA_ARGS: '{{default .EXTRA_ARGS .EXTRA_ARGS_OVERRIDE}}{{if .CLI_ARGS}} {{.CLI_ARGS}}{{end}}'
+          ARGS: >-
+            x biome --help
+            {{default .EXTRA_ARGS .EXTRA_ARGS_OVERRIDE}}{{if .CLI_ARGS}} {{.CLI_ARGS}}{{end}}
+      - task: _bun:windows
+        vars:
+          ARGS: >-
+            x biome --help
+            {{default .EXTRA_ARGS .EXTRA_ARGS_OVERRIDE}}{{if .CLI_ARGS}} {{.CLI_ARGS}}{{end}}
+
+
+  _bun:unix:
+    run: when_changed
+    internal: true
+    platforms: [linux, darwin]
+    dir: "{{.USER_WORKING_DIR}}"
+    set: [errexit, nounset, pipefail]
+    requires:
+      vars: [ARGS]
+    deps:
+      - task: bun:install
+    env:
+      CI: "1"
+    cmds:
+      - >-
+        BUN_INSTALL="${BUN_INSTALL:-$HOME/.bun}"
+        PATH="$BUN_INSTALL/bin:$PATH"
+        bun {{.ARGS}}
+
+  _bun:windows:
+    run: when_changed
+    internal: true
+    platforms: [windows]
+    dir: "{{.USER_WORKING_DIR}}"
+    requires:
+      vars: [ARGS]
+    deps:
+      - task: bun:install
+    env:
+      CI: "1"
+    cmds:
+      - >-
+        powershell -NoProfile -NonInteractive -ExecutionPolicy Bypass -Command
+        "$ErrorActionPreference = 'Stop';
+        $env:CI = '1';
+        $bun = if (Get-Command bun -ErrorAction SilentlyContinue) { 'bun' }
+        else { \"$env:USERPROFILE\.bun\bin\bun.exe\" }; & $bun {{.ARGS}}"

@@ -37,7 +37,7 @@ Available leaves: `bun`, `node/{fnm,nvm}/{npm,pnpm,yarn}`.
 | `install:undo`| Optional `EXTRA_ARGS`                                           | Remove the locally installed `eslint` devDependency.                                     |
 | `upgrade`     | Optional `EXTRA_ARGS`                                           | Reinstall `eslint` at the latest version.                                                |
 | `init`        | Optional `EXTRA_ARGS`, `CLI_ARGS`                               | Alias for `config:init`.                                                                 |
-| `config:init` | Optional `EXTRA_ARGS`, `CLI_ARGS`                               | Run the ESLint configuration wizard. Skipped if a recognized config file already exists. |
+| `config:init` | —                                                               | Write a starter `eslint.config.mjs` when none exists (non-interactive). Skipped if a recognized config file already exists. |
 | `lint`        | Optional `TARGETS`, `CONFIG`, `CACHE`, `EXTRA_ARGS`, `CLI_ARGS` | Lint targets with cache enabled by default.                                              |
 | `lint:fix`    | Optional `TARGETS`, `CONFIG`, `CACHE`, `EXTRA_ARGS`, `CLI_ARGS` | Run ESLint with `--fix`.                                                                 |
 | `ci`          | Optional `TARGETS`, `CONFIG`, `CACHE`, `EXTRA_ARGS`, `CLI_ARGS` | Run ESLint with `--max-warnings=0`.                                                      |

@@ -60,55 +60,34 @@ type (
 )
 
 const (
-	constBunTestPrettier = "prettier"
-	constBunTestListAll  = "--list-all"
-	constBunTestWindows  = "windows"
-	flagList             = "--list"
-	flagSort             = "--sort"
-	sortAlphanumeric     = "alphanumeric"
-	packagesArgKey       = "PACKAGES"
-	installTask          = "install"
-	installUndoTask      = "install:undo"
-	upgradeTask          = "upgrade"
-	upgradeCanaryTask    = "upgrade:canary"
-	upgradeStableTask    = "upgrade:stable"
-	versionTask          = "version"
-	taskfileLabel        = "Taskfile"
-	jsonFlag             = "--json"
-	descField            = "desc"
-	outputField          = "output"
-	skipUnixOnlyMsg      = "stub bun tests target Unix-like systems"
-	yesFlag              = "--yes"
-	homeEnvKey           = "HOME"
-	bunDirName           = ".bun"
-	binDirName           = "bin"
-	bunBinName           = "bun"
-	pathEnvKey           = "PATH"
-	exitSuccess          = 0
-	bunDirMode           = 0o700
-	bunFileMode          = 0o600
-	bunExecMode          = 0o500
-	minDescLen           = 12
-	minSummaryLen        = 25
-	emptyString          = ""
+	constBunTestListAll = "--list-all"
+	constBunTestWindows = "windows"
+	flagList            = "--list"
+	flagSort            = "--sort"
+	sortAlphanumeric    = "alphanumeric"
+	installTask         = "install"
+	installUndoTask     = "install:undo"
+	upgradeTask         = "upgrade"
+	versionTask         = "version"
+	taskfileLabel       = "Taskfile"
+	jsonFlag            = "--json"
+	descField           = "desc"
+	outputField         = "output"
+	skipUnixOnlyMsg     = "stub bun tests target Unix-like systems"
+	yesFlag             = "--yes"
+	homeEnvKey          = "HOME"
+	bunDirName          = ".bun"
+	binDirName          = "bin"
+	bunBinName          = "bun"
+	pathEnvKey          = "PATH"
+	exitSuccess         = 0
+	bunDirMode          = 0o700
+	bunFileMode         = 0o600
+	bunExecMode         = 0o500
+	minDescLen          = 12
+	minSummaryLen       = 25
+	emptyString         = ""
 )
-
-func expectedPublicTasksPackageOps() []tasktestutil.PublicTaskSpec {
-	spec := tasktestutil.NewPublicTaskSpec
-
-	return []tasktestutil.PublicTaskSpec{
-		spec("add", tasktestutil.WithArgs(map[string]string{packagesArgKey: constBunTestPrettier}),
-			tasktestutil.WithDryRunArgs(), tasktestutil.WithGroupOutput()),
-		spec("exec", tasktestutil.WithArgs(map[string]string{"BINARY": constBunTestPrettier}),
-			tasktestutil.WithDryRunArgs(), tasktestutil.WithGroupOutput()),
-		spec(
-			"remove",
-			tasktestutil.WithArgs(map[string]string{packagesArgKey: constBunTestPrettier}),
-			tasktestutil.WithDryRunArgs(),
-			tasktestutil.WithGroupOutput(),
-		),
-	}
-}
 
 func expectedPublicTasksInstall() []tasktestutil.PublicTaskSpec {
 	spec := tasktestutil.NewPublicTaskSpec
@@ -125,38 +104,22 @@ func expectedPublicTasksInstall() []tasktestutil.PublicTaskSpec {
 	}
 }
 
-func upgradeTaskSpec(name string) tasktestutil.PublicTaskSpec {
-	return tasktestutil.NewPublicTaskSpec(
-		name,
-		tasktestutil.WithDryRunArgs(),
-		tasktestutil.WithGroupOutput(),
-		tasktestutil.WithSummary(),
-	)
-}
-
-func expectedPublicTasksUpgradeVariants() []tasktestutil.PublicTaskSpec {
-	return []tasktestutil.PublicTaskSpec{
-		upgradeTaskSpec(upgradeTask),
-		upgradeTaskSpec(upgradeCanaryTask),
-		upgradeTaskSpec(upgradeStableTask),
-	}
-}
-
 func expectedPublicTasksUpgrade() []tasktestutil.PublicTaskSpec {
 	spec := tasktestutil.NewPublicTaskSpec
 
-	return append(
-		expectedPublicTasksUpgradeVariants(),
+	return []tasktestutil.PublicTaskSpec{
+		spec(
+			upgradeTask,
+			tasktestutil.WithDryRunArgs(),
+			tasktestutil.WithGroupOutput(),
+			tasktestutil.WithSummary(),
+		),
 		spec(versionTask, tasktestutil.WithDryRunArgs(), tasktestutil.WithSummary()),
-	)
-}
-
-func expectedPublicTasksLifecycle() []tasktestutil.PublicTaskSpec {
-	return append(expectedPublicTasksInstall(), expectedPublicTasksUpgrade()...)
+	}
 }
 
 func expectedPublicTasks() []tasktestutil.PublicTaskSpec {
-	return append(expectedPublicTasksPackageOps(), expectedPublicTasksLifecycle()...)
+	return append(expectedPublicTasksInstall(), expectedPublicTasksUpgrade()...)
 }
 
 // TestTaskBinaryIsAvailable
@@ -735,20 +698,6 @@ func TestUpgradeExitsSuccessfully(t *testing.T) {
 	assertStubbedBunTaskExits(t, upgradeTask)
 }
 
-// TestUpgradeCanaryExitsSuccessfully
-func TestUpgradeCanaryExitsSuccessfully(t *testing.T) {
-	t.Parallel()
-
-	assertStubbedBunTaskExits(t, upgradeCanaryTask)
-}
-
-// TestUpgradeStableExitsSuccessfully
-func TestUpgradeStableExitsSuccessfully(t *testing.T) {
-	t.Parallel()
-
-	assertStubbedBunTaskExits(t, upgradeStableTask)
-}
-
 func assertStubbedBunTaskExits(t *testing.T, task string) {
 	t.Helper()
 
@@ -974,16 +923,6 @@ func registerBunUpgradeSteps(step bunStepFunc, run bunRunFunc, integration *bunI
 	step("upgrade — bun upgrades without error", func(t *testing.T) {
 		t.Helper()
 		run(t, yesFlag, upgradeTask)
-		tasktestutil.AssertFileExists(t, integration.bunBin)
-	})
-	step("upgrade:canary — bun switches to canary without error", func(t *testing.T) {
-		t.Helper()
-		run(t, yesFlag, upgradeCanaryTask)
-		tasktestutil.AssertFileExists(t, integration.bunBin)
-	})
-	step("upgrade:stable — bun switches back to stable without error", func(t *testing.T) {
-		t.Helper()
-		run(t, yesFlag, upgradeStableTask)
 		tasktestutil.AssertFileExists(t, integration.bunBin)
 	})
 }
