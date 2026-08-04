@@ -130,7 +130,9 @@ tasks:
   ignores:
     run: once
     desc: Run Depcheck while ignoring packages from DEPCHECK_IGNORE_PACKAGES
-    summary: Set DEPCHECK_IGNORE_PACKAGES as a comma-separated list, for example DEPCHECK_IGNORE_PACKAGES="@types/*,eslint-*".
+    summary: >-
+      Set DEPCHECK_IGNORE_PACKAGES as a comma-separated list, for example
+      DEPCHECK_IGNORE_PACKAGES="@types/*,eslint-*".
     cmds:
       - task: _run
         vars:

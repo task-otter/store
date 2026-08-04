@@ -128,10 +128,14 @@ tasks:
     cmds:
       - task: _tsx
         vars:
-          ARGS: "{{if .TYPESCRIPT_TSX_FLAGS}}{{.TYPESCRIPT_TSX_FLAGS}} {{end}}{{.FILE}}{{if .CLI_ARGS}} {{.CLI_ARGS}}{{end}}"
+          ARGS: >-
+            {{if .TYPESCRIPT_TSX_FLAGS}}{{.TYPESCRIPT_TSX_FLAGS}} {{end}}
+            {{- .FILE}}{{if .CLI_ARGS}} {{.CLI_ARGS}}{{end}}
       - task: _tsx:windows
         vars:
-          ARGS: "{{if .TYPESCRIPT_TSX_FLAGS}}{{.TYPESCRIPT_TSX_FLAGS}} {{end}}{{.FILE}}{{if .CLI_ARGS}} {{.CLI_ARGS}}{{end}}"
+          ARGS: >-
+            {{if .TYPESCRIPT_TSX_FLAGS}}{{.TYPESCRIPT_TSX_FLAGS}} {{end}}
+            {{- .FILE}}{{if .CLI_ARGS}} {{.CLI_ARGS}}{{end}}
 
   dev:
     run: once
@@ -288,10 +292,14 @@ tasks:
     cmds:
       - task: _tsc
         vars:
-          ARGS: '--declaration --emitDeclarationOnly --outDir "{{.TYPESCRIPT_OUT_DIR}}"{{if .TYPESCRIPT_TSC_FLAGS}} {{.TYPESCRIPT_TSC_FLAGS}}{{end}}'
+          ARGS: >-
+            --declaration --emitDeclarationOnly --outDir "{{.TYPESCRIPT_OUT_DIR}}"
+            {{- if .TYPESCRIPT_TSC_FLAGS}} {{.TYPESCRIPT_TSC_FLAGS}}{{end}}
       - task: _tsc:windows
         vars:
-          ARGS: "--declaration --emitDeclarationOnly --outDir '{{.TYPESCRIPT_OUT_DIR}}'{{if .TYPESCRIPT_TSC_FLAGS}} {{.TYPESCRIPT_TSC_FLAGS}}{{end}}"
+          ARGS: >-
+            --declaration --emitDeclarationOnly --outDir '{{.TYPESCRIPT_OUT_DIR}}'
+            {{- if .TYPESCRIPT_TSC_FLAGS}} {{.TYPESCRIPT_TSC_FLAGS}}{{end}}
 
   config:show:
     run: once
@@ -756,7 +764,9 @@ tasks:
       - echo 'Generating trace to {{.TYPESCRIPT_TRACE_DIR}}...'
       - task: _tsc
         vars:
-          ARGS: "--generateTrace {{.TYPESCRIPT_TRACE_DIR}} --noEmit{{if .TYPESCRIPT_TSC_FLAGS}} {{.TYPESCRIPT_TSC_FLAGS}}{{end}}"
+          ARGS: >-
+            --generateTrace {{.TYPESCRIPT_TRACE_DIR}} --noEmit
+            {{- if .TYPESCRIPT_TSC_FLAGS}} {{.TYPESCRIPT_TSC_FLAGS}}{{end}}
       - |
         echo ''
         echo 'Trace written to {{.TYPESCRIPT_TRACE_DIR}}/'
@@ -772,7 +782,9 @@ tasks:
       - echo Generating trace to {{.TYPESCRIPT_TRACE_DIR}}...
       - task: _tsc:windows
         vars:
-          ARGS: "--generateTrace {{.TYPESCRIPT_TRACE_DIR}} --noEmit{{if .TYPESCRIPT_TSC_FLAGS}} {{.TYPESCRIPT_TSC_FLAGS}}{{end}}"
+          ARGS: >-
+            --generateTrace {{.TYPESCRIPT_TRACE_DIR}} --noEmit
+            {{- if .TYPESCRIPT_TSC_FLAGS}} {{.TYPESCRIPT_TSC_FLAGS}}{{end}}
       - >-
         powershell -NoProfile -ExecutionPolicy Bypass -Command
         "Write-Host '';

@@ -167,7 +167,8 @@ tasks:
         vault operator init \
           -address="{{.VAULT_ADDR_TARGET}}" \
           -key-shares={{if .VAULT_SHARES_OVERRIDE}}{{.VAULT_SHARES_OVERRIDE}}{{else}}{{.VAULT_SHARES}}{{end}} \
-          -key-threshold={{if .VAULT_THRESHOLD_OVERRIDE}}{{.VAULT_THRESHOLD_OVERRIDE}}{{else}}{{.VAULT_THRESHOLD}}{{end}} \
+          -key-threshold={{if .VAULT_THRESHOLD_OVERRIDE}}{{.VAULT_THRESHOLD_OVERRIDE}}
+          {{- else}}{{.VAULT_THRESHOLD}}{{end}} \
           -format=json > "$TMP"
         chmod 600 "$TMP"
         mv "$TMP" "$KF"
@@ -192,8 +193,10 @@ tasks:
       - task: jq:install
       - task: install
       - |
-        VAULT_KEYS_FILE="{{if .VAULT_KEYS_FILE_OVERRIDE}}{{.VAULT_KEYS_FILE_OVERRIDE}}{{else}}{{.VAULT_KEYS_FILE}}{{end}}"
-        VAULT_THRESHOLD="{{if .VAULT_THRESHOLD_OVERRIDE}}{{.VAULT_THRESHOLD_OVERRIDE}}{{else}}{{.VAULT_THRESHOLD}}{{end}}"
+        VAULT_KEYS_FILE="{{if .VAULT_KEYS_FILE_OVERRIDE}}{{.VAULT_KEYS_FILE_OVERRIDE}}
+        {{- else}}{{.VAULT_KEYS_FILE}}{{end}}"
+        VAULT_THRESHOLD="{{if .VAULT_THRESHOLD_OVERRIDE}}{{.VAULT_THRESHOLD_OVERRIDE}}
+        {{- else}}{{.VAULT_THRESHOLD}}{{end}}"
         for key in $(jq -r ".unseal_keys_b64[0:${THRESHOLD}][]" "$KEYS_FILE"); do
           vault operator unseal -address="{{.VAULT_ADDR_TARGET}}" "$key"
         done
@@ -245,7 +248,9 @@ tasks:
       Auto-installs the CLI if missing.
     set: [errexit, nounset, pipefail]
     env:
-      VAULT_LOGIN_ROOT_TOKEN: "{{if .VAULT_ROOT_TOKEN_OVERRIDE}}{{.VAULT_ROOT_TOKEN_OVERRIDE}}{{else}}{{.VAULT_ROOT_TOKEN}}{{end}}"
+      VAULT_LOGIN_ROOT_TOKEN: >-
+        {{if .VAULT_ROOT_TOKEN_OVERRIDE}}{{.VAULT_ROOT_TOKEN_OVERRIDE}}
+        {{- else}}{{.VAULT_ROOT_TOKEN}}{{end}}
     preconditions:
       - sh: test -n "$VAULT_LOGIN_ROOT_TOKEN"
         msg: ROOT_TOKEN must be set. Pass VAULT_ROOT_TOKEN=<token> on the command line.
@@ -268,7 +273,9 @@ tasks:
     set: [errexit, nounset, pipefail]
     env:
       VAULT_LOGIN_ROLE_ID: "{{if .VAULT_ROLE_ID_OVERRIDE}}{{.VAULT_ROLE_ID_OVERRIDE}}{{else}}{{.VAULT_ROLE_ID}}{{end}}"
-      VAULT_LOGIN_SECRET_ID: "{{if .VAULT_SECRET_ID_OVERRIDE}}{{.VAULT_SECRET_ID_OVERRIDE}}{{else}}{{.VAULT_SECRET_ID}}{{end}}"
+      VAULT_LOGIN_SECRET_ID: >-
+        {{if .VAULT_SECRET_ID_OVERRIDE}}{{.VAULT_SECRET_ID_OVERRIDE}}
+        {{- else}}{{.VAULT_SECRET_ID}}{{end}}
       VAULT_LOGIN_APPROLE_MOUNT: >-
         {{if .VAULT_APPROLE_MOUNT_OVERRIDE}}{{.VAULT_APPROLE_MOUNT_OVERRIDE}}
         {{- else}}{{.VAULT_APPROLE_MOUNT}}{{end}}
@@ -305,7 +312,9 @@ tasks:
     set: [errexit, nounset, pipefail]
     env:
       VAULT_LOGIN_ROLE_ID: "{{if .VAULT_ROLE_ID_OVERRIDE}}{{.VAULT_ROLE_ID_OVERRIDE}}{{else}}{{.VAULT_ROLE_ID}}{{end}}"
-      VAULT_LOGIN_SECRET_ID: "{{if .VAULT_SECRET_ID_OVERRIDE}}{{.VAULT_SECRET_ID_OVERRIDE}}{{else}}{{.VAULT_SECRET_ID}}{{end}}"
+      VAULT_LOGIN_SECRET_ID: >-
+        {{if .VAULT_SECRET_ID_OVERRIDE}}{{.VAULT_SECRET_ID_OVERRIDE}}
+        {{- else}}{{.VAULT_SECRET_ID}}{{end}}
       VAULT_LOGIN_APPROLE_MOUNT: >-
         {{if .VAULT_APPROLE_MOUNT_OVERRIDE}}{{.VAULT_APPROLE_MOUNT_OVERRIDE}}
         {{- else}}{{.VAULT_APPROLE_MOUNT}}{{end}}
@@ -402,7 +411,10 @@ tasks:
           KEYS_FILE not found. Run task init first to generate
           {{if .VAULT_KEYS_FILE_OVERRIDE}}{{.VAULT_KEYS_FILE_OVERRIDE}}{{else}}{{.VAULT_KEYS_FILE}}{{end}}.
     cmds:
-      - jq -r '.root_token' "{{if .VAULT_KEYS_FILE_OVERRIDE}}{{.VAULT_KEYS_FILE_OVERRIDE}}{{else}}{{.VAULT_KEYS_FILE}}{{end}}"
+      - >-
+        jq -r '.root_token'
+        "{{if .VAULT_KEYS_FILE_OVERRIDE}}{{.VAULT_KEYS_FILE_OVERRIDE}}
+        {{- else}}{{.VAULT_KEYS_FILE}}{{end}}"
 
   peers:
     run: once

@@ -118,7 +118,9 @@ tasks:
     deps:
       - task: gh:install
     cmds:
-      - gh repo clone {{if .GIT_OWNER}}{{.GIT_OWNER}}/{{end}}{{.GIT_REPO}} {{if .GIT_CLONE_DIR}}{{.GIT_CLONE_DIR}}{{end}} {{.EXTRA_ARGS}}
+      - >-
+        gh repo clone {{if .GIT_OWNER}}{{.GIT_OWNER}}/{{end}}{{.GIT_REPO}}
+        {{if .GIT_CLONE_DIR}}{{.GIT_CLONE_DIR}}{{end}} {{.EXTRA_ARGS}}
 
   status:
     run: once

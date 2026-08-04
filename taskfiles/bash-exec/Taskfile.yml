@@ -74,7 +74,9 @@ tasks:
       - sh: command -v bash >/dev/null 2>&1
         msg: Bash is required. Install Bash and ensure it is available in PATH.
     env:
-      BASH_EXEC_COMMAND: "{{if .BASH_EXEC_COMMAND_OVERRIDE}}{{.BASH_EXEC_COMMAND_OVERRIDE}}{{else}}{{.BASH_EXEC_COMMAND}}{{end}}"
+      BASH_EXEC_COMMAND: >-
+        {{if .BASH_EXEC_COMMAND_OVERRIDE}}{{.BASH_EXEC_COMMAND_OVERRIDE}}
+        {{- else}}{{.BASH_EXEC_COMMAND}}{{end}}
     cmds:
       - bash -c "$BASH_EXEC_COMMAND"
 
