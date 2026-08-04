@@ -13,7 +13,7 @@ vars:
   BUN_INSTALL_URL: https://bun.com/install
   BUN_INSTALL_PS1_URL: https://bun.sh/install.ps1
   BUN_LOAD: 'export BUN_INSTALL="$HOME/.bun"; export PATH="$BUN_INSTALL/bin:$PATH"'
-  VERSION: ""
+  BUN_VERSION: ""
 
 tasks:
   default:
@@ -32,14 +32,14 @@ tasks:
       and executes it, installing the Bun binary to ~/.bun/bin.
       On Windows, downloads the official PowerShell installer script to a temporary
       file and executes it, installing the Bun binary to ~\.bun\bin.
-      Pass VERSION=1.x.y to install a specific release instead of the latest.
+      Pass BUN_VERSION=1.x.y to install a specific release instead of the latest.
     cmds:
       - task: _install:unix
         vars:
-          VERSION: "{{.VERSION}}"
+          BUN_VERSION: "{{.BUN_VERSION}}"
       - task: _install:windows
         vars:
-          VERSION: "{{.VERSION}}"
+          BUN_VERSION: "{{.BUN_VERSION}}"
 
   install:undo:
     run: once
@@ -88,9 +88,9 @@ tasks:
     summary: |
       Download the official Bun install script to a temporary file and execute it on macOS or Linux.
       Installs the Bun binary to ~/.bun/bin. The temporary file is removed after execution.
-      Pass VERSION=1.x.y to install a specific release.
+      Pass BUN_VERSION=1.x.y to install a specific release.
       Requires curl and unzip (Linux only needs unzip explicitly).
-      Skipped when VERSION is empty and Bun is already installed.
+      Skipped when BUN_VERSION is empty and Bun is already installed.
     platforms: [linux, darwin]
     set: [errexit, nounset, pipefail]
     status:
@@ -98,7 +98,7 @@ tasks:
         bun_bin="$HOME/.bun/bin/bun";
         if [ ! -x "$bun_bin" ]; then bun_bin="$(command -v bun 2>/dev/null)"; fi;
         [ -n "$bun_bin" ] && [ -x "$bun_bin" ]
-        && { [ -z "{{.VERSION}}" ] || [ "$("$bun_bin" --version)" = "{{.VERSION}}" ]; }
+        && { [ -z "{{.BUN_VERSION}}" ] || [ "$("$bun_bin" --version)" = "{{.BUN_VERSION}}" ]; }
     preconditions:
       - sh: command -v curl >/dev/null 2>&1
         msg: curl is required to download the Bun installation script.
@@ -106,16 +106,16 @@ tasks:
         msg: "unzip is required to install Bun. Run: sudo apt install unzip"
     cmds:
       - |
-        if [ -n "{{.VERSION}}" ]; then
-          echo 'Installing Bun v{{.VERSION}}...'
+        if [ -n "{{.BUN_VERSION}}" ]; then
+          echo 'Installing Bun v{{.BUN_VERSION}}...'
         else
           echo 'Installing Bun (latest)...'
         fi
         tmpfile=$(mktemp /tmp/bun-install.XXXXXX.sh)
         trap 'rm -f "$tmpfile"' EXIT
         curl -fsSL "{{.BUN_INSTALL_URL}}" -o "$tmpfile"
-        if [ -n "{{.VERSION}}" ]; then
-          bash "$tmpfile" "bun-v{{.VERSION}}"
+        if [ -n "{{.BUN_VERSION}}" ]; then
+          bash "$tmpfile" "bun-v{{.BUN_VERSION}}"
         else
           bash "$tmpfile"
         fi
@@ -128,9 +128,9 @@ tasks:
     summary: |
       Download the official Bun PowerShell install script to a temporary file and execute it on Windows.
       Installs the Bun binary to %USERPROFILE%\.bun\bin. The temporary file is removed after execution.
-      Pass VERSION=1.x.y to install a specific release.
+      Pass BUN_VERSION=1.x.y to install a specific release.
       Requires Windows 10 version 1809 (build 17763) or later.
-      Skipped when VERSION is empty and Bun is already available.
+      Skipped when BUN_VERSION is empty and Bun is already available.
     platforms: [windows]
     status:
       - >-
@@ -139,7 +139,7 @@ tasks:
         if (-not $bun -and (Test-Path \"$env:USERPROFILE\.bun\bin\bun.exe\")) {
         $bun = Get-Item \"$env:USERPROFILE\.bun\bin\bun.exe\" };
         if (-not $bun) { exit 1 };
-        $requested = '{{.VERSION}}';
+        $requested = '{{.BUN_VERSION}}';
         if ([string]::IsNullOrWhiteSpace($requested) -or ((& $bun.Source --version) -eq $requested)) { exit 0 };
         exit 1"
     preconditions:
@@ -151,7 +151,7 @@ tasks:
     cmds:
       - >-
         powershell -NoProfile -ExecutionPolicy Bypass -Command
-        "$v = '{{.VERSION}}';
+        "$v = '{{.BUN_VERSION}}';
         $tmp = [IO.Path]::Combine($env:TEMP, 'bun-install-' + [System.Guid]::NewGuid().ToString() + '.ps1');
         Invoke-WebRequest -Uri '{{.BUN_INSTALL_PS1_URL}}' -OutFile $tmp;
         try { if ($v) { Write-Host \"Installing Bun v$v on Windows...\"; & $tmp -Version $v }

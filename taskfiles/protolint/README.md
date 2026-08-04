@@ -13,7 +13,7 @@ global Go bin, so the Go toolchain is bootstrapped automatically when needed.
 ### Standalone
 
 ```bash
-task --taskfile taskfiles/protolint/Taskfile.yml lint TARGETS=api
+task --taskfile taskfiles/protolint/Taskfile.yml lint PROTOLINT_TARGETS=api
 ```
 
 ### Included
@@ -25,8 +25,8 @@ includes:
 ```
 
 ```bash
-task protolint:lint TARGETS=api
-task protolint:fix TARGETS=api
+task protolint:lint PROTOLINT_TARGETS=api
+task protolint:fix PROTOLINT_TARGETS=api
 task protolint:install PROTOLINT_VERSION=v0.55.6
 ```
 
@@ -37,8 +37,8 @@ task protolint:install PROTOLINT_VERSION=v0.55.6
 | `install` | Install protolint into the global Go bin | `PROTOLINT_VERSION` |
 | `install:undo` | Remove protolint from the global Go bin (alias: `uninstall`) | |
 | `upgrade` | Reinstall protolint at the requested version | `PROTOLINT_VERSION` |
-| `lint` | Lint protobuf files with protolint | `TARGETS`, `EXTRA_ARGS` |
-| `fix` | Apply automatic fixes with protolint lint -fix | `TARGETS`, `EXTRA_ARGS` |
+| `lint` | Lint protobuf files with protolint | `PROTOLINT_TARGETS`, `PROTOLINT_EXTRA_ARGS` |
+| `fix` | Apply automatic fixes with protolint lint -fix | `PROTOLINT_TARGETS`, `PROTOLINT_EXTRA_ARGS` |
 | `version` | Show the installed protolint version | |
 
 ## Variables
@@ -46,8 +46,8 @@ task protolint:install PROTOLINT_VERSION=v0.55.6
 | Variable | Default | Description |
 |---|---|---|
 | `PROTOLINT_VERSION` | `""` (latest) | Pin an exact protolint module version, e.g. `v0.55.6` |
-| `TARGETS` | `.` | File or directory protolint operates on |
-| `EXTRA_ARGS` | `""` | Extra flags forwarded to protolint (e.g. `-config_path`, `-reporter json`) |
+| `PROTOLINT_TARGETS` | `.` | File or directory protolint operates on |
+| `PROTOLINT_EXTRA_ARGS` | `""` | Extra flags forwarded to protolint (e.g. `-config_path`, `-reporter json`) |
 | `GO_GLOBAL_BIN` | GOBIN → GOPATH/bin → `$HOME/go/bin` | Resolved global Go bin directory |
 | `PROTOLINT_LINT_SKIP_PATTERN` | _(empty)_ | Forward-slash path glob for files skipped by lint checks and fixes |
 

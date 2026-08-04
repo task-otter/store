@@ -32,29 +32,29 @@ Available leaves: `bun`, `node/{fnm,nvm}/{npm,pnpm,yarn}`.
 
 | Task           | Variables                                                    | Description                                                                |
 | -------------- | ------------------------------------------------------------ | -------------------------------------------------------------------------- |
-| `install`      | Optional `VERSION`, `EXTRA_ARGS`, `CLI_ARGS`           | Install `@biomejs/biome` as a local dev dependency. Pass `VERSION=x.y.z` to pin a release. |
-| `install:undo` | Optional `EXTRA_ARGS`                                  | Remove the locally installed `@biomejs/biome` devDependency.               |
-| `upgrade`      | Optional `EXTRA_ARGS`                                  | Reinstall `@biomejs/biome` at the latest version.                          |
-| `init`         | Optional `EXTRA_ARGS`, `CLI_ARGS`                      | Alias for `config:init`.                                                   |
-| `config:init`  | Optional `EXTRA_ARGS`, `CLI_ARGS`                      | Run `biome init`. Skipped if `biome.json` or `biome.jsonc` already exists. |
+| `install`      | Optional `BIOME_VERSION`, `BIOME_EXTRA_ARGS`, `CLI_ARGS`           | Install `@biomejs/biome` as a local dev dependency. Pass `BIOME_VERSION=x.y.z` to pin a release. |
+| `install:undo` | Optional `BIOME_EXTRA_ARGS`                                  | Remove the locally installed `@biomejs/biome` devDependency.               |
+| `upgrade`      | Optional `BIOME_EXTRA_ARGS`                                  | Reinstall `@biomejs/biome` at the latest version.                          |
+| `init`         | Optional `BIOME_EXTRA_ARGS`, `CLI_ARGS`                      | Alias for `config:init`.                                                   |
+| `config:init`  | Optional `BIOME_EXTRA_ARGS`, `CLI_ARGS`                      | Run `biome init`. Skipped if `biome.json` or `biome.jsonc` already exists. |
 | `config:skip`  | Optional `SKIP_SCOPE`                                  | Write the skip-pattern config overlay. Run automatically by the tasks below. |
-| `check`        | Optional `TARGETS`, `CONFIG`, `EXTRA_ARGS`, `CLI_ARGS` | Run `biome check`.                                                         |
-| `check:write`  | Optional `TARGETS`, `CONFIG`, `EXTRA_ARGS`, `CLI_ARGS` | Run `biome check --write`.                                                 |
-| `fix`          | Optional `TARGETS`, `CONFIG`, `EXTRA_ARGS`, `CLI_ARGS` | Alias for `check:write`.                                                   |
-| `lint`         | Optional `TARGETS`, `CONFIG`, `EXTRA_ARGS`, `CLI_ARGS` | Run `biome lint`.                                                          |
-| `lint:fix`     | Optional `TARGETS`, `CONFIG`, `EXTRA_ARGS`, `CLI_ARGS` | Run `biome lint --write`.                                                  |
-| `fmt:check`    | Optional `TARGETS`, `CONFIG`, `EXTRA_ARGS`, `CLI_ARGS` | Run `biome format`.                                                        |
-| `fmt`          | Optional `TARGETS`, `CONFIG`, `EXTRA_ARGS`, `CLI_ARGS` | Run `biome format --write`.                                                |
-| `ci`           | Optional `TARGETS`, `CONFIG`, `EXTRA_ARGS`, `CLI_ARGS` | Run `biome ci`.                                                            |
+| `check`        | Optional `BIOME_TARGETS`, `BIOME_CONFIG`, `BIOME_EXTRA_ARGS`, `CLI_ARGS` | Run `biome check`.                                                         |
+| `check:write`  | Optional `BIOME_TARGETS`, `BIOME_CONFIG`, `BIOME_EXTRA_ARGS`, `CLI_ARGS` | Run `biome check --write`.                                                 |
+| `fix`          | Optional `BIOME_TARGETS`, `BIOME_CONFIG`, `BIOME_EXTRA_ARGS`, `CLI_ARGS` | Alias for `check:write`.                                                   |
+| `lint`         | Optional `BIOME_TARGETS`, `BIOME_CONFIG`, `BIOME_EXTRA_ARGS`, `CLI_ARGS` | Run `biome lint`.                                                          |
+| `lint:fix`     | Optional `BIOME_TARGETS`, `BIOME_CONFIG`, `BIOME_EXTRA_ARGS`, `CLI_ARGS` | Run `biome lint --write`.                                                  |
+| `fmt:check`    | Optional `BIOME_TARGETS`, `BIOME_CONFIG`, `BIOME_EXTRA_ARGS`, `CLI_ARGS` | Run `biome format`.                                                        |
+| `fmt`          | Optional `BIOME_TARGETS`, `BIOME_CONFIG`, `BIOME_EXTRA_ARGS`, `CLI_ARGS` | Run `biome format --write`.                                                |
+| `ci`           | Optional `BIOME_TARGETS`, `BIOME_CONFIG`, `BIOME_EXTRA_ARGS`, `CLI_ARGS` | Run `biome ci`.                                                            |
 | `cache:clean`  | —                                                            | Remove common Biome cache directories.                                     |
 | `version`      | — | Show the resolved Biome version.                                           |
-| `help`         | Optional `EXTRA_ARGS`, `CLI_ARGS`                      | Show Biome CLI help.                                                       |
+| `help`         | Optional `BIOME_EXTRA_ARGS`, `CLI_ARGS`                      | Show Biome CLI help.                                                       |
 
 ## Variables
 
-and `CONFIG` adds `--config-path <path>`.
+and `BIOME_CONFIG` adds `--config-path <path>`.
 
-`EXTRA_ARGS` and arguments after `--` are appended to the command.
+`BIOME_EXTRA_ARGS` and arguments after `--` are appended to the command.
 
 - `BIOME_LINT_SKIP_PATTERN` (default empty): forward-slash path glob for files skipped by lint checks and fixes.
 - `BIOME_FMT_SKIP_PATTERN` (default empty): forward-slash path glob for files skipped by formatting checks and fixes.
@@ -73,7 +73,7 @@ your `.gitignore`**. Running `config:skip` with no skip pattern set deletes it.
 
 ```bash
 task biome:node:fnm:npm:install
-task biome:node:fnm:npm:install VERSION=1.9.4
+task biome:node:fnm:npm:install BIOME_VERSION=1.9.4
 task biome:node:fnm:npm:config:init
 task biome:node:fnm:npm:check
 task biome:node:fnm:npm:check:write

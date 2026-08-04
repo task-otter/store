@@ -26,17 +26,17 @@ func publicTasks() []string {
 
 func publicVars() []string {
 	return []string{
-		"ARGS",
-		"EXTRA_ARGS",
-		"FILE",
+		"UV_ARGS",
+		"UV_EXTRA_ARGS",
+		"UV_FILE",
 		"PYTHON_VERSION",
-		"REQUIREMENTS",
+		"UV_REQUIREMENTS",
 		"UV_TOOL",
 		"UV_INSTALL_URL",
 		"UV_INSTALL_URL_WINDOWS",
 		"UV_LOAD",
 		"UV_VERSION",
-		"VENV",
+		"UV_VENV",
 	}
 }
 

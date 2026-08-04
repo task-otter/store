@@ -15,13 +15,13 @@ includes:
 
 vars:
   ESLINT_LINT_SKIP_PATTERN: ""
-  TARGETS: ""
+  ESLINT_TARGETS: ""
   ESLINT_DEFAULT_TARGETS: "src/**/*.{js,jsx,ts,tsx}"
-  CONFIG: ""
+  ESLINT_CONFIG: ""
   ESLINT_CACHE: ""
   ESLINT_DEFAULT_CACHE: "true"
-  EXTRA_ARGS: ""
-  VERSION: ""
+  ESLINT_EXTRA_ARGS: ""
+  ESLINT_VERSION: ""
 
 tasks:
   default:
@@ -34,11 +34,11 @@ tasks:
     run: once
     desc: Install ESLint as a local devDependency
     summary: |
-      Install eslint as a local devDependency. Pass VERSION=x.y.z to pin a
+      Install eslint as a local devDependency. Pass ESLINT_VERSION=x.y.z to pin a
       specific release instead of the package manager's default resolution.
     vars:
-      RESOLVED_VERSION: '{{default .VERSION .VERSION_OVERRIDE}}'
-      RESOLVED_EXTRA_ARGS: '{{default .EXTRA_ARGS .EXTRA_ARGS_OVERRIDE}}'
+      RESOLVED_VERSION: '{{default .ESLINT_VERSION .ESLINT_VERSION_OVERRIDE}}'
+      RESOLVED_EXTRA_ARGS: '{{default .ESLINT_EXTRA_ARGS .ESLINT_EXTRA_ARGS_OVERRIDE}}'
     status:
       - >-
         node -e "const installed = require('./node_modules/eslint/package.json');
@@ -61,7 +61,7 @@ tasks:
       - task: pnpm:remove
         vars:
           PACKAGES: eslint
-          EXTRA_ARGS: '{{default .EXTRA_ARGS .EXTRA_ARGS_OVERRIDE}}'
+          EXTRA_ARGS: '{{default .ESLINT_EXTRA_ARGS .ESLINT_EXTRA_ARGS_OVERRIDE}}'
 
   upgrade:
     run: once
@@ -71,7 +71,7 @@ tasks:
       - task: pnpm:add
         vars:
           PACKAGES: eslint@latest
-          EXTRA_ARGS: '{{default .EXTRA_ARGS .EXTRA_ARGS_OVERRIDE}}'
+          EXTRA_ARGS: '{{default .ESLINT_EXTRA_ARGS .ESLINT_EXTRA_ARGS_OVERRIDE}}'
 
   init:
     run: once
@@ -117,11 +117,11 @@ tasks:
     internal: true
     run: when_changed
     vars:
-      RESOLVED_CONFIG: '{{default .CONFIG .CONFIG_OVERRIDE}}'
+      RESOLVED_CONFIG: '{{default .ESLINT_CONFIG .ESLINT_CONFIG_OVERRIDE}}'
       RESOLVED_CACHE: '{{or .ESLINT_CACHE_OVERRIDE .ESLINT_CACHE .ESLINT_DEFAULT_CACHE}}'
       RESOLVED_SKIP: '{{default .ESLINT_LINT_SKIP_PATTERN .ESLINT_LINT_SKIP_PATTERN_OVERRIDE}}'
-      RESOLVED_TARGETS: '{{or .ESLINT_TARGETS_OVERRIDE .TARGETS .ESLINT_DEFAULT_TARGETS}}'
-      RESOLVED_EXTRA_ARGS: '{{default .EXTRA_ARGS .EXTRA_ARGS_OVERRIDE}}'
+      RESOLVED_TARGETS: '{{or .ESLINT_TARGETS_OVERRIDE .ESLINT_TARGETS .ESLINT_DEFAULT_TARGETS}}'
+      RESOLVED_EXTRA_ARGS: '{{default .ESLINT_EXTRA_ARGS .ESLINT_EXTRA_ARGS_OVERRIDE}}'
     cmds:
       - task: pnpm:exec
         vars:
@@ -184,4 +184,4 @@ tasks:
         vars:
           BINARY: eslint
           ARGS: "--help"
-          EXTRA_ARGS: '{{default .EXTRA_ARGS .EXTRA_ARGS_OVERRIDE}}{{if .CLI_ARGS}} {{.CLI_ARGS}}{{end}}'
+          EXTRA_ARGS: '{{default .ESLINT_EXTRA_ARGS .ESLINT_EXTRA_ARGS_OVERRIDE}}{{if .CLI_ARGS}} {{.CLI_ARGS}}{{end}}'

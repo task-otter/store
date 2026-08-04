@@ -24,13 +24,13 @@ func publicTasks() []string {
 
 func publicVars() []string {
 	return []string{
-		"ARGS",
-		"EXTRA_ARGS",
-		"FILE",
+		"PYTHON_ARGS",
+		"PYTHON_EXTRA_ARGS",
+		"PYTHON_FILE",
 		"PYTHON_PIN_VERSION",
-		"REQUIREMENTS",
+		"PYTHON_REQUIREMENTS",
 		"UV_LOAD",
-		"VENV",
+		"PYTHON_VENV",
 	}
 }
 

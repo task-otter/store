@@ -11,10 +11,10 @@ silent: true
 
 vars:
   DOCKER_IMAGE: ""
-  FILE: "Dockerfile"
+  DOCKER_FILE: "Dockerfile"
   DOCKER_CONTEXT: "."
-  EXTRA_ARGS: ""
-  VERSION: ""
+  DOCKER_EXTRA_ARGS: ""
+  DOCKER_VERSION: ""
 
 tasks:
   default:
@@ -29,10 +29,10 @@ tasks:
     desc: Install Docker on the current operating system
     summary: |
       Install Docker for the current platform if it is not already available.
-      Pass VERSION=x.y.z to pin a specific release on Linux (forwarded to the
+      Pass DOCKER_VERSION=x.y.z to pin a specific release on Linux (forwarded to the
       get.docker.com script) and Windows (forwarded to winget --version).
       Homebrew Cask does not support pinning Docker Desktop to an exact
-      version, so VERSION has no effect on macOS.
+      version, so DOCKER_VERSION has no effect on macOS.
       macOS uses Homebrew Cask to install Docker Desktop.
       Linux uses the official convenience script from get.docker.com (supports
       apt and dnf), then automatically adds the current user to the docker group
@@ -164,9 +164,9 @@ tasks:
     run: once
     desc: Build a Docker image from a Dockerfile (DOCKER_IMAGE=name:tag)
     summary: |
-      Build a Docker image tagged IMAGE using the Dockerfile at FILE and
-      build context at CONTEXT. FILE defaults to Dockerfile and CONTEXT
-      defaults to the current directory. Pass EXTRA_ARGS to forward additional
+      Build a Docker image tagged IMAGE using the Dockerfile at DOCKER_FILE and
+      build context at CONTEXT. DOCKER_FILE defaults to Dockerfile and CONTEXT
+      defaults to the current directory. Pass DOCKER_EXTRA_ARGS to forward additional
       flags such as --no-cache or --build-arg to docker build.
     deps:
       - task: install
@@ -179,16 +179,16 @@ tasks:
     cmds:
       - >-
         docker build
-        -f "{{if .FILE_OVERRIDE}}{{.FILE_OVERRIDE}}{{else}}{{.FILE}}{{end}}"
+        -f "{{if .DOCKER_FILE_OVERRIDE}}{{.DOCKER_FILE_OVERRIDE}}{{else}}{{.DOCKER_FILE}}{{end}}"
         -t "{{if .DOCKER_IMAGE_OVERRIDE}}{{.DOCKER_IMAGE_OVERRIDE}}{{else}}{{.DOCKER_IMAGE}}{{end}}"
         "{{if .DOCKER_CONTEXT_OVERRIDE}}{{.DOCKER_CONTEXT_OVERRIDE}}{{else}}{{.DOCKER_CONTEXT}}{{end}}"
-        {{if .EXTRA_ARGS_OVERRIDE}}{{.EXTRA_ARGS_OVERRIDE}}{{else}}{{.EXTRA_ARGS}}{{end}}
+        {{if .DOCKER_EXTRA_ARGS_OVERRIDE}}{{.DOCKER_EXTRA_ARGS_OVERRIDE}}{{else}}{{.DOCKER_EXTRA_ARGS}}{{end}}
 
   pull:
     run: once
     desc: Pull a Docker image from a registry (DOCKER_IMAGE=name:tag)
     summary: |
-      Pull the specified IMAGE from its registry. Pass EXTRA_ARGS to forward
+      Pull the specified IMAGE from its registry. Pass DOCKER_EXTRA_ARGS to forward
       additional flags to docker pull, for example --platform linux/arm64.
     deps:
       - task: install
@@ -202,7 +202,7 @@ tasks:
       - >-
         docker pull
         "{{if .DOCKER_IMAGE_OVERRIDE}}{{.DOCKER_IMAGE_OVERRIDE}}{{else}}{{.DOCKER_IMAGE}}{{end}}"
-        {{if .EXTRA_ARGS_OVERRIDE}}{{.EXTRA_ARGS_OVERRIDE}}{{else}}{{.EXTRA_ARGS}}{{end}}
+        {{if .DOCKER_EXTRA_ARGS_OVERRIDE}}{{.DOCKER_EXTRA_ARGS_OVERRIDE}}{{else}}{{.DOCKER_EXTRA_ARGS}}{{end}}
 
   _install:macos:
     run: once
@@ -212,7 +212,7 @@ tasks:
     status:
       - >-
         command -v docker >/dev/null 2>&1
-        && { [ -z "{{.VERSION}}" ] || docker --version | grep -Fq "{{.VERSION}}"; }
+        && { [ -z "{{.DOCKER_VERSION}}" ] || docker --version | grep -Fq "{{.DOCKER_VERSION}}"; }
     preconditions:
       - sh: command -v brew >/dev/null 2>&1
         msg: Homebrew is required to install Docker on macOS. Install it from https://brew.sh and re-run this task.
@@ -230,7 +230,7 @@ tasks:
     status:
       - >-
         command -v docker >/dev/null 2>&1
-        && { [ -z "{{.VERSION}}" ] || docker --version | grep -Fq "{{.VERSION}}"; }
+        && { [ -z "{{.DOCKER_VERSION}}" ] || docker --version | grep -Fq "{{.DOCKER_VERSION}}"; }
     preconditions:
       - sh: command -v curl >/dev/null 2>&1
         msg: curl is required to download the Docker install script.
@@ -239,9 +239,9 @@ tasks:
     cmds:
       - echo 'Installing Docker Engine via the official convenience script...'
       - curl -fsSL https://get.docker.com -o /tmp/taskotter-get-docker.sh
-      - cmd: VERSION="{{.VERSION}}" sh /tmp/taskotter-get-docker.sh
+      - cmd: DOCKER_VERSION="{{.DOCKER_VERSION}}" sh /tmp/taskotter-get-docker.sh
         if: '[ "$(id -u)" -eq 0 ]'
-      - cmd: sudo VERSION="{{.VERSION}}" sh /tmp/taskotter-get-docker.sh
+      - cmd: sudo DOCKER_VERSION="{{.DOCKER_VERSION}}" sh /tmp/taskotter-get-docker.sh
         if: '[ "$(id -u)" -ne 0 ]'
       - rm -f /tmp/taskotter-get-docker.sh
       - |
@@ -260,7 +260,7 @@ tasks:
         powershell -NoProfile -ExecutionPolicy Bypass -Command
         "$docker = Get-Command docker -ErrorAction SilentlyContinue;
         if (-not $docker) { exit 1 };
-        $requested = '{{.VERSION}}';
+        $requested = '{{.DOCKER_VERSION}}';
         if ([string]::IsNullOrWhiteSpace($requested)
         -or ((& $docker.Source --version) -like ('*' + $requested + '*'))) { exit 0 };
         exit 1"
@@ -276,7 +276,7 @@ tasks:
       - >-
         powershell -NoProfile -ExecutionPolicy Bypass -Command
         "winget install --id Docker.DockerDesktop
-        {{if .VERSION}}--version {{.VERSION}}{{end}}
+        {{if .DOCKER_VERSION}}--version {{.DOCKER_VERSION}}{{end}}
         --accept-source-agreements --accept-package-agreements --silent"
       - echo Docker Desktop installed. Restart your terminal to use docker.
 

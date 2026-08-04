@@ -14,7 +14,7 @@ never conflicts with project dependencies.
 ### Standalone
 
 ```bash
-task --taskfile taskfiles/djlint/Taskfile.yml lint TARGETS=templates
+task --taskfile taskfiles/djlint/Taskfile.yml lint DJLINT_TARGETS=templates
 ```
 
 ### Included
@@ -26,10 +26,10 @@ includes:
 ```
 
 ```bash
-task djlint:lint TARGETS=templates
-task djlint:lint TARGETS=templates EXTRA_ARGS="--profile django"
-task djlint:fmt TARGETS=templates
-task djlint:fmt:check TARGETS=templates
+task djlint:lint DJLINT_TARGETS=templates
+task djlint:lint DJLINT_TARGETS=templates DJLINT_EXTRA_ARGS="--profile django"
+task djlint:fmt DJLINT_TARGETS=templates
+task djlint:fmt:check DJLINT_TARGETS=templates
 task djlint:install DJLINT_VERSION=1.36.4
 ```
 
@@ -40,9 +40,9 @@ task djlint:install DJLINT_VERSION=1.36.4
 | `install` | Install djLint on the current operating system | `DJLINT_VERSION` |
 | `install:undo` | Remove djLint (alias: `uninstall`) | |
 | `upgrade` | Upgrade djLint to the latest release | `DJLINT_VERSION` |
-| `lint` | Lint HTML templates with djlint --lint | `TARGETS`, `EXTRA_ARGS` |
-| `fmt` | Format HTML templates in place with djlint --reformat | `TARGETS`, `EXTRA_ARGS` |
-| `fmt:check` | Report formatting changes without modifying files (djlint --check) | `TARGETS`, `EXTRA_ARGS` |
+| `lint` | Lint HTML templates with djlint --lint | `DJLINT_TARGETS`, `DJLINT_EXTRA_ARGS` |
+| `fmt` | Format HTML templates in place with djlint --reformat | `DJLINT_TARGETS`, `DJLINT_EXTRA_ARGS` |
+| `fmt:check` | Report formatting changes without modifying files (djlint --check) | `DJLINT_TARGETS`, `DJLINT_EXTRA_ARGS` |
 | `version` | Show the installed djLint version | |
 
 ## Variables
@@ -50,8 +50,8 @@ task djlint:install DJLINT_VERSION=1.36.4
 | Variable | Default | Description |
 |---|---|---|
 | `DJLINT_VERSION` | `""` (latest) | Pin a specific djLint release |
-| `TARGETS` | `.` | File or directory djLint operates on |
-| `EXTRA_ARGS` | `""` | Extra flags forwarded to djLint (e.g. `--profile django`) |
+| `DJLINT_TARGETS` | `.` | File or directory djLint operates on |
+| `DJLINT_EXTRA_ARGS` | `""` | Extra flags forwarded to djLint (e.g. `--profile django`) |
 | `UV_LOAD` | `export PATH="$HOME/.local/bin:$PATH"` | Shell snippet that puts uv-managed tools on PATH (unix) |
 | `DJLINT_LINT_SKIP_PATTERN` | _(empty)_ | Forward-slash path glob for files skipped by lint checks and fixes |
 | `DJLINT_FMT_SKIP_PATTERN` | _(empty)_ | Forward-slash path glob for files skipped by formatting checks and fixes |
@@ -63,7 +63,7 @@ Skip patterns support `*` within one path segment, `**` across directories, and 
 - `lint` reports template lint rule violations (`--lint`); `fmt:check` is the
   dry-run counterpart of `fmt` and reports formatting differences (`--check`).
   They are distinct djLint modes.
-- Pass `EXTRA_ARGS="--profile <name>"` to select the template dialect
+- Pass `DJLINT_EXTRA_ARGS="--profile <name>"` to select the template dialect
   (django, jinja, nunjucks, handlebars, golang, angular).
 - Auto-install: every run task depends on `install`, so the tool is installed
   on first use. Installs are idempotent and version-aware — changing

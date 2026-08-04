@@ -22,9 +22,9 @@ func publicTasks() []string {
 func publicVars() []string {
 	return []string{
 		"JSONLINT_LINT_SKIP_PATTERN",
-		"EXTRA_ARGS",
+		"JSONLINT_EXTRA_ARGS",
 		"JSONLINT_VERSION",
-		"TARGETS",
+		"JSONLINT_TARGETS",
 		"UV_LOAD",
 	}
 }

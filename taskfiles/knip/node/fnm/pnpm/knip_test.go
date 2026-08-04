@@ -33,9 +33,9 @@ func publicTasks() []string {
 func publicVars() []string {
 	return []string{
 		"KNIP_LINT_SKIP_PATTERN",
-		"CONFIG",
-		"EXTRA_ARGS",
-		"VERSION",
+		"KNIP_CONFIG",
+		"KNIP_EXTRA_ARGS",
+		"KNIP_VERSION",
 	}
 }
 

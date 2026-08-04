@@ -15,14 +15,14 @@ output:
 silent: true
 
 vars:
-  FILE: src/index.ts
+  TYPESCRIPT_FILE: src/index.ts
   TYPESCRIPT_OUTFILE: dist/index.js
   TYPESCRIPT_OUT_DIR: dist
   TYPESCRIPT_TSCONFIG: tsconfig.json
   TYPESCRIPT_TSX_FLAGS: ""
   TYPESCRIPT_TSC_FLAGS: ""
   TYPESCRIPT_TRACE_DIR: .tsc-trace
-  VERSION: ""
+  TYPESCRIPT_VERSION: ""
 
 tasks:
   default:
@@ -69,14 +69,14 @@ tasks:
       Install typescript (provides tsc + tsserver), tsx, and @types/node as
       devDependencies using the project's package manager.
       Pass PM=npm|yarn|pnpm|bun to force a specific package manager, and
-      VERSION=x.y.z to pin the typescript package to a specific release.
+      TYPESCRIPT_VERSION=x.y.z to pin the typescript package to a specific release.
       Lockfile detection order (when PM is not set):
         bun.lock / bun.lockb → bun add -d
         pnpm-lock.yaml       → pnpm add -D
         yarn.lock            → yarn add -D
         (fallback)           → npm install -D
     vars:
-      RESOLVED_VERSION: '{{default .VERSION .VERSION_OVERRIDE}}'
+      RESOLVED_VERSION: '{{default .TYPESCRIPT_VERSION .TYPESCRIPT_VERSION_OVERRIDE}}'
     status:
       - >-
         node -e "const installed = require('./node_modules/typescript/package.json');
@@ -121,48 +121,48 @@ tasks:
 
   run:
     run: once
-    desc: Run a TypeScript file with tsx — no type-checking (FILE=src/index.ts)
+    desc: Run a TypeScript file with tsx — no type-checking (TYPESCRIPT_FILE=src/index.ts)
     summary: |
       Execute a TypeScript file directly using tsx. Types are stripped via esbuild;
       no type errors are caught. Always run typecheck before committing.
-      Default entry point: src/index.ts. Override with FILE=path/to/file.ts.
+      Default entry point: src/index.ts. Override with TYPESCRIPT_FILE=path/to/file.ts.
       TSX_FLAGS and CLI_ARGS are trusted input — never pass untrusted user data.
       Examples:
         task typescript:run
-        task typescript:run FILE=scripts/seed.ts
-        task typescript:run FILE=src/index.ts TYPESCRIPT_TSX_FLAGS="--env-file .env"
+        task typescript:run TYPESCRIPT_FILE=scripts/seed.ts
+        task typescript:run TYPESCRIPT_FILE=src/index.ts TYPESCRIPT_TSX_FLAGS="--env-file .env"
         task typescript:run -- --port 3000
     cmds:
       - task: _tsx
         vars:
           ARGS: >-
             {{if .TYPESCRIPT_TSX_FLAGS}}{{.TYPESCRIPT_TSX_FLAGS}} {{end}}
-            {{- .FILE}}{{if .CLI_ARGS}} {{.CLI_ARGS}}{{end}}
+            {{- .TYPESCRIPT_FILE}}{{if .CLI_ARGS}} {{.CLI_ARGS}}{{end}}
       - task: _tsx:windows
         vars:
           ARGS: >-
             {{if .TYPESCRIPT_TSX_FLAGS}}{{.TYPESCRIPT_TSX_FLAGS}} {{end}}
-            {{- .FILE}}{{if .CLI_ARGS}} {{.CLI_ARGS}}{{end}}
+            {{- .TYPESCRIPT_FILE}}{{if .CLI_ARGS}} {{.CLI_ARGS}}{{end}}
 
   dev:
     run: once
-    desc: Run a TypeScript file in watch mode with tsx (FILE=src/index.ts)
+    desc: Run a TypeScript file in watch mode with tsx (TYPESCRIPT_FILE=src/index.ts)
     summary: |
       Start tsx in watch mode. The process restarts on every file change.
       tsx watch performs no type-checking. Run typecheck:watch in a second
       terminal for live type-error feedback alongside the running process.
-      Default entry point: src/index.ts. Override with FILE=path/to/file.ts.
+      Default entry point: src/index.ts. Override with TYPESCRIPT_FILE=path/to/file.ts.
       Examples:
         task typescript:dev
-        task typescript:dev FILE=src/server.ts
+        task typescript:dev TYPESCRIPT_FILE=src/server.ts
         task typescript:dev TYPESCRIPT_TSX_FLAGS="--env-file .env"
     cmds:
       - task: _tsx
         vars:
-          ARGS: "watch {{if .TYPESCRIPT_TSX_FLAGS}}{{.TYPESCRIPT_TSX_FLAGS}} {{end}}{{.FILE}}"
+          ARGS: "watch {{if .TYPESCRIPT_TSX_FLAGS}}{{.TYPESCRIPT_TSX_FLAGS}} {{end}}{{.TYPESCRIPT_FILE}}"
       - task: _tsx:windows
         vars:
-          ARGS: "watch {{if .TYPESCRIPT_TSX_FLAGS}}{{.TYPESCRIPT_TSX_FLAGS}} {{end}}{{.FILE}}"
+          ARGS: "watch {{if .TYPESCRIPT_TSX_FLAGS}}{{.TYPESCRIPT_TSX_FLAGS}} {{end}}{{.TYPESCRIPT_FILE}}"
 
   typecheck:
     run: once
@@ -546,8 +546,8 @@ tasks:
     preconditions:
       - sh: 'test -f "{{.USER_WORKING_DIR}}/node_modules/.bin/tsx" || command -v tsx >/dev/null 2>&1'
         msg: "tsx not found. Run: task typescript:install"
-      - sh: 'test -f "{{.USER_WORKING_DIR}}/{{.FILE}}"'
-        msg: 'FILE "{{.FILE}}" not found. Set FILE=path/to/your/file.ts'
+      - sh: 'test -f "{{.USER_WORKING_DIR}}/{{.TYPESCRIPT_FILE}}"'
+        msg: 'TYPESCRIPT_FILE "{{.TYPESCRIPT_FILE}}" not found. Set TYPESCRIPT_FILE=path/to/your/file.ts'
     cmds:
       - |
         if [ -f "node_modules/.bin/tsx" ]; then
@@ -569,8 +569,8 @@ tasks:
         msg: "tsx not found. Run: task typescript:install"
       - sh: >-
           powershell -NoProfile -ExecutionPolicy Bypass -Command
-          "if (Test-Path '{{.FILE}}') { exit 0 } else { exit 1 }"
-        msg: 'FILE "{{.FILE}}" not found. Set FILE=path/to/your/file.ts'
+          "if (Test-Path '{{.TYPESCRIPT_FILE}}') { exit 0 } else { exit 1 }"
+        msg: 'TYPESCRIPT_FILE "{{.TYPESCRIPT_FILE}}" not found. Set TYPESCRIPT_FILE=path/to/your/file.ts'
     cmds:
       - >-
         powershell -NoProfile -ExecutionPolicy Bypass -Command

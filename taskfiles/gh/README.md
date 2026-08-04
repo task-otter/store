@@ -37,7 +37,7 @@ task tools:pr:list
 
 | Task                     | Description                                  | Key variables                                    |
 | ------------------------ | -------------------------------------------- | ------------------------------------------------ |
-| `install`                | Auto-detect OS and install gh                | `VERSION`                                        |
+| `install`                | Auto-detect OS and install gh                | `GH_VERSION`                                        |
 | `install:undo`           | Auto-detect OS and remove gh                 | —                                                |
 | `upgrade`                | Auto-detect OS and upgrade gh                | —                                                |
 | `version`                | Show the installed gh version                | —                                                |
@@ -142,7 +142,7 @@ task tools:pr:list
 | `GH_CLONE_DIR`      | `.`       | Local directory for `repo:clone`                                  |
 | `GH_DOWNLOAD_DIR`   | `.`       | Local directory for `release:download` and `release:download:all` |
 | `GH_DATA`           | `{}`      | JSON body for API POST/PATCH requests                             |
-| `VERSION`        | _(empty)_ | Pin a specific gh release for `install`; empty installs latest. Exact availability depends on the detected package manager/repository. |
+| `GH_VERSION`        | _(empty)_ | Pin a specific gh release for `install`; empty installs latest. Exact availability depends on the detected package manager/repository. |
 | `OWNER`          | _(empty)_ | GitHub user or organisation name                                  |
 | `REPO`           | _(empty)_ | Repository name                                                   |
 | `DESCRIPTION`    | _(empty)_ | Repository description                                            |

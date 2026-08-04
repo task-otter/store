@@ -25,9 +25,9 @@ func publicTasks() []string {
 func publicVars() []string {
 	return []string{
 		"YAMLLINT_LINT_SKIP_PATTERN",
-		"CONFIG",
-		"EXTRA_ARGS",
-		"TARGETS",
+		"YAMLLINT_CONFIG",
+		"YAMLLINT_EXTRA_ARGS",
+		"YAMLLINT_TARGETS",
 		"UV_LOAD",
 		"YAMLFIX_VERSION",
 		"YAMLLINT_VERSION",

@@ -50,7 +50,7 @@ task bencher:exec -- mock
 | `BENCHER_INSTALL_URL` | `https://bencher.dev/download/install-cli.sh` | Unix installer URL; override with your self-hosted Bencher instance URL if needed |
 | `BENCHER_INSTALL_URL_WINDOWS` | `https://bencher.dev/download/install-cli.ps1` | Windows installer URL; override with your self-hosted Bencher instance URL if needed |
 | `BENCHER_VERSION` | `""` (latest) | Exact CLI release for Bencher Self-Hosted; leave empty for the latest Bencher Cloud CLI |
-| `EXTRA_ARGS` | `""` | Arguments and flags appended to `run` and `exec` invocations |
+| `BENCHER_EXTRA_ARGS` | `""` | Arguments and flags appended to `run` and `exec` invocations |
 
 ## Notes
 

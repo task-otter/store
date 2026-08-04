@@ -27,11 +27,11 @@ func publicTasks() []string {
 func publicVars() []string {
 	return []string{
 		"PRETTIER_FMT_SKIP_PATTERN",
-		"CONFIG",
-		"EXTRA_ARGS",
-		"IGNORE_PATH",
-		"TARGETS",
-		"VERSION",
+		"PRETTIER_CONFIG",
+		"PRETTIER_EXTRA_ARGS",
+		"PRETTIER_IGNORE_PATH",
+		"PRETTIER_TARGETS",
+		"PRETTIER_VERSION",
 	}
 }
 

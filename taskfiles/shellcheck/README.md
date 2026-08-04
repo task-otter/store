@@ -12,8 +12,8 @@ This module provides tasks to lint, install, and manage [ShellCheck](https://www
 
 ```sh
 task -t taskfiles/shellcheck/Taskfile.yml lint
-task -t taskfiles/shellcheck/Taskfile.yml lint TARGETS="scripts/*.sh"
-task -t taskfiles/shellcheck/Taskfile.yml lint EXTRA_ARGS="--shell=bash --severity=warning"
+task -t taskfiles/shellcheck/Taskfile.yml lint SHELLCHECK_TARGETS="scripts/*.sh"
+task -t taskfiles/shellcheck/Taskfile.yml lint SHELLCHECK_EXTRA_ARGS="--shell=bash --severity=warning"
 ```
 
 ### Included in your Taskfile
@@ -23,8 +23,8 @@ includes:
   shellcheck:
     taskfile: taskfiles/shellcheck/Taskfile.yml
     vars:
-      TARGETS_OVERRIDE: "{{.TARGETS}}"
-      EXTRA_ARGS_OVERRIDE: "{{.EXTRA_ARGS}}"
+      SHELLCHECK_TARGETS_OVERRIDE: "{{.SHELLCHECK_TARGETS}}"
+      SHELLCHECK_EXTRA_ARGS_OVERRIDE: "{{.SHELLCHECK_EXTRA_ARGS}}"
 ```
 
 Then run:
@@ -40,7 +40,7 @@ task shellcheck:install
 |---|---|
 | `install` | Install ShellCheck on the current operating system |
 | `install:undo` | Remove ShellCheck from the current operating system |
-| `lint` | Lint shell scripts with ShellCheck (TARGETS=glob) |
+| `lint` | Lint shell scripts with ShellCheck (SHELLCHECK_TARGETS=glob) |
 | `upgrade` | Upgrade ShellCheck to the latest release |
 | `version` | Show the installed ShellCheck version |
 
@@ -48,9 +48,9 @@ task shellcheck:install
 
 | Variable | Default | Description |
 |---|---|---|
-| `EXTRA_ARGS` | `""` | Additional flags passed to `shellcheck` (e.g. `--shell`, `--severity`) |
-| `TARGETS` | `""` | Paths or globs of scripts to check; empty = discover all `*.sh` recursively |
-| `VERSION` | `""` | Pin a specific shellcheck release for `install`; empty installs latest. Exact availability depends on the platform's package manager/repository. |
+| `SHELLCHECK_EXTRA_ARGS` | `""` | Additional flags passed to `shellcheck` (e.g. `--shell`, `--severity`) |
+| `SHELLCHECK_TARGETS` | `""` | Paths or globs of scripts to check; empty = discover all `*.sh` recursively |
+| `SHELLCHECK_VERSION` | `""` | Pin a specific shellcheck release for `install`; empty installs latest. Exact availability depends on the platform's package manager/repository. |
 | `SHELLCHECK_LINT_SKIP_PATTERN` | _(empty)_ | Forward-slash path glob for files skipped by lint checks and fixes |
 
 Skip patterns support `*` within one path segment, `**` across directories, and `?` for one character. Paths are matched relative to the task working directory; for example, `**/generated/**`.
@@ -60,6 +60,6 @@ Skip patterns support `*` within one path segment, `**` across directories, and 
 - **macOS** installs via Homebrew (`brew install shellcheck`). Homebrew must be installed.
 - **Linux** installs via `apt-get` (Debian/Ubuntu) or `dnf` (Fedora/RHEL). The task dispatches to whichever package manager is present.
 - **Windows** installs via Scoop (`scoop install shellcheck`). Scoop must be installed.
-- When `TARGETS` is empty, all `*.sh` and `*.bash` files under the working tree are discovered recursively (excluding `.git`).
-- Pass explicit paths or globs (e.g. `TARGETS="scripts/*.sh"`) to limit the scope.
+- When `SHELLCHECK_TARGETS` is empty, all `*.sh` and `*.bash` files under the working tree are discovered recursively (excluding `.git`).
+- Pass explicit paths or globs (e.g. `SHELLCHECK_TARGETS="scripts/*.sh"`) to limit the scope.
 - The `lint` task auto-installs ShellCheck if it is not already present in `PATH`.

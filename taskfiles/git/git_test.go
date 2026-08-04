@@ -101,7 +101,7 @@ func publicVarsCore() []string {
 		"GIT_COMMIT",
 		"GIT_COMMIT_MSG",
 		"GIT_EMAIL",
-		"EXTRA_ARGS",
+		"GIT_EXTRA_ARGS",
 		"GIT_FILES",
 		"GIT_MERGE_METHOD",
 	}
@@ -119,7 +119,7 @@ func publicVarsExtra() []string {
 		"GIT_TAG",
 		"GIT_TITLE",
 		"GIT_URL",
-		"VERSION",
+		"GIT_VERSION",
 	}
 }
 

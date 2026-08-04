@@ -22,9 +22,9 @@ func publicTasks() []string {
 func publicVars() []string {
 	return []string{
 		"SHELLCHECK_LINT_SKIP_PATTERN",
-		"EXTRA_ARGS",
-		"TARGETS",
-		"VERSION",
+		"SHELLCHECK_EXTRA_ARGS",
+		"SHELLCHECK_TARGETS",
+		"SHELLCHECK_VERSION",
 	}
 }
 

@@ -27,7 +27,7 @@ func publicVars() []string {
 	return []string{
 		"ADRS_VERSION",
 		"CARGO_BIN_UNIX",
-		"EXTRA_ARGS",
+		"ADRS_EXTRA_ARGS",
 	}
 }
 

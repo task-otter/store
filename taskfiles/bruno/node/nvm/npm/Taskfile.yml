@@ -16,8 +16,8 @@ includes:
 vars:
   BRUNO_COLLECTION: "."
   BRUNO_ENV: ""
-  EXTRA_ARGS: ""
-  VERSION: ""
+  BRUNO_EXTRA_ARGS: ""
+  BRUNO_VERSION: ""
 
 tasks:
   default:
@@ -30,11 +30,11 @@ tasks:
     run: once
     desc: Install @usebruno/cli as a local devDependency
     summary: |
-      Install @usebruno/cli as a local devDependency. Pass VERSION=x.y.z to
+      Install @usebruno/cli as a local devDependency. Pass BRUNO_VERSION=x.y.z to
       pin a specific release instead of the package manager's default
       resolution.
     vars:
-      RESOLVED_VERSION: '{{default .VERSION .VERSION_OVERRIDE}}'
+      RESOLVED_VERSION: '{{default .BRUNO_VERSION .BRUNO_VERSION_OVERRIDE}}'
     status:
       - >-
         node -e "const installed = require('./node_modules/@usebruno/cli/package.json');
@@ -44,7 +44,7 @@ tasks:
       - task: npm:add
         vars:
           PACKAGES: '@usebruno/cli{{if .RESOLVED_VERSION}}@{{.RESOLVED_VERSION}}{{end}}'
-          EXTRA_ARGS: '{{default .EXTRA_ARGS .EXTRA_ARGS_OVERRIDE}}{{if .CLI_ARGS}} {{.CLI_ARGS}}{{end}}'
+          EXTRA_ARGS: '{{default .BRUNO_EXTRA_ARGS .BRUNO_EXTRA_ARGS_OVERRIDE}}{{if .CLI_ARGS}} {{.CLI_ARGS}}{{end}}'
 
   install:undo:
     run: once
@@ -57,7 +57,7 @@ tasks:
       - task: npm:remove
         vars:
           PACKAGES: "@usebruno/cli"
-          EXTRA_ARGS: '{{default .EXTRA_ARGS .EXTRA_ARGS_OVERRIDE}}'
+          EXTRA_ARGS: '{{default .BRUNO_EXTRA_ARGS .BRUNO_EXTRA_ARGS_OVERRIDE}}'
 
   upgrade:
     run: once
@@ -67,7 +67,7 @@ tasks:
       - task: npm:add
         vars:
           PACKAGES: "@usebruno/cli@latest"
-          EXTRA_ARGS: '{{default .EXTRA_ARGS .EXTRA_ARGS_OVERRIDE}}'
+          EXTRA_ARGS: '{{default .BRUNO_EXTRA_ARGS .BRUNO_EXTRA_ARGS_OVERRIDE}}'
 
   # Shared implementation of run / ci, which differ only by --bail.
   _run:
@@ -84,14 +84,14 @@ tasks:
             run {{.RESOLVED_COLLECTION}}
             {{- if .RESOLVED_ENV}} --env "{{.RESOLVED_ENV}}"{{end}}
             {{- if .MODE_ARGS}} {{.MODE_ARGS}}{{end}}
-          EXTRA_ARGS: '{{default .EXTRA_ARGS .EXTRA_ARGS_OVERRIDE}}{{if .CLI_ARGS}} {{.CLI_ARGS}}{{end}}'
+          EXTRA_ARGS: '{{default .BRUNO_EXTRA_ARGS .BRUNO_EXTRA_ARGS_OVERRIDE}}{{if .CLI_ARGS}} {{.CLI_ARGS}}{{end}}'
 
   run:
     run: once
     desc: Run a Bruno collection (BRUNO_COLLECTION=path)
     summary: |
       Run all requests in the Bruno collection at COLLECTION (default: current
-      directory). Pass ENV to activate a named Bruno environment, and EXTRA_ARGS
+      directory). Pass ENV to activate a named Bruno environment, and BRUNO_EXTRA_ARGS
       for additional bru flags. Pass CLI arguments after -- to override all
       variables directly.
     cmds:
@@ -128,4 +128,4 @@ tasks:
         vars:
           BINARY: bru
           ARGS: "--help"
-          EXTRA_ARGS: '{{default .EXTRA_ARGS .EXTRA_ARGS_OVERRIDE}}{{if .CLI_ARGS}} {{.CLI_ARGS}}{{end}}'
+          EXTRA_ARGS: '{{default .BRUNO_EXTRA_ARGS .BRUNO_EXTRA_ARGS_OVERRIDE}}{{if .CLI_ARGS}} {{.CLI_ARGS}}{{end}}'

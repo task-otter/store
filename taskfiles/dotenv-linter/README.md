@@ -13,7 +13,7 @@ toolchain itself is bootstrapped through the cargo module when missing.
 ### Standalone
 
 ```bash
-task --taskfile taskfiles/dotenv-linter/Taskfile.yml lint TARGETS=.env.example
+task --taskfile taskfiles/dotenv-linter/Taskfile.yml lint DOTENV_LINTER_TARGETS=.env.example
 ```
 
 ### Included
@@ -25,8 +25,8 @@ includes:
 ```
 
 ```bash
-task dotenv-linter:lint TARGETS=.env.example
-task dotenv-linter:fix TARGETS=.env
+task dotenv-linter:lint DOTENV_LINTER_TARGETS=.env.example
+task dotenv-linter:fix DOTENV_LINTER_TARGETS=.env
 task dotenv-linter:install DOTENV_LINTER_VERSION=3.3.0
 ```
 
@@ -37,9 +37,9 @@ task dotenv-linter:install DOTENV_LINTER_VERSION=3.3.0
 | `install` | Install dotenv-linter on the current operating system | `DOTENV_LINTER_VERSION` |
 | `install:undo` | Remove dotenv-linter (alias: `uninstall`) | |
 | `upgrade` | Reinstall dotenv-linter at the requested version | `DOTENV_LINTER_VERSION` |
-| `lint` | Lint dotenv files with dotenv-linter check | `TARGETS`, `EXTRA_ARGS` |
-| `fix` | Apply automatic fixes with dotenv-linter fix | `TARGETS`, `EXTRA_ARGS` |
-| `diff` | Compare .env files to ensure matching key sets | `TARGETS`, `EXTRA_ARGS` |
+| `lint` | Lint dotenv files with dotenv-linter check | `DOTENV_LINTER_TARGETS`, `DOTENV_LINTER_EXTRA_ARGS` |
+| `fix` | Apply automatic fixes with dotenv-linter fix | `DOTENV_LINTER_TARGETS`, `DOTENV_LINTER_EXTRA_ARGS` |
+| `diff` | Compare .env files to ensure matching key sets | `DOTENV_LINTER_TARGETS`, `DOTENV_LINTER_EXTRA_ARGS` |
 | `version` | Show the installed dotenv-linter version | |
 
 ## Variables
@@ -47,8 +47,8 @@ task dotenv-linter:install DOTENV_LINTER_VERSION=3.3.0
 | Variable | Default | Description |
 |---|---|---|
 | `DOTENV_LINTER_VERSION` | `""` (latest) | Pin a specific dotenv-linter release, e.g. `3.3.0` |
-| `TARGETS` | `.env` | File or directory dotenv-linter operates on |
-| `EXTRA_ARGS` | `""` | Extra flags forwarded to dotenv-linter (e.g. `--recursive`, `--skip`) |
+| `DOTENV_LINTER_TARGETS` | `.env` | File or directory dotenv-linter operates on |
+| `DOTENV_LINTER_EXTRA_ARGS` | `""` | Extra flags forwarded to dotenv-linter (e.g. `--recursive`, `--skip`) |
 | `CARGO_BIN_UNIX` | `$HOME/.cargo/bin` | Fallback cargo bin directory on macOS and Linux |
 | `DOTENV_LINTER_LINT_SKIP_PATTERN` | _(empty)_ | Forward-slash path glob for files skipped by check, fix, and diff tasks |
 

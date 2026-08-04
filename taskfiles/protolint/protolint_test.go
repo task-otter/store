@@ -23,10 +23,10 @@ func publicTasks() []string {
 func publicVars() []string {
 	return []string{
 		"PROTOLINT_LINT_SKIP_PATTERN",
-		"EXTRA_ARGS",
+		"PROTOLINT_EXTRA_ARGS",
 		"GO_GLOBAL_BIN",
 		"PROTOLINT_VERSION",
-		"TARGETS",
+		"PROTOLINT_TARGETS",
 	}
 }
 

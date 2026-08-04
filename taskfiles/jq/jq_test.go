@@ -20,7 +20,7 @@ func publicTasks() []string {
 
 func publicVars() []string {
 	return []string{
-		"VERSION",
+		"JQ_VERSION",
 	}
 }
 

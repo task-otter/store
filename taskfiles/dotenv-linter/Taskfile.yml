@@ -20,8 +20,8 @@ includes:
 vars:
   DOTENV_LINTER_LINT_SKIP_PATTERN: ""
   CARGO_BIN_UNIX: "$HOME/.cargo/bin"
-  TARGETS: ".env"
-  EXTRA_ARGS: ""
+  DOTENV_LINTER_TARGETS: ".env"
+  DOTENV_LINTER_EXTRA_ARGS: ""
   DOTENV_LINTER_VERSION: ""
 
 tasks:
@@ -76,9 +76,9 @@ tasks:
 
   lint:
     run: once
-    desc: Lint dotenv files with dotenv-linter check (TARGETS=path)
+    desc: Lint dotenv files with dotenv-linter check (DOTENV_LINTER_TARGETS=path)
     summary: |
-      Run dotenv-linter check against TARGETS (default .env). Pass EXTRA_ARGS
+      Run dotenv-linter check against DOTENV_LINTER_TARGETS (default .env). Pass DOTENV_LINTER_EXTRA_ARGS
       for additional flags such as --skip or --recursive, or pass arguments
       after -- to forward them directly. Auto-installs dotenv-linter if
       missing.
@@ -91,11 +91,11 @@ tasks:
 
   fix:
     run: once
-    desc: Fix dotenv lint issues with dotenv-linter (TARGETS=path)
+    desc: Fix dotenv lint issues with dotenv-linter (DOTENV_LINTER_TARGETS=path)
     summary: |
-      Run dotenv-linter fix against TARGETS (default .env) to apply automatic
+      Run dotenv-linter fix against DOTENV_LINTER_TARGETS (default .env) to apply automatic
       fixes. A backup of each changed file is created by the tool. Pass
-      EXTRA_ARGS for additional flags. Auto-installs dotenv-linter if missing.
+      DOTENV_LINTER_EXTRA_ARGS for additional flags. Auto-installs dotenv-linter if missing.
     dir: "{{.USER_WORKING_DIR}}"
     deps:
       - task: install
@@ -105,10 +105,10 @@ tasks:
 
   diff:
     run: once
-    desc: Compare dotenv files with dotenv-linter diff (TARGETS=files)
+    desc: Compare dotenv files with dotenv-linter diff (DOTENV_LINTER_TARGETS=files)
     summary: |
-      Run dotenv-linter diff against TARGETS (two or more .env files) to
-      ensure their key sets match. Pass EXTRA_ARGS for additional flags.
+      Run dotenv-linter diff against DOTENV_LINTER_TARGETS (two or more .env files) to
+      ensure their key sets match. Pass DOTENV_LINTER_EXTRA_ARGS for additional flags.
       Auto-installs dotenv-linter if missing.
     dir: "{{.USER_WORKING_DIR}}"
     deps:
@@ -254,14 +254,14 @@ tasks:
     cmds:
       - |
         bin="$(command -v dotenv-linter || echo "{{.CARGO_BIN_UNIX}}/dotenv-linter")"
-        targets='{{if .TARGETS_OVERRIDE}}{{.TARGETS_OVERRIDE}}
-        {{- else}}{{.TARGETS}}{{end}}'
+        targets='{{if .DOTENV_LINTER_TARGETS_OVERRIDE}}{{.DOTENV_LINTER_TARGETS_OVERRIDE}}
+        {{- else}}{{.DOTENV_LINTER_TARGETS}}{{end}}'
         skip_pattern='{{if .DOTENV_LINTER_LINT_SKIP_PATTERN_OVERRIDE}}{{.DOTENV_LINTER_LINT_SKIP_PATTERN_OVERRIDE}}
         {{- else}}{{.DOTENV_LINTER_LINT_SKIP_PATTERN}}{{end}}'
         if [ -z "$skip_pattern" ]; then
           "$bin" {{.DOTENV_LINTER_SUBCOMMAND}} $targets \
-            {{if .EXTRA_ARGS_OVERRIDE}}{{.EXTRA_ARGS_OVERRIDE}}
-            {{- else}}{{.EXTRA_ARGS}}{{end}} {{.CLI_ARGS}}
+            {{if .DOTENV_LINTER_EXTRA_ARGS_OVERRIDE}}{{.DOTENV_LINTER_EXTRA_ARGS_OVERRIDE}}
+            {{- else}}{{.DOTENV_LINTER_EXTRA_ARGS}}{{end}} {{.CLI_ARGS}}
           exit
         fi
         matched_files="$(mktemp)"
@@ -280,8 +280,8 @@ tasks:
           set -- "$@" --exclude "$path"
         done <"$matched_files"
         "$bin" {{.DOTENV_LINTER_SUBCOMMAND}} "$@" $targets \
-          {{if .EXTRA_ARGS_OVERRIDE}}{{.EXTRA_ARGS_OVERRIDE}}
-          {{- else}}{{.EXTRA_ARGS}}{{end}} {{.CLI_ARGS}}
+          {{if .DOTENV_LINTER_EXTRA_ARGS_OVERRIDE}}{{.DOTENV_LINTER_EXTRA_ARGS_OVERRIDE}}
+          {{- else}}{{.DOTENV_LINTER_EXTRA_ARGS}}{{end}} {{.CLI_ARGS}}
 
   _lint:run:windows:
     run: once
@@ -293,14 +293,14 @@ tasks:
         powershell -NoProfile -ExecutionPolicy Bypass -Command
         "$b=(Get-Command dotenv-linter -ErrorAction SilentlyContinue).Source;
         if (-not $b) { $b=Join-Path $env:USERPROFILE '.cargo\bin\dotenv-linter.exe' };
-        $targets='{{if .TARGETS_OVERRIDE}}{{.TARGETS_OVERRIDE}}
-        {{- else}}{{.TARGETS}}{{end}}';
+        $targets='{{if .DOTENV_LINTER_TARGETS_OVERRIDE}}{{.DOTENV_LINTER_TARGETS_OVERRIDE}}
+        {{- else}}{{.DOTENV_LINTER_TARGETS}}{{end}}';
         $skipPattern='{{if .DOTENV_LINTER_LINT_SKIP_PATTERN_OVERRIDE}}{{.DOTENV_LINTER_LINT_SKIP_PATTERN_OVERRIDE}}
         {{- else}}{{.DOTENV_LINTER_LINT_SKIP_PATTERN}}{{end}}';
         if (-not $skipPattern) {
           & $b {{.DOTENV_LINTER_SUBCOMMAND}} $targets.Split(' ')
-            {{if .EXTRA_ARGS_OVERRIDE}}{{.EXTRA_ARGS_OVERRIDE}}
-            {{- else}}{{.EXTRA_ARGS}}{{end}} {{.CLI_ARGS}};
+            {{if .DOTENV_LINTER_EXTRA_ARGS_OVERRIDE}}{{.DOTENV_LINTER_EXTRA_ARGS_OVERRIDE}}
+            {{- else}}{{.DOTENV_LINTER_EXTRA_ARGS}}{{end}} {{.CLI_ARGS}};
           exit $LASTEXITCODE
         };
         $files=@($targets.Split(' ') | ForEach-Object {
@@ -314,8 +314,8 @@ tasks:
             filter ('SKIPFILES_PATTERN=' + $skipPattern) 'SKIPFILES_MATCHING=true');
         $excludeArgs=@(); foreach ($path in $excluded) { $excludeArgs += @('--exclude', $path) };
         & $b {{.DOTENV_LINTER_SUBCOMMAND}} @excludeArgs $targets.Split(' ')
-          {{if .EXTRA_ARGS_OVERRIDE}}{{.EXTRA_ARGS_OVERRIDE}}
-          {{- else}}{{.EXTRA_ARGS}}{{end}} {{.CLI_ARGS}};
+          {{if .DOTENV_LINTER_EXTRA_ARGS_OVERRIDE}}{{.DOTENV_LINTER_EXTRA_ARGS_OVERRIDE}}
+          {{- else}}{{.DOTENV_LINTER_EXTRA_ARGS}}{{end}} {{.CLI_ARGS}};
         exit $LASTEXITCODE"
 
   _diff:unix:
@@ -326,10 +326,10 @@ tasks:
     cmds:
       - |
         bin="$(command -v dotenv-linter || echo "{{.CARGO_BIN_UNIX}}/dotenv-linter")"
-        targets='{{if .TARGETS_OVERRIDE}}{{.TARGETS_OVERRIDE}}
-        {{- else}}{{.TARGETS}}{{end}}'
-        options='{{if .EXTRA_ARGS_OVERRIDE}}{{.EXTRA_ARGS_OVERRIDE}}
-        {{- else}}{{.EXTRA_ARGS}}{{end}}'
+        targets='{{if .DOTENV_LINTER_TARGETS_OVERRIDE}}{{.DOTENV_LINTER_TARGETS_OVERRIDE}}
+        {{- else}}{{.DOTENV_LINTER_TARGETS}}{{end}}'
+        options='{{if .DOTENV_LINTER_EXTRA_ARGS_OVERRIDE}}{{.DOTENV_LINTER_EXTRA_ARGS_OVERRIDE}}
+        {{- else}}{{.DOTENV_LINTER_EXTRA_ARGS}}{{end}}'
         if [ -n '{{.CLI_ARGS}}' ]; then
           targets=''
           options=''
@@ -377,10 +377,10 @@ tasks:
         powershell -NoProfile -ExecutionPolicy Bypass -Command
         "$b = (Get-Command dotenv-linter -ErrorAction SilentlyContinue).Source;
         if (-not $b) { $b = Join-Path $env:USERPROFILE '.cargo\bin\dotenv-linter.exe' };
-        $targets='{{if .TARGETS_OVERRIDE}}{{.TARGETS_OVERRIDE}}
-        {{- else}}{{.TARGETS}}{{end}}'.Split(' ', [System.StringSplitOptions]::RemoveEmptyEntries);
-        $options='{{if .EXTRA_ARGS_OVERRIDE}}{{.EXTRA_ARGS_OVERRIDE}}
-        {{- else}}{{.EXTRA_ARGS}}{{end}}'.Split(' ', [System.StringSplitOptions]::RemoveEmptyEntries);
+        $targets='{{if .DOTENV_LINTER_TARGETS_OVERRIDE}}{{.DOTENV_LINTER_TARGETS_OVERRIDE}}
+        {{- else}}{{.DOTENV_LINTER_TARGETS}}{{end}}'.Split(' ', [System.StringSplitOptions]::RemoveEmptyEntries);
+        $options='{{if .DOTENV_LINTER_EXTRA_ARGS_OVERRIDE}}{{.DOTENV_LINTER_EXTRA_ARGS_OVERRIDE}}
+        {{- else}}{{.DOTENV_LINTER_EXTRA_ARGS}}{{end}}'.Split(' ', [System.StringSplitOptions]::RemoveEmptyEntries);
         if ('{{.CLI_ARGS}}') {
           $arguments='{{.CLI_ARGS}}'.Split(' ', [System.StringSplitOptions]::RemoveEmptyEntries);
           $targets=@($arguments | Where-Object { -not $_.StartsWith('-') });

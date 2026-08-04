@@ -36,16 +36,16 @@ task jq:version
 
 | Task           | Description                              | Key variables |
 | -------------- | ---------------------------------------- | ------------- |
-| `install`      | Install jq on the current OS            | `VERSION`     |
+| `install`      | Install jq on the current OS            | `JQ_VERSION`     |
 | `install:undo` | Remove jq from the current OS           | none          |
 | `upgrade`      | Upgrade jq to the latest release        | none          |
 | `version`      | Show the installed jq version           | none          |
 
 ## Notes
 
-Pass `VERSION=x.y.z` to `install` to pin a specific release. Exact-version
+Pass `JQ_VERSION=x.y.z` to `install` to pin a specific release. Exact-version
 availability depends on what the platform's package manager/repository
-carries; when `VERSION` is empty (the default), the latest available
+carries; when `JQ_VERSION` is empty (the default), the latest available
 release is installed.
 
 On Linux, jq is installed via `apt-get` if available, then `dnf`. If

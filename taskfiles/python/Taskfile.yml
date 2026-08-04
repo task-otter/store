@@ -16,11 +16,11 @@ includes:
 vars:
   UV_LOAD: 'export PATH="$HOME/.local/bin:$PATH"'
   PYTHON_PIN_VERSION: "3.13"
-  VENV: ".venv"
-  REQUIREMENTS: "requirements.txt"
-  FILE: ""
-  ARGS: ""
-  EXTRA_ARGS: ""
+  PYTHON_VENV: ".venv"
+  PYTHON_REQUIREMENTS: "requirements.txt"
+  PYTHON_FILE: ""
+  PYTHON_ARGS: ""
+  PYTHON_EXTRA_ARGS: ""
 
 tasks:
   default:
@@ -94,9 +94,9 @@ tasks:
 
   venv:
     run: once
-    desc: Create a Python virtual environment (VENV=path)
+    desc: Create a Python virtual environment (PYTHON_VENV=path)
     summary: |
-      Create a virtual environment at the path given by VENV (default .venv)
+      Create a virtual environment at the path given by PYTHON_VENV (default .venv)
       using the python3 -m venv module. Run pip:install afterward to install
       project dependencies into the new environment.
     cmds:
@@ -105,10 +105,10 @@ tasks:
 
   pip:install:
     run: once
-    desc: Install packages from a requirements file (REQUIREMENTS=path)
+    desc: Install packages from a requirements file (PYTHON_REQUIREMENTS=path)
     summary: |
-      Run pip3 install -r REQUIREMENTS (default requirements.txt).
-      Pass EXTRA_ARGS to forward additional flags such as --upgrade or
+      Run pip3 install -r PYTHON_REQUIREMENTS (default requirements.txt).
+      Pass PYTHON_EXTRA_ARGS to forward additional flags such as --upgrade or
       --no-cache-dir. Does not require an active virtual environment.
     cmds:
       - task: _pip:install:unix
@@ -116,17 +116,17 @@ tasks:
 
   run:
     run: once
-    desc: Run a Python script (FILE=path)
+    desc: Run a Python script (PYTHON_FILE=path)
     summary: |
-      Execute FILE with python3 (Unix) or python (Windows).
-      Pass ARGS to forward positional arguments to the script and
-      EXTRA_ARGS for interpreter flags such as -u or -m.
+      Execute PYTHON_FILE with python3 (Unix) or python (Windows).
+      Pass PYTHON_ARGS to forward positional arguments to the script and
+      PYTHON_EXTRA_ARGS for interpreter flags such as -u or -m.
     requires:
       vars:
-        - FILE
+        - PYTHON_FILE
     preconditions:
-      - sh: test -n "{{.FILE_OVERRIDE}}{{.FILE}}"
-        msg: FILE is required. Pass FILE=path/to/script.py when running this task.
+      - sh: test -n "{{.PYTHON_FILE_OVERRIDE}}{{.PYTHON_FILE}}"
+        msg: PYTHON_FILE is required. Pass PYTHON_FILE=path/to/script.py when running this task.
     cmds:
       - task: _run:unix
       - task: _run:windows
@@ -263,8 +263,8 @@ tasks:
       - sh: 'test -f "$HOME/.local/bin/python3" || command -v python3 >/dev/null 2>&1'
         msg: Python is not installed. Run task install first.
     cmds:
-      - echo 'Creating virtual environment at {{.VENV}}...'
-      - bash -lc '{{.UV_LOAD}}; python3 -m venv "{{.VENV}}"'
+      - echo 'Creating virtual environment at {{.PYTHON_VENV}}...'
+      - bash -lc '{{.UV_LOAD}}; python3 -m venv "{{.PYTHON_VENV}}"'
       - echo 'Virtual environment ready.'
 
   _venv:windows:
@@ -277,8 +277,8 @@ tasks:
           "if (Get-Command python -ErrorAction SilentlyContinue) { exit 0 } else { exit 1 }"
         msg: Python is not installed. Run task install first.
     cmds:
-      - echo Creating virtual environment at {{.VENV}}...
-      - python -m venv "{{.VENV}}"
+      - echo Creating virtual environment at {{.PYTHON_VENV}}...
+      - python -m venv "{{.PYTHON_VENV}}"
       - echo Virtual environment ready.
 
   _pip:install:unix:
@@ -290,7 +290,7 @@ tasks:
       - sh: 'test -f "$HOME/.local/bin/pip3" || command -v pip3 >/dev/null 2>&1'
         msg: pip3 is not available. Run task install first.
     cmds:
-      - bash -lc '{{.UV_LOAD}}; pip3 install -r "{{.REQUIREMENTS}}" {{.EXTRA_ARGS}}'
+      - bash -lc '{{.UV_LOAD}}; pip3 install -r "{{.PYTHON_REQUIREMENTS}}" {{.PYTHON_EXTRA_ARGS}}'
 
   _pip:install:windows:
     run: once
@@ -302,7 +302,7 @@ tasks:
           "if (Get-Command pip -ErrorAction SilentlyContinue) { exit 0 } else { exit 1 }"
         msg: pip is not available. Run task install first.
     cmds:
-      - pip install -r "{{.REQUIREMENTS}}" {{.EXTRA_ARGS}}
+      - pip install -r "{{.PYTHON_REQUIREMENTS}}" {{.PYTHON_EXTRA_ARGS}}
 
   _run:unix:
     run: once
@@ -315,9 +315,9 @@ tasks:
     cmds:
       - >-
         bash -lc '{{.UV_LOAD}};
-        python3 "{{if .FILE_OVERRIDE}}{{.FILE_OVERRIDE}}{{else}}{{.FILE}}{{end}}"
-        {{.ARGS}}
-        {{if .EXTRA_ARGS_OVERRIDE}}{{.EXTRA_ARGS_OVERRIDE}}{{else}}{{.EXTRA_ARGS}}{{end}}'
+        python3 "{{if .PYTHON_FILE_OVERRIDE}}{{.PYTHON_FILE_OVERRIDE}}{{else}}{{.PYTHON_FILE}}{{end}}"
+        {{.PYTHON_ARGS}}
+        {{if .PYTHON_EXTRA_ARGS_OVERRIDE}}{{.PYTHON_EXTRA_ARGS_OVERRIDE}}{{else}}{{.PYTHON_EXTRA_ARGS}}{{end}}'
 
   _run:windows:
     run: once
@@ -330,6 +330,6 @@ tasks:
         msg: Python is not installed. Run task install first.
     cmds:
       - >-
-        python "{{if .FILE_OVERRIDE}}{{.FILE_OVERRIDE}}{{else}}{{.FILE}}{{end}}"
-        {{.ARGS}}
-        {{if .EXTRA_ARGS_OVERRIDE}}{{.EXTRA_ARGS_OVERRIDE}}{{else}}{{.EXTRA_ARGS}}{{end}}
+        python "{{if .PYTHON_FILE_OVERRIDE}}{{.PYTHON_FILE_OVERRIDE}}{{else}}{{.PYTHON_FILE}}{{end}}"
+        {{.PYTHON_ARGS}}
+        {{if .PYTHON_EXTRA_ARGS_OVERRIDE}}{{.PYTHON_EXTRA_ARGS_OVERRIDE}}{{else}}{{.PYTHON_EXTRA_ARGS}}{{end}}

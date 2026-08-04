@@ -35,10 +35,10 @@ project root (where `package.json` lives).
 
 | Task | Description | Key variables |
 |---|---|---|
-| `install` | Install Spectral as a local devDependency | `VERSION` |
+| `install` | Install Spectral as a local devDependency | `SPECTRAL_VERSION` |
 | `install:undo` | Remove the Spectral devDependency | |
 | `upgrade` | Upgrade Spectral to the latest release | |
-| `lint` | Lint API documents with Spectral | `TARGETS`, `SPECTRAL_RULESET`, `EXTRA_ARGS` |
+| `lint` | Lint API documents with Spectral | `SPECTRAL_TARGETS`, `SPECTRAL_RULESET`, `SPECTRAL_EXTRA_ARGS` |
 | `config:init` | Create a default .spectral.yaml ruleset | |
 | `help` | Show the Spectral CLI help | |
 | `version` | Show the locally resolved Spectral version | |
@@ -47,10 +47,10 @@ project root (where `package.json` lives).
 
 | Variable | Default | Description |
 |---|---|---|
-| `VERSION` | `""` (package manager default) | Pin a specific @stoplight/spectral-cli release |
-| `TARGETS` | `""` | API document(s) to lint, e.g. `openapi.yaml` |
+| `SPECTRAL_VERSION` | `""` (package manager default) | Pin a specific @stoplight/spectral-cli release |
+| `SPECTRAL_TARGETS` | `""` | API document(s) to lint, e.g. `openapi.yaml` |
 | `SPECTRAL_RULESET` | `""` | Path to a Spectral ruleset file passed via `--ruleset` |
-| `EXTRA_ARGS` | `""` | Extra flags forwarded to spectral |
+| `SPECTRAL_EXTRA_ARGS` | `""` | Extra flags forwarded to spectral |
 | `SPECTRAL_LINT_SKIP_PATTERN` | _(empty)_ | Forward-slash path glob for files skipped by lint checks and fixes |
 
 Skip patterns support `*` within one path segment, `**` across directories, and `?` for one character. Paths are matched relative to the task working directory; for example, `**/generated/**`.
@@ -61,8 +61,8 @@ Spectral skips matching files as top-level lint targets, but may still load them
 
 - Requires a package-manager stack: `lint` auto-installs Spectral on first use;
   on a fresh machine provision Node.js first (e.g. `task fnm:node:install`).
-- `lint` needs `TARGETS` — Spectral prints its usage message when no document
+- `lint` needs `SPECTRAL_TARGETS` — Spectral prints its usage message when no document
   is given. Without `SPECTRAL_RULESET`, Spectral discovers `.spectral.yaml` in the
   project automatically; `config:init` scaffolds one extending `spectral:oas`.
-- The install `status:` guard keeps repeat runs idempotent — changing `VERSION`
+- The install `status:` guard keeps repeat runs idempotent — changing `SPECTRAL_VERSION`
   triggers a reinstall.

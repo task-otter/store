@@ -20,7 +20,7 @@ func publicTasks() []string {
 
 func publicVars() []string {
 	return []string{
-		"ARGS",
+		"BASH_EXEC_ARGS",
 		"BASH_EXEC_FLAGS",
 		"BASH_EXEC_COMMAND",
 		"BASH_EXEC_SCRIPT",

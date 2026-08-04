@@ -15,15 +15,15 @@ includes:
 
 vars:
   STYLELINT_LINT_SKIP_PATTERN: ""
-  TARGETS: ""
+  STYLELINT_TARGETS: ""
   STYLELINT_DEFAULT_TARGETS: "**/*.{css,scss,sass,less,vue,svelte,astro}"
-  CONFIG: ""
+  STYLELINT_CONFIG: ""
   STYLELINT_CACHE: ""
   STYLELINT_DEFAULT_CACHE: "true"
   STYLELINT_ALLOW_EMPTY_INPUT: ""
   STYLELINT_DEFAULT_ALLOW_EMPTY_INPUT: "true"
-  EXTRA_ARGS: ""
-  VERSION: ""
+  STYLELINT_EXTRA_ARGS: ""
+  STYLELINT_VERSION: ""
 
 tasks:
   default:
@@ -37,10 +37,10 @@ tasks:
     desc: Install Stylelint and the standard config as local devDependencies
     summary: |
       Install stylelint and stylelint-config-standard as local devDependencies.
-      Pass VERSION=x.y.z to pin stylelint to a specific release.
+      Pass STYLELINT_VERSION=x.y.z to pin stylelint to a specific release.
     vars:
-      RESOLVED_VERSION: '{{default .VERSION .VERSION_OVERRIDE}}'
-      RESOLVED_EXTRA_ARGS: '{{default .EXTRA_ARGS .EXTRA_ARGS_OVERRIDE}}'
+      RESOLVED_VERSION: '{{default .STYLELINT_VERSION .STYLELINT_VERSION_OVERRIDE}}'
+      RESOLVED_EXTRA_ARGS: '{{default .STYLELINT_EXTRA_ARGS .STYLELINT_EXTRA_ARGS_OVERRIDE}}'
     status:
       - >-
         node -e "const installed = require('./node_modules/stylelint/package.json');
@@ -64,7 +64,7 @@ tasks:
       - task: npm:remove
         vars:
           PACKAGES: "stylelint stylelint-config-standard"
-          EXTRA_ARGS: '{{default .EXTRA_ARGS .EXTRA_ARGS_OVERRIDE}}'
+          EXTRA_ARGS: '{{default .STYLELINT_EXTRA_ARGS .STYLELINT_EXTRA_ARGS_OVERRIDE}}'
 
   upgrade:
     run: once
@@ -74,14 +74,14 @@ tasks:
       - task: npm:add
         vars:
           PACKAGES: "stylelint@latest stylelint-config-standard@latest"
-          EXTRA_ARGS: '{{default .EXTRA_ARGS .EXTRA_ARGS_OVERRIDE}}'
+          EXTRA_ARGS: '{{default .STYLELINT_EXTRA_ARGS .STYLELINT_EXTRA_ARGS_OVERRIDE}}'
 
   config:init:
     run: once
     dir: "{{.USER_WORKING_DIR}}"
     desc: Create a starter Stylelint config when none exists
     vars:
-      RESOLVED_CONFIG: '{{default .CONFIG .CONFIG_OVERRIDE}}'
+      RESOLVED_CONFIG: '{{default .STYLELINT_CONFIG .STYLELINT_CONFIG_OVERRIDE}}'
     cmds:
       - |
         config_file="{{.RESOLVED_CONFIG}}"
@@ -101,13 +101,13 @@ tasks:
     internal: true
     run: when_changed
     vars:
-      RESOLVED_TARGETS: '{{or .STYLELINT_TARGETS_OVERRIDE .TARGETS .STYLELINT_DEFAULT_TARGETS}}'
+      RESOLVED_TARGETS: '{{or .STYLELINT_TARGETS_OVERRIDE .STYLELINT_TARGETS .STYLELINT_DEFAULT_TARGETS}}'
       RESOLVED_SKIP: '{{default .STYLELINT_LINT_SKIP_PATTERN .STYLELINT_LINT_SKIP_PATTERN_OVERRIDE}}'
-      RESOLVED_CONFIG: '{{default .CONFIG .CONFIG_OVERRIDE}}'
+      RESOLVED_CONFIG: '{{default .STYLELINT_CONFIG .STYLELINT_CONFIG_OVERRIDE}}'
       RESOLVED_CACHE: '{{or .STYLELINT_CACHE_OVERRIDE .STYLELINT_CACHE .STYLELINT_DEFAULT_CACHE}}'
       RESOLVED_EMPTY: >-
         {{or .STYLELINT_ALLOW_EMPTY_INPUT_OVERRIDE .STYLELINT_ALLOW_EMPTY_INPUT .STYLELINT_DEFAULT_ALLOW_EMPTY_INPUT}}
-      RESOLVED_EXTRA_ARGS: '{{default .EXTRA_ARGS .EXTRA_ARGS_OVERRIDE}}'
+      RESOLVED_EXTRA_ARGS: '{{default .STYLELINT_EXTRA_ARGS .STYLELINT_EXTRA_ARGS_OVERRIDE}}'
     cmds:
       - task: npm:exec
         vars:
@@ -171,4 +171,5 @@ tasks:
         vars:
           BINARY: stylelint
           ARGS: "--help"
-          EXTRA_ARGS: '{{default .EXTRA_ARGS .EXTRA_ARGS_OVERRIDE}}{{if .CLI_ARGS}} {{.CLI_ARGS}}{{end}}'
+          EXTRA_ARGS: >-
+            {{default .STYLELINT_EXTRA_ARGS .STYLELINT_EXTRA_ARGS_OVERRIDE}}{{if .CLI_ARGS}} {{.CLI_ARGS}}{{end}}

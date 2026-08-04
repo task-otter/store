@@ -24,7 +24,7 @@ func publicVars() []string {
 		"BENCHER_INSTALL_URL",
 		"BENCHER_INSTALL_URL_WINDOWS",
 		"BENCHER_VERSION",
-		"EXTRA_ARGS",
+		"BENCHER_EXTRA_ARGS",
 	}
 }
 

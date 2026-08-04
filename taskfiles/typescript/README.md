@@ -40,11 +40,11 @@ Available leaves: `bun`, `node/{fnm,nvm}/{npm,pnpm,yarn}`.
 | -------------------- | --------------------------------------------- | ------------------------------------------------------------------------ |
 | `version`            | —                                             | Show resolved `tsc`, `tsx`, and `tsserver` information.                  |
 | `tsserver:info`      | —                                             | Show where `tsserver` resolves from and how editors use it.              |
-| `install`            | Optional `VERSION`                      | Install `typescript`, `tsx`, and `@types/node` using lockfile detection. Pass `VERSION=x.y.z` to pin the `typescript` package. |
+| `install`            | Optional `TYPESCRIPT_VERSION`                      | Install `typescript`, `tsx`, and `@types/node` using lockfile detection. Pass `TYPESCRIPT_VERSION=x.y.z` to pin the `typescript` package. |
 | `install:undo`       | — | Remove the locally installed TypeScript dev dependencies.                |
 | `upgrade`             | — | Reinstall `typescript`, `tsx`, and `@types/node` at their latest versions. |
-| `run`                | Optional `FILE`, `TYPESCRIPT_TSX_FLAGS`, `CLI_ARGS`      | Execute one TypeScript file once with `tsx`.                             |
-| `dev`                | Optional `FILE`, `TYPESCRIPT_TSX_FLAGS`                  | Run one TypeScript file in `tsx watch` mode.                             |
+| `run`                | Optional `TYPESCRIPT_FILE`, `TYPESCRIPT_TSX_FLAGS`, `CLI_ARGS`      | Execute one TypeScript file once with `tsx`.                             |
+| `dev`                | Optional `TYPESCRIPT_FILE`, `TYPESCRIPT_TSX_FLAGS`                  | Run one TypeScript file in `tsx watch` mode.                             |
 | `typecheck`          | Optional `TYPESCRIPT_TSCONFIG`, `TYPESCRIPT_TSC_FLAGS`              | Run `tsc --noEmit` for the full project.                                 |
 | `typecheck:watch`    | Optional `TYPESCRIPT_TSCONFIG`, `TYPESCRIPT_TSC_FLAGS`              | Run `tsc --noEmit --watch`.                                              |
 | `typecheck:files`    | Required `FILES`; optional `TYPESCRIPT_TSC_FLAGS`        | Type-check explicit files without loading `tsconfig.json`.               |
@@ -66,12 +66,12 @@ Available leaves: `bun`, `node/{fnm,nvm}/{npm,pnpm,yarn}`.
 
 ```bash
 task typescript:node:fnm:npm:install
-task typescript:node:fnm:npm:install VERSION=5.6.3
+task typescript:node:fnm:npm:install TYPESCRIPT_VERSION=5.6.3
 task typescript:node:fnm:npm:version
 task typescript:node:fnm:npm:config:init
 
-task typescript:node:fnm:npm:run FILE=scripts/seed.ts
-task typescript:node:fnm:npm:dev FILE=src/server.ts TYPESCRIPT_TSX_FLAGS="--env-file .env"
+task typescript:node:fnm:npm:run TYPESCRIPT_FILE=scripts/seed.ts
+task typescript:node:fnm:npm:dev TYPESCRIPT_FILE=src/server.ts TYPESCRIPT_TSX_FLAGS="--env-file .env"
 
 task typescript:node:fnm:npm:typecheck
 task typescript:node:fnm:npm:typecheck TYPESCRIPT_TSCONFIG=tsconfig.strict.json

@@ -10,7 +10,7 @@ output:
 silent: true
 
 vars:
-  ARGS: ""
+  BASH_EXEC_ARGS: ""
   BASH_EXEC_FLAGS: ""
   BASH_EXEC_COMMAND: ""
   BASH_EXEC_SCRIPT: ""
@@ -27,7 +27,7 @@ tasks:
     run: once
     desc: Run a Bash script (BASH_EXEC_SCRIPT=path)
     summary: |
-      Execute SCRIPT with Bash from the current working directory. Pass ARGS for
+      Execute SCRIPT with Bash from the current working directory. Pass BASH_EXEC_ARGS for
       positional script arguments and BASH_FLAGS for Bash options such as -euo
       pipefail. Bash must be installed and available in PATH.
     dir: "{{.USER_WORKING_DIR}}"
@@ -41,7 +41,7 @@ tasks:
         bash
         {{if .BASH_EXEC_FLAGS_OVERRIDE}}{{.BASH_EXEC_FLAGS_OVERRIDE}}{{else}}{{.BASH_EXEC_FLAGS}}{{end}}
         "{{if .BASH_EXEC_SCRIPT_OVERRIDE}}{{.BASH_EXEC_SCRIPT_OVERRIDE}}{{else}}{{.BASH_EXEC_SCRIPT}}{{end}}"
-        {{if .ARGS_OVERRIDE}}{{.ARGS_OVERRIDE}}{{else}}{{.ARGS}}{{end}}
+        {{if .BASH_EXEC_ARGS_OVERRIDE}}{{.BASH_EXEC_ARGS_OVERRIDE}}{{else}}{{.BASH_EXEC_ARGS}}{{end}}
 
   check:
     run: once

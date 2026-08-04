@@ -35,10 +35,10 @@ func publicVars() []string {
 	return []string{
 		"BIOME_LINT_SKIP_PATTERN",
 		"BIOME_FMT_SKIP_PATTERN",
-		"CONFIG",
-		"EXTRA_ARGS",
-		"TARGETS",
-		"VERSION",
+		"BIOME_CONFIG",
+		"BIOME_EXTRA_ARGS",
+		"BIOME_TARGETS",
+		"BIOME_VERSION",
 	}
 }
 

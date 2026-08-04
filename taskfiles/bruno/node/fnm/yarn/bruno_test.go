@@ -25,8 +25,8 @@ func publicVars() []string {
 	return []string{
 		"BRUNO_COLLECTION",
 		"BRUNO_ENV",
-		"EXTRA_ARGS",
-		"VERSION",
+		"BRUNO_EXTRA_ARGS",
+		"BRUNO_VERSION",
 	}
 }
 

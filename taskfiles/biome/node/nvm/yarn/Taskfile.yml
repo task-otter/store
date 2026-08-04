@@ -16,11 +16,11 @@ includes:
 vars:
   BIOME_LINT_SKIP_PATTERN: ""
   BIOME_FMT_SKIP_PATTERN: ""
-  TARGETS: ""
+  BIOME_TARGETS: ""
   BIOME_DEFAULT_TARGETS: "."
-  CONFIG: ""
-  EXTRA_ARGS: ""
-  VERSION: ""
+  BIOME_CONFIG: ""
+  BIOME_EXTRA_ARGS: ""
+  BIOME_VERSION: ""
   BIOME_INTERNAL_SKIP_CONFIG: ".taskotter-biome-yarn-nvm-skip.json"
 
 tasks:
@@ -34,7 +34,7 @@ tasks:
     run: once
     desc: Install Biome as a local devDependency
     summary: |
-      Install @biomejs/biome as a local devDependency. Pass VERSION=x.y.z to
+      Install @biomejs/biome as a local devDependency. Pass BIOME_VERSION=x.y.z to
       pin a specific release instead of the package manager's default
       resolution.
     status:
@@ -43,12 +43,12 @@ tasks:
         const requested = '{{.RESOLVED_VERSION}}';
         process.exit(!requested || installed.version === requested ? 0 : 1)"
     vars:
-      RESOLVED_VERSION: '{{default .VERSION .VERSION_OVERRIDE}}'
+      RESOLVED_VERSION: '{{default .BIOME_VERSION .BIOME_VERSION_OVERRIDE}}'
     cmds:
       - task: yarn:add
         vars:
           PACKAGES: '@biomejs/biome{{if .RESOLVED_VERSION}}@{{.RESOLVED_VERSION}}{{end}}'
-          EXTRA_ARGS: '{{default .EXTRA_ARGS .EXTRA_ARGS_OVERRIDE}}{{if .CLI_ARGS}} {{.CLI_ARGS}}{{end}}'
+          EXTRA_ARGS: '{{default .BIOME_EXTRA_ARGS .BIOME_EXTRA_ARGS_OVERRIDE}}{{if .CLI_ARGS}} {{.CLI_ARGS}}{{end}}'
 
   install:undo:
     run: once
@@ -61,7 +61,7 @@ tasks:
       - task: yarn:remove
         vars:
           PACKAGES: "@biomejs/biome"
-          EXTRA_ARGS: '{{default .EXTRA_ARGS .EXTRA_ARGS_OVERRIDE}}'
+          EXTRA_ARGS: '{{default .BIOME_EXTRA_ARGS .BIOME_EXTRA_ARGS_OVERRIDE}}'
 
   upgrade:
     run: once
@@ -71,7 +71,7 @@ tasks:
       - task: yarn:add
         vars:
           PACKAGES: "@biomejs/biome@latest"
-          EXTRA_ARGS: '{{default .EXTRA_ARGS .EXTRA_ARGS_OVERRIDE}}'
+          EXTRA_ARGS: '{{default .BIOME_EXTRA_ARGS .BIOME_EXTRA_ARGS_OVERRIDE}}'
 
   init:
     run: once
@@ -93,7 +93,7 @@ tasks:
         vars:
           BINARY: biome
           ARGS: init
-          EXTRA_ARGS: '{{default .EXTRA_ARGS .EXTRA_ARGS_OVERRIDE}}{{if .CLI_ARGS}} {{.CLI_ARGS}}{{end}}'
+          EXTRA_ARGS: '{{default .BIOME_EXTRA_ARGS .BIOME_EXTRA_ARGS_OVERRIDE}}{{if .CLI_ARGS}} {{.CLI_ARGS}}{{end}}'
 
   config:skip:
     desc: Write a Biome config overlay that excludes the skip patterns
@@ -109,7 +109,7 @@ tasks:
     vars:
       RESOLVED_LINT_SKIP: '{{default .BIOME_LINT_SKIP_PATTERN .BIOME_LINT_SKIP_PATTERN_OVERRIDE}}'
       RESOLVED_FMT_SKIP: '{{default .BIOME_FMT_SKIP_PATTERN .BIOME_FMT_SKIP_PATTERN_OVERRIDE}}'
-      RESOLVED_CONFIG: '{{default .CONFIG .CONFIG_OVERRIDE}}'
+      RESOLVED_CONFIG: '{{default .BIOME_CONFIG .BIOME_CONFIG_OVERRIDE}}'
     env:
       BIOME_SKIP_PATTERN: >-
         {{if eq (default "all" .SKIP_SCOPE) "fmt"}}{{.RESOLVED_FMT_SKIP}}
@@ -218,8 +218,8 @@ tasks:
     vars:
       RESOLVED_LINT_SKIP: '{{default .BIOME_LINT_SKIP_PATTERN .BIOME_LINT_SKIP_PATTERN_OVERRIDE}}'
       RESOLVED_FMT_SKIP: '{{default .BIOME_FMT_SKIP_PATTERN .BIOME_FMT_SKIP_PATTERN_OVERRIDE}}'
-      RESOLVED_CONFIG: '{{default .CONFIG .CONFIG_OVERRIDE}}'
-      RESOLVED_TARGETS: '{{or .BIOME_TARGETS_OVERRIDE .TARGETS .BIOME_DEFAULT_TARGETS}}'
+      RESOLVED_CONFIG: '{{default .BIOME_CONFIG .BIOME_CONFIG_OVERRIDE}}'
+      RESOLVED_TARGETS: '{{or .BIOME_TARGETS_OVERRIDE .BIOME_TARGETS .BIOME_DEFAULT_TARGETS}}'
       # Which skip pattern decides whether the generated overlay is used.
       GATE: >-
         {{if eq .SKIP_SCOPE "lint"}}{{.RESOLVED_LINT_SKIP}}
@@ -237,7 +237,7 @@ tasks:
             {{- if .GATE}} --config-path "{{.BIOME_INTERNAL_SKIP_CONFIG}}"
             {{- else if .RESOLVED_CONFIG}} --config-path "{{.RESOLVED_CONFIG}}"{{end}}
             {{- if .RESOLVED_TARGETS}} {{.RESOLVED_TARGETS}}{{end}}
-          EXTRA_ARGS: '{{default .EXTRA_ARGS .EXTRA_ARGS_OVERRIDE}}{{if .CLI_ARGS}} {{.CLI_ARGS}}{{end}}'
+          EXTRA_ARGS: '{{default .BIOME_EXTRA_ARGS .BIOME_EXTRA_ARGS_OVERRIDE}}{{if .CLI_ARGS}} {{.CLI_ARGS}}{{end}}'
 
   check:
     run: once
@@ -338,4 +338,4 @@ tasks:
         vars:
           BINARY: biome
           ARGS: "--help"
-          EXTRA_ARGS: '{{default .EXTRA_ARGS .EXTRA_ARGS_OVERRIDE}}{{if .CLI_ARGS}} {{.CLI_ARGS}}{{end}}'
+          EXTRA_ARGS: '{{default .BIOME_EXTRA_ARGS .BIOME_EXTRA_ARGS_OVERRIDE}}{{if .CLI_ARGS}} {{.CLI_ARGS}}{{end}}'

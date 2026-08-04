@@ -26,8 +26,8 @@ func publicVars() []string {
 		"DJLINT_LINT_SKIP_PATTERN",
 		"DJLINT_FMT_SKIP_PATTERN",
 		"DJLINT_VERSION",
-		"EXTRA_ARGS",
-		"TARGETS",
+		"DJLINT_EXTRA_ARGS",
+		"DJLINT_TARGETS",
 		"UV_LOAD",
 	}
 }

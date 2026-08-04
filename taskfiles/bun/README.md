@@ -41,7 +41,7 @@ Installs are **idempotent**: the internal install task has a `status` check that
 
 | Task           | Variables          | Description                                                                                |
 | -------------- | ------------------ | ------------------------------------------------------------------------------------------ |
-| `install`      | Optional `VERSION` | Install Bun for the current operating system. Pass `VERSION=1.x.y` for a specific release. |
+| `install`      | Optional `BUN_VERSION` | Install Bun for the current operating system. Pass `BUN_VERSION=1.x.y` for a specific release. |
 | `install:undo` | —                  | Remove Bun from the current operating system.                                              |
 | `version`      | —                  | Show the installed Bun version and revision. Auto-installs Bun if missing.                 |
 | `upgrade`      | —                  | Upgrade Bun to the latest stable release. Auto-installs Bun if missing.                    |
@@ -59,7 +59,7 @@ task install
 Install a specific release:
 
 ```bash
-task install VERSION=1.1.38
+task install BUN_VERSION=1.1.38
 ```
 
 All other tasks call `install` automatically, so this is only needed if you want to install Bun without doing anything else yet, or if you need a specific version pinned.

@@ -34,10 +34,10 @@ project root (where `package.json` lives).
 
 | Task | Description | Key variables |
 |---|---|---|
-| `install` | Install HTMLHint as a local devDependency | `VERSION` |
+| `install` | Install HTMLHint as a local devDependency | `HTMLHINT_VERSION` |
 | `install:undo` | Remove the HTMLHint devDependency | |
 | `upgrade` | Upgrade HTMLHint to the latest release | |
-| `lint` | Lint HTML files with HTMLHint | `TARGETS`, `CONFIG`, `EXTRA_ARGS` |
+| `lint` | Lint HTML files with HTMLHint | `HTMLHINT_TARGETS`, `HTMLHINT_CONFIG`, `HTMLHINT_EXTRA_ARGS` |
 | `config:init` | Create a default .htmlhintrc configuration file | |
 | `help` | Show the HTMLHint CLI help | |
 | `version` | Show the locally resolved HTMLHint version | |
@@ -46,10 +46,10 @@ project root (where `package.json` lives).
 
 | Variable | Default | Description |
 |---|---|---|
-| `VERSION` | `""` (package manager default) | Pin a specific htmlhint release |
-| `TARGETS` | `**/*.html` | Glob of HTML files to lint |
-| `CONFIG` | `""` | Path to a custom HTMLHint configuration file |
-| `EXTRA_ARGS` | `""` | Extra flags forwarded to htmlhint |
+| `HTMLHINT_VERSION` | `""` (package manager default) | Pin a specific htmlhint release |
+| `HTMLHINT_TARGETS` | `**/*.html` | Glob of HTML files to lint |
+| `HTMLHINT_CONFIG` | `""` | Path to a custom HTMLHint configuration file |
+| `HTMLHINT_EXTRA_ARGS` | `""` | Extra flags forwarded to htmlhint |
 | `HTMLHINT_LINT_SKIP_PATTERN` | _(empty)_ | Forward-slash path glob for files skipped by lint checks and fixes |
 
 Skip patterns support `*` within one path segment, `**` across directories, and `?` for one character. Paths are matched relative to the task working directory; for example, `**/generated/**`.
@@ -59,6 +59,6 @@ Skip patterns support `*` within one path segment, `**` across directories, and 
 - Requires a package-manager stack: run `task htmlhint:node:fnm:npm:install` and
   it auto-installs HTMLHint on first use; on a fresh machine provision Node.js
   first (e.g. `task fnm:node:install`).
-- The install `status:` guard keeps repeat runs idempotent — changing `VERSION`
+- The install `status:` guard keeps repeat runs idempotent — changing `HTMLHINT_VERSION`
   triggers a reinstall.
 - HTMLHint is lint-only; it has no autofix mode.

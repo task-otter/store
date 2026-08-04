@@ -16,9 +16,9 @@ includes:
 
 vars:
   HADOLINT_LINT_SKIP_PATTERN: ""
-  CONFIG: ""
+  HADOLINT_CONFIG: ""
   HADOLINT_DOCKERFILE: "Dockerfile"
-  EXTRA_ARGS: ""
+  HADOLINT_EXTRA_ARGS: ""
   HADOLINT_VERSION: "2.14.0"
 
 tasks:
@@ -75,8 +75,8 @@ tasks:
     run: once
     desc: Lint a Dockerfile with hadolint (HADOLINT_DOCKERFILE=path)
     summary: |
-      Run hadolint against DOCKERFILE (default: Dockerfile). Pass CONFIG to
-      use a custom config file via --config, and EXTRA_ARGS for additional
+      Run hadolint against DOCKERFILE (default: Dockerfile). Pass HADOLINT_CONFIG to
+      use a custom config file via --config, and HADOLINT_EXTRA_ARGS for additional
       flags such as --ignore or --format. Pass CLI arguments after -- to
       override targets and options; HADOLINT_LINT_SKIP_PATTERN remains active.
       Auto-installs hadolint if missing.
@@ -92,10 +92,10 @@ tasks:
           if [ -z "$skip_pattern" ]; then
             hadolint \
               {{if .CLI_ARGS}}{{.CLI_ARGS}} \
-              {{else}}{{if .CONFIG_OVERRIDE}}--config "{{.CONFIG_OVERRIDE}}"
-              {{- else if .CONFIG}}--config "{{.CONFIG}}"{{end}} \
-              "$dockerfile" {{if .EXTRA_ARGS_OVERRIDE}}{{.EXTRA_ARGS_OVERRIDE}}
-              {{- else}}{{.EXTRA_ARGS}}{{end}}{{end}} \
+              {{else}}{{if .HADOLINT_CONFIG_OVERRIDE}}--config "{{.HADOLINT_CONFIG_OVERRIDE}}"
+              {{- else if .HADOLINT_CONFIG}}--config "{{.HADOLINT_CONFIG}}"{{end}} \
+              "$dockerfile" {{if .HADOLINT_EXTRA_ARGS_OVERRIDE}}{{.HADOLINT_EXTRA_ARGS_OVERRIDE}}
+              {{- else}}{{.HADOLINT_EXTRA_ARGS}}{{end}}{{end}} \
               && echo "✅ hadolint passed" || { echo "❌ hadolint failed"; exit 1; }
             exit
           fi
@@ -109,9 +109,10 @@ tasks:
             exit 0
           fi
           hadolint \
-            {{if .CONFIG_OVERRIDE}}--config "{{.CONFIG_OVERRIDE}}"{{else if .CONFIG}}--config "{{.CONFIG}}"{{end}} \
-            "$dockerfile" {{if .EXTRA_ARGS_OVERRIDE}}{{.EXTRA_ARGS_OVERRIDE}}
-            {{- else}}{{.EXTRA_ARGS}}{{end}} {{.CLI_ARGS}} \
+            {{if .HADOLINT_CONFIG_OVERRIDE}}--config "{{.HADOLINT_CONFIG_OVERRIDE}}"{{else if .HADOLINT_CONFIG}}--config
+            "{{.HADOLINT_CONFIG}}"{{end}} \
+            "$dockerfile" {{if .HADOLINT_EXTRA_ARGS_OVERRIDE}}{{.HADOLINT_EXTRA_ARGS_OVERRIDE}}
+            {{- else}}{{.HADOLINT_EXTRA_ARGS}}{{end}} {{.CLI_ARGS}} \
             && echo "✅ hadolint passed" || { echo "❌ hadolint failed"; exit 1; }
         platforms: [linux, darwin]
       - cmd: >-
@@ -122,9 +123,10 @@ tasks:
           {{- else}}{{.HADOLINT_DOCKERFILE}}{{end}}';
           if (-not $skipPattern) {
             hadolint {{if .CLI_ARGS}}{{.CLI_ARGS}}{{else}}
-              {{if .CONFIG_OVERRIDE}}--config '{{.CONFIG_OVERRIDE}}'{{else if .CONFIG}}--config '{{.CONFIG}}'{{end}}
-              $dockerfile {{if .EXTRA_ARGS_OVERRIDE}}{{.EXTRA_ARGS_OVERRIDE}}
-              {{- else}}{{.EXTRA_ARGS}}{{end}}{{end}};
+              {{if .HADOLINT_CONFIG_OVERRIDE}}--config '{{.HADOLINT_CONFIG_OVERRIDE}}'{{else if
+              .HADOLINT_CONFIG}}--config '{{.HADOLINT_CONFIG}}'{{end}}
+              $dockerfile {{if .HADOLINT_EXTRA_ARGS_OVERRIDE}}{{.HADOLINT_EXTRA_ARGS_OVERRIDE}}
+              {{- else}}{{.HADOLINT_EXTRA_ARGS}}{{end}}{{end}};
             exit $LASTEXITCODE
           };
           $paths=@(
@@ -134,9 +136,10 @@ tasks:
           );
           if (-not $paths) { Write-Host 'Dockerfile skipped'; exit 0 };
           hadolint
-            {{if .CONFIG_OVERRIDE}}--config '{{.CONFIG_OVERRIDE}}'{{else if .CONFIG}}--config '{{.CONFIG}}'{{end}}
-            $dockerfile {{if .EXTRA_ARGS_OVERRIDE}}{{.EXTRA_ARGS_OVERRIDE}}
-            {{- else}}{{.EXTRA_ARGS}}{{end}} {{.CLI_ARGS}};
+            {{if .HADOLINT_CONFIG_OVERRIDE}}--config '{{.HADOLINT_CONFIG_OVERRIDE}}'{{else if .HADOLINT_CONFIG}}--config
+            '{{.HADOLINT_CONFIG}}'{{end}}
+            $dockerfile {{if .HADOLINT_EXTRA_ARGS_OVERRIDE}}{{.HADOLINT_EXTRA_ARGS_OVERRIDE}}
+            {{- else}}{{.HADOLINT_EXTRA_ARGS}}{{end}} {{.CLI_ARGS}};
           exit $LASTEXITCODE"
         platforms: [windows]
 

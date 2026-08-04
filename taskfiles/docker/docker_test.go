@@ -30,10 +30,10 @@ func publicTasks() []string {
 func publicVars() []string {
 	return []string{
 		"DOCKER_CONTEXT",
-		"EXTRA_ARGS",
-		"FILE",
+		"DOCKER_EXTRA_ARGS",
+		"DOCKER_FILE",
 		"DOCKER_IMAGE",
-		"VERSION",
+		"DOCKER_VERSION",
 	}
 }
 

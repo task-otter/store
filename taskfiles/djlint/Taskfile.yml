@@ -17,8 +17,8 @@ vars:
   DJLINT_LINT_SKIP_PATTERN: ""
   DJLINT_FMT_SKIP_PATTERN: ""
   UV_LOAD: 'export PATH="$HOME/.local/bin:$PATH"'
-  TARGETS: "."
-  EXTRA_ARGS: ""
+  DJLINT_TARGETS: "."
+  DJLINT_EXTRA_ARGS: ""
   DJLINT_VERSION: ""
 
 tasks:
@@ -78,10 +78,10 @@ tasks:
 
   lint:
     run: once
-    desc: Lint HTML templates with djLint (TARGETS=path)
+    desc: Lint HTML templates with djLint (DJLINT_TARGETS=path)
     summary: |
-      Run djlint --lint against TARGETS (default .) to report template lint
-      violations. Pass EXTRA_ARGS for additional flags such as
+      Run djlint --lint against DJLINT_TARGETS (default .) to report template lint
+      violations. Pass DJLINT_EXTRA_ARGS for additional flags such as
       --profile django. Auto-installs djLint if missing.
     cmds:
       - task: _run
@@ -92,10 +92,10 @@ tasks:
 
   fmt:
     run: once
-    desc: Format HTML templates with djLint (TARGETS=path)
+    desc: Format HTML templates with djLint (DJLINT_TARGETS=path)
     summary: |
-      Run djlint --reformat against TARGETS (default .) to rewrite templates
-      in place. Pass EXTRA_ARGS for additional flags.
+      Run djlint --reformat against DJLINT_TARGETS (default .) to rewrite templates
+      in place. Pass DJLINT_EXTRA_ARGS for additional flags.
       Auto-installs djLint if missing.
     cmds:
       - task: _run
@@ -105,9 +105,9 @@ tasks:
 
   fmt:check:
     run: once
-    desc: Check HTML template formatting with djLint (TARGETS=path)
+    desc: Check HTML template formatting with djLint (DJLINT_TARGETS=path)
     summary: |
-      Run djlint --check against TARGETS (default .) to report the formatting
+      Run djlint --check against DJLINT_TARGETS (default .) to report the formatting
       changes --reformat would make, without modifying files. Exits non-zero
       when files would change, making it suitable for CI.
       Auto-installs djLint if missing.
@@ -127,8 +127,8 @@ tasks:
     deps:
       - task: install
     vars:
-      PATHS: '{{or .TARGETS_OVERRIDE .TARGETS "."}}'
-      EXTRA: '{{default .EXTRA_ARGS .EXTRA_ARGS_OVERRIDE}}'
+      PATHS: '{{or .DJLINT_TARGETS_OVERRIDE .DJLINT_TARGETS "."}}'
+      EXTRA: '{{default .DJLINT_EXTRA_ARGS .DJLINT_EXTRA_ARGS_OVERRIDE}}'
       FLAGS: '{{if .SKIP}}--extend-exclude "{{.SKIP}}" {{end}}'
     cmds:
       - cmd: >-

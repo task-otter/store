@@ -20,7 +20,7 @@ vars:
   GIT_COMMIT: ""
   GIT_COMMIT_MSG: ""
   GIT_EMAIL: ""
-  EXTRA_ARGS: ""
+  GIT_EXTRA_ARGS: ""
   GIT_FILES: "."
   GIT_MERGE_METHOD: "merge"
   GIT_MESSAGE: ""
@@ -33,7 +33,7 @@ vars:
   GIT_TAG: ""
   GIT_TITLE: ""
   GIT_URL: ""
-  VERSION: ""
+  GIT_VERSION: ""
 
 tasks:
   default:
@@ -48,7 +48,7 @@ tasks:
     desc: Install git on the current operating system
     summary: |
       Install git for the current platform if it is not already available.
-      Pass VERSION=x.y.z to pin a specific release; exact availability
+      Pass GIT_VERSION=x.y.z to pin a specific release; exact availability
       depends on what the platform's package manager/repository carries.
       macOS uses Homebrew. Linux uses apt-get or dnf. Windows uses winget.
     cmds:
@@ -102,7 +102,7 @@ tasks:
       Run `git init`. Set BRANCH to specify the initial branch name.
       Example: GIT_BRANCH=main
     cmds:
-      - git init{{if .GIT_BRANCH}} --initial-branch={{.GIT_BRANCH}}{{end}} {{.EXTRA_ARGS}}
+      - git init{{if .GIT_BRANCH}} --initial-branch={{.GIT_BRANCH}}{{end}} {{.GIT_EXTRA_ARGS}}
 
   clone:
     run: once
@@ -120,7 +120,7 @@ tasks:
     cmds:
       - >-
         gh repo clone {{if .GIT_OWNER}}{{.GIT_OWNER}}/{{end}}{{.GIT_REPO}}
-        {{if .GIT_CLONE_DIR}}{{.GIT_CLONE_DIR}}{{end}} {{.EXTRA_ARGS}}
+        {{if .GIT_CLONE_DIR}}{{.GIT_CLONE_DIR}}{{end}} {{.GIT_EXTRA_ARGS}}
 
   status:
     run: once
@@ -137,7 +137,7 @@ tasks:
       working tree). Pass specific files or globs via FILES.
       Example: GIT_FILES="src/main.ts tests/"
     cmds:
-      - git add {{.GIT_FILES}} {{.EXTRA_ARGS}}
+      - git add {{.GIT_FILES}} {{.GIT_EXTRA_ARGS}}
 
   add:all:
     run: once
@@ -156,7 +156,7 @@ tasks:
       vars:
         - GIT_COMMIT_MSG
     cmds:
-      - git commit -m "{{.GIT_COMMIT_MSG}}" {{.EXTRA_ARGS}}
+      - git commit -m "{{.GIT_COMMIT_MSG}}" {{.GIT_EXTRA_ARGS}}
 
   commit:amend:
     run: once
@@ -166,7 +166,7 @@ tasks:
       COMMIT_MSG to keep the existing message (--no-edit).
       Example: GIT_COMMIT_MSG="fix: corrected typo"
     cmds:
-      - git commit --amend {{if .GIT_COMMIT_MSG}}-m "{{.GIT_COMMIT_MSG}}"{{else}}--no-edit{{end}} {{.EXTRA_ARGS}}
+      - git commit --amend {{if .GIT_COMMIT_MSG}}-m "{{.GIT_COMMIT_MSG}}"{{else}}--no-edit{{end}} {{.GIT_EXTRA_ARGS}}
 
   push:
     run: once
@@ -176,7 +176,7 @@ tasks:
       to a specific remote branch; otherwise pushes HEAD.
       Example: GIT_REMOTE=origin GIT_BRANCH=main
     cmds:
-      - git push {{.GIT_REMOTE}} {{if .GIT_BRANCH}}{{.GIT_BRANCH}}{{else}}HEAD{{end}} {{.EXTRA_ARGS}}
+      - git push {{.GIT_REMOTE}} {{if .GIT_BRANCH}}{{.GIT_BRANCH}}{{else}}HEAD{{end}} {{.GIT_EXTRA_ARGS}}
 
   push:force:
     run: once
@@ -186,7 +186,8 @@ tasks:
       WARNING: This rewrites history on the remote branch.
     prompt: Force-push will rewrite remote history. Continue?
     cmds:
-      - git push {{.GIT_REMOTE}} {{if .GIT_BRANCH}}{{.GIT_BRANCH}}{{else}}HEAD{{end}} --force-with-lease {{.EXTRA_ARGS}}
+      - git push {{.GIT_REMOTE}} {{if .GIT_BRANCH}}{{.GIT_BRANCH}}{{else}}HEAD{{end}} --force-with-lease \
+        {{.GIT_EXTRA_ARGS}}
 
   pull:
     run: once
@@ -196,7 +197,7 @@ tasks:
       Set BRANCH to pull a specific branch.
       Example: GIT_REMOTE=origin GIT_BRANCH=main
     cmds:
-      - git pull {{.GIT_REMOTE}}{{if .GIT_BRANCH}} {{.GIT_BRANCH}}{{end}} {{.EXTRA_ARGS}}
+      - git pull {{.GIT_REMOTE}}{{if .GIT_BRANCH}} {{.GIT_BRANCH}}{{end}} {{.GIT_EXTRA_ARGS}}
 
   fetch:
     run: once
@@ -206,7 +207,7 @@ tasks:
       REMOTE defaults to "origin".
       Example: GIT_REMOTE=upstream
     cmds:
-      - git fetch {{.GIT_REMOTE}} --prune {{.EXTRA_ARGS}}
+      - git fetch {{.GIT_REMOTE}} --prune {{.GIT_EXTRA_ARGS}}
 
   sync:
     run: once
@@ -219,7 +220,7 @@ tasks:
     deps:
       - task: gh:install
     cmds:
-      - gh repo sync {{if .GIT_BRANCH}}--branch {{.GIT_BRANCH}}{{end}} {{.EXTRA_ARGS}}
+      - gh repo sync {{if .GIT_BRANCH}}--branch {{.GIT_BRANCH}}{{end}} {{.GIT_EXTRA_ARGS}}
 
   diff:
     run: once
@@ -229,37 +230,38 @@ tasks:
       Set FILES to limit to specific paths.
       Example: GIT_FILES=src/
     cmds:
-      - git diff {{.GIT_FILES}} {{.EXTRA_ARGS}}
+      - git diff {{.GIT_FILES}} {{.GIT_EXTRA_ARGS}}
 
   diff:staged:
     run: once
     desc: Show changes staged for the next commit
     summary: Show staged changes ready for commit via `git diff --staged`.
     cmds:
-      - git diff --staged {{.EXTRA_ARGS}}
+      - git diff --staged {{.GIT_EXTRA_ARGS}}
 
   log:
     run: once
     desc: Show the commit history with author and date
     summary: |
       Display commits with short hash, author, date, and message.
-      Example: EXTRA_ARGS="-n 20"
+      Example: GIT_EXTRA_ARGS="-n 20"
     cmds:
-      - git log --format="%C(yellow)%h%Creset %C(blue)%ad%Creset %s %C(green)<%an>%Creset" --date=short {{.EXTRA_ARGS}}
+      - git log --format="%C(yellow)%h%Creset %C(blue)%ad%Creset %s %C(green)<%an>%Creset" --date=short \
+        {{.GIT_EXTRA_ARGS}}
 
   log:graph:
     run: once
     desc: Show commit history as an ASCII branch graph
     summary: Display a compact decorated graph of all branches and commits.
     cmds:
-      - git log --oneline --graph --decorate --all {{.EXTRA_ARGS}}
+      - git log --oneline --graph --decorate --all {{.GIT_EXTRA_ARGS}}
 
   branch:list:
     run: once
     desc: List all local and remote branches
     summary: Show all local and remote branches via `git branch -a`.
     cmds:
-      - git branch -a {{.EXTRA_ARGS}}
+      - git branch -a {{.GIT_EXTRA_ARGS}}
 
   branch:create:
     run: once
@@ -271,7 +273,7 @@ tasks:
       vars:
         - GIT_BRANCH
     cmds:
-      - git switch -c {{.GIT_BRANCH}} {{.EXTRA_ARGS}}
+      - git switch -c {{.GIT_BRANCH}} {{.GIT_EXTRA_ARGS}}
 
   branch:switch:
     run: once
@@ -283,7 +285,7 @@ tasks:
       vars:
         - GIT_BRANCH
     cmds:
-      - git switch {{.GIT_BRANCH}} {{.EXTRA_ARGS}}
+      - git switch {{.GIT_BRANCH}} {{.GIT_EXTRA_ARGS}}
 
   branch:delete:
     run: once
@@ -297,7 +299,7 @@ tasks:
         - GIT_BRANCH
     prompt: Delete local branch "{{.GIT_BRANCH}}"?
     cmds:
-      - git branch -d {{.GIT_BRANCH}} {{.EXTRA_ARGS}}
+      - git branch -d {{.GIT_BRANCH}} {{.GIT_EXTRA_ARGS}}
 
   branch:rename:
     run: once
@@ -316,7 +318,7 @@ tasks:
     desc: List all tags sorted by version descending
     summary: List tags sorted by version via `git tag --sort=-v:refname`.
     cmds:
-      - git tag --sort=-v:refname {{.EXTRA_ARGS}}
+      - git tag --sort=-v:refname {{.GIT_EXTRA_ARGS}}
 
   tag:create:
     run: once
@@ -329,7 +331,7 @@ tasks:
       vars:
         - GIT_TAG
     cmds:
-      - git tag -a {{.GIT_TAG}} -m "{{default .GIT_TAG .GIT_MESSAGE}}" {{.EXTRA_ARGS}}
+      - git tag -a {{.GIT_TAG}} -m "{{default .GIT_TAG .GIT_MESSAGE}}" {{.GIT_EXTRA_ARGS}}
 
   tag:push:
     run: once
@@ -338,7 +340,7 @@ tasks:
       Push TAG to the remote. Omit TAG to push all tags via --tags.
       Example: GIT_TAG=v1.0.0 GIT_REMOTE=origin
     cmds:
-      - git push {{.GIT_REMOTE}} {{if .GIT_TAG}}{{.GIT_TAG}}{{else}}--tags{{end}} {{.EXTRA_ARGS}}
+      - git push {{.GIT_REMOTE}} {{if .GIT_TAG}}{{.GIT_TAG}}{{else}}--tags{{end}} {{.GIT_EXTRA_ARGS}}
 
   tag:delete:
     run: once
@@ -363,7 +365,7 @@ tasks:
       a description of the stashed changes.
       Example: GIT_MESSAGE="WIP: refactor auth module"
     cmds:
-      - git stash push {{if .GIT_MESSAGE}}-m "{{.GIT_MESSAGE}}"{{end}} {{.EXTRA_ARGS}}
+      - git stash push {{if .GIT_MESSAGE}}-m "{{.GIT_MESSAGE}}"{{end}} {{.GIT_EXTRA_ARGS}}
 
   stash:pop:
     run: once
@@ -372,7 +374,7 @@ tasks:
       Apply and remove a stash entry. STASH_INDEX defaults to 0 (most recent).
       Example: GIT_STASH_INDEX=1
     cmds:
-      - git stash pop stash@{{{.GIT_STASH_INDEX}}} {{.EXTRA_ARGS}}
+      - git stash pop stash@{{{.GIT_STASH_INDEX}}} {{.GIT_EXTRA_ARGS}}
 
   stash:list:
     run: once
@@ -388,7 +390,7 @@ tasks:
       Remove a stash entry. STASH_INDEX defaults to 0 (most recent).
       Example: GIT_STASH_INDEX=2
     cmds:
-      - git stash drop stash@{{{.GIT_STASH_INDEX}}} {{.EXTRA_ARGS}}
+      - git stash drop stash@{{{.GIT_STASH_INDEX}}} {{.GIT_EXTRA_ARGS}}
 
   reset:soft:
     run: once
@@ -401,7 +403,7 @@ tasks:
       vars:
         - GIT_COMMIT
     cmds:
-      - git reset --soft {{.GIT_COMMIT}} {{.EXTRA_ARGS}}
+      - git reset --soft {{.GIT_COMMIT}} {{.GIT_EXTRA_ARGS}}
 
   reset:hard:
     run: once
@@ -415,7 +417,7 @@ tasks:
         - GIT_COMMIT
     prompt: Hard-reset to "{{.GIT_COMMIT}}"? All uncommitted changes will be permanently lost.
     cmds:
-      - git reset --hard {{.GIT_COMMIT}} {{.EXTRA_ARGS}}
+      - git reset --hard {{.GIT_COMMIT}} {{.GIT_EXTRA_ARGS}}
 
   clean:
     run: once
@@ -425,7 +427,7 @@ tasks:
       WARNING: This permanently removes untracked files.
     prompt: Permanently remove all untracked files and directories?
     cmds:
-      - git clean -fd {{.EXTRA_ARGS}}
+      - git clean -fd {{.GIT_EXTRA_ARGS}}
 
   config:user:
     run: once
@@ -446,7 +448,7 @@ tasks:
     desc: List all git configuration values
     summary: Show all git config values (system + global + local) via `git config --list`.
     cmds:
-      - git config --list {{.EXTRA_ARGS}}
+      - git config --list {{.GIT_EXTRA_ARGS}}
 
   remote:list:
     run: once
@@ -508,7 +510,7 @@ tasks:
     deps:
       - task: gh:install
     cmds:
-      - git push {{.GIT_REMOTE}} {{if .GIT_BRANCH}}{{.GIT_BRANCH}}{{else}}HEAD{{end}} {{.EXTRA_ARGS}}
+      - git push {{.GIT_REMOTE}} {{if .GIT_BRANCH}}{{.GIT_BRANCH}}{{else}}HEAD{{end}} {{.GIT_EXTRA_ARGS}}
       - >-
         gh pr create
         --title "{{.GIT_TITLE}}"
@@ -569,13 +571,13 @@ tasks:
     status:
       - >-
         command -v git >/dev/null 2>&1
-        && { [ -z "{{.VERSION}}" ] || git --version | grep -Fqx "git version {{.VERSION}}"; }
+        && { [ -z "{{.GIT_VERSION}}" ] || git --version | grep -Fqx "git version {{.GIT_VERSION}}"; }
     preconditions:
       - sh: command -v brew >/dev/null 2>&1
         msg: Homebrew is required to install git on macOS. Install it from https://brew.sh and re-run this task.
     cmds:
       - echo 'Installing git via Homebrew...'
-      - brew install "git{{if .VERSION}}@{{.VERSION}}{{end}}"
+      - brew install "git{{if .GIT_VERSION}}@{{.GIT_VERSION}}{{end}}"
       - echo 'git installed.'
 
   _install:linux:
@@ -586,7 +588,7 @@ tasks:
     status:
       - >-
         command -v git >/dev/null 2>&1
-        && { [ -z "{{.VERSION}}" ] || git --version | grep -Fqx "git version {{.VERSION}}"; }
+        && { [ -z "{{.GIT_VERSION}}" ] || git --version | grep -Fqx "git version {{.GIT_VERSION}}"; }
     cmds:
       - task: _install:linux:apt
       - task: _install:linux:dnf
@@ -600,9 +602,9 @@ tasks:
       - "! command -v apt-get >/dev/null 2>&1"
     cmds:
       - echo 'Installing git via apt-get...'
-      - cmd: apt-get install -y "git{{if .VERSION}}={{.VERSION}}{{end}}"
+      - cmd: apt-get install -y "git{{if .GIT_VERSION}}={{.GIT_VERSION}}{{end}}"
         if: '[ "$(id -u)" -eq 0 ]'
-      - cmd: sudo apt-get install -y "git{{if .VERSION}}={{.VERSION}}{{end}}"
+      - cmd: sudo apt-get install -y "git{{if .GIT_VERSION}}={{.GIT_VERSION}}{{end}}"
         if: '[ "$(id -u)" -ne 0 ]'
       - echo 'git installed.'
 
@@ -615,9 +617,9 @@ tasks:
       - "! command -v dnf >/dev/null 2>&1"
     cmds:
       - echo 'Installing git via dnf...'
-      - cmd: dnf install -y "git{{if .VERSION}}-{{.VERSION}}{{end}}"
+      - cmd: dnf install -y "git{{if .GIT_VERSION}}-{{.GIT_VERSION}}{{end}}"
         if: '[ "$(id -u)" -eq 0 ]'
-      - cmd: sudo dnf install -y "git{{if .VERSION}}-{{.VERSION}}{{end}}"
+      - cmd: sudo dnf install -y "git{{if .GIT_VERSION}}-{{.GIT_VERSION}}{{end}}"
         if: '[ "$(id -u)" -ne 0 ]'
       - echo 'git installed.'
 
@@ -630,7 +632,7 @@ tasks:
         powershell -NoProfile -ExecutionPolicy Bypass -Command
         "$git = Get-Command git -ErrorAction SilentlyContinue;
         if (-not $git) { exit 1 };
-        $requested = '{{.VERSION}}';
+        $requested = '{{.GIT_VERSION}}';
         if ([string]::IsNullOrWhiteSpace($requested)
         -or ((& $git.Source --version) -eq ('git version ' + $requested))) { exit 0 };
         exit 1"
@@ -646,7 +648,7 @@ tasks:
       - >-
         powershell -NoProfile -ExecutionPolicy Bypass -Command
         "winget install --id Git.Git
-        {{if .VERSION}}--version {{.VERSION}}{{end}}
+        {{if .GIT_VERSION}}--version {{.GIT_VERSION}}{{end}}
         --accept-source-agreements --accept-package-agreements --silent"
       - echo git installed. Restart your terminal if git is not found.
 

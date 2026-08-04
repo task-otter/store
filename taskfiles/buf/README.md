@@ -46,10 +46,10 @@ includes:
   buf:
     taskfile: taskfiles/buf/Taskfile.yml
     vars:
-      CONFIG_OVERRIDE: "{{.CONFIG}}"
+      BUF_CONFIG_OVERRIDE: "{{.BUF_CONFIG}}"
       BUF_INPUT_OVERRIDE: "{{.BUF_INPUT}}"
       BUF_AGAINST_OVERRIDE: "{{.BUF_AGAINST}}"
-      EXTRA_ARGS_OVERRIDE: "{{.EXTRA_ARGS}}"
+      BUF_EXTRA_ARGS_OVERRIDE: "{{.BUF_EXTRA_ARGS}}"
 ```
 
 Then run:
@@ -65,13 +65,13 @@ task buf:generate BUF_INPUT=api/v1
 
 | Task            | Description                                              | Key variables                  |
 | --------------- | -------------------------------------------------------- | ------------------------------ |
-| `breaking`      | Check proto files for breaking changes against AGAINST   | `BUF_INPUT`, `BUF_AGAINST`, `EXTRA_ARGS` |
-| `fmt:check`     | Check proto file formatting with Buf                     | `BUF_INPUT`, `EXTRA_ARGS`          |
-| `fmt`           | Format proto files in place with Buf                     | `BUF_INPUT`, `EXTRA_ARGS`          |
-| `generate`      | Generate code from proto files with Buf                  | `BUF_INPUT`, `EXTRA_ARGS`          |
+| `breaking`      | Check proto files for breaking changes against AGAINST   | `BUF_INPUT`, `BUF_AGAINST`, `BUF_EXTRA_ARGS` |
+| `fmt:check`     | Check proto file formatting with Buf                     | `BUF_INPUT`, `BUF_EXTRA_ARGS`          |
+| `fmt`           | Format proto files in place with Buf                     | `BUF_INPUT`, `BUF_EXTRA_ARGS`          |
+| `generate`      | Generate code from proto files with Buf                  | `BUF_INPUT`, `BUF_EXTRA_ARGS`          |
 | `install`       | Install Buf on the current operating system              | none                           |
 | `install:undo`  | Remove Buf from the current operating system             | none                           |
-| `lint`          | Lint proto files with Buf                                | `BUF_INPUT`, `CONFIG`, `EXTRA_ARGS` |
+| `lint`          | Lint proto files with Buf                                | `BUF_INPUT`, `BUF_CONFIG`, `BUF_EXTRA_ARGS` |
 | `upgrade`       | Upgrade Buf to the latest release                        | `BUF_VERSION` (Linux only)     |
 | `version`       | Show the installed Buf version                           | none                           |
 
@@ -81,8 +81,8 @@ task buf:generate BUF_INPUT=api/v1
 | ------------- | -------------------- | -------------------------------------------------------- |
 | `BUF_AGAINST`     | `.git#branch=main`   | Baseline for `breaking`: a git ref, Buf module, or path |
 | `BUF_VERSION` | `1.47.2`             | Buf release to download on Linux                        |
-| `CONFIG`      | empty                | Path to a `buf.yaml` config file passed via `--config`  |
-| `EXTRA_ARGS`  | empty                | Extra arguments appended when `CLI_ARGS` is not provided |
+| `BUF_CONFIG`      | empty                | Path to a `buf.yaml` config file passed via `--config`  |
+| `BUF_EXTRA_ARGS`  | empty                | Extra arguments appended when `CLI_ARGS` is not provided |
 | `BUF_INPUT`       | `.`                  | Proto source directory or Buf module passed to buf       |
 | `BUF_LINT_SKIP_PATTERN` | _(empty)_ | Forward-slash path glob for files skipped by lint and breaking checks |
 | `BUF_FMT_SKIP_PATTERN` | _(empty)_ | Forward-slash path glob for files skipped by formatting checks and fixes |

@@ -11,7 +11,7 @@ This module is a small Bash runner rather than an installer. It executes a scrip
 ### Standalone
 
 ```sh
-task -t taskfiles/bash-exec/Taskfile.yml run BASH_EXEC_SCRIPT=scripts/build.sh ARGS="--release"
+task -t taskfiles/bash-exec/Taskfile.yml run BASH_EXEC_SCRIPT=scripts/build.sh BASH_EXEC_ARGS="--release"
 task -t taskfiles/bash-exec/Taskfile.yml check BASH_EXEC_SCRIPT=scripts/build.sh
 task -t taskfiles/bash-exec/Taskfile.yml exec BASH_EXEC_COMMAND='printf "hello\\n"'
 ```
@@ -25,7 +25,7 @@ includes:
     vars:
       BASH_EXEC_SCRIPT_OVERRIDE: "{{.BASH_EXEC_SCRIPT}}"
       BASH_EXEC_COMMAND_OVERRIDE: "{{.BASH_EXEC_COMMAND}}"
-      ARGS_OVERRIDE: "{{.ARGS}}"
+      BASH_EXEC_ARGS_OVERRIDE: "{{.BASH_EXEC_ARGS}}"
 ```
 
 Then run:
@@ -49,7 +49,7 @@ task bash-exec:check BASH_EXEC_SCRIPT=scripts/build.sh
 | Variable | Default | Description |
 |---|---|---|
 | `BASH_EXEC_SCRIPT` | _(empty)_ | Bash script path; required by `run` and `check` |
-| `ARGS` | _(empty)_ | Positional arguments passed to the script by `run` |
+| `BASH_EXEC_ARGS` | _(empty)_ | Positional arguments passed to the script by `run` |
 | `BASH_EXEC_FLAGS` | _(empty)_ | Options passed to Bash, for example `-euo pipefail` |
 | `BASH_EXEC_COMMAND` | _(empty)_ | Command string executed by `exec` |
 

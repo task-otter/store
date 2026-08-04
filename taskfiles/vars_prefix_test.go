@@ -23,7 +23,6 @@ type (
 	}
 
 	varsPrefixAllowlists struct {
-		shared            map[string]struct{}
 		foreignPrefixes   []string
 		companionPrefixes []string
 	}
@@ -41,7 +40,7 @@ const (
 )
 
 // TestTopLevelVarsPrefix enforces ADR 0002: top-level Taskfile vars must use
-// the owning module prefix, or an allowlisted shared/foreign/companion prefix.
+// the owning module prefix, or an allowlisted foreign/companion prefix.
 func TestTopLevelVarsPrefix(t *testing.T) {
 	t.Parallel()
 
@@ -109,7 +108,7 @@ func (collector *varsPrefixCollector) failIfViolations() {
 	}
 
 	collector.t.Fatalf(
-		"%s: %d top-level var(s) missing owned/shared/foreign prefix:\n%s",
+		"%s: %d top-level var(s) missing owned/foreign/companion prefix:\n%s",
 		varsPrefixTestName,
 		len(collector.violations),
 		strings.Join(collector.violationLines(), "\n"),
@@ -153,7 +152,7 @@ func formatVarsPrefixViolations(violations []varsPrefixViolation) []string {
 		violation := &violations[i]
 
 		lines = append(lines, fmt.Sprintf(
-			"%s: %s (want %s… or allowlisted)",
+			"%s: %s (want %s… or foreign/companion)",
 			violation.module,
 			violation.name,
 			violation.want,
@@ -167,18 +166,6 @@ func buildVarsPrefixAllowlists(t *testing.T, taskfilesDir string) varsPrefixAllo
 	t.Helper()
 
 	return varsPrefixAllowlists{
-		shared: map[string]struct{}{
-			"EXTRA_ARGS":   {},
-			"VERSION":      {},
-			"TARGETS":      {},
-			"CONFIG":       {},
-			"FILE":         {},
-			"ARGS":         {},
-			"REQUIREMENTS": {},
-			"VENV":         {},
-			"IGNORE_PATH":  {},
-			"FORCE":        {},
-		},
 		foreignPrefixes:   moduleForeignPrefixes(t, taskfilesDir),
 		companionPrefixes: []string{"RUST_", "RUSTUP_", "PROTOC_", "YAMLFIX_", "NODE_", "WINDOWS_"},
 	}
@@ -240,10 +227,6 @@ func dirNameToVarsPrefix(name string) string {
 
 func varsPrefixAllowed(name, owned string, allowlists *varsPrefixAllowlists) bool {
 	if strings.HasPrefix(name, owned) {
-		return true
-	}
-
-	if _, ok := allowlists.shared[name]; ok {
 		return true
 	}
 

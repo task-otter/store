@@ -29,8 +29,8 @@ func publicVars() []string {
 		"BUF_FMT_SKIP_PATTERN",
 		"BUF_AGAINST",
 		"BUF_VERSION",
-		"CONFIG",
-		"EXTRA_ARGS",
+		"BUF_CONFIG",
+		"BUF_EXTRA_ARGS",
 		"BUF_INPUT",
 	}
 }

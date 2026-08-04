@@ -15,9 +15,9 @@ includes:
 
 vars:
   KNIP_LINT_SKIP_PATTERN: ""
-  EXTRA_ARGS: ""
-  CONFIG: ""
-  VERSION: ""
+  KNIP_EXTRA_ARGS: ""
+  KNIP_CONFIG: ""
+  KNIP_VERSION: ""
   KNIP_INTERNAL_SKIP_CONFIG: ".taskotter-knip-npm-fnm-skip.json"
   KNIP_INTERNAL_JS_RUNTIME: "node"
 
@@ -32,7 +32,7 @@ tasks:
     run: once
     desc: Install Knip as a local devDependency
     summary: |
-      Install knip as a local devDependency. Pass VERSION=x.y.z to pin a
+      Install knip as a local devDependency. Pass KNIP_VERSION=x.y.z to pin a
       specific release instead of the package manager's default resolution.
     status:
       - >-
@@ -40,12 +40,12 @@ tasks:
         const requested = '{{.RESOLVED_VERSION}}';
         process.exit(!requested || installed.version === requested ? 0 : 1)"
     vars:
-      RESOLVED_VERSION: '{{default .VERSION .VERSION_OVERRIDE}}'
+      RESOLVED_VERSION: '{{default .KNIP_VERSION .KNIP_VERSION_OVERRIDE}}'
     cmds:
       - task: npm:add
         vars:
           PACKAGES: 'knip{{if .RESOLVED_VERSION}}@{{.RESOLVED_VERSION}}{{end}}'
-          EXTRA_ARGS: '{{default .EXTRA_ARGS .EXTRA_ARGS_OVERRIDE}}{{if .CLI_ARGS}} {{.CLI_ARGS}}{{end}}'
+          EXTRA_ARGS: '{{default .KNIP_EXTRA_ARGS .KNIP_EXTRA_ARGS_OVERRIDE}}{{if .CLI_ARGS}} {{.CLI_ARGS}}{{end}}'
 
   install:undo:
     run: once
@@ -58,7 +58,7 @@ tasks:
       - task: npm:remove
         vars:
           PACKAGES: knip
-          EXTRA_ARGS: '{{default .EXTRA_ARGS .EXTRA_ARGS_OVERRIDE}}'
+          EXTRA_ARGS: '{{default .KNIP_EXTRA_ARGS .KNIP_EXTRA_ARGS_OVERRIDE}}'
 
   upgrade:
     run: once
@@ -68,7 +68,7 @@ tasks:
       - task: npm:add
         vars:
           PACKAGES: knip@latest
-          EXTRA_ARGS: '{{default .EXTRA_ARGS .EXTRA_ARGS_OVERRIDE}}'
+          EXTRA_ARGS: '{{default .KNIP_EXTRA_ARGS .KNIP_EXTRA_ARGS_OVERRIDE}}'
 
   init:
     run: once
@@ -104,7 +104,7 @@ tasks:
     set: [errexit, nounset, pipefail]
     vars:
       RESOLVED_SKIP: '{{default .KNIP_LINT_SKIP_PATTERN .KNIP_LINT_SKIP_PATTERN_OVERRIDE}}'
-      RESOLVED_CONFIG: '{{default .CONFIG .CONFIG_OVERRIDE}}'
+      RESOLVED_CONFIG: '{{default .KNIP_CONFIG .KNIP_CONFIG_OVERRIDE}}'
     env:
       KNIP_SKIP_PATTERN: "{{.RESOLVED_SKIP}}"
       KNIP_SKIP_SOURCE_CONFIG: "{{.RESOLVED_CONFIG}}"
@@ -273,7 +273,7 @@ tasks:
     run: when_changed
     vars:
       RESOLVED_SKIP: '{{default .KNIP_LINT_SKIP_PATTERN .KNIP_LINT_SKIP_PATTERN_OVERRIDE}}'
-      RESOLVED_CONFIG: '{{default .CONFIG .CONFIG_OVERRIDE}}'
+      RESOLVED_CONFIG: '{{default .KNIP_CONFIG .KNIP_CONFIG_OVERRIDE}}'
     cmds:
       - task: config:skip
       - task: npm:exec
@@ -283,7 +283,7 @@ tasks:
             {{if .MODE}}{{.MODE}} {{end}}
             {{- if .RESOLVED_SKIP}}--config "{{.KNIP_INTERNAL_SKIP_CONFIG}}"
             {{- else if .RESOLVED_CONFIG}}--config "{{.RESOLVED_CONFIG}}"{{end}}
-          EXTRA_ARGS: '{{default .EXTRA_ARGS .EXTRA_ARGS_OVERRIDE}}{{if .CLI_ARGS}} {{.CLI_ARGS}}{{end}}'
+          EXTRA_ARGS: '{{default .KNIP_EXTRA_ARGS .KNIP_EXTRA_ARGS_OVERRIDE}}{{if .CLI_ARGS}} {{.CLI_ARGS}}{{end}}'
 
   lint:
     run: once
@@ -377,4 +377,4 @@ tasks:
         vars:
           BINARY: knip
           ARGS: "--help"
-          EXTRA_ARGS: '{{default .EXTRA_ARGS .EXTRA_ARGS_OVERRIDE}}{{if .CLI_ARGS}} {{.CLI_ARGS}}{{end}}'
+          EXTRA_ARGS: '{{default .KNIP_EXTRA_ARGS .KNIP_EXTRA_ARGS_OVERRIDE}}{{if .CLI_ARGS}} {{.CLI_ARGS}}{{end}}'

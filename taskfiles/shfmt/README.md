@@ -12,8 +12,8 @@ This module installs `shfmt` from its official Go module into the global Go bin 
 
 ```sh
 task -t taskfiles/shfmt/Taskfile.yml install
-task -t taskfiles/shfmt/Taskfile.yml fmt TARGETS=scripts
-task -t taskfiles/shfmt/Taskfile.yml fmt:check TARGETS=scripts EXTRA_ARGS="-i 2 -ci"
+task -t taskfiles/shfmt/Taskfile.yml fmt SHFMT_TARGETS=scripts
+task -t taskfiles/shfmt/Taskfile.yml fmt:check SHFMT_TARGETS=scripts SHFMT_EXTRA_ARGS="-i 2 -ci"
 task -t taskfiles/shfmt/Taskfile.yml version
 ```
 
@@ -24,15 +24,15 @@ includes:
   shfmt:
     taskfile: taskfiles/shfmt/Taskfile.yml
     vars:
-      TARGETS_OVERRIDE: "{{.TARGETS}}"
-      EXTRA_ARGS_OVERRIDE: "{{.EXTRA_ARGS}}"
+      SHFMT_TARGETS_OVERRIDE: "{{.SHFMT_TARGETS}}"
+      SHFMT_EXTRA_ARGS_OVERRIDE: "{{.SHFMT_EXTRA_ARGS}}"
 ```
 
 Then run:
 
 ```sh
 task shfmt:fmt
-task shfmt:fmt:check TARGETS=scripts
+task shfmt:fmt:check SHFMT_TARGETS=scripts
 ```
 
 ## Public Tasks
@@ -42,8 +42,8 @@ task shfmt:fmt:check TARGETS=scripts
 | `install` | Install shfmt into the global Go bin |
 | `install:undo` | Remove shfmt from the global Go bin |
 | `upgrade` | Upgrade shfmt to the requested version |
-| `fmt` | Format shell scripts in place (`TARGETS=path`) |
-| `fmt:check` | Check shell script formatting without modifying files (`TARGETS=path`) |
+| `fmt` | Format shell scripts in place (`SHFMT_TARGETS=path`) |
+| `fmt:check` | Check shell script formatting without modifying files (`SHFMT_TARGETS=path`) |
 | `version` | Show the installed shfmt version |
 
 ## Variables
@@ -51,8 +51,8 @@ task shfmt:fmt:check TARGETS=scripts
 | Variable | Default | Description |
 |---|---|---|
 | `SHFMT_VERSION` | _(empty)_ | Exact module release to install; empty installs the latest stable v3 release |
-| `TARGETS` | `.` | File or directory to format or check |
-| `EXTRA_ARGS` | _(empty)_ | Extra shfmt flags, for example `-i 2`, `-ci`, `-sr`, or `-ln bash` |
+| `SHFMT_TARGETS` | `.` | File or directory to format or check |
+| `SHFMT_EXTRA_ARGS` | _(empty)_ | Extra shfmt flags, for example `-i 2`, `-ci`, `-sr`, or `-ln bash` |
 | `GO_GLOBAL_BIN` | Go's `GOBIN` or `GOPATH/bin` | Directory where the shfmt binary is installed |
 | `SHFMT_FMT_SKIP_PATTERN` | _(empty)_ | Forward-slash path glob for files skipped by formatting checks and fixes |
 
@@ -62,4 +62,4 @@ Skip patterns support `*` within one path segment, `**` across directories, and 
 
 - `install` first ensures the Go toolchain is available through the local `go` Taskfile, then runs the [official installation command](https://github.com/mvdan/sh#shfmt).
 - `fmt` uses `shfmt -w`; `fmt:check` uses `shfmt -d` and exits non-zero when formatting differs.
-- `TARGETS` may be a single shell script or a directory. Pass dialect and style preferences through `EXTRA_ARGS`.
+- `SHFMT_TARGETS` may be a single shell script or a directory. Pass dialect and style preferences through `SHFMT_EXTRA_ARGS`.

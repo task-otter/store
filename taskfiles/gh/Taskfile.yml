@@ -20,7 +20,7 @@ vars:
   GH_DOWNLOAD_DIR: "."
   GH_DATA: "{}"
   GH_PAT_TOKEN: ""
-  VERSION: ""
+  GH_VERSION: ""
 
 env:
   GH_TOKEN: "{{.GH_PAT_TOKEN}}"
@@ -39,7 +39,7 @@ tasks:
     summary: |
       Detect the current OS and available package managers, then install gh
       using the best available method.
-      Pass VERSION=x.y.z to pin a specific release; exact availability
+      Pass GH_VERSION=x.y.z to pin a specific release; exact availability
       depends on what the detected package manager/repository carries.
       On macOS, prefers Homebrew.
       On Windows, prefers winget, then Chocolatey, then Scoop.
@@ -1496,15 +1496,15 @@ tasks:
     status:
       - >-
         command -v gh >/dev/null 2>&1
-        && { [ -z "{{.VERSION}}" ] || gh --version | grep -Fqx "gh version {{.VERSION}}"; }
+        && { [ -z "{{.GH_VERSION}}" ] || gh --version | grep -Fqx "gh version {{.GH_VERSION}}"; }
     cmds:
       - |
-        VERSION="{{.VERSION}}"
+        GH_VERSION="{{.GH_VERSION}}"
         OS="$(uname -s)"
         if [ "$OS" = "Darwin" ]; then
           if command -v brew >/dev/null 2>&1; then
             echo 'macOS detected. Installing gh via Homebrew...'
-            brew install "gh${VERSION:+@$VERSION}"
+            brew install "gh${GH_VERSION:+@$GH_VERSION}"
           else
             echo 'ERROR: Homebrew is required to install gh on macOS.'
             echo 'Install Homebrew from https://brew.sh and then re-run: task install'
@@ -1523,16 +1523,16 @@ tasks:
             echo "deb [arch=$(dpkg --print-architecture) $_key] https://cli.github.com/packages stable main" \
               | sudo tee /etc/apt/sources.list.d/github-cli.list > /dev/null
             sudo apt-get update
-            sudo apt-get install -y "gh${VERSION:+=$VERSION}"
+            sudo apt-get install -y "gh${GH_VERSION:+=$GH_VERSION}"
           elif command -v dnf >/dev/null 2>&1; then
             echo 'Fedora/RHEL detected. Installing gh via dnf...'
             sudo dnf install -y 'dnf-command(config-manager)'
             sudo dnf config-manager --add-repo https://cli.github.com/packages/rpm/gh-cli.repo
-            sudo dnf install -y "gh${VERSION:+-$VERSION}" --repo gh-cli
+            sudo dnf install -y "gh${GH_VERSION:+-$GH_VERSION}" --repo gh-cli
           elif command -v yum >/dev/null 2>&1; then
             echo 'CentOS/RHEL detected. Installing gh via yum...'
             sudo yum-config-manager --add-repo https://cli.github.com/packages/rpm/gh-cli.repo
-            sudo yum install -y "gh${VERSION:+-$VERSION}"
+            sudo yum install -y "gh${GH_VERSION:+-$GH_VERSION}"
           elif command -v pacman >/dev/null 2>&1; then
             echo 'Arch Linux detected. Installing gh via pacman...'
             sudo pacman -S --noconfirm github-cli
@@ -1540,13 +1540,13 @@ tasks:
             echo 'openSUSE detected. Installing gh via zypper...'
             sudo zypper addrepo https://cli.github.com/packages/rpm/gh-cli.repo
             sudo zypper ref
-            sudo zypper install -y "gh${VERSION:+-$VERSION}"
+            sudo zypper install -y "gh${GH_VERSION:+-$GH_VERSION}"
           elif command -v snap >/dev/null 2>&1; then
             echo 'snap detected. Installing gh via snap...'
             sudo snap install gh
           elif command -v brew >/dev/null 2>&1; then
             echo 'Homebrew detected. Installing gh via brew...'
-            brew install "gh${VERSION:+@$VERSION}"
+            brew install "gh${GH_VERSION:+@$GH_VERSION}"
           else
             echo 'ERROR: No supported package manager detected.'
             echo 'See https://cli.github.com/manual/installation'
@@ -1572,7 +1572,7 @@ tasks:
         powershell -NoProfile -ExecutionPolicy Bypass -Command
         "$gh = Get-Command gh -ErrorAction SilentlyContinue;
         if (-not $gh) { exit 1 };
-        $requested = '{{.VERSION}}';
+        $requested = '{{.GH_VERSION}}';
         if ([string]::IsNullOrWhiteSpace($requested)
         -or ((& $gh.Source --version) -match
         ('(?m)^gh version ' + [regex]::Escape($requested) + '$'))) { exit 0 };
@@ -1580,7 +1580,7 @@ tasks:
     cmds:
       - >-
         powershell -NoProfile -ExecutionPolicy Bypass -Command
-        "$v = '{{.VERSION}}';
+        "$v = '{{.GH_VERSION}}';
         if (Get-Command winget -ErrorAction SilentlyContinue) {
         Write-Host 'winget detected. Installing gh via winget...';
         winget install --id GitHub.cli $(if ($v) { '--version', $v })
@@ -1604,7 +1604,7 @@ tasks:
     status:
       - >-
         command -v gh >/dev/null 2>&1
-        && { [ -z "{{.VERSION}}" ] || gh --version | grep -Fqx "gh version {{.VERSION}}"; }
+        && { [ -z "{{.GH_VERSION}}" ] || gh --version | grep -Fqx "gh version {{.GH_VERSION}}"; }
     preconditions:
       - sh: command -v brew >/dev/null 2>&1
         msg: "Homebrew is required. Install it from https://brew.sh"
@@ -1623,7 +1623,7 @@ tasks:
       - >-
         powershell -NoProfile -ExecutionPolicy Bypass -Command
         "$gh = Get-Command gh -ErrorAction SilentlyContinue;
-        $requested = '{{.VERSION}}';
+        $requested = '{{.GH_VERSION}}';
         if ($gh -and ([string]::IsNullOrWhiteSpace($requested)
         -or ((& $gh.Source --version) -match ('(?m)^gh version ' + [regex]::Escape($requested) + '$')))) { exit 0 };
         exit 1"
@@ -1647,7 +1647,7 @@ tasks:
       - >-
         powershell -NoProfile -ExecutionPolicy Bypass -Command
         "$gh = Get-Command gh -ErrorAction SilentlyContinue;
-        $requested = '{{.VERSION}}';
+        $requested = '{{.GH_VERSION}}';
         if ($gh -and ([string]::IsNullOrWhiteSpace($requested)
         -or ((& $gh.Source --version) -match ('(?m)^gh version ' + [regex]::Escape($requested) + '$')))) { exit 0 };
         exit 1"
@@ -1671,7 +1671,7 @@ tasks:
       - >-
         powershell -NoProfile -ExecutionPolicy Bypass -Command
         "$gh = Get-Command gh -ErrorAction SilentlyContinue;
-        $requested = '{{.VERSION}}';
+        $requested = '{{.GH_VERSION}}';
         if ($gh -and ([string]::IsNullOrWhiteSpace($requested)
         -or ((& $gh.Source --version) -match ('(?m)^gh version ' + [regex]::Escape($requested) + '$')))) { exit 0 };
         exit 1"
@@ -1697,7 +1697,7 @@ tasks:
     status:
       - >-
         command -v gh >/dev/null 2>&1
-        && { [ -z "{{.VERSION}}" ] || gh --version | grep -Fqx "gh version {{.VERSION}}"; }
+        && { [ -z "{{.GH_VERSION}}" ] || gh --version | grep -Fqx "gh version {{.GH_VERSION}}"; }
     preconditions:
       - sh: command -v apt-get >/dev/null 2>&1
         msg: "apt-get is required. This task supports Debian/Ubuntu-based systems only."
@@ -1730,7 +1730,7 @@ tasks:
     status:
       - >-
         command -v gh >/dev/null 2>&1
-        && { [ -z "{{.VERSION}}" ] || gh --version | grep -Fqx "gh version {{.VERSION}}"; }
+        && { [ -z "{{.GH_VERSION}}" ] || gh --version | grep -Fqx "gh version {{.GH_VERSION}}"; }
     preconditions:
       - sh: command -v dnf >/dev/null 2>&1
         msg: "dnf is required. This task supports Fedora/RHEL-based systems only."
@@ -1753,7 +1753,7 @@ tasks:
     status:
       - >-
         command -v gh >/dev/null 2>&1
-        && { [ -z "{{.VERSION}}" ] || gh --version | grep -Fqx "gh version {{.VERSION}}"; }
+        && { [ -z "{{.GH_VERSION}}" ] || gh --version | grep -Fqx "gh version {{.GH_VERSION}}"; }
     preconditions:
       - sh: command -v yum >/dev/null 2>&1
         msg: "yum is required. This task supports CentOS/RHEL-based systems only."
@@ -1775,7 +1775,7 @@ tasks:
     status:
       - >-
         command -v gh >/dev/null 2>&1
-        && { [ -z "{{.VERSION}}" ] || gh --version | grep -Fqx "gh version {{.VERSION}}"; }
+        && { [ -z "{{.GH_VERSION}}" ] || gh --version | grep -Fqx "gh version {{.GH_VERSION}}"; }
     preconditions:
       - sh: command -v pacman >/dev/null 2>&1
         msg: "pacman is required. This task supports Arch Linux only."
@@ -1796,7 +1796,7 @@ tasks:
     status:
       - >-
         command -v gh >/dev/null 2>&1
-        && { [ -z "{{.VERSION}}" ] || gh --version | grep -Fqx "gh version {{.VERSION}}"; }
+        && { [ -z "{{.GH_VERSION}}" ] || gh --version | grep -Fqx "gh version {{.GH_VERSION}}"; }
     preconditions:
       - sh: command -v zypper >/dev/null 2>&1
         msg: "zypper is required. This task supports openSUSE only."
@@ -1819,7 +1819,7 @@ tasks:
     status:
       - >-
         command -v gh >/dev/null 2>&1
-        && { [ -z "{{.VERSION}}" ] || gh --version | grep -Fqx "gh version {{.VERSION}}"; }
+        && { [ -z "{{.GH_VERSION}}" ] || gh --version | grep -Fqx "gh version {{.GH_VERSION}}"; }
     preconditions:
       - sh: command -v snap >/dev/null 2>&1
         msg: "snapd is required. Install it for your distribution and try again."
@@ -1840,7 +1840,7 @@ tasks:
     status:
       - >-
         command -v gh >/dev/null 2>&1
-        && { [ -z "{{.VERSION}}" ] || gh --version | grep -Fqx "gh version {{.VERSION}}"; }
+        && { [ -z "{{.GH_VERSION}}" ] || gh --version | grep -Fqx "gh version {{.GH_VERSION}}"; }
     preconditions:
       - sh: command -v brew >/dev/null 2>&1
         msg: "Homebrew is required. Install it from https://brew.sh"

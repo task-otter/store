@@ -17,8 +17,8 @@ vars:
   RUMDL_LINT_SKIP_PATTERN: ""
   RUMDL_FMT_SKIP_PATTERN: ""
   UV_LOAD: 'export PATH="$HOME/.local/bin:$PATH"'
-  TARGETS: "."
-  EXTRA_ARGS: ""
+  RUMDL_TARGETS: "."
+  RUMDL_EXTRA_ARGS: ""
   RUMDL_VERSION: ""
 
 tasks:
@@ -86,8 +86,8 @@ tasks:
     deps:
       - task: install
     vars:
-      PATHS: '{{or .TARGETS_OVERRIDE .TARGETS "."}}'
-      EXTRA: '{{default .EXTRA_ARGS .EXTRA_ARGS_OVERRIDE}}'
+      PATHS: '{{or .RUMDL_TARGETS_OVERRIDE .RUMDL_TARGETS "."}}'
+      EXTRA: '{{default .RUMDL_EXTRA_ARGS .RUMDL_EXTRA_ARGS_OVERRIDE}}'
       FLAGS: '{{if .SKIP}}--exclude "{{.SKIP}}" {{end}}'
     cmds:
       - cmd: >-
@@ -102,9 +102,9 @@ tasks:
 
   lint:
     run: once
-    desc: Lint Markdown files with rumdl (TARGETS=path)
+    desc: Lint Markdown files with rumdl (RUMDL_TARGETS=path)
     summary: |
-      Run rumdl check against TARGETS (default .). Pass EXTRA_ARGS for
+      Run rumdl check against RUMDL_TARGETS (default .). Pass RUMDL_EXTRA_ARGS for
       additional flags. Auto-installs rumdl if missing.
     cmds:
       - task: _run
@@ -115,11 +115,11 @@ tasks:
 
   fix:
     run: once
-    desc: Fix Markdown lint issues with rumdl (TARGETS=path)
+    desc: Fix Markdown lint issues with rumdl (RUMDL_TARGETS=path)
     summary: |
-      Run rumdl check --fix against TARGETS (default .) to apply automatic
+      Run rumdl check --fix against RUMDL_TARGETS (default .) to apply automatic
       fixes for fixable lint violations. Exits non-zero when unfixable
-      violations remain. Pass EXTRA_ARGS for additional flags.
+      violations remain. Pass RUMDL_EXTRA_ARGS for additional flags.
       Auto-installs rumdl if missing.
     cmds:
       - task: _run
@@ -129,11 +129,11 @@ tasks:
 
   fmt:
     run: once
-    desc: Format Markdown files with rumdl (TARGETS=path)
+    desc: Format Markdown files with rumdl (RUMDL_TARGETS=path)
     summary: |
-      Run rumdl fmt against TARGETS (default .). Unlike fix, fmt uses
+      Run rumdl fmt against RUMDL_TARGETS (default .). Unlike fix, fmt uses
       formatter-style exit codes and exits zero after successful formatting
-      even if unfixable violations remain. Pass EXTRA_ARGS for additional
+      even if unfixable violations remain. Pass RUMDL_EXTRA_ARGS for additional
       flags. Auto-installs rumdl if missing.
     cmds:
       - task: _run

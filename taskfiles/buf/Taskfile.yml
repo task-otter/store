@@ -19,8 +19,8 @@ vars:
   BUF_FMT_SKIP_PATTERN: ""
   BUF_AGAINST: ".git#branch=main"
   BUF_VERSION: "1.47.2"
-  CONFIG: ""
-  EXTRA_ARGS: ""
+  BUF_CONFIG: ""
+  BUF_EXTRA_ARGS: ""
   BUF_INPUT: "."
 
 tasks:
@@ -35,8 +35,8 @@ tasks:
     run: once
     desc: Lint proto files with Buf (BUF_INPUT=path)
     summary: |
-      Run buf lint against INPUT (default: .). Pass CONFIG to use a custom
-      buf.yaml via --config, and EXTRA_ARGS for additional flags such as
+      Run buf lint against INPUT (default: .). Pass BUF_CONFIG to use a custom
+      buf.yaml via --config, and BUF_EXTRA_ARGS for additional flags such as
       --error-format. Pass CLI arguments after -- to override targets and
       options; BUF_LINT_SKIP_PATTERN remains active. Auto-installs Buf if missing.
     dir: "{{.USER_WORKING_DIR}}"
@@ -50,8 +50,8 @@ tasks:
             {{if .BUF_LINT_SKIP_PATTERN_OVERRIDE}}{{.BUF_LINT_SKIP_PATTERN_OVERRIDE}}
             {{- else}}{{.BUF_LINT_SKIP_PATTERN}}{{end}}
           BUF_CONFIG_FLAG: >-
-            {{if .CONFIG_OVERRIDE}}--config "{{.CONFIG_OVERRIDE}}"
-            {{else if .CONFIG}}--config "{{.CONFIG}}"{{end}}
+            {{if .BUF_CONFIG_OVERRIDE}}--config "{{.BUF_CONFIG_OVERRIDE}}"
+            {{else if .BUF_CONFIG}}--config "{{.BUF_CONFIG}}"{{end}}
       - task: _buf:windows
         vars:
           BUF_SUBCOMMAND: "lint"
@@ -59,8 +59,8 @@ tasks:
             {{if .BUF_LINT_SKIP_PATTERN_OVERRIDE}}{{.BUF_LINT_SKIP_PATTERN_OVERRIDE}}
             {{- else}}{{.BUF_LINT_SKIP_PATTERN}}{{end}}
           BUF_CONFIG_FLAG: >-
-            {{if .CONFIG_OVERRIDE}}--config "{{.CONFIG_OVERRIDE}}"
-            {{else if .CONFIG}}--config "{{.CONFIG}}"{{end}}
+            {{if .BUF_CONFIG_OVERRIDE}}--config "{{.BUF_CONFIG_OVERRIDE}}"
+            {{else if .BUF_CONFIG}}--config "{{.BUF_CONFIG}}"{{end}}
       - echo "✅ buf lint passed"
 
   fmt:check:
@@ -127,8 +127,8 @@ tasks:
         if [ -z "$skip_pattern" ]; then
           buf {{.BUF_SUBCOMMAND}} {{.BUF_CONFIG_FLAG}} \
             {{if .CLI_ARGS}}{{.CLI_ARGS}}{{else}}"$input" \
-            {{if .EXTRA_ARGS_OVERRIDE}}{{.EXTRA_ARGS_OVERRIDE}}
-            {{- else}}{{.EXTRA_ARGS}}{{end}}{{end}}
+            {{if .BUF_EXTRA_ARGS_OVERRIDE}}{{.BUF_EXTRA_ARGS_OVERRIDE}}
+            {{- else}}{{.BUF_EXTRA_ARGS}}{{end}}{{end}}
           exit
         fi
         matched_files="$(mktemp)"
@@ -148,8 +148,8 @@ tasks:
         done <"$matched_files"
         buf {{.BUF_SUBCOMMAND}} "$@" {{.BUF_CONFIG_FLAG}} \
           {{if .CLI_ARGS}}{{.CLI_ARGS}}{{else}}"$input" \
-          {{if .EXTRA_ARGS_OVERRIDE}}{{.EXTRA_ARGS_OVERRIDE}}
-          {{- else}}{{.EXTRA_ARGS}}{{end}}{{end}}
+          {{if .BUF_EXTRA_ARGS_OVERRIDE}}{{.BUF_EXTRA_ARGS_OVERRIDE}}
+          {{- else}}{{.BUF_EXTRA_ARGS}}{{end}}{{end}}
 
   _buf:windows:
     run: once
@@ -164,8 +164,8 @@ tasks:
         if (-not $skipPattern) {
           buf {{.BUF_SUBCOMMAND}} {{.BUF_CONFIG_FLAG}}
             {{if .CLI_ARGS}}{{.CLI_ARGS}}{{else}}$inputPath
-            {{if .EXTRA_ARGS_OVERRIDE}}{{.EXTRA_ARGS_OVERRIDE}}
-            {{- else}}{{.EXTRA_ARGS}}{{end}}{{end}};
+            {{if .BUF_EXTRA_ARGS_OVERRIDE}}{{.BUF_EXTRA_ARGS_OVERRIDE}}
+            {{- else}}{{.BUF_EXTRA_ARGS}}{{end}}{{end}};
           exit $LASTEXITCODE
         };
         $scanInput=if ('{{.CLI_ARGS}}') { '.' } else { $inputPath };
@@ -180,8 +180,8 @@ tasks:
         $excludeArgs=@(); foreach ($path in $excluded) { $excludeArgs += @('--exclude-path', $path) };
         buf {{.BUF_SUBCOMMAND}} @excludeArgs {{.BUF_CONFIG_FLAG}}
           {{if .CLI_ARGS}}{{.CLI_ARGS}}{{else}}$inputPath
-          {{if .EXTRA_ARGS_OVERRIDE}}{{.EXTRA_ARGS_OVERRIDE}}
-          {{- else}}{{.EXTRA_ARGS}}{{end}}{{end}};
+          {{if .BUF_EXTRA_ARGS_OVERRIDE}}{{.BUF_EXTRA_ARGS_OVERRIDE}}
+          {{- else}}{{.BUF_EXTRA_ARGS}}{{end}}{{end}};
         exit $LASTEXITCODE"
 
   breaking:
@@ -232,8 +232,8 @@ tasks:
         {{if .CLI_ARGS}}{{.CLI_ARGS}}
         {{else}}
         "{{if .BUF_INPUT_OVERRIDE}}{{.BUF_INPUT_OVERRIDE}}{{else}}{{.BUF_INPUT}}{{end}}"
-        {{if .EXTRA_ARGS_OVERRIDE}}{{.EXTRA_ARGS_OVERRIDE}}
-        {{else}}{{.EXTRA_ARGS}}{{end}}{{end}}
+        {{if .BUF_EXTRA_ARGS_OVERRIDE}}{{.BUF_EXTRA_ARGS_OVERRIDE}}
+        {{else}}{{.BUF_EXTRA_ARGS}}{{end}}{{end}}
         && echo "✅ buf generate passed" || { echo "❌ buf generate failed"; exit 1; }
 
   install:

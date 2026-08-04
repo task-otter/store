@@ -22,9 +22,9 @@ func publicTasks() []string {
 func publicVars() []string {
 	return []string{
 		"HADOLINT_LINT_SKIP_PATTERN",
-		"CONFIG",
+		"HADOLINT_CONFIG",
 		"HADOLINT_DOCKERFILE",
-		"EXTRA_ARGS",
+		"HADOLINT_EXTRA_ARGS",
 	}
 }
 

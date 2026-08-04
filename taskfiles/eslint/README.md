@@ -33,23 +33,23 @@ Available leaves: `bun`, `node/{fnm,nvm}/{npm,pnpm,yarn}`.
 
 | Task          | Variables                                                             | Description                                                                              |
 | ------------- | --------------------------------------------------------------------- | ---------------------------------------------------------------------------------------- |
-| `install`     | Optional `VERSION`, `EXTRA_ARGS`, `CLI_ARGS`                    | Install `eslint` as a local dev dependency. Pass `VERSION=x.y.z` to pin a release. |
-| `install:undo`| Optional `EXTRA_ARGS`                                           | Remove the locally installed `eslint` devDependency.                                     |
-| `upgrade`     | Optional `EXTRA_ARGS`                                           | Reinstall `eslint` at the latest version.                                                |
-| `init`        | Optional `EXTRA_ARGS`, `CLI_ARGS`                               | Alias for `config:init`.                                                                 |
+| `install`     | Optional `ESLINT_VERSION`, `ESLINT_EXTRA_ARGS`, `CLI_ARGS`                    | Install `eslint` as a local dev dependency. Pass `ESLINT_VERSION=x.y.z` to pin a release. |
+| `install:undo`| Optional `ESLINT_EXTRA_ARGS`                                           | Remove the locally installed `eslint` devDependency.                                     |
+| `upgrade`     | Optional `ESLINT_EXTRA_ARGS`                                           | Reinstall `eslint` at the latest version.                                                |
+| `init`        | Optional `ESLINT_EXTRA_ARGS`, `CLI_ARGS`                               | Alias for `config:init`.                                                                 |
 | `config:init` | —                                                               | Write a starter `eslint.config.mjs` when none exists (non-interactive). Skipped if a recognized config file already exists. |
-| `lint`        | Optional `TARGETS`, `CONFIG`, `ESLINT_CACHE`, `EXTRA_ARGS`, `CLI_ARGS` | Lint targets with cache enabled by default.                                              |
-| `lint:fix`    | Optional `TARGETS`, `CONFIG`, `ESLINT_CACHE`, `EXTRA_ARGS`, `CLI_ARGS` | Run ESLint with `--fix`.                                                                 |
-| `ci`          | Optional `TARGETS`, `CONFIG`, `ESLINT_CACHE`, `EXTRA_ARGS`, `CLI_ARGS` | Run ESLint with `--max-warnings=0`.                                                      |
+| `lint`        | Optional `ESLINT_TARGETS`, `ESLINT_CONFIG`, `ESLINT_CACHE`, `ESLINT_EXTRA_ARGS`, `CLI_ARGS` | Lint targets with cache enabled by default.                                              |
+| `lint:fix`    | Optional `ESLINT_TARGETS`, `ESLINT_CONFIG`, `ESLINT_CACHE`, `ESLINT_EXTRA_ARGS`, `CLI_ARGS` | Run ESLint with `--fix`.                                                                 |
+| `ci`          | Optional `ESLINT_TARGETS`, `ESLINT_CONFIG`, `ESLINT_CACHE`, `ESLINT_EXTRA_ARGS`, `CLI_ARGS` | Run ESLint with `--max-warnings=0`.                                                      |
 | `cache:clean` | —                                                                     | Remove `.cache/eslint`.                                                                  |
 | `version`     | — | Show the resolved ESLint version.                                                        |
-| `help`        | Optional `EXTRA_ARGS`, `CLI_ARGS`                               | Show ESLint CLI help.                                                                    |
+| `help`        | Optional `ESLINT_EXTRA_ARGS`, `CLI_ARGS`                               | Show ESLint CLI help.                                                                    |
 
 ## Variables
 
-`TARGETS` defaults to `src/**/*.{js,jsx,ts,tsx}`. `CONFIG` adds
+`ESLINT_TARGETS` defaults to `src/**/*.{js,jsx,ts,tsx}`. `ESLINT_CONFIG` adds
 `--config <path>`. `ESLINT_CACHE` defaults to `true`; set `ESLINT_CACHE=false` to omit cache
-flags. `EXTRA_ARGS` and arguments after `--` are appended to the command.
+flags. `ESLINT_EXTRA_ARGS` and arguments after `--` are appended to the command.
 
 - `ESLINT_LINT_SKIP_PATTERN` (default empty): forward-slash path glob for files skipped by lint checks and fixes.
 
@@ -59,7 +59,7 @@ Skip patterns support `*` within one path segment, `**` across directories, and 
 
 ```bash
 task eslint:node:fnm:npm:install
-task eslint:node:fnm:npm:install VERSION=8.57.0
+task eslint:node:fnm:npm:install ESLINT_VERSION=8.57.0
 task eslint:node:fnm:npm:lint
-task eslint:node:fnm:npm:lint:fix TARGETS="src test"
+task eslint:node:fnm:npm:lint:fix ESLINT_TARGETS="src test"
 ```

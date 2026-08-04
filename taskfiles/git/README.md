@@ -40,7 +40,7 @@ task git:pr:create GIT_TITLE="feat: add feature" GIT_BASE=main
 
 | Task             | Description                                                     | Key variables                     |
 | ---------------- | --------------------------------------------------------------- | --------------------------------- |
-| `install`        | Install git on the current operating system                    | `VERSION`                         |
+| `install`        | Install git on the current operating system                    | `GIT_VERSION`                         |
 | `install:undo`   | Remove git from the current operating system                    | —                                 |
 | `upgrade`        | Upgrade git to the latest release                               | —                                 |
 | `auth:setup`     | Configure git to use gh as credential helper                    | —                                 |
@@ -58,8 +58,8 @@ task git:pr:create GIT_TITLE="feat: add feature" GIT_BASE=main
 | `sync`           | Sync the current branch with its GitHub upstream                | `GIT_BRANCH`                          |
 | `diff`           | Show unstaged changes in the working tree                       | `GIT_FILES`                           |
 | `diff:staged`    | Show changes staged for the next commit                         | —                                 |
-| `log`            | Show the commit history with author and date                    | `EXTRA_ARGS`                      |
-| `log:graph`      | Show commit history as an ASCII branch graph                    | `EXTRA_ARGS`                      |
+| `log`            | Show the commit history with author and date                    | `GIT_EXTRA_ARGS`                      |
+| `log:graph`      | Show commit history as an ASCII branch graph                    | `GIT_EXTRA_ARGS`                      |
 | `branch:list`    | List all local and remote branches                              | —                                 |
 | `branch:create`  | Create and switch to a new branch from current HEAD             | `GIT_BRANCH`                          |
 | `branch:switch`  | Switch to an existing branch                                    | `GIT_BRANCH`                          |
@@ -111,8 +111,8 @@ task git:pr:create GIT_TITLE="feat: add feature" GIT_BASE=main
 | `GIT_BODY`         | _(empty)_ | PR description                                        |
 | `GIT_URL`          | _(empty)_ | Remote URL for `remote:add` and `remote:set-url`      |
 | `GIT_MESSAGE`      | _(empty)_ | Tag annotation or stash description                   |
-| `EXTRA_ARGS`   | _(empty)_ | Extra arguments appended to the underlying command    |
-| `VERSION`      | _(empty)_ | Pin a specific git release for `install`; empty installs latest. Exact availability depends on the platform's package manager/repository. |
+| `GIT_EXTRA_ARGS`   | _(empty)_ | Extra arguments appended to the underlying command    |
+| `GIT_VERSION`      | _(empty)_ | Pin a specific git release for `install`; empty installs latest. Exact availability depends on the platform's package manager/repository. |
 
 ## Examples
 

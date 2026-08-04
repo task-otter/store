@@ -50,7 +50,7 @@ includes:
 | `version`     | Optional `NODE_VERSION`                | Show the active Corepack version.                                   |
 | `enable`      | Optional `NODE_VERSION`                | Enable Corepack shims.                                              |
 | `disable`     | Optional `NODE_VERSION`                | Disable Corepack shims.                                             |
-| `use`         | Required `PACKAGE_MANAGER`, `VERSION`  | Pin `npm`, `pnpm`, or `yarn` in the current `package.json`.         |
+| `use`         | Required `PACKAGE_MANAGER`, `COREPACK_VERSION`  | Pin `npm`, `pnpm`, or `yarn` in the current `package.json`.         |
 | `cache:clean` | Optional `NODE_VERSION`                | Clear cached package manager archives.                              |
 
 ## Examples
@@ -58,8 +58,8 @@ includes:
 ```bash
 task corepack:setup
 task corepack:install COREPACK_VERSION=latest
-task corepack:use PACKAGE_MANAGER=yarn VERSION=stable
-task corepack:use PACKAGE_MANAGER=pnpm VERSION=10.0.0
+task corepack:use PACKAGE_MANAGER=yarn COREPACK_VERSION=stable
+task corepack:use PACKAGE_MANAGER=pnpm COREPACK_VERSION=10.0.0
 task corepack:cache:clean
 ```
 

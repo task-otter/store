@@ -29,10 +29,10 @@ func publicVars() []string {
 	return []string{
 		"ESLINT_LINT_SKIP_PATTERN",
 		"ESLINT_CACHE",
-		"CONFIG",
-		"EXTRA_ARGS",
-		"TARGETS",
-		"VERSION",
+		"ESLINT_CONFIG",
+		"ESLINT_EXTRA_ARGS",
+		"ESLINT_TARGETS",
+		"ESLINT_VERSION",
 	}
 }
 

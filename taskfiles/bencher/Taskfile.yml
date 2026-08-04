@@ -13,7 +13,7 @@ vars:
   BENCHER_INSTALL_URL: "https://bencher.dev/download/install-cli.sh"
   BENCHER_INSTALL_URL_WINDOWS: "https://bencher.dev/download/install-cli.ps1"
   BENCHER_VERSION: ""
-  EXTRA_ARGS: ""
+  BENCHER_EXTRA_ARGS: ""
 
 tasks:
   default:
@@ -50,10 +50,10 @@ tasks:
 
   run:
     run: once
-    desc: Track benchmarks with bencher run (EXTRA_ARGS or -- args)
+    desc: Track benchmarks with bencher run (BENCHER_EXTRA_ARGS or -- args)
     summary: |
       Run bencher run to execute a benchmark command and track its results.
-      Pass the benchmark command and flags via EXTRA_ARGS or after --, e.g.
+      Pass the benchmark command and flags via BENCHER_EXTRA_ARGS or after --, e.g.
       task bencher:run -- --project my-project "make benchmarks".
       Auto-installs the CLI if it is missing.
     dir: "{{.USER_WORKING_DIR}}"
@@ -62,15 +62,15 @@ tasks:
     cmds:
       - >-
         bencher run
-        {{if .CLI_ARGS}}{{.CLI_ARGS}}{{else}}{{if .EXTRA_ARGS_OVERRIDE}}{{.EXTRA_ARGS_OVERRIDE}}
-        {{- else}}{{.EXTRA_ARGS}}{{end}}{{end}}
+        {{if .CLI_ARGS}}{{.CLI_ARGS}}{{else}}{{if .BENCHER_EXTRA_ARGS_OVERRIDE}}{{.BENCHER_EXTRA_ARGS_OVERRIDE}}
+        {{- else}}{{.BENCHER_EXTRA_ARGS}}{{end}}{{end}}
 
   exec:
     run: once
-    desc: Run any Bencher CLI subcommand (EXTRA_ARGS or -- args)
+    desc: Run any Bencher CLI subcommand (BENCHER_EXTRA_ARGS or -- args)
     summary: |
       Run an arbitrary bencher subcommand such as mock, project, or report.
-      Pass the subcommand and its arguments via EXTRA_ARGS or after --.
+      Pass the subcommand and its arguments via BENCHER_EXTRA_ARGS or after --.
       Auto-installs the CLI if it is missing.
     dir: "{{.USER_WORKING_DIR}}"
     deps:
@@ -78,8 +78,8 @@ tasks:
     cmds:
       - >-
         bencher
-        {{if .CLI_ARGS}}{{.CLI_ARGS}}{{else}}{{if .EXTRA_ARGS_OVERRIDE}}{{.EXTRA_ARGS_OVERRIDE}}
-        {{- else}}{{.EXTRA_ARGS}}{{end}}{{end}}
+        {{if .CLI_ARGS}}{{.CLI_ARGS}}{{else}}{{if .BENCHER_EXTRA_ARGS_OVERRIDE}}{{.BENCHER_EXTRA_ARGS_OVERRIDE}}
+        {{- else}}{{.BENCHER_EXTRA_ARGS}}{{end}}{{end}}
 
   version:
     run: once

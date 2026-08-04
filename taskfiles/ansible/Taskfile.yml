@@ -24,10 +24,10 @@ vars:
   ANSIBLE_PLAYBOOK: ""
   ANSIBLE_INVENTORY: ""
   ANSIBLE_PATTERN: "all"
-  TARGETS: "."
-  FILE: ""
-  REQUIREMENTS: "requirements.yml"
-  EXTRA_ARGS: ""
+  ANSIBLE_TARGETS: "."
+  ANSIBLE_FILE: ""
+  ANSIBLE_REQUIREMENTS: "requirements.yml"
+  ANSIBLE_EXTRA_ARGS: ""
   ANSIBLE_VERSION: ""
   ANSIBLE_LINT_VERSION: ""
 
@@ -85,32 +85,32 @@ tasks:
 
   lint:
     run: once
-    desc: Lint Ansible YAML files with ansible-lint (TARGETS=path)
+    desc: Lint Ansible YAML files with ansible-lint (ANSIBLE_TARGETS=path)
     summary: |
-      Run ansible-lint against TARGETS (default .). ansible-lint enforces
+      Run ansible-lint against ANSIBLE_TARGETS (default .). ansible-lint enforces
       Ansible best practices and YAML syntax checks.
-      Pass EXTRA_ARGS for additional flags. Auto-installs if missing.
+      Pass ANSIBLE_EXTRA_ARGS for additional flags. Auto-installs if missing.
     deps:
       - task: install
     vars:
-      TARGETS: "."
-      EXTRA_ARGS: ""
+      ANSIBLE_TARGETS: "."
+      ANSIBLE_EXTRA_ARGS: ""
     cmds:
       - task: _lint:unix
       - echo "✅ ansible-lint passed"
 
   lint:fix:
     run: once
-    desc: Auto-fix Ansible YAML files with ansible-lint --fix (TARGETS=path)
+    desc: Auto-fix Ansible YAML files with ansible-lint --fix (ANSIBLE_TARGETS=path)
     summary: |
-      Run ansible-lint --fix against TARGETS (default .) to automatically
-      resolve fixable lint violations. Pass EXTRA_ARGS for additional flags.
+      Run ansible-lint --fix against ANSIBLE_TARGETS (default .) to automatically
+      resolve fixable lint violations. Pass ANSIBLE_EXTRA_ARGS for additional flags.
       Auto-installs if missing.
     deps:
       - task: install
     vars:
-      TARGETS: "."
-      EXTRA_ARGS: ""
+      ANSIBLE_TARGETS: "."
+      ANSIBLE_EXTRA_ARGS: ""
     cmds:
       - task: _lint:fix:unix
       - echo "✅ ansible-lint fixes applied"
@@ -138,7 +138,7 @@ tasks:
     desc: Run an Ansible playbook (ANSIBLE_PLAYBOOK=path)
     summary: |
       Execute PLAYBOOK via ansible-playbook. Pass INVENTORY to specify the
-      inventory file and EXTRA_ARGS for additional flags such as --check,
+      inventory file and ANSIBLE_EXTRA_ARGS for additional flags such as --check,
       --diff, or --tags. Auto-installs if missing.
     deps:
       - task: install
@@ -189,10 +189,10 @@ tasks:
 
   galaxy:install:
     run: once
-    desc: Install Ansible roles and collections (REQUIREMENTS=path)
+    desc: Install Ansible roles and collections (ANSIBLE_REQUIREMENTS=path)
     summary: |
-      Run ansible-galaxy install -r REQUIREMENTS (default requirements.yml)
-      to install all declared roles and collections. Pass EXTRA_ARGS for
+      Run ansible-galaxy install -r ANSIBLE_REQUIREMENTS (default requirements.yml)
+      to install all declared roles and collections. Pass ANSIBLE_EXTRA_ARGS for
       additional flags. Auto-installs if missing.
     deps:
       - task: install
@@ -201,46 +201,46 @@ tasks:
 
   vault:encrypt:
     run: once
-    desc: Encrypt a file with Ansible Vault (FILE=path)
+    desc: Encrypt a file with Ansible Vault (ANSIBLE_FILE=path)
     summary: |
-      Run ansible-vault encrypt on FILE. You will be prompted for the vault
-      password. Pass EXTRA_ARGS for additional flags such as --vault-id.
+      Run ansible-vault encrypt on ANSIBLE_FILE. You will be prompted for the vault
+      password. Pass ANSIBLE_EXTRA_ARGS for additional flags such as --vault-id.
       Auto-installs if missing.
     deps:
       - task: install
     requires:
       vars:
-        - FILE
+        - ANSIBLE_FILE
     preconditions:
-      - sh: test -n "{{.FILE}}"
-        msg: FILE is required. Pass FILE=path/to/file when running this task.
+      - sh: test -n "{{.ANSIBLE_FILE}}"
+        msg: ANSIBLE_FILE is required. Pass ANSIBLE_FILE=path/to/file when running this task.
     cmds:
       - task: _vault:unix
         vars:
-          ARGS: 'encrypt "{{.FILE}}" {{.EXTRA_ARGS}}'
+          ARGS: 'encrypt "{{.ANSIBLE_FILE}}" {{.ANSIBLE_EXTRA_ARGS}}'
 
   vault:decrypt:
     run: once
-    desc: Decrypt a file with Ansible Vault (FILE=path)
+    desc: Decrypt a file with Ansible Vault (ANSIBLE_FILE=path)
     summary: |
-      Run ansible-vault decrypt on FILE. You will be prompted for the vault
-      password. Pass EXTRA_ARGS for additional flags such as --vault-id.
+      Run ansible-vault decrypt on ANSIBLE_FILE. You will be prompted for the vault
+      password. Pass ANSIBLE_EXTRA_ARGS for additional flags such as --vault-id.
       Auto-installs if missing.
     prompt:
-      - This will decrypt and overwrite FILE with plaintext.
+      - This will decrypt and overwrite ANSIBLE_FILE with plaintext.
       - Continue?
     deps:
       - task: install
     requires:
       vars:
-        - FILE
+        - ANSIBLE_FILE
     preconditions:
-      - sh: test -n "{{.FILE}}"
-        msg: FILE is required. Pass FILE=path/to/file when running this task.
+      - sh: test -n "{{.ANSIBLE_FILE}}"
+        msg: ANSIBLE_FILE is required. Pass ANSIBLE_FILE=path/to/file when running this task.
     cmds:
       - task: _vault:unix
         vars:
-          ARGS: 'decrypt "{{.FILE}}" {{.EXTRA_ARGS}}'
+          ARGS: 'decrypt "{{.ANSIBLE_FILE}}" {{.ANSIBLE_EXTRA_ARGS}}'
 
   _install:unix:
     run: once
@@ -338,13 +338,14 @@ tasks:
     cmds:
       - |
         {{.UV_LOAD}}
-        targets='{{if .TARGETS_OVERRIDE}}{{.TARGETS_OVERRIDE}}{{else if .TARGETS}}{{.TARGETS}}{{else}}.{{end}}'
+        targets='{{if .ANSIBLE_TARGETS_OVERRIDE}}{{.ANSIBLE_TARGETS_OVERRIDE}}{{else if
+        .ANSIBLE_TARGETS}}{{.ANSIBLE_TARGETS}}{{else}}.{{end}}'
         skip_pattern='{{if .ANSIBLE_LINT_SKIP_PATTERN_OVERRIDE}}{{.ANSIBLE_LINT_SKIP_PATTERN_OVERRIDE}}
         {{- else}}{{.ANSIBLE_LINT_SKIP_PATTERN}}{{end}}'
         if [ -z "$skip_pattern" ]; then
           ansible-lint {{.ANSIBLE_LINT_FIX_FLAG}} $targets \
-            {{if .EXTRA_ARGS_OVERRIDE}}{{.EXTRA_ARGS_OVERRIDE}}
-            {{- else}}{{.EXTRA_ARGS}}{{end}}
+            {{if .ANSIBLE_EXTRA_ARGS_OVERRIDE}}{{.ANSIBLE_EXTRA_ARGS_OVERRIDE}}
+            {{- else}}{{.ANSIBLE_EXTRA_ARGS}}{{end}}
           exit
         fi
         matched_files="$(mktemp)"
@@ -363,8 +364,8 @@ tasks:
           set -- "$@" --exclude "$path"
         done <"$matched_files"
         ansible-lint {{.ANSIBLE_LINT_FIX_FLAG}} "$@" $targets \
-          {{if .EXTRA_ARGS_OVERRIDE}}{{.EXTRA_ARGS_OVERRIDE}}
-          {{- else}}{{.EXTRA_ARGS}}{{end}}
+          {{if .ANSIBLE_EXTRA_ARGS_OVERRIDE}}{{.ANSIBLE_EXTRA_ARGS_OVERRIDE}}
+          {{- else}}{{.ANSIBLE_EXTRA_ARGS}}{{end}}
 
   _syntax:check:unix:
     run: once
@@ -392,8 +393,8 @@ tasks:
         ansible-playbook --syntax-check "$playbook" \
           {{if .ANSIBLE_INVENTORY_OVERRIDE}}-i "{{.ANSIBLE_INVENTORY_OVERRIDE}}"
           {{- else if .ANSIBLE_INVENTORY}}-i "{{.ANSIBLE_INVENTORY}}"{{end}} \
-          {{if .EXTRA_ARGS_OVERRIDE}}{{.EXTRA_ARGS_OVERRIDE}}
-          {{- else}}{{.EXTRA_ARGS}}{{end}} {{.CLI_ARGS}}
+          {{if .ANSIBLE_EXTRA_ARGS_OVERRIDE}}{{.ANSIBLE_EXTRA_ARGS_OVERRIDE}}
+          {{- else}}{{.ANSIBLE_EXTRA_ARGS}}{{end}} {{.CLI_ARGS}}
 
   _run:unix:
     run: once
@@ -410,7 +411,7 @@ tasks:
         "{{if .ANSIBLE_PLAYBOOK_OVERRIDE}}{{.ANSIBLE_PLAYBOOK_OVERRIDE}}{{else}}{{.ANSIBLE_PLAYBOOK}}{{end}}"
         {{if .ANSIBLE_INVENTORY_OVERRIDE}}-i "{{.ANSIBLE_INVENTORY_OVERRIDE}}"
         {{else if .ANSIBLE_INVENTORY}}-i "{{.ANSIBLE_INVENTORY}}" {{end}}
-        {{if .EXTRA_ARGS_OVERRIDE}}{{.EXTRA_ARGS_OVERRIDE}}{{else}}{{.EXTRA_ARGS}}{{end}}'
+        {{if .ANSIBLE_EXTRA_ARGS_OVERRIDE}}{{.ANSIBLE_EXTRA_ARGS_OVERRIDE}}{{else}}{{.ANSIBLE_EXTRA_ARGS}}{{end}}'
 
   _ping:unix:
     run: once
@@ -426,7 +427,7 @@ tasks:
         ansible "{{.ANSIBLE_PATTERN}}" -m ping
         {{if .ANSIBLE_INVENTORY_OVERRIDE}}-i "{{.ANSIBLE_INVENTORY_OVERRIDE}}"
         {{else if .ANSIBLE_INVENTORY}}-i "{{.ANSIBLE_INVENTORY}}" {{end}}
-        {{if .EXTRA_ARGS_OVERRIDE}}{{.EXTRA_ARGS_OVERRIDE}}{{else}}{{.EXTRA_ARGS}}{{end}}'
+        {{if .ANSIBLE_EXTRA_ARGS_OVERRIDE}}{{.ANSIBLE_EXTRA_ARGS_OVERRIDE}}{{else}}{{.ANSIBLE_EXTRA_ARGS}}{{end}}'
 
   _list:hosts:unix:
     run: once
@@ -442,7 +443,7 @@ tasks:
         ansible "{{.ANSIBLE_PATTERN}}" --list-hosts
         {{if .ANSIBLE_INVENTORY_OVERRIDE}}-i "{{.ANSIBLE_INVENTORY_OVERRIDE}}"
         {{else if .ANSIBLE_INVENTORY}}-i "{{.ANSIBLE_INVENTORY}}" {{end}}
-        {{if .EXTRA_ARGS_OVERRIDE}}{{.EXTRA_ARGS_OVERRIDE}}{{else}}{{.EXTRA_ARGS}}{{end}}'
+        {{if .ANSIBLE_EXTRA_ARGS_OVERRIDE}}{{.ANSIBLE_EXTRA_ARGS_OVERRIDE}}{{else}}{{.ANSIBLE_EXTRA_ARGS}}{{end}}'
 
   _galaxy:install:unix:
     run: once
@@ -455,8 +456,8 @@ tasks:
     cmds:
       - >-
         bash -lc '{{.UV_LOAD}};
-        ansible-galaxy install -r "{{.REQUIREMENTS}}"
-        {{if .EXTRA_ARGS_OVERRIDE}}{{.EXTRA_ARGS_OVERRIDE}}{{else}}{{.EXTRA_ARGS}}{{end}}'
+        ansible-galaxy install -r "{{.ANSIBLE_REQUIREMENTS}}"
+        {{if .ANSIBLE_EXTRA_ARGS_OVERRIDE}}{{.ANSIBLE_EXTRA_ARGS_OVERRIDE}}{{else}}{{.ANSIBLE_EXTRA_ARGS}}{{end}}'
 
   _vault:unix:
     run: once

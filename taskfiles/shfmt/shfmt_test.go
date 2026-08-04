@@ -23,10 +23,10 @@ func publicTasks() []string {
 func publicVars() []string {
 	return []string{
 		"SHFMT_FMT_SKIP_PATTERN",
-		"EXTRA_ARGS",
+		"SHFMT_EXTRA_ARGS",
 		"GO_GLOBAL_BIN",
 		"SHFMT_VERSION",
-		"TARGETS",
+		"SHFMT_TARGETS",
 	}
 }
 

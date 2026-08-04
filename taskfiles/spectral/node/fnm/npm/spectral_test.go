@@ -24,10 +24,10 @@ func publicTasks() []string {
 func publicVars() []string {
 	return []string{
 		"SPECTRAL_LINT_SKIP_PATTERN",
-		"EXTRA_ARGS",
+		"SPECTRAL_EXTRA_ARGS",
 		"SPECTRAL_RULESET",
-		"TARGETS",
-		"VERSION",
+		"SPECTRAL_TARGETS",
+		"SPECTRAL_VERSION",
 	}
 }
 

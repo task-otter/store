@@ -44,15 +44,15 @@ task ansible:run ANSIBLE_PLAYBOOK=site.yml ANSIBLE_INVENTORY=hosts
 | `install:undo`   | Remove Ansible and ansible-lint                        | none                                  |
 | `upgrade`        | Upgrade Ansible and ansible-lint to the latest release | none                                  |
 | `version`        | Show Ansible and ansible-lint versions                 | none                                  |
-| `lint`           | Lint Ansible YAML files with ansible-lint              | `TARGETS`, `EXTRA_ARGS`               |
-| `lint:fix`       | Auto-fix Ansible YAML files with ansible-lint --fix     | `TARGETS`, `EXTRA_ARGS`               |
+| `lint`           | Lint Ansible YAML files with ansible-lint              | `ANSIBLE_TARGETS`, `ANSIBLE_EXTRA_ARGS`               |
+| `lint:fix`       | Auto-fix Ansible YAML files with ansible-lint --fix     | `ANSIBLE_TARGETS`, `ANSIBLE_EXTRA_ARGS`               |
 | `syntax:check`   | Check playbook syntax without executing                | `ANSIBLE_PLAYBOOK`, `ANSIBLE_INVENTORY`               |
-| `run`            | Run an Ansible playbook                                | `ANSIBLE_PLAYBOOK`, `ANSIBLE_INVENTORY`, `EXTRA_ARGS` |
-| `ping`           | Test connectivity to inventory hosts                   | `ANSIBLE_INVENTORY`, `ANSIBLE_PATTERN`, `EXTRA_ARGS`  |
-| `list:hosts`     | List hosts matching PATTERN from INVENTORY             | `ANSIBLE_INVENTORY`, `ANSIBLE_PATTERN`, `EXTRA_ARGS`  |
-| `galaxy:install` | Install roles and collections from a requirements file | `REQUIREMENTS`, `EXTRA_ARGS`          |
-| `vault:encrypt`  | Encrypt a file with Ansible Vault                      | `FILE`, `EXTRA_ARGS`                  |
-| `vault:decrypt`  | Decrypt a file with Ansible Vault                      | `FILE`, `EXTRA_ARGS`                  |
+| `run`            | Run an Ansible playbook                                | `ANSIBLE_PLAYBOOK`, `ANSIBLE_INVENTORY`, `ANSIBLE_EXTRA_ARGS` |
+| `ping`           | Test connectivity to inventory hosts                   | `ANSIBLE_INVENTORY`, `ANSIBLE_PATTERN`, `ANSIBLE_EXTRA_ARGS`  |
+| `list:hosts`     | List hosts matching PATTERN from INVENTORY             | `ANSIBLE_INVENTORY`, `ANSIBLE_PATTERN`, `ANSIBLE_EXTRA_ARGS`  |
+| `galaxy:install` | Install roles and collections from a requirements file | `ANSIBLE_REQUIREMENTS`, `ANSIBLE_EXTRA_ARGS`          |
+| `vault:encrypt`  | Encrypt a file with Ansible Vault                      | `ANSIBLE_FILE`, `ANSIBLE_EXTRA_ARGS`                  |
+| `vault:decrypt`  | Decrypt a file with Ansible Vault                      | `ANSIBLE_FILE`, `ANSIBLE_EXTRA_ARGS`                  |
 
 ## Variables
 
@@ -61,10 +61,10 @@ task ansible:run ANSIBLE_PLAYBOOK=site.yml ANSIBLE_INVENTORY=hosts
 | `ANSIBLE_PLAYBOOK`     | _(empty)_                              | Playbook path; required by `run` and `syntax:check`              |
 | `ANSIBLE_INVENTORY`    | _(empty)_                              | Inventory file or directory; required by `ping` and `list:hosts` |
 | `ANSIBLE_PATTERN`      | `all`                                  | Host pattern for `ping` and `list:hosts`                         |
-| `TARGETS`      | `.`                                    | Files or directories to lint with `lint`                         |
-| `FILE`         | _(empty)_                              | File path; required by `vault:encrypt` and `vault:decrypt`       |
-| `REQUIREMENTS` | `requirements.yml`                     | Requirements file for `galaxy:install`                           |
-| `EXTRA_ARGS`   | _(empty)_                              | Extra flags forwarded to the underlying Ansible command          |
+| `ANSIBLE_TARGETS`      | `.`                                    | Files or directories to lint with `lint`                         |
+| `ANSIBLE_FILE`         | _(empty)_                              | File path; required by `vault:encrypt` and `vault:decrypt`       |
+| `ANSIBLE_REQUIREMENTS` | `requirements.yml`                     | Requirements file for `galaxy:install`                           |
+| `ANSIBLE_EXTRA_ARGS`   | _(empty)_                              | Extra flags forwarded to the underlying Ansible command          |
 | `ANSIBLE_VERSION` | _(empty)_                           | Pin a specific ansible release for `install`/`upgrade`; empty installs latest |
 | `ANSIBLE_LINT_VERSION` | _(empty)_                      | Pin a specific ansible-lint release for `install`/`upgrade`; empty installs latest |
 | `UV_LOAD`      | `export PATH="$HOME/.local/bin:$PATH"` | Shell snippet that ensures uv-managed binaries are in PATH       |
@@ -83,5 +83,5 @@ accidental plaintext exposure. Both vault tasks prompt interactively for the
 vault password.
 
 **`galaxy:install`** installs roles under `~/.ansible/roles` and collections
-under `~/.ansible/collections` by default. Override with `EXTRA_ARGS` or a
+under `~/.ansible/collections` by default. Override with `ANSIBLE_EXTRA_ARGS` or a
 `ansible.cfg` in your project.

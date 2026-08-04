@@ -39,7 +39,7 @@ task vault:snapshot VAULT_FILE=backup.snap
 
 | Task           | Description                                  | Key variables                    |
 | -------------- | -------------------------------------------- | -------------------------------- |
-| `install`      | Install the Vault CLI on the current OS      | `VERSION`                        |
+| `install`      | Install the Vault CLI on the current OS      | `VAULT_VERSION`                        |
 | `install:undo` | Remove the Vault CLI from the current OS     | none                             |
 | `upgrade`      | Upgrade the Vault CLI                        | none                             |
 | `version`      | Show the installed Vault CLI version         | none                             |
@@ -57,8 +57,8 @@ task vault:snapshot VAULT_FILE=backup.snap
 | `token:revoke-self`   | Revoke the current Vault token              | `VAULT_TOKEN` (env)              |
 | `kv:get`              | Read a KV v2 secret and print JSON to stdout | `KV_MOUNT`, `SECRET_PATH`, `SECRET_VERSION` |
 | `peers`        | List Vault Raft cluster peers                | `VAULT_ADDR`                     |
-| `snapshot`     | Save a Vault Raft snapshot                   | `FILE`, `VAULT_SNAPSHOT_FILE`; root: `VAULT_FILE` |
-| `restore`      | Restore a Vault Raft snapshot                | `FILE`, `VAULT_SNAPSHOT_FILE`; root: `VAULT_FILE` |
+| `snapshot`     | Save a Vault Raft snapshot                   | `VAULT_FILE`, `VAULT_SNAPSHOT_FILE`; root: `VAULT_FILE` |
+| `restore`      | Restore a Vault Raft snapshot                | `VAULT_FILE`, `VAULT_SNAPSHOT_FILE`; root: `VAULT_FILE` |
 
 ## Variables
 
@@ -69,8 +69,8 @@ task vault:snapshot VAULT_FILE=backup.snap
 | `VAULT_SHARES`        | `5`                     | Number of unseal key shares for `init`           |
 | `VAULT_THRESHOLD`     | `3`                     | Unseal key threshold for `init` and `unseal`     |
 | `VAULT_SNAPSHOT_FILE` | `vault-snapshot.snap`   | Default Raft snapshot path                       |
-| `FILE`          | _(empty)_               | Snapshot path override for `snapshot`/`restore` |
-| `EXTRA_ARGS`    | _(empty)_               | Reserved for root include compatibility          |
+| `VAULT_FILE`          | _(empty)_               | Snapshot path override for `snapshot`/`restore` |
+| `VAULT_EXTRA_ARGS`    | _(empty)_               | Reserved for root include compatibility          |
 | `VAULT_ROOT_TOKEN`    | _(empty)_               | Token for `login:root-token`                     |
 | `VAULT_ROLE_ID`       | _(empty)_               | AppRole role_id for `login:approle` and `token:issue:approle` |
 | `VAULT_SECRET_ID`     | _(empty)_               | AppRole secret_id for `login:approle` and `token:issue:approle` |
@@ -78,7 +78,7 @@ task vault:snapshot VAULT_FILE=backup.snap
 | `KV_MOUNT`      | _(empty)_               | KV v2 engine mount path for `kv:get`             |
 | `SECRET_PATH`   | _(empty)_               | Secret path within the KV mount for `kv:get`     |
 | `SECRET_VERSION`| _(empty)_               | Optional KV version to pin for `kv:get`          |
-| `VERSION`       | _(empty)_               | Pin a specific Vault CLI release for `install`; empty installs latest. Exact availability depends on the platform's package manager/repository. |
+| `VAULT_VERSION`       | _(empty)_               | Pin a specific Vault CLI release for `install`; empty installs latest. Exact availability depends on the platform's package manager/repository. |
 
 ## Notes
 
@@ -103,5 +103,5 @@ environment. `KV_MOUNT` and `SECRET_PATH` must be provided as task variables.
 Pass `SECRET_VERSION=<n>` to pin to a specific KV version.
 
 When using this repository's root Taskfile include, pass `VAULT_FILE=path`
-instead of `FILE=path` for `vault:snapshot` and `vault:restore`. The standalone
-Vault Taskfile continues to use `FILE=path`.
+instead of `VAULT_FILE=path` for `vault:snapshot` and `vault:restore`. The standalone
+Vault Taskfile continues to use `VAULT_FILE=path`.

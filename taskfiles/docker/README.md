@@ -39,7 +39,7 @@ task docker:ps
 
 | Task           | Description                                                                    | Key variables              |
 | -------------- | ------------------------------------------------------------------------------ | -------------------------- |
-| `install`      | Install Docker on the current OS; Linux also adds the user to the docker group | `VERSION`                  |
+| `install`      | Install Docker on the current OS; Linux also adds the user to the docker group | `DOCKER_VERSION`                  |
 | `install:undo` | Remove Docker from the current OS                                              | none                       |
 | `upgrade`      | Upgrade Docker to the latest release                                           | none                       |
 | `version`      | Show Docker client and server versions                                         | none                       |
@@ -50,7 +50,7 @@ task docker:ps
 | `prune`        | Remove stopped containers and dangling images                                  | none                       |
 | `prune:all`    | Full system prune including volumes                                            | none                       |
 | `images`       | List local Docker images                                                       | none                       |
-| `build`        | Build a Docker image from a Dockerfile                                         | `DOCKER_IMAGE`, `FILE`, `DOCKER_CONTEXT` |
+| `build`        | Build a Docker image from a Dockerfile                                         | `DOCKER_IMAGE`, `DOCKER_FILE`, `DOCKER_CONTEXT` |
 | `pull`         | Pull a Docker image from a registry                                            | `DOCKER_IMAGE`                    |
 
 ## Variables
@@ -58,10 +58,10 @@ task docker:ps
 | Variable     | Default      | Description                                              |
 | ------------ | ------------ | -------------------------------------------------------- |
 | `DOCKER_IMAGE`      | _(empty)_    | Image name and tag used by `build` and `pull`            |
-| `FILE`       | `Dockerfile` | Dockerfile path used by `build`                          |
+| `DOCKER_FILE`       | `Dockerfile` | Dockerfile path used by `build`                          |
 | `DOCKER_CONTEXT`    | `.`          | Build context directory used by `build`                  |
-| `EXTRA_ARGS` | _(empty)_    | Extra flags forwarded to `docker build` or `docker pull` |
-| `VERSION`    | _(empty)_    | Pin a Docker release for `install` on Linux and Windows; has no effect on macOS (Homebrew Cask cannot pin Docker Desktop) |
+| `DOCKER_EXTRA_ARGS` | _(empty)_    | Extra flags forwarded to `docker build` or `docker pull` |
+| `DOCKER_VERSION`    | _(empty)_    | Pin a Docker release for `install` on Linux and Windows; has no effect on macOS (Homebrew Cask cannot pin Docker Desktop) |
 
 ## Notes
 

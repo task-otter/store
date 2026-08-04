@@ -100,8 +100,8 @@ func publicTasks() []string {
 func publicVars() []string {
 	return []string{
 		"VAULT_APPROLE_MOUNT",
-		"EXTRA_ARGS",
-		"FILE",
+		"VAULT_EXTRA_ARGS",
+		"VAULT_FILE",
 		"VAULT_KEYS_FILE",
 		roleEnvVarName,
 		"VAULT_ROOT_TOKEN",
@@ -110,7 +110,7 @@ func publicVars() []string {
 		"VAULT_SNAPSHOT_FILE",
 		"VAULT_THRESHOLD",
 		vaultAddrEnvVarName,
-		"VERSION",
+		"VAULT_VERSION",
 	}
 }
 

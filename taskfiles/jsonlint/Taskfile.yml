@@ -20,8 +20,8 @@ includes:
 vars:
   JSONLINT_LINT_SKIP_PATTERN: ""
   UV_LOAD: 'export PATH="$HOME/.local/bin:$PATH"'
-  TARGETS: "."
-  EXTRA_ARGS: ""
+  JSONLINT_TARGETS: "."
+  JSONLINT_EXTRA_ARGS: ""
   JSONLINT_VERSION: ""
 
 tasks:
@@ -82,11 +82,11 @@ tasks:
 
   lint:
     run: once
-    desc: Validate JSON files with jsonlint (TARGETS=path)
+    desc: Validate JSON files with jsonlint (JSONLINT_TARGETS=path)
     summary: |
-      Validate the JSON files at TARGETS (default .). A directory target is
+      Validate the JSON files at JSONLINT_TARGETS (default .). A directory target is
       scanned recursively for *.json files; a file target is validated
-      directly. Pass EXTRA_ARGS for additional flags.
+      directly. Pass JSONLINT_EXTRA_ARGS for additional flags.
       Auto-installs jsonlint if missing.
     dir: "{{.USER_WORKING_DIR}}"
     deps:
@@ -94,7 +94,8 @@ tasks:
     cmds:
       - cmd: >-
           bash -lc '{{.UV_LOAD}};
-          _t="{{if .TARGETS_OVERRIDE}}{{.TARGETS_OVERRIDE}}{{else if .TARGETS}}{{.TARGETS}}{{else}}.{{end}}";
+          _t="{{if .JSONLINT_TARGETS_OVERRIDE}}{{.JSONLINT_TARGETS_OVERRIDE}}{{else if
+          .JSONLINT_TARGETS}}{{.JSONLINT_TARGETS}}{{else}}.{{end}}";
           _skip="{{if .JSONLINT_LINT_SKIP_PATTERN_OVERRIDE}}{{.JSONLINT_LINT_SKIP_PATTERN_OVERRIDE}}
           {{- else}}{{.JSONLINT_LINT_SKIP_PATTERN}}{{end}}";
           _files="$(mktemp)"; trap '"'"'rm -f "$_files"'"'"' EXIT;
@@ -107,14 +108,15 @@ tasks:
           filter "SKIPFILES_PATTERN=$_skip" >"$_files"; fi;
           if [ -s "$_files" ]; then
           xargs -0 jsonlint
-          {{if .EXTRA_ARGS_OVERRIDE}}{{.EXTRA_ARGS_OVERRIDE}}{{else}}{{.EXTRA_ARGS}}{{end}};
+          {{if .JSONLINT_EXTRA_ARGS_OVERRIDE}}{{.JSONLINT_EXTRA_ARGS_OVERRIDE}}{{else}}{{.JSONLINT_EXTRA_ARGS}}{{end}};
           else echo "No matching JSON files found under $_t"; fi
           && echo "✅ jsonlint passed" || { echo "❌ jsonlint failed"; exit 1; }'
         platforms: [linux, darwin]
       - cmd: >-
           powershell -NoProfile -ExecutionPolicy Bypass -Command
           "$ErrorActionPreference = 'Stop';
-          $t = '{{if .TARGETS_OVERRIDE}}{{.TARGETS_OVERRIDE}}{{else if .TARGETS}}{{.TARGETS}}{{else}}.{{end}}';
+          $t = '{{if .JSONLINT_TARGETS_OVERRIDE}}{{.JSONLINT_TARGETS_OVERRIDE}}{{else if
+          .JSONLINT_TARGETS}}{{.JSONLINT_TARGETS}}{{else}}.{{end}}';
           $skipPattern = '{{if .JSONLINT_LINT_SKIP_PATTERN_OVERRIDE}}{{.JSONLINT_LINT_SKIP_PATTERN_OVERRIDE}}
           {{- else}}{{.JSONLINT_LINT_SKIP_PATTERN}}{{end}}';
           if (Test-Path -LiteralPath $t -PathType Container) {
@@ -126,8 +128,8 @@ tasks:
             filter ('SKIPFILES_PATTERN=' + $skipPattern));
           if (-not $paths) { Write-Host 'No matching JSON files found'; exit 0 };
           foreach ($path in $paths) {
-          jsonlint {{if .EXTRA_ARGS_OVERRIDE}}{{.EXTRA_ARGS_OVERRIDE}}
-          {{- else}}{{.EXTRA_ARGS}}{{end}} $path;
+          jsonlint {{if .JSONLINT_EXTRA_ARGS_OVERRIDE}}{{.JSONLINT_EXTRA_ARGS_OVERRIDE}}
+          {{- else}}{{.JSONLINT_EXTRA_ARGS}}{{end}} $path;
           if ($LASTEXITCODE -ne 0) { exit $LASTEXITCODE } }"
         platforms: [windows]
 

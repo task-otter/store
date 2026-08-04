@@ -165,7 +165,7 @@ func expectedVars() []string {
 		"GH_DOWNLOAD_DIR",
 		"GH_MERGE_METHOD",
 		"GH_PAT_TOKEN",
-		"VERSION",
+		"GH_VERSION",
 		"GH_VISIBILITY",
 	}
 }

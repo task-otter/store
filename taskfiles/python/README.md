@@ -45,20 +45,20 @@ task python:pip:install
 | `upgrade`      | Upgrade Python to the latest release         | `PYTHON_PIN_VERSION`         |
 | `version`      | Show the installed Python version            | none                          |
 | `verify`       | Show Python and pip versions                 | none                          |
-| `venv`         | Create a virtual environment                 | `VENV`                        |
-| `pip:install`  | Install packages from a requirements file    | `REQUIREMENTS`, `EXTRA_ARGS` |
-| `run`          | Run a Python script                          | `FILE`, `ARGS`, `EXTRA_ARGS`  |
+| `venv`         | Create a virtual environment                 | `PYTHON_VENV`                        |
+| `pip:install`  | Install packages from a requirements file    | `PYTHON_REQUIREMENTS`, `PYTHON_EXTRA_ARGS` |
+| `run`          | Run a Python script                          | `PYTHON_FILE`, `PYTHON_ARGS`, `PYTHON_EXTRA_ARGS`  |
 
 ## Variables
 
 | Variable             | Default                                | Description                                                       |
 | -------------------- | --------------------------------------- | ------------------------------------------------------------------ |
 | `PYTHON_PIN_VERSION` | `3.13`                                  | Python version installed by `install`, `install:undo`, `upgrade` |
-| `VENV`                | `.venv`                                | Virtual environment directory used by `venv`                     |
-| `REQUIREMENTS`        | `requirements.txt`                     | Requirements file used by `pip:install`                          |
-| `FILE`                | _(empty)_                              | Script path; required by `run`                                   |
-| `ARGS`                | _(empty)_                              | Positional arguments forwarded to the script in `run`            |
-| `EXTRA_ARGS`          | _(empty)_                              | Extra flags forwarded to `pip install` or the Python interpreter |
+| `PYTHON_VENV`                | `.venv`                                | Virtual environment directory used by `venv`                     |
+| `PYTHON_REQUIREMENTS`        | `requirements.txt`                     | Requirements file used by `pip:install`                          |
+| `PYTHON_FILE`                | _(empty)_                              | Script path; required by `run`                                   |
+| `PYTHON_ARGS`                | _(empty)_                              | Positional arguments forwarded to the script in `run`            |
+| `PYTHON_EXTRA_ARGS`          | _(empty)_                              | Extra flags forwarded to `pip install` or the Python interpreter |
 | `UV_LOAD`             | `export PATH="$HOME/.local/bin:$PATH"` | Shell snippet that ensures the uv-managed Python is in PATH      |
 
 ## Notes

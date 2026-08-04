@@ -24,10 +24,10 @@ func publicTasks() []string {
 func publicVars() []string {
 	return []string{
 		"HTMLHINT_LINT_SKIP_PATTERN",
-		"CONFIG",
-		"EXTRA_ARGS",
-		"TARGETS",
-		"VERSION",
+		"HTMLHINT_CONFIG",
+		"HTMLHINT_EXTRA_ARGS",
+		"HTMLHINT_TARGETS",
+		"HTMLHINT_VERSION",
 	}
 }
 

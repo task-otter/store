@@ -25,9 +25,9 @@ func publicVars() []string {
 	return []string{
 		"RUMDL_LINT_SKIP_PATTERN",
 		"RUMDL_FMT_SKIP_PATTERN",
-		"EXTRA_ARGS",
+		"RUMDL_EXTRA_ARGS",
 		"RUMDL_VERSION",
-		"TARGETS",
+		"RUMDL_TARGETS",
 		"UV_LOAD",
 	}
 }
