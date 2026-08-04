@@ -25,7 +25,7 @@ func publicVars() []string {
 	return []string{
 		"SPECTRAL_LINT_SKIP_PATTERN",
 		"EXTRA_ARGS",
-		"RULESET",
+		"SPECTRAL_RULESET",
 		"TARGETS",
 		"VERSION",
 	}

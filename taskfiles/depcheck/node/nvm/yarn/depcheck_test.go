@@ -28,8 +28,8 @@ func publicVars() []string {
 	return []string{
 		"DEPCHECK_LINT_SKIP_PATTERN",
 		"EXTRA_ARGS",
-		"IGNORE_PACKAGES",
-		"PROJECT_PATH",
+		"DEPCHECK_IGNORE_PACKAGES",
+		"DEPCHECK_PROJECT_PATH",
 		"TARGETS",
 		"VERSION",
 	}

@@ -40,8 +40,8 @@ const (
 	issueApproleTask          = "token:issue:approle"
 	revokeSelfTask            = "token:revoke-self"
 	unsealTask                = "unseal"
-	roleEnvVarName            = "ROLE_ID"
-	approleKeyEnvVarName      = "SECRET_ID"
+	roleEnvVarName            = "VAULT_ROLE_ID"
+	approleKeyEnvVarName      = "VAULT_SECRET_ID"
 	authMethodFlag            = "-method=token"
 	noPrintFlag               = "-no-print"
 	vaultLoginPipe            = `| vault login`
@@ -99,16 +99,16 @@ func publicTasks() []string {
 
 func publicVars() []string {
 	return []string{
-		"APPROLE_MOUNT",
+		"VAULT_APPROLE_MOUNT",
 		"EXTRA_ARGS",
 		"FILE",
-		"KEYS_FILE",
+		"VAULT_KEYS_FILE",
 		roleEnvVarName,
-		"ROOT_TOKEN",
+		"VAULT_ROOT_TOKEN",
 		approleKeyEnvVarName,
-		"SHARES",
-		"SNAPSHOT_FILE",
-		"THRESHOLD",
+		"VAULT_SHARES",
+		"VAULT_SNAPSHOT_FILE",
+		"VAULT_THRESHOLD",
 		vaultAddrEnvVarName,
 		"VERSION",
 	}

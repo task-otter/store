@@ -42,7 +42,7 @@ func publicVars() []string {
 	return []string{
 		envVarGovulncheckVersion,
 		envVarGovulncheckLintSkipPattern,
-		"GLOBAL_GO_BIN",
+		"GO_GLOBAL_BIN",
 	}
 }
 

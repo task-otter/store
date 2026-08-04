@@ -15,16 +15,16 @@ includes:
 vars:
   VAULT_ADDR: "http://127.0.0.1:8200"
   VAULT_ADDR_TARGET: "{{if .VAULT_ADDR_OVERRIDE}}{{.VAULT_ADDR_OVERRIDE}}{{else}}{{.VAULT_ADDR}}{{end}}"
-  KEYS_FILE: .vault-init-keys.json
-  SHARES: 5
-  THRESHOLD: 3
-  SNAPSHOT_FILE: vault-snapshot.snap
+  VAULT_KEYS_FILE: .vault-init-keys.json
+  VAULT_SHARES: 5
+  VAULT_THRESHOLD: 3
+  VAULT_SNAPSHOT_FILE: vault-snapshot.snap
   FILE: ""
   EXTRA_ARGS: ""
-  ROOT_TOKEN: ""
-  ROLE_ID: ""
-  SECRET_ID: ""
-  APPROLE_MOUNT: "approle"
+  VAULT_ROOT_TOKEN: ""
+  VAULT_ROLE_ID: ""
+  VAULT_SECRET_ID: ""
+  VAULT_APPROLE_MOUNT: "approle"
   VERSION: ""
 
 env:
@@ -139,7 +139,7 @@ tasks:
 
   init:
     run: once
-    desc: Initialize Vault and save unseal keys (KEYS_FILE=path)
+    desc: Initialize Vault and save unseal keys (VAULT_KEYS_FILE=path)
     summary: |
       Run vault operator init with SHARES key shares and THRESHOLD as the unseal
       threshold. The resulting JSON — containing unseal keys and the root token —
@@ -149,15 +149,15 @@ tasks:
       Auto-installs the CLI if missing.
     set: [errexit, nounset, pipefail]
     preconditions:
-      - sh: test ! -e "{{if .KEYS_FILE_OVERRIDE}}{{.KEYS_FILE_OVERRIDE}}{{else}}{{.KEYS_FILE}}{{end}}"
+      - sh: test ! -e "{{if .VAULT_KEYS_FILE_OVERRIDE}}{{.VAULT_KEYS_FILE_OVERRIDE}}{{else}}{{.VAULT_KEYS_FILE}}{{end}}"
         msg: >-
           KEYS_FILE already exists:
-          {{if .KEYS_FILE_OVERRIDE}}{{.KEYS_FILE_OVERRIDE}}{{else}}{{.KEYS_FILE}}{{end}}.
+          {{if .VAULT_KEYS_FILE_OVERRIDE}}{{.VAULT_KEYS_FILE_OVERRIDE}}{{else}}{{.VAULT_KEYS_FILE}}{{end}}.
           Move or remove it before running init again.
     cmds:
       - task: install
       - |
-        KF="{{if .KEYS_FILE_OVERRIDE}}{{.KEYS_FILE_OVERRIDE}}{{else}}{{.KEYS_FILE}}{{end}}"
+        KF="{{if .VAULT_KEYS_FILE_OVERRIDE}}{{.VAULT_KEYS_FILE_OVERRIDE}}{{else}}{{.VAULT_KEYS_FILE}}{{end}}"
         TMP="${KF}.tmp.$$"
         trap 'rm -f "$TMP"' EXIT
         if [ -e "$KF" ]; then
@@ -166,8 +166,8 @@ tasks:
         fi
         vault operator init \
           -address="{{.VAULT_ADDR_TARGET}}" \
-          -key-shares={{if .SHARES_OVERRIDE}}{{.SHARES_OVERRIDE}}{{else}}{{.SHARES}}{{end}} \
-          -key-threshold={{if .THRESHOLD_OVERRIDE}}{{.THRESHOLD_OVERRIDE}}{{else}}{{.THRESHOLD}}{{end}} \
+          -key-shares={{if .VAULT_SHARES_OVERRIDE}}{{.VAULT_SHARES_OVERRIDE}}{{else}}{{.VAULT_SHARES}}{{end}} \
+          -key-threshold={{if .VAULT_THRESHOLD_OVERRIDE}}{{.VAULT_THRESHOLD_OVERRIDE}}{{else}}{{.VAULT_THRESHOLD}}{{end}} \
           -format=json > "$TMP"
         chmod 600 "$TMP"
         mv "$TMP" "$KF"
@@ -176,7 +176,7 @@ tasks:
 
   unseal:
     run: once
-    desc: Unseal Vault using saved keys (KEYS_FILE=path)
+    desc: Unseal Vault using saved keys (VAULT_KEYS_FILE=path)
     summary: |
       Read THRESHOLD unseal keys from KEYS_FILE and submit each one via
       vault operator unseal. KEYS_FILE must exist and contain the JSON produced
@@ -184,16 +184,16 @@ tasks:
       Auto-installs the CLI if missing.
     set: [errexit, nounset, pipefail]
     preconditions:
-      - sh: test -f "{{if .KEYS_FILE_OVERRIDE}}{{.KEYS_FILE_OVERRIDE}}{{else}}{{.KEYS_FILE}}{{end}}"
+      - sh: test -f "{{if .VAULT_KEYS_FILE_OVERRIDE}}{{.VAULT_KEYS_FILE_OVERRIDE}}{{else}}{{.VAULT_KEYS_FILE}}{{end}}"
         msg: >-
           KEYS_FILE not found. Run task init first to generate
-          {{if .KEYS_FILE_OVERRIDE}}{{.KEYS_FILE_OVERRIDE}}{{else}}{{.KEYS_FILE}}{{end}}.
+          {{if .VAULT_KEYS_FILE_OVERRIDE}}{{.VAULT_KEYS_FILE_OVERRIDE}}{{else}}{{.VAULT_KEYS_FILE}}{{end}}.
     cmds:
       - task: jq:install
       - task: install
       - |
-        KEYS_FILE="{{if .KEYS_FILE_OVERRIDE}}{{.KEYS_FILE_OVERRIDE}}{{else}}{{.KEYS_FILE}}{{end}}"
-        THRESHOLD="{{if .THRESHOLD_OVERRIDE}}{{.THRESHOLD_OVERRIDE}}{{else}}{{.THRESHOLD}}{{end}}"
+        VAULT_KEYS_FILE="{{if .VAULT_KEYS_FILE_OVERRIDE}}{{.VAULT_KEYS_FILE_OVERRIDE}}{{else}}{{.VAULT_KEYS_FILE}}{{end}}"
+        VAULT_THRESHOLD="{{if .VAULT_THRESHOLD_OVERRIDE}}{{.VAULT_THRESHOLD_OVERRIDE}}{{else}}{{.VAULT_THRESHOLD}}{{end}}"
         for key in $(jq -r ".unseal_keys_b64[0:${THRESHOLD}][]" "$KEYS_FILE"); do
           vault operator unseal -address="{{.VAULT_ADDR_TARGET}}" "$key"
         done
@@ -213,7 +213,7 @@ tasks:
 
   login:
     run: once
-    desc: Log in to Vault using the saved root token (KEYS_FILE=path)
+    desc: Log in to Vault using the saved root token (VAULT_KEYS_FILE=path)
     summary: |
       Extract the root token from KEYS_FILE and authenticate with vault login.
       KEYS_FILE must exist and contain the JSON produced by the init task.
@@ -221,21 +221,21 @@ tasks:
       Auto-installs the CLI if missing.
     set: [errexit, nounset, pipefail]
     preconditions:
-      - sh: test -f "{{if .KEYS_FILE_OVERRIDE}}{{.KEYS_FILE_OVERRIDE}}{{else}}{{.KEYS_FILE}}{{end}}"
+      - sh: test -f "{{if .VAULT_KEYS_FILE_OVERRIDE}}{{.VAULT_KEYS_FILE_OVERRIDE}}{{else}}{{.VAULT_KEYS_FILE}}{{end}}"
         msg: >-
           KEYS_FILE not found. Run task init first to generate
-          {{if .KEYS_FILE_OVERRIDE}}{{.KEYS_FILE_OVERRIDE}}{{else}}{{.KEYS_FILE}}{{end}}.
+          {{if .VAULT_KEYS_FILE_OVERRIDE}}{{.VAULT_KEYS_FILE_OVERRIDE}}{{else}}{{.VAULT_KEYS_FILE}}{{end}}.
     cmds:
       - task: jq:install
       - task: install
       - |
-        KF="{{if .KEYS_FILE_OVERRIDE}}{{.KEYS_FILE_OVERRIDE}}{{else}}{{.KEYS_FILE}}{{end}}"
+        KF="{{if .VAULT_KEYS_FILE_OVERRIDE}}{{.VAULT_KEYS_FILE_OVERRIDE}}{{else}}{{.VAULT_KEYS_FILE}}{{end}}"
         jq -r '.root_token' "$KF" \
           | vault login -address="{{.VAULT_ADDR_TARGET}}" -method=token -no-print -
 
   login:root-token:
     run: once
-    desc: Log in to Vault using a token directly (ROOT_TOKEN=<token>)
+    desc: Log in to Vault using a token directly (VAULT_ROOT_TOKEN=<token>)
     summary: |
       Authenticate with Vault using a root or service token passed directly
       via the ROOT_TOKEN variable. The token is read from the variable and
@@ -245,10 +245,10 @@ tasks:
       Auto-installs the CLI if missing.
     set: [errexit, nounset, pipefail]
     env:
-      VAULT_LOGIN_ROOT_TOKEN: "{{if .ROOT_TOKEN_OVERRIDE}}{{.ROOT_TOKEN_OVERRIDE}}{{else}}{{.ROOT_TOKEN}}{{end}}"
+      VAULT_LOGIN_ROOT_TOKEN: "{{if .VAULT_ROOT_TOKEN_OVERRIDE}}{{.VAULT_ROOT_TOKEN_OVERRIDE}}{{else}}{{.VAULT_ROOT_TOKEN}}{{end}}"
     preconditions:
       - sh: test -n "$VAULT_LOGIN_ROOT_TOKEN"
-        msg: ROOT_TOKEN must be set. Pass ROOT_TOKEN=<token> on the command line.
+        msg: ROOT_TOKEN must be set. Pass VAULT_ROOT_TOKEN=<token> on the command line.
     cmds:
       - task: install
       - |
@@ -257,7 +257,7 @@ tasks:
 
   login:approle:
     run: once
-    desc: Log in to Vault via AppRole (ROLE_ID=<id> SECRET_ID=<id>)
+    desc: Log in to Vault via AppRole (VAULT_ROLE_ID=<id> VAULT_SECRET_ID=<id>)
     summary: |
       Authenticate with Vault using the AppRole auth method. Requires a role_id
       and secret_id passed via the ROLE_ID and SECRET_ID task variables.
@@ -267,16 +267,16 @@ tasks:
       Auto-installs the CLI if missing.
     set: [errexit, nounset, pipefail]
     env:
-      VAULT_LOGIN_ROLE_ID: "{{if .ROLE_ID_OVERRIDE}}{{.ROLE_ID_OVERRIDE}}{{else}}{{.ROLE_ID}}{{end}}"
-      VAULT_LOGIN_SECRET_ID: "{{if .SECRET_ID_OVERRIDE}}{{.SECRET_ID_OVERRIDE}}{{else}}{{.SECRET_ID}}{{end}}"
+      VAULT_LOGIN_ROLE_ID: "{{if .VAULT_ROLE_ID_OVERRIDE}}{{.VAULT_ROLE_ID_OVERRIDE}}{{else}}{{.VAULT_ROLE_ID}}{{end}}"
+      VAULT_LOGIN_SECRET_ID: "{{if .VAULT_SECRET_ID_OVERRIDE}}{{.VAULT_SECRET_ID_OVERRIDE}}{{else}}{{.VAULT_SECRET_ID}}{{end}}"
       VAULT_LOGIN_APPROLE_MOUNT: >-
-        {{if .APPROLE_MOUNT_OVERRIDE}}{{.APPROLE_MOUNT_OVERRIDE}}
-        {{- else}}{{.APPROLE_MOUNT}}{{end}}
+        {{if .VAULT_APPROLE_MOUNT_OVERRIDE}}{{.VAULT_APPROLE_MOUNT_OVERRIDE}}
+        {{- else}}{{.VAULT_APPROLE_MOUNT}}{{end}}
     preconditions:
       - sh: test -n "$VAULT_LOGIN_ROLE_ID"
-        msg: ROLE_ID must be set. Pass ROLE_ID=<role-id> on the command line.
+        msg: ROLE_ID must be set. Pass VAULT_ROLE_ID=<role-id> on the command line.
       - sh: test -n "$VAULT_LOGIN_SECRET_ID"
-        msg: SECRET_ID must be set. Pass SECRET_ID=<secret-id> on the command line.
+        msg: SECRET_ID must be set. Pass VAULT_SECRET_ID=<secret-id> on the command line.
     cmds:
       - task: install
       - |
@@ -295,7 +295,7 @@ tasks:
 
   token:issue:approle:
     run: once
-    desc: Issue a Vault token via AppRole and print it to stdout (ROLE_ID=<id> SECRET_ID=<id>)
+    desc: Issue a Vault token via AppRole and print it to stdout (VAULT_ROLE_ID=<id> VAULT_SECRET_ID=<id>)
     summary: |
       Authenticate with Vault using the AppRole auth method and print the resulting
       client token to stdout. Unlike login:approle, the token is not stored in the
@@ -304,16 +304,16 @@ tasks:
       Auto-installs the CLI if missing.
     set: [errexit, nounset, pipefail]
     env:
-      VAULT_LOGIN_ROLE_ID: "{{if .ROLE_ID_OVERRIDE}}{{.ROLE_ID_OVERRIDE}}{{else}}{{.ROLE_ID}}{{end}}"
-      VAULT_LOGIN_SECRET_ID: "{{if .SECRET_ID_OVERRIDE}}{{.SECRET_ID_OVERRIDE}}{{else}}{{.SECRET_ID}}{{end}}"
+      VAULT_LOGIN_ROLE_ID: "{{if .VAULT_ROLE_ID_OVERRIDE}}{{.VAULT_ROLE_ID_OVERRIDE}}{{else}}{{.VAULT_ROLE_ID}}{{end}}"
+      VAULT_LOGIN_SECRET_ID: "{{if .VAULT_SECRET_ID_OVERRIDE}}{{.VAULT_SECRET_ID_OVERRIDE}}{{else}}{{.VAULT_SECRET_ID}}{{end}}"
       VAULT_LOGIN_APPROLE_MOUNT: >-
-        {{if .APPROLE_MOUNT_OVERRIDE}}{{.APPROLE_MOUNT_OVERRIDE}}
-        {{- else}}{{.APPROLE_MOUNT}}{{end}}
+        {{if .VAULT_APPROLE_MOUNT_OVERRIDE}}{{.VAULT_APPROLE_MOUNT_OVERRIDE}}
+        {{- else}}{{.VAULT_APPROLE_MOUNT}}{{end}}
     preconditions:
       - sh: test -n "$VAULT_LOGIN_ROLE_ID"
-        msg: ROLE_ID must be set. Pass ROLE_ID=<role-id> on the command line.
+        msg: ROLE_ID must be set. Pass VAULT_ROLE_ID=<role-id> on the command line.
       - sh: test -n "$VAULT_LOGIN_SECRET_ID"
-        msg: SECRET_ID must be set. Pass SECRET_ID=<secret-id> on the command line.
+        msg: SECRET_ID must be set. Pass VAULT_SECRET_ID=<secret-id> on the command line.
     cmds:
       - task: install
       - |
@@ -389,7 +389,7 @@ tasks:
 
   root-token:
     run: once
-    desc: Print the saved Vault root token (KEYS_FILE=path)
+    desc: Print the saved Vault root token (VAULT_KEYS_FILE=path)
     summary: |
       Read the root_token field from KEYS_FILE and print it to stdout. Useful for
       scripting or when you need to pass the root token to another tool.
@@ -397,12 +397,12 @@ tasks:
     deps:
       - task: jq:install
     preconditions:
-      - sh: test -f "{{if .KEYS_FILE_OVERRIDE}}{{.KEYS_FILE_OVERRIDE}}{{else}}{{.KEYS_FILE}}{{end}}"
+      - sh: test -f "{{if .VAULT_KEYS_FILE_OVERRIDE}}{{.VAULT_KEYS_FILE_OVERRIDE}}{{else}}{{.VAULT_KEYS_FILE}}{{end}}"
         msg: >-
           KEYS_FILE not found. Run task init first to generate
-          {{if .KEYS_FILE_OVERRIDE}}{{.KEYS_FILE_OVERRIDE}}{{else}}{{.KEYS_FILE}}{{end}}.
+          {{if .VAULT_KEYS_FILE_OVERRIDE}}{{.VAULT_KEYS_FILE_OVERRIDE}}{{else}}{{.VAULT_KEYS_FILE}}{{end}}.
     cmds:
-      - jq -r '.root_token' "{{if .KEYS_FILE_OVERRIDE}}{{.KEYS_FILE_OVERRIDE}}{{else}}{{.KEYS_FILE}}{{end}}"
+      - jq -r '.root_token' "{{if .VAULT_KEYS_FILE_OVERRIDE}}{{.VAULT_KEYS_FILE_OVERRIDE}}{{else}}{{.VAULT_KEYS_FILE}}{{end}}"
 
   peers:
     run: once
@@ -430,8 +430,8 @@ tasks:
         {{if .VAULT_FILE_OVERRIDE}}{{.VAULT_FILE_OVERRIDE -}}
         {{- else if .FILE_OVERRIDE}}{{.FILE_OVERRIDE -}}
         {{- else if .FILE}}{{.FILE -}}
-        {{- else if .SNAPSHOT_FILE_OVERRIDE}}{{.SNAPSHOT_FILE_OVERRIDE -}}
-        {{- else}}{{.SNAPSHOT_FILE}}{{end}}
+        {{- else if .VAULT_SNAPSHOT_FILE_OVERRIDE}}{{.VAULT_SNAPSHOT_FILE_OVERRIDE -}}
+        {{- else}}{{.VAULT_SNAPSHOT_FILE}}{{end}}
     deps:
       - task: install
     cmds:
@@ -451,8 +451,8 @@ tasks:
         {{if .VAULT_FILE_OVERRIDE}}{{.VAULT_FILE_OVERRIDE -}}
         {{- else if .FILE_OVERRIDE}}{{.FILE_OVERRIDE -}}
         {{- else if .FILE}}{{.FILE -}}
-        {{- else if .SNAPSHOT_FILE_OVERRIDE}}{{.SNAPSHOT_FILE_OVERRIDE -}}
-        {{- else}}{{.SNAPSHOT_FILE}}{{end}}
+        {{- else if .VAULT_SNAPSHOT_FILE_OVERRIDE}}{{.VAULT_SNAPSHOT_FILE_OVERRIDE -}}
+        {{- else}}{{.VAULT_SNAPSHOT_FILE}}{{end}}
     prompt:
       - This will overwrite the current Vault state with the snapshot.
       - Continue?

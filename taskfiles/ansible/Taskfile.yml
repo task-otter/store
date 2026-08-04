@@ -21,9 +21,9 @@ vars:
   ANSIBLE_LINT_SKIP_PATTERN: ""
   ANSIBLE_CONFIG: "ansible/ansible.cfg"
   UV_LOAD: 'export PATH="$HOME/.local/bin:$PATH"; export ANSIBLE_CONFIG="ansible/ansible.cfg"'
-  PLAYBOOK: ""
-  INVENTORY: ""
-  PATTERN: "all"
+  ANSIBLE_PLAYBOOK: ""
+  ANSIBLE_INVENTORY: ""
+  ANSIBLE_PATTERN: "all"
   TARGETS: "."
   FILE: ""
   REQUIREMENTS: "requirements.yml"
@@ -117,7 +117,7 @@ tasks:
 
   syntax:check:
     run: once
-    desc: Check Ansible playbook syntax (PLAYBOOK=path)
+    desc: Check Ansible playbook syntax (ANSIBLE_PLAYBOOK=path)
     summary: |
       Run ansible-playbook --syntax-check to validate the playbook structure
       without executing any tasks. Pass INVENTORY to specify the inventory file.
@@ -126,16 +126,16 @@ tasks:
       - task: install
     requires:
       vars:
-        - PLAYBOOK
+        - ANSIBLE_PLAYBOOK
     preconditions:
-      - sh: test -n "{{.PLAYBOOK_OVERRIDE}}{{.PLAYBOOK}}"
-        msg: PLAYBOOK is required. Pass PLAYBOOK=path/to/playbook.yml when running this task.
+      - sh: test -n "{{.ANSIBLE_PLAYBOOK_OVERRIDE}}{{.ANSIBLE_PLAYBOOK}}"
+        msg: PLAYBOOK is required. Pass ANSIBLE_PLAYBOOK=path/to/playbook.yml when running this task.
     cmds:
       - task: _syntax:check:unix
 
   run:
     run: once
-    desc: Run an Ansible playbook (PLAYBOOK=path)
+    desc: Run an Ansible playbook (ANSIBLE_PLAYBOOK=path)
     summary: |
       Execute PLAYBOOK via ansible-playbook. Pass INVENTORY to specify the
       inventory file and EXTRA_ARGS for additional flags such as --check,
@@ -144,16 +144,16 @@ tasks:
       - task: install
     requires:
       vars:
-        - PLAYBOOK
+        - ANSIBLE_PLAYBOOK
     preconditions:
-      - sh: test -n "{{.PLAYBOOK_OVERRIDE}}{{.PLAYBOOK}}"
-        msg: PLAYBOOK is required. Pass PLAYBOOK=path/to/playbook.yml when running this task.
+      - sh: test -n "{{.ANSIBLE_PLAYBOOK_OVERRIDE}}{{.ANSIBLE_PLAYBOOK}}"
+        msg: PLAYBOOK is required. Pass ANSIBLE_PLAYBOOK=path/to/playbook.yml when running this task.
     cmds:
       - task: _run:unix
 
   ping:
     run: once
-    desc: Test Ansible host connectivity (INVENTORY=path)
+    desc: Test Ansible host connectivity (ANSIBLE_INVENTORY=path)
     summary: |
       Run the Ansible ping module against PATTERN (default all) using the
       specified INVENTORY. Confirms that Ansible can reach and authenticate
@@ -162,16 +162,16 @@ tasks:
       - task: install
     requires:
       vars:
-        - INVENTORY
+        - ANSIBLE_INVENTORY
     preconditions:
-      - sh: test -n "{{.INVENTORY_OVERRIDE}}{{.INVENTORY}}"
-        msg: INVENTORY is required. Pass INVENTORY=path/to/inventory when running this task.
+      - sh: test -n "{{.ANSIBLE_INVENTORY_OVERRIDE}}{{.ANSIBLE_INVENTORY}}"
+        msg: INVENTORY is required. Pass ANSIBLE_INVENTORY=path/to/inventory when running this task.
     cmds:
       - task: _ping:unix
 
   list:hosts:
     run: once
-    desc: List Ansible inventory hosts (INVENTORY=path)
+    desc: List Ansible inventory hosts (ANSIBLE_INVENTORY=path)
     summary: |
       Print the hosts matching PATTERN (default all) from INVENTORY without
       executing any tasks. Useful for verifying inventory content.
@@ -180,10 +180,10 @@ tasks:
       - task: install
     requires:
       vars:
-        - INVENTORY
+        - ANSIBLE_INVENTORY
     preconditions:
-      - sh: test -n "{{.INVENTORY_OVERRIDE}}{{.INVENTORY}}"
-        msg: INVENTORY is required. Pass INVENTORY=path/to/inventory when running this task.
+      - sh: test -n "{{.ANSIBLE_INVENTORY_OVERRIDE}}{{.ANSIBLE_INVENTORY}}"
+        msg: INVENTORY is required. Pass ANSIBLE_INVENTORY=path/to/inventory when running this task.
     cmds:
       - task: _list:hosts:unix
 
@@ -377,7 +377,7 @@ tasks:
     cmds:
       - |
         {{.UV_LOAD}}
-        playbook='{{if .PLAYBOOK_OVERRIDE}}{{.PLAYBOOK_OVERRIDE}}{{else}}{{.PLAYBOOK}}{{end}}'
+        playbook='{{if .ANSIBLE_PLAYBOOK_OVERRIDE}}{{.ANSIBLE_PLAYBOOK_OVERRIDE}}{{else}}{{.ANSIBLE_PLAYBOOK}}{{end}}'
         skip_pattern='{{if .ANSIBLE_LINT_SKIP_PATTERN_OVERRIDE}}{{.ANSIBLE_LINT_SKIP_PATTERN_OVERRIDE}}
         {{- else}}{{.ANSIBLE_LINT_SKIP_PATTERN}}{{end}}'
         if [ -n "$skip_pattern" ] && [ -z "$(
@@ -390,8 +390,8 @@ tasks:
           exit 0
         fi
         ansible-playbook --syntax-check "$playbook" \
-          {{if .INVENTORY_OVERRIDE}}-i "{{.INVENTORY_OVERRIDE}}"
-          {{- else if .INVENTORY}}-i "{{.INVENTORY}}"{{end}} \
+          {{if .ANSIBLE_INVENTORY_OVERRIDE}}-i "{{.ANSIBLE_INVENTORY_OVERRIDE}}"
+          {{- else if .ANSIBLE_INVENTORY}}-i "{{.ANSIBLE_INVENTORY}}"{{end}} \
           {{if .EXTRA_ARGS_OVERRIDE}}{{.EXTRA_ARGS_OVERRIDE}}
           {{- else}}{{.EXTRA_ARGS}}{{end}} {{.CLI_ARGS}}
 
@@ -407,9 +407,9 @@ tasks:
       - >-
         bash -lc '{{.UV_LOAD}};
         ansible-playbook
-        "{{if .PLAYBOOK_OVERRIDE}}{{.PLAYBOOK_OVERRIDE}}{{else}}{{.PLAYBOOK}}{{end}}"
-        {{if .INVENTORY_OVERRIDE}}-i "{{.INVENTORY_OVERRIDE}}"
-        {{else if .INVENTORY}}-i "{{.INVENTORY}}" {{end}}
+        "{{if .ANSIBLE_PLAYBOOK_OVERRIDE}}{{.ANSIBLE_PLAYBOOK_OVERRIDE}}{{else}}{{.ANSIBLE_PLAYBOOK}}{{end}}"
+        {{if .ANSIBLE_INVENTORY_OVERRIDE}}-i "{{.ANSIBLE_INVENTORY_OVERRIDE}}"
+        {{else if .ANSIBLE_INVENTORY}}-i "{{.ANSIBLE_INVENTORY}}" {{end}}
         {{if .EXTRA_ARGS_OVERRIDE}}{{.EXTRA_ARGS_OVERRIDE}}{{else}}{{.EXTRA_ARGS}}{{end}}'
 
   _ping:unix:
@@ -423,9 +423,9 @@ tasks:
     cmds:
       - >-
         bash -lc '{{.UV_LOAD}};
-        ansible "{{.PATTERN}}" -m ping
-        {{if .INVENTORY_OVERRIDE}}-i "{{.INVENTORY_OVERRIDE}}"
-        {{else if .INVENTORY}}-i "{{.INVENTORY}}" {{end}}
+        ansible "{{.ANSIBLE_PATTERN}}" -m ping
+        {{if .ANSIBLE_INVENTORY_OVERRIDE}}-i "{{.ANSIBLE_INVENTORY_OVERRIDE}}"
+        {{else if .ANSIBLE_INVENTORY}}-i "{{.ANSIBLE_INVENTORY}}" {{end}}
         {{if .EXTRA_ARGS_OVERRIDE}}{{.EXTRA_ARGS_OVERRIDE}}{{else}}{{.EXTRA_ARGS}}{{end}}'
 
   _list:hosts:unix:
@@ -439,9 +439,9 @@ tasks:
     cmds:
       - >-
         bash -lc '{{.UV_LOAD}};
-        ansible "{{.PATTERN}}" --list-hosts
-        {{if .INVENTORY_OVERRIDE}}-i "{{.INVENTORY_OVERRIDE}}"
-        {{else if .INVENTORY}}-i "{{.INVENTORY}}" {{end}}
+        ansible "{{.ANSIBLE_PATTERN}}" --list-hosts
+        {{if .ANSIBLE_INVENTORY_OVERRIDE}}-i "{{.ANSIBLE_INVENTORY_OVERRIDE}}"
+        {{else if .ANSIBLE_INVENTORY}}-i "{{.ANSIBLE_INVENTORY}}" {{end}}
         {{if .EXTRA_ARGS_OVERRIDE}}{{.EXTRA_ARGS_OVERRIDE}}{{else}}{{.EXTRA_ARGS}}{{end}}'
 
   _galaxy:install:unix:

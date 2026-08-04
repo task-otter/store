@@ -50,16 +50,16 @@ task docker:ps
 | `prune`        | Remove stopped containers and dangling images                                  | none                       |
 | `prune:all`    | Full system prune including volumes                                            | none                       |
 | `images`       | List local Docker images                                                       | none                       |
-| `build`        | Build a Docker image from a Dockerfile                                         | `IMAGE`, `FILE`, `CONTEXT` |
-| `pull`         | Pull a Docker image from a registry                                            | `IMAGE`                    |
+| `build`        | Build a Docker image from a Dockerfile                                         | `DOCKER_IMAGE`, `FILE`, `DOCKER_CONTEXT` |
+| `pull`         | Pull a Docker image from a registry                                            | `DOCKER_IMAGE`                    |
 
 ## Variables
 
 | Variable     | Default      | Description                                              |
 | ------------ | ------------ | -------------------------------------------------------- |
-| `IMAGE`      | _(empty)_    | Image name and tag used by `build` and `pull`            |
+| `DOCKER_IMAGE`      | _(empty)_    | Image name and tag used by `build` and `pull`            |
 | `FILE`       | `Dockerfile` | Dockerfile path used by `build`                          |
-| `CONTEXT`    | `.`          | Build context directory used by `build`                  |
+| `DOCKER_CONTEXT`    | `.`          | Build context directory used by `build`                  |
 | `EXTRA_ARGS` | _(empty)_    | Extra flags forwarded to `docker build` or `docker pull` |
 | `VERSION`    | _(empty)_    | Pin a Docker release for `install` on Linux and Windows; has no effect on macOS (Homebrew Cask cannot pin Docker Desktop) |
 

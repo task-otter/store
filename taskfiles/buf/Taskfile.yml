@@ -17,11 +17,11 @@ includes:
 vars:
   BUF_LINT_SKIP_PATTERN: ""
   BUF_FMT_SKIP_PATTERN: ""
-  AGAINST: ".git#branch=main"
+  BUF_AGAINST: ".git#branch=main"
   BUF_VERSION: "1.47.2"
   CONFIG: ""
   EXTRA_ARGS: ""
-  INPUT: "."
+  BUF_INPUT: "."
 
 tasks:
   default:
@@ -33,7 +33,7 @@ tasks:
 
   lint:
     run: once
-    desc: Lint proto files with Buf (INPUT=path)
+    desc: Lint proto files with Buf (BUF_INPUT=path)
     summary: |
       Run buf lint against INPUT (default: .). Pass CONFIG to use a custom
       buf.yaml via --config, and EXTRA_ARGS for additional flags such as
@@ -65,7 +65,7 @@ tasks:
 
   fmt:check:
     run: once
-    desc: Check proto file formatting with Buf (INPUT=path)
+    desc: Check proto file formatting with Buf (BUF_INPUT=path)
     summary: |
       Run buf format --diff to report formatting issues without modifying files.
       Pass INPUT to check a specific directory or module. Use fmt to
@@ -92,7 +92,7 @@ tasks:
 
   fmt:
     run: once
-    desc: Format proto files in place with Buf (INPUT=path)
+    desc: Format proto files in place with Buf (BUF_INPUT=path)
     summary: |
       Run buf format --write to reformat all .proto files under INPUT in
       place. Auto-installs Buf if missing.
@@ -121,8 +121,8 @@ tasks:
     platforms: [linux, darwin]
     cmds:
       - |
-        input='{{if .INPUT_OVERRIDE}}{{.INPUT_OVERRIDE}}
-        {{- else}}{{.INPUT}}{{end}}'
+        input='{{if .BUF_INPUT_OVERRIDE}}{{.BUF_INPUT_OVERRIDE}}
+        {{- else}}{{.BUF_INPUT}}{{end}}'
         skip_pattern='{{.BUF_SKIP_PATTERN}}'
         if [ -z "$skip_pattern" ]; then
           buf {{.BUF_SUBCOMMAND}} {{.BUF_CONFIG_FLAG}} \
@@ -158,8 +158,8 @@ tasks:
     cmds:
       - >-
         powershell -NoProfile -ExecutionPolicy Bypass -Command
-        "$inputPath='{{if .INPUT_OVERRIDE}}{{.INPUT_OVERRIDE}}
-        {{- else}}{{.INPUT}}{{end}}';
+        "$inputPath='{{if .BUF_INPUT_OVERRIDE}}{{.BUF_INPUT_OVERRIDE}}
+        {{- else}}{{.BUF_INPUT}}{{end}}';
         $skipPattern='{{.BUF_SKIP_PATTERN}}';
         if (-not $skipPattern) {
           buf {{.BUF_SUBCOMMAND}} {{.BUF_CONFIG_FLAG}}
@@ -205,7 +205,7 @@ tasks:
             {{- else}}{{.BUF_LINT_SKIP_PATTERN}}{{end}}
           BUF_CONFIG_FLAG: >-
             {{if not .CLI_ARGS}}--against
-            "{{if .AGAINST_OVERRIDE}}{{.AGAINST_OVERRIDE}}{{else}}{{.AGAINST}}{{end}}"{{end}}
+            "{{if .BUF_AGAINST_OVERRIDE}}{{.BUF_AGAINST_OVERRIDE}}{{else}}{{.BUF_AGAINST}}{{end}}"{{end}}
       - task: _buf:windows
         vars:
           BUF_SUBCOMMAND: "breaking"
@@ -214,12 +214,12 @@ tasks:
             {{- else}}{{.BUF_LINT_SKIP_PATTERN}}{{end}}
           BUF_CONFIG_FLAG: >-
             {{if not .CLI_ARGS}}--against
-            "{{if .AGAINST_OVERRIDE}}{{.AGAINST_OVERRIDE}}{{else}}{{.AGAINST}}{{end}}"{{end}}
+            "{{if .BUF_AGAINST_OVERRIDE}}{{.BUF_AGAINST_OVERRIDE}}{{else}}{{.BUF_AGAINST}}{{end}}"{{end}}
       - echo "✅ buf breaking check passed"
 
   generate:
     run: once
-    desc: Generate code from proto files with Buf (INPUT=path)
+    desc: Generate code from proto files with Buf (BUF_INPUT=path)
     summary: |
       Run buf generate to produce outputs defined in buf.gen.yaml. Requires a
       buf.gen.yaml in the project root or at the path given by CLI_ARGS.
@@ -231,7 +231,7 @@ tasks:
         buf generate
         {{if .CLI_ARGS}}{{.CLI_ARGS}}
         {{else}}
-        "{{if .INPUT_OVERRIDE}}{{.INPUT_OVERRIDE}}{{else}}{{.INPUT}}{{end}}"
+        "{{if .BUF_INPUT_OVERRIDE}}{{.BUF_INPUT_OVERRIDE}}{{else}}{{.BUF_INPUT}}{{end}}"
         {{if .EXTRA_ARGS_OVERRIDE}}{{.EXTRA_ARGS_OVERRIDE}}
         {{else}}{{.EXTRA_ARGS}}{{end}}{{end}}
         && echo "✅ buf generate passed" || { echo "❌ buf generate failed"; exit 1; }

@@ -11,9 +11,9 @@ This module is a small Bash runner rather than an installer. It executes a scrip
 ### Standalone
 
 ```sh
-task -t taskfiles/bash-exec/Taskfile.yml run SCRIPT=scripts/build.sh ARGS="--release"
-task -t taskfiles/bash-exec/Taskfile.yml check SCRIPT=scripts/build.sh
-task -t taskfiles/bash-exec/Taskfile.yml exec COMMAND='printf "hello\\n"'
+task -t taskfiles/bash-exec/Taskfile.yml run BASH_EXEC_SCRIPT=scripts/build.sh ARGS="--release"
+task -t taskfiles/bash-exec/Taskfile.yml check BASH_EXEC_SCRIPT=scripts/build.sh
+task -t taskfiles/bash-exec/Taskfile.yml exec BASH_EXEC_COMMAND='printf "hello\\n"'
 ```
 
 ### Included in your Taskfile
@@ -23,35 +23,35 @@ includes:
   bash-exec:
     taskfile: taskfiles/bash-exec/Taskfile.yml
     vars:
-      SCRIPT_OVERRIDE: "{{.SCRIPT}}"
-      COMMAND_OVERRIDE: "{{.COMMAND}}"
+      BASH_EXEC_SCRIPT_OVERRIDE: "{{.BASH_EXEC_SCRIPT}}"
+      BASH_EXEC_COMMAND_OVERRIDE: "{{.BASH_EXEC_COMMAND}}"
       ARGS_OVERRIDE: "{{.ARGS}}"
 ```
 
 Then run:
 
 ```sh
-task bash-exec:run SCRIPT=scripts/build.sh
-task bash-exec:check SCRIPT=scripts/build.sh
+task bash-exec:run BASH_EXEC_SCRIPT=scripts/build.sh
+task bash-exec:check BASH_EXEC_SCRIPT=scripts/build.sh
 ```
 
 ## Public Tasks
 
 | Task | Description |
 |---|---|
-| `run` | Run a Bash script (`SCRIPT=path`) |
-| `check` | Check a Bash script for syntax errors (`SCRIPT=path`) |
-| `exec` | Execute a Bash command string (`COMMAND=...`) |
+| `run` | Run a Bash script (`BASH_EXEC_SCRIPT=path`) |
+| `check` | Check a Bash script for syntax errors (`BASH_EXEC_SCRIPT=path`) |
+| `exec` | Execute a Bash command string (`BASH_EXEC_COMMAND=...`) |
 | `version` | Show the installed Bash version |
 
 ## Variables
 
 | Variable | Default | Description |
 |---|---|---|
-| `SCRIPT` | _(empty)_ | Bash script path; required by `run` and `check` |
+| `BASH_EXEC_SCRIPT` | _(empty)_ | Bash script path; required by `run` and `check` |
 | `ARGS` | _(empty)_ | Positional arguments passed to the script by `run` |
-| `BASH_FLAGS` | _(empty)_ | Options passed to Bash, for example `-euo pipefail` |
-| `COMMAND` | _(empty)_ | Command string executed by `exec` |
+| `BASH_EXEC_FLAGS` | _(empty)_ | Options passed to Bash, for example `-euo pipefail` |
+| `BASH_EXEC_COMMAND` | _(empty)_ | Command string executed by `exec` |
 
 ## Notes
 

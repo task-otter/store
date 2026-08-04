@@ -18,7 +18,7 @@ Ansible and ansible-lint are installed via uv as isolated tools.
 ```sh
 task -t taskfiles/ansible/Taskfile.yml install
 task -t taskfiles/ansible/Taskfile.yml lint
-task -t taskfiles/ansible/Taskfile.yml run PLAYBOOK=site.yml INVENTORY=hosts
+task -t taskfiles/ansible/Taskfile.yml run ANSIBLE_PLAYBOOK=site.yml ANSIBLE_INVENTORY=hosts
 ```
 
 ### Included
@@ -33,7 +33,7 @@ Then run:
 ```sh
 task ansible:install
 task ansible:lint
-task ansible:run PLAYBOOK=site.yml INVENTORY=hosts
+task ansible:run ANSIBLE_PLAYBOOK=site.yml ANSIBLE_INVENTORY=hosts
 ```
 
 ## Public Tasks
@@ -46,10 +46,10 @@ task ansible:run PLAYBOOK=site.yml INVENTORY=hosts
 | `version`        | Show Ansible and ansible-lint versions                 | none                                  |
 | `lint`           | Lint Ansible YAML files with ansible-lint              | `TARGETS`, `EXTRA_ARGS`               |
 | `lint:fix`       | Auto-fix Ansible YAML files with ansible-lint --fix     | `TARGETS`, `EXTRA_ARGS`               |
-| `syntax:check`   | Check playbook syntax without executing                | `PLAYBOOK`, `INVENTORY`               |
-| `run`            | Run an Ansible playbook                                | `PLAYBOOK`, `INVENTORY`, `EXTRA_ARGS` |
-| `ping`           | Test connectivity to inventory hosts                   | `INVENTORY`, `PATTERN`, `EXTRA_ARGS`  |
-| `list:hosts`     | List hosts matching PATTERN from INVENTORY             | `INVENTORY`, `PATTERN`, `EXTRA_ARGS`  |
+| `syntax:check`   | Check playbook syntax without executing                | `ANSIBLE_PLAYBOOK`, `ANSIBLE_INVENTORY`               |
+| `run`            | Run an Ansible playbook                                | `ANSIBLE_PLAYBOOK`, `ANSIBLE_INVENTORY`, `EXTRA_ARGS` |
+| `ping`           | Test connectivity to inventory hosts                   | `ANSIBLE_INVENTORY`, `ANSIBLE_PATTERN`, `EXTRA_ARGS`  |
+| `list:hosts`     | List hosts matching PATTERN from INVENTORY             | `ANSIBLE_INVENTORY`, `ANSIBLE_PATTERN`, `EXTRA_ARGS`  |
 | `galaxy:install` | Install roles and collections from a requirements file | `REQUIREMENTS`, `EXTRA_ARGS`          |
 | `vault:encrypt`  | Encrypt a file with Ansible Vault                      | `FILE`, `EXTRA_ARGS`                  |
 | `vault:decrypt`  | Decrypt a file with Ansible Vault                      | `FILE`, `EXTRA_ARGS`                  |
@@ -58,9 +58,9 @@ task ansible:run PLAYBOOK=site.yml INVENTORY=hosts
 
 | Variable       | Default                                | Description                                                      |
 | -------------- | -------------------------------------- | ---------------------------------------------------------------- |
-| `PLAYBOOK`     | _(empty)_                              | Playbook path; required by `run` and `syntax:check`              |
-| `INVENTORY`    | _(empty)_                              | Inventory file or directory; required by `ping` and `list:hosts` |
-| `PATTERN`      | `all`                                  | Host pattern for `ping` and `list:hosts`                         |
+| `ANSIBLE_PLAYBOOK`     | _(empty)_                              | Playbook path; required by `run` and `syntax:check`              |
+| `ANSIBLE_INVENTORY`    | _(empty)_                              | Inventory file or directory; required by `ping` and `list:hosts` |
+| `ANSIBLE_PATTERN`      | `all`                                  | Host pattern for `ping` and `list:hosts`                         |
 | `TARGETS`      | `.`                                    | Files or directories to lint with `lint`                         |
 | `FILE`         | _(empty)_                              | File path; required by `vault:encrypt` and `vault:decrypt`       |
 | `REQUIREMENTS` | `requirements.yml`                     | Requirements file for `galaxy:install`                           |

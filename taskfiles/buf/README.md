@@ -24,13 +24,13 @@ task -t taskfiles/buf/Taskfile.yml version
 Lint a specific proto directory:
 
 ```sh
-task -t taskfiles/buf/Taskfile.yml lint INPUT=api/v1
+task -t taskfiles/buf/Taskfile.yml lint BUF_INPUT=api/v1
 ```
 
 Check for breaking changes against a branch:
 
 ```sh
-task -t taskfiles/buf/Taskfile.yml breaking AGAINST=.git#branch=main
+task -t taskfiles/buf/Taskfile.yml breaking BUF_AGAINST=.git#branch=main
 ```
 
 Pass buf flags directly after `--`:
@@ -47,8 +47,8 @@ includes:
     taskfile: taskfiles/buf/Taskfile.yml
     vars:
       CONFIG_OVERRIDE: "{{.CONFIG}}"
-      INPUT_OVERRIDE: "{{.INPUT}}"
-      AGAINST_OVERRIDE: "{{.AGAINST}}"
+      BUF_INPUT_OVERRIDE: "{{.BUF_INPUT}}"
+      BUF_AGAINST_OVERRIDE: "{{.BUF_AGAINST}}"
       EXTRA_ARGS_OVERRIDE: "{{.EXTRA_ARGS}}"
 ```
 
@@ -57,21 +57,21 @@ Then run:
 ```sh
 task buf:lint
 task buf:fmt:check
-task buf:breaking AGAINST=.git#branch=main
-task buf:generate INPUT=api/v1
+task buf:breaking BUF_AGAINST=.git#branch=main
+task buf:generate BUF_INPUT=api/v1
 ```
 
 ## Public Tasks
 
 | Task            | Description                                              | Key variables                  |
 | --------------- | -------------------------------------------------------- | ------------------------------ |
-| `breaking`      | Check proto files for breaking changes against AGAINST   | `INPUT`, `AGAINST`, `EXTRA_ARGS` |
-| `fmt:check`     | Check proto file formatting with Buf                     | `INPUT`, `EXTRA_ARGS`          |
-| `fmt`           | Format proto files in place with Buf                     | `INPUT`, `EXTRA_ARGS`          |
-| `generate`      | Generate code from proto files with Buf                  | `INPUT`, `EXTRA_ARGS`          |
+| `breaking`      | Check proto files for breaking changes against AGAINST   | `BUF_INPUT`, `BUF_AGAINST`, `EXTRA_ARGS` |
+| `fmt:check`     | Check proto file formatting with Buf                     | `BUF_INPUT`, `EXTRA_ARGS`          |
+| `fmt`           | Format proto files in place with Buf                     | `BUF_INPUT`, `EXTRA_ARGS`          |
+| `generate`      | Generate code from proto files with Buf                  | `BUF_INPUT`, `EXTRA_ARGS`          |
 | `install`       | Install Buf on the current operating system              | none                           |
 | `install:undo`  | Remove Buf from the current operating system             | none                           |
-| `lint`          | Lint proto files with Buf                                | `INPUT`, `CONFIG`, `EXTRA_ARGS` |
+| `lint`          | Lint proto files with Buf                                | `BUF_INPUT`, `CONFIG`, `EXTRA_ARGS` |
 | `upgrade`       | Upgrade Buf to the latest release                        | `BUF_VERSION` (Linux only)     |
 | `version`       | Show the installed Buf version                           | none                           |
 
@@ -79,11 +79,11 @@ task buf:generate INPUT=api/v1
 
 | Variable      | Default              | Description                                              |
 | ------------- | -------------------- | -------------------------------------------------------- |
-| `AGAINST`     | `.git#branch=main`   | Baseline for `breaking`: a git ref, Buf module, or path |
+| `BUF_AGAINST`     | `.git#branch=main`   | Baseline for `breaking`: a git ref, Buf module, or path |
 | `BUF_VERSION` | `1.47.2`             | Buf release to download on Linux                        |
 | `CONFIG`      | empty                | Path to a `buf.yaml` config file passed via `--config`  |
 | `EXTRA_ARGS`  | empty                | Extra arguments appended when `CLI_ARGS` is not provided |
-| `INPUT`       | `.`                  | Proto source directory or Buf module passed to buf       |
+| `BUF_INPUT`       | `.`                  | Proto source directory or Buf module passed to buf       |
 | `BUF_LINT_SKIP_PATTERN` | _(empty)_ | Forward-slash path glob for files skipped by lint and breaking checks |
 | `BUF_FMT_SKIP_PATTERN` | _(empty)_ | Forward-slash path glob for files skipped by formatting checks and fixes |
 

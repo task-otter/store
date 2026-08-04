@@ -53,8 +53,8 @@ task tools:pr:list
 | `auth:logout`            | Log out and remove stored credentials        | —                                                |
 | `auth:setup-git`         | Configure git to use gh as credential helper | —                                                |
 | `repo:view`              | View a repository                            | `OWNER`, `REPO`                                  |
-| `repo:create`            | Create a new repository                      | `REPO`, `VISIBILITY`, `DESCRIPTION`              |
-| `repo:clone`             | Clone a repository                           | `OWNER`, `REPO`, `CLONE_DIR`                     |
+| `repo:create`            | Create a new repository                      | `REPO`, `GH_VISIBILITY`, `DESCRIPTION`              |
+| `repo:clone`             | Clone a repository                           | `OWNER`, `REPO`, `GH_CLONE_DIR`                     |
 | `repo:fork`              | Fork a repository                            | `OWNER`, `REPO`                                  |
 | `repo:list`              | List repositories                            | `OWNER`                                          |
 | `repo:sync`              | Sync the current branch with upstream        | `BRANCH`                                         |
@@ -63,11 +63,11 @@ task tools:pr:list
 | `pr:list`                | List open pull requests                      | —                                                |
 | `pr:status`              | Show PR status for current branch            | —                                                |
 | `pr:view`                | View a pull request                          | `PR_NUMBER`                                      |
-| `pr:create`              | Create a pull request                        | `PR_TITLE`, `PR_BODY`, `BASE`, `HEAD`            |
+| `pr:create`              | Create a pull request                        | `PR_TITLE`, `PR_BODY`, `GH_BASE`, `HEAD`            |
 | `pr:checkout`            | Check out a PR branch                        | `PR_NUMBER`                                      |
 | `pr:diff`                | Show diff for a pull request                 | `PR_NUMBER`                                      |
 | `pr:review`              | Add a review to a pull request               | `PR_NUMBER`                                      |
-| `pr:merge`               | Merge a pull request                         | `PR_NUMBER`, `MERGE_METHOD`                      |
+| `pr:merge`               | Merge a pull request                         | `PR_NUMBER`, `GH_MERGE_METHOD`                      |
 | `pr:close`               | Close a pull request                         | `PR_NUMBER`                                      |
 | `pr:ready`               | Mark a draft PR as ready for review          | `PR_NUMBER`                                      |
 | `pr:comment`             | Add a comment to a pull request              | `PR_NUMBER`, `PR_BODY`                           |
@@ -92,8 +92,8 @@ task tools:pr:list
 | `release:view`           | View a release                               | `TAG`, `OWNER`, `REPO`                           |
 | `release:create`         | Create a release                             | `TAG`, `TITLE`, `NOTES`, `OWNER`, `REPO`         |
 | `release:upload`         | Upload an asset to a release                 | `TAG`, `ASSET`, `OWNER`, `REPO`                  |
-| `release:download`       | Download release assets                      | `TAG`, `OWNER`, `REPO`, `DOWNLOAD_DIR`           |
-| `release:download:all`   | Download assets from all releases            | `OWNER`, `REPO`, `DOWNLOAD_DIR`                  |
+| `release:download`       | Download release assets                      | `TAG`, `OWNER`, `REPO`, `GH_DOWNLOAD_DIR`           |
+| `release:download:all`   | Download assets from all releases            | `OWNER`, `REPO`, `GH_DOWNLOAD_DIR`                  |
 | `release:delete:danger`  | Permanently delete a release                 | `TAG`, `OWNER`, `REPO`                           |
 | `secret:list`            | List Actions secrets                         | `ENVIRONMENT`                                    |
 | `secret:set`             | Create or update a secret                    | `SECRET_NAME`, `SECRET_VALUE`, `ENVIRONMENT`     |
@@ -106,8 +106,8 @@ task tools:pr:list
 | `gist:create`            | Create a gist from a file                    | `FILE`, `DESCRIPTION`                            |
 | `gist:delete:danger`     | Permanently delete a gist                    | `GIST_ID`                                        |
 | `api:get`                | Make a GET request to the GitHub API         | `ENDPOINT`                                       |
-| `api:post`               | Make a POST request to the GitHub API        | `ENDPOINT`, `DATA`                               |
-| `api:patch`              | Make a PATCH request to the GitHub API       | `ENDPOINT`, `DATA`                               |
+| `api:post`               | Make a POST request to the GitHub API        | `ENDPOINT`, `GH_DATA`                               |
+| `api:patch`              | Make a PATCH request to the GitHub API       | `ENDPOINT`, `GH_DATA`                               |
 | `api:delete:danger`      | Make a DELETE request to the GitHub API      | `ENDPOINT`                                       |
 | `extension:list`         | List installed gh extensions                 | —                                                |
 | `extension:install`      | Install a gh extension                       | `EXTENSION`                                      |
@@ -135,13 +135,13 @@ task tools:pr:list
 
 | Variable         | Default   | Description                                                       |
 | ---------------- | --------- | ----------------------------------------------------------------- |
-| `PAT_TOKEN`      | _(empty)_ | Personal Access Token — exported as `GH_TOKEN` for all operations |
-| `VISIBILITY`     | `public`  | Repository visibility: `public`, `private`, `internal`            |
-| `BASE`           | `main`    | Base branch for pull requests                                     |
-| `MERGE_METHOD`   | `merge`   | PR merge strategy: `merge`, `squash`, `rebase`                    |
-| `CLONE_DIR`      | `.`       | Local directory for `repo:clone`                                  |
-| `DOWNLOAD_DIR`   | `.`       | Local directory for `release:download` and `release:download:all` |
-| `DATA`           | `{}`      | JSON body for API POST/PATCH requests                             |
+| `GH_PAT_TOKEN`      | _(empty)_ | Personal Access Token — exported as `GH_TOKEN` for all operations |
+| `GH_VISIBILITY`     | `public`  | Repository visibility: `public`, `private`, `internal`            |
+| `GH_BASE`           | `main`    | Base branch for pull requests                                     |
+| `GH_MERGE_METHOD`   | `merge`   | PR merge strategy: `merge`, `squash`, `rebase`                    |
+| `GH_CLONE_DIR`      | `.`       | Local directory for `repo:clone`                                  |
+| `GH_DOWNLOAD_DIR`   | `.`       | Local directory for `release:download` and `release:download:all` |
+| `GH_DATA`           | `{}`      | JSON body for API POST/PATCH requests                             |
 | `VERSION`        | _(empty)_ | Pin a specific gh release for `install`; empty installs latest. Exact availability depends on the detected package manager/repository. |
 | `OWNER`          | _(empty)_ | GitHub user or organisation name                                  |
 | `REPO`           | _(empty)_ | Repository name                                                   |
@@ -200,13 +200,13 @@ task -t taskfiles/gh/Taskfile.yml verify
 
 # Work with repositories
 task -t taskfiles/gh/Taskfile.yml repo:view OWNER=github REPO=cli
-task -t taskfiles/gh/Taskfile.yml repo:create REPO=my-project VISIBILITY=private DESCRIPTION="My project"
-task -t taskfiles/gh/Taskfile.yml repo:clone OWNER=github REPO=cli CLONE_DIR=~/src/gh
+task -t taskfiles/gh/Taskfile.yml repo:create REPO=my-project GH_VISIBILITY=private DESCRIPTION="My project"
+task -t taskfiles/gh/Taskfile.yml repo:clone OWNER=github REPO=cli GH_CLONE_DIR=~/src/gh
 
 # Pull requests
 task -t taskfiles/gh/Taskfile.yml pr:list
-task -t taskfiles/gh/Taskfile.yml pr:create PR_TITLE="Add feature" BASE=main
-task -t taskfiles/gh/Taskfile.yml pr:merge PR_NUMBER=42 MERGE_METHOD=squash
+task -t taskfiles/gh/Taskfile.yml pr:create PR_TITLE="Add feature" GH_BASE=main
+task -t taskfiles/gh/Taskfile.yml pr:merge PR_NUMBER=42 GH_MERGE_METHOD=squash
 
 # Issues
 task -t taskfiles/gh/Taskfile.yml issue:list
@@ -227,7 +227,7 @@ task -t taskfiles/gh/Taskfile.yml secret:list
 
 # GitHub API
 task -t taskfiles/gh/Taskfile.yml api:get ENDPOINT=/repos/github/cli/releases/latest
-task -t taskfiles/gh/Taskfile.yml api:post ENDPOINT=/repos/myorg/myrepo/issues DATA='{"title":"Bug","body":"Details"}'
+task -t taskfiles/gh/Taskfile.yml api:post ENDPOINT=/repos/myorg/myrepo/issues GH_DATA='{"title":"Bug","body":"Details"}'
 
 # Search
 task -t taskfiles/gh/Taskfile.yml search:repos QUERY="cli tool language:go stars:>100"

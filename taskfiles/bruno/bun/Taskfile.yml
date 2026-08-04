@@ -14,8 +14,8 @@ includes:
     taskfile: ../../bun/Taskfile.yml
 
 vars:
-  COLLECTION: "."
-  ENV: ""
+  BRUNO_COLLECTION: "."
+  BRUNO_ENV: ""
   EXTRA_ARGS: ""
   VERSION: ""
 
@@ -84,8 +84,8 @@ tasks:
     internal: true
     run: when_changed
     vars:
-      RESOLVED_COLLECTION: '{{default .COLLECTION .COLLECTION_OVERRIDE}}'
-      RESOLVED_ENV: '{{default .ENV .ENV_OVERRIDE}}'
+      RESOLVED_COLLECTION: '{{default .BRUNO_COLLECTION .BRUNO_COLLECTION_OVERRIDE}}'
+      RESOLVED_ENV: '{{default .BRUNO_ENV .BRUNO_ENV_OVERRIDE}}'
     cmds:
       - task: _bun:unix
         vars:
@@ -104,7 +104,7 @@ tasks:
 
   run:
     run: once
-    desc: Run a Bruno collection (COLLECTION=path)
+    desc: Run a Bruno collection (BRUNO_COLLECTION=path)
     summary: |
       Run all requests in the Bruno collection at COLLECTION (default: current
       directory). Pass ENV to activate a named Bruno environment, and EXTRA_ARGS
@@ -117,7 +117,7 @@ tasks:
 
   ci:
     run: once
-    desc: Run Bruno collection in CI mode with --bail (COLLECTION=path)
+    desc: Run Bruno collection in CI mode with --bail (BRUNO_COLLECTION=path)
     summary: |
       Run all requests in the Bruno collection and stop immediately on the first
       failure via --bail. Pass ENV to activate a named Bruno environment.

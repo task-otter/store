@@ -95,6 +95,7 @@ tasks:
 
   config:init:
     run: once
+    dir: "{{.USER_WORKING_DIR}}"
     desc: Create a biome.json config file in the current directory
     summary: |
       Run biome init to generate a biome.json config file with recommended

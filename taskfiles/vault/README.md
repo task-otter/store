@@ -46,35 +46,35 @@ task vault:snapshot VAULT_FILE=backup.snap
 | `verify`       | Verify CLI installation and server status    | `VAULT_ADDR`                     |
 | `status`       | Show Vault seal and HA status                | `VAULT_ADDR`                     |
 | `health`       | Query the Vault HTTP health endpoint as JSON | `VAULT_ADDR`                     |
-| `init`         | Initialize Vault and save unseal keys        | `KEYS_FILE`, `SHARES`, `THRESHOLD` |
-| `unseal`       | Unseal Vault using saved keys                | `KEYS_FILE`, `THRESHOLD`         |
+| `init`         | Initialize Vault and save unseal keys        | `VAULT_KEYS_FILE`, `VAULT_SHARES`, `VAULT_THRESHOLD` |
+| `unseal`       | Unseal Vault using saved keys                | `VAULT_KEYS_FILE`, `VAULT_THRESHOLD`         |
 | `seal`         | Seal the active Vault server                 | `VAULT_ADDR`                     |
-| `login`            | Log in using the saved root token            | `KEYS_FILE`                      |
-| `login:root-token` | Log in using a token directly                | `ROOT_TOKEN`                     |
-| `login:approle`    | Log in using the AppRole auth method         | `ROLE_ID`, `SECRET_ID`, `APPROLE_MOUNT` |
-| `root-token`       | Print the saved root token                   | `KEYS_FILE`                      |
-| `token:issue:approle` | Exchange AppRole credentials for a token (printed to stdout) | `ROLE_ID`, `SECRET_ID`, `APPROLE_MOUNT` |
+| `login`            | Log in using the saved root token            | `VAULT_KEYS_FILE`                      |
+| `login:root-token` | Log in using a token directly                | `VAULT_ROOT_TOKEN`                     |
+| `login:approle`    | Log in using the AppRole auth method         | `VAULT_ROLE_ID`, `VAULT_SECRET_ID`, `VAULT_APPROLE_MOUNT` |
+| `root-token`       | Print the saved root token                   | `VAULT_KEYS_FILE`                      |
+| `token:issue:approle` | Exchange AppRole credentials for a token (printed to stdout) | `VAULT_ROLE_ID`, `VAULT_SECRET_ID`, `VAULT_APPROLE_MOUNT` |
 | `token:revoke-self`   | Revoke the current Vault token              | `VAULT_TOKEN` (env)              |
 | `kv:get`              | Read a KV v2 secret and print JSON to stdout | `KV_MOUNT`, `SECRET_PATH`, `SECRET_VERSION` |
 | `peers`        | List Vault Raft cluster peers                | `VAULT_ADDR`                     |
-| `snapshot`     | Save a Vault Raft snapshot                   | `FILE`, `SNAPSHOT_FILE`; root: `VAULT_FILE` |
-| `restore`      | Restore a Vault Raft snapshot                | `FILE`, `SNAPSHOT_FILE`; root: `VAULT_FILE` |
+| `snapshot`     | Save a Vault Raft snapshot                   | `FILE`, `VAULT_SNAPSHOT_FILE`; root: `VAULT_FILE` |
+| `restore`      | Restore a Vault Raft snapshot                | `FILE`, `VAULT_SNAPSHOT_FILE`; root: `VAULT_FILE` |
 
 ## Variables
 
 | Variable        | Default                 | Description                                      |
 | --------------- | ----------------------- | ------------------------------------------------ |
 | `VAULT_ADDR`    | `http://127.0.0.1:8200` | Vault server address used by CLI and HTTP tasks  |
-| `KEYS_FILE`     | `.vault-init-keys.json` | File used for init output, unseal keys, and token |
-| `SHARES`        | `5`                     | Number of unseal key shares for `init`           |
-| `THRESHOLD`     | `3`                     | Unseal key threshold for `init` and `unseal`     |
-| `SNAPSHOT_FILE` | `vault-snapshot.snap`   | Default Raft snapshot path                       |
+| `VAULT_KEYS_FILE`     | `.vault-init-keys.json` | File used for init output, unseal keys, and token |
+| `VAULT_SHARES`        | `5`                     | Number of unseal key shares for `init`           |
+| `VAULT_THRESHOLD`     | `3`                     | Unseal key threshold for `init` and `unseal`     |
+| `VAULT_SNAPSHOT_FILE` | `vault-snapshot.snap`   | Default Raft snapshot path                       |
 | `FILE`          | _(empty)_               | Snapshot path override for `snapshot`/`restore` |
 | `EXTRA_ARGS`    | _(empty)_               | Reserved for root include compatibility          |
-| `ROOT_TOKEN`    | _(empty)_               | Token for `login:root-token`                     |
-| `ROLE_ID`       | _(empty)_               | AppRole role_id for `login:approle` and `token:issue:approle` |
-| `SECRET_ID`     | _(empty)_               | AppRole secret_id for `login:approle` and `token:issue:approle` |
-| `APPROLE_MOUNT` | `approle`               | AppRole mount path for `login:approle` and `token:issue:approle` |
+| `VAULT_ROOT_TOKEN`    | _(empty)_               | Token for `login:root-token`                     |
+| `VAULT_ROLE_ID`       | _(empty)_               | AppRole role_id for `login:approle` and `token:issue:approle` |
+| `VAULT_SECRET_ID`     | _(empty)_               | AppRole secret_id for `login:approle` and `token:issue:approle` |
+| `VAULT_APPROLE_MOUNT` | `approle`               | AppRole mount path for `login:approle` and `token:issue:approle` |
 | `KV_MOUNT`      | _(empty)_               | KV v2 engine mount path for `kv:get`             |
 | `SECRET_PATH`   | _(empty)_               | Secret path within the KV mount for `kv:get`     |
 | `SECRET_VERSION`| _(empty)_               | Optional KV version to pin for `kv:get`          |
@@ -82,9 +82,9 @@ task vault:snapshot VAULT_FILE=backup.snap
 
 ## Notes
 
-`init` writes the generated unseal keys and root token to `KEYS_FILE` with mode
+`init` writes the generated unseal keys and root token to `VAULT_KEYS_FILE` with mode
 `600` under `umask 077` and does not echo the JSON payload to stdout. It refuses
-to overwrite an existing `KEYS_FILE`; move or remove the file before initializing
+to overwrite an existing `VAULT_KEYS_FILE`; move or remove the file before initializing
 again. The default `.vault-init-keys.json` and `vault-snapshot.snap` files are
 ignored by the repo.
 

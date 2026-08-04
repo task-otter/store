@@ -31,7 +31,7 @@ func publicVars() []string {
 		"FILE",
 		"PYTHON_VERSION",
 		"REQUIREMENTS",
-		"TOOL",
+		"UV_TOOL",
 		"UV_INSTALL_URL",
 		"UV_INSTALL_URL_WINDOWS",
 		"UV_LOAD",

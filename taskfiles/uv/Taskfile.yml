@@ -19,7 +19,7 @@ vars:
   ARGS: ""
   EXTRA_ARGS: ""
   PYTHON_VERSION: ""
-  TOOL: ""
+  UV_TOOL: ""
   UV_VERSION: ""
 
 tasks:
@@ -170,7 +170,7 @@ tasks:
 
   tool:install:
     run: once
-    desc: Install a tool into an isolated environment with uv (TOOL=name)
+    desc: Install a tool into an isolated environment with uv (UV_TOOL=name)
     summary: |
       Run uv tool install TOOL to install a Python tool (e.g. yamllint, ruff)
       into an isolated environment with its shim added to PATH.
@@ -180,27 +180,27 @@ tasks:
       - task: install
     requires:
       vars:
-        - TOOL
+        - UV_TOOL
     preconditions:
-      - sh: test -n "{{.TOOL_OVERRIDE}}{{.TOOL}}"
-        msg: TOOL is required. Pass TOOL=name when running this task.
+      - sh: test -n "{{.UV_TOOL_OVERRIDE}}{{.UV_TOOL}}"
+        msg: TOOL is required. Pass UV_TOOL=name when running this task.
     cmds:
       - task: _uv:unix
         vars:
           ARGS: >-
             tool install
-            "{{if .TOOL_OVERRIDE}}{{.TOOL_OVERRIDE}}{{else}}{{.TOOL}}{{end}}"
+            "{{if .UV_TOOL_OVERRIDE}}{{.UV_TOOL_OVERRIDE}}{{else}}{{.UV_TOOL}}{{end}}"
             {{if .EXTRA_ARGS_OVERRIDE}}{{.EXTRA_ARGS_OVERRIDE}}{{else}}{{.EXTRA_ARGS}}{{end}}
       - task: _uv:windows
         vars:
           ARGS: >-
             tool install
-            "{{if .TOOL_OVERRIDE}}{{.TOOL_OVERRIDE}}{{else}}{{.TOOL}}{{end}}"
+            "{{if .UV_TOOL_OVERRIDE}}{{.UV_TOOL_OVERRIDE}}{{else}}{{.UV_TOOL}}{{end}}"
             {{if .EXTRA_ARGS_OVERRIDE}}{{.EXTRA_ARGS_OVERRIDE}}{{else}}{{.EXTRA_ARGS}}{{end}}
 
   tool:upgrade:
     run: once
-    desc: Upgrade an installed uv tool (TOOL=name)
+    desc: Upgrade an installed uv tool (UV_TOOL=name)
     summary: |
       Run uv tool upgrade TOOL to upgrade a previously installed tool to its
       latest release. Pass EXTRA_ARGS for additional flags.
@@ -209,22 +209,22 @@ tasks:
       - task: install
     requires:
       vars:
-        - TOOL
+        - UV_TOOL
     preconditions:
-      - sh: test -n "{{.TOOL_OVERRIDE}}{{.TOOL}}"
-        msg: TOOL is required. Pass TOOL=name when running this task.
+      - sh: test -n "{{.UV_TOOL_OVERRIDE}}{{.UV_TOOL}}"
+        msg: TOOL is required. Pass UV_TOOL=name when running this task.
     cmds:
       - task: _uv:unix
         vars:
           ARGS: >-
             tool upgrade
-            "{{if .TOOL_OVERRIDE}}{{.TOOL_OVERRIDE}}{{else}}{{.TOOL}}{{end}}"
+            "{{if .UV_TOOL_OVERRIDE}}{{.UV_TOOL_OVERRIDE}}{{else}}{{.UV_TOOL}}{{end}}"
             {{if .EXTRA_ARGS_OVERRIDE}}{{.EXTRA_ARGS_OVERRIDE}}{{else}}{{.EXTRA_ARGS}}{{end}}
       - task: _uv:windows
         vars:
           ARGS: >-
             tool upgrade
-            "{{if .TOOL_OVERRIDE}}{{.TOOL_OVERRIDE}}{{else}}{{.TOOL}}{{end}}"
+            "{{if .UV_TOOL_OVERRIDE}}{{.UV_TOOL_OVERRIDE}}{{else}}{{.UV_TOOL}}{{end}}"
             {{if .EXTRA_ARGS_OVERRIDE}}{{.EXTRA_ARGS_OVERRIDE}}{{else}}{{.EXTRA_ARGS}}{{end}}
 
   _uv:unix:

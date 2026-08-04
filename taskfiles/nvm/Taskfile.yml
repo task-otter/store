@@ -15,8 +15,8 @@ vars:
   NVM_WINDOWS_BASE_URL: https://github.com/coreybutler/nvm-windows/releases/download
   NVM_WINDOWS_ZIP_URL: "{{.NVM_WINDOWS_BASE_URL}}/{{.NVM_WINDOWS_VERSION}}/nvm-setup.zip"
   NVM_SH_INSTALL_URL: https://raw.githubusercontent.com/nvm-sh/nvm/{{.NVM_SH_VERSION}}/install.sh
-  DEFAULT_NODE_VERSION_UNIX: "--lts"
-  DEFAULT_NODE_VERSION_WINDOWS: lts
+  NVM_DEFAULT_NODE_VERSION_UNIX: "--lts"
+  NVM_DEFAULT_NODE_VERSION_WINDOWS: lts
   NVM_LOAD: 'export NVM_DIR="${NVM_DIR:-$HOME/.nvm}"; . "$NVM_DIR/nvm.sh"'
 
 tasks:
@@ -73,10 +73,10 @@ tasks:
     cmds:
       - task: _node:install:windows
         vars:
-          VERSION: "{{default .DEFAULT_NODE_VERSION_WINDOWS .VERSION}}"
+          VERSION: "{{default .NVM_DEFAULT_NODE_VERSION_WINDOWS .VERSION}}"
       - task: _node:install:unix
         vars:
-          VERSION: "{{default .DEFAULT_NODE_VERSION_UNIX .VERSION}}"
+          VERSION: "{{default .NVM_DEFAULT_NODE_VERSION_UNIX .VERSION}}"
 
   node:uninstall:
     run: once
@@ -112,10 +112,10 @@ tasks:
     cmds:
       - task: _node:use:windows
         vars:
-          VERSION: "{{default .DEFAULT_NODE_VERSION_WINDOWS .VERSION}}"
+          VERSION: "{{default .NVM_DEFAULT_NODE_VERSION_WINDOWS .VERSION}}"
       - task: _node:use:unix
         vars:
-          VERSION: "{{default .DEFAULT_NODE_VERSION_UNIX .VERSION}}"
+          VERSION: "{{default .NVM_DEFAULT_NODE_VERSION_UNIX .VERSION}}"
 
   ls:
     run: once

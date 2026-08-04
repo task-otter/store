@@ -12,7 +12,7 @@ silent: true
 vars:
   FNM_INSTALL_URL: https://fnm.vercel.app/install
   FNM_INSTALL_DIR: "$HOME/.local/share/fnm"
-  DEFAULT_NODE_VERSION: "--lts"
+  FNM_DEFAULT_NODE_VERSION: "--lts"
   FNM_LOAD: 'export PATH="{{.FNM_INSTALL_DIR}}:$HOME/.local/bin:$PATH"'
 
 tasks:
@@ -69,10 +69,10 @@ tasks:
     cmds:
       - task: _node:install:unix
         vars:
-          VERSION: "{{default .DEFAULT_NODE_VERSION .VERSION}}"
+          VERSION: "{{default .FNM_DEFAULT_NODE_VERSION .VERSION}}"
       - task: _node:install:windows
         vars:
-          VERSION: "{{default .DEFAULT_NODE_VERSION .VERSION}}"
+          VERSION: "{{default .FNM_DEFAULT_NODE_VERSION .VERSION}}"
 
   node:uninstall:
     run: once
@@ -104,14 +104,14 @@ tasks:
     deps:
       - task: node:install
         vars:
-          VERSION: "{{default .DEFAULT_NODE_VERSION .VERSION}}"
+          VERSION: "{{default .FNM_DEFAULT_NODE_VERSION .VERSION}}"
     cmds:
       - task: _node:use:unix
         vars:
-          VERSION: "{{default .DEFAULT_NODE_VERSION .VERSION}}"
+          VERSION: "{{default .FNM_DEFAULT_NODE_VERSION .VERSION}}"
       - task: _node:use:windows
         vars:
-          VERSION: "{{default .DEFAULT_NODE_VERSION .VERSION}}"
+          VERSION: "{{default .FNM_DEFAULT_NODE_VERSION .VERSION}}"
 
   ls:
     run: once

@@ -109,3 +109,6 @@ Each module README must include a `## Public Tasks` table listing every public t
 
 After adding, removing, or renaming an exported task, update the corresponding
 `metadata.yml` and run `go test ./...`.
+
+Top-level Taskfile vars use a module prefix convention; see
+[doc/adr/0002-prefix-top-level-taskfile-vars-with-the-module-name.md](doc/adr/0002-prefix-top-level-taskfile-vars-with-the-module-name.md).

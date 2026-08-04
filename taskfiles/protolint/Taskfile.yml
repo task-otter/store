@@ -20,7 +20,7 @@ includes:
 vars:
   PROTOLINT_LINT_SKIP_PATTERN: ""
   EXTRA_ARGS: ""
-  GLOBAL_GO_BIN:
+  GO_GLOBAL_BIN:
     sh: |
       gobin="${GOBIN:-}"
       if [ -z "$gobin" ] && command -v go >/dev/null 2>&1; then
@@ -130,13 +130,13 @@ tasks:
     set: [errexit, nounset, pipefail]
     status:
       - '[ "{{default "false" .FORCE}}" != "true" ]'
-      - test -x "{{.GLOBAL_GO_BIN}}/protolint"
+      - test -x "{{.GO_GLOBAL_BIN}}/protolint"
       - >-
         [ -z "{{.PROTOLINT_VERSION}}" ]
-        || go version -m "{{.GLOBAL_GO_BIN}}/protolint" | grep -Fq "{{.PROTOLINT_VERSION}}"
+        || go version -m "{{.GO_GLOBAL_BIN}}/protolint" | grep -Fq "{{.PROTOLINT_VERSION}}"
     cmds:
       - >-
-        GOBIN="{{.GLOBAL_GO_BIN}}"
+        GOBIN="{{.GO_GLOBAL_BIN}}"
         go install github.com/yoheimuta/protolint/cmd/protolint@{{default "latest" .PROTOLINT_VERSION}}
 
   _install:windows:
@@ -147,15 +147,15 @@ tasks:
       - >-
         powershell -NoProfile -ExecutionPolicy Bypass -Command
         "if ('{{default "false" .FORCE}}' -eq 'true') { exit 1 };
-        if (-not (Test-Path '{{.GLOBAL_GO_BIN}}/protolint.exe')) { exit 1 };
+        if (-not (Test-Path '{{.GO_GLOBAL_BIN}}/protolint.exe')) { exit 1 };
         $requested = '{{.PROTOLINT_VERSION}}';
         if ([string]::IsNullOrWhiteSpace($requested)
-        -or ((go version -m '{{.GLOBAL_GO_BIN}}/protolint.exe') -like ('*' + $requested + '*'))) { exit 0 };
+        -or ((go version -m '{{.GO_GLOBAL_BIN}}/protolint.exe') -like ('*' + $requested + '*'))) { exit 0 };
         exit 1"
     cmds:
       - >-
         powershell -NoProfile -ExecutionPolicy Bypass -Command
-        "$env:GOBIN = '{{.GLOBAL_GO_BIN}}';
+        "$env:GOBIN = '{{.GO_GLOBAL_BIN}}';
         go install github.com/yoheimuta/protolint/cmd/protolint@{{default "latest" .PROTOLINT_VERSION}}"
 
   _install:undo:unix:
@@ -164,9 +164,9 @@ tasks:
     platforms: [linux, darwin]
     set: [errexit, nounset, pipefail]
     status:
-      - '! test -e "{{.GLOBAL_GO_BIN}}/protolint"'
+      - '! test -e "{{.GO_GLOBAL_BIN}}/protolint"'
     cmds:
-      - rm -f "{{.GLOBAL_GO_BIN}}/protolint"
+      - rm -f "{{.GO_GLOBAL_BIN}}/protolint"
 
   _install:undo:windows:
     run: once
@@ -175,11 +175,11 @@ tasks:
     status:
       - >-
         powershell -NoProfile -ExecutionPolicy Bypass -Command
-        "if (Test-Path '{{.GLOBAL_GO_BIN}}/protolint.exe') { exit 1 } else { exit 0 }"
+        "if (Test-Path '{{.GO_GLOBAL_BIN}}/protolint.exe') { exit 1 } else { exit 0 }"
     cmds:
       - >-
         powershell -NoProfile -ExecutionPolicy Bypass -Command
-        "Remove-Item '{{.GLOBAL_GO_BIN}}/protolint.exe' -Force -ErrorAction SilentlyContinue"
+        "Remove-Item '{{.GO_GLOBAL_BIN}}/protolint.exe' -Force -ErrorAction SilentlyContinue"
 
   _lint:unix:
     run: once
@@ -226,7 +226,7 @@ tasks:
         skip_pattern='{{if .PROTOLINT_LINT_SKIP_PATTERN_OVERRIDE}}{{.PROTOLINT_LINT_SKIP_PATTERN_OVERRIDE}}
         {{- else}}{{.PROTOLINT_LINT_SKIP_PATTERN}}{{end}}'
         if [ -z "$skip_pattern" ]; then
-          "{{.GLOBAL_GO_BIN}}/protolint" lint {{.PROTOLINT_FIX_FLAG}} \
+          "{{.GO_GLOBAL_BIN}}/protolint" lint {{.PROTOLINT_FIX_FLAG}} \
             {{if .EXTRA_ARGS_OVERRIDE}}{{.EXTRA_ARGS_OVERRIDE}}
             {{- else}}{{.EXTRA_ARGS}}{{end}} \
             "{{if .TARGETS_OVERRIDE}}{{.TARGETS_OVERRIDE}}
@@ -247,7 +247,7 @@ tasks:
           echo 'No matching protobuf files found'
           exit 0
         fi
-        xargs -0 "{{.GLOBAL_GO_BIN}}/protolint" lint {{.PROTOLINT_FIX_FLAG}} \
+        xargs -0 "{{.GO_GLOBAL_BIN}}/protolint" lint {{.PROTOLINT_FIX_FLAG}} \
           {{if .EXTRA_ARGS_OVERRIDE}}{{.EXTRA_ARGS_OVERRIDE}}
           {{- else}}{{.EXTRA_ARGS}}{{end}} <"$file_list"
 
@@ -263,7 +263,7 @@ tasks:
         $target='{{if .TARGETS_OVERRIDE}}{{.TARGETS_OVERRIDE}}
         {{- else}}{{.TARGETS}}{{end}}';
         if (-not $skipPattern) {
-          & '{{.GLOBAL_GO_BIN}}/protolint.exe' lint {{.PROTOLINT_FIX_FLAG}}
+          & '{{.GO_GLOBAL_BIN}}/protolint.exe' lint {{.PROTOLINT_FIX_FLAG}}
             {{if .EXTRA_ARGS_OVERRIDE}}{{.EXTRA_ARGS_OVERRIDE}}
             {{- else}}{{.EXTRA_ARGS}}{{end}} $target;
           exit $LASTEXITCODE
@@ -277,7 +277,7 @@ tasks:
           task --silent --taskfile '{{.TASKFILE_DIR}}/../internal/skipfiles/Taskfile.yml'
             filter ('SKIPFILES_PATTERN=' + $skipPattern));
         if (-not $paths) { Write-Host 'No matching protobuf files found'; exit 0 };
-        & '{{.GLOBAL_GO_BIN}}/protolint.exe' lint {{.PROTOLINT_FIX_FLAG}}
+        & '{{.GO_GLOBAL_BIN}}/protolint.exe' lint {{.PROTOLINT_FIX_FLAG}}
           {{if .EXTRA_ARGS_OVERRIDE}}{{.EXTRA_ARGS_OVERRIDE}}
           {{- else}}{{.EXTRA_ARGS}}{{end}} @paths;
         exit $LASTEXITCODE"
@@ -287,11 +287,11 @@ tasks:
     internal: true
     platforms: [linux, darwin]
     cmds:
-      - '"{{.GLOBAL_GO_BIN}}/protolint" version'
+      - '"{{.GO_GLOBAL_BIN}}/protolint" version'
 
   _version:windows:
     run: once
     internal: true
     platforms: [windows]
     cmds:
-      - '& "{{.GLOBAL_GO_BIN}}/protolint.exe" version'
+      - '& "{{.GO_GLOBAL_BIN}}/protolint.exe" version'

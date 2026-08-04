@@ -53,7 +53,7 @@ task shfmt:fmt:check TARGETS=scripts
 | `SHFMT_VERSION` | _(empty)_ | Exact module release to install; empty installs the latest stable v3 release |
 | `TARGETS` | `.` | File or directory to format or check |
 | `EXTRA_ARGS` | _(empty)_ | Extra shfmt flags, for example `-i 2`, `-ci`, `-sr`, or `-ln bash` |
-| `GLOBAL_GO_BIN` | Go's `GOBIN` or `GOPATH/bin` | Directory where the shfmt binary is installed |
+| `GO_GLOBAL_BIN` | Go's `GOBIN` or `GOPATH/bin` | Directory where the shfmt binary is installed |
 | `SHFMT_FMT_SKIP_PATTERN` | _(empty)_ | Forward-slash path glob for files skipped by formatting checks and fixes |
 
 Skip patterns support `*` within one path segment, `**` across directories, and `?` for one character. Paths are matched relative to the task working directory; for example, `**/generated/**`.

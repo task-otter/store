@@ -27,11 +27,11 @@ func publicVars() []string {
 	return []string{
 		"BUF_LINT_SKIP_PATTERN",
 		"BUF_FMT_SKIP_PATTERN",
-		"AGAINST",
+		"BUF_AGAINST",
 		"BUF_VERSION",
 		"CONFIG",
 		"EXTRA_ARGS",
-		"INPUT",
+		"BUF_INPUT",
 	}
 }
 

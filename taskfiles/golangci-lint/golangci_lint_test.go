@@ -120,7 +120,7 @@ func publicVars() []string {
 		constGolangciLintFmtSkipPatternVar,
 		"GOLANGCI_LINT_INTERNAL_SKIP_CONFIG",
 		"GOLANGCI_LINT_FMT_FORMATTER_FLAGS",
-		"GLOBAL_GO_BIN",
+		"GO_GLOBAL_BIN",
 	}
 }
 
@@ -461,7 +461,7 @@ func (fixture *gclFixture) taskArgs(run *golangciLintRun) []string {
 		"--taskfile",
 		fixture.taskfile,
 		run.taskName,
-		"GLOBAL_GO_BIN=" + fixture.bin,
+		"GO_GLOBAL_BIN=" + fixture.bin,
 	}, taskArgs...)
 }
 

@@ -71,8 +71,8 @@ func publicVars() []string {
 		"GO_VERSION",
 		"GO_ROOT_UNIX",
 		"GO_VERSION_URL",
-		"GLOBAL_GO_BIN",
-		"INSTALL_DIR_UNIX",
+		"GO_GLOBAL_BIN",
+		"GO_INSTALL_DIR_UNIX",
 	}
 }
 

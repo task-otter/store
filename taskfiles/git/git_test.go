@@ -94,31 +94,31 @@ func publicVars() []string {
 
 func publicVarsCore() []string {
 	return []string{
-		"BASE",
-		"BODY",
-		"BRANCH",
-		"CLONE_DIR",
-		"COMMIT",
-		"COMMIT_MSG",
-		"EMAIL",
+		"GIT_BASE",
+		"GIT_BODY",
+		"GIT_BRANCH",
+		"GIT_CLONE_DIR",
+		"GIT_COMMIT",
+		"GIT_COMMIT_MSG",
+		"GIT_EMAIL",
 		"EXTRA_ARGS",
-		"FILES",
-		"MERGE_METHOD",
+		"GIT_FILES",
+		"GIT_MERGE_METHOD",
 	}
 }
 
 func publicVarsExtra() []string {
 	return []string{
-		"MESSAGE",
-		"NAME",
-		"NOTES",
-		"OWNER",
-		"REMOTE",
-		"REPO",
-		"STASH_INDEX",
-		"TAG",
-		"TITLE",
-		"URL",
+		"GIT_MESSAGE",
+		"GIT_NAME",
+		"GIT_NOTES",
+		"GIT_OWNER",
+		"GIT_REMOTE",
+		"GIT_REPO",
+		"GIT_STASH_INDEX",
+		"GIT_TAG",
+		"GIT_TITLE",
+		"GIT_URL",
 		"VERSION",
 	}
 }

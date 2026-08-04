@@ -18,7 +18,7 @@ vars:
   TARGETS: ""
   ESLINT_DEFAULT_TARGETS: "src/**/*.{js,jsx,ts,tsx}"
   CONFIG: ""
-  CACHE: ""
+  ESLINT_CACHE: ""
   ESLINT_DEFAULT_CACHE: "true"
   EXTRA_ARGS: ""
   VERSION: ""
@@ -81,6 +81,7 @@ tasks:
 
   config:init:
     run: once
+    dir: "{{.USER_WORKING_DIR}}"
     desc: Create a starter ESLint flat config when none exists
     summary: |
       Write a minimal eslint.config.mjs with recommended defaults.
@@ -117,7 +118,7 @@ tasks:
     run: when_changed
     vars:
       RESOLVED_CONFIG: '{{default .CONFIG .CONFIG_OVERRIDE}}'
-      RESOLVED_CACHE: '{{or .CACHE_OVERRIDE .CACHE .ESLINT_DEFAULT_CACHE}}'
+      RESOLVED_CACHE: '{{or .ESLINT_CACHE_OVERRIDE .ESLINT_CACHE .ESLINT_DEFAULT_CACHE}}'
       RESOLVED_SKIP: '{{default .ESLINT_LINT_SKIP_PATTERN .ESLINT_LINT_SKIP_PATTERN_OVERRIDE}}'
       RESOLVED_TARGETS: '{{or .ESLINT_TARGETS_OVERRIDE .TARGETS .ESLINT_DEFAULT_TARGETS}}'
       RESOLVED_EXTRA_ARGS: '{{default .EXTRA_ARGS .EXTRA_ARGS_OVERRIDE}}'

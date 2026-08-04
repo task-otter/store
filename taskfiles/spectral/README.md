@@ -38,7 +38,7 @@ project root (where `package.json` lives).
 | `install` | Install Spectral as a local devDependency | `VERSION` |
 | `install:undo` | Remove the Spectral devDependency | |
 | `upgrade` | Upgrade Spectral to the latest release | |
-| `lint` | Lint API documents with Spectral | `TARGETS`, `RULESET`, `EXTRA_ARGS` |
+| `lint` | Lint API documents with Spectral | `TARGETS`, `SPECTRAL_RULESET`, `EXTRA_ARGS` |
 | `config:init` | Create a default .spectral.yaml ruleset | |
 | `help` | Show the Spectral CLI help | |
 | `version` | Show the locally resolved Spectral version | |
@@ -49,7 +49,7 @@ project root (where `package.json` lives).
 |---|---|---|
 | `VERSION` | `""` (package manager default) | Pin a specific @stoplight/spectral-cli release |
 | `TARGETS` | `""` | API document(s) to lint, e.g. `openapi.yaml` |
-| `RULESET` | `""` | Path to a Spectral ruleset file passed via `--ruleset` |
+| `SPECTRAL_RULESET` | `""` | Path to a Spectral ruleset file passed via `--ruleset` |
 | `EXTRA_ARGS` | `""` | Extra flags forwarded to spectral |
 | `SPECTRAL_LINT_SKIP_PATTERN` | _(empty)_ | Forward-slash path glob for files skipped by lint checks and fixes |
 
@@ -62,7 +62,7 @@ Spectral skips matching files as top-level lint targets, but may still load them
 - Requires a package-manager stack: `lint` auto-installs Spectral on first use;
   on a fresh machine provision Node.js first (e.g. `task fnm:node:install`).
 - `lint` needs `TARGETS` — Spectral prints its usage message when no document
-  is given. Without `RULESET`, Spectral discovers `.spectral.yaml` in the
+  is given. Without `SPECTRAL_RULESET`, Spectral discovers `.spectral.yaml` in the
   project automatically; `config:init` scaffolds one extending `spectral:oas`.
 - The install `status:` guard keeps repeat runs idempotent — changing `VERSION`
   triggers a reinstall.

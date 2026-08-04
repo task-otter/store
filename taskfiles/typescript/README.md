@@ -43,24 +43,24 @@ Available leaves: `bun`, `node/{fnm,nvm}/{npm,pnpm,yarn}`.
 | `install`            | Optional `VERSION`                      | Install `typescript`, `tsx`, and `@types/node` using lockfile detection. Pass `VERSION=x.y.z` to pin the `typescript` package. |
 | `install:undo`       | — | Remove the locally installed TypeScript dev dependencies.                |
 | `upgrade`             | — | Reinstall `typescript`, `tsx`, and `@types/node` at their latest versions. |
-| `run`                | Optional `FILE`, `TSX_FLAGS`, `CLI_ARGS`      | Execute one TypeScript file once with `tsx`.                             |
-| `dev`                | Optional `FILE`, `TSX_FLAGS`                  | Run one TypeScript file in `tsx watch` mode.                             |
-| `typecheck`          | Optional `TSCONFIG`, `TSC_FLAGS`              | Run `tsc --noEmit` for the full project.                                 |
-| `typecheck:watch`    | Optional `TSCONFIG`, `TSC_FLAGS`              | Run `tsc --noEmit --watch`.                                              |
-| `typecheck:files`    | Required `FILES`; optional `TSC_FLAGS`        | Type-check explicit files without loading `tsconfig.json`.               |
-| `build`              | Optional `TSCONFIG`, `TSC_FLAGS`              | Compile the project with `tsc --noEmitOnError`.                          |
-| `build:watch`        | Optional `TSCONFIG`, `TSC_FLAGS`              | Compile in watch mode with `tsc --noEmitOnError --watch`.                |
-| `build:clean`        | Optional `OUT_DIR`, `TSCONFIG`, `TSC_FLAGS`   | Remove the output directory and run a fresh compile.                     |
-| `emit:dts`           | Optional `OUT_DIR`, `TSCONFIG`, `TSC_FLAGS`   | Emit declaration files only.                                             |
-| `config:show`        | Optional `TSCONFIG`                           | Print the fully resolved TypeScript config.                              |
+| `run`                | Optional `FILE`, `TYPESCRIPT_TSX_FLAGS`, `CLI_ARGS`      | Execute one TypeScript file once with `tsx`.                             |
+| `dev`                | Optional `FILE`, `TYPESCRIPT_TSX_FLAGS`                  | Run one TypeScript file in `tsx watch` mode.                             |
+| `typecheck`          | Optional `TYPESCRIPT_TSCONFIG`, `TYPESCRIPT_TSC_FLAGS`              | Run `tsc --noEmit` for the full project.                                 |
+| `typecheck:watch`    | Optional `TYPESCRIPT_TSCONFIG`, `TYPESCRIPT_TSC_FLAGS`              | Run `tsc --noEmit --watch`.                                              |
+| `typecheck:files`    | Required `FILES`; optional `TYPESCRIPT_TSC_FLAGS`        | Type-check explicit files without loading `tsconfig.json`.               |
+| `build`              | Optional `TYPESCRIPT_TSCONFIG`, `TYPESCRIPT_TSC_FLAGS`              | Compile the project with `tsc --noEmitOnError`.                          |
+| `build:watch`        | Optional `TYPESCRIPT_TSCONFIG`, `TYPESCRIPT_TSC_FLAGS`              | Compile in watch mode with `tsc --noEmitOnError --watch`.                |
+| `build:clean`        | Optional `TYPESCRIPT_OUT_DIR`, `TYPESCRIPT_TSCONFIG`, `TYPESCRIPT_TSC_FLAGS`   | Remove the output directory and run a fresh compile.                     |
+| `emit:dts`           | Optional `TYPESCRIPT_OUT_DIR`, `TYPESCRIPT_TSCONFIG`, `TYPESCRIPT_TSC_FLAGS`   | Emit declaration files only.                                             |
+| `config:show`        | Optional `TYPESCRIPT_TSCONFIG`                           | Print the fully resolved TypeScript config.                              |
 | `config:init`        | —                                             | Generate a starter `tsconfig.json` with `tsc --init`.                    |
-| `config:files`       | Optional `TSCONFIG`                           | List every file included in the compilation.                             |
-| `config:diagnostics` | Optional `TSCONFIG`                           | Print compiler performance diagnostics.                                  |
-| `config:trace`       | Optional `TRACE_DIR`, `TSCONFIG`, `TSC_FLAGS` | Emit a TypeScript performance trace.                                     |
-| `start`              | Optional `OUTFILE`                            | Run compiled JavaScript with Node.js.                                    |
-| `ci`                 | Optional `TSCONFIG`, `TSC_FLAGS`              | Run the same strict no-emit type-check used by CI.                       |
-| `clean`              | Optional `OUT_DIR`                            | Remove the compiled output directory.                                    |
-| `clean:all`          | Optional `OUT_DIR`                            | Remove output, incremental build cache, and trace output.                |
+| `config:files`       | Optional `TYPESCRIPT_TSCONFIG`                           | List every file included in the compilation.                             |
+| `config:diagnostics` | Optional `TYPESCRIPT_TSCONFIG`                           | Print compiler performance diagnostics.                                  |
+| `config:trace`       | Optional `TYPESCRIPT_TRACE_DIR`, `TYPESCRIPT_TSCONFIG`, `TYPESCRIPT_TSC_FLAGS` | Emit a TypeScript performance trace.                                     |
+| `start`              | Optional `TYPESCRIPT_OUTFILE`                            | Run compiled JavaScript with Node.js.                                    |
+| `ci`                 | Optional `TYPESCRIPT_TSCONFIG`, `TYPESCRIPT_TSC_FLAGS`              | Run the same strict no-emit type-check used by CI.                       |
+| `clean`              | Optional `TYPESCRIPT_OUT_DIR`                            | Remove the compiled output directory.                                    |
+| `clean:all`          | Optional `TYPESCRIPT_OUT_DIR`                            | Remove output, incremental build cache, and trace output.                |
 
 ## Examples
 
@@ -71,22 +71,22 @@ task typescript:node:fnm:npm:version
 task typescript:node:fnm:npm:config:init
 
 task typescript:node:fnm:npm:run FILE=scripts/seed.ts
-task typescript:node:fnm:npm:dev FILE=src/server.ts TSX_FLAGS="--env-file .env"
+task typescript:node:fnm:npm:dev FILE=src/server.ts TYPESCRIPT_TSX_FLAGS="--env-file .env"
 
 task typescript:node:fnm:npm:typecheck
-task typescript:node:fnm:npm:typecheck TSCONFIG=tsconfig.strict.json
-task typescript:node:fnm:npm:typecheck:files FILES="src/index.ts src/api.ts" TSC_FLAGS="--strict"
+task typescript:node:fnm:npm:typecheck TYPESCRIPT_TSCONFIG=tsconfig.strict.json
+task typescript:node:fnm:npm:typecheck:files FILES="src/index.ts src/api.ts" TYPESCRIPT_TSC_FLAGS="--strict"
 
 task typescript:node:fnm:npm:build
-task typescript:node:fnm:npm:build:clean OUT_DIR=build
-task typescript:node:fnm:npm:emit:dts OUT_DIR=types
+task typescript:node:fnm:npm:build:clean TYPESCRIPT_OUT_DIR=build
+task typescript:node:fnm:npm:emit:dts TYPESCRIPT_OUT_DIR=types
 
 task typescript:node:fnm:npm:config:show
 task typescript:node:fnm:npm:config:files
 task typescript:node:fnm:npm:config:diagnostics
-task typescript:node:fnm:npm:config:trace TRACE_DIR=.traces/tsc
+task typescript:node:fnm:npm:config:trace TYPESCRIPT_TRACE_DIR=.traces/tsc
 
-task typescript:node:fnm:npm:start OUTFILE=dist/server.js
+task typescript:node:fnm:npm:start TYPESCRIPT_OUTFILE=dist/server.js
 task typescript:node:fnm:npm:clean --yes
 task typescript:node:fnm:npm:clean:all --yes
 ```

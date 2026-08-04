@@ -38,9 +38,9 @@ Available leaves: `bun`, `node/{fnm,nvm}/{npm,pnpm,yarn}`.
 | `upgrade`     | Optional `EXTRA_ARGS`                                           | Reinstall `eslint` at the latest version.                                                |
 | `init`        | Optional `EXTRA_ARGS`, `CLI_ARGS`                               | Alias for `config:init`.                                                                 |
 | `config:init` | —                                                               | Write a starter `eslint.config.mjs` when none exists (non-interactive). Skipped if a recognized config file already exists. |
-| `lint`        | Optional `TARGETS`, `CONFIG`, `CACHE`, `EXTRA_ARGS`, `CLI_ARGS` | Lint targets with cache enabled by default.                                              |
-| `lint:fix`    | Optional `TARGETS`, `CONFIG`, `CACHE`, `EXTRA_ARGS`, `CLI_ARGS` | Run ESLint with `--fix`.                                                                 |
-| `ci`          | Optional `TARGETS`, `CONFIG`, `CACHE`, `EXTRA_ARGS`, `CLI_ARGS` | Run ESLint with `--max-warnings=0`.                                                      |
+| `lint`        | Optional `TARGETS`, `CONFIG`, `ESLINT_CACHE`, `EXTRA_ARGS`, `CLI_ARGS` | Lint targets with cache enabled by default.                                              |
+| `lint:fix`    | Optional `TARGETS`, `CONFIG`, `ESLINT_CACHE`, `EXTRA_ARGS`, `CLI_ARGS` | Run ESLint with `--fix`.                                                                 |
+| `ci`          | Optional `TARGETS`, `CONFIG`, `ESLINT_CACHE`, `EXTRA_ARGS`, `CLI_ARGS` | Run ESLint with `--max-warnings=0`.                                                      |
 | `cache:clean` | —                                                                     | Remove `.cache/eslint`.                                                                  |
 | `version`     | — | Show the resolved ESLint version.                                                        |
 | `help`        | Optional `EXTRA_ARGS`, `CLI_ARGS`                               | Show ESLint CLI help.                                                                    |
@@ -48,7 +48,7 @@ Available leaves: `bun`, `node/{fnm,nvm}/{npm,pnpm,yarn}`.
 ## Variables
 
 `TARGETS` defaults to `src/**/*.{js,jsx,ts,tsx}`. `CONFIG` adds
-`--config <path>`. `CACHE` defaults to `true`; set `CACHE=false` to omit cache
+`--config <path>`. `ESLINT_CACHE` defaults to `true`; set `ESLINT_CACHE=false` to omit cache
 flags. `EXTRA_ARGS` and arguments after `--` are appended to the command.
 
 - `ESLINT_LINT_SKIP_PATTERN` (default empty): forward-slash path glob for files skipped by lint checks and fixes.

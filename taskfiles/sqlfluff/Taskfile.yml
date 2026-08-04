@@ -245,6 +245,7 @@ tasks:
 
   config:init:
     run: once
+    dir: "{{.USER_WORKING_DIR}}"
     desc: Create a default .sqlfluff configuration file
     summary: |
       Write a sensible default .sqlfluff file in the current directory.

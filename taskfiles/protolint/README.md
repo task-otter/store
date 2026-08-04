@@ -48,7 +48,7 @@ task protolint:install PROTOLINT_VERSION=v0.55.6
 | `PROTOLINT_VERSION` | `""` (latest) | Pin an exact protolint module version, e.g. `v0.55.6` |
 | `TARGETS` | `.` | File or directory protolint operates on |
 | `EXTRA_ARGS` | `""` | Extra flags forwarded to protolint (e.g. `-config_path`, `-reporter json`) |
-| `GLOBAL_GO_BIN` | GOBIN → GOPATH/bin → `$HOME/go/bin` | Resolved global Go bin directory |
+| `GO_GLOBAL_BIN` | GOBIN → GOPATH/bin → `$HOME/go/bin` | Resolved global Go bin directory |
 | `PROTOLINT_LINT_SKIP_PATTERN` | _(empty)_ | Forward-slash path glob for files skipped by lint checks and fixes |
 
 Skip patterns support `*` within one path segment, `**` across directories, and `?` for one character. Paths are matched relative to the task working directory; for example, `**/generated/**`.

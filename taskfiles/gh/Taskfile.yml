@@ -13,17 +13,17 @@ includes:
   jq: ../jq/Taskfile.yml
 
 vars:
-  VISIBILITY: "public"
-  BASE: "main"
-  MERGE_METHOD: "merge"
-  CLONE_DIR: "."
-  DOWNLOAD_DIR: "."
-  DATA: "{}"
-  PAT_TOKEN: ""
+  GH_VISIBILITY: "public"
+  GH_BASE: "main"
+  GH_MERGE_METHOD: "merge"
+  GH_CLONE_DIR: "."
+  GH_DOWNLOAD_DIR: "."
+  GH_DATA: "{}"
+  GH_PAT_TOKEN: ""
   VERSION: ""
 
 env:
-  GH_TOKEN: "{{.PAT_TOKEN}}"
+  GH_TOKEN: "{{.GH_PAT_TOKEN}}"
 
 tasks:
   default:
@@ -227,7 +227,7 @@ tasks:
     summary: |
       Create a new GitHub repository. Requires REPO to be set.
       VISIBILITY defaults to "public". Set DESCRIPTION for an optional description.
-      Example: REPO=my-project VISIBILITY=private DESCRIPTION="My project"
+      Example: REPO=my-project GH_VISIBILITY=private DESCRIPTION="My project"
     requires:
       vars:
         - REPO
@@ -237,7 +237,7 @@ tasks:
       - >-
         gh repo create
         {{if .OWNER}}{{.OWNER}}/{{end}}{{.REPO}}
-        --{{default "public" .VISIBILITY}}
+        --{{default "public" .GH_VISIBILITY}}
         {{if .DESCRIPTION}}--description "{{.DESCRIPTION}}"{{end}}
 
   repo:clone:
@@ -247,11 +247,11 @@ tasks:
       Clone a GitHub repository. Requires REPO to be set.
       Set OWNER to clone from a specific user or organisation.
       Set CLONE_DIR to specify the destination directory (defaults to ".").
-      Set PAT_TOKEN to access private repositories not owned by you — the
+      Set GH_PAT_TOKEN to access private repositories not owned by you — the
       token is embedded directly in the HTTPS clone URL for reliable CI auth.
-      Requires OWNER when PAT_TOKEN is set.
-      Example: OWNER=github REPO=cli CLONE_DIR=~/src/gh
-      Private: OWNER=myorg REPO=private-repo PAT_TOKEN=ghp_xxx
+      Requires OWNER when GH_PAT_TOKEN is set.
+      Example: OWNER=github REPO=cli GH_CLONE_DIR=~/src/gh
+      Private: OWNER=myorg REPO=private-repo GH_PAT_TOKEN=ghp_xxx
     requires:
       vars:
         - REPO
@@ -267,9 +267,9 @@ tasks:
     summary: |
       Fork a GitHub repository. If REPO is set, forks that specific repo;
       otherwise forks the repository in the current working directory.
-      Set PAT_TOKEN to fork private repositories not owned by you.
+      Set GH_PAT_TOKEN to fork private repositories not owned by you.
       Example: OWNER=github REPO=cli
-      Private: OWNER=myorg REPO=private-repo PAT_TOKEN=ghp_xxx
+      Private: OWNER=myorg REPO=private-repo GH_PAT_TOKEN=ghp_xxx
     deps:
       - task: install
     cmds:
@@ -369,7 +369,7 @@ tasks:
     summary: |
       Create a pull request interactively. Optionally set PR_TITLE, PR_BODY,
       BASE (default: main), and HEAD to pre-fill fields.
-      Example: PR_TITLE="Add feature" BASE=main
+      Example: PR_TITLE="Add feature" GH_BASE=main
     deps:
       - task: install
     cmds:
@@ -377,7 +377,7 @@ tasks:
         gh pr create
         {{if .PR_TITLE}}--title "{{.PR_TITLE}}"{{end}}
         {{if .PR_BODY}}--body "{{.PR_BODY}}"{{end}}
-        {{if .BASE}}--base {{.BASE}}{{end}}
+        {{if .GH_BASE}}--base {{.GH_BASE}}{{end}}
         {{if .HEAD}}--head {{.HEAD}}{{end}}
 
   pr:checkout:
@@ -422,14 +422,14 @@ tasks:
     summary: |
       Merge the pull request specified by PR_NUMBER. MERGE_METHOD controls
       the merge strategy: merge (default), squash, or rebase.
-      Requires PR_NUMBER. Example: PR_NUMBER=42 MERGE_METHOD=squash
+      Requires PR_NUMBER. Example: PR_NUMBER=42 GH_MERGE_METHOD=squash
     requires:
       vars:
         - PR_NUMBER
     deps:
       - task: install
     cmds:
-      - gh pr merge {{.PR_NUMBER}} --{{default "merge" .MERGE_METHOD}}
+      - gh pr merge {{.PR_NUMBER}} --{{default "merge" .GH_MERGE_METHOD}}
 
   pr:close:
     run: once
@@ -709,8 +709,8 @@ tasks:
     desc: List releases in the current repository
     summary: |
       List all releases. Set OWNER and REPO to target a repo not owned by you
-      (requires PAT_TOKEN with repo scope).
-      Example: OWNER=hashicorp REPO=terraform PAT_TOKEN=ghp_...
+      (requires GH_PAT_TOKEN with repo scope).
+      Example: OWNER=hashicorp REPO=terraform GH_PAT_TOKEN=ghp_...
     deps:
       - task: install
     cmds:
@@ -735,7 +735,7 @@ tasks:
       Create a release for the tag specified by TAG.
       Optionally set TITLE for the release title and NOTES for release notes.
       Set OWNER and REPO to create a release on a repo not owned by you
-      (requires PAT_TOKEN with repo scope).
+      (requires GH_PAT_TOKEN with repo scope).
       Example: TAG=v1.0.0 TITLE="v1.0.0" NOTES="Bug fixes."
     requires:
       vars:
@@ -755,7 +755,7 @@ tasks:
     summary: |
       Upload ASSET to the release identified by TAG.
       Set OWNER and REPO to target a repo not owned by you
-      (requires PAT_TOKEN with repo scope).
+      (requires GH_PAT_TOKEN with repo scope).
       Example: TAG=v1.0.0 ASSET=./dist/app.tar.gz
     requires:
       vars:
@@ -773,15 +773,15 @@ tasks:
       Download release assets for the tag specified by TAG into DOWNLOAD_DIR.
       If TAG is unset, downloads assets from the latest release.
       Set OWNER and REPO to download from a repo not owned by you
-      (requires PAT_TOKEN with repo scope for private repos).
-      Example: TAG=v1.0.0 OWNER=hashicorp REPO=terraform DOWNLOAD_DIR=./dist
+      (requires GH_PAT_TOKEN with repo scope for private repos).
+      Example: TAG=v1.0.0 OWNER=hashicorp REPO=terraform GH_DOWNLOAD_DIR=./dist
     deps:
       - task: install
     cmds:
       - >-
         gh release download {{.TAG}}
         {{if .OWNER}}--repo {{.OWNER}}/{{.REPO}}{{end}}
-        {{if ne .DOWNLOAD_DIR "."}}--dir {{.DOWNLOAD_DIR}}{{end}}
+        {{if ne .GH_DOWNLOAD_DIR "."}}--dir {{.GH_DOWNLOAD_DIR}}{{end}}
 
   release:download:all:
     run: once
@@ -789,8 +789,8 @@ tasks:
     summary: |
       Iterates every release tag and downloads its assets into DOWNLOAD_DIR/<tag>/.
       Set OWNER and REPO to target a repo not owned by you
-      (requires PAT_TOKEN with repo scope for private repos).
-      Example: OWNER=hashicorp REPO=terraform DOWNLOAD_DIR=./releases
+      (requires GH_PAT_TOKEN with repo scope for private repos).
+      Example: OWNER=hashicorp REPO=terraform GH_DOWNLOAD_DIR=./releases
     deps:
       - task: install
       - task: jq:install
@@ -807,7 +807,7 @@ tasks:
     cmds:
       - |
         REPO_FLAG="{{if .OWNER}}--repo {{.OWNER}}/{{.REPO}}{{end}}"
-        BASE_DIR="{{.DOWNLOAD_DIR}}"
+        BASE_DIR="{{.GH_DOWNLOAD_DIR}}"
         for tag in $(gh release list $REPO_FLAG --json tagName --jq '.[].tagName'); do
           dest="${BASE_DIR}/${tag}"
           mkdir -p "$dest"
@@ -823,7 +823,7 @@ tasks:
       - >-
         powershell -NoProfile -ExecutionPolicy Bypass -Command
         "$repoFlag = '{{if .OWNER}}--repo {{.OWNER}}/{{.REPO}}{{end}}';
-        $baseDir = '{{.DOWNLOAD_DIR}}';
+        $baseDir = '{{.GH_DOWNLOAD_DIR}}';
         $tags = gh release list $repoFlag --json tagName --jq '.[].tagName';
         foreach ($tag in $tags) {
           $dest = Join-Path $baseDir $tag;
@@ -838,7 +838,7 @@ tasks:
       Delete the release identified by TAG. The git tag is preserved;
       only the GitHub release record is removed.
       Set OWNER and REPO to target a repo not owned by you
-      (requires PAT_TOKEN with delete_repo scope).
+      (requires GH_PAT_TOKEN with delete_repo scope).
       Example: TAG=v0.1.0-beta
     requires:
       vars:
@@ -1027,7 +1027,7 @@ tasks:
     summary: |
       Make a POST request to the GitHub REST API ENDPOINT with DATA as the
       request body. Requires ENDPOINT.
-      Example: ENDPOINT=/repos/github/cli/issues DATA='{"title":"Bug"}'
+      Example: ENDPOINT=/repos/github/cli/issues GH_DATA='{"title":"Bug"}'
     requires:
       vars:
         - ENDPOINT
@@ -1043,7 +1043,7 @@ tasks:
     summary: |
       Make a PATCH request to the GitHub REST API ENDPOINT with DATA as the
       request body. Requires ENDPOINT.
-      Example: ENDPOINT=/repos/github/cli/issues/1 DATA='{"state":"closed"}'
+      Example: ENDPOINT=/repos/github/cli/issues/1 GH_DATA='{"state":"closed"}'
     requires:
       vars:
         - ENDPOINT
@@ -1353,17 +1353,17 @@ tasks:
     internal: true
     desc: Clone a repository on macOS or Linux
     summary: |
-      When PAT_TOKEN is set, embeds the token in the HTTPS URL for reliable
+      When GH_PAT_TOKEN is set, embeds the token in the HTTPS URL for reliable
       authentication against private repos not owned by the caller.
-      Falls back to gh repo clone when PAT_TOKEN is absent.
+      Falls back to gh repo clone when GH_PAT_TOKEN is absent.
     platforms: [linux, darwin]
     set: [errexit, nounset, pipefail]
     env:
-      GH_PAT: "{{.PAT_TOKEN}}"
+      GH_PAT: "{{.GH_PAT_TOKEN}}"
     cmds:
       - |
         TARGET="{{if .OWNER}}{{.OWNER}}/{{end}}{{.REPO}}"
-        DEST="{{if ne .CLONE_DIR "."}}{{.CLONE_DIR}}{{end}}"
+        DEST="{{if ne .GH_CLONE_DIR "."}}{{.GH_CLONE_DIR}}{{end}}"
         if [ -n "$GH_PAT" ]; then
           git clone "https://${GH_PAT}@github.com/${TARGET}.git"${DEST:+ "$DEST"}
         else
@@ -1375,17 +1375,17 @@ tasks:
     internal: true
     desc: Clone a repository on Windows
     summary: |
-      When PAT_TOKEN is set, embeds the token in the HTTPS URL for reliable
+      When GH_PAT_TOKEN is set, embeds the token in the HTTPS URL for reliable
       authentication against private repos not owned by the caller.
-      Falls back to gh repo clone when PAT_TOKEN is absent.
+      Falls back to gh repo clone when GH_PAT_TOKEN is absent.
     platforms: [windows]
     env:
-      GH_PAT: "{{.PAT_TOKEN}}"
+      GH_PAT: "{{.GH_PAT_TOKEN}}"
     cmds:
       - >-
         powershell -NoProfile -ExecutionPolicy Bypass -Command
         "$target = '{{if .OWNER}}{{.OWNER}}/{{end}}{{.REPO}}';
-        $dest = '{{if ne .CLONE_DIR "."}}{{.CLONE_DIR}}{{end}}';
+        $dest = '{{if ne .GH_CLONE_DIR "."}}{{.GH_CLONE_DIR}}{{end}}';
         $args = @($dest) | Where-Object { $_ };
         if ($env:GH_PAT) { git clone \"https://$env:GH_PAT@github.com/$target.git\" @args }
         else { gh repo clone $target @args }"
@@ -1398,7 +1398,7 @@ tasks:
     platforms: [linux, darwin]
     set: [errexit, nounset, pipefail]
     env:
-      GH_DATA: "{{.DATA}}"
+      GH_DATA: "{{.GH_DATA}}"
     cmds:
       - printf '%s' "$GH_DATA" | gh api --method POST {{.ENDPOINT}} --input -
 
@@ -1409,7 +1409,7 @@ tasks:
     summary: Pipe DATA to gh api --method POST via PowerShell on Windows.
     platforms: [windows]
     env:
-      GH_DATA: "{{.DATA}}"
+      GH_DATA: "{{.GH_DATA}}"
     cmds:
       - >-
         powershell -NoProfile -ExecutionPolicy Bypass -Command
@@ -1423,7 +1423,7 @@ tasks:
     platforms: [linux, darwin]
     set: [errexit, nounset, pipefail]
     env:
-      GH_DATA: "{{.DATA}}"
+      GH_DATA: "{{.GH_DATA}}"
     cmds:
       - printf '%s' "$GH_DATA" | gh api --method PATCH {{.ENDPOINT}} --input -
 
@@ -1434,7 +1434,7 @@ tasks:
     summary: Pipe DATA to gh api --method PATCH via PowerShell on Windows.
     platforms: [windows]
     env:
-      GH_DATA: "{{.DATA}}"
+      GH_DATA: "{{.GH_DATA}}"
     cmds:
       - >-
         powershell -NoProfile -ExecutionPolicy Bypass -Command

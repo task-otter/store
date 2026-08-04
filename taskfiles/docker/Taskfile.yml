@@ -10,9 +10,9 @@ output:
 silent: true
 
 vars:
-  IMAGE: ""
+  DOCKER_IMAGE: ""
   FILE: "Dockerfile"
-  CONTEXT: "."
+  DOCKER_CONTEXT: "."
   EXTRA_ARGS: ""
   VERSION: ""
 
@@ -162,7 +162,7 @@ tasks:
 
   build:
     run: once
-    desc: Build a Docker image from a Dockerfile (IMAGE=name:tag)
+    desc: Build a Docker image from a Dockerfile (DOCKER_IMAGE=name:tag)
     summary: |
       Build a Docker image tagged IMAGE using the Dockerfile at FILE and
       build context at CONTEXT. FILE defaults to Dockerfile and CONTEXT
@@ -172,21 +172,21 @@ tasks:
       - task: install
     requires:
       vars:
-        - IMAGE
+        - DOCKER_IMAGE
     preconditions:
-      - sh: test -n "{{.IMAGE_OVERRIDE}}{{.IMAGE}}"
-        msg: IMAGE is required. Pass IMAGE=name:tag when running this task.
+      - sh: test -n "{{.DOCKER_IMAGE_OVERRIDE}}{{.DOCKER_IMAGE}}"
+        msg: IMAGE is required. Pass DOCKER_IMAGE=name:tag when running this task.
     cmds:
       - >-
         docker build
         -f "{{if .FILE_OVERRIDE}}{{.FILE_OVERRIDE}}{{else}}{{.FILE}}{{end}}"
-        -t "{{if .IMAGE_OVERRIDE}}{{.IMAGE_OVERRIDE}}{{else}}{{.IMAGE}}{{end}}"
-        "{{if .CONTEXT_OVERRIDE}}{{.CONTEXT_OVERRIDE}}{{else}}{{.CONTEXT}}{{end}}"
+        -t "{{if .DOCKER_IMAGE_OVERRIDE}}{{.DOCKER_IMAGE_OVERRIDE}}{{else}}{{.DOCKER_IMAGE}}{{end}}"
+        "{{if .DOCKER_CONTEXT_OVERRIDE}}{{.DOCKER_CONTEXT_OVERRIDE}}{{else}}{{.DOCKER_CONTEXT}}{{end}}"
         {{if .EXTRA_ARGS_OVERRIDE}}{{.EXTRA_ARGS_OVERRIDE}}{{else}}{{.EXTRA_ARGS}}{{end}}
 
   pull:
     run: once
-    desc: Pull a Docker image from a registry (IMAGE=name:tag)
+    desc: Pull a Docker image from a registry (DOCKER_IMAGE=name:tag)
     summary: |
       Pull the specified IMAGE from its registry. Pass EXTRA_ARGS to forward
       additional flags to docker pull, for example --platform linux/arm64.
@@ -194,14 +194,14 @@ tasks:
       - task: install
     requires:
       vars:
-        - IMAGE
+        - DOCKER_IMAGE
     preconditions:
-      - sh: test -n "{{.IMAGE_OVERRIDE}}{{.IMAGE}}"
-        msg: IMAGE is required. Pass IMAGE=name:tag when running this task.
+      - sh: test -n "{{.DOCKER_IMAGE_OVERRIDE}}{{.DOCKER_IMAGE}}"
+        msg: IMAGE is required. Pass DOCKER_IMAGE=name:tag when running this task.
     cmds:
       - >-
         docker pull
-        "{{if .IMAGE_OVERRIDE}}{{.IMAGE_OVERRIDE}}{{else}}{{.IMAGE}}{{end}}"
+        "{{if .DOCKER_IMAGE_OVERRIDE}}{{.DOCKER_IMAGE_OVERRIDE}}{{else}}{{.DOCKER_IMAGE}}{{end}}"
         {{if .EXTRA_ARGS_OVERRIDE}}{{.EXTRA_ARGS_OVERRIDE}}{{else}}{{.EXTRA_ARGS}}{{end}}
 
   _install:macos:

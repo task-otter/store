@@ -24,7 +24,7 @@ func publicVars() []string {
 	return []string{
 		"SHFMT_FMT_SKIP_PATTERN",
 		"EXTRA_ARGS",
-		"GLOBAL_GO_BIN",
+		"GO_GLOBAL_BIN",
 		"SHFMT_VERSION",
 		"TARGETS",
 	}

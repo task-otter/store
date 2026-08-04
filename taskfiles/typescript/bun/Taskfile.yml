@@ -16,12 +16,12 @@ silent: true
 
 vars:
   FILE: src/index.ts
-  OUTFILE: dist/index.js
-  OUT_DIR: dist
-  TSCONFIG: tsconfig.json
-  TSX_FLAGS: ""
-  TSC_FLAGS: ""
-  TRACE_DIR: .tsc-trace
+  TYPESCRIPT_OUTFILE: dist/index.js
+  TYPESCRIPT_OUT_DIR: dist
+  TYPESCRIPT_TSCONFIG: tsconfig.json
+  TYPESCRIPT_TSX_FLAGS: ""
+  TYPESCRIPT_TSC_FLAGS: ""
+  TYPESCRIPT_TRACE_DIR: .tsc-trace
   VERSION: ""
 
 tasks:
@@ -130,15 +130,15 @@ tasks:
       Examples:
         task typescript:run
         task typescript:run FILE=scripts/seed.ts
-        task typescript:run FILE=src/index.ts TSX_FLAGS="--env-file .env"
+        task typescript:run FILE=src/index.ts TYPESCRIPT_TSX_FLAGS="--env-file .env"
         task typescript:run -- --port 3000
     cmds:
       - task: _tsx
         vars:
-          ARGS: "{{if .TSX_FLAGS}}{{.TSX_FLAGS}} {{end}}{{.FILE}}{{if .CLI_ARGS}} {{.CLI_ARGS}}{{end}}"
+          ARGS: "{{if .TYPESCRIPT_TSX_FLAGS}}{{.TYPESCRIPT_TSX_FLAGS}} {{end}}{{.FILE}}{{if .CLI_ARGS}} {{.CLI_ARGS}}{{end}}"
       - task: _tsx:windows
         vars:
-          ARGS: "{{if .TSX_FLAGS}}{{.TSX_FLAGS}} {{end}}{{.FILE}}{{if .CLI_ARGS}} {{.CLI_ARGS}}{{end}}"
+          ARGS: "{{if .TYPESCRIPT_TSX_FLAGS}}{{.TYPESCRIPT_TSX_FLAGS}} {{end}}{{.FILE}}{{if .CLI_ARGS}} {{.CLI_ARGS}}{{end}}"
 
   dev:
     run: once
@@ -151,14 +151,14 @@ tasks:
       Examples:
         task typescript:dev
         task typescript:dev FILE=src/server.ts
-        task typescript:dev TSX_FLAGS="--env-file .env"
+        task typescript:dev TYPESCRIPT_TSX_FLAGS="--env-file .env"
     cmds:
       - task: _tsx
         vars:
-          ARGS: "watch {{if .TSX_FLAGS}}{{.TSX_FLAGS}} {{end}}{{.FILE}}"
+          ARGS: "watch {{if .TYPESCRIPT_TSX_FLAGS}}{{.TYPESCRIPT_TSX_FLAGS}} {{end}}{{.FILE}}"
       - task: _tsx:windows
         vars:
-          ARGS: "watch {{if .TSX_FLAGS}}{{.TSX_FLAGS}} {{end}}{{.FILE}}"
+          ARGS: "watch {{if .TYPESCRIPT_TSX_FLAGS}}{{.TYPESCRIPT_TSX_FLAGS}} {{end}}{{.FILE}}"
 
   typecheck:
     run: once
@@ -166,19 +166,19 @@ tasks:
     summary: |
       Run tsc --noEmit for a full static type-check. No files are written.
       This is the definitive validation step — tsx never catches type errors.
-      Uses tsconfig.json by default. Override with TSCONFIG=path/to/tsconfig.json.
+      Uses tsconfig.json by default. Override with TYPESCRIPT_TSCONFIG=path/to/tsconfig.json.
       TSC_FLAGS are trusted input — never pass untrusted user data.
       Examples:
         task typescript:typecheck
-        task typescript:typecheck TSCONFIG=tsconfig.strict.json
-        task typescript:typecheck TSC_FLAGS="--strict"
+        task typescript:typecheck TYPESCRIPT_TSCONFIG=tsconfig.strict.json
+        task typescript:typecheck TYPESCRIPT_TSC_FLAGS="--strict"
     cmds:
       - task: _tsc
         vars:
-          ARGS: "--noEmit{{if .TSC_FLAGS}} {{.TSC_FLAGS}}{{end}}"
+          ARGS: "--noEmit{{if .TYPESCRIPT_TSC_FLAGS}} {{.TYPESCRIPT_TSC_FLAGS}}{{end}}"
       - task: _tsc:windows
         vars:
-          ARGS: "--noEmit{{if .TSC_FLAGS}} {{.TSC_FLAGS}}{{end}}"
+          ARGS: "--noEmit{{if .TYPESCRIPT_TSC_FLAGS}} {{.TYPESCRIPT_TSC_FLAGS}}{{end}}"
 
   typecheck:watch:
     run: once
@@ -189,14 +189,14 @@ tasks:
       while tsc reports live type errors in parallel.
       Examples:
         task typescript:typecheck:watch
-        task typescript:typecheck:watch TSCONFIG=tsconfig.strict.json
+        task typescript:typecheck:watch TYPESCRIPT_TSCONFIG=tsconfig.strict.json
     cmds:
       - task: _tsc
         vars:
-          ARGS: "--noEmit --watch{{if .TSC_FLAGS}} {{.TSC_FLAGS}}{{end}}"
+          ARGS: "--noEmit --watch{{if .TYPESCRIPT_TSC_FLAGS}} {{.TYPESCRIPT_TSC_FLAGS}}{{end}}"
       - task: _tsc:windows
         vars:
-          ARGS: "--noEmit --watch{{if .TSC_FLAGS}} {{.TSC_FLAGS}}{{end}}"
+          ARGS: "--noEmit --watch{{if .TYPESCRIPT_TSC_FLAGS}} {{.TYPESCRIPT_TSC_FLAGS}}{{end}}"
 
   typecheck:files:
     run: once
@@ -214,17 +214,17 @@ tasks:
       TSC_FLAGS are appended after --noEmit (trusted input only).
       Examples:
         task typescript:typecheck:files FILES="src/utils.ts src/api.ts"
-        task typescript:typecheck:files FILES=src/index.ts TSC_FLAGS="--strict"
+        task typescript:typecheck:files FILES=src/index.ts TYPESCRIPT_TSC_FLAGS="--strict"
     requires:
       vars:
         - FILES
     cmds:
       - task: _tsc:noconfig
         vars:
-          ARGS: "--noEmit {{.TSC_FLAGS}} {{.FILES}}"
+          ARGS: "--noEmit {{.TYPESCRIPT_TSC_FLAGS}} {{.FILES}}"
       - task: _tsc:noconfig:windows
         vars:
-          ARGS: "--noEmit {{.TSC_FLAGS}} {{.FILES}}"
+          ARGS: "--noEmit {{.TYPESCRIPT_TSC_FLAGS}} {{.FILES}}"
 
   build:
     run: once
@@ -234,19 +234,19 @@ tasks:
       JavaScript to outDir. --noEmitOnError ensures no partial output is written
       when type errors exist. Recommend also setting "noEmitOnError": true in
       tsconfig.json so tsc --watch behaves the same way.
-      Uses tsconfig.json by default. Override with TSCONFIG=path/to/tsconfig.json.
+      Uses tsconfig.json by default. Override with TYPESCRIPT_TSCONFIG=path/to/tsconfig.json.
       TSC_FLAGS are trusted input — never pass untrusted user data.
       Examples:
         task typescript:build
-        task typescript:build TSCONFIG=tsconfig.prod.json
-        task typescript:build TSC_FLAGS="--incremental"
+        task typescript:build TYPESCRIPT_TSCONFIG=tsconfig.prod.json
+        task typescript:build TYPESCRIPT_TSC_FLAGS="--incremental"
     cmds:
       - task: _tsc
         vars:
-          ARGS: "--noEmitOnError{{if .TSC_FLAGS}} {{.TSC_FLAGS}}{{end}}"
+          ARGS: "--noEmitOnError{{if .TYPESCRIPT_TSC_FLAGS}} {{.TYPESCRIPT_TSC_FLAGS}}{{end}}"
       - task: _tsc:windows
         vars:
-          ARGS: "--noEmitOnError{{if .TSC_FLAGS}} {{.TSC_FLAGS}}{{end}}"
+          ARGS: "--noEmitOnError{{if .TYPESCRIPT_TSC_FLAGS}} {{.TYPESCRIPT_TSC_FLAGS}}{{end}}"
 
   build:watch:
     run: once
@@ -258,14 +258,14 @@ tasks:
       refreshed compiled output from dist/.
       Examples:
         task typescript:build:watch
-        task typescript:build:watch TSCONFIG=tsconfig.lib.json
+        task typescript:build:watch TYPESCRIPT_TSCONFIG=tsconfig.lib.json
     cmds:
       - task: _tsc
         vars:
-          ARGS: "--noEmitOnError --watch{{if .TSC_FLAGS}} {{.TSC_FLAGS}}{{end}}"
+          ARGS: "--noEmitOnError --watch{{if .TYPESCRIPT_TSC_FLAGS}} {{.TYPESCRIPT_TSC_FLAGS}}{{end}}"
       - task: _tsc:windows
         vars:
-          ARGS: "--noEmitOnError --watch{{if .TSC_FLAGS}} {{.TSC_FLAGS}}{{end}}"
+          ARGS: "--noEmitOnError --watch{{if .TYPESCRIPT_TSC_FLAGS}} {{.TYPESCRIPT_TSC_FLAGS}}{{end}}"
 
   build:clean:
     run: once
@@ -274,10 +274,10 @@ tasks:
       Delete OUT_DIR and run a full tsc compile with --noEmitOnError. Guarantees
       no stale files survive in the output before shipping.
       Equivalent to: rm -rf dist && tsc --noEmitOnError
-      Override the output directory with OUT_DIR=build.
+      Override the output directory with TYPESCRIPT_OUT_DIR=build.
       Examples:
         task typescript:build:clean
-        task typescript:build:clean OUT_DIR=build TSCONFIG=tsconfig.prod.json
+        task typescript:build:clean TYPESCRIPT_OUT_DIR=build TYPESCRIPT_TSCONFIG=tsconfig.prod.json
     cmds:
       - task: _build:clean:unix
       - task: _build:clean:windows
@@ -288,17 +288,17 @@ tasks:
     summary: |
       Run tsc --declaration --emitDeclarationOnly. Useful for library authors
       who ship type declarations separately from their bundled JavaScript.
-      Output goes to OUT_DIR (default: dist/). Override with OUT_DIR=types.
+      Output goes to OUT_DIR (default: dist/). Override with TYPESCRIPT_OUT_DIR=types.
       Examples:
         task typescript:emit:dts
-        task typescript:emit:dts OUT_DIR=types
+        task typescript:emit:dts TYPESCRIPT_OUT_DIR=types
     cmds:
       - task: _tsc
         vars:
-          ARGS: '--declaration --emitDeclarationOnly --outDir "{{.OUT_DIR}}"{{if .TSC_FLAGS}} {{.TSC_FLAGS}}{{end}}'
+          ARGS: '--declaration --emitDeclarationOnly --outDir "{{.TYPESCRIPT_OUT_DIR}}"{{if .TYPESCRIPT_TSC_FLAGS}} {{.TYPESCRIPT_TSC_FLAGS}}{{end}}'
       - task: _tsc:windows
         vars:
-          ARGS: "--declaration --emitDeclarationOnly --outDir '{{.OUT_DIR}}'{{if .TSC_FLAGS}} {{.TSC_FLAGS}}{{end}}"
+          ARGS: "--declaration --emitDeclarationOnly --outDir '{{.TYPESCRIPT_OUT_DIR}}'{{if .TYPESCRIPT_TSC_FLAGS}} {{.TYPESCRIPT_TSC_FLAGS}}{{end}}"
 
   config:show:
     run: once
@@ -309,7 +309,7 @@ tasks:
       unexpected compiler behaviour.
       Examples:
         task typescript:config:show
-        task typescript:config:show TSCONFIG=tsconfig.lib.json
+        task typescript:config:show TYPESCRIPT_TSCONFIG=tsconfig.lib.json
     cmds:
       - task: _tsc
         vars:
@@ -345,7 +345,7 @@ tasks:
       include/exclude globs or references.
       Examples:
         task typescript:config:files
-        task typescript:config:files TSCONFIG=tsconfig.lib.json
+        task typescript:config:files TYPESCRIPT_TSCONFIG=tsconfig.lib.json
     cmds:
       - task: _tsc
         vars:
@@ -363,7 +363,7 @@ tasks:
       skipLibCheck optimisations.
       Examples:
         task typescript:config:diagnostics
-        task typescript:config:diagnostics TSCONFIG=tsconfig.lib.json
+        task typescript:config:diagnostics TYPESCRIPT_TSCONFIG=tsconfig.lib.json
     cmds:
       - task: _tsc
         vars:
@@ -379,28 +379,28 @@ tasks:
       Run tsc --generateTrace to emit a JSON trace of every compiler phase.
       Load the output in chrome://tracing or analyse it with:
         npx @typescript/analyze-trace <trace-dir>
-      Default trace directory: .tsc-trace/. Override with TRACE_DIR=your-dir.
+      Default trace directory: .tsc-trace/. Override with TYPESCRIPT_TRACE_DIR=your-dir.
       Examples:
         task typescript:config:trace
-        task typescript:config:trace TRACE_DIR=.traces/tsc
+        task typescript:config:trace TYPESCRIPT_TRACE_DIR=.traces/tsc
     cmds:
       - task: _config:trace:unix
         vars:
-          TRACE_DIR: "{{.TRACE_DIR}}"
+          TYPESCRIPT_TRACE_DIR: "{{.TYPESCRIPT_TRACE_DIR}}"
       - task: _config:trace:windows
         vars:
-          TRACE_DIR: "{{.TRACE_DIR}}"
+          TYPESCRIPT_TRACE_DIR: "{{.TYPESCRIPT_TRACE_DIR}}"
 
   start:
     run: once
-    desc: Run the compiled JavaScript with node (OUTFILE=dist/index.js)
+    desc: Run the compiled JavaScript with node (TYPESCRIPT_OUTFILE=dist/index.js)
     summary: |
       Execute the compiled output using plain node — no TypeScript tooling.
       Run task typescript:build first to ensure the output is up to date.
-      Default output file: dist/index.js. Override with OUTFILE=dist/server.js.
+      Default output file: dist/index.js. Override with TYPESCRIPT_OUTFILE=dist/server.js.
       Examples:
         task typescript:start
-        task typescript:start OUTFILE=dist/server.js
+        task typescript:start TYPESCRIPT_OUTFILE=dist/server.js
     cmds:
       - task: _start:unix
       - task: _start:windows
@@ -413,27 +413,27 @@ tasks:
       but named ci to make the pipeline step self-documenting in logs.
       Examples:
         task typescript:ci
-        task typescript:ci TSCONFIG=tsconfig.strict.json
+        task typescript:ci TYPESCRIPT_TSCONFIG=tsconfig.strict.json
     cmds:
       - task: _tsc
         vars:
-          ARGS: "--noEmit{{if .TSC_FLAGS}} {{.TSC_FLAGS}}{{end}}"
+          ARGS: "--noEmit{{if .TYPESCRIPT_TSC_FLAGS}} {{.TYPESCRIPT_TSC_FLAGS}}{{end}}"
       - task: _tsc:windows
         vars:
-          ARGS: "--noEmit{{if .TSC_FLAGS}} {{.TSC_FLAGS}}{{end}}"
+          ARGS: "--noEmit{{if .TYPESCRIPT_TSC_FLAGS}} {{.TYPESCRIPT_TSC_FLAGS}}{{end}}"
       - echo "✅ tsc passed"
 
   clean:
     run: once
-    desc: Remove the compiled output directory (OUT_DIR=dist)
+    desc: Remove the compiled output directory (TYPESCRIPT_OUT_DIR=dist)
     summary: |
-      Delete the tsc output directory. Defaults to dist/. Override with OUT_DIR=build.
+      Delete the tsc output directory. Defaults to dist/. Override with TYPESCRIPT_OUT_DIR=build.
       Skipped automatically when the directory does not exist.
       Examples:
         task typescript:clean
-        task typescript:clean OUT_DIR=build
+        task typescript:clean TYPESCRIPT_OUT_DIR=build
     prompt:
-      - "This will delete the {{.OUT_DIR}}/ directory."
+      - "This will delete the {{.TYPESCRIPT_OUT_DIR}}/ directory."
       - Continue?
     cmds:
       - task: _clean:unix
@@ -446,9 +446,9 @@ tasks:
       Delete the output directory, incremental build cache (tsconfig.tsbuildinfo),
       and the tsc trace directory. Fully resets TypeScript build state.
       Run task typescript:build after to produce a fresh compile.
-      Override the output directory with OUT_DIR=build.
+      Override the output directory with TYPESCRIPT_OUT_DIR=build.
     prompt:
-      - "WARNING: This will delete {{.OUT_DIR}}/, tsconfig.tsbuildinfo, and .tsc-trace/."
+      - "WARNING: This will delete {{.TYPESCRIPT_OUT_DIR}}/, tsconfig.tsbuildinfo, and .tsc-trace/."
       - Continue?
     cmds:
       - task: _clean:all:unix
@@ -463,14 +463,14 @@ tasks:
     preconditions:
       - sh: 'test -f "{{.USER_WORKING_DIR}}/node_modules/.bin/tsc" || command -v tsc >/dev/null 2>&1'
         msg: "tsc not found. Run: task typescript:install"
-      - sh: 'test -f "{{.USER_WORKING_DIR}}/{{.TSCONFIG}}"'
-        msg: 'TSCONFIG "{{.TSCONFIG}}" not found. Run: task typescript:config:init'
+      - sh: 'test -f "{{.USER_WORKING_DIR}}/{{.TYPESCRIPT_TSCONFIG}}"'
+        msg: 'TSCONFIG "{{.TYPESCRIPT_TSCONFIG}}" not found. Run: task typescript:config:init'
     cmds:
       - |
         if [ -f "node_modules/.bin/tsc" ]; then
-          node_modules/.bin/tsc --project "{{.TSCONFIG}}" {{.ARGS}}
+          node_modules/.bin/tsc --project "{{.TYPESCRIPT_TSCONFIG}}" {{.ARGS}}
         else
-          tsc --project "{{.TSCONFIG}}" {{.ARGS}}
+          tsc --project "{{.TYPESCRIPT_TSCONFIG}}" {{.ARGS}}
         fi
 
   _tsc:windows:
@@ -486,14 +486,14 @@ tasks:
         msg: "tsc not found. Run: task typescript:install"
       - sh: >-
           powershell -NoProfile -ExecutionPolicy Bypass -Command
-          "if (Test-Path '{{.TSCONFIG}}') { exit 0 } else { exit 1 }"
-        msg: 'TSCONFIG "{{.TSCONFIG}}" not found. Run: task typescript:config:init'
+          "if (Test-Path '{{.TYPESCRIPT_TSCONFIG}}') { exit 0 } else { exit 1 }"
+        msg: 'TSCONFIG "{{.TYPESCRIPT_TSCONFIG}}" not found. Run: task typescript:config:init'
     cmds:
       - >-
         powershell -NoProfile -ExecutionPolicy Bypass -Command
         "if (Test-Path 'node_modules\.bin\tsc.cmd') { & node_modules\.bin\tsc.cmd
-        --project '{{.TSCONFIG}}' {{.ARGS}} }
-        else { tsc --project '{{.TSCONFIG}}' {{.ARGS}} }"
+        --project '{{.TYPESCRIPT_TSCONFIG}}' {{.ARGS}} }
+        else { tsc --project '{{.TYPESCRIPT_TSCONFIG}}' {{.ARGS}} }"
 
   _tsc:noconfig:
     run: once
@@ -751,11 +751,11 @@ tasks:
     dir: "{{.USER_WORKING_DIR}}"
     set: [errexit, nounset, pipefail]
     cmds:
-      - echo 'Removing {{.OUT_DIR}}...'
-      - rm -rf "{{.OUT_DIR}}"
+      - echo 'Removing {{.TYPESCRIPT_OUT_DIR}}...'
+      - rm -rf "{{.TYPESCRIPT_OUT_DIR}}"
       - task: _tsc
         vars:
-          ARGS: "--noEmitOnError{{if .TSC_FLAGS}} {{.TSC_FLAGS}}{{end}}"
+          ARGS: "--noEmitOnError{{if .TYPESCRIPT_TSC_FLAGS}} {{.TYPESCRIPT_TSC_FLAGS}}{{end}}"
       - echo 'Clean build complete.'
 
   _build:clean:windows:
@@ -764,13 +764,13 @@ tasks:
     platforms: [windows]
     dir: "{{.USER_WORKING_DIR}}"
     cmds:
-      - echo Removing {{.OUT_DIR}}...
+      - echo Removing {{.TYPESCRIPT_OUT_DIR}}...
       - >-
         powershell -NoProfile -ExecutionPolicy Bypass -Command
-        "if (Test-Path '{{.OUT_DIR}}') { Remove-Item -Recurse -Force '{{.OUT_DIR}}' }"
+        "if (Test-Path '{{.TYPESCRIPT_OUT_DIR}}') { Remove-Item -Recurse -Force '{{.TYPESCRIPT_OUT_DIR}}' }"
       - task: _tsc:windows
         vars:
-          ARGS: "--noEmitOnError{{if .TSC_FLAGS}} {{.TSC_FLAGS}}{{end}}"
+          ARGS: "--noEmitOnError{{if .TYPESCRIPT_TSC_FLAGS}} {{.TYPESCRIPT_TSC_FLAGS}}{{end}}"
       - echo Clean build complete.
 
   _config:trace:unix:
@@ -780,15 +780,15 @@ tasks:
     dir: "{{.USER_WORKING_DIR}}"
     set: [errexit, nounset, pipefail]
     cmds:
-      - echo 'Generating trace to {{.TRACE_DIR}}...'
+      - echo 'Generating trace to {{.TYPESCRIPT_TRACE_DIR}}...'
       - task: _tsc
         vars:
-          ARGS: "--generateTrace {{.TRACE_DIR}} --noEmit{{if .TSC_FLAGS}} {{.TSC_FLAGS}}{{end}}"
+          ARGS: "--generateTrace {{.TYPESCRIPT_TRACE_DIR}} --noEmit{{if .TYPESCRIPT_TSC_FLAGS}} {{.TYPESCRIPT_TSC_FLAGS}}{{end}}"
       - |
         echo ''
-        echo 'Trace written to {{.TRACE_DIR}}/'
-        echo 'Analyse with: npx @typescript/analyze-trace {{.TRACE_DIR}}'
-        echo 'Or load {{.TRACE_DIR}}/trace.json in chrome://tracing'
+        echo 'Trace written to {{.TYPESCRIPT_TRACE_DIR}}/'
+        echo 'Analyse with: npx @typescript/analyze-trace {{.TYPESCRIPT_TRACE_DIR}}'
+        echo 'Or load {{.TYPESCRIPT_TRACE_DIR}}/trace.json in chrome://tracing'
 
   _config:trace:windows:
     run: once
@@ -796,16 +796,16 @@ tasks:
     platforms: [windows]
     dir: "{{.USER_WORKING_DIR}}"
     cmds:
-      - echo Generating trace to {{.TRACE_DIR}}...
+      - echo Generating trace to {{.TYPESCRIPT_TRACE_DIR}}...
       - task: _tsc:windows
         vars:
-          ARGS: "--generateTrace {{.TRACE_DIR}} --noEmit{{if .TSC_FLAGS}} {{.TSC_FLAGS}}{{end}}"
+          ARGS: "--generateTrace {{.TYPESCRIPT_TRACE_DIR}} --noEmit{{if .TYPESCRIPT_TSC_FLAGS}} {{.TYPESCRIPT_TSC_FLAGS}}{{end}}"
       - >-
         powershell -NoProfile -ExecutionPolicy Bypass -Command
         "Write-Host '';
-        Write-Host 'Trace written to {{.TRACE_DIR}}/';
-        Write-Host 'Analyse with - npx @typescript/analyze-trace {{.TRACE_DIR}}';
-        Write-Host 'Or load {{.TRACE_DIR}}/trace.json in chrome://tracing'"
+        Write-Host 'Trace written to {{.TYPESCRIPT_TRACE_DIR}}/';
+        Write-Host 'Analyse with - npx @typescript/analyze-trace {{.TYPESCRIPT_TRACE_DIR}}';
+        Write-Host 'Or load {{.TYPESCRIPT_TRACE_DIR}}/trace.json in chrome://tracing'"
 
   _start:unix:
     run: once
@@ -816,10 +816,10 @@ tasks:
     preconditions:
       - sh: command -v node >/dev/null 2>&1
         msg: "node is not available. Install Node.js first."
-      - sh: 'test -f "{{.USER_WORKING_DIR}}/{{.OUTFILE}}"'
-        msg: 'OUTFILE "{{.OUTFILE}}" not found. Run: task typescript:build'
+      - sh: 'test -f "{{.USER_WORKING_DIR}}/{{.TYPESCRIPT_OUTFILE}}"'
+        msg: 'OUTFILE "{{.TYPESCRIPT_OUTFILE}}" not found. Run: task typescript:build'
     cmds:
-      - node "{{.OUTFILE}}"
+      - node "{{.TYPESCRIPT_OUTFILE}}"
 
   _start:windows:
     run: once
@@ -833,10 +833,10 @@ tasks:
         msg: "node is not available. Install Node.js first."
       - sh: >-
           powershell -NoProfile -ExecutionPolicy Bypass -Command
-          "if (Test-Path '{{.OUTFILE}}') { exit 0 } else { exit 1 }"
-        msg: 'OUTFILE "{{.OUTFILE}}" not found. Run: task typescript:build'
+          "if (Test-Path '{{.TYPESCRIPT_OUTFILE}}') { exit 0 } else { exit 1 }"
+        msg: 'OUTFILE "{{.TYPESCRIPT_OUTFILE}}" not found. Run: task typescript:build'
     cmds:
-      - powershell -NoProfile -ExecutionPolicy Bypass -Command "node '{{.OUTFILE}}'"
+      - powershell -NoProfile -ExecutionPolicy Bypass -Command "node '{{.TYPESCRIPT_OUTFILE}}'"
 
   _clean:unix:
     run: once
@@ -845,10 +845,10 @@ tasks:
     dir: "{{.USER_WORKING_DIR}}"
     set: [errexit, nounset, pipefail]
     status:
-      - 'test ! -d "{{.USER_WORKING_DIR}}/{{.OUT_DIR}}"'
+      - 'test ! -d "{{.USER_WORKING_DIR}}/{{.TYPESCRIPT_OUT_DIR}}"'
     cmds:
-      - echo 'Removing {{.OUT_DIR}}...'
-      - rm -rf "{{.OUT_DIR}}"
+      - echo 'Removing {{.TYPESCRIPT_OUT_DIR}}...'
+      - rm -rf "{{.TYPESCRIPT_OUT_DIR}}"
       - echo Done.
 
   _clean:windows:
@@ -859,12 +859,12 @@ tasks:
     status:
       - >-
         powershell -NoProfile -ExecutionPolicy Bypass -Command
-        "if (Test-Path '{{.OUT_DIR}}') { exit 1 } else { exit 0 }"
+        "if (Test-Path '{{.TYPESCRIPT_OUT_DIR}}') { exit 1 } else { exit 0 }"
     cmds:
-      - echo Removing {{.OUT_DIR}}...
+      - echo Removing {{.TYPESCRIPT_OUT_DIR}}...
       - >-
         powershell -NoProfile -ExecutionPolicy Bypass -Command
-        "if (Test-Path '{{.OUT_DIR}}') { Remove-Item -Recurse -Force '{{.OUT_DIR}}' }"
+        "if (Test-Path '{{.TYPESCRIPT_OUT_DIR}}') { Remove-Item -Recurse -Force '{{.TYPESCRIPT_OUT_DIR}}' }"
       - echo Done.
 
   _clean:all:unix:
@@ -874,8 +874,8 @@ tasks:
     dir: "{{.USER_WORKING_DIR}}"
     set: [errexit, nounset, pipefail]
     cmds:
-      - echo 'Removing {{.OUT_DIR}}/, tsconfig.tsbuildinfo, and .tsc-trace/...'
-      - rm -rf "{{.OUT_DIR}}"
+      - echo 'Removing {{.TYPESCRIPT_OUT_DIR}}/, tsconfig.tsbuildinfo, and .tsc-trace/...'
+      - rm -rf "{{.TYPESCRIPT_OUT_DIR}}"
       - rm -f tsconfig.tsbuildinfo
       - rm -rf .tsc-trace
       - echo Done.
@@ -889,7 +889,7 @@ tasks:
       - echo Removing build artifacts...
       - >-
         powershell -NoProfile -ExecutionPolicy Bypass -Command
-        "if (Test-Path '{{.OUT_DIR}}') { Remove-Item -Recurse -Force '{{.OUT_DIR}}' };
+        "if (Test-Path '{{.TYPESCRIPT_OUT_DIR}}') { Remove-Item -Recurse -Force '{{.TYPESCRIPT_OUT_DIR}}' };
         if (Test-Path 'tsconfig.tsbuildinfo') { Remove-Item -Force 'tsconfig.tsbuildinfo' };
         if (Test-Path '.tsc-trace') { Remove-Item -Recurse -Force '.tsc-trace' };
         Write-Host Done."

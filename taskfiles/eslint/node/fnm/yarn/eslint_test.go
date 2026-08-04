@@ -28,7 +28,7 @@ func publicTasks() []string {
 func publicVars() []string {
 	return []string{
 		"ESLINT_LINT_SKIP_PATTERN",
-		"CACHE",
+		"ESLINT_CACHE",
 		"CONFIG",
 		"EXTRA_ARGS",
 		"TARGETS",

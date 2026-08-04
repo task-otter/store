@@ -72,7 +72,7 @@ task proto:version
 | Variable | Default | Description |
 |---|---|---|
 | `GO_CMD` | resolved from PATH | Go executable used to install protobuf plugins |
-| `GLOBAL_GO_BIN` | from `go env` | Global Go bin directory where plugins are installed |
+| `GO_GLOBAL_BIN` | from `go env` | Global Go bin directory where plugins are installed |
 | `GO_MODULE` | `""` | Module path stripped from generated output paths |
 | `PROTO_PATH` | `"."` | Search root and value passed to protoc `--proto_path` |
 | `PROTO_PATTERN` | `"*.proto"` | `find -name` pattern for discovering .proto source files |
@@ -86,8 +86,8 @@ task proto:version
 - **Linux** downloads the pinned `PROTOC_VERSION` release into `/usr/local/bin` and `/usr/local/include`. Requires `curl` and `unzip`. Only `x86_64` and `aarch64` are supported.
 - **Windows** installs protoc via Scoop (`scoop install protobuf`). Scoop must be installed.
 - Go is installed automatically through the shared Go module before installing or upgrading the protobuf plugins.
-- Go plugins are installed with `go install` into `GLOBAL_GO_BIN`. Ensure that directory is on your PATH.
-- The `gen` task prepends `GLOBAL_GO_BIN` to PATH so protoc can resolve the plugins automatically.
+- Go plugins are installed with `go install` into `GO_GLOBAL_BIN`. Ensure that directory is on your PATH.
+- The `gen` task prepends `GO_GLOBAL_BIN` to PATH so protoc can resolve the plugins automatically.
 - Included Taskfiles must pass generation settings through
   `GO_MODULE_OVERRIDE`, `PROTO_PATH_OVERRIDE`, and `PROTO_PATTERN_OVERRIDE`, as
   shown above.

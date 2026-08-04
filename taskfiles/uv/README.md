@@ -18,7 +18,7 @@ requiring a shell restart.
 ```sh
 task -t taskfiles/uv/Taskfile.yml install
 task -t taskfiles/uv/Taskfile.yml version
-task -t taskfiles/uv/Taskfile.yml tool:install TOOL=yamllint
+task -t taskfiles/uv/Taskfile.yml tool:install UV_TOOL=yamllint
 ```
 
 ### Included
@@ -33,7 +33,7 @@ Then run:
 ```sh
 task uv:install
 task uv:venv
-task uv:tool:install TOOL=ruff
+task uv:tool:install UV_TOOL=ruff
 ```
 
 ## Public Tasks
@@ -48,8 +48,8 @@ task uv:tool:install TOOL=ruff
 | `venv`           | Create a virtual environment                       | `VENV`, `EXTRA_ARGS`         |
 | `pip:install`    | Install packages from a requirements file          | `REQUIREMENTS`, `EXTRA_ARGS` |
 | `run`            | Run a script or command via uv                     | `FILE`, `ARGS`, `EXTRA_ARGS` |
-| `tool:install`   | Install a Python tool into an isolated environment | `TOOL`, `EXTRA_ARGS`         |
-| `tool:upgrade`   | Upgrade an installed uv tool                       | `TOOL`, `EXTRA_ARGS`         |
+| `tool:install`   | Install a Python tool into an isolated environment | `UV_TOOL`, `EXTRA_ARGS`         |
+| `tool:upgrade`   | Upgrade an installed uv tool                       | `UV_TOOL`, `EXTRA_ARGS`         |
 
 ## Variables
 
@@ -61,7 +61,7 @@ task uv:tool:install TOOL=ruff
 | `ARGS`                   | _(empty)_                              | Positional arguments forwarded to the script in `run`    |
 | `EXTRA_ARGS`             | _(empty)_                              | Extra flags forwarded to the underlying uv command       |
 | `PYTHON_VERSION`         | _(empty)_                              | Python version to install; required by `python:install`  |
-| `TOOL`                   | _(empty)_                              | Tool name; required by `tool:install` and `tool:upgrade` |
+| `UV_TOOL`                   | _(empty)_                              | Tool name; required by `tool:install` and `tool:upgrade` |
 | `UV_INSTALL_URL`         | `https://astral.sh/uv/install.sh`      | Unix installer URL (unversioned, latest)                 |
 | `UV_INSTALL_URL_WINDOWS` | `https://astral.sh/uv/install.ps1`     | Windows installer URL (unversioned, latest)               |
 | `UV_VERSION`             | _(empty)_                              | Pin a specific uv release for `install`; empty installs latest |

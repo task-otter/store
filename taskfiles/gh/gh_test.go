@@ -159,14 +159,14 @@ func ghSecretAndWorkflowTasks() []string {
 // expectedVars is the list of required top-level vars with non-empty defaults.
 func expectedVars() []string {
 	return []string{
-		"BASE",
-		"CLONE_DIR",
-		"DATA",
-		"DOWNLOAD_DIR",
-		"MERGE_METHOD",
-		"PAT_TOKEN",
+		"GH_BASE",
+		"GH_CLONE_DIR",
+		"GH_DATA",
+		"GH_DOWNLOAD_DIR",
+		"GH_MERGE_METHOD",
+		"GH_PAT_TOKEN",
 		"VERSION",
-		"VISIBILITY",
+		"GH_VISIBILITY",
 	}
 }
 

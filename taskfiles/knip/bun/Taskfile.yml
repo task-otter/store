@@ -86,6 +86,7 @@ tasks:
 
   init:
     run: once
+    dir: "{{.USER_WORKING_DIR}}"
     desc: Create a starter knip.json configuration file
     summary: |
       Knip has no scaffolding command, so this writes a minimal knip.json that

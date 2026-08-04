@@ -27,8 +27,8 @@ func publicTasks() []string {
 func publicVars() []string {
 	return []string{
 		"STYLELINT_LINT_SKIP_PATTERN",
-		"ALLOW_EMPTY_INPUT",
-		"CACHE",
+		"STYLELINT_ALLOW_EMPTY_INPUT",
+		"STYLELINT_CACHE",
 		"CONFIG",
 		"EXTRA_ARGS",
 		"TARGETS",

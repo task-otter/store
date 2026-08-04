@@ -29,7 +29,7 @@ func publicTasks() []string {
 func publicVars() []string {
 	return []string{
 		"GO_CMD",
-		"GLOBAL_GO_BIN",
+		"GO_GLOBAL_BIN",
 		"PROTO_PATH",
 		"PROTO_PATTERN",
 		"PROTOC_GEN_GO_GRPC_VERSION",

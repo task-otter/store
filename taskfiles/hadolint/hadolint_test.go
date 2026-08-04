@@ -23,7 +23,7 @@ func publicVars() []string {
 	return []string{
 		"HADOLINT_LINT_SKIP_PATTERN",
 		"CONFIG",
-		"DOCKERFILE",
+		"HADOLINT_DOCKERFILE",
 		"EXTRA_ARGS",
 	}
 }

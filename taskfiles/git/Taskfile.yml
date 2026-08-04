@@ -13,26 +13,26 @@ includes:
   gh: ../gh/Taskfile.yml
 
 vars:
-  BASE: "main"
-  BODY: ""
-  BRANCH: ""
-  CLONE_DIR: ""
-  COMMIT: ""
-  COMMIT_MSG: ""
-  EMAIL: ""
+  GIT_BASE: "main"
+  GIT_BODY: ""
+  GIT_BRANCH: ""
+  GIT_CLONE_DIR: ""
+  GIT_COMMIT: ""
+  GIT_COMMIT_MSG: ""
+  GIT_EMAIL: ""
   EXTRA_ARGS: ""
-  FILES: "."
-  MERGE_METHOD: "merge"
-  MESSAGE: ""
-  NAME: ""
-  NOTES: ""
-  OWNER: ""
-  REMOTE: "origin"
-  REPO: ""
-  STASH_INDEX: "0"
-  TAG: ""
-  TITLE: ""
-  URL: ""
+  GIT_FILES: "."
+  GIT_MERGE_METHOD: "merge"
+  GIT_MESSAGE: ""
+  GIT_NAME: ""
+  GIT_NOTES: ""
+  GIT_OWNER: ""
+  GIT_REMOTE: "origin"
+  GIT_REPO: ""
+  GIT_STASH_INDEX: "0"
+  GIT_TAG: ""
+  GIT_TITLE: ""
+  GIT_URL: ""
   VERSION: ""
 
 tasks:
@@ -100,9 +100,9 @@ tasks:
     desc: Initialize a new git repository in the current directory
     summary: |
       Run `git init`. Set BRANCH to specify the initial branch name.
-      Example: BRANCH=main
+      Example: GIT_BRANCH=main
     cmds:
-      - git init{{if .BRANCH}} --initial-branch={{.BRANCH}}{{end}} {{.EXTRA_ARGS}}
+      - git init{{if .GIT_BRANCH}} --initial-branch={{.GIT_BRANCH}}{{end}} {{.EXTRA_ARGS}}
 
   clone:
     run: once
@@ -111,14 +111,14 @@ tasks:
       Clone a repository via gh. Requires REPO. Set OWNER for repos owned
       by another user or organisation. Set CLONE_DIR for the destination.
       Run `task auth:setup` first to configure git credentials via gh.
-      Example: OWNER=github REPO=cli CLONE_DIR=~/src/gh
+      Example: GIT_OWNER=github GIT_REPO=cli GIT_CLONE_DIR=~/src/gh
     requires:
       vars:
-        - REPO
+        - GIT_REPO
     deps:
       - task: gh:install
     cmds:
-      - gh repo clone {{if .OWNER}}{{.OWNER}}/{{end}}{{.REPO}} {{if .CLONE_DIR}}{{.CLONE_DIR}}{{end}} {{.EXTRA_ARGS}}
+      - gh repo clone {{if .GIT_OWNER}}{{.GIT_OWNER}}/{{end}}{{.GIT_REPO}} {{if .GIT_CLONE_DIR}}{{.GIT_CLONE_DIR}}{{end}} {{.EXTRA_ARGS}}
 
   status:
     run: once
@@ -133,9 +133,9 @@ tasks:
     summary: |
       Stage files via `git add`. FILES defaults to "." (all changes in the
       working tree). Pass specific files or globs via FILES.
-      Example: FILES="src/main.ts tests/"
+      Example: GIT_FILES="src/main.ts tests/"
     cmds:
-      - git add {{.FILES}} {{.EXTRA_ARGS}}
+      - git add {{.GIT_FILES}} {{.EXTRA_ARGS}}
 
   add:all:
     run: once
@@ -149,12 +149,12 @@ tasks:
     desc: Create a commit from staged changes
     summary: |
       Commit staged changes. Requires COMMIT_MSG.
-      Example: COMMIT_MSG="feat: add login page"
+      Example: GIT_COMMIT_MSG="feat: add login page"
     requires:
       vars:
-        - COMMIT_MSG
+        - GIT_COMMIT_MSG
     cmds:
-      - git commit -m "{{.COMMIT_MSG}}" {{.EXTRA_ARGS}}
+      - git commit -m "{{.GIT_COMMIT_MSG}}" {{.EXTRA_ARGS}}
 
   commit:amend:
     run: once
@@ -162,9 +162,9 @@ tasks:
     summary: |
       Amend the last commit. Set COMMIT_MSG to update the message, or omit
       COMMIT_MSG to keep the existing message (--no-edit).
-      Example: COMMIT_MSG="fix: corrected typo"
+      Example: GIT_COMMIT_MSG="fix: corrected typo"
     cmds:
-      - git commit --amend {{if .COMMIT_MSG}}-m "{{.COMMIT_MSG}}"{{else}}--no-edit{{end}} {{.EXTRA_ARGS}}
+      - git commit --amend {{if .GIT_COMMIT_MSG}}-m "{{.GIT_COMMIT_MSG}}"{{else}}--no-edit{{end}} {{.EXTRA_ARGS}}
 
   push:
     run: once
@@ -172,9 +172,9 @@ tasks:
     summary: |
       Push to the remote. REMOTE defaults to "origin". Set BRANCH to push
       to a specific remote branch; otherwise pushes HEAD.
-      Example: REMOTE=origin BRANCH=main
+      Example: GIT_REMOTE=origin GIT_BRANCH=main
     cmds:
-      - git push {{.REMOTE}} {{if .BRANCH}}{{.BRANCH}}{{else}}HEAD{{end}} {{.EXTRA_ARGS}}
+      - git push {{.GIT_REMOTE}} {{if .GIT_BRANCH}}{{.GIT_BRANCH}}{{else}}HEAD{{end}} {{.EXTRA_ARGS}}
 
   push:force:
     run: once
@@ -184,7 +184,7 @@ tasks:
       WARNING: This rewrites history on the remote branch.
     prompt: Force-push will rewrite remote history. Continue?
     cmds:
-      - git push {{.REMOTE}} {{if .BRANCH}}{{.BRANCH}}{{else}}HEAD{{end}} --force-with-lease {{.EXTRA_ARGS}}
+      - git push {{.GIT_REMOTE}} {{if .GIT_BRANCH}}{{.GIT_BRANCH}}{{else}}HEAD{{end}} --force-with-lease {{.EXTRA_ARGS}}
 
   pull:
     run: once
@@ -192,9 +192,9 @@ tasks:
     summary: |
       Fetch and merge changes from the remote. REMOTE defaults to "origin".
       Set BRANCH to pull a specific branch.
-      Example: REMOTE=origin BRANCH=main
+      Example: GIT_REMOTE=origin GIT_BRANCH=main
     cmds:
-      - git pull {{.REMOTE}}{{if .BRANCH}} {{.BRANCH}}{{end}} {{.EXTRA_ARGS}}
+      - git pull {{.GIT_REMOTE}}{{if .GIT_BRANCH}} {{.GIT_BRANCH}}{{end}} {{.EXTRA_ARGS}}
 
   fetch:
     run: once
@@ -202,9 +202,9 @@ tasks:
     summary: |
       Fetch all branches and prune deleted refs via `git fetch --prune`.
       REMOTE defaults to "origin".
-      Example: REMOTE=upstream
+      Example: GIT_REMOTE=upstream
     cmds:
-      - git fetch {{.REMOTE}} --prune {{.EXTRA_ARGS}}
+      - git fetch {{.GIT_REMOTE}} --prune {{.EXTRA_ARGS}}
 
   sync:
     run: once
@@ -213,11 +213,11 @@ tasks:
       Sync the local branch with its GitHub upstream via `gh repo sync`.
       Set BRANCH to sync a specific branch instead of the current one.
       Run `task auth:setup` first to configure git credentials via gh.
-      Example: BRANCH=main
+      Example: GIT_BRANCH=main
     deps:
       - task: gh:install
     cmds:
-      - gh repo sync {{if .BRANCH}}--branch {{.BRANCH}}{{end}} {{.EXTRA_ARGS}}
+      - gh repo sync {{if .GIT_BRANCH}}--branch {{.GIT_BRANCH}}{{end}} {{.EXTRA_ARGS}}
 
   diff:
     run: once
@@ -225,9 +225,9 @@ tasks:
     summary: |
       Show changes between the working tree and the index via `git diff`.
       Set FILES to limit to specific paths.
-      Example: FILES=src/
+      Example: GIT_FILES=src/
     cmds:
-      - git diff {{.FILES}} {{.EXTRA_ARGS}}
+      - git diff {{.GIT_FILES}} {{.EXTRA_ARGS}}
 
   diff:staged:
     run: once
@@ -264,24 +264,24 @@ tasks:
     desc: Create and switch to a new branch from current HEAD
     summary: |
       Create a new branch at current HEAD and switch to it. Requires BRANCH.
-      Example: BRANCH=feature/my-feature
+      Example: GIT_BRANCH=feature/my-feature
     requires:
       vars:
-        - BRANCH
+        - GIT_BRANCH
     cmds:
-      - git switch -c {{.BRANCH}} {{.EXTRA_ARGS}}
+      - git switch -c {{.GIT_BRANCH}} {{.EXTRA_ARGS}}
 
   branch:switch:
     run: once
     desc: Switch to an existing branch
     summary: |
       Switch to a branch via `git switch`. Requires BRANCH.
-      Example: BRANCH=main
+      Example: GIT_BRANCH=main
     requires:
       vars:
-        - BRANCH
+        - GIT_BRANCH
     cmds:
-      - git switch {{.BRANCH}} {{.EXTRA_ARGS}}
+      - git switch {{.GIT_BRANCH}} {{.EXTRA_ARGS}}
 
   branch:delete:
     run: once
@@ -289,25 +289,25 @@ tasks:
     summary: |
       Delete a local branch. Requires BRANCH.
       WARNING: Unmerged commits on this branch may be lost.
-      Example: BRANCH=feature/old-feature
+      Example: GIT_BRANCH=feature/old-feature
     requires:
       vars:
-        - BRANCH
-    prompt: Delete local branch "{{.BRANCH}}"?
+        - GIT_BRANCH
+    prompt: Delete local branch "{{.GIT_BRANCH}}"?
     cmds:
-      - git branch -d {{.BRANCH}} {{.EXTRA_ARGS}}
+      - git branch -d {{.GIT_BRANCH}} {{.EXTRA_ARGS}}
 
   branch:rename:
     run: once
     desc: Rename the current branch to a new name
     summary: |
       Rename the current branch. Requires BRANCH (the new name).
-      Example: BRANCH=new-name
+      Example: GIT_BRANCH=new-name
     requires:
       vars:
-        - BRANCH
+        - GIT_BRANCH
     cmds:
-      - git branch -m {{.BRANCH}}
+      - git branch -m {{.GIT_BRANCH}}
 
   tag:list:
     run: once
@@ -322,21 +322,21 @@ tasks:
     summary: |
       Create an annotated tag. Requires TAG. Set MESSAGE for the tag
       annotation; defaults to the tag name.
-      Example: TAG=v1.0.0 MESSAGE="Release v1.0.0"
+      Example: GIT_TAG=v1.0.0 GIT_MESSAGE="Release v1.0.0"
     requires:
       vars:
-        - TAG
+        - GIT_TAG
     cmds:
-      - git tag -a {{.TAG}} -m "{{default .TAG .MESSAGE}}" {{.EXTRA_ARGS}}
+      - git tag -a {{.GIT_TAG}} -m "{{default .GIT_TAG .GIT_MESSAGE}}" {{.EXTRA_ARGS}}
 
   tag:push:
     run: once
     desc: Push a tag or all tags to the remote
     summary: |
       Push TAG to the remote. Omit TAG to push all tags via --tags.
-      Example: TAG=v1.0.0 REMOTE=origin
+      Example: GIT_TAG=v1.0.0 GIT_REMOTE=origin
     cmds:
-      - git push {{.REMOTE}} {{if .TAG}}{{.TAG}}{{else}}--tags{{end}} {{.EXTRA_ARGS}}
+      - git push {{.GIT_REMOTE}} {{if .GIT_TAG}}{{.GIT_TAG}}{{else}}--tags{{end}} {{.EXTRA_ARGS}}
 
   tag:delete:
     run: once
@@ -344,14 +344,14 @@ tasks:
     summary: |
       Delete a tag both locally and on the remote. Requires TAG.
       WARNING: This removes the tag permanently from both local and remote.
-      Example: TAG=v0.1.0 REMOTE=origin
+      Example: GIT_TAG=v0.1.0 GIT_REMOTE=origin
     requires:
       vars:
-        - TAG
-    prompt: Delete tag "{{.TAG}}" locally and from remote "{{.REMOTE}}"?
+        - GIT_TAG
+    prompt: Delete tag "{{.GIT_TAG}}" locally and from remote "{{.GIT_REMOTE}}"?
     cmds:
-      - git tag -d {{.TAG}}
-      - git push {{.REMOTE}} --delete {{.TAG}}
+      - git tag -d {{.GIT_TAG}}
+      - git push {{.GIT_REMOTE}} --delete {{.GIT_TAG}}
 
   stash:
     run: once
@@ -359,18 +359,18 @@ tasks:
     summary: |
       Save the working tree and index to a stash entry. Set MESSAGE for
       a description of the stashed changes.
-      Example: MESSAGE="WIP: refactor auth module"
+      Example: GIT_MESSAGE="WIP: refactor auth module"
     cmds:
-      - git stash push {{if .MESSAGE}}-m "{{.MESSAGE}}"{{end}} {{.EXTRA_ARGS}}
+      - git stash push {{if .GIT_MESSAGE}}-m "{{.GIT_MESSAGE}}"{{end}} {{.EXTRA_ARGS}}
 
   stash:pop:
     run: once
     desc: Apply and remove the latest stash entry
     summary: |
       Apply and remove a stash entry. STASH_INDEX defaults to 0 (most recent).
-      Example: STASH_INDEX=1
+      Example: GIT_STASH_INDEX=1
     cmds:
-      - git stash pop stash@{{{.STASH_INDEX}}} {{.EXTRA_ARGS}}
+      - git stash pop stash@{{{.GIT_STASH_INDEX}}} {{.EXTRA_ARGS}}
 
   stash:list:
     run: once
@@ -384,9 +384,9 @@ tasks:
     desc: Discard a stash entry without applying it
     summary: |
       Remove a stash entry. STASH_INDEX defaults to 0 (most recent).
-      Example: STASH_INDEX=2
+      Example: GIT_STASH_INDEX=2
     cmds:
-      - git stash drop stash@{{{.STASH_INDEX}}} {{.EXTRA_ARGS}}
+      - git stash drop stash@{{{.GIT_STASH_INDEX}}} {{.EXTRA_ARGS}}
 
   reset:soft:
     run: once
@@ -394,12 +394,12 @@ tasks:
     summary: |
       Move HEAD back without touching the index or working tree. Requires COMMIT.
       Use to undo commits while keeping changes staged for a new commit.
-      Example: COMMIT=HEAD~1
+      Example: GIT_COMMIT=HEAD~1
     requires:
       vars:
-        - COMMIT
+        - GIT_COMMIT
     cmds:
-      - git reset --soft {{.COMMIT}} {{.EXTRA_ARGS}}
+      - git reset --soft {{.GIT_COMMIT}} {{.EXTRA_ARGS}}
 
   reset:hard:
     run: once
@@ -407,13 +407,13 @@ tasks:
     summary: |
       Move HEAD and discard all staged and unstaged changes. Requires COMMIT.
       WARNING: All uncommitted changes are permanently lost.
-      Example: COMMIT=HEAD~1
+      Example: GIT_COMMIT=HEAD~1
     requires:
       vars:
-        - COMMIT
-    prompt: Hard-reset to "{{.COMMIT}}"? All uncommitted changes will be permanently lost.
+        - GIT_COMMIT
+    prompt: Hard-reset to "{{.GIT_COMMIT}}"? All uncommitted changes will be permanently lost.
     cmds:
-      - git reset --hard {{.COMMIT}} {{.EXTRA_ARGS}}
+      - git reset --hard {{.GIT_COMMIT}} {{.EXTRA_ARGS}}
 
   clean:
     run: once
@@ -430,14 +430,14 @@ tasks:
     desc: Set the global git user name and email address
     summary: |
       Configure the global git identity. Requires NAME and EMAIL.
-      Example: NAME="Ada Lovelace" EMAIL=ada@example.com
+      Example: GIT_NAME="Ada Lovelace" GIT_EMAIL=ada@example.com
     requires:
       vars:
-        - NAME
-        - EMAIL
+        - GIT_NAME
+        - GIT_EMAIL
     cmds:
-      - git config --global user.name "{{.NAME}}"
-      - git config --global user.email "{{.EMAIL}}"
+      - git config --global user.name "{{.GIT_NAME}}"
+      - git config --global user.email "{{.GIT_EMAIL}}"
 
   config:list:
     run: once
@@ -458,38 +458,38 @@ tasks:
     desc: Add a new remote to the repository
     summary: |
       Add a named remote. Requires NAME and URL.
-      Example: NAME=upstream URL=https://github.com/org/repo.git
+      Example: GIT_NAME=upstream GIT_URL=https://github.com/org/repo.git
     requires:
       vars:
-        - NAME
-        - URL
+        - GIT_NAME
+        - GIT_URL
     cmds:
-      - git remote add {{.NAME}} {{.URL}}
+      - git remote add {{.GIT_NAME}} {{.GIT_URL}}
 
   remote:remove:
     run: once
     desc: Remove a configured remote from the repository
     summary: |
       Remove a remote. Requires NAME.
-      Example: NAME=upstream
+      Example: GIT_NAME=upstream
     requires:
       vars:
-        - NAME
+        - GIT_NAME
     cmds:
-      - git remote remove {{.NAME}}
+      - git remote remove {{.GIT_NAME}}
 
   remote:set-url:
     run: once
     desc: Update the URL of a configured remote
     summary: |
       Change the URL of a remote. Requires NAME and URL.
-      Example: NAME=origin URL=git@github.com:org/repo.git
+      Example: GIT_NAME=origin GIT_URL=git@github.com:org/repo.git
     requires:
       vars:
-        - NAME
-        - URL
+        - GIT_NAME
+        - GIT_URL
     cmds:
-      - git remote set-url {{.NAME}} {{.URL}}
+      - git remote set-url {{.GIT_NAME}} {{.GIT_URL}}
 
   pr:create:
     run: once
@@ -499,19 +499,19 @@ tasks:
       Requires TITLE. Set BASE for the target branch (default: main).
       Set BODY for the PR description.
       Run `task auth:setup` first to configure git credentials via gh.
-      Example: TITLE="feat: new feature" BASE=main
+      Example: GIT_TITLE="feat: new feature" GIT_BASE=main
     requires:
       vars:
-        - TITLE
+        - GIT_TITLE
     deps:
       - task: gh:install
     cmds:
-      - git push {{.REMOTE}} {{if .BRANCH}}{{.BRANCH}}{{else}}HEAD{{end}} {{.EXTRA_ARGS}}
+      - git push {{.GIT_REMOTE}} {{if .GIT_BRANCH}}{{.GIT_BRANCH}}{{else}}HEAD{{end}} {{.EXTRA_ARGS}}
       - >-
         gh pr create
-        --title "{{.TITLE}}"
-        --base "{{default "main" .BASE}}"
-        {{if .BODY}}--body "{{.BODY}}"{{end}}
+        --title "{{.GIT_TITLE}}"
+        --base "{{default "main" .GIT_BASE}}"
+        {{if .GIT_BODY}}--body "{{.GIT_BODY}}"{{end}}
 
   pr:open:
     run: once
@@ -531,19 +531,19 @@ tasks:
       Create an annotated tag, push it to remote, then create a GitHub release.
       Requires TAG. Set TITLE for the release title and NOTES for the body.
       Run `task auth:setup` first to configure git credentials via gh.
-      Example: TAG=v1.0.0 TITLE="v1.0.0" NOTES="Initial release"
+      Example: GIT_TAG=v1.0.0 GIT_TITLE="v1.0.0" GIT_NOTES="Initial release"
     requires:
       vars:
-        - TAG
+        - GIT_TAG
     deps:
       - task: gh:install
     cmds:
-      - git tag -a {{.TAG}} -m "{{default .TAG .TITLE}}"
-      - git push {{.REMOTE}} {{.TAG}}
+      - git tag -a {{.GIT_TAG}} -m "{{default .GIT_TAG .GIT_TITLE}}"
+      - git push {{.GIT_REMOTE}} {{.GIT_TAG}}
       - >-
-        gh release create {{.TAG}}
-        {{if .TITLE}}--title "{{.TITLE}}"{{end}}
-        {{if .NOTES}}--notes "{{.NOTES}}"{{end}}
+        gh release create {{.GIT_TAG}}
+        {{if .GIT_TITLE}}--title "{{.GIT_TITLE}}"{{end}}
+        {{if .GIT_NOTES}}--notes "{{.GIT_NOTES}}"{{end}}
 
   version:
     run: once

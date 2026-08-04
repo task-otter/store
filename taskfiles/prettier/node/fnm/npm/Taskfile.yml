@@ -75,6 +75,7 @@ tasks:
 
   config:init:
     run: once
+    dir: "{{.USER_WORKING_DIR}}"
     desc: Create a starter Prettier config when none exists
     vars:
       PRETTIER_CONFIG_PATH: '{{or .CONFIG_OVERRIDE .CONFIG ".prettierrc.json"}}'

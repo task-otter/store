@@ -11,9 +11,9 @@ silent: true
 
 vars:
   ARGS: ""
-  BASH_FLAGS: ""
-  COMMAND: ""
-  SCRIPT: ""
+  BASH_EXEC_FLAGS: ""
+  BASH_EXEC_COMMAND: ""
+  BASH_EXEC_SCRIPT: ""
 
 tasks:
   default:
@@ -25,56 +25,56 @@ tasks:
 
   run:
     run: once
-    desc: Run a Bash script (SCRIPT=path)
+    desc: Run a Bash script (BASH_EXEC_SCRIPT=path)
     summary: |
       Execute SCRIPT with Bash from the current working directory. Pass ARGS for
       positional script arguments and BASH_FLAGS for Bash options such as -euo
       pipefail. Bash must be installed and available in PATH.
     dir: "{{.USER_WORKING_DIR}}"
     preconditions:
-      - sh: test -n "{{.SCRIPT_OVERRIDE}}{{.SCRIPT}}"
-        msg: SCRIPT is required. Pass SCRIPT=path/to/script.sh when running this task.
+      - sh: test -n "{{.BASH_EXEC_SCRIPT_OVERRIDE}}{{.BASH_EXEC_SCRIPT}}"
+        msg: SCRIPT is required. Pass BASH_EXEC_SCRIPT=path/to/script.sh when running this task.
       - sh: command -v bash >/dev/null 2>&1
         msg: Bash is required. Install Bash and ensure it is available in PATH.
     cmds:
       - >-
         bash
-        {{if .BASH_FLAGS_OVERRIDE}}{{.BASH_FLAGS_OVERRIDE}}{{else}}{{.BASH_FLAGS}}{{end}}
-        "{{if .SCRIPT_OVERRIDE}}{{.SCRIPT_OVERRIDE}}{{else}}{{.SCRIPT}}{{end}}"
+        {{if .BASH_EXEC_FLAGS_OVERRIDE}}{{.BASH_EXEC_FLAGS_OVERRIDE}}{{else}}{{.BASH_EXEC_FLAGS}}{{end}}
+        "{{if .BASH_EXEC_SCRIPT_OVERRIDE}}{{.BASH_EXEC_SCRIPT_OVERRIDE}}{{else}}{{.BASH_EXEC_SCRIPT}}{{end}}"
         {{if .ARGS_OVERRIDE}}{{.ARGS_OVERRIDE}}{{else}}{{.ARGS}}{{end}}
 
   check:
     run: once
-    desc: Check a Bash script for syntax errors (SCRIPT=path)
+    desc: Check a Bash script for syntax errors (BASH_EXEC_SCRIPT=path)
     summary: |
       Run Bash syntax validation for SCRIPT without executing it. Pass BASH_FLAGS
       for parser options such as --noprofile. Bash must be available in PATH.
     dir: "{{.USER_WORKING_DIR}}"
     preconditions:
-      - sh: test -n "{{.SCRIPT_OVERRIDE}}{{.SCRIPT}}"
-        msg: SCRIPT is required. Pass SCRIPT=path/to/script.sh when running this task.
+      - sh: test -n "{{.BASH_EXEC_SCRIPT_OVERRIDE}}{{.BASH_EXEC_SCRIPT}}"
+        msg: SCRIPT is required. Pass BASH_EXEC_SCRIPT=path/to/script.sh when running this task.
       - sh: command -v bash >/dev/null 2>&1
         msg: Bash is required. Install Bash and ensure it is available in PATH.
     cmds:
       - >-
         bash -n
-        {{if .BASH_FLAGS_OVERRIDE}}{{.BASH_FLAGS_OVERRIDE}}{{else}}{{.BASH_FLAGS}}{{end}}
-        "{{if .SCRIPT_OVERRIDE}}{{.SCRIPT_OVERRIDE}}{{else}}{{.SCRIPT}}{{end}}"
+        {{if .BASH_EXEC_FLAGS_OVERRIDE}}{{.BASH_EXEC_FLAGS_OVERRIDE}}{{else}}{{.BASH_EXEC_FLAGS}}{{end}}
+        "{{if .BASH_EXEC_SCRIPT_OVERRIDE}}{{.BASH_EXEC_SCRIPT_OVERRIDE}}{{else}}{{.BASH_EXEC_SCRIPT}}{{end}}"
 
   exec:
     run: once
-    desc: Execute a Bash command string (COMMAND=...)
+    desc: Execute a Bash command string (BASH_EXEC_COMMAND=...)
     summary: |
       Execute COMMAND with bash -c from the current working directory. Use run
       instead when executing a script file. Bash must be available in PATH.
     dir: "{{.USER_WORKING_DIR}}"
     preconditions:
-      - sh: test -n "{{.COMMAND_OVERRIDE}}{{.COMMAND}}"
-        msg: COMMAND is required. Pass COMMAND='echo hello' when running this task.
+      - sh: test -n "{{.BASH_EXEC_COMMAND_OVERRIDE}}{{.BASH_EXEC_COMMAND}}"
+        msg: COMMAND is required. Pass BASH_EXEC_COMMAND='echo hello' when running this task.
       - sh: command -v bash >/dev/null 2>&1
         msg: Bash is required. Install Bash and ensure it is available in PATH.
     env:
-      BASH_EXEC_COMMAND: "{{if .COMMAND_OVERRIDE}}{{.COMMAND_OVERRIDE}}{{else}}{{.COMMAND}}{{end}}"
+      BASH_EXEC_COMMAND: "{{if .BASH_EXEC_COMMAND_OVERRIDE}}{{.BASH_EXEC_COMMAND_OVERRIDE}}{{else}}{{.BASH_EXEC_COMMAND}}{{end}}"
     cmds:
       - bash -c "$BASH_EXEC_COMMAND"
 

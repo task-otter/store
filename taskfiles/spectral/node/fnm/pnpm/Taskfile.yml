@@ -16,7 +16,7 @@ includes:
 vars:
   SPECTRAL_LINT_SKIP_PATTERN: ""
   TARGETS: ""
-  RULESET: ""
+  SPECTRAL_RULESET: ""
   EXTRA_ARGS: ""
   VERSION: ""
 
@@ -98,7 +98,7 @@ tasks:
     vars:
       RESOLVED_TARGETS: '{{default .TARGETS .TARGETS_OVERRIDE}}'
       RESOLVED_SKIP: '{{default .SPECTRAL_LINT_SKIP_PATTERN .SPECTRAL_LINT_SKIP_PATTERN_OVERRIDE}}'
-      RESOLVED_RULESET: '{{default .RULESET .RULESET_OVERRIDE}}'
+      RESOLVED_RULESET: '{{default .SPECTRAL_RULESET .SPECTRAL_RULESET_OVERRIDE}}'
     cmds:
       - task: pnpm:exec
         vars:

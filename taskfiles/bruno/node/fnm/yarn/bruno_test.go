@@ -23,8 +23,8 @@ func publicTasks() []string {
 
 func publicVars() []string {
 	return []string{
-		"COLLECTION",
-		"ENV",
+		"BRUNO_COLLECTION",
+		"BRUNO_ENV",
 		"EXTRA_ARGS",
 		"VERSION",
 	}
