@@ -43,11 +43,12 @@ func publicTasksCore() []string {
 		"audit:report",
 		"build",
 		constPnpmTaskCi,
+		"ci:fix",
 		"clean",
 		"clean:all",
 		"dev",
 		"exec",
-		"format",
+		"fmt",
 		constPnpmTaskInstall,
 		"install:undo",
 	}

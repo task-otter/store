@@ -90,6 +90,7 @@ func expectedPublicTasksA() []tasktestutil.PublicTaskSpec {
 		spec(constNpmTestBuild, dryGroupSummary...),
 		spec("cache:clean", dryGroupSummary...),
 		spec(constNpmTestCi, dryGroupSummary...),
+	spec("ci:fix", dryGroupSummary...),
 	}
 }
 
@@ -105,7 +106,7 @@ func expectedPublicTasksB() []tasktestutil.PublicTaskSpec {
 		spec("exec", withArgs(map[string]string{"BINARY": constNpmTestPrettier}),
 			tasktestutil.WithDryRunArgs(), tasktestutil.WithGroupOutput()),
 		spec("doctor", dryGroupSummary...),
-		spec("format", dryGroupSummary...),
+		spec("fmt", dryGroupSummary...),
 		spec(constNpmTestInstall, dryGroupSummary...),
 		spec("install:undo", dryGroupSummary...),
 		spec("lint", dryGroupSummary...),

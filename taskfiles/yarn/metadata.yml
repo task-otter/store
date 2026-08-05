@@ -10,11 +10,12 @@ exported_tasks:
   - build
   - cache:clean
   - ci
+  - ci:fix
   - clean
   - clean:all
   - dev
   - exec
-  - format
+  - fmt
   - install
   - install:undo
   - lint

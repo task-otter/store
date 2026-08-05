@@ -11,11 +11,13 @@ import (
 
 func publicTasks() []string {
 	return []string{
+		"ci",
+		"ci:fix",
+		"lint:fix",
 		"galaxy:install",
 		"install",
 		"install:undo",
 		"lint",
-		"lint:fix",
 		"list:hosts",
 		"ping",
 		"run",

@@ -13,7 +13,8 @@ func publicTasks() []string {
 	return []string{
 		"config:init",
 		"config:skip",
-		"fix",
+		"ci:fix",
+		"lint:fix",
 		"install",
 		"install:undo",
 		"lint",

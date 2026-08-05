@@ -3,10 +3,11 @@ schema: taskotter.dev/taskfile-metadata/v1
 module: dotenv-linter
 taskfile: Taskfile.yml
 exported_tasks:
+  - ci:fix
   - diff
-  - fix
   - install
   - install:undo
   - lint
+  - lint:fix
   - upgrade
   - version

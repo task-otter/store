@@ -76,6 +76,21 @@ tasks:
       - cmd: djlint --version
         platforms: [windows]
 
+  ci:
+    run: once
+    desc: Run djLint fmt:check then lint
+    cmds:
+      - task: fmt:check
+      - task: lint
+
+  ci:fix:
+    run: once
+    desc: Run fmt for CI fixing
+    summary: |
+      Run fmt to apply formatting fixes. Suitable for CI autofix workflows.
+    cmds:
+      - task: fmt
+
   lint:
     run: once
     desc: Lint HTML templates with djLint (DJLINT_TARGETS=path)

@@ -37,10 +37,10 @@ Available leaves: `bun`, `node/{fnm,nvm}/{npm,pnpm,yarn}`.
 | `install:undo`| Optional `PRETTIER_EXTRA_ARGS`                                                 | Remove the locally installed `prettier` devDependency.    |
 | `upgrade`     | Optional `PRETTIER_EXTRA_ARGS`                                                 | Reinstall `prettier` at the latest version.                |
 | `config:init` | Optional `PRETTIER_CONFIG`                                                           | Create a starter Prettier config when one does not exist. |
+| `config:skip` | Optional `PRETTIER_FMT_SKIP_PATTERN`, `PRETTIER_IGNORE_PATH`                         | Upsert the skip pattern into `.prettierignore`. Run automatically by the tasks below. |
 | `fmt:check`   | Optional `PRETTIER_TARGETS`, `PRETTIER_CONFIG`, `PRETTIER_IGNORE_PATH`, `PRETTIER_EXTRA_ARGS`, `CLI_ARGS` | Run `prettier --check`.                                   |
 | `fmt`         | Optional `PRETTIER_TARGETS`, `PRETTIER_CONFIG`, `PRETTIER_IGNORE_PATH`, `PRETTIER_EXTRA_ARGS`, `CLI_ARGS` | Run `prettier --write`.                                   |
-| `fix`         | Optional `PRETTIER_TARGETS`, `PRETTIER_CONFIG`, `PRETTIER_IGNORE_PATH`, `PRETTIER_EXTRA_ARGS`, `CLI_ARGS` | Alias for `fmt`.                                           |
-| `ci`          | Optional `PRETTIER_TARGETS`, `PRETTIER_CONFIG`, `PRETTIER_IGNORE_PATH`, `PRETTIER_EXTRA_ARGS`, `CLI_ARGS` | Alias for `fmt:check`.                                     |
+| `ci:fix` | — | Run `fmt` for CI fixing |
 | `version`     | — | Show the resolved Prettier version.                       |
 | `help`        | Optional `PRETTIER_EXTRA_ARGS`, `CLI_ARGS`                                     | Show Prettier CLI help.                                   |
 
@@ -54,6 +54,20 @@ Available leaves: `bun`, `node/{fnm,nvm}/{npm,pnpm,yarn}`.
 - `PRETTIER_FMT_SKIP_PATTERN` (default empty): forward-slash path glob for files skipped by formatting checks and fixes.
 
 Skip patterns support `*` within one path segment, `**` across directories, and `?` for one character. Paths are matched relative to the task working directory; for example, `**/generated/**`.
+
+When a skip pattern is set, `config:skip` upserts a managed block into
+`.prettierignore` (or `PRETTIER_IGNORE_PATH`):
+
+```gitignore
+# BEGIN taskotter-skip
+**/generated/**
+# END taskotter-skip
+```
+
+The block is rewritten on every run; user entries outside the markers are left
+alone. Running with an empty pattern removes only that managed block — the
+ignore file itself is never deleted. After `config:skip` creates the file,
+`--ignore-path` is passed automatically when the path exists.
 
 ## Examples
 

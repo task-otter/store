@@ -2,7 +2,6 @@
 actionlint: [internal/skipfiles]
 adrs: [cargo]
 ansible: [internal/skipfiles, uv]
-bash-exec: []
 bencher: []
 biome/bun: [bun]
 biome/node/fnm/npm: [npm/fnm]

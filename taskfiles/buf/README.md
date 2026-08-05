@@ -66,6 +66,8 @@ task buf:generate BUF_INPUT=api/v1
 | Task            | Description                                              | Key variables                  |
 | --------------- | -------------------------------------------------------- | ------------------------------ |
 | `breaking`      | Check proto files for breaking changes against AGAINST   | `BUF_INPUT`, `BUF_AGAINST`, `BUF_EXTRA_ARGS` |
+| `ci`            | Run `fmt:check` then `lint`                              | `BUF_INPUT`, `BUF_CONFIG`, `BUF_EXTRA_ARGS` |
+| `ci:fix` | Run `fmt` for CI fixing | — |
 | `fmt:check`     | Check proto file formatting with Buf                     | `BUF_INPUT`, `BUF_EXTRA_ARGS`          |
 | `fmt`           | Format proto files in place with Buf                     | `BUF_INPUT`, `BUF_EXTRA_ARGS`          |
 | `generate`      | Generate code from proto files with Buf                  | `BUF_INPUT`, `BUF_EXTRA_ARGS`          |

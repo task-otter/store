@@ -43,6 +43,8 @@ task djlint:install DJLINT_VERSION=1.36.4
 | `lint` | Lint HTML templates with djlint --lint | `DJLINT_TARGETS`, `DJLINT_EXTRA_ARGS` |
 | `fmt` | Format HTML templates in place with djlint --reformat | `DJLINT_TARGETS`, `DJLINT_EXTRA_ARGS` |
 | `fmt:check` | Report formatting changes without modifying files (djlint --check) | `DJLINT_TARGETS`, `DJLINT_EXTRA_ARGS` |
+| `ci` | Run `fmt:check` then `lint` | `DJLINT_TARGETS`, `DJLINT_EXTRA_ARGS` |
+| `ci:fix` | Run `fmt` for CI fixing | — |
 | `version` | Show the installed djLint version | |
 
 ## Variables

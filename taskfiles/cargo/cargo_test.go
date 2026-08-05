@@ -13,6 +13,8 @@ func publicTasks() []string {
 	return []string{
 		"build",
 		"check",
+		"ci",
+		"ci:fix",
 		"fmt",
 		"fmt:check",
 		"install",

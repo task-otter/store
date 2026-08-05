@@ -3,6 +3,7 @@ schema: taskotter.dev/taskfile-metadata/v1
 module: shfmt
 taskfile: Taskfile.yml
 exported_tasks:
+  - ci:fix
   - fmt
   - fmt:check
   - install

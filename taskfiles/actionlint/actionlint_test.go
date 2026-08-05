@@ -11,9 +11,9 @@ import (
 
 func publicTasks() []string {
 	return []string{
+		"lint",
 		"install",
 		"install:undo",
-		"lint",
 		"upgrade",
 		"version",
 	}

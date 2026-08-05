@@ -13,7 +13,9 @@ func publicTasks() []string {
 	return []string{
 		"cache:clean",
 		"ci",
+		"ci:fix",
 		"config:init",
+		"config:skip",
 		"help",
 		"install",
 		"install:undo",

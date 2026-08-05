@@ -112,6 +112,134 @@ tasks:
           echo "Created $config_file."
         fi
 
+  config:skip:
+    desc: Upsert the managed skip block in .stylelintignore
+    summary: |
+      Write STYLELINT_LINT_SKIP_PATTERN into a managed section of
+      .stylelintignore. Every lint, lint:fix, and ci task runs this first.
+      Empty pattern removes only the managed block; user entries are preserved.
+      Stylelint loads .stylelintignore from the working directory automatically.
+    dir: "{{.USER_WORKING_DIR}}"
+    set: [errexit, nounset, pipefail]
+    vars:
+      RESOLVED_SKIP: '{{default .STYLELINT_LINT_SKIP_PATTERN .STYLELINT_LINT_SKIP_PATTERN_OVERRIDE}}'
+    env:
+      STYLELINT_SKIP_PATTERN: "{{.RESOLVED_SKIP}}"
+      STYLELINT_IGNORE_FILE: ".stylelintignore"
+    cmds:
+      - cmd: |
+          pattern="$STYLELINT_SKIP_PATTERN"
+          ignore_path="$STYLELINT_IGNORE_FILE"
+          begin_marker="# BEGIN taskotter-skip"
+          end_marker="# END taskotter-skip"
+
+          remove_managed_block() {
+            local file="$1"
+            [[ -f "$file" ]] || return 0
+            local tmp
+            tmp="$(mktemp)"
+            awk -v begin="$begin_marker" -v end="$end_marker" '
+              $0 == begin { in_block = 1; next }
+              in_block && $0 == end { in_block = 0; next }
+              !in_block { print }
+            ' "$file" >"$tmp"
+            mv "$tmp" "$file"
+          }
+
+          # Nothing to skip: drop only the managed block a previous run left
+          # behind. Never delete the ignore file itself.
+          if [[ -z "$pattern" ]]; then
+            remove_managed_block "$ignore_path"
+            exit 0
+          fi
+
+          pattern="${pattern//\\//}"
+
+          if [[ -f "$ignore_path" ]] && grep -qxF -- "$begin_marker" "$ignore_path"; then
+            tmp="$(mktemp)"
+            awk -v begin="$begin_marker" -v end="$end_marker" -v pattern="$pattern" '
+              $0 == begin {
+                print begin
+                print pattern
+                print end
+                in_block = 1
+                next
+              }
+              in_block && $0 == end { in_block = 0; next }
+              !in_block { print }
+            ' "$ignore_path" >"$tmp"
+            mv "$tmp" "$ignore_path"
+            exit 0
+          fi
+
+          if [[ -f "$ignore_path" && -s "$ignore_path" ]]; then
+            if [[ "$(tail -c1 "$ignore_path" | wc -l)" -eq 0 ]]; then
+              printf '\n' >>"$ignore_path"
+            fi
+            printf '%s\n%s\n%s\n' "$begin_marker" "$pattern" "$end_marker" >>"$ignore_path"
+          else
+            printf '%s\n%s\n%s\n' "$begin_marker" "$pattern" "$end_marker" >"$ignore_path"
+          fi
+        platforms: [linux, darwin]
+      - cmd: |
+          powershell -NoProfile -ExecutionPolicy Bypass -Command - <<'POWERSHELL'
+          $ErrorActionPreference = 'Stop'
+          $pattern = $env:STYLELINT_SKIP_PATTERN
+          $ignorePath = $env:STYLELINT_IGNORE_FILE
+          $beginMarker = '# BEGIN taskotter-skip'
+          $endMarker = '# END taskotter-skip'
+
+          function Remove-ManagedBlock([string]$path) {
+              if (-not (Test-Path -LiteralPath $path -PathType Leaf)) { return }
+              $lines = @(Get-Content -LiteralPath $path)
+              $result = [System.Collections.Generic.List[string]]::new()
+              $inBlock = $false
+              foreach ($line in $lines) {
+                  if ($line -eq $beginMarker) { $inBlock = $true; continue }
+                  if ($inBlock -and $line -eq $endMarker) { $inBlock = $false; continue }
+                  if (-not $inBlock) { $result.Add($line) }
+              }
+              Set-Content -LiteralPath $path -Value $result -Encoding utf8
+          }
+
+          if ([string]::IsNullOrWhiteSpace($pattern)) {
+              Remove-ManagedBlock $ignorePath
+              exit 0
+          }
+
+          $pattern = $pattern.Replace('\', '/')
+          $block = @($beginMarker, $pattern, $endMarker)
+
+          if (Test-Path -LiteralPath $ignorePath -PathType Leaf) {
+              $lines = @(Get-Content -LiteralPath $ignorePath)
+              if ($lines -contains $beginMarker) {
+                  $result = [System.Collections.Generic.List[string]]::new()
+                  $inBlock = $false
+                  foreach ($line in $lines) {
+                      if ($line -eq $beginMarker) {
+                          $result.Add($beginMarker)
+                          $result.Add($pattern)
+                          $result.Add($endMarker)
+                          $inBlock = $true
+                          continue
+                      }
+                      if ($inBlock -and $line -eq $endMarker) { $inBlock = $false; continue }
+                      if (-not $inBlock) { $result.Add($line) }
+                  }
+                  Set-Content -LiteralPath $ignorePath -Value $result -Encoding utf8
+                  exit 0
+              }
+              $result = [System.Collections.Generic.List[string]]::new()
+              foreach ($line in $lines) { $result.Add($line) }
+              foreach ($line in $block) { $result.Add($line) }
+              Set-Content -LiteralPath $ignorePath -Value $result -Encoding utf8
+              exit 0
+          }
+
+          Set-Content -LiteralPath $ignorePath -Value $block -Encoding utf8
+          POWERSHELL
+        platforms: [windows]
+
   # Shared implementation of lint / lint:fix / ci. Each override is resolved
   # exactly once here; the three public tasks differ only by MODE_ARGS.
   _run:
@@ -119,20 +247,19 @@ tasks:
     run: when_changed
     vars:
       RESOLVED_TARGETS: '{{or .STYLELINT_TARGETS_OVERRIDE .STYLELINT_TARGETS .STYLELINT_DEFAULT_TARGETS}}'
-      RESOLVED_SKIP: '{{default .STYLELINT_LINT_SKIP_PATTERN .STYLELINT_LINT_SKIP_PATTERN_OVERRIDE}}'
       RESOLVED_CONFIG: '{{default .STYLELINT_CONFIG .STYLELINT_CONFIG_OVERRIDE}}'
       RESOLVED_CACHE: '{{or .STYLELINT_CACHE_OVERRIDE .STYLELINT_CACHE .STYLELINT_DEFAULT_CACHE}}'
       RESOLVED_EMPTY: >-
         {{or .STYLELINT_ALLOW_EMPTY_INPUT_OVERRIDE .STYLELINT_ALLOW_EMPTY_INPUT .STYLELINT_DEFAULT_ALLOW_EMPTY_INPUT}}
       RESOLVED_EXTRA_ARGS: '{{default .STYLELINT_EXTRA_ARGS .STYLELINT_EXTRA_ARGS_OVERRIDE}}'
     cmds:
+      - task: config:skip
       - task: _bun:unix
         vars:
           ARGS: >-
             x stylelint
             {{.RESOLVED_TARGETS}}
             {{- if .MODE_ARGS}} {{.MODE_ARGS}}{{end}}
-            {{- if .RESOLVED_SKIP}} --ignore-pattern "{{.RESOLVED_SKIP}}"{{end}}
             {{- if .RESOLVED_CONFIG}} --config "{{.RESOLVED_CONFIG}}"{{end}}
             {{- if eq .RESOLVED_CACHE "true"}} --cache --cache-location .cache/stylelint/{{end}}
             {{- if eq .RESOLVED_EMPTY "true"}} --allow-empty-input{{end}}
@@ -143,7 +270,6 @@ tasks:
             x stylelint
             {{.RESOLVED_TARGETS}}
             {{- if .MODE_ARGS}} {{.MODE_ARGS}}{{end}}
-            {{- if .RESOLVED_SKIP}} --ignore-pattern "{{.RESOLVED_SKIP}}"{{end}}
             {{- if .RESOLVED_CONFIG}} --config "{{.RESOLVED_CONFIG}}"{{end}}
             {{- if eq .RESOLVED_CACHE "true"}} --cache --cache-location .cache/stylelint/{{end}}
             {{- if eq .RESOLVED_EMPTY "true"}} --allow-empty-input{{end}}
@@ -175,6 +301,15 @@ tasks:
         vars:
           MODE_ARGS: "--max-warnings=0"
       - echo "✅ stylelint passed"
+
+  ci:fix:
+    run: once
+    desc: Run lint:fix for CI fixing
+    summary: |
+      Run lint:fix to apply automatic lint fixes. Suitable for CI
+      autofix workflows.
+    cmds:
+      - task: lint:fix
 
   cache:clean:
     run: once

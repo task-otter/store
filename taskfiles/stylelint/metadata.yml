@@ -5,7 +5,9 @@ taskfile: Taskfile.yml
 exported_tasks:
   - cache:clean
   - ci
+  - ci:fix
   - config:init
+  - config:skip
   - help
   - install
   - install:undo

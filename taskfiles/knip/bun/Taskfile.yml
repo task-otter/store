@@ -84,7 +84,7 @@ tasks:
             add -d --silent knip@latest
             {{default .KNIP_EXTRA_ARGS .KNIP_EXTRA_ARGS_OVERRIDE}}
 
-  init:
+  config:init:
     run: once
     dir: "{{.USER_WORKING_DIR}}"
     desc: Create a starter knip.json configuration file
@@ -99,12 +99,6 @@ tasks:
       - >-
         printf '%s\n' '{' '  "$schema": "https://unpkg.com/knip@5/schema.json"' '}' > knip.json
       - echo "✅ created knip.json"
-
-  config:init:
-    run: once
-    desc: Alias for knip:init
-    cmds:
-      - task: init
 
   config:skip:
     desc: Write a Knip config overlay that ignores the skip pattern
@@ -381,6 +375,15 @@ tasks:
         vars:
           MODE: "--production"
       - echo "✅ knip passed"
+
+  ci:fix:
+    run: once
+    desc: Run lint:fix for CI fixing
+    summary: |
+      Run lint:fix to apply automatic lint fixes. Suitable for CI
+      autofix workflows.
+    cmds:
+      - task: lint:fix
 
   version:
     run: once

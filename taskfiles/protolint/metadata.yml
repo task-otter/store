@@ -3,9 +3,10 @@ schema: taskotter.dev/taskfile-metadata/v1
 module: protolint
 taskfile: Taskfile.yml
 exported_tasks:
-  - fix
+  - ci:fix
   - install
   - install:undo
   - lint
+  - lint:fix
   - upgrade
   - version

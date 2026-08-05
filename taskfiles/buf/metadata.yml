@@ -4,6 +4,8 @@ module: buf
 taskfile: Taskfile.yml
 exported_tasks:
   - breaking
+  - ci
+  - ci:fix
   - fmt
   - fmt:check
   - generate

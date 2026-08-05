@@ -12,10 +12,11 @@ import (
 func publicTasks() []string {
 	return []string{
 		"diff",
-		"fix",
 		"install",
 		"install:undo",
 		"lint",
+		"ci:fix",
+		"lint:fix",
 		"upgrade",
 		"version",
 	}

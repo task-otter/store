@@ -93,6 +93,14 @@ tasks:
       - task: _ci:unix
       - task: _ci:windows
 
+  ci:fix:
+    run: once
+    desc: Run fmt for CI fixing
+    summary: |
+      Run fmt to apply formatting fixes. Suitable for CI autofix workflows.
+    cmds:
+      - task: fmt
+
   add:
     run: once
     desc: Install packages as local devDependencies with pnpm (PACKAGES=<pkgs>)
@@ -225,7 +233,7 @@ tasks:
       - task: _pnpm:windows
         vars: { ARGS: run lint }
 
-  format:
+  fmt:
     run: once
     desc: Format source files with pnpm
     summary: Execute the format script defined in package.json through pnpm run format.

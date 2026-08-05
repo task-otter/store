@@ -11,6 +11,7 @@ import (
 
 func publicTasks() []string {
 	return []string{
+		"ci:fix",
 		"fmt",
 		"fmt:check",
 		"install",

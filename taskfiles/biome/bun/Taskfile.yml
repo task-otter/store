@@ -87,12 +87,6 @@ tasks:
             add -d --silent @biomejs/biome@latest
             {{default .BIOME_EXTRA_ARGS .BIOME_EXTRA_ARGS_OVERRIDE}}
 
-  init:
-    run: once
-    desc: Alias for biome:config:init
-    cmds:
-      - task: config:init
-
   config:init:
     run: once
     dir: "{{.USER_WORKING_DIR}}"
@@ -117,8 +111,8 @@ tasks:
     desc: Write a Biome config overlay that excludes the skip patterns
     summary: |
       Generate a Biome config that extends the project config and negates
-      BIOME_LINT_SKIP_PATTERN and BIOME_FMT_SKIP_PATTERN. Every lint, format,
-      check, and ci task runs this first. Pass SKIP_SCOPE=lint or SKIP_SCOPE=fmt
+      BIOME_LINT_SKIP_PATTERN and BIOME_FMT_SKIP_PATTERN. Every lint, lint:fix, fmt, fmt:check,
+      and ci task runs this first. Pass SKIP_SCOPE=lint or SKIP_SCOPE=fmt
       to negate only one of the two; the default covers both. The overlay is
       rewritten on every run and is not removed afterwards, so add it to
       .gitignore. Running with no skip pattern set deletes it.
@@ -227,7 +221,7 @@ tasks:
           POWERSHELL
         platforms: [windows]
 
-  # Shared implementation of check / lint / format / ci. Callers supply the
+  # Shared implementation of lint / lint:fix / fmt / fmt:check / ci. Callers supply the
   # subcommand, which skip scope the config overlay is generated for, and the
   # resolved pattern that decides whether the overlay is used at all.
 
@@ -267,7 +261,7 @@ tasks:
             {{- if .RESOLVED_TARGETS}} {{.RESOLVED_TARGETS}}{{end}}
             {{default .BIOME_EXTRA_ARGS .BIOME_EXTRA_ARGS_OVERRIDE}}{{if .CLI_ARGS}} {{.CLI_ARGS}}{{end}}
 
-  check:
+  lint:
     run: once
     desc: Run Biome check
     cmds:
@@ -277,7 +271,7 @@ tasks:
           SKIP_SCOPE: all
       - echo "✅ biome passed"
 
-  check:write:
+  lint:fix:
     run: once
     desc: Run Biome check and write safe fixes
     cmds:
@@ -285,32 +279,6 @@ tasks:
         vars:
           SUBCMD: check --write
           SKIP_SCOPE: all
-      - echo "✅ biome fixes applied"
-
-  fix:
-    run: once
-    desc: Alias for biome:check:write
-    cmds:
-      - task: check:write
-
-  lint:
-    run: once
-    desc: Run Biome lint
-    cmds:
-      - task: _run
-        vars:
-          SUBCMD: lint
-          SKIP_SCOPE: lint
-      - echo "✅ biome passed"
-
-  lint:fix:
-    run: once
-    desc: Run Biome lint and write fixes
-    cmds:
-      - task: _run
-        vars:
-          SUBCMD: lint --write
-          SKIP_SCOPE: lint
       - echo "✅ biome fixes applied"
 
   fmt:check:
@@ -341,6 +309,16 @@ tasks:
           SUBCMD: ci
           SKIP_SCOPE: all
       - echo "✅ biome passed"
+
+  ci:fix:
+    run: once
+    desc: Run fmt then lint:fix for CI
+    summary: |
+      Run fmt then lint:fix. Applies formatting and automatic lint fixes
+      suitable for CI autofix workflows.
+    cmds:
+      - task: fmt
+      - task: lint:fix
 
   cache:clean:
     run: once

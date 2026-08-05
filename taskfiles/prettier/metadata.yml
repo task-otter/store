@@ -3,9 +3,9 @@ schema: taskotter.dev/taskfile-metadata/v1
 module: prettier
 taskfile: Taskfile.yml
 exported_tasks:
-  - ci
+  - ci:fix
   - config:init
-  - fix
+  - config:skip
   - fmt
   - fmt:check
   - help

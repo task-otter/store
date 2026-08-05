@@ -45,7 +45,9 @@ task ansible:run ANSIBLE_PLAYBOOK=site.yml ANSIBLE_INVENTORY=hosts
 | `upgrade`        | Upgrade Ansible and ansible-lint to the latest release | none                                  |
 | `version`        | Show Ansible and ansible-lint versions                 | none                                  |
 | `lint`           | Lint Ansible YAML files with ansible-lint              | `ANSIBLE_TARGETS`, `ANSIBLE_EXTRA_ARGS`               |
-| `lint:fix`       | Auto-fix Ansible YAML files with ansible-lint --fix     | `ANSIBLE_TARGETS`, `ANSIBLE_EXTRA_ARGS`               |
+| `lint:fix`         | Auto-fix Ansible YAML files with ansible-lint --fix     | `ANSIBLE_TARGETS`, `ANSIBLE_EXTRA_ARGS`               |
+| `ci`             | Run `lint` then `syntax:check`                          | `ANSIBLE_TARGETS`, `ANSIBLE_PLAYBOOK`, `ANSIBLE_INVENTORY` |
+| `ci:fix` | Run `lint:fix` for CI fixing | — |
 | `syntax:check`   | Check playbook syntax without executing                | `ANSIBLE_PLAYBOOK`, `ANSIBLE_INVENTORY`               |
 | `run`            | Run an Ansible playbook                                | `ANSIBLE_PLAYBOOK`, `ANSIBLE_INVENTORY`, `ANSIBLE_EXTRA_ARGS` |
 | `ping`           | Test connectivity to inventory hosts                   | `ANSIBLE_INVENTORY`, `ANSIBLE_PATTERN`, `ANSIBLE_EXTRA_ARGS`  |

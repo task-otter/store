@@ -11,9 +11,9 @@ import (
 
 func publicTasks() []string {
 	return []string{
-		"ci",
 		"config:init",
-		"fix",
+		"config:skip",
+		"ci:fix",
 		"fmt",
 		"fmt:check",
 		"help",

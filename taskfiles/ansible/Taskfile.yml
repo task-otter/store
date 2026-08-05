@@ -115,6 +115,25 @@ tasks:
       - task: _lint:fix:unix
       - echo "✅ ansible-lint fixes applied"
 
+  ci:
+    run: once
+    desc: Run ansible-lint and ansible-playbook --syntax-check (ANSIBLE_PLAYBOOK=path)
+    summary: |
+      Run the lint task followed by syntax:check. Requires ANSIBLE_PLAYBOOK to
+      be set so ansible-playbook --syntax-check can validate the playbook.
+    cmds:
+      - task: lint
+      - task: syntax:check
+
+  ci:fix:
+    run: once
+    desc: Run lint:fix for CI fixing
+    summary: |
+      Run lint:fix to apply automatic lint fixes. Suitable for CI
+      autofix workflows.
+    cmds:
+      - task: lint:fix
+
   syntax:check:
     run: once
     desc: Check Ansible playbook syntax (ANSIBLE_PLAYBOOK=path)

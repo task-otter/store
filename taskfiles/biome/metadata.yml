@@ -4,16 +4,13 @@ module: biome
 taskfile: Taskfile.yml
 exported_tasks:
   - cache:clean
-  - check
-  - check:write
   - ci
+  - ci:fix
   - config:init
   - config:skip
-  - fix
   - fmt
   - fmt:check
   - help
-  - init
   - install
   - install:undo
   - lint

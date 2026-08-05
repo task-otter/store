@@ -36,9 +36,11 @@ Available leaves: `bun`, `node/{fnm,nvm}/{npm,pnpm,yarn}`.
 | `install:undo`| Optional `STYLELINT_EXTRA_ARGS`                                                                | Remove the locally installed Stylelint devDependencies.              |
 | `upgrade`     | Optional `STYLELINT_EXTRA_ARGS`                                                                | Reinstall Stylelint and the standard config at their latest versions. |
 | `config:init` | Optional `STYLELINT_CONFIG`                                                                          | Create a starter Stylelint config when one does not exist.           |
+| `config:skip` | Optional `STYLELINT_LINT_SKIP_PATTERN`                                                               | Upsert the managed skip block in `.stylelintignore`. Run automatically by the tasks below. |
 | `lint`        | Optional `STYLELINT_TARGETS`, `STYLELINT_CONFIG`, `STYLELINT_CACHE`, `STYLELINT_ALLOW_EMPTY_INPUT`, `STYLELINT_EXTRA_ARGS`, `CLI_ARGS` | Lint stylesheet targets.                                             |
 | `lint:fix`    | Optional `STYLELINT_TARGETS`, `STYLELINT_CONFIG`, `STYLELINT_CACHE`, `STYLELINT_ALLOW_EMPTY_INPUT`, `STYLELINT_EXTRA_ARGS`, `CLI_ARGS` | Run Stylelint with `--fix`.                                          |
 | `ci`          | Optional `STYLELINT_TARGETS`, `STYLELINT_CONFIG`, `STYLELINT_CACHE`, `STYLELINT_ALLOW_EMPTY_INPUT`, `STYLELINT_EXTRA_ARGS`, `CLI_ARGS` | Run Stylelint with `--max-warnings=0`.                               |
+| `ci:fix` | — | Run `lint:fix` for CI fixing |
 | `cache:clean` | —                                                                                          | Remove `.cache/stylelint`.                                           |
 | `version`     | — | Show the resolved Stylelint version.                                 |
 | `help`        | Optional `STYLELINT_EXTRA_ARGS`, `CLI_ARGS`                                                    | Show Stylelint CLI help.                                             |
@@ -54,6 +56,20 @@ command.
 - `STYLELINT_LINT_SKIP_PATTERN` (default empty): forward-slash path glob for files skipped by lint checks and fixes.
 
 Skip patterns support `*` within one path segment, `**` across directories, and `?` for one character. Paths are matched relative to the task working directory; for example, `**/generated/**`.
+
+When a skip pattern is set, `config:skip` writes it into a managed section of
+`.stylelintignore`:
+
+```gitignore
+# BEGIN taskotter-skip
+**/generated/**
+# END taskotter-skip
+```
+
+Stylelint loads `.stylelintignore` from the working directory automatically. The
+managed block is rewritten on every run; user entries outside it are preserved.
+Running `config:skip` with an empty pattern removes only that block and never
+deletes the whole ignore file.
 
 ## Examples
 

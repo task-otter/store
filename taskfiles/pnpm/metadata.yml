@@ -10,11 +10,12 @@ exported_tasks:
   - audit:report
   - build
   - ci
+  - ci:fix
   - clean
   - clean:all
   - dev
   - exec
-  - format
+  - fmt
   - install
   - install:undo
   - lint

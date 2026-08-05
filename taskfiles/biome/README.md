@@ -4,6 +4,7 @@
 
 This Taskfile wraps Biome for formatting, linting, combined checks, and CI. It
 installs `@biomejs/biome` locally and delegates package-manager behavior to the
+matching leaf (bun, npm, pnpm, or yarn).
 
 ## Variants
 
@@ -35,27 +36,24 @@ Available leaves: `bun`, `node/{fnm,nvm}/{npm,pnpm,yarn}`.
 | `install`      | Optional `BIOME_VERSION`, `BIOME_EXTRA_ARGS`, `CLI_ARGS`           | Install `@biomejs/biome` as a local dev dependency. Pass `BIOME_VERSION=x.y.z` to pin a release. |
 | `install:undo` | Optional `BIOME_EXTRA_ARGS`                                  | Remove the locally installed `@biomejs/biome` devDependency.               |
 | `upgrade`      | Optional `BIOME_EXTRA_ARGS`                                  | Reinstall `@biomejs/biome` at the latest version.                          |
-| `init`         | Optional `BIOME_EXTRA_ARGS`, `CLI_ARGS`                      | Alias for `config:init`.                                                   |
 | `config:init`  | Optional `BIOME_EXTRA_ARGS`, `CLI_ARGS`                      | Run `biome init`. Skipped if `biome.json` or `biome.jsonc` already exists. |
 | `config:skip`  | Optional `SKIP_SCOPE`                                  | Write the skip-pattern config overlay. Run automatically by the tasks below. |
-| `check`        | Optional `BIOME_TARGETS`, `BIOME_CONFIG`, `BIOME_EXTRA_ARGS`, `CLI_ARGS` | Run `biome check`.                                                         |
-| `check:write`  | Optional `BIOME_TARGETS`, `BIOME_CONFIG`, `BIOME_EXTRA_ARGS`, `CLI_ARGS` | Run `biome check --write`.                                                 |
-| `fix`          | Optional `BIOME_TARGETS`, `BIOME_CONFIG`, `BIOME_EXTRA_ARGS`, `CLI_ARGS` | Alias for `check:write`.                                                   |
-| `lint`         | Optional `BIOME_TARGETS`, `BIOME_CONFIG`, `BIOME_EXTRA_ARGS`, `CLI_ARGS` | Run `biome lint`.                                                          |
-| `lint:fix`     | Optional `BIOME_TARGETS`, `BIOME_CONFIG`, `BIOME_EXTRA_ARGS`, `CLI_ARGS` | Run `biome lint --write`.                                                  |
+| `lint`         | Optional `BIOME_TARGETS`, `BIOME_CONFIG`, `BIOME_EXTRA_ARGS`, `CLI_ARGS` | Run `biome check`.                                                         |
+| `lint:fix`     | Optional `BIOME_TARGETS`, `BIOME_CONFIG`, `BIOME_EXTRA_ARGS`, `CLI_ARGS` | Run `biome check --write`.                                                 |
 | `fmt:check`    | Optional `BIOME_TARGETS`, `BIOME_CONFIG`, `BIOME_EXTRA_ARGS`, `CLI_ARGS` | Run `biome format`.                                                        |
 | `fmt`          | Optional `BIOME_TARGETS`, `BIOME_CONFIG`, `BIOME_EXTRA_ARGS`, `CLI_ARGS` | Run `biome format --write`.                                                |
 | `ci`           | Optional `BIOME_TARGETS`, `BIOME_CONFIG`, `BIOME_EXTRA_ARGS`, `CLI_ARGS` | Run `biome ci`.                                                            |
+| `ci:fix` | — | Run `fmt` then `lint:fix` for CI |
 | `cache:clean`  | —                                                            | Remove common Biome cache directories.                                     |
 | `version`      | — | Show the resolved Biome version.                                           |
 | `help`         | Optional `BIOME_EXTRA_ARGS`, `CLI_ARGS`                      | Show Biome CLI help.                                                       |
 
 ## Variables
 
-and `BIOME_CONFIG` adds `--config-path <path>`.
-
-`BIOME_EXTRA_ARGS` and arguments after `--` are appended to the command.
-
+- `BIOME_VERSION` (default empty): pinned release for `install` / `upgrade`. Empty resolves to the package manager's default.
+- `BIOME_TARGETS` (default `.`): paths passed to `biome check|lint|format|ci`. Defaults to the current directory.
+- `BIOME_CONFIG` (default empty): adds `--config-path <path>` to Biome invocations.
+- `BIOME_EXTRA_ARGS` (default empty): appended to the underlying command. Arguments after `--` (available as `CLI_ARGS`) are also appended.
 - `BIOME_LINT_SKIP_PATTERN` (default empty): forward-slash path glob for files skipped by lint checks and fixes.
 - `BIOME_FMT_SKIP_PATTERN` (default empty): forward-slash path glob for files skipped by formatting checks and fixes.
 
@@ -75,8 +73,8 @@ your `.gitignore`**. Running `config:skip` with no skip pattern set deletes it.
 task biome:node:fnm:npm:install
 task biome:node:fnm:npm:install BIOME_VERSION=1.9.4
 task biome:node:fnm:npm:config:init
-task biome:node:fnm:npm:check
-task biome:node:fnm:npm:check:write
 task biome:node:fnm:npm:lint
+task biome:node:fnm:npm:lint:fix
+task biome:node:fnm:npm:fmt:check
 task biome:node:fnm:npm:fmt
 ```

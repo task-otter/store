@@ -3,10 +3,11 @@ schema: taskotter.dev/taskfile-metadata/v1
 module: rumdl
 taskfile: Taskfile.yml
 exported_tasks:
-  - fix
+  - ci:fix
   - fmt
   - install
   - install:undo
   - lint
+  - lint:fix
   - upgrade
   - version

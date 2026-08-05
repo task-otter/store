@@ -12,6 +12,7 @@ import (
 func publicTasks() []string {
 	return []string{
 		"ci",
+		"ci:fix",
 		"config:init",
 		"config:skip",
 		"dependencies",
@@ -19,7 +20,6 @@ func publicTasks() []string {
 		"exports",
 		"files",
 		"help",
-		"init",
 		"install",
 		"install:undo",
 		"lint",

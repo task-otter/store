@@ -30,7 +30,7 @@ Then run:
 ```sh
 task sqlfluff:install
 task sqlfluff:lint
-task sqlfluff:fix DIALECT_OVERRIDE=postgres
+task sqlfluff:lint:fix DIALECT_OVERRIDE=postgres
 ```
 
 ## Public Tasks
@@ -42,10 +42,11 @@ task sqlfluff:fix DIALECT_OVERRIDE=postgres
 | `upgrade`      | Upgrade sqlfluff to the latest release          | none                                         |
 | `version`      | Show the installed sqlfluff version             | none                                         |
 | `lint`         | Lint SQL files with sqlfluff                    | `TARGETS_OVERRIDE`, `CONFIG_OVERRIDE`, `DIALECT_OVERRIDE`, `EXTRA_ARGS_OVERRIDE` |
-| `fix`          | Auto-fix SQL lint violations                    | `TARGETS_OVERRIDE`, `CONFIG_OVERRIDE`, `DIALECT_OVERRIDE`, `EXTRA_ARGS_OVERRIDE` |
+| `lint:fix`          | Auto-fix SQL lint violations                    | `TARGETS_OVERRIDE`, `CONFIG_OVERRIDE`, `DIALECT_OVERRIDE`, `EXTRA_ARGS_OVERRIDE` |
+| `ci:fix` | Run `lint:fix` for CI fixing | — |
 | `parse`        | Print the sqlfluff parse tree for SQL files     | `TARGETS_OVERRIDE`, `CONFIG_OVERRIDE`, `DIALECT_OVERRIDE`, `EXTRA_ARGS_OVERRIDE` |
 | `config:init`  | Create a default `.sqlfluff` configuration file | none                                         |
-| `config:skip`  | Write the skip-pattern config overlay (run automatically by `lint`, `fix`, and `parse`) | `CONFIG_OVERRIDE` |
+| `config:skip`  | Write the skip-pattern config overlay (run automatically by `lint`, `lint:fix`, and `parse`) | `CONFIG_OVERRIDE` |
 
 ## Variables
 
@@ -67,7 +68,7 @@ skipped if the file already exists. To regenerate, delete `.sqlfluff` first.
 
 **`config:skip`** merges your config with `SQLFLUFF_LINT_SKIP_PATTERN` appended
 to `[sqlfluff] ignore_paths` and writes `.taskotter-sqlfluff-skip.cfg`, which
-`lint`, `fix`, and `parse` then pass via `--config` so the rest of your settings
+`lint`, `lint:fix`, and `parse` then pass via `--config` so the rest of your settings
 stay active. The overlay is rewritten on every run and is not deleted
 afterwards, so **add `.taskotter-sqlfluff-skip.cfg` to your `.gitignore`**.
 Running `config:skip` with no skip pattern set deletes it.

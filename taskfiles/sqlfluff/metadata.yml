@@ -3,12 +3,13 @@ schema: taskotter.dev/taskfile-metadata/v1
 module: sqlfluff
 taskfile: Taskfile.yml
 exported_tasks:
+  - ci:fix
   - config:init
   - config:skip
-  - fix
   - install
   - install:undo
   - lint
+  - lint:fix
   - parse
   - upgrade
   - version

@@ -76,7 +76,7 @@ tasks:
       - cmd: rumdl --version
         platforms: [windows]
 
-  # Shared implementation of lint / fix / fmt. Each override is resolved exactly
+  # Shared implementation of lint / lint:fix / fmt. Each override is resolved exactly
   # once here; callers supply the subcommand, the skip pattern to honor, and any
   # trailing shell reporting.
   _run:
@@ -113,7 +113,7 @@ tasks:
           SKIP: '{{default .RUMDL_LINT_SKIP_PATTERN .RUMDL_LINT_SKIP_PATTERN_OVERRIDE}}'
           TAIL: ' && echo "✅ rumdl passed" || { echo "❌ rumdl failed"; exit 1; }'
 
-  fix:
+  lint:fix:
     run: once
     desc: Fix Markdown lint issues with rumdl (RUMDL_TARGETS=path)
     summary: |
@@ -127,11 +127,21 @@ tasks:
           SUBCMD: check --fix
           SKIP: '{{default .RUMDL_LINT_SKIP_PATTERN .RUMDL_LINT_SKIP_PATTERN_OVERRIDE}}'
 
+  ci:fix:
+    run: once
+    desc: Run fmt then lint:fix for CI
+    summary: |
+      Run fmt then lint:fix. Applies formatting and automatic lint fixes
+      suitable for CI autofix workflows.
+    cmds:
+      - task: fmt
+      - task: lint:fix
+
   fmt:
     run: once
     desc: Format Markdown files with rumdl (RUMDL_TARGETS=path)
     summary: |
-      Run rumdl fmt against RUMDL_TARGETS (default .). Unlike fix, fmt uses
+      Run rumdl fmt against RUMDL_TARGETS (default .). Unlike lint:fix, fmt uses
       formatter-style exit codes and exits zero after successful formatting
       even if unfixable violations remain. Pass RUMDL_EXTRA_ARGS for additional
       flags. Auto-installs rumdl if missing.

@@ -165,6 +165,16 @@ tasks:
         .YAMLLINT_EXTRA_ARGS_OVERRIDE}}{{.YAMLLINT_EXTRA_ARGS_OVERRIDE}}{{else}}{{.YAMLLINT_EXTRA_ARGS}}{{end}}
         <"$_files"; else echo "No matching
         YAML files found"; fi; fi && echo "✅ yamllint passed" || { echo "❌ yamllint failed"; exit 1; }'
+
+  ci:fix:
+    run: once
+    desc: Run lint:fix for CI fixing
+    summary: |
+      Run lint:fix to apply automatic lint fixes. Suitable for CI
+      autofix workflows.
+    cmds:
+      - task: lint:fix
+
   config:init:
     run: once
     dir: "{{.USER_WORKING_DIR}}"

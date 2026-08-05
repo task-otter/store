@@ -73,12 +73,6 @@ tasks:
           PACKAGES: eslint@latest
           EXTRA_ARGS: '{{default .ESLINT_EXTRA_ARGS .ESLINT_EXTRA_ARGS_OVERRIDE}}'
 
-  init:
-    run: once
-    desc: Alias for eslint:config:init
-    cmds:
-      - task: config:init
-
   config:init:
     run: once
     dir: "{{.USER_WORKING_DIR}}"
@@ -160,6 +154,15 @@ tasks:
         vars:
           MODE_ARGS: "--max-warnings=0"
       - echo "✅ eslint passed"
+
+  ci:fix:
+    run: once
+    desc: Run lint:fix for CI fixing
+    summary: |
+      Run lint:fix to apply automatic lint fixes. Suitable for CI
+      autofix workflows.
+    cmds:
+      - task: lint:fix
 
   cache:clean:
     run: once

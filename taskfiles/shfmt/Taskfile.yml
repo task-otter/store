@@ -99,6 +99,14 @@ tasks:
       - task: _fmt:unix
       - task: _fmt:windows
 
+  ci:fix:
+    run: once
+    desc: Run fmt for CI fixing
+    summary: |
+      Run fmt to apply formatting fixes. Suitable for CI autofix workflows.
+    cmds:
+      - task: fmt
+
   fmt:check:
     run: once
     desc: Check shell script formatting with shfmt (SHFMT_TARGETS=path)

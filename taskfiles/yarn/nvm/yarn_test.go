@@ -43,11 +43,12 @@ func publicTasksCore() []string {
 		"build",
 		"cache:clean",
 		constYarnTaskCi,
+		"ci:fix",
 		"clean",
 		"clean:all",
 		"dev",
 		"exec",
-		"format",
+		"fmt",
 		constYarnTaskInstall,
 		"install:undo",
 	}

@@ -36,11 +36,11 @@ Available leaves: `bun`, `node/{fnm,nvm}/{npm,pnpm,yarn}`.
 | `install`     | Optional `ESLINT_VERSION`, `ESLINT_EXTRA_ARGS`, `CLI_ARGS`                    | Install `eslint` as a local dev dependency. Pass `ESLINT_VERSION=x.y.z` to pin a release. |
 | `install:undo`| Optional `ESLINT_EXTRA_ARGS`                                           | Remove the locally installed `eslint` devDependency.                                     |
 | `upgrade`     | Optional `ESLINT_EXTRA_ARGS`                                           | Reinstall `eslint` at the latest version.                                                |
-| `init`        | Optional `ESLINT_EXTRA_ARGS`, `CLI_ARGS`                               | Alias for `config:init`.                                                                 |
 | `config:init` | —                                                               | Write a starter `eslint.config.mjs` when none exists (non-interactive). Skipped if a recognized config file already exists. |
 | `lint`        | Optional `ESLINT_TARGETS`, `ESLINT_CONFIG`, `ESLINT_CACHE`, `ESLINT_EXTRA_ARGS`, `CLI_ARGS` | Lint targets with cache enabled by default.                                              |
 | `lint:fix`    | Optional `ESLINT_TARGETS`, `ESLINT_CONFIG`, `ESLINT_CACHE`, `ESLINT_EXTRA_ARGS`, `CLI_ARGS` | Run ESLint with `--fix`.                                                                 |
 | `ci`          | Optional `ESLINT_TARGETS`, `ESLINT_CONFIG`, `ESLINT_CACHE`, `ESLINT_EXTRA_ARGS`, `CLI_ARGS` | Run ESLint with `--max-warnings=0`.                                                      |
+| `ci:fix` | — | Run `lint:fix` for CI fixing |
 | `cache:clean` | —                                                                     | Remove `.cache/eslint`.                                                                  |
 | `version`     | — | Show the resolved ESLint version.                                                        |
 | `help`        | Optional `ESLINT_EXTRA_ARGS`, `CLI_ARGS`                               | Show ESLint CLI help.                                                                    |

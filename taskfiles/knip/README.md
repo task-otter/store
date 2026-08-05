@@ -36,8 +36,7 @@ Available leaves: `bun`, `node/{fnm,nvm}/{npm,pnpm,yarn}`.
 | `install`          | Optional `KNIP_VERSION`, `KNIP_EXTRA_ARGS`, `CLI_ARGS` | Install `knip` as a local dev dependency. Pass `KNIP_VERSION=x.y.z` to pin a release. |
 | `install:undo`     | Optional `KNIP_EXTRA_ARGS`                       | Remove the locally installed `knip` devDependency.         |
 | `upgrade`          | Optional `KNIP_EXTRA_ARGS`                       | Reinstall `knip` at the latest version.                    |
-| `init`             | Optional `KNIP_EXTRA_ARGS`, `CLI_ARGS`           | Initialize Knip configuration.                            |
-| `config:init`      | Optional `KNIP_EXTRA_ARGS`, `CLI_ARGS`           | Alias for `init`.                                         |
+| `config:init`      | Optional `KNIP_EXTRA_ARGS`, `CLI_ARGS`           | Initialize Knip configuration (writes starter `knip.json`). |
 | `config:skip`      | —                                           | Write the skip-pattern config overlay. Run automatically by the tasks below. |
 | `lint`             | Optional `KNIP_CONFIG`, `KNIP_EXTRA_ARGS`, `CLI_ARGS` | Run the default Knip analysis.                            |
 | `production`       | Optional `KNIP_CONFIG`, `KNIP_EXTRA_ARGS`, `CLI_ARGS` | Run Knip with `--production`.                             |
@@ -47,6 +46,7 @@ Available leaves: `bun`, `node/{fnm,nvm}/{npm,pnpm,yarn}`.
 | `exports`          | Optional `KNIP_CONFIG`, `KNIP_EXTRA_ARGS`, `CLI_ARGS` | Report unused exports.                                    |
 | `lint:fix`         | Optional `KNIP_CONFIG`, `KNIP_EXTRA_ARGS`, `CLI_ARGS` | Run `knip --fix` when supported by the installed version. |
 | `ci`               | Optional `KNIP_CONFIG`, `KNIP_EXTRA_ARGS`, `CLI_ARGS` | Run production checks for CI.                             |
+| `ci:fix` | — | Run `lint:fix` for CI fixing |
 | `version`          | — | Show the resolved Knip version.                           |
 | `help`             | Optional `KNIP_EXTRA_ARGS`, `CLI_ARGS`           | Show Knip CLI help.                                       |
 

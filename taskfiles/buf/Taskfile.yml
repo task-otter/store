@@ -63,6 +63,21 @@ tasks:
             {{else if .BUF_CONFIG}}--config "{{.BUF_CONFIG}}"{{end}}
       - echo "✅ buf lint passed"
 
+  ci:
+    run: once
+    desc: Run buf fmt:check then lint
+    cmds:
+      - task: fmt:check
+      - task: lint
+
+  ci:fix:
+    run: once
+    desc: Run fmt for CI fixing
+    summary: |
+      Run fmt to apply formatting fixes. Suitable for CI autofix workflows.
+    cmds:
+      - task: fmt
+
   fmt:check:
     run: once
     desc: Check proto file formatting with Buf (BUF_INPUT=path)

@@ -180,6 +180,22 @@ const (
 	knipNodeFnmYarnModule = "knip/node/fnm/yarn"
 	knipNodeNvmYarnModule = "knip/node/nvm/yarn"
 
+	prettierBunModule         = "prettier/bun"
+	prettierNodeFnmNpmModule  = "prettier/node/fnm/npm"
+	prettierNodeNvmNpmModule  = "prettier/node/nvm/npm"
+	prettierNodeFnmPnpmModule = "prettier/node/fnm/pnpm"
+	prettierNodeNvmPnpmModule = "prettier/node/nvm/pnpm"
+	prettierNodeFnmYarnModule = "prettier/node/fnm/yarn"
+	prettierNodeNvmYarnModule = "prettier/node/nvm/yarn"
+
+	stylelintBunModule         = "stylelint/bun"
+	stylelintNodeFnmNpmModule  = "stylelint/node/fnm/npm"
+	stylelintNodeNvmNpmModule  = "stylelint/node/nvm/npm"
+	stylelintNodeFnmPnpmModule = "stylelint/node/fnm/pnpm"
+	stylelintNodeNvmPnpmModule = "stylelint/node/nvm/pnpm"
+	stylelintNodeFnmYarnModule = "stylelint/node/fnm/yarn"
+	stylelintNodeNvmYarnModule = "stylelint/node/nvm/yarn"
+
 	biomeFamily     = "biome"
 	depcheckFamily  = "depcheck"
 	eslintFamily    = "eslint"
@@ -217,10 +233,26 @@ const (
 	knipLintGeneratedPattern       = "KNIP_LINT_SKIP_PATTERN=**/generated/**"
 	golangciLintGeneratedPattern   = "GOLANGCI_LINT_LINT_SKIP_PATTERN=**/generated/**"
 	actionlintLintGeneratedPattern = "ACTIONLINT_LINT_SKIP_PATTERN=**/generated/**"
+	prettierFmtGeneratedPattern    = "PRETTIER_FMT_SKIP_PATTERN=**/generated/**"
+	stylelintLintGeneratedPattern  = "STYLELINT_LINT_SKIP_PATTERN=**/generated/**"
 
-	staleOverlayRemovedCase = "no pattern removes a stale overlay"
-	staleOverlayRemovedMsg  = "empty skip pattern did not remove the stale overlay"
-	noProjectConfigCase     = "no project config"
+	prettierIgnoreFile    = ".prettierignore"
+	stylelintIgnoreFile   = ".stylelintignore"
+	taskotterSkipBegin    = "# BEGIN taskotter-skip"
+	taskotterSkipEnd      = "# END taskotter-skip"
+	userIgnoreNodeModules = "node_modules/"
+	userIgnoreDist        = "dist/"
+	oldSkipPattern        = "**/old/**"
+	mocksSkipPattern      = "**/mocks/**"
+	runTaskName           = "_run"
+
+	staleOverlayRemovedCase  = "no pattern removes a stale overlay"
+	staleOverlayRemovedMsg   = "empty skip pattern did not remove the stale overlay"
+	noProjectConfigCase      = "no project config"
+	createsIgnoreFileCase    = "creates the ignore file"
+	upsertsManagedBlockCase  = "upserts the managed block"
+	clearsManagedBlockCase   = "clears the managed block without wiping user lines"
+	runInvokesConfigSkipCase = "_run invokes config:skip"
 
 	bunRuntime  = "bun"
 	nodeRuntime = "node"
@@ -258,7 +290,7 @@ const (
 	constTwo        = 2
 	constThree      = 3
 	constFifteen    = 15
-	constSixteen    = 16
+	constThirty     = 30
 	constSixtySeven = 67
 	perm0600        = 0o600
 
@@ -371,13 +403,13 @@ func skipPatternHtmlhintAndKnipModules() []skipPatternModule {
 
 func skipPatternPrettierModules() []skipPatternModule {
 	return []skipPatternModule{
-		{name: "prettier/bun", vars: []string{prettierFmtSkipVar}},
-		{name: "prettier/node/fnm/npm", vars: []string{prettierFmtSkipVar}},
-		{name: "prettier/node/nvm/npm", vars: []string{prettierFmtSkipVar}},
-		{name: "prettier/node/fnm/pnpm", vars: []string{prettierFmtSkipVar}},
-		{name: "prettier/node/nvm/pnpm", vars: []string{prettierFmtSkipVar}},
-		{name: "prettier/node/fnm/yarn", vars: []string{prettierFmtSkipVar}},
-		{name: "prettier/node/nvm/yarn", vars: []string{prettierFmtSkipVar}},
+		{name: prettierBunModule, vars: []string{prettierFmtSkipVar}},
+		{name: prettierNodeFnmNpmModule, vars: []string{prettierFmtSkipVar}},
+		{name: prettierNodeNvmNpmModule, vars: []string{prettierFmtSkipVar}},
+		{name: prettierNodeFnmPnpmModule, vars: []string{prettierFmtSkipVar}},
+		{name: prettierNodeNvmPnpmModule, vars: []string{prettierFmtSkipVar}},
+		{name: prettierNodeFnmYarnModule, vars: []string{prettierFmtSkipVar}},
+		{name: prettierNodeNvmYarnModule, vars: []string{prettierFmtSkipVar}},
 	}
 }
 
@@ -387,13 +419,13 @@ func skipPatternSpectralAndStylelintModules() []skipPatternModule {
 		{name: "spectral/node/nvm/npm", vars: []string{spectralLintSkipVar}},
 		{name: "spectral/node/fnm/pnpm", vars: []string{spectralLintSkipVar}},
 		{name: "spectral/node/nvm/pnpm", vars: []string{spectralLintSkipVar}},
-		{name: "stylelint/bun", vars: []string{stylelintLintSkipVar}},
-		{name: "stylelint/node/fnm/npm", vars: []string{stylelintLintSkipVar}},
-		{name: "stylelint/node/nvm/npm", vars: []string{stylelintLintSkipVar}},
-		{name: "stylelint/node/fnm/pnpm", vars: []string{stylelintLintSkipVar}},
-		{name: "stylelint/node/nvm/pnpm", vars: []string{stylelintLintSkipVar}},
-		{name: "stylelint/node/fnm/yarn", vars: []string{stylelintLintSkipVar}},
-		{name: "stylelint/node/nvm/yarn", vars: []string{stylelintLintSkipVar}},
+		{name: stylelintBunModule, vars: []string{stylelintLintSkipVar}},
+		{name: stylelintNodeFnmNpmModule, vars: []string{stylelintLintSkipVar}},
+		{name: stylelintNodeNvmNpmModule, vars: []string{stylelintLintSkipVar}},
+		{name: stylelintNodeFnmPnpmModule, vars: []string{stylelintLintSkipVar}},
+		{name: stylelintNodeNvmPnpmModule, vars: []string{stylelintLintSkipVar}},
+		{name: stylelintNodeFnmYarnModule, vars: []string{stylelintLintSkipVar}},
+		{name: stylelintNodeNvmYarnModule, vars: []string{stylelintLintSkipVar}},
 	}
 }
 
@@ -423,6 +455,14 @@ func sharedSkipfilesConsumers() []string {
 
 // Modules that own their config overlay through a local config:skip task.
 func configSkipModules() []string {
+	return slices.Concat(
+		configSkipBiomeAndKnipModules(),
+		configSkipIgnoreFileModules(),
+		[]string{golangciLintModule, sqlfluffModule},
+	)
+}
+
+func configSkipBiomeAndKnipModules() []string {
 	return []string{
 		biomeBunModule,
 		biomeNodeFnmNpmModule,
@@ -431,7 +471,6 @@ func configSkipModules() []string {
 		biomeNodeNvmPnpmModule,
 		biomeNodeFnmYarnModule,
 		biomeNodeNvmYarnModule,
-		golangciLintModule,
 		knipBunModule,
 		knipNodeFnmNpmModule,
 		knipNodeNvmNpmModule,
@@ -439,7 +478,25 @@ func configSkipModules() []string {
 		knipNodeNvmPnpmModule,
 		knipNodeFnmYarnModule,
 		knipNodeNvmYarnModule,
-		sqlfluffModule,
+	}
+}
+
+func configSkipIgnoreFileModules() []string {
+	return []string{
+		prettierBunModule,
+		prettierNodeFnmNpmModule,
+		prettierNodeNvmNpmModule,
+		prettierNodeFnmPnpmModule,
+		prettierNodeNvmPnpmModule,
+		prettierNodeFnmYarnModule,
+		prettierNodeNvmYarnModule,
+		stylelintBunModule,
+		stylelintNodeFnmNpmModule,
+		stylelintNodeNvmNpmModule,
+		stylelintNodeFnmPnpmModule,
+		stylelintNodeNvmPnpmModule,
+		stylelintNodeFnmYarnModule,
+		stylelintNodeNvmYarnModule,
 	}
 }
 
@@ -1172,6 +1229,137 @@ func assertGolangciLintOverlayRemovesStale(t *testing.T, overlay string) {
 	assertStaleOverlayRemoved(t, overlay, golangciLintModule)
 }
 
+// TestPrettierConfigSkipTask validates the ignore-file managed block for Prettier.
+func TestPrettierConfigSkipTask(t *testing.T) {
+	t.Parallel()
+
+	testIgnoreFileConfigSkipCreates(t, prettierBunModule, prettierIgnoreFile, prettierFmtGeneratedPattern)
+	testIgnoreFileConfigSkipUpserts(t, prettierBunModule, prettierIgnoreFile, prettierFmtSkipVar)
+	testIgnoreFileConfigSkipClears(t, prettierBunModule, prettierIgnoreFile)
+	testIgnoreFileRunInvokesConfigSkip(t, prettierBunModule)
+}
+
+// TestStylelintConfigSkipTask validates the ignore-file managed block for Stylelint.
+func TestStylelintConfigSkipTask(t *testing.T) {
+	t.Parallel()
+
+	testIgnoreFileConfigSkipCreates(t, stylelintBunModule, stylelintIgnoreFile, stylelintLintGeneratedPattern)
+	testIgnoreFileConfigSkipUpserts(t, stylelintBunModule, stylelintIgnoreFile, stylelintLintSkipVar)
+	testIgnoreFileConfigSkipClears(t, stylelintBunModule, stylelintIgnoreFile)
+	testIgnoreFileRunInvokesConfigSkip(t, stylelintBunModule)
+}
+
+func testIgnoreFileConfigSkipCreates(t *testing.T, module, ignoreFile, patternVar string) {
+	t.Helper()
+
+	t.Run(createsIgnoreFileCase, func(t *testing.T) {
+		t.Parallel()
+
+		project := t.TempDir()
+		runConfigSkip(t, project, module, patternVar)
+		assertOverlayContains(
+			t, project, ignoreFile, taskotterSkipBegin, generatedGlob, taskotterSkipEnd,
+		)
+	})
+}
+
+func testIgnoreFileConfigSkipUpserts(t *testing.T, module, ignoreFile, skipVar string) {
+	t.Helper()
+
+	t.Run(upsertsManagedBlockCase, func(t *testing.T) {
+		t.Parallel()
+
+		project := t.TempDir()
+		writeFixture(t, project, ignoreFile, ignoreFileWithManagedBlock(oldSkipPattern))
+		runConfigSkip(t, project, module, skipVar+"="+mocksSkipPattern)
+		assertIgnoreFileManagedUpsert(t, project, ignoreFile)
+	})
+}
+
+func testIgnoreFileConfigSkipClears(t *testing.T, module, ignoreFile string) {
+	t.Helper()
+
+	t.Run(clearsManagedBlockCase, func(t *testing.T) {
+		t.Parallel()
+
+		project := t.TempDir()
+		writeFixture(t, project, ignoreFile, ignoreFileWithManagedBlock(oldSkipPattern))
+		runConfigSkip(t, project, module)
+		assertIgnoreFileManagedCleared(t, project, ignoreFile)
+	})
+}
+
+func testIgnoreFileRunInvokesConfigSkip(t *testing.T, module string) {
+	t.Helper()
+
+	t.Run(runInvokesConfigSkipCase, func(t *testing.T) {
+		t.Parallel()
+
+		assertRunInvokesConfigSkip(t, module)
+	})
+}
+
+func ignoreFileWithManagedBlock(pattern string) string {
+	return strings.Join([]string{
+		userIgnoreNodeModules,
+		taskotterSkipBegin,
+		pattern,
+		taskotterSkipEnd,
+		userIgnoreDist,
+		"",
+	}, "\n")
+}
+
+func assertIgnoreFileManagedUpsert(t *testing.T, project, ignoreFile string) {
+	t.Helper()
+
+	content := readFile(t, filepath.Join(project, ignoreFile))
+
+	assertOverlayContains(
+		t, project, ignoreFile,
+		userIgnoreNodeModules, userIgnoreDist,
+		taskotterSkipBegin, mocksSkipPattern, taskotterSkipEnd,
+	)
+
+	if strings.Contains(content, oldSkipPattern) {
+		t.Fatalf("managed block still contains the previous pattern:\n%s", content)
+	}
+}
+
+func assertIgnoreFileManagedCleared(t *testing.T, project, ignoreFile string) {
+	t.Helper()
+
+	path := filepath.Join(project, ignoreFile)
+	content := readFile(t, path)
+
+	assertOverlayContains(t, project, ignoreFile, userIgnoreNodeModules, userIgnoreDist)
+
+	for i := range []string{taskotterSkipBegin, taskotterSkipEnd, oldSkipPattern} {
+		token := []string{taskotterSkipBegin, taskotterSkipEnd, oldSkipPattern}[i]
+
+		if strings.Contains(content, token) {
+			t.Fatalf("empty pattern left managed content %q:\n%s", token, content)
+		}
+	}
+}
+
+func assertRunInvokesConfigSkip(t *testing.T, module string) {
+	t.Helper()
+
+	taskfile := tasktest.LoadTaskfile(t, module)
+	task, exists := taskfile.Tasks[runTaskName]
+
+	if !exists {
+		t.Fatalf("%s does not define %s", module, runTaskName)
+	}
+
+	cmds := fmt.Sprintf("%v", task.Cmds)
+
+	if !strings.Contains(cmds, configSkipTaskName) {
+		t.Fatalf("%s %s does not invoke %s:\n%s", module, runTaskName, configSkipTaskName, cmds)
+	}
+}
+
 // TestSharedSkipfilesTaskfileContract
 func TestSharedSkipfilesTaskfileContract(t *testing.T) {
 	t.Parallel()
@@ -1287,8 +1475,8 @@ func assertSharedSkipfilesConsumer(t *testing.T, root, module string) {
 func assertConfigSkipModules(t *testing.T) {
 	t.Helper()
 
-	if len(configSkipModules()) != constSixteen {
-		t.Fatalf("config:skip module count = %d, want %d", len(configSkipModules()), constSixteen)
+	if len(configSkipModules()) != constThirty {
+		t.Fatalf("config:skip module count = %d, want %d", len(configSkipModules()), constThirty)
 	}
 
 	for i := range configSkipModules() {

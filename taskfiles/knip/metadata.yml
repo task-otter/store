@@ -4,6 +4,7 @@ module: knip
 taskfile: Taskfile.yml
 exported_tasks:
   - ci
+  - ci:fix
   - config:init
   - config:skip
   - dependencies
@@ -11,7 +12,6 @@ exported_tasks:
   - exports
   - files
   - help
-  - init
   - install
   - install:undo
   - lint

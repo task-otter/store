@@ -81,13 +81,14 @@ This delegates to `task fnm:node:install` or `task nvm:node:install` depending o
 | `upgrade`         | —                                                           | Upgrade npm with `npm install -g npm@latest`.                             |
 | `remove`          | Required `PACKAGES`; optional `EXTRA_ARGS`                 | Remove local packages with `npm uninstall`.                               |
 | `ci`              | Optional `NODE_VERSION`                    | Run `npm ci` for a clean, reproducible install from `package-lock.json`.  |
+| `ci:fix` | — | Run `fmt` for CI fixing |
 | `run`             | Required `SCRIPT` | Run a `package.json` script by name. Example: `SCRIPT=dev`.               |
 | `dev`             | Optional `NODE_VERSION`                    | Run `npm run dev`.                                                        |
 | `exec`            | Required `BINARY`; optional `ARGS`, `EXTRA_ARGS`           | Execute a local project binary via `npm exec --`.                         |
 | `test`            | Optional `NODE_VERSION`                    | Run `npm test`.                                                           |
 | `build`           | Optional `NODE_VERSION`                    | Run `npm run build`.                                                      |
 | `lint`            | Optional `NODE_VERSION`                    | Run `npm run lint`.                                                       |
-| `format`          | Optional `NODE_VERSION`                    | Run `npm run format`.                                                     |
+| `fmt`          | Optional `NODE_VERSION`                    | Run `npm run format`.                                                     |
 | `typecheck`       | Optional `NODE_VERSION`                    | Run `npm run typecheck`.                                                  |
 | `manager:setup`   | Optional `NODE_VERSION`                    | Install Corepack when needed and enable its shims.                        |
 | `manager:pin`     | Required `PACKAGE_MANAGER_VERSION`                         | Pin npm in `package.json` with Corepack.                                  |
@@ -132,7 +133,7 @@ task npm:dev                     # npm run dev
 task npm:test                    # npm test
 task npm:build                   # npm run build
 task npm:lint                    # npm run lint
-task npm:format                  # npm run format
+task npm:fmt                  # npm run format
 task npm:typecheck               # npm run typecheck
 task npm:manager:setup           # ensure Corepack is available
 task npm:manager:pin PACKAGE_MANAGER_VERSION=latest

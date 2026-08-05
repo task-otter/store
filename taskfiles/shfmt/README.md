@@ -43,6 +43,7 @@ task shfmt:fmt:check SHFMT_TARGETS=scripts
 | `install:undo` | Remove shfmt from the global Go bin |
 | `upgrade` | Upgrade shfmt to the requested version |
 | `fmt` | Format shell scripts in place (`SHFMT_TARGETS=path`) |
+| `ci:fix` | Run `fmt` for CI fixing |
 | `fmt:check` | Check shell script formatting without modifying files (`SHFMT_TARGETS=path`) |
 | `version` | Show the installed shfmt version |
 
