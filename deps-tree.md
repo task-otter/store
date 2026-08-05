@@ -8,7 +8,6 @@ This document reflects the module dependencies declared in [`.deps.yml`](.deps.y
 
 Modules with no `includes:` dependencies.
 
-- [`bash-exec`](taskfiles/bash-exec/README.md)
 - [`bencher`](taskfiles/bencher/README.md)
 - [`bun`](taskfiles/bun/README.md)
 - [`docker`](taskfiles/docker/README.md)
@@ -1035,7 +1034,6 @@ For each module, modules that depend on it (direct dependents only).
 - `actionlint` — *(none)*
 - `adrs` — *(none)*
 - `ansible` — *(none)*
-- `bash-exec` — *(none)*
 - `bencher` — *(none)*
 - `biome/bun` — *(none)*
 - `biome/node/fnm/npm` — *(none)*

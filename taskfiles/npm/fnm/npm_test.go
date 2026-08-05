@@ -90,7 +90,7 @@ func expectedPublicTasksA() []tasktestutil.PublicTaskSpec {
 		spec(constNpmTestBuild, dryGroupSummary...),
 		spec("cache:clean", dryGroupSummary...),
 		spec(constNpmTestCi, dryGroupSummary...),
-	spec("ci:fix", dryGroupSummary...),
+		spec("ci:fix", dryGroupSummary...),
 	}
 }
 

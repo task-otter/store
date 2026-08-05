@@ -65,6 +65,19 @@ type (
 		env          []string
 	}
 
+	ignoreFileConfigSkipCase struct {
+		module     string
+		ignoreFile string
+		varName    string
+	}
+
+	ignoreFileConfigSkipSuite struct {
+		module     string
+		ignoreFile string
+		patternVar string
+		skipVar    string
+	}
+
 	skipPatternVariableCheck struct {
 		variable        string
 		taskfile        *tasktest.Taskfile
@@ -348,9 +361,11 @@ func skipPatternVariantModules() []skipPatternModule {
 	return slices.Concat(
 		skipPatternBiomeModules(),
 		skipPatternDepcheckAndEslintModules(),
-		skipPatternHtmlhintAndKnipModules(),
+		skipPatternHtmlhintModules(),
+		skipPatternKnipModules(),
 		skipPatternPrettierModules(),
-		skipPatternSpectralAndStylelintModules(),
+		skipPatternSpectralModules(),
+		skipPatternStylelintModules(),
 	)
 }
 
@@ -385,48 +400,77 @@ func skipPatternDepcheckAndEslintModules() []skipPatternModule {
 	}
 }
 
-func skipPatternHtmlhintAndKnipModules() []skipPatternModule {
-	return []skipPatternModule{
-		{name: "htmlhint/node/fnm/npm", vars: []string{htmlhintLintSkipVar}},
-		{name: "htmlhint/node/nvm/npm", vars: []string{htmlhintLintSkipVar}},
-		{name: "htmlhint/node/fnm/pnpm", vars: []string{htmlhintLintSkipVar}},
-		{name: "htmlhint/node/nvm/pnpm", vars: []string{htmlhintLintSkipVar}},
-		{name: knipBunModule, vars: []string{knipLintSkipVar}},
-		{name: knipNodeFnmNpmModule, vars: []string{knipLintSkipVar}},
-		{name: knipNodeNvmNpmModule, vars: []string{knipLintSkipVar}},
-		{name: knipNodeFnmPnpmModule, vars: []string{knipLintSkipVar}},
-		{name: knipNodeNvmPnpmModule, vars: []string{knipLintSkipVar}},
-		{name: knipNodeFnmYarnModule, vars: []string{knipLintSkipVar}},
-		{name: knipNodeNvmYarnModule, vars: []string{knipLintSkipVar}},
-	}
+func skipPatternHtmlhintModules() []skipPatternModule {
+	return skipPatternSingleVarModules([]string{
+		"htmlhint/node/fnm/npm",
+		"htmlhint/node/nvm/npm",
+		"htmlhint/node/fnm/pnpm",
+		"htmlhint/node/nvm/pnpm",
+	}, htmlhintLintSkipVar)
+}
+
+func skipPatternKnipModules() []skipPatternModule {
+	return skipPatternSingleVarModules([]string{
+		knipBunModule,
+		knipNodeFnmNpmModule,
+		knipNodeNvmNpmModule,
+		knipNodeFnmPnpmModule,
+		knipNodeNvmPnpmModule,
+		knipNodeFnmYarnModule,
+		knipNodeNvmYarnModule,
+	}, knipLintSkipVar)
 }
 
 func skipPatternPrettierModules() []skipPatternModule {
-	return []skipPatternModule{
-		{name: prettierBunModule, vars: []string{prettierFmtSkipVar}},
-		{name: prettierNodeFnmNpmModule, vars: []string{prettierFmtSkipVar}},
-		{name: prettierNodeNvmNpmModule, vars: []string{prettierFmtSkipVar}},
-		{name: prettierNodeFnmPnpmModule, vars: []string{prettierFmtSkipVar}},
-		{name: prettierNodeNvmPnpmModule, vars: []string{prettierFmtSkipVar}},
-		{name: prettierNodeFnmYarnModule, vars: []string{prettierFmtSkipVar}},
-		{name: prettierNodeNvmYarnModule, vars: []string{prettierFmtSkipVar}},
-	}
+	return skipPatternSingleVarModules([]string{
+		prettierBunModule,
+		prettierNodeFnmNpmModule,
+		prettierNodeNvmNpmModule,
+		prettierNodeFnmPnpmModule,
+		prettierNodeNvmPnpmModule,
+		prettierNodeFnmYarnModule,
+		prettierNodeNvmYarnModule,
+	}, prettierFmtSkipVar)
 }
 
-func skipPatternSpectralAndStylelintModules() []skipPatternModule {
-	return []skipPatternModule{
-		{name: "spectral/node/fnm/npm", vars: []string{spectralLintSkipVar}},
-		{name: "spectral/node/nvm/npm", vars: []string{spectralLintSkipVar}},
-		{name: "spectral/node/fnm/pnpm", vars: []string{spectralLintSkipVar}},
-		{name: "spectral/node/nvm/pnpm", vars: []string{spectralLintSkipVar}},
-		{name: stylelintBunModule, vars: []string{stylelintLintSkipVar}},
-		{name: stylelintNodeFnmNpmModule, vars: []string{stylelintLintSkipVar}},
-		{name: stylelintNodeNvmNpmModule, vars: []string{stylelintLintSkipVar}},
-		{name: stylelintNodeFnmPnpmModule, vars: []string{stylelintLintSkipVar}},
-		{name: stylelintNodeNvmPnpmModule, vars: []string{stylelintLintSkipVar}},
-		{name: stylelintNodeFnmYarnModule, vars: []string{stylelintLintSkipVar}},
-		{name: stylelintNodeNvmYarnModule, vars: []string{stylelintLintSkipVar}},
+func skipPatternSingleVarModules(names []string, skipVar string) []skipPatternModule {
+	modules := make([]skipPatternModule, constZero, len(names))
+
+	for index := range names {
+		modules = append(modules, skipPatternModule{
+			name: names[index],
+			vars: []string{skipVar},
+		})
 	}
+
+	return modules
+}
+
+func skipPatternSpectralModules() []skipPatternModule {
+	return skipPatternSingleVarModules(
+		[]string{
+			"spectral/node/fnm/npm",
+			"spectral/node/nvm/npm",
+			"spectral/node/fnm/pnpm",
+			"spectral/node/nvm/pnpm",
+		},
+		spectralLintSkipVar,
+	)
+}
+
+func skipPatternStylelintModules() []skipPatternModule {
+	return skipPatternSingleVarModules(
+		[]string{
+			stylelintBunModule,
+			stylelintNodeFnmNpmModule,
+			stylelintNodeNvmNpmModule,
+			stylelintNodeFnmPnpmModule,
+			stylelintNodeNvmPnpmModule,
+			stylelintNodeFnmYarnModule,
+			stylelintNodeNvmYarnModule,
+		},
+		stylelintLintSkipVar,
+	)
 }
 
 // Modules that still delegate to the shared skipfiles helper. Biome and Knip
@@ -1233,46 +1277,67 @@ func assertGolangciLintOverlayRemovesStale(t *testing.T, overlay string) {
 func TestPrettierConfigSkipTask(t *testing.T) {
 	t.Parallel()
 
-	testIgnoreFileConfigSkipCreates(t, prettierBunModule, prettierIgnoreFile, prettierFmtGeneratedPattern)
-	testIgnoreFileConfigSkipUpserts(t, prettierBunModule, prettierIgnoreFile, prettierFmtSkipVar)
-	testIgnoreFileConfigSkipClears(t, prettierBunModule, prettierIgnoreFile)
-	testIgnoreFileRunInvokesConfigSkip(t, prettierBunModule)
+	testIgnoreFileConfigSkipTask(t, &ignoreFileConfigSkipSuite{
+		module:     prettierBunModule,
+		ignoreFile: prettierIgnoreFile,
+		patternVar: prettierFmtGeneratedPattern,
+		skipVar:    prettierFmtSkipVar,
+	})
 }
 
 // TestStylelintConfigSkipTask validates the ignore-file managed block for Stylelint.
 func TestStylelintConfigSkipTask(t *testing.T) {
 	t.Parallel()
 
-	testIgnoreFileConfigSkipCreates(t, stylelintBunModule, stylelintIgnoreFile, stylelintLintGeneratedPattern)
-	testIgnoreFileConfigSkipUpserts(t, stylelintBunModule, stylelintIgnoreFile, stylelintLintSkipVar)
-	testIgnoreFileConfigSkipClears(t, stylelintBunModule, stylelintIgnoreFile)
-	testIgnoreFileRunInvokesConfigSkip(t, stylelintBunModule)
+	testIgnoreFileConfigSkipTask(t, &ignoreFileConfigSkipSuite{
+		module:     stylelintBunModule,
+		ignoreFile: stylelintIgnoreFile,
+		patternVar: stylelintLintGeneratedPattern,
+		skipVar:    stylelintLintSkipVar,
+	})
 }
 
-func testIgnoreFileConfigSkipCreates(t *testing.T, module, ignoreFile, patternVar string) {
+func testIgnoreFileConfigSkipTask(t *testing.T, suite *ignoreFileConfigSkipSuite) {
+	t.Helper()
+
+	testIgnoreFileConfigSkipCreates(t, &ignoreFileConfigSkipCase{
+		module:     suite.module,
+		ignoreFile: suite.ignoreFile,
+		varName:    suite.patternVar,
+	})
+	testIgnoreFileConfigSkipUpserts(t, &ignoreFileConfigSkipCase{
+		module:     suite.module,
+		ignoreFile: suite.ignoreFile,
+		varName:    suite.skipVar,
+	})
+	testIgnoreFileConfigSkipClears(t, suite.module, suite.ignoreFile)
+	testIgnoreFileRunInvokesConfigSkip(t, suite.module)
+}
+
+func testIgnoreFileConfigSkipCreates(t *testing.T, testCase *ignoreFileConfigSkipCase) {
 	t.Helper()
 
 	t.Run(createsIgnoreFileCase, func(t *testing.T) {
 		t.Parallel()
 
 		project := t.TempDir()
-		runConfigSkip(t, project, module, patternVar)
+		runConfigSkip(t, project, testCase.module, testCase.varName)
 		assertOverlayContains(
-			t, project, ignoreFile, taskotterSkipBegin, generatedGlob, taskotterSkipEnd,
+			t, project, testCase.ignoreFile, taskotterSkipBegin, generatedGlob, taskotterSkipEnd,
 		)
 	})
 }
 
-func testIgnoreFileConfigSkipUpserts(t *testing.T, module, ignoreFile, skipVar string) {
+func testIgnoreFileConfigSkipUpserts(t *testing.T, testCase *ignoreFileConfigSkipCase) {
 	t.Helper()
 
 	t.Run(upsertsManagedBlockCase, func(t *testing.T) {
 		t.Parallel()
 
 		project := t.TempDir()
-		writeFixture(t, project, ignoreFile, ignoreFileWithManagedBlock(oldSkipPattern))
-		runConfigSkip(t, project, module, skipVar+"="+mocksSkipPattern)
-		assertIgnoreFileManagedUpsert(t, project, ignoreFile)
+		writeFixture(t, project, testCase.ignoreFile, ignoreFileWithManagedBlock(oldSkipPattern))
+		runConfigSkip(t, project, testCase.module, testCase.varName+"="+mocksSkipPattern)
+		assertIgnoreFileManagedUpsert(t, project, testCase.ignoreFile)
 	})
 }
 
@@ -1307,7 +1372,7 @@ func ignoreFileWithManagedBlock(pattern string) string {
 		taskotterSkipEnd,
 		userIgnoreDist,
 		"",
-	}, "\n")
+	}, windowsSeparator)
 }
 
 func assertIgnoreFileManagedUpsert(t *testing.T, project, ignoreFile string) {

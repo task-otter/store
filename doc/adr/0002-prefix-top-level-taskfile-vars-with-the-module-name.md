@@ -23,8 +23,7 @@ Top-level Taskfile vars must satisfy **one** of:
 1. **Owned prefix:** `{TOOL}_…` where `TOOL` is the family root — the first path
    segment under `taskfiles/` (`go` → `GO_`, `prettier/node/fnm/npm` →
    `PRETTIER_`). For `taskfiles/internal/<name>/`, use `<NAME>_`
-   (`internal/skipfiles` → `SKIPFILES_`). Hyphens in the directory name become
-   underscores (`bash-exec` → `BASH_EXEC_`).
+   (`internal/skipfiles` → `SKIPFILES_`).
 2. **Foreign / dependency prefix:** starts with another module’s `{NAME}_`
    discovered from top-level directories under `taskfiles/` (for example `UV_`,
    `FNM_`, `CARGO_`, `GO_`), **or** a companion allowlist: `RUST_`, `RUSTUP_`,

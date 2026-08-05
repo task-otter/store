@@ -36,7 +36,7 @@ task go:verify
 | Package managers | `npm`, `pnpm`, `yarn`, `corepack` — each a nested family with 2 leaves (`{fnm,nvm}`) | 8 | [`npm`](taskfiles/npm/README.md) |
 | JS lint/format/check | `biome`, `bruno`, `depcheck`, `eslint`, `knip`, `prettier`, `stylelint`, `typescript` — each a nested family with 7 leaves (`bun`, `node/{fnm,nvm}/{npm,pnpm,yarn}`) | 56 | [`eslint`](taskfiles/eslint/README.md) |
 | Languages & runtimes | `go`, `golangci-lint`, `govulncheck`, `python`, `uv`, `cargo`, `proto` | 8 | [`go`](taskfiles/go/README.md) |
-| CI & infra | `actionlint`, `bash-exec`, `bencher`, `shellcheck`, `shfmt`, `yamllint`, `zizmor`, `hadolint`, `buf`, `docker`, `git`, `gh`, `jq`, `vault`, `ansible`, `sqlfluff`, `dotenv-linter`, `htmlhint`, `djlint`, `jsonlint`, `rumdl`, `protolint`, `spectral`, `adrs` | 30 | [`actionlint`](taskfiles/actionlint/README.md) |
+| CI & infra | `actionlint`, `bencher`, `shellcheck`, `shfmt`, `yamllint`, `zizmor`, `hadolint`, `buf`, `docker`, `git`, `gh`, `jq`, `vault`, `ansible`, `sqlfluff`, `dotenv-linter`, `htmlhint`, `djlint`, `jsonlint`, `rumdl`, `protolint`, `spectral`, `adrs` | 30 | [`actionlint`](taskfiles/actionlint/README.md) |
 
 **103 modules** total. Per-module docs: `taskfiles/<name>/README.md`. Each module's
 `metadata.yml` is a self-contained, machine-readable list of the tasks it exports.

@@ -111,7 +111,7 @@ func (collector *varsPrefixCollector) failIfViolations() {
 		"%s: %d top-level var(s) missing owned/foreign/companion prefix:\n%s",
 		varsPrefixTestName,
 		len(collector.violations),
-		strings.Join(collector.violationLines(), "\n"),
+		strings.Join(collector.violationLines(), windowsSeparator),
 	)
 }
 

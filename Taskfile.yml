@@ -13,7 +13,6 @@ includes:
   actionlint: taskfiles/actionlint/Taskfile.yml
   adrs: taskfiles/adrs/Taskfile.yml
   ansible: taskfiles/ansible/Taskfile.yml
-  bash-exec: taskfiles/bash-exec/Taskfile.yml
   bencher: taskfiles/bencher/Taskfile.yml
   biome: taskfiles/biome/Taskfile.yml
   bruno: taskfiles/bruno/Taskfile.yml

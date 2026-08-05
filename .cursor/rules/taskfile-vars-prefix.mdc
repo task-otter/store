@@ -15,8 +15,7 @@ When editing matching Taskfiles, module READMEs, or ADR 0002:
   `VERSION`, `TARGETS`, `CONFIG`, `FILE`, `ARGS`, `REQUIREMENTS`, `VENV`,
   `IGNORE_PATH`, or `FORCE` without the owning family prefix.
 - Naming: family root under `taskfiles/` (`prettier/node/fnm/npm` →
-  `PRETTIER_`); `internal/<name>/` → `<NAME>_`; hyphens → underscores
-  (`bash-exec` → `BASH_EXEC_`).
+  `PRETTIER_`); `internal/<name>/` → `<NAME>_`;
 - Override forms keep the owned prefix:
   `{TOOL}_EXTRA_ARGS_OVERRIDE`, not `EXTRA_ARGS_OVERRIDE`.
 - Per-task `vars:` / `requires:` that are **not** declared top-level stay
