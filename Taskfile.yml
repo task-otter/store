@@ -42,6 +42,7 @@ includes:
   prettier: taskfiles/prettier/Taskfile.yml
   proto: taskfiles/proto/Taskfile.yml
   protolint: taskfiles/protolint/Taskfile.yml
+  pulumi: taskfiles/pulumi/Taskfile.yml
   python: taskfiles/python/Taskfile.yml
   rumdl: taskfiles/rumdl/Taskfile.yml
   shellcheck: taskfiles/shellcheck/Taskfile.yml

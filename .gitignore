@@ -5,3 +5,4 @@ coverage.out
 junit.xml
 .gocache
 .golangci-cache
+.cursor

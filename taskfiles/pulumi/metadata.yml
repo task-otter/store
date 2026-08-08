@@ -1,0 +1,12 @@
+---
+schema: taskotter.dev/taskfile-metadata/v1
+module: pulumi
+taskfile: Taskfile.yml
+exported_tasks:
+  - install
+  - install:undo
+  - login
+  - new
+  - up
+  - upgrade
+  - version

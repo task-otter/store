@@ -1,0 +1,442 @@
+---
+version: "3.5"
+
+output:
+  group:
+    begin: "::group::{{.TASK}}"
+    end: "::endgroup::"
+    error_only: false
+
+silent: true
+
+vars:
+  PULUMI_INSTALL_URL: https://get.pulumi.com
+  PULUMI_INSTALL_PS1_URL: https://get.pulumi.com/install.ps1
+  PULUMI_LOAD: 'export PATH="$HOME/.pulumi/bin:$PATH"'
+  PULUMI_VERSION: ""
+  PULUMI_LOGIN_URL: ""
+  PULUMI_TEMPLATE: ""
+  PULUMI_STACK: ""
+  PULUMI_ARGS: ""
+  PULUMI_EXTRA_ARGS: ""
+
+tasks:
+  default:
+    run: once
+    desc: Show available Pulumi automation tasks
+    summary: Display the list of available Pulumi-related tasks defined in this Taskfile.
+    cmds:
+      - task --list
+
+  install:
+    run: once
+    desc: Install Pulumi on the current operating system
+    summary: |
+      Install Pulumi for the current platform.
+      macOS uses Homebrew (pulumi/tap/pulumi).
+      Linux uses the official install script from get.pulumi.com and drops the
+      binary into ~/.pulumi/bin.
+      Windows uses Chocolatey (choco install pulumi -y).
+      Pass PULUMI_VERSION=x.y.z to pin a specific release on Linux; macOS and
+      Windows always install the latest published release from their package
+      managers.
+    cmds:
+      - task: _install:macos:brew
+      - task: _install:linux:script
+      - task: _install:windows:choco
+
+  install:undo:
+    run: once
+    desc: Remove Pulumi from the current operating system
+    summary: |
+      Remove Pulumi for the current platform.
+      macOS uses Homebrew when Pulumi was installed that way, otherwise removes
+      ~/.pulumi directly.
+      Linux removes ~/.pulumi (the install script's default location) and
+      reports any shell profile files that still reference it.
+      Windows uses choco uninstall pulumi -y.
+    prompt:
+      - This will remove Pulumi from this machine.
+      - Continue?
+    cmds:
+      - task: _install:undo:macos
+      - task: _install:undo:linux
+      - task: _install:undo:windows
+
+  upgrade:
+    run: once
+    desc: Upgrade Pulumi to the latest release
+    summary: |
+      Upgrade Pulumi to the latest release for the current platform.
+      macOS uses brew upgrade pulumi/tap/pulumi.
+      Linux re-runs the official install script; it detects an existing
+      installation and updates the binary in place.
+      Windows uses choco upgrade pulumi -y.
+      Auto-installs Pulumi if missing.
+    deps:
+      - task: install
+    cmds:
+      - task: _upgrade:macos:brew
+      - task: _upgrade:linux:script
+      - task: _upgrade:windows:choco
+
+  version:
+    run: once
+    desc: Show the installed Pulumi version
+    summary: Print the active Pulumi version via `pulumi version`. Auto-installs Pulumi if missing.
+    deps:
+      - task: install
+    cmds:
+      - task: _version:unix
+      - task: _version:windows
+
+  login:
+    run: once
+    dir: "{{.USER_WORKING_DIR}}"
+    desc: Log in to a Pulumi backend
+    summary: |
+      Run `pulumi login` against PULUMI_LOGIN_URL, falling back to the default
+      Pulumi Cloud backend when empty. Pass PULUMI_EXTRA_ARGS for extra flags.
+      Auto-installs Pulumi if missing.
+    deps:
+      - task: install
+    cmds:
+      - task: _pulumi:unix
+        vars:
+          PULUMI_ARGS: >-
+            login
+            {{if .PULUMI_LOGIN_URL_OVERRIDE}}"{{.PULUMI_LOGIN_URL_OVERRIDE}}"
+            {{- else if .PULUMI_LOGIN_URL}}"{{.PULUMI_LOGIN_URL}}"{{end}}
+            {{if .PULUMI_EXTRA_ARGS_OVERRIDE}}{{.PULUMI_EXTRA_ARGS_OVERRIDE}}
+            {{- else}}{{.PULUMI_EXTRA_ARGS}}{{end}}
+      - task: _pulumi:windows
+        vars:
+          PULUMI_ARGS: >-
+            login
+            {{if .PULUMI_LOGIN_URL_OVERRIDE}}"{{.PULUMI_LOGIN_URL_OVERRIDE}}"
+            {{- else if .PULUMI_LOGIN_URL}}"{{.PULUMI_LOGIN_URL}}"{{end}}
+            {{if .PULUMI_EXTRA_ARGS_OVERRIDE}}{{.PULUMI_EXTRA_ARGS_OVERRIDE}}
+            {{- else}}{{.PULUMI_EXTRA_ARGS}}{{end}}
+
+  new:
+    run: once
+    dir: "{{.USER_WORKING_DIR}}"
+    desc: Scaffold a new Pulumi project from a template (PULUMI_TEMPLATE=name)
+    summary: |
+      Run `pulumi new PULUMI_TEMPLATE` to scaffold a new Pulumi project from a
+      named template (for example aws-typescript or gcp-python). Pass
+      PULUMI_EXTRA_ARGS for extra flags such as --yes or --dir.
+      Auto-installs Pulumi if missing.
+    deps:
+      - task: install
+    requires:
+      vars:
+        - PULUMI_TEMPLATE
+    preconditions:
+      - sh: test -n "{{.PULUMI_TEMPLATE_OVERRIDE}}{{.PULUMI_TEMPLATE}}"
+        msg: PULUMI_TEMPLATE is required. Pass PULUMI_TEMPLATE=name when running this task.
+    cmds:
+      - task: _pulumi:unix
+        vars:
+          PULUMI_ARGS: >-
+            new
+            "{{if .PULUMI_TEMPLATE_OVERRIDE}}{{.PULUMI_TEMPLATE_OVERRIDE}}
+            {{- else}}{{.PULUMI_TEMPLATE}}{{end}}"
+            {{if .PULUMI_EXTRA_ARGS_OVERRIDE}}{{.PULUMI_EXTRA_ARGS_OVERRIDE}}
+            {{- else}}{{.PULUMI_EXTRA_ARGS}}{{end}}
+      - task: _pulumi:windows
+        vars:
+          PULUMI_ARGS: >-
+            new
+            "{{if .PULUMI_TEMPLATE_OVERRIDE}}{{.PULUMI_TEMPLATE_OVERRIDE}}
+            {{- else}}{{.PULUMI_TEMPLATE}}{{end}}"
+            {{if .PULUMI_EXTRA_ARGS_OVERRIDE}}{{.PULUMI_EXTRA_ARGS_OVERRIDE}}
+            {{- else}}{{.PULUMI_EXTRA_ARGS}}{{end}}
+
+  up:
+    run: once
+    dir: "{{.USER_WORKING_DIR}}"
+    desc: Preview and deploy the current Pulumi stack
+    summary: |
+      Run `pulumi up` in the current working directory. Pass PULUMI_STACK=name
+      to target a specific stack and PULUMI_EXTRA_ARGS for extra flags such as
+      --yes or --skip-preview.
+      Auto-installs Pulumi if missing.
+    deps:
+      - task: install
+    cmds:
+      - task: _pulumi:unix
+        vars:
+          PULUMI_ARGS: >-
+            up
+            {{if .PULUMI_STACK_OVERRIDE}}--stack "{{.PULUMI_STACK_OVERRIDE}}"
+            {{- else if .PULUMI_STACK}}--stack "{{.PULUMI_STACK}}"{{end}}
+            {{if .PULUMI_EXTRA_ARGS_OVERRIDE}}{{.PULUMI_EXTRA_ARGS_OVERRIDE}}
+            {{- else}}{{.PULUMI_EXTRA_ARGS}}{{end}}
+      - task: _pulumi:windows
+        vars:
+          PULUMI_ARGS: >-
+            up
+            {{if .PULUMI_STACK_OVERRIDE}}--stack "{{.PULUMI_STACK_OVERRIDE}}"
+            {{- else if .PULUMI_STACK}}--stack "{{.PULUMI_STACK}}"{{end}}
+            {{if .PULUMI_EXTRA_ARGS_OVERRIDE}}{{.PULUMI_EXTRA_ARGS_OVERRIDE}}
+            {{- else}}{{.PULUMI_EXTRA_ARGS}}{{end}}
+
+  _pulumi:unix:
+    run: once
+    internal: true
+    platforms: [linux, darwin]
+    set: [errexit, nounset, pipefail]
+    requires:
+      vars: [PULUMI_ARGS]
+    cmds:
+      - bash -lc '{{.PULUMI_LOAD}}; pulumi {{.PULUMI_ARGS}}'
+
+  _pulumi:windows:
+    run: once
+    internal: true
+    platforms: [windows]
+    requires:
+      vars: [PULUMI_ARGS]
+    cmds:
+      - pulumi {{.PULUMI_ARGS}}
+
+  _install:macos:brew:
+    run: once
+    internal: true
+    desc: Install Pulumi on macOS using Homebrew
+    summary: Run `brew install pulumi/tap/pulumi` on macOS. Skipped when Pulumi is already available.
+    platforms: [darwin]
+    set: [errexit, nounset, pipefail]
+    status:
+      - command -v pulumi >/dev/null 2>&1
+    preconditions:
+      - sh: command -v brew >/dev/null 2>&1
+        msg: Homebrew is required to install Pulumi on macOS. Install it from https://brew.sh and re-run this task.
+    cmds:
+      - echo 'Installing Pulumi via Homebrew...'
+      - brew update
+      - brew install pulumi/tap/pulumi
+      - echo 'Pulumi installed successfully.'
+
+  _install:linux:script:
+    run: once
+    internal: true
+    desc: Install Pulumi on Linux via the official install script
+    summary: |
+      Download the official Pulumi install script from PULUMI_INSTALL_URL and
+      execute it on Linux. Installs the binary to ~/.pulumi/bin. Pass
+      PULUMI_VERSION=x.y.z to pin a specific release.
+      Skipped when PULUMI_VERSION is empty and Pulumi is already installed.
+    platforms: [linux]
+    set: [errexit, nounset, pipefail]
+    status:
+      - >-
+        pulumi_bin="$HOME/.pulumi/bin/pulumi";
+        if [ ! -x "$pulumi_bin" ]; then pulumi_bin="$(command -v pulumi 2>/dev/null)"; fi;
+        [ -n "$pulumi_bin" ] && [ -x "$pulumi_bin" ]
+        && { [ -z "{{.PULUMI_VERSION}}" ]
+        || "$pulumi_bin" version | grep -Fqx "v{{.PULUMI_VERSION}}"; }
+    preconditions:
+      - sh: command -v curl >/dev/null 2>&1
+        msg: curl is required to download the Pulumi install script.
+    cmds:
+      - |
+        if [ -n "{{.PULUMI_VERSION}}" ]; then
+          echo 'Installing Pulumi v{{.PULUMI_VERSION}}...'
+        else
+          echo 'Installing Pulumi (latest)...'
+        fi
+        tmpfile=$(mktemp /tmp/pulumi-install.XXXXXX.sh)
+        trap 'rm -f "$tmpfile"' EXIT
+        curl -fsSL "{{.PULUMI_INSTALL_URL}}" -o "$tmpfile"
+        if [ -n "{{.PULUMI_VERSION}}" ]; then
+          sh "$tmpfile" --version "{{.PULUMI_VERSION}}"
+        else
+          sh "$tmpfile"
+        fi
+      - echo 'Pulumi installed. Restart your shell or add ~/.pulumi/bin to PATH to use pulumi.'
+
+  _install:windows:choco:
+    run: once
+    internal: true
+    desc: Install Pulumi on Windows using Chocolatey
+    summary: Run `choco install pulumi -y` on Windows. Skipped when Pulumi is already available.
+    platforms: [windows]
+    status:
+      - >-
+        powershell -NoProfile -ExecutionPolicy Bypass -Command
+        "if (Get-Command pulumi -ErrorAction SilentlyContinue) { exit 0 } else { exit 1 }"
+    preconditions:
+      - sh: >-
+          powershell -NoProfile -ExecutionPolicy Bypass -Command
+          "if (Get-Command choco -ErrorAction SilentlyContinue) { exit 0 } else { exit 1 }"
+        msg: >-
+          Chocolatey is required to install Pulumi on Windows.
+          Install it from https://chocolatey.org and re-run this task.
+    cmds:
+      - echo Installing Pulumi via Chocolatey...
+      - choco install pulumi -y
+      - echo Pulumi installed. Restart your terminal to use pulumi.
+
+  _install:undo:macos:
+    run: once
+    internal: true
+    desc: Remove Pulumi from macOS
+    summary: |
+      Remove Pulumi on macOS. Uses Homebrew when Pulumi was installed that way,
+      otherwise removes ~/.pulumi directly. Skipped when Pulumi is already
+      absent.
+    platforms: [darwin]
+    set: [errexit, nounset, pipefail]
+    status:
+      - '! command -v pulumi >/dev/null 2>&1 && ! test -d "$HOME/.pulumi"'
+    cmds:
+      - |
+        if command -v brew >/dev/null 2>&1 && brew list pulumi >/dev/null 2>&1; then
+          echo 'Removing Pulumi via Homebrew...'
+          brew uninstall pulumi
+        elif [ -d "$HOME/.pulumi" ]; then
+          echo 'Removing Pulumi from "$HOME/.pulumi"...'
+          rm -rf "$HOME/.pulumi"
+        fi
+      - echo 'Pulumi removed.'
+
+  _install:undo:linux:
+    run: once
+    internal: true
+    desc: Remove Pulumi from Linux
+    summary: |
+      Remove ~/.pulumi (the install script's default location) and report any
+      shell profile files that still reference it. Skipped when the directory
+      is already absent.
+    platforms: [linux]
+    set: [errexit, nounset, pipefail]
+    status:
+      - test ! -d "$HOME/.pulumi"
+    cmds:
+      - echo 'Removing Pulumi from "$HOME/.pulumi"...'
+      - rm -rf "$HOME/.pulumi"
+      - echo 'Pulumi removed.'
+      - >-
+        bash -c 'found=$(grep -rl "\.pulumi/bin"
+        "$HOME/.bashrc" "$HOME/.bash_profile" "$HOME/.profile" "$HOME/.zshrc"
+        2>/dev/null || true);
+        [ -n "$found" ] && echo "Manually remove Pulumi lines from:" &&
+        echo "$found" | sed "s/^/  /" ||
+        echo "No Pulumi references found in shell profile files."'
+
+  _install:undo:windows:
+    run: once
+    internal: true
+    desc: Remove Pulumi from Windows
+    summary: |
+      Run `choco uninstall pulumi -y` on Windows. Skipped when Pulumi is
+      already absent from PATH.
+    platforms: [windows]
+    status:
+      - >-
+        powershell -NoProfile -ExecutionPolicy Bypass -Command
+        "if (Get-Command pulumi -ErrorAction SilentlyContinue) { exit 1 } else { exit 0 }"
+    preconditions:
+      - sh: >-
+          powershell -NoProfile -ExecutionPolicy Bypass -Command
+          "if (Get-Command choco -ErrorAction SilentlyContinue) { exit 0 } else { exit 1 }"
+        msg: >-
+          Chocolatey is required to remove Pulumi on Windows.
+          Install it from https://chocolatey.org and re-run this task.
+    cmds:
+      - echo Uninstalling Pulumi via Chocolatey...
+      - choco uninstall pulumi -y
+      - echo Pulumi removed. Restart your terminal.
+
+  _upgrade:macos:brew:
+    run: once
+    internal: true
+    desc: Upgrade Pulumi on macOS using Homebrew
+    summary: Run `brew upgrade pulumi/tap/pulumi` on macOS.
+    platforms: [darwin]
+    set: [errexit, nounset, pipefail]
+    preconditions:
+      - sh: command -v brew >/dev/null 2>&1
+        msg: Homebrew is required to upgrade Pulumi on macOS. Install it from https://brew.sh and re-run this task.
+    cmds:
+      - echo 'Upgrading Pulumi via Homebrew...'
+      - brew update
+      - |
+        if brew list pulumi >/dev/null 2>&1; then
+          brew upgrade pulumi
+        else
+          brew install pulumi/tap/pulumi
+        fi
+      - echo 'Pulumi upgraded.'
+
+  _upgrade:linux:script:
+    run: once
+    internal: true
+    desc: Upgrade Pulumi on Linux by re-running the install script
+    summary: |
+      Re-run the official Pulumi install script on Linux. The script detects an
+      existing installation and updates the binary in place.
+    platforms: [linux]
+    set: [errexit, nounset, pipefail]
+    preconditions:
+      - sh: command -v curl >/dev/null 2>&1
+        msg: curl is required to download the Pulumi install script.
+    cmds:
+      - echo 'Upgrading Pulumi via the official install script...'
+      - |
+        tmpfile=$(mktemp /tmp/pulumi-upgrade.XXXXXX.sh)
+        trap 'rm -f "$tmpfile"' EXIT
+        curl -fsSL "{{.PULUMI_INSTALL_URL}}" -o "$tmpfile"
+        if [ -n "{{.PULUMI_VERSION}}" ]; then
+          sh "$tmpfile" --version "{{.PULUMI_VERSION}}"
+        else
+          sh "$tmpfile"
+        fi
+      - echo 'Pulumi upgraded.'
+
+  _upgrade:windows:choco:
+    run: once
+    internal: true
+    desc: Upgrade Pulumi on Windows using Chocolatey
+    summary: Run `choco upgrade pulumi -y` on Windows.
+    platforms: [windows]
+    preconditions:
+      - sh: >-
+          powershell -NoProfile -ExecutionPolicy Bypass -Command
+          "if (Get-Command choco -ErrorAction SilentlyContinue) { exit 0 } else { exit 1 }"
+        msg: >-
+          Chocolatey is required to upgrade Pulumi on Windows.
+          Install it from https://chocolatey.org and re-run this task.
+    cmds:
+      - echo Upgrading Pulumi via Chocolatey...
+      - choco upgrade pulumi -y
+      - echo Pulumi upgraded.
+
+  _version:unix:
+    run: once
+    internal: true
+    desc: Show Pulumi version on macOS or Linux
+    summary: Print `pulumi version` on macOS or Linux.
+    platforms: [linux, darwin]
+    set: [errexit, nounset, pipefail]
+    preconditions:
+      - sh: 'test -x "$HOME/.pulumi/bin/pulumi" || command -v pulumi >/dev/null 2>&1'
+        msg: Pulumi is not installed. Run task install first.
+    cmds:
+      - bash -lc '{{.PULUMI_LOAD}}; pulumi version'
+
+  _version:windows:
+    run: once
+    internal: true
+    desc: Show Pulumi version on Windows
+    summary: Print `pulumi version` on Windows.
+    platforms: [windows]
+    preconditions:
+      - sh: >-
+          powershell -NoProfile -ExecutionPolicy Bypass -Command
+          "if (Get-Command pulumi -ErrorAction SilentlyContinue) { exit 0 } else { exit 1 }"
+        msg: Pulumi is not installed. Run task install first.
+    cmds:
+      - pulumi version

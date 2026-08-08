@@ -2,7 +2,7 @@
 
 This document reflects the module dependencies declared in [`.deps.yml`](.deps.yml).
 
-**106 modules** total.
+**107 modules** total.
 
 ## Standalone
 
@@ -15,6 +15,7 @@ Modules with no `includes:` dependencies.
 - [`internal/skipfiles`](taskfiles/internal/skipfiles/Taskfile.yml)
 - [`jq`](taskfiles/jq/README.md)
 - [`nvm`](taskfiles/nvm/README.md)
+- [`pulumi`](taskfiles/pulumi/README.md)
 - [`uv`](taskfiles/uv/README.md)
 
 ## Forward tree
@@ -1106,6 +1107,7 @@ For each module, modules that depend on it (direct dependents only).
 - `prettier/node/nvm/yarn` — *(none)*
 - `proto` — *(none)*
 - `protolint` — *(none)*
+- `pulumi` — *(none)*
 - `python` — *(none)*
 - `rumdl` — *(none)*
 - `shellcheck` — *(none)*
