@@ -85,7 +85,7 @@ tasks:
         vars:
           FORCE: "true"
 
-  lint:
+  ci:
     run: once
     desc: Lint protobuf files with protolint (PROTOLINT_TARGETS=path)
     summary: |

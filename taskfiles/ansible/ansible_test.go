@@ -17,7 +17,6 @@ func publicTasks() []string {
 		"galaxy:install",
 		"install",
 		"install:undo",
-		"lint",
 		"list:hosts",
 		"ping",
 		"run",

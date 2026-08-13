@@ -16,7 +16,7 @@ func publicTasks() []string {
 		"fmt",
 		"install",
 		"install:undo",
-		"lint",
+		"ci",
 		"upgrade",
 		"version",
 	}

@@ -14,7 +14,7 @@ func publicTasks() []string {
 		"diff",
 		"install",
 		"install:undo",
-		"lint",
+		"ci",
 		"ci:fix",
 		"lint:fix",
 		"upgrade",

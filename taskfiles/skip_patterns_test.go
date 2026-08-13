@@ -174,6 +174,7 @@ const (
 	biomeConfigSkipOverlay    = ".taskotter-biome-bun-skip.json"
 	sqlfluffConfigSkipOverlay = ".taskotter-sqlfluff-skip.cfg"
 	shfmtModule               = "shfmt"
+	yamlfixModule             = "yamlfix"
 	yamllintModule            = "yamllint"
 	zizmorModule              = "zizmor"
 
@@ -235,6 +236,7 @@ const (
 	configSkipTaskName = "config:skip"
 	yesFlag            = "--yes"
 	lintTaskName       = "lint"
+	ciTaskName         = "ci"
 	onelineFlag        = "-oneline"
 	pathEnvVar         = "PATH"
 
@@ -304,7 +306,7 @@ const (
 	constThree      = 3
 	constFifteen    = 15
 	constThirty     = 30
-	constSixtySeven = 67
+	constSixtyEight = 68
 	perm0600        = 0o600
 
 	underscoreChar = "_"
@@ -352,6 +354,7 @@ func skipPatternFlatModulesB() []skipPatternModule {
 		{name: shellcheckModule, vars: []string{"SHELLCHECK_LINT_SKIP_PATTERN"}},
 		{name: shfmtModule, vars: []string{"SHFMT_FMT_SKIP_PATTERN"}},
 		{name: sqlfluffModule, vars: []string{"SQLFLUFF_LINT_SKIP_PATTERN"}},
+		{name: yamlfixModule, vars: []string{"YAMLFIX_FMT_SKIP_PATTERN"}},
 		{name: yamllintModule, vars: []string{"YAMLLINT_LINT_SKIP_PATTERN"}},
 		{name: zizmorModule, vars: []string{"ZIZMOR_LINT_SKIP_PATTERN"}},
 	}
@@ -548,11 +551,11 @@ func configSkipIgnoreFileModules() []string {
 func TestSkipPatternContract(t *testing.T) {
 	t.Parallel()
 
-	if len(skipPatternModules()) != constSixtySeven {
+	if len(skipPatternModules()) != constSixtyEight {
 		t.Fatalf(
 			"skip-pattern module count = %d, want %d",
 			len(skipPatternModules()),
-			constSixtySeven,
+			constSixtyEight,
 		)
 	}
 
@@ -1680,7 +1683,7 @@ printf '%s\n' "$@" >"$TASKOTTER_ACTIONLINT_LOG"
 func (fixture *actionlintSkipFixture) assertAllSkipped(t *testing.T) {
 	t.Helper()
 
-	fixture.runTask(t, yesFlag, lintTaskName, "ACTIONLINT_LINT_SKIP_PATTERN=**")
+	fixture.runTask(t, yesFlag, ciTaskName, "ACTIONLINT_LINT_SKIP_PATTERN=**")
 	assertPathDoesNotExist(
 		t,
 		fixture.logPath,
@@ -1692,7 +1695,7 @@ func (fixture *actionlintSkipFixture) assertCliTargets(t *testing.T) {
 	t.Helper()
 
 	output := fixture.runTask(t,
-		yesFlag, lintTaskName, actionlintLintGeneratedPattern, "--",
+		yesFlag, ciTaskName, actionlintLintGeneratedPattern, "--",
 		filepath.ToSlash(fixture.cliGoodPath), filepath.ToSlash(fixture.skippedPath), onelineFlag,
 	)
 
@@ -1719,7 +1722,7 @@ func assertCliTargetArguments(t *testing.T, arguments string) {
 func (fixture *actionlintSkipFixture) assertDefaultDiscovery(t *testing.T) {
 	t.Helper()
 
-	output := fixture.runTask(t, yesFlag, lintTaskName, actionlintLintGeneratedPattern)
+	output := fixture.runTask(t, yesFlag, ciTaskName, actionlintLintGeneratedPattern)
 	arguments := fixture.readLog(t, output)
 
 	if !strings.Contains(arguments, goodWorkflowFile) {
@@ -2011,7 +2014,7 @@ printf '%s\n' "$@" >"$TASKOTTER_GO_ANALYSIS_LOG"
 func (fixture *govulncheckSkipFixture) assertAllSkipped(t *testing.T) {
 	t.Helper()
 
-	fixture.runTask(t, yesFlag, lintTaskName, "GOVULNCHECK_LINT_SKIP_PATTERN=**/*.go")
+	fixture.runTask(t, yesFlag, ciTaskName, "GOVULNCHECK_LINT_SKIP_PATTERN=**/*.go")
 	assertPathDoesNotExist(
 		t,
 		fixture.logPath,
@@ -2022,7 +2025,7 @@ func (fixture *govulncheckSkipFixture) assertAllSkipped(t *testing.T) {
 func (fixture *govulncheckSkipFixture) assertRetainedPackage(t *testing.T) {
 	t.Helper()
 
-	fixture.runTask(t, yesFlag, lintTaskName, "GOVULNCHECK_LINT_SKIP_PATTERN=generated/**")
+	fixture.runTask(t, yesFlag, ciTaskName, "GOVULNCHECK_LINT_SKIP_PATTERN=generated/**")
 
 	arguments := readFile(t, fixture.logPath)
 

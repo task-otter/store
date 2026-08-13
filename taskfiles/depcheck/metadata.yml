@@ -9,7 +9,6 @@ exported_tasks:
   - install
   - install:undo
   - json
-  - lint
   - skip-missing
   - upgrade
   - version

@@ -56,6 +56,7 @@ type (
 )
 
 const (
+	constGolangciLintCi                 = "ci"
 	constGolangciLintCiFix              = "ci:fix"
 	constGolangciLintFmt                = "fmt"
 	constGolangciLintFmtCheck           = "fmt:check"
@@ -105,8 +106,9 @@ fi
 
 func publicTasks() []string {
 	return []string{
-		"config:skip",
+		constGolangciLintCi,
 		constGolangciLintCiFix,
+		"config:skip",
 		constGolangciLintFmt,
 		constGolangciLintFmtCheck,
 		constGolangciLintInstall,

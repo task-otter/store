@@ -114,6 +114,13 @@ tasks:
           GO_LINT_FIX: "--fix"
           GO_LINT_ARGS: "{{if .CLI_ARGS}}{{.CLI_ARGS}}{{else}}./...{{end}}"
 
+  ci:
+    run: once
+    desc: Run golangci-lint fmt:check then lint
+    cmds:
+      - task: fmt:check
+      - task: lint
+
   ci:fix:
     run: once
     desc: Run fmt then lint:fix for CI

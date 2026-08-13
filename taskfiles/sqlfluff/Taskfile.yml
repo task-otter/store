@@ -70,7 +70,7 @@ tasks:
     cmds:
       - bash -c '{{.UV_LOAD}}; sqlfluff --version'
 
-  lint:
+  ci:
     run: once
     desc: Lint SQL files with sqlfluff (TARGETS=path)
     summary: |
@@ -276,7 +276,7 @@ tasks:
     desc: Write a sqlfluff config overlay that ignores the skip pattern
     summary: |
       Generate a sqlfluff config that merges the project config with
-      SQLFLUFF_LINT_SKIP_PATTERN appended to [sqlfluff] ignore_paths. The lint,
+      SQLFLUFF_LINT_SKIP_PATTERN appended to [sqlfluff] ignore_paths. The ci,
       lint:fix, and parse tasks run this first. The overlay is rewritten on every run
       and is not removed afterwards, so add it to .gitignore. Running with no
       skip pattern set deletes it.

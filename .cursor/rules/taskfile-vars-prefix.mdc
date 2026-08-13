@@ -10,7 +10,7 @@ When editing matching Taskfiles, module READMEs, or ADR 0002:
 
 - Every **top-level** `vars:` name must be **owned** `{TOOL}_…`, **foreign**
   (another module’s `{NAME}_` under `taskfiles/`), or **companion**
-  (`RUST_`, `RUSTUP_`, `PROTOC_`, `YAMLFIX_`, `NODE_`, `WINDOWS_`).
+  (`RUST_`, `RUSTUP_`, `PROTOC_`, `NODE_`, `WINDOWS_`).
 - **No** bare shared knobs at top-level: do not introduce `EXTRA_ARGS`,
   `VERSION`, `TARGETS`, `CONFIG`, `FILE`, `ARGS`, `REQUIREMENTS`, `VENV`,
   `IGNORE_PATH`, or `FORCE` without the owning family prefix.

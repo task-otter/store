@@ -87,7 +87,8 @@ tasks:
         {{if eq .OS "windows"}}powershell -NoProfile -ExecutionPolicy Bypass -Command
         "if (-not (Test-Path '{{.GO_GLOBAL_BIN}}/go-junit-report.exe')) { exit 1 };
         if ((go version -m '{{.GO_GLOBAL_BIN}}/go-junit-report.exe') -like '*v2.1.0*') { exit 0 };
-        exit 1"{{else}}test -x "{{.GO_GLOBAL_BIN}}/go-junit-report" && go version -m "{{.GO_GLOBAL_BIN}}/go-junit-report" | awk -v
+        exit 1"{{else}}test -x "{{.GO_GLOBAL_BIN}}/go-junit-report"
+        && go version -m "{{.GO_GLOBAL_BIN}}/go-junit-report" | awk -v
         want="v2.1.0" '$1 == "mod" && $3 == want { found = 1 } END { exit !found }'{{end}}
   upgrade:
     run: once

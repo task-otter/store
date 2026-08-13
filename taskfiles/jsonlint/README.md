@@ -13,7 +13,7 @@ isolated environment so it never conflicts with project dependencies.
 ### Standalone
 
 ```bash
-task --taskfile taskfiles/jsonlint/Taskfile.yml lint JSONLINT_TARGETS=config.json
+task --taskfile taskfiles/jsonlint/Taskfile.yml ci JSONLINT_TARGETS=config.json
 ```
 
 ### Included
@@ -25,8 +25,8 @@ includes:
 ```
 
 ```bash
-task jsonlint:lint JSONLINT_TARGETS=config.json
-task jsonlint:lint JSONLINT_TARGETS=data/   # validates every *.json under data/
+task jsonlint:ci JSONLINT_TARGETS=config.json
+task jsonlint:ci JSONLINT_TARGETS=data/   # validates every *.json under data/
 task jsonlint:install JSONLINT_VERSION=3.0.6
 ```
 
@@ -37,7 +37,7 @@ task jsonlint:install JSONLINT_VERSION=3.0.6
 | `install` | Install the jsonlint CLI on the current operating system | `JSONLINT_VERSION` |
 | `install:undo` | Remove the jsonlint CLI (alias: `uninstall`) | |
 | `upgrade` | Upgrade the jsonlint CLI to the latest release | `JSONLINT_VERSION` |
-| `lint` | Validate JSON files with jsonlint | `JSONLINT_TARGETS`, `JSONLINT_EXTRA_ARGS` |
+| `ci` | Validate JSON files with jsonlint | `JSONLINT_TARGETS`, `JSONLINT_EXTRA_ARGS` |
 | `version` | Show the installed jsonlint version | |
 
 ## Variables

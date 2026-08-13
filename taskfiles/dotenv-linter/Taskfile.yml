@@ -74,7 +74,7 @@ tasks:
         vars:
           FORCE: "true"
 
-  lint:
+  ci:
     run: once
     desc: Lint dotenv files with dotenv-linter check (DOTENV_LINTER_TARGETS=path)
     summary: |

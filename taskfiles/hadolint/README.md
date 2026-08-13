@@ -16,20 +16,20 @@ version.
 
 ```sh
 task -t taskfiles/hadolint/Taskfile.yml install
-task -t taskfiles/hadolint/Taskfile.yml lint
+task -t taskfiles/hadolint/Taskfile.yml ci
 task -t taskfiles/hadolint/Taskfile.yml version
 ```
 
 Lint a specific Dockerfile:
 
 ```sh
-task -t taskfiles/hadolint/Taskfile.yml lint HADOLINT_DOCKERFILE=path/to/Dockerfile
+task -t taskfiles/hadolint/Taskfile.yml ci HADOLINT_DOCKERFILE=path/to/Dockerfile
 ```
 
 Pass hadolint arguments after `--`:
 
 ```sh
-task -t taskfiles/hadolint/Taskfile.yml lint -- path/to/Dockerfile --ignore DL3008
+task -t taskfiles/hadolint/Taskfile.yml ci -- path/to/Dockerfile --ignore DL3008
 ```
 
 ### Included
@@ -42,8 +42,8 @@ includes:
 Then run:
 
 ```sh
-task hadolint:lint
-task hadolint:lint HADOLINT_DOCKERFILE=services/api/Dockerfile
+task hadolint:ci
+task hadolint:ci HADOLINT_DOCKERFILE=services/api/Dockerfile
 task hadolint:version
 ```
 
@@ -53,7 +53,7 @@ task hadolint:version
 | -------------- | ------------------------------------------------- | ------------------------------------ |
 | `install`      | Install hadolint on the current operating system  | none                                 |
 | `install:undo` | Remove hadolint from the current operating system | none                                 |
-| `lint`         | Lint a Dockerfile with hadolint                   | `HADOLINT_DOCKERFILE`, `HADOLINT_CONFIG`, `HADOLINT_EXTRA_ARGS` |
+| `ci`         | Lint a Dockerfile with hadolint                   | `HADOLINT_DOCKERFILE`, `HADOLINT_CONFIG`, `HADOLINT_EXTRA_ARGS` |
 | `upgrade`      | Upgrade hadolint to the latest release            | none                                 |
 | `version`      | Show the installed hadolint version               | none                                 |
 

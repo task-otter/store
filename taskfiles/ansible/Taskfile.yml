@@ -83,22 +83,6 @@ tasks:
     cmds:
       - task: _version:unix
 
-  lint:
-    run: once
-    desc: Lint Ansible YAML files with ansible-lint (ANSIBLE_TARGETS=path)
-    summary: |
-      Run ansible-lint against ANSIBLE_TARGETS (default .). ansible-lint enforces
-      Ansible best practices and YAML syntax checks.
-      Pass ANSIBLE_EXTRA_ARGS for additional flags. Auto-installs if missing.
-    deps:
-      - task: install
-    vars:
-      ANSIBLE_TARGETS: "."
-      ANSIBLE_EXTRA_ARGS: ""
-    cmds:
-      - task: _lint:unix
-      - echo "✅ ansible-lint passed"
-
   lint:fix:
     run: once
     desc: Auto-fix Ansible YAML files with ansible-lint --fix (ANSIBLE_TARGETS=path)
@@ -119,10 +103,13 @@ tasks:
     run: once
     desc: Run ansible-lint and ansible-playbook --syntax-check (ANSIBLE_PLAYBOOK=path)
     summary: |
-      Run the lint task followed by syntax:check. Requires ANSIBLE_PLAYBOOK to
+      Run ansible-lint followed by syntax:check. Requires ANSIBLE_PLAYBOOK to
       be set so ansible-playbook --syntax-check can validate the playbook.
+    deps:
+      - task: install
     cmds:
-      - task: lint
+      - task: _lint:unix
+      - echo "✅ ansible-lint passed"
       - task: syntax:check
 
   ci:fix:

@@ -249,15 +249,6 @@ tasks:
             {{- if eq .RESOLVED_EMPTY "true"}} --allow-empty-input{{end}}
           EXTRA_ARGS: '{{.RESOLVED_EXTRA_ARGS}}{{if .CLI_ARGS}} {{.CLI_ARGS}}{{end}}'
 
-  lint:
-    run: once
-    desc: Lint stylesheet targets with Stylelint
-    cmds:
-      - task: _run
-        vars:
-          MODE_ARGS: ""
-      - echo "✅ stylelint passed"
-
   lint:fix:
     run: once
     desc: Lint stylesheet targets with Stylelint and apply fixes

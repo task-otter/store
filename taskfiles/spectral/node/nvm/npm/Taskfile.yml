@@ -87,7 +87,7 @@ tasks:
       - 'printf ''extends: ["spectral:oas"]\n'' > .spectral.yaml'
       - echo 'Created .spectral.yaml extending spectral:oas.'
 
-  lint:
+  ci:
     run: once
     desc: Lint API documents with Spectral (SPECTRAL_TARGETS=path)
     summary: |

@@ -80,7 +80,7 @@ tasks:
       - cmd: jsonlint --version
         platforms: [windows]
 
-  lint:
+  ci:
     run: once
     desc: Validate JSON files with jsonlint (JSONLINT_TARGETS=path)
     summary: |

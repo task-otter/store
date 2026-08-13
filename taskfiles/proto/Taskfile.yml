@@ -336,7 +336,8 @@ tasks:
         $wantGrpc = '{{.PROTOC_GEN_GO_GRPC_VERSION}}'.TrimStart('v');
         $gotGo = ((& $goPlugin --version) | Select-Object -Last 1).ToString().Trim().Split(' ')[-1].TrimStart('v');
         $gotGrpc = ((& $grpcPlugin --version) | Select-Object -Last 1).ToString().Trim().Split(' ')[-1].TrimStart('v');
-        if ($gotGo -eq $wantGo -and $gotGrpc -eq $wantGrpc) { exit 0 }; exit 1"{{else}}test -x "{{.GO_GLOBAL_BIN}}/protoc-gen-go"
+        if ($gotGo -eq $wantGo -and $gotGrpc -eq $wantGrpc) { exit 0 };
+        exit 1"{{else}}test -x "{{.GO_GLOBAL_BIN}}/protoc-gen-go"
         && test -x "{{.GO_GLOBAL_BIN}}/protoc-gen-go-grpc"
         && "{{.GO_GLOBAL_BIN}}/protoc-gen-go" --version | awk '{print $NF}' | sed 's/^v//'
         | grep -Fqx "$(printf '%s' '{{.PROTOC_GEN_GO_VERSION}}' | sed 's/^v//')"

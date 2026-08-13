@@ -37,7 +37,7 @@ project root (where `package.json` lives).
 | `install` | Install HTMLHint as a local devDependency | `HTMLHINT_VERSION` |
 | `install:undo` | Remove the HTMLHint devDependency | |
 | `upgrade` | Upgrade HTMLHint to the latest release | |
-| `lint` | Lint HTML files with HTMLHint | `HTMLHINT_TARGETS`, `HTMLHINT_CONFIG`, `HTMLHINT_EXTRA_ARGS` |
+| `ci` | Lint HTML files with HTMLHint | `HTMLHINT_TARGETS`, `HTMLHINT_CONFIG`, `HTMLHINT_EXTRA_ARGS` |
 | `config:init` | Create a default .htmlhintrc configuration file | |
 | `help` | Show the HTMLHint CLI help | |
 | `version` | Show the locally resolved HTMLHint version | |

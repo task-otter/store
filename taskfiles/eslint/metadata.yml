@@ -10,7 +10,6 @@ exported_tasks:
   - help
   - install
   - install:undo
-  - lint
   - lint:fix
   - upgrade
   - version

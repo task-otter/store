@@ -13,7 +13,7 @@ func publicTasks() []string {
 	return []string{
 		"install",
 		"install:undo",
-		"lint",
+		"ci",
 		"upgrade",
 		"version",
 	}

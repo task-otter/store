@@ -62,7 +62,7 @@ tasks:
         exit 1"{{else}}test -x "{{.GO_GLOBAL_BIN}}/govulncheck" && { test -z "{{.GOVULNCHECK_VERSION}}" || test
         "{{.GOVULNCHECK_VERSION}}" = "latest" || go version -m "{{.GO_GLOBAL_BIN}}/govulncheck" | awk -v
         want="{{.GOVULNCHECK_VERSION}}" '$1 == "mod" && $3 == want { found = 1 } END { exit !found }'; }{{end}}
-  lint:
+  ci:
     run: once
     desc: Scan Go packages with govulncheck
     summary: |

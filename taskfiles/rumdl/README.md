@@ -13,7 +13,7 @@ isolated environment so it never conflicts with project dependencies.
 ### Standalone
 
 ```bash
-task --taskfile taskfiles/rumdl/Taskfile.yml lint RUMDL_TARGETS=docs
+task --taskfile taskfiles/rumdl/Taskfile.yml ci RUMDL_TARGETS=docs
 ```
 
 ### Included
@@ -25,7 +25,7 @@ includes:
 ```
 
 ```bash
-task rumdl:lint RUMDL_TARGETS=docs
+task rumdl:ci RUMDL_TARGETS=docs
 task rumdl:lint:fix RUMDL_TARGETS=README.md
 task rumdl:fmt
 task rumdl:install RUMDL_VERSION=0.0.145
@@ -38,7 +38,7 @@ task rumdl:install RUMDL_VERSION=0.0.145
 | `install` | Install rumdl on the current operating system | `RUMDL_VERSION` |
 | `install:undo` | Remove rumdl (alias: `uninstall`) | |
 | `upgrade` | Upgrade rumdl to the latest release | `RUMDL_VERSION` |
-| `lint` | Lint Markdown files with rumdl check | `RUMDL_TARGETS`, `RUMDL_EXTRA_ARGS` |
+| `ci` | Lint Markdown files with rumdl check | `RUMDL_TARGETS`, `RUMDL_EXTRA_ARGS` |
 | `lint:fix` | Apply automatic fixes with rumdl check --fix | `RUMDL_TARGETS`, `RUMDL_EXTRA_ARGS` |
 | `ci:fix` | Run `fmt` then `lint:fix` for CI | — |
 | `fmt` | Format Markdown files with rumdl fmt | `RUMDL_TARGETS`, `RUMDL_EXTRA_ARGS` |

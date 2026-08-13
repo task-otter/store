@@ -100,7 +100,7 @@ tasks:
           {{.FLAGS}}{{.PATHS}}{{if .EXTRA}} {{.EXTRA}}{{end}}
         platforms: [windows]
 
-  lint:
+  ci:
     run: once
     desc: Lint Markdown files with rumdl (RUMDL_TARGETS=path)
     summary: |

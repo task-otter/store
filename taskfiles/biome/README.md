@@ -42,7 +42,7 @@ Available leaves: `bun`, `node/{fnm,nvm}/{npm,pnpm,yarn}`.
 | `lint:fix`     | Optional `BIOME_TARGETS`, `BIOME_CONFIG`, `BIOME_EXTRA_ARGS`, `CLI_ARGS` | Run `biome check --write`.                                                 |
 | `fmt:check`    | Optional `BIOME_TARGETS`, `BIOME_CONFIG`, `BIOME_EXTRA_ARGS`, `CLI_ARGS` | Run `biome format`.                                                        |
 | `fmt`          | Optional `BIOME_TARGETS`, `BIOME_CONFIG`, `BIOME_EXTRA_ARGS`, `CLI_ARGS` | Run `biome format --write`.                                                |
-| `ci`           | Optional `BIOME_TARGETS`, `BIOME_CONFIG`, `BIOME_EXTRA_ARGS`, `CLI_ARGS` | Run `biome ci`.                                                            |
+| `ci`           | — | Run `fmt:check` then `lint` |
 | `ci:fix` | — | Run `fmt` then `lint:fix` for CI |
 | `cache:clean`  | —                                                            | Remove common Biome cache directories.                                     |
 | `version`      | — | Show the resolved Biome version.                                           |
@@ -51,7 +51,7 @@ Available leaves: `bun`, `node/{fnm,nvm}/{npm,pnpm,yarn}`.
 ## Variables
 
 - `BIOME_VERSION` (default empty): pinned release for `install` / `upgrade`. Empty resolves to the package manager's default.
-- `BIOME_TARGETS` (default `.`): paths passed to `biome check|lint|format|ci`. Defaults to the current directory.
+- `BIOME_TARGETS` (default `.`): paths passed to `biome check|lint|format`. Defaults to the current directory.
 - `BIOME_CONFIG` (default empty): adds `--config-path <path>` to Biome invocations.
 - `BIOME_EXTRA_ARGS` (default empty): appended to the underlying command. Arguments after `--` (available as `CLI_ARGS`) are also appended.
 - `BIOME_LINT_SKIP_PATTERN` (default empty): forward-slash path glob for files skipped by lint checks and fixes.

@@ -167,7 +167,7 @@ func buildVarsPrefixAllowlists(t *testing.T, taskfilesDir string) varsPrefixAllo
 
 	return varsPrefixAllowlists{
 		foreignPrefixes:   moduleForeignPrefixes(t, taskfilesDir),
-		companionPrefixes: []string{"RUST_", "RUSTUP_", "PROTOC_", "YAMLFIX_", "NODE_", "WINDOWS_"},
+		companionPrefixes: []string{"RUST_", "RUSTUP_", "PROTOC_", "NODE_", "WINDOWS_"},
 	}
 }
 

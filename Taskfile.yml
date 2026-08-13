@@ -64,17 +64,6 @@ tasks:
     cmds:
       - task --list-all
 
-  lint:
-    run: once
-    desc: Run YAML and GitHub Actions lint checks
-    cmds:
-      - task: yamllint:lint
-      - task: zizmor:lint
-      - task: actionlint:lint
-      - task: golangci-lint:lint
-      - task: golangci-lint:fmt:check
-      - task: govulncheck:lint
-
   lint:fix:
     run: once
     desc: Auto-fix YAML lint issues
@@ -89,19 +78,15 @@ tasks:
     cmds:
       - task: yamllint:lint:fix
 
-  fmt:check:
-    run: once
-    desc: Check YAML formatting and style
-    cmds:
-      - task: yamllint:lint
-
   ci:
     run: once
-    desc: Run CI flow
+    desc: Run all CI checks
     cmds:
-      - task: fmt:check
-      - task: lint
-      - task: go:test
+      - task: actionlint:ci
+      - task: golangci-lint:ci
+      - task: govulncheck:ci
+      - task: yamllint:ci
+      - task: zizmor:ci
 
   ci:fix:
     run: once

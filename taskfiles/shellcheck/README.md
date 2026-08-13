@@ -11,9 +11,9 @@ This module provides tasks to lint, install, and manage [ShellCheck](https://www
 ### Standalone
 
 ```sh
-task -t taskfiles/shellcheck/Taskfile.yml lint
-task -t taskfiles/shellcheck/Taskfile.yml lint SHELLCHECK_TARGETS="scripts/*.sh"
-task -t taskfiles/shellcheck/Taskfile.yml lint SHELLCHECK_EXTRA_ARGS="--shell=bash --severity=warning"
+task -t taskfiles/shellcheck/Taskfile.yml ci
+task -t taskfiles/shellcheck/Taskfile.yml ci SHELLCHECK_TARGETS="scripts/*.sh"
+task -t taskfiles/shellcheck/Taskfile.yml ci SHELLCHECK_EXTRA_ARGS="--shell=bash --severity=warning"
 ```
 
 ### Included in your Taskfile
@@ -30,7 +30,7 @@ includes:
 Then run:
 
 ```sh
-task shellcheck:lint
+task shellcheck:ci
 task shellcheck:install
 ```
 
@@ -40,7 +40,7 @@ task shellcheck:install
 |---|---|
 | `install` | Install ShellCheck on the current operating system |
 | `install:undo` | Remove ShellCheck from the current operating system |
-| `lint` | Lint shell scripts with ShellCheck (SHELLCHECK_TARGETS=glob) |
+| `ci` | Lint shell scripts with ShellCheck (SHELLCHECK_TARGETS=glob) |
 | `upgrade` | Upgrade ShellCheck to the latest release |
 | `version` | Show the installed ShellCheck version |
 
@@ -62,4 +62,4 @@ Skip patterns support `*` within one path segment, `**` across directories, and 
 - **Windows** installs via Scoop (`scoop install shellcheck`). Scoop must be installed.
 - When `SHELLCHECK_TARGETS` is empty, all `*.sh` and `*.bash` files under the working tree are discovered recursively (excluding `.git`).
 - Pass explicit paths or globs (e.g. `SHELLCHECK_TARGETS="scripts/*.sh"`) to limit the scope.
-- The `lint` task auto-installs ShellCheck if it is not already present in `PATH`.
+- The `ci` task auto-installs ShellCheck if it is not already present in `PATH`.

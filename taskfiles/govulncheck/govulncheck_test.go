@@ -20,7 +20,7 @@ type (
 
 const (
 	constGovulncheckInstall = "install"
-	constGovulncheckLint    = "lint"
+	constGovulncheckLint    = "ci"
 	constGoInstall          = "go:install"
 	constGovulncheckModule  = "govulncheck"
 

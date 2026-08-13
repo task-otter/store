@@ -94,16 +94,6 @@ tasks:
           EXTRA_ARGS: >-
             {{default .DEPCHECK_EXTRA_ARGS .DEPCHECK_EXTRA_ARGS_OVERRIDE}}{{if .CLI_ARGS}} {{.CLI_ARGS}}{{end}}
 
-  lint:
-    run: once
-    desc: Run Depcheck
-    summary: Depcheck reports unused and missing dependencies; review findings before removing packages.
-    cmds:
-      - task: _run
-        vars:
-          MODE_ARGS: ""
-      - echo "✅ depcheck passed"
-
   json:
     run: once
     desc: Run Depcheck and print JSON output
@@ -136,7 +126,9 @@ tasks:
     desc: Run Depcheck with CI failure on dependency findings
     summary: Depcheck exits non-zero when unused or missing dependencies are found.
     cmds:
-      - task: lint
+      - task: _run
+        vars:
+          MODE_ARGS: ""
       - echo "✅ depcheck ci passed"
 
   version:

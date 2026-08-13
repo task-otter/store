@@ -11,9 +11,9 @@ This module provides tasks to lint, install, and manage [actionlint](https://git
 ### Standalone
 
 ```sh
-task -t taskfiles/actionlint/Taskfile.yml lint
-task -t taskfiles/actionlint/Taskfile.yml lint ACTIONLINT_TARGETS=.github/workflows/ci.yml
-task -t taskfiles/actionlint/Taskfile.yml lint ACTIONLINT_EXTRA_ARGS="-ignore 'label.*'"
+task -t taskfiles/actionlint/Taskfile.yml ci
+task -t taskfiles/actionlint/Taskfile.yml ci ACTIONLINT_TARGETS=.github/workflows/ci.yml
+task -t taskfiles/actionlint/Taskfile.yml ci ACTIONLINT_EXTRA_ARGS="-ignore 'label.*'"
 ```
 
 ### Included in your Taskfile
@@ -30,7 +30,7 @@ includes:
 Then run:
 
 ```sh
-task actionlint:lint
+task actionlint:ci
 task actionlint:install
 ```
 
@@ -38,7 +38,7 @@ task actionlint:install
 
 | Task | Description |
 |---|---|
-| `lint` | Lint GitHub Actions workflow files with actionlint |
+| `ci` | Lint GitHub Actions workflow files with actionlint |
 | `install` | Install actionlint on the current operating system |
 | `install:undo` | Remove actionlint from the current operating system |
 | `upgrade` | Upgrade actionlint to the latest release |
@@ -60,4 +60,4 @@ Skip patterns support `*` within one path segment, `**` across directories, and 
 - **macOS** and **Linux** download a pinned binary from GitHub Releases into `/usr/local/bin`. Requires `curl`, `tar`, and `install`. Supported architectures: macOS `x86_64`/`arm64`, Linux `x86_64`/`aarch64`.
 - **Windows** installs via Scoop (`scoop install actionlint`). Scoop must be installed.
 - When `ACTIONLINT_TARGETS` is empty, actionlint automatically discovers all files under `.github/workflows/` in the current working directory.
-- The `lint` task auto-installs actionlint if it is not already present in `PATH`.
+- The `ci` task auto-installs actionlint if it is not already present in `PATH`.

@@ -275,13 +275,10 @@ tasks:
 
   ci:
     run: once
-    desc: Run Biome CI checks
+    desc: Run Biome fmt:check then lint
     cmds:
-      - task: _run
-        vars:
-          SUBCMD: ci
-          SKIP_SCOPE: all
-      - echo "✅ biome passed"
+      - task: fmt:check
+      - task: lint
 
   ci:fix:
     run: once

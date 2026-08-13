@@ -12,12 +12,9 @@ import (
 func publicTasks() []string {
 	return []string{
 		"ci",
-		"ci:fix",
 		"config:init",
 		"install",
 		"install:undo",
-		"lint",
-		"lint:fix",
 		"upgrade",
 		"version",
 	}
@@ -30,7 +27,6 @@ func publicVars() []string {
 		"YAMLLINT_EXTRA_ARGS",
 		"YAMLLINT_TARGETS",
 		"UV_LOAD",
-		"YAMLFIX_VERSION",
 		"YAMLLINT_VERSION",
 	}
 }

@@ -14,7 +14,6 @@ exported_tasks:
   - help
   - install
   - install:undo
-  - lint
   - lint:fix
   - production
   - upgrade

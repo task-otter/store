@@ -27,7 +27,7 @@ Top-level Taskfile vars must satisfy **one** of:
 2. **Foreign / dependency prefix:** starts with another module’s `{NAME}_`
    discovered from top-level directories under `taskfiles/` (for example `UV_`,
    `FNM_`, `CARGO_`, `GO_`), **or** a companion allowlist: `RUST_`, `RUSTUP_`,
-   `PROTOC_`, `YAMLFIX_`, `NODE_`, `WINDOWS_`.
+   `PROTOC_`, `NODE_`, `WINDOWS_`.
 
 Bare module knobs (`CACHE`, `IMAGE`, `PLAYBOOK`, `EXTRA_ARGS`, `VERSION`, …)
 and go’s former `INSTALL_DIR_UNIX` / `GLOBAL_GO_BIN` names are not allowed;

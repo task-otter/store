@@ -38,7 +38,6 @@ Available leaves: `bun`, `node/{fnm,nvm}/{npm,pnpm,yarn}`.
 | `upgrade`          | Optional `KNIP_EXTRA_ARGS`                       | Reinstall `knip` at the latest version.                    |
 | `config:init`      | Optional `KNIP_EXTRA_ARGS`, `CLI_ARGS`           | Initialize Knip configuration (writes starter `knip.json`). |
 | `config:skip`      | —                                           | Write the skip-pattern config overlay. Run automatically by the tasks below. |
-| `lint`             | Optional `KNIP_CONFIG`, `KNIP_EXTRA_ARGS`, `CLI_ARGS` | Run the default Knip analysis.                            |
 | `production`       | Optional `KNIP_CONFIG`, `KNIP_EXTRA_ARGS`, `CLI_ARGS` | Run Knip with `--production`.                             |
 | `dependencies`     | Optional `KNIP_CONFIG`, `KNIP_EXTRA_ARGS`, `CLI_ARGS` | Report unused production dependencies.                    |
 | `dev-dependencies` | Optional `KNIP_CONFIG`, `KNIP_EXTRA_ARGS`, `CLI_ARGS` | Report unused development dependencies.                   |
@@ -79,7 +78,7 @@ no skip pattern set deletes it.
 ```bash
 task knip:node:fnm:npm:install
 task knip:node:fnm:npm:install KNIP_VERSION=5.27.0
-task knip:node:fnm:npm:lint
+task knip:node:fnm:npm:ci
 task knip:node:fnm:npm:production
 task knip:node:fnm:npm:dependencies
 task knip:node:fnm:npm:files

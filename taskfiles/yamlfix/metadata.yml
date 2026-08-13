@@ -1,13 +1,11 @@
 ---
 schema: taskotter.dev/taskfile-metadata/v1
-module: htmlhint
+module: yamlfix
 taskfile: Taskfile.yml
 exported_tasks:
-  - ci
-  - config:init
-  - help
+  - ci:fix
+  - fmt
   - install
   - install:undo
   - upgrade
   - version
-variants: [node/fnm/npm, node/fnm/pnpm, node/nvm/npm, node/nvm/pnpm]

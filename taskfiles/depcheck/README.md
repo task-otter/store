@@ -36,7 +36,6 @@ Available leaves: `bun`, `node/{fnm,nvm}/{npm,pnpm,yarn}`.
 | `install`      | Optional `DEPCHECK_VERSION`, `DEPCHECK_EXTRA_ARGS`, `CLI_ARGS`                                    | Install `depcheck` as a local dev dependency. Pass `DEPCHECK_VERSION=x.y.z` to pin a release. |
 | `install:undo` | Optional `DEPCHECK_EXTRA_ARGS`                                                           | Remove the locally installed `depcheck` devDependency. |
 | `upgrade`      | Optional `DEPCHECK_EXTRA_ARGS`                                                           | Reinstall `depcheck` at the latest version.   |
-| `lint`         | Optional `DEPCHECK_PROJECT_PATH`, `DEPCHECK_TARGETS`, `DEPCHECK_EXTRA_ARGS`, `CLI_ARGS`                    | Run Depcheck.                                 |
 | `json`         | Optional `DEPCHECK_PROJECT_PATH`, `DEPCHECK_TARGETS`, `DEPCHECK_EXTRA_ARGS`, `CLI_ARGS`                    | Run Depcheck with `--json`.                   |
 | `ignores`      | Optional `DEPCHECK_PROJECT_PATH`, `DEPCHECK_TARGETS`, `DEPCHECK_IGNORE_PACKAGES`, `DEPCHECK_EXTRA_ARGS`, `CLI_ARGS` | Run Depcheck with ignored packages.           |
 | `skip-missing` | Optional `DEPCHECK_PROJECT_PATH`, `DEPCHECK_TARGETS`, `DEPCHECK_EXTRA_ARGS`, `CLI_ARGS`                    | Run Depcheck with `--skip-missing=true`.      |
@@ -61,8 +60,8 @@ Skip patterns support `*` within one path segment, `**` across directories, and 
 ```bash
 task depcheck:node:fnm:npm:install
 task depcheck:node:fnm:npm:install DEPCHECK_VERSION=1.4.7
-task depcheck:node:fnm:npm:lint
+task depcheck:node:fnm:npm:ci
 task depcheck:node:fnm:npm:json
-task depcheck:node:fnm:npm:lint DEPCHECK_PROJECT_PATH=packages/app
-task depcheck:node:fnm:npm:lint -- --ignores="@types/*,eslint-*"
+task depcheck:node:fnm:npm:ci DEPCHECK_PROJECT_PATH=packages/app
+task depcheck:node:fnm:npm:ci -- --ignores="@types/*,eslint-*"
 ```

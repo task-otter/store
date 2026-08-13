@@ -13,7 +13,7 @@ toolchain itself is bootstrapped through the cargo module when missing.
 ### Standalone
 
 ```bash
-task --taskfile taskfiles/dotenv-linter/Taskfile.yml lint DOTENV_LINTER_TARGETS=.env.example
+task --taskfile taskfiles/dotenv-linter/Taskfile.yml ci DOTENV_LINTER_TARGETS=.env.example
 ```
 
 ### Included
@@ -25,7 +25,7 @@ includes:
 ```
 
 ```bash
-task dotenv-linter:lint DOTENV_LINTER_TARGETS=.env.example
+task dotenv-linter:ci DOTENV_LINTER_TARGETS=.env.example
 task dotenv-linter:lint:fix DOTENV_LINTER_TARGETS=.env
 task dotenv-linter:install DOTENV_LINTER_VERSION=3.3.0
 ```
@@ -37,7 +37,7 @@ task dotenv-linter:install DOTENV_LINTER_VERSION=3.3.0
 | `install` | Install dotenv-linter on the current operating system | `DOTENV_LINTER_VERSION` |
 | `install:undo` | Remove dotenv-linter (alias: `uninstall`) | |
 | `upgrade` | Reinstall dotenv-linter at the requested version | `DOTENV_LINTER_VERSION` |
-| `lint` | Lint dotenv files with dotenv-linter check | `DOTENV_LINTER_TARGETS`, `DOTENV_LINTER_EXTRA_ARGS` |
+| `ci` | Lint dotenv files with dotenv-linter check | `DOTENV_LINTER_TARGETS`, `DOTENV_LINTER_EXTRA_ARGS` |
 | `lint:fix` | Apply automatic fixes with dotenv-linter fix | `DOTENV_LINTER_TARGETS`, `DOTENV_LINTER_EXTRA_ARGS` |
 | `ci:fix` | Run `lint:fix` for CI fixing | — |
 | `diff` | Compare .env files to ensure matching key sets | `DOTENV_LINTER_TARGETS`, `DOTENV_LINTER_EXTRA_ARGS` |
@@ -58,7 +58,7 @@ Skip patterns support `*` within one path segment, `**` across directories, and 
 ## Notes
 
 - Auto-install: every run task depends on `install`, and `install` bootstraps
-  the Rust toolchain via the cargo module first, so `task dotenv-linter:lint`
+  the Rust toolchain via the cargo module first, so `task dotenv-linter:ci`
   works on a fresh machine. Installs are idempotent and version-aware —
   changing `DOTENV_LINTER_VERSION` triggers a reinstall.
 - Binaries are resolved from PATH first, falling back to `~/.cargo/bin`

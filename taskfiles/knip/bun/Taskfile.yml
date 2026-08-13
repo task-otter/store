@@ -303,16 +303,6 @@ tasks:
             {{- else if .RESOLVED_CONFIG}}--config "{{.RESOLVED_CONFIG}}"{{end}}
             {{default .KNIP_EXTRA_ARGS .KNIP_EXTRA_ARGS_OVERRIDE}}{{if .CLI_ARGS}} {{.CLI_ARGS}}{{end}}
 
-  lint:
-    run: once
-    desc: Run Knip for unused files, exports, and dependencies
-    summary: Knip may report framework-specific false positives; review results before deleting files or dependencies.
-    cmds:
-      - task: _run
-        vars:
-          MODE: ""
-      - echo "✅ knip passed"
-
   production:
     run: once
     desc: Run Knip against production dependency usage

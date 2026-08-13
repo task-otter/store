@@ -154,15 +154,6 @@ tasks:
             {{- .RESOLVED_TARGETS}}
             {{.RESOLVED_EXTRA_ARGS}}{{if .CLI_ARGS}} {{.CLI_ARGS}}{{end}}
 
-  lint:
-    run: once
-    desc: Lint targets with ESLint
-    cmds:
-      - task: _run
-        vars:
-          MODE_ARGS: ""
-      - echo "✅ eslint passed"
-
   lint:fix:
     run: once
     desc: Lint targets with ESLint and apply fixes

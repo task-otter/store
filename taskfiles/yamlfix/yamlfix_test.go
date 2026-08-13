@@ -1,7 +1,7 @@
 // Taskotter 2026.
 // SPDX-License-Identifier: Apache-2.0.
 
-package bun_test
+package yamlfix_test
 
 import (
 	"testing"
@@ -11,15 +11,10 @@ import (
 
 func publicTasks() []string {
 	return []string{
-		"cache:clean",
-		"ci",
 		"ci:fix",
-		"config:init",
-		"config:skip",
-		"help",
+		"fmt",
 		"install",
 		"install:undo",
-		"lint:fix",
 		"upgrade",
 		"version",
 	}
@@ -27,13 +22,11 @@ func publicTasks() []string {
 
 func publicVars() []string {
 	return []string{
-		"STYLELINT_LINT_SKIP_PATTERN",
-		"STYLELINT_ALLOW_EMPTY_INPUT",
-		"STYLELINT_CACHE",
-		"STYLELINT_CONFIG",
-		"STYLELINT_EXTRA_ARGS",
-		"STYLELINT_TARGETS",
-		"STYLELINT_VERSION",
+		"YAMLFIX_FMT_SKIP_PATTERN",
+		"YAMLFIX_EXTRA_ARGS",
+		"YAMLFIX_TARGETS",
+		"UV_LOAD",
+		"YAMLFIX_VERSION",
 	}
 }
 
@@ -43,9 +36,7 @@ func TestTaskfileModuleContract(t *testing.T) {
 
 	tasktest.AssertModule(
 		t,
-		"stylelint/bun",
+		"yamlfix",
 		&tasktest.ModuleExpectations{Tasks: publicTasks(), Vars: publicVars()},
 	)
 }
-
-// covered by module contract

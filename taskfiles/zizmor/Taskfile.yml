@@ -28,7 +28,7 @@ tasks:
     cmds:
       - task --list
 
-  lint:
+  ci:
     run: once
     desc: Audit GitHub Actions workflows for security issues
     summary: |

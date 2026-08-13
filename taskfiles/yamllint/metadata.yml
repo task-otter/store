@@ -4,11 +4,8 @@ module: yamllint
 taskfile: Taskfile.yml
 exported_tasks:
   - ci
-  - ci:fix
   - config:init
   - install
   - install:undo
-  - lint
-  - lint:fix
   - upgrade
   - version

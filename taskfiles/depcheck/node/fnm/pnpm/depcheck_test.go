@@ -17,7 +17,6 @@ func publicTasks() []string {
 		"install",
 		"install:undo",
 		"json",
-		"lint",
 		"skip-missing",
 		"upgrade",
 		"version",

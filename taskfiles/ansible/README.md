@@ -17,7 +17,7 @@ Ansible and ansible-lint are installed via uv as isolated tools.
 
 ```sh
 task -t taskfiles/ansible/Taskfile.yml install
-task -t taskfiles/ansible/Taskfile.yml lint
+task -t taskfiles/ansible/Taskfile.yml ci ANSIBLE_PLAYBOOK=site.yml
 task -t taskfiles/ansible/Taskfile.yml run ANSIBLE_PLAYBOOK=site.yml ANSIBLE_INVENTORY=hosts
 ```
 
@@ -32,7 +32,7 @@ Then run:
 
 ```sh
 task ansible:install
-task ansible:lint
+task ansible:ci ANSIBLE_PLAYBOOK=site.yml
 task ansible:run ANSIBLE_PLAYBOOK=site.yml ANSIBLE_INVENTORY=hosts
 ```
 
@@ -44,9 +44,8 @@ task ansible:run ANSIBLE_PLAYBOOK=site.yml ANSIBLE_INVENTORY=hosts
 | `install:undo`   | Remove Ansible and ansible-lint                        | none                                  |
 | `upgrade`        | Upgrade Ansible and ansible-lint to the latest release | none                                  |
 | `version`        | Show Ansible and ansible-lint versions                 | none                                  |
-| `lint`           | Lint Ansible YAML files with ansible-lint              | `ANSIBLE_TARGETS`, `ANSIBLE_EXTRA_ARGS`               |
 | `lint:fix`         | Auto-fix Ansible YAML files with ansible-lint --fix     | `ANSIBLE_TARGETS`, `ANSIBLE_EXTRA_ARGS`               |
-| `ci`             | Run `lint` then `syntax:check`                          | `ANSIBLE_TARGETS`, `ANSIBLE_PLAYBOOK`, `ANSIBLE_INVENTORY` |
+| `ci`             | Run ansible-lint then `syntax:check`                    | `ANSIBLE_TARGETS`, `ANSIBLE_PLAYBOOK`, `ANSIBLE_INVENTORY` |
 | `ci:fix` | Run `lint:fix` for CI fixing | — |
 | `syntax:check`   | Check playbook syntax without executing                | `ANSIBLE_PLAYBOOK`, `ANSIBLE_INVENTORY`               |
 | `run`            | Run an Ansible playbook                                | `ANSIBLE_PLAYBOOK`, `ANSIBLE_INVENTORY`, `ANSIBLE_EXTRA_ARGS` |
@@ -63,7 +62,7 @@ task ansible:run ANSIBLE_PLAYBOOK=site.yml ANSIBLE_INVENTORY=hosts
 | `ANSIBLE_PLAYBOOK`     | _(empty)_                              | Playbook path; required by `run` and `syntax:check`              |
 | `ANSIBLE_INVENTORY`    | _(empty)_                              | Inventory file or directory; required by `ping` and `list:hosts` |
 | `ANSIBLE_PATTERN`      | `all`                                  | Host pattern for `ping` and `list:hosts`                         |
-| `ANSIBLE_TARGETS`      | `.`                                    | Files or directories to lint with `lint`                         |
+| `ANSIBLE_TARGETS`      | `.`                                    | Files or directories to lint with `ci` / `lint:fix`            |
 | `ANSIBLE_FILE`         | _(empty)_                              | File path; required by `vault:encrypt` and `vault:decrypt`       |
 | `ANSIBLE_REQUIREMENTS` | `requirements.yml`                     | Requirements file for `galaxy:install`                           |
 | `ANSIBLE_EXTRA_ARGS`   | _(empty)_                              | Extra flags forwarded to the underlying Ansible command          |
@@ -76,8 +75,8 @@ Skip patterns support `*` within one path segment, `**` across directories, and 
 
 ## Notes
 
-**`lint`** uses ansible-lint, which enforces Ansible best practices and YAML
-syntax checks. Configure linting rules with an `.ansible-lint` file in your
+**`ci`** runs ansible-lint (best practices and YAML checks) then
+`syntax:check`. Configure linting rules with an `.ansible-lint` file in your
 project root.
 
 **`vault:decrypt`** prompts for confirmation before decrypting to prevent

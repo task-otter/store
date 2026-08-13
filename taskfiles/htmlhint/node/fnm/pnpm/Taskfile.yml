@@ -96,7 +96,7 @@ tasks:
       - 'printf ''}\n'' >> .htmlhintrc'
       - echo 'Created .htmlhintrc with default configuration.'
 
-  lint:
+  ci:
     run: once
     desc: Lint HTML files with HTMLHint (HTMLHINT_TARGETS=glob)
     summary: |

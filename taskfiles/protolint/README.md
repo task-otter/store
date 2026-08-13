@@ -13,7 +13,7 @@ global Go bin, so the Go toolchain is bootstrapped automatically when needed.
 ### Standalone
 
 ```bash
-task --taskfile taskfiles/protolint/Taskfile.yml lint PROTOLINT_TARGETS=api
+task --taskfile taskfiles/protolint/Taskfile.yml ci PROTOLINT_TARGETS=api
 ```
 
 ### Included
@@ -25,7 +25,7 @@ includes:
 ```
 
 ```bash
-task protolint:lint PROTOLINT_TARGETS=api
+task protolint:ci PROTOLINT_TARGETS=api
 task protolint:lint:fix PROTOLINT_TARGETS=api
 task protolint:install PROTOLINT_VERSION=v0.55.6
 ```
@@ -37,7 +37,7 @@ task protolint:install PROTOLINT_VERSION=v0.55.6
 | `install` | Install protolint into the global Go bin | `PROTOLINT_VERSION` |
 | `install:undo` | Remove protolint from the global Go bin (alias: `uninstall`) | |
 | `upgrade` | Reinstall protolint at the requested version | `PROTOLINT_VERSION` |
-| `lint` | Lint protobuf files with protolint | `PROTOLINT_TARGETS`, `PROTOLINT_EXTRA_ARGS` |
+| `ci` | Lint protobuf files with protolint | `PROTOLINT_TARGETS`, `PROTOLINT_EXTRA_ARGS` |
 | `lint:fix` | Apply automatic fixes with protolint lint -fix | `PROTOLINT_TARGETS`, `PROTOLINT_EXTRA_ARGS` |
 | `ci:fix` | Run `lint:fix` for CI fixing | — |
 | `version` | Show the installed protolint version | |
