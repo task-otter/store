@@ -72,41 +72,6 @@ tasks:
 
   ci:fix:
     run: once
-    desc: Run fmt for CI fixing
-    summary: |
-      Run fmt to apply formatting fixes. Suitable for CI autofix workflows.
-    cmds:
-      - task: fmt
-
-  fmt:check:
-    run: once
-    desc: Check proto file formatting with Buf (BUF_INPUT=path)
-    summary: |
-      Run buf format --diff to report formatting issues without modifying files.
-      Pass INPUT to check a specific directory or module. Use fmt to
-      apply fixes. Auto-installs Buf if missing.
-    dir: "{{.USER_WORKING_DIR}}"
-    deps:
-      - task: install
-    cmds:
-      - task: _buf:unix
-        vars:
-          BUF_SUBCOMMAND: "format --diff"
-          BUF_SKIP_PATTERN: >-
-            {{if .BUF_FMT_SKIP_PATTERN_OVERRIDE}}{{.BUF_FMT_SKIP_PATTERN_OVERRIDE}}
-            {{- else}}{{.BUF_FMT_SKIP_PATTERN}}{{end}}
-          BUF_CONFIG_FLAG: ""
-      - task: _buf:windows
-        vars:
-          BUF_SUBCOMMAND: "format --diff"
-          BUF_SKIP_PATTERN: >-
-            {{if .BUF_FMT_SKIP_PATTERN_OVERRIDE}}{{.BUF_FMT_SKIP_PATTERN_OVERRIDE}}
-            {{- else}}{{.BUF_FMT_SKIP_PATTERN}}{{end}}
-          BUF_CONFIG_FLAG: ""
-      - echo "✅ buf format check passed"
-
-  fmt:
-    run: once
     desc: Format proto files in place with Buf (BUF_INPUT=path)
     summary: |
       Run buf format --write to reformat all .proto files under INPUT in
@@ -129,6 +94,33 @@ tasks:
             {{if .BUF_FMT_SKIP_PATTERN_OVERRIDE}}{{.BUF_FMT_SKIP_PATTERN_OVERRIDE}}
             {{- else}}{{.BUF_FMT_SKIP_PATTERN}}{{end}}
           BUF_CONFIG_FLAG: ""
+
+  fmt:check:
+    run: once
+    desc: Check proto file formatting with Buf (BUF_INPUT=path)
+    summary: |
+      Run buf format --diff to report formatting issues without modifying files.
+      Pass INPUT to check a specific directory or module. Use ci:fix to
+      apply fixes. Auto-installs Buf if missing.
+    dir: "{{.USER_WORKING_DIR}}"
+    deps:
+      - task: install
+    cmds:
+      - task: _buf:unix
+        vars:
+          BUF_SUBCOMMAND: "format --diff"
+          BUF_SKIP_PATTERN: >-
+            {{if .BUF_FMT_SKIP_PATTERN_OVERRIDE}}{{.BUF_FMT_SKIP_PATTERN_OVERRIDE}}
+            {{- else}}{{.BUF_FMT_SKIP_PATTERN}}{{end}}
+          BUF_CONFIG_FLAG: ""
+      - task: _buf:windows
+        vars:
+          BUF_SUBCOMMAND: "format --diff"
+          BUF_SKIP_PATTERN: >-
+            {{if .BUF_FMT_SKIP_PATTERN_OVERRIDE}}{{.BUF_FMT_SKIP_PATTERN_OVERRIDE}}
+            {{- else}}{{.BUF_FMT_SKIP_PATTERN}}{{end}}
+          BUF_CONFIG_FLAG: ""
+      - echo "✅ buf format check passed"
 
   _buf:unix:
     run: once

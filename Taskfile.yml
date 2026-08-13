@@ -53,6 +53,7 @@ includes:
   typescript: taskfiles/typescript/Taskfile.yml
   uv: taskfiles/uv/Taskfile.yml
   vault: taskfiles/vault/Taskfile.yml
+  yamlfix: taskfiles/yamlfix/Taskfile.yml
   yamllint: taskfiles/yamllint/Taskfile.yml
   yarn: taskfiles/yarn/Taskfile.yml
   zizmor: taskfiles/zizmor/Taskfile.yml
@@ -63,20 +64,6 @@ tasks:
     desc: Show all available TaskOtter tasks
     cmds:
       - task --list-all
-
-  lint:fix:
-    run: once
-    desc: Auto-fix YAML lint issues
-    cmds:
-      - task: yamllint:lint:fix
-      - task: golangci-lint:lint:fix
-      - task: golangci-lint:fmt
-
-  fmt:
-    run: once
-    desc: Auto-format YAML files
-    cmds:
-      - task: yamllint:lint:fix
 
   ci:
     run: once
@@ -92,5 +79,5 @@ tasks:
     run: once
     desc: Run CI Fixing
     cmds:
-      - task: fmt
-      - task: lint:fix
+      - task: golangci-lint:ci:fix
+      - task: yamlfix:ci:fix

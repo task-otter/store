@@ -13,7 +13,6 @@ func publicTasks() []string {
 	return []string{
 		"ci",
 		"ci:fix",
-		"lint:fix",
 		"galaxy:install",
 		"install",
 		"install:undo",

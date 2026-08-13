@@ -12,8 +12,7 @@ This module installs `yamlfix` via [uv](https://docs.astral.sh/uv/) into an isol
 
 ```sh
 task -t taskfiles/yamlfix/Taskfile.yml install
-task -t taskfiles/yamlfix/Taskfile.yml fmt YAMLFIX_TARGETS=.
-task -t taskfiles/yamlfix/Taskfile.yml ci:fix
+task -t taskfiles/yamlfix/Taskfile.yml ci:fix YAMLFIX_TARGETS=.
 task -t taskfiles/yamlfix/Taskfile.yml version
 ```
 
@@ -28,7 +27,6 @@ includes:
 Then run:
 
 ```sh
-task yamlfix:fmt
 task yamlfix:ci:fix
 task yamlfix:install YAMLFIX_VERSION=1.17.0
 ```
@@ -41,8 +39,7 @@ task yamlfix:install YAMLFIX_VERSION=1.17.0
 | `install:undo` | Remove yamlfix from the current OS | none |
 | `upgrade` | Upgrade yamlfix to the latest release | `YAMLFIX_VERSION` |
 | `version` | Show the installed yamlfix version | none |
-| `fmt` | Auto-fix YAML files with yamlfix | `YAMLFIX_TARGETS`, `YAMLFIX_EXTRA_ARGS` |
-| `ci:fix` | Run `fmt` for CI fixing | — |
+| `ci:fix` | Auto-fix YAML files with yamlfix | `YAMLFIX_TARGETS`, `YAMLFIX_EXTRA_ARGS` |
 
 ## Variables
 
@@ -58,5 +55,4 @@ Skip patterns support `*` within one path segment, `**` across directories, and 
 
 ## Notes
 
-- `fmt` skips `Taskfile.yml` and `Taskfile.yaml` because Go template syntax breaks yamlfix.
-- `ci:fix` is an alias entrypoint that runs `fmt` for CI autofix workflows.
+- `ci:fix` skips `Taskfile.yml` and `Taskfile.yaml` because Go template syntax breaks yamlfix.

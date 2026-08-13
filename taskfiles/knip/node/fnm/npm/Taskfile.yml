@@ -325,7 +325,7 @@ tasks:
         vars:
           MODE: "--exports"
 
-  lint:fix:
+  ci:fix:
     run: once
     desc: Run Knip fix mode when supported by the installed version
     summary: Knip fixes can update project files; dependency removals should still be reviewed manually.
@@ -343,15 +343,6 @@ tasks:
         vars:
           MODE: "--production"
       - echo "✅ knip passed"
-
-  ci:fix:
-    run: once
-    desc: Run lint:fix for CI fixing
-    summary: |
-      Run lint:fix to apply automatic lint fixes. Suitable for CI
-      autofix workflows.
-    cmds:
-      - task: lint:fix
 
   version:
     run: once

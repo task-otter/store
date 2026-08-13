@@ -12,7 +12,7 @@ This module installs `shfmt` from its official Go module into the global Go bin 
 
 ```sh
 task -t taskfiles/shfmt/Taskfile.yml install
-task -t taskfiles/shfmt/Taskfile.yml fmt SHFMT_TARGETS=scripts
+task -t taskfiles/shfmt/Taskfile.yml ci:fix SHFMT_TARGETS=scripts
 task -t taskfiles/shfmt/Taskfile.yml fmt:check SHFMT_TARGETS=scripts SHFMT_EXTRA_ARGS="-i 2 -ci"
 task -t taskfiles/shfmt/Taskfile.yml version
 ```
@@ -31,7 +31,7 @@ includes:
 Then run:
 
 ```sh
-task shfmt:fmt
+task shfmt:ci:fix
 task shfmt:fmt:check SHFMT_TARGETS=scripts
 ```
 
@@ -42,8 +42,7 @@ task shfmt:fmt:check SHFMT_TARGETS=scripts
 | `install` | Install shfmt into the global Go bin |
 | `install:undo` | Remove shfmt from the global Go bin |
 | `upgrade` | Upgrade shfmt to the requested version |
-| `fmt` | Format shell scripts in place (`SHFMT_TARGETS=path`) |
-| `ci:fix` | Run `fmt` for CI fixing |
+| `ci:fix` | Format shell scripts in place (`SHFMT_TARGETS=path`) |
 | `fmt:check` | Check shell script formatting without modifying files (`SHFMT_TARGETS=path`) |
 | `version` | Show the installed shfmt version |
 
@@ -62,5 +61,5 @@ Skip patterns support `*` within one path segment, `**` across directories, and 
 ## Notes
 
 - `install` first ensures the Go toolchain is available through the local `go` Taskfile, then runs the [official installation command](https://github.com/mvdan/sh#shfmt).
-- `fmt` uses `shfmt -w`; `fmt:check` uses `shfmt -d` and exits non-zero when formatting differs.
+- `ci:fix` uses `shfmt -w`; `fmt:check` uses `shfmt -d` and exits non-zero when formatting differs.
 - `SHFMT_TARGETS` may be a single shell script or a directory. Pass dialect and style preferences through `SHFMT_EXTRA_ARGS`.

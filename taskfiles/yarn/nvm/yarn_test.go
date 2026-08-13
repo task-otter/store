@@ -48,7 +48,6 @@ func publicTasksCore() []string {
 		"clean:all",
 		"dev",
 		"exec",
-		"fmt",
 		constYarnTaskInstall,
 		"install:undo",
 	}

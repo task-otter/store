@@ -7,6 +7,5 @@ exported_tasks:
   - ci:fix
   - install
   - install:undo
-  - lint:fix
   - upgrade
   - version

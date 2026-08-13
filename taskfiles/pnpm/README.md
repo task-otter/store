@@ -56,14 +56,13 @@ includes:
 | `upgrade`         | —                                       | Upgrade pnpm via `corepack prepare pnpm@latest --activate`. |
 | `remove`          | Required `PACKAGES`; optional `EXTRA_ARGS` | Remove local packages with `pnpm remove`.                   |
 | `ci`              | Optional `NODE_VERSION`                | Run `pnpm install --frozen-lockfile` with `pnpm-lock.yaml`. |
-| `ci:fix` | — | Run `fmt` for CI fixing |
+| `ci:fix` | Optional `NODE_VERSION` | Run `pnpm run format`. |
 | `run`             | Required `SCRIPT`; optional `NODE_VERSION` | Run a script via `pnpm run`.                                |
 | `dev`             | Optional `NODE_VERSION`                | Run `pnpm run dev`.                                         |
 | `exec`            | Required `BINARY`; optional `ARGS`, `EXTRA_ARGS` | Execute a local project binary via `pnpm exec`.             |
 | `test`            | Optional `NODE_VERSION`                | Run `pnpm test`.                                            |
 | `build`           | Optional `NODE_VERSION`                | Run `pnpm run build`.                                       |
 | `lint`            | Optional `NODE_VERSION`                | Run `pnpm run lint`.                                        |
-| `fmt`          | Optional `NODE_VERSION`                | Run `pnpm run format`.                                      |
 | `typecheck`       | Optional `NODE_VERSION`                | Run `pnpm run typecheck`.                                   |
 | `outdated`        | Optional `NODE_VERSION`                | List outdated packages without failing.                     |
 | `outdated:strict` | Optional `NODE_VERSION`                | List outdated packages with the pnpm exit code.             |

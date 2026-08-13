@@ -117,7 +117,7 @@ tasks:
     desc: Upsert the managed skip block in .stylelintignore
     summary: |
       Write STYLELINT_LINT_SKIP_PATTERN into a managed section of
-      .stylelintignore. Every lint, lint:fix, and ci task runs this first.
+      .stylelintignore. Every lint, ci:fix, and ci task runs this first.
       Empty pattern removes only the managed block; user entries are preserved.
       Stylelint loads .stylelintignore from the working directory automatically.
     dir: "{{.USER_WORKING_DIR}}"
@@ -241,7 +241,7 @@ tasks:
           POWERSHELL
         platforms: [windows]
 
-  # Shared implementation of lint / lint:fix / ci. Each override is resolved
+  # Shared implementation of lint / ci:fix / ci. Each override is resolved
   # exactly once here; the three public tasks differ only by MODE_ARGS.
   _run:
     internal: true
@@ -276,7 +276,7 @@ tasks:
             {{- if eq .RESOLVED_EMPTY "true"}} --allow-empty-input{{end}}
             {{.RESOLVED_EXTRA_ARGS}}{{if .CLI_ARGS}} {{.CLI_ARGS}}{{end}}
 
-  lint:fix:
+  ci:fix:
     run: once
     desc: Lint stylesheet targets with Stylelint and apply fixes
     cmds:
@@ -293,15 +293,6 @@ tasks:
         vars:
           MODE_ARGS: "--max-warnings=0"
       - echo "✅ stylelint passed"
-
-  ci:fix:
-    run: once
-    desc: Run lint:fix for CI fixing
-    summary: |
-      Run lint:fix to apply automatic lint fixes. Suitable for CI
-      autofix workflows.
-    cmds:
-      - task: lint:fix
 
   cache:clean:
     run: once

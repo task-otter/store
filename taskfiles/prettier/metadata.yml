@@ -6,7 +6,6 @@ exported_tasks:
   - ci:fix
   - config:init
   - config:skip
-  - fmt
   - fmt:check
   - help
   - install

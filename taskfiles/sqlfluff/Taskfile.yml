@@ -128,7 +128,7 @@ tasks:
         {{else if .CONFIG}}--config "{{.CONFIG}}"{{end}}
         && echo "✅ sqlfluff passed" || { echo "❌ sqlfluff failed"; exit 1; }'
 
-  lint:fix:
+  ci:fix:
     run: once
     desc: Auto-fix SQL files with sqlfluff (TARGETS=path)
     summary: |
@@ -185,15 +185,6 @@ tasks:
         {{else if .CONFIG_OVERRIDE}}--config "{{.CONFIG_OVERRIDE}}"
         {{else if .CONFIG}}--config "{{.CONFIG}}"{{end}}
         && echo "✅ sqlfluff fixes applied"'
-
-  ci:fix:
-    run: once
-    desc: Run lint:fix for CI fixing
-    summary: |
-      Run lint:fix to apply automatic lint fixes. Suitable for CI
-      autofix workflows.
-    cmds:
-      - task: lint:fix
 
   parse:
     run: once
@@ -277,7 +268,7 @@ tasks:
     summary: |
       Generate a sqlfluff config that merges the project config with
       SQLFLUFF_LINT_SKIP_PATTERN appended to [sqlfluff] ignore_paths. The ci,
-      lint:fix, and parse tasks run this first. The overlay is rewritten on every run
+      ci:fix, and parse tasks run this first. The overlay is rewritten on every run
       and is not removed afterwards, so add it to .gitignore. Running with no
       skip pattern set deletes it.
     dir: "{{.USER_WORKING_DIR}}"

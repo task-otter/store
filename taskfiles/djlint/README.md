@@ -28,7 +28,7 @@ includes:
 ```bash
 task djlint:lint DJLINT_TARGETS=templates
 task djlint:lint DJLINT_TARGETS=templates DJLINT_EXTRA_ARGS="--profile django"
-task djlint:fmt DJLINT_TARGETS=templates
+task djlint:ci:fix DJLINT_TARGETS=templates
 task djlint:fmt:check DJLINT_TARGETS=templates
 task djlint:install DJLINT_VERSION=1.36.4
 ```
@@ -41,10 +41,9 @@ task djlint:install DJLINT_VERSION=1.36.4
 | `install:undo` | Remove djLint (alias: `uninstall`) | |
 | `upgrade` | Upgrade djLint to the latest release | `DJLINT_VERSION` |
 | `lint` | Lint HTML templates with djlint --lint | `DJLINT_TARGETS`, `DJLINT_EXTRA_ARGS` |
-| `fmt` | Format HTML templates in place with djlint --reformat | `DJLINT_TARGETS`, `DJLINT_EXTRA_ARGS` |
 | `fmt:check` | Report formatting changes without modifying files (djlint --check) | `DJLINT_TARGETS`, `DJLINT_EXTRA_ARGS` |
 | `ci` | Run `fmt:check` then `lint` | `DJLINT_TARGETS`, `DJLINT_EXTRA_ARGS` |
-| `ci:fix` | Run `fmt` for CI fixing | — |
+| `ci:fix` | Format HTML templates in place with djlint --reformat | `DJLINT_TARGETS`, `DJLINT_EXTRA_ARGS` |
 | `version` | Show the installed djLint version | |
 
 ## Variables
@@ -63,7 +62,7 @@ Skip patterns support `*` within one path segment, `**` across directories, and 
 ## Notes
 
 - `lint` reports template lint rule violations (`--lint`); `fmt:check` is the
-  dry-run counterpart of `fmt` and reports formatting differences (`--check`).
+  dry-run counterpart of `ci:fix` and reports formatting differences (`--check`).
   They are distinct djLint modes.
 - Pass `DJLINT_EXTRA_ARGS="--profile <name>"` to select the template dialect
   (django, jinja, nunjucks, handlebars, golang, angular).

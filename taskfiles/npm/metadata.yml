@@ -17,7 +17,6 @@ exported_tasks:
   - dev
   - doctor
   - exec
-  - fmt
   - install
   - install:undo
   - lint

@@ -65,7 +65,7 @@ tasks:
         platforms: [linux, darwin]
       - cmd: yamlfix --version
         platforms: [windows]
-  fmt:
+  ci:fix:
     run: once
     dir: "{{.USER_WORKING_DIR}}"
     desc: Auto-fix YAML files with yamlfix (YAMLFIX_TARGETS=path)
@@ -87,14 +87,6 @@ tasks:
         .YAMLFIX_FMT_SKIP_PATTERN_OVERRIDE}}--exclude "{{.YAMLFIX_FMT_SKIP_PATTERN_OVERRIDE}}" {{else if
         .YAMLFIX_FMT_SKIP_PATTERN}}--exclude "{{.YAMLFIX_FMT_SKIP_PATTERN}}" {{end}} {{if
         .YAMLFIX_EXTRA_ARGS_OVERRIDE}}{{.YAMLFIX_EXTRA_ARGS_OVERRIDE}}{{else}}{{.YAMLFIX_EXTRA_ARGS}}{{end}}'
-  ci:fix:
-    run: once
-    desc: Run fmt for CI fixing
-    summary: |
-      Run fmt to apply automatic formatting fixes. Suitable for CI
-      autofix workflows.
-    cmds:
-      - task: fmt
   _install:unix:
     run: once
     internal: true

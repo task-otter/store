@@ -14,7 +14,6 @@ func publicTasks() []string {
 		"config:init",
 		"config:skip",
 		"ci:fix",
-		"fmt",
 		"fmt:check",
 		"help",
 		"install",

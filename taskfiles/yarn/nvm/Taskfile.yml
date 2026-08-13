@@ -98,11 +98,13 @@ tasks:
 
   ci:fix:
     run: once
-    desc: Run fmt for CI fixing
-    summary: |
-      Run fmt to apply formatting fixes. Suitable for CI autofix workflows.
+    desc: Format source files with Yarn
+    summary: Execute the format script defined in package.json through yarn run format.
     cmds:
-      - task: fmt
+      - task: _yarn:unix
+        vars: { ARGS: run format }
+      - task: _yarn:windows
+        vars: { ARGS: run format }
 
   add:
     run: once
@@ -235,16 +237,6 @@ tasks:
         vars: { ARGS: run lint }
       - task: _yarn:windows
         vars: { ARGS: run lint }
-
-  fmt:
-    run: once
-    desc: Format source files with Yarn
-    summary: Execute the format script defined in package.json through yarn run format.
-    cmds:
-      - task: _yarn:unix
-        vars: { ARGS: run format }
-      - task: _yarn:windows
-        vars: { ARGS: run format }
 
   typecheck:
     run: once

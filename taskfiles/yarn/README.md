@@ -62,14 +62,13 @@ task yarn:node:setup NODE_VERSION=22
 | `upgrade`       | —                                                           | Upgrade Yarn via `corepack prepare yarn@latest --activate`. |
 | `remove`        | Required `PACKAGES`; optional `EXTRA_ARGS`                 | Remove local packages with `yarn remove`.                     |
 | `ci`            | Optional `NODE_VERSION`                    | Run `yarn install --immutable` with a required `yarn.lock`. |
-| `ci:fix` | — | Run `fmt` for CI fixing |
+| `ci:fix` | Optional `NODE_VERSION` | Run `yarn run format`. |
 | `run`           | Required `SCRIPT` | Run a script via `yarn run`.                                |
 | `dev`           | Optional `NODE_VERSION`                    | Run `yarn run dev`.                                         |
 | `exec`          | Required `BINARY`; optional `ARGS`, `EXTRA_ARGS`           | Execute a local project binary via `yarn exec`.             |
 | `test`          | Optional `NODE_VERSION`                    | Run `yarn test`.                                            |
 | `build`         | Optional `NODE_VERSION`                    | Run `yarn run build`.                                       |
 | `lint`          | Optional `NODE_VERSION`                    | Run `yarn run lint`.                                        |
-| `fmt`        | Optional `NODE_VERSION`                    | Run `yarn run format`.                                      |
 | `typecheck`     | Optional `NODE_VERSION`                    | Run `yarn run typecheck`.                                   |
 | `update`        | Optional `NODE_VERSION`                    | Run `yarn up '*'` for modern Yarn dependency updates.       |
 | `audit`         | Optional `NODE_VERSION`                    | Run strict `yarn npm audit`.                                |

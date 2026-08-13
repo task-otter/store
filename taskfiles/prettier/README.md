@@ -39,8 +39,7 @@ Available leaves: `bun`, `node/{fnm,nvm}/{npm,pnpm,yarn}`.
 | `config:init` | Optional `PRETTIER_CONFIG`                                                           | Create a starter Prettier config when one does not exist. |
 | `config:skip` | Optional `PRETTIER_FMT_SKIP_PATTERN`, `PRETTIER_IGNORE_PATH`                         | Upsert the skip pattern into `.prettierignore`. Run automatically by the tasks below. |
 | `fmt:check`   | Optional `PRETTIER_TARGETS`, `PRETTIER_CONFIG`, `PRETTIER_IGNORE_PATH`, `PRETTIER_EXTRA_ARGS`, `CLI_ARGS` | Run `prettier --check`.                                   |
-| `fmt`         | Optional `PRETTIER_TARGETS`, `PRETTIER_CONFIG`, `PRETTIER_IGNORE_PATH`, `PRETTIER_EXTRA_ARGS`, `CLI_ARGS` | Run `prettier --write`.                                   |
-| `ci:fix` | — | Run `fmt` for CI fixing |
+| `ci:fix` | Optional `PRETTIER_TARGETS`, `PRETTIER_CONFIG`, `PRETTIER_IGNORE_PATH`, `PRETTIER_EXTRA_ARGS`, `CLI_ARGS` | Run `prettier --write`. |
 | `version`     | — | Show the resolved Prettier version.                       |
 | `help`        | Optional `PRETTIER_EXTRA_ARGS`, `CLI_ARGS`                                     | Show Prettier CLI help.                                   |
 
@@ -75,5 +74,5 @@ ignore file itself is never deleted. After `config:skip` creates the file,
 task prettier:node:fnm:npm:install
 task prettier:node:fnm:npm:install PRETTIER_VERSION=3.3.3
 task prettier:node:fnm:npm:fmt:check
-task prettier:node:fnm:npm:fmt PRETTIER_TARGETS="src/**/*.ts"
+task prettier:node:fnm:npm:ci:fix PRETTIER_TARGETS="src/**/*.ts"
 ```

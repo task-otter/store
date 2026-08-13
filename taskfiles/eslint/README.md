@@ -37,9 +37,8 @@ Available leaves: `bun`, `node/{fnm,nvm}/{npm,pnpm,yarn}`.
 | `install:undo`| Optional `ESLINT_EXTRA_ARGS`                                           | Remove the locally installed `eslint` devDependency.                                     |
 | `upgrade`     | Optional `ESLINT_EXTRA_ARGS`                                           | Reinstall `eslint` at the latest version.                                                |
 | `config:init` | —                                                               | Write a starter `eslint.config.mjs` when none exists (non-interactive). Skipped if a recognized config file already exists. |
-| `lint:fix`    | Optional `ESLINT_TARGETS`, `ESLINT_CONFIG`, `ESLINT_CACHE`, `ESLINT_EXTRA_ARGS`, `CLI_ARGS` | Run ESLint with `--fix`.                                                                 |
 | `ci`          | Optional `ESLINT_TARGETS`, `ESLINT_CONFIG`, `ESLINT_CACHE`, `ESLINT_EXTRA_ARGS`, `CLI_ARGS` | Run ESLint with `--max-warnings=0`.                                                      |
-| `ci:fix` | — | Run `lint:fix` for CI fixing |
+| `ci:fix` | Optional `ESLINT_TARGETS`, `ESLINT_CONFIG`, `ESLINT_CACHE`, `ESLINT_EXTRA_ARGS`, `CLI_ARGS` | Run ESLint with `--fix`. |
 | `cache:clean` | —                                                                     | Remove `.cache/eslint`.                                                                  |
 | `version`     | — | Show the resolved ESLint version.                                                        |
 | `help`        | Optional `ESLINT_EXTRA_ARGS`, `CLI_ARGS`                               | Show ESLint CLI help.                                                                    |
@@ -60,5 +59,5 @@ Skip patterns support `*` within one path segment, `**` across directories, and 
 task eslint:node:fnm:npm:install
 task eslint:node:fnm:npm:install ESLINT_VERSION=8.57.0
 task eslint:node:fnm:npm:ci
-task eslint:node:fnm:npm:lint:fix ESLINT_TARGETS="src test"
+task eslint:node:fnm:npm:ci:fix ESLINT_TARGETS="src test"
 ```

@@ -44,9 +44,8 @@ task ansible:run ANSIBLE_PLAYBOOK=site.yml ANSIBLE_INVENTORY=hosts
 | `install:undo`   | Remove Ansible and ansible-lint                        | none                                  |
 | `upgrade`        | Upgrade Ansible and ansible-lint to the latest release | none                                  |
 | `version`        | Show Ansible and ansible-lint versions                 | none                                  |
-| `lint:fix`         | Auto-fix Ansible YAML files with ansible-lint --fix     | `ANSIBLE_TARGETS`, `ANSIBLE_EXTRA_ARGS`               |
 | `ci`             | Run ansible-lint then `syntax:check`                    | `ANSIBLE_TARGETS`, `ANSIBLE_PLAYBOOK`, `ANSIBLE_INVENTORY` |
-| `ci:fix` | Run `lint:fix` for CI fixing | — |
+| `ci:fix` | Auto-fix Ansible YAML files with ansible-lint --fix | `ANSIBLE_TARGETS`, `ANSIBLE_EXTRA_ARGS` |
 | `syntax:check`   | Check playbook syntax without executing                | `ANSIBLE_PLAYBOOK`, `ANSIBLE_INVENTORY`               |
 | `run`            | Run an Ansible playbook                                | `ANSIBLE_PLAYBOOK`, `ANSIBLE_INVENTORY`, `ANSIBLE_EXTRA_ARGS` |
 | `ping`           | Test connectivity to inventory hosts                   | `ANSIBLE_INVENTORY`, `ANSIBLE_PATTERN`, `ANSIBLE_EXTRA_ARGS`  |
@@ -62,7 +61,7 @@ task ansible:run ANSIBLE_PLAYBOOK=site.yml ANSIBLE_INVENTORY=hosts
 | `ANSIBLE_PLAYBOOK`     | _(empty)_                              | Playbook path; required by `run` and `syntax:check`              |
 | `ANSIBLE_INVENTORY`    | _(empty)_                              | Inventory file or directory; required by `ping` and `list:hosts` |
 | `ANSIBLE_PATTERN`      | `all`                                  | Host pattern for `ping` and `list:hosts`                         |
-| `ANSIBLE_TARGETS`      | `.`                                    | Files or directories to lint with `ci` / `lint:fix`            |
+| `ANSIBLE_TARGETS`      | `.`                                    | Files or directories to lint with `ci` / `ci:fix`            |
 | `ANSIBLE_FILE`         | _(empty)_                              | File path; required by `vault:encrypt` and `vault:decrypt`       |
 | `ANSIBLE_REQUIREMENTS` | `requirements.yml`                     | Requirements file for `galaxy:install`                           |
 | `ANSIBLE_EXTRA_ARGS`   | _(empty)_                              | Extra flags forwarded to the underlying Ansible command          |

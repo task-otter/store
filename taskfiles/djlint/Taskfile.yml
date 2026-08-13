@@ -85,11 +85,16 @@ tasks:
 
   ci:fix:
     run: once
-    desc: Run fmt for CI fixing
+    desc: Format HTML templates with djLint (DJLINT_TARGETS=path)
     summary: |
-      Run fmt to apply formatting fixes. Suitable for CI autofix workflows.
+      Run djlint --reformat against DJLINT_TARGETS (default .) to rewrite templates
+      in place. Pass DJLINT_EXTRA_ARGS for additional flags.
+      Auto-installs djLint if missing.
     cmds:
-      - task: fmt
+      - task: _run
+        vars:
+          MODE: "--reformat"
+          SKIP: '{{default .DJLINT_FMT_SKIP_PATTERN .DJLINT_FMT_SKIP_PATTERN_OVERRIDE}}'
 
   lint:
     run: once
@@ -104,19 +109,6 @@ tasks:
           MODE: "--lint"
           SKIP: '{{default .DJLINT_LINT_SKIP_PATTERN .DJLINT_LINT_SKIP_PATTERN_OVERRIDE}}'
           TAIL: ' && echo "✅ djlint passed" || { echo "❌ djlint failed"; exit 1; }'
-
-  fmt:
-    run: once
-    desc: Format HTML templates with djLint (DJLINT_TARGETS=path)
-    summary: |
-      Run djlint --reformat against DJLINT_TARGETS (default .) to rewrite templates
-      in place. Pass DJLINT_EXTRA_ARGS for additional flags.
-      Auto-installs djLint if missing.
-    cmds:
-      - task: _run
-        vars:
-          MODE: "--reformat"
-          SKIP: '{{default .DJLINT_FMT_SKIP_PATTERN .DJLINT_FMT_SKIP_PATTERN_OVERRIDE}}'
 
   fmt:check:
     run: once
@@ -133,7 +125,7 @@ tasks:
           SKIP: '{{default .DJLINT_FMT_SKIP_PATTERN .DJLINT_FMT_SKIP_PATTERN_OVERRIDE}}'
           TAIL: ' && echo "✅ djlint formatting check passed" || { echo "❌ djlint formatting check failed"; exit 1; }'
 
-  # Shared implementation of lint / fmt / fmt:check. Note that the Windows
+  # Shared implementation of lint / ci:fix / fmt:check. Note that the Windows
   # branch deliberately omits the skip pattern, matching the original.
   _run:
     internal: true

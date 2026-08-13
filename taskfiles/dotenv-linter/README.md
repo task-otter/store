@@ -26,7 +26,7 @@ includes:
 
 ```bash
 task dotenv-linter:ci DOTENV_LINTER_TARGETS=.env.example
-task dotenv-linter:lint:fix DOTENV_LINTER_TARGETS=.env
+task dotenv-linter:ci:fix DOTENV_LINTER_TARGETS=.env
 task dotenv-linter:install DOTENV_LINTER_VERSION=3.3.0
 ```
 
@@ -38,8 +38,7 @@ task dotenv-linter:install DOTENV_LINTER_VERSION=3.3.0
 | `install:undo` | Remove dotenv-linter (alias: `uninstall`) | |
 | `upgrade` | Reinstall dotenv-linter at the requested version | `DOTENV_LINTER_VERSION` |
 | `ci` | Lint dotenv files with dotenv-linter check | `DOTENV_LINTER_TARGETS`, `DOTENV_LINTER_EXTRA_ARGS` |
-| `lint:fix` | Apply automatic fixes with dotenv-linter fix | `DOTENV_LINTER_TARGETS`, `DOTENV_LINTER_EXTRA_ARGS` |
-| `ci:fix` | Run `lint:fix` for CI fixing | — |
+| `ci:fix` | Apply automatic fixes with dotenv-linter fix | `DOTENV_LINTER_TARGETS`, `DOTENV_LINTER_EXTRA_ARGS` |
 | `diff` | Compare .env files to ensure matching key sets | `DOTENV_LINTER_TARGETS`, `DOTENV_LINTER_EXTRA_ARGS` |
 | `version` | Show the installed dotenv-linter version | |
 
@@ -64,7 +63,7 @@ Skip patterns support `*` within one path segment, `**` across directories, and 
 - Binaries are resolved from PATH first, falling back to `~/.cargo/bin`
   (`%USERPROFILE%\.cargo\bin` on Windows), so a fresh cargo install works
   without restarting the shell.
-- `lint:fix` writes changes in place; dotenv-linter creates a backup of each
+- `ci:fix` writes changes in place; dotenv-linter creates a backup of each
   changed file.
 - The tasks target the dotenv-linter 4.x CLI, which uses subcommands
   (`check`, `fix`, `diff`). Pin a 4.x release with `DOTENV_LINTER_VERSION`

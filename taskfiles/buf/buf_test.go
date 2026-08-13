@@ -14,7 +14,6 @@ func publicTasks() []string {
 		"breaking",
 		"ci",
 		"ci:fix",
-		"fmt",
 		"fmt:check",
 		"generate",
 		"install",

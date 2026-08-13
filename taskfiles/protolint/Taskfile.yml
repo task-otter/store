@@ -99,7 +99,7 @@ tasks:
       - task: _lint:unix
       - task: _lint:windows
 
-  lint:fix:
+  ci:fix:
     run: once
     desc: Fix protobuf lint issues with protolint (PROTOLINT_TARGETS=path)
     summary: |
@@ -112,15 +112,6 @@ tasks:
     cmds:
       - task: _fix:unix
       - task: _fix:windows
-
-  ci:fix:
-    run: once
-    desc: Run lint:fix for CI fixing
-    summary: |
-      Run lint:fix to apply automatic lint fixes. Suitable for CI
-      autofix workflows.
-    cmds:
-      - task: lint:fix
 
   version:
     run: once

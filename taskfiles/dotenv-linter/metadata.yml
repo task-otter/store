@@ -8,6 +8,5 @@ exported_tasks:
   - diff
   - install
   - install:undo
-  - lint:fix
   - upgrade
   - version

@@ -5,7 +5,6 @@ taskfile: Taskfile.yml
 exported_tasks:
   - ci
   - ci:fix
-  - fmt
   - fmt:check
   - install
   - install:undo

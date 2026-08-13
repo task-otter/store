@@ -9,7 +9,6 @@ exported_tasks:
   - config:skip
   - install
   - install:undo
-  - lint:fix
   - parse
   - upgrade
   - version

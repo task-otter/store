@@ -85,7 +85,7 @@ tasks:
         vars:
           FORCE: "true"
 
-  fmt:
+  ci:fix:
     run: once
     desc: Format shell scripts with shfmt (SHFMT_TARGETS=path)
     summary: |
@@ -98,14 +98,6 @@ tasks:
     cmds:
       - task: _fmt:unix
       - task: _fmt:windows
-
-  ci:fix:
-    run: once
-    desc: Run fmt for CI fixing
-    summary: |
-      Run fmt to apply formatting fixes. Suitable for CI autofix workflows.
-    cmds:
-      - task: fmt
 
   fmt:check:
     run: once

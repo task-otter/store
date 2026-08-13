@@ -26,7 +26,7 @@ includes:
 
 ```bash
 task protolint:ci PROTOLINT_TARGETS=api
-task protolint:lint:fix PROTOLINT_TARGETS=api
+task protolint:ci:fix PROTOLINT_TARGETS=api
 task protolint:install PROTOLINT_VERSION=v0.55.6
 ```
 
@@ -38,8 +38,7 @@ task protolint:install PROTOLINT_VERSION=v0.55.6
 | `install:undo` | Remove protolint from the global Go bin (alias: `uninstall`) | |
 | `upgrade` | Reinstall protolint at the requested version | `PROTOLINT_VERSION` |
 | `ci` | Lint protobuf files with protolint | `PROTOLINT_TARGETS`, `PROTOLINT_EXTRA_ARGS` |
-| `lint:fix` | Apply automatic fixes with protolint lint -fix | `PROTOLINT_TARGETS`, `PROTOLINT_EXTRA_ARGS` |
-| `ci:fix` | Run `lint:fix` for CI fixing | — |
+| `ci:fix` | Apply automatic fixes with protolint lint -fix | `PROTOLINT_TARGETS`, `PROTOLINT_EXTRA_ARGS` |
 | `version` | Show the installed protolint version | |
 
 ## Variables

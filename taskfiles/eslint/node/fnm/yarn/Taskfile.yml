@@ -106,7 +106,7 @@ tasks:
           '  },' \
           '];' > eslint.config.mjs
       - echo 'Created eslint.config.mjs.'
-  # Shared implementation of lint / lint:fix / ci. Each override is resolved
+  # Shared implementation of lint / ci:fix / ci. Each override is resolved
   # exactly once here; the three public tasks differ only by MODE_ARGS.
   _run:
     internal: true
@@ -129,7 +129,7 @@ tasks:
             {{- .RESOLVED_TARGETS}}
           EXTRA_ARGS: '{{.RESOLVED_EXTRA_ARGS}}{{if .CLI_ARGS}} {{.CLI_ARGS}}{{end}}'
 
-  lint:fix:
+  ci:fix:
     run: once
     desc: Lint targets with ESLint and apply fixes
     cmds:
@@ -146,15 +146,6 @@ tasks:
         vars:
           MODE_ARGS: "--max-warnings=0"
       - echo "✅ eslint passed"
-
-  ci:fix:
-    run: once
-    desc: Run lint:fix for CI fixing
-    summary: |
-      Run lint:fix to apply automatic lint fixes. Suitable for CI
-      autofix workflows.
-    cmds:
-      - task: lint:fix
 
   cache:clean:
     run: once

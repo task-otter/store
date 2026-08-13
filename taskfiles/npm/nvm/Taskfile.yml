@@ -116,11 +116,17 @@ tasks:
 
   ci:fix:
     run: once
-    desc: Run fmt for CI fixing
+    desc: Format source files with npm run format
     summary: |
-      Run fmt to apply formatting fixes. Suitable for CI autofix workflows.
+      Execute the format script defined under scripts.format in package.json via npm run format.
+      Must be run from the Node.js project root (where package.json lives).
     cmds:
-      - task: fmt
+      - task: _npm:unix
+        vars:
+          ARGS: run format
+      - task: _npm:windows
+        vars:
+          ARGS: run format
 
   add:
     run: once
@@ -271,20 +277,6 @@ tasks:
       - task: _npm:windows
         vars:
           ARGS: run lint
-
-  fmt:
-    run: once
-    desc: Format source files with npm run format
-    summary: |
-      Execute the format script defined under scripts.format in package.json via npm run format.
-      Must be run from the Node.js project root (where package.json lives).
-    cmds:
-      - task: _npm:unix
-        vars:
-          ARGS: run format
-      - task: _npm:windows
-        vars:
-          ARGS: run format
 
   typecheck:
     run: once

@@ -93,7 +93,7 @@ tasks:
     desc: Upsert the skip pattern into the Prettier ignore file
     summary: |
       Write PRETTIER_FMT_SKIP_PATTERN into a managed section of
-      .prettierignore (or PRETTIER_IGNORE_PATH). Every fmt and fmt:check task
+      .prettierignore (or PRETTIER_IGNORE_PATH). Every ci:fix and fmt:check task
       runs this first. Empty pattern removes only the managed block;
       the ignore file itself is never deleted.
     dir: "{{.USER_WORKING_DIR}}"
@@ -218,7 +218,7 @@ tasks:
           POWERSHELL
         platforms: [windows]
 
-  # Shared implementation of fmt:check / fmt. Each override is resolved exactly
+  # Shared implementation of fmt:check / ci:fix. Each override is resolved exactly
   # once here; the two public tasks differ only by MODE_ARGS.
   _run:
     internal: true
@@ -249,7 +249,7 @@ tasks:
           MODE_ARGS: "--check"
       - echo "✅ prettier passed"
 
-  fmt:
+  ci:fix:
     run: once
     desc: Format files with Prettier
     cmds:
@@ -257,14 +257,6 @@ tasks:
         vars:
           MODE_ARGS: "--write"
       - echo "✅ prettier fixes applied"
-
-  ci:fix:
-    run: once
-    desc: Run fmt for CI fixing
-    summary: |
-      Run fmt to apply formatting fixes. Suitable for CI autofix workflows.
-    cmds:
-      - task: fmt
 
   version:
     run: once

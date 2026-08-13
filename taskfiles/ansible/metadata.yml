@@ -8,7 +8,6 @@ exported_tasks:
   - galaxy:install
   - install
   - install:undo
-  - lint:fix
   - list:hosts
   - ping
   - run

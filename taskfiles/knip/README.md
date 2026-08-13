@@ -43,9 +43,8 @@ Available leaves: `bun`, `node/{fnm,nvm}/{npm,pnpm,yarn}`.
 | `dev-dependencies` | Optional `KNIP_CONFIG`, `KNIP_EXTRA_ARGS`, `CLI_ARGS` | Report unused development dependencies.                   |
 | `files`            | Optional `KNIP_CONFIG`, `KNIP_EXTRA_ARGS`, `CLI_ARGS` | Report unused files.                                      |
 | `exports`          | Optional `KNIP_CONFIG`, `KNIP_EXTRA_ARGS`, `CLI_ARGS` | Report unused exports.                                    |
-| `lint:fix`         | Optional `KNIP_CONFIG`, `KNIP_EXTRA_ARGS`, `CLI_ARGS` | Run `knip --fix` when supported by the installed version. |
 | `ci`               | Optional `KNIP_CONFIG`, `KNIP_EXTRA_ARGS`, `CLI_ARGS` | Run production checks for CI.                             |
-| `ci:fix` | — | Run `lint:fix` for CI fixing |
+| `ci:fix` | Optional `KNIP_CONFIG`, `KNIP_EXTRA_ARGS`, `CLI_ARGS` | Run `knip --fix` when supported by the installed version. |
 | `version`          | — | Show the resolved Knip version.                           |
 | `help`             | Optional `KNIP_EXTRA_ARGS`, `CLI_ARGS`           | Show Knip CLI help.                                       |
 

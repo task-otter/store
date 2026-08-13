@@ -106,7 +106,6 @@ func expectedPublicTasksB() []tasktestutil.PublicTaskSpec {
 		spec("exec", withArgs(map[string]string{"BINARY": constNpmTestPrettier}),
 			tasktestutil.WithDryRunArgs(), tasktestutil.WithGroupOutput()),
 		spec("doctor", dryGroupSummary...),
-		spec("fmt", dryGroupSummary...),
 		spec(constNpmTestInstall, dryGroupSummary...),
 		spec("install:undo", dryGroupSummary...),
 		spec("lint", dryGroupSummary...),

@@ -83,7 +83,7 @@ tasks:
     cmds:
       - task: _version:unix
 
-  lint:fix:
+  ci:fix:
     run: once
     desc: Auto-fix Ansible YAML files with ansible-lint --fix (ANSIBLE_TARGETS=path)
     summary: |
@@ -111,15 +111,6 @@ tasks:
       - task: _lint:unix
       - echo "✅ ansible-lint passed"
       - task: syntax:check
-
-  ci:fix:
-    run: once
-    desc: Run lint:fix for CI fixing
-    summary: |
-      Run lint:fix to apply automatic lint fixes. Suitable for CI
-      autofix workflows.
-    cmds:
-      - task: lint:fix
 
   syntax:check:
     run: once

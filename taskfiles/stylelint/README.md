@@ -37,9 +37,8 @@ Available leaves: `bun`, `node/{fnm,nvm}/{npm,pnpm,yarn}`.
 | `upgrade`     | Optional `STYLELINT_EXTRA_ARGS`                                                                | Reinstall Stylelint and the standard config at their latest versions. |
 | `config:init` | Optional `STYLELINT_CONFIG`                                                                          | Create a starter Stylelint config when one does not exist.           |
 | `config:skip` | Optional `STYLELINT_LINT_SKIP_PATTERN`                                                               | Upsert the managed skip block in `.stylelintignore`. Run automatically by the tasks below. |
-| `lint:fix`    | Optional `STYLELINT_TARGETS`, `STYLELINT_CONFIG`, `STYLELINT_CACHE`, `STYLELINT_ALLOW_EMPTY_INPUT`, `STYLELINT_EXTRA_ARGS`, `CLI_ARGS` | Run Stylelint with `--fix`.                                          |
 | `ci`          | Optional `STYLELINT_TARGETS`, `STYLELINT_CONFIG`, `STYLELINT_CACHE`, `STYLELINT_ALLOW_EMPTY_INPUT`, `STYLELINT_EXTRA_ARGS`, `CLI_ARGS` | Run Stylelint with `--max-warnings=0`.                               |
-| `ci:fix` | — | Run `lint:fix` for CI fixing |
+| `ci:fix` | Optional `STYLELINT_TARGETS`, `STYLELINT_CONFIG`, `STYLELINT_CACHE`, `STYLELINT_ALLOW_EMPTY_INPUT`, `STYLELINT_EXTRA_ARGS`, `CLI_ARGS` | Run Stylelint with `--fix`. |
 | `cache:clean` | —                                                                                          | Remove `.cache/stylelint`.                                           |
 | `version`     | — | Show the resolved Stylelint version.                                 |
 | `help`        | Optional `STYLELINT_EXTRA_ARGS`, `CLI_ARGS`                                                    | Show Stylelint CLI help.                                             |
@@ -76,5 +75,5 @@ deletes the whole ignore file.
 task stylelint:node:fnm:npm:install
 task stylelint:node:fnm:npm:install STYLELINT_VERSION=16.6.1
 task stylelint:node:fnm:npm:ci
-task stylelint:node:fnm:npm:lint:fix STYLELINT_TARGETS="src/**/*.scss"
+task stylelint:node:fnm:npm:ci:fix STYLELINT_TARGETS="src/**/*.scss"
 ```
