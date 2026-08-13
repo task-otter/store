@@ -256,8 +256,7 @@ tasks:
     desc: Install Buf on the current operating system
     summary: |
       Install Buf for the current platform if it is not already available.
-      macOS uses Homebrew (tap bufbuild/buf) to install Buf.
-      Linux downloads the pinned BUF_VERSION binary to /usr/local/bin.
+      macOS and Linux download the pinned BUF_VERSION binary to /usr/local/bin.
       Windows uses Scoop to install Buf.
     cmds:
       - task: _install:macos
@@ -307,14 +306,34 @@ tasks:
     internal: true
     platforms: [darwin]
     set: [errexit, nounset, pipefail]
+    vars:
+      BUF_UNAME_ARCH:
+        sh: uname -m
+      BUF_ARCH: >-
+        {{if or (eq .BUF_UNAME_ARCH "x86_64") (eq .BUF_UNAME_ARCH "amd64")}}x86_64
+        {{- else if or (eq .BUF_UNAME_ARCH "aarch64") (eq .BUF_UNAME_ARCH "arm64")}}arm64
+        {{- else}}{{.BUF_UNAME_ARCH}}{{end}}
     status:
       - command -v buf >/dev/null 2>&1 && buf --version | grep -Fqx "{{.BUF_VERSION}}"
     preconditions:
-      - sh: command -v brew >/dev/null 2>&1
-        msg: Homebrew is required to install Buf on macOS. Install it from https://brew.sh and re-run this task.
+      - sh: 'command -v curl >/dev/null 2>&1'
+        msg: curl is required to download Buf.
+      - sh: 'command -v install >/dev/null 2>&1'
+        msg: install is required to place the Buf binary.
+      - sh: >-
+          [ "{{.BUF_ARCH}}" = "x86_64" ] || [ "{{.BUF_ARCH}}" = "arm64" ]
+        msg: Unsupported macOS architecture. Only x86_64 and arm64 are supported.
     cmds:
-      - echo 'Installing Buf via Homebrew...'
-      - brew install bufbuild/buf/buf
+      - echo 'Installing Buf v{{.BUF_VERSION}} for macOS ({{.BUF_ARCH}})...'
+      - >-
+        curl -fsSL
+        -o /tmp/taskotter-buf
+        "https://github.com/bufbuild/buf/releases/download/v{{.BUF_VERSION}}/buf-Darwin-{{.BUF_ARCH}}"
+      - cmd: install -m 0755 /tmp/taskotter-buf /usr/local/bin/buf
+        if: '[ "$(id -u)" -eq 0 ]'
+      - cmd: sudo install -m 0755 /tmp/taskotter-buf /usr/local/bin/buf
+        if: '[ "$(id -u)" -ne 0 ]'
+      - rm -f /tmp/taskotter-buf
       - echo 'Buf installed.'
 
   _install:linux:
@@ -369,7 +388,9 @@ tasks:
         msg: Scoop is required to install Buf on Windows. Install it from https://scoop.sh and re-run this task.
     cmds:
       - echo Installing Buf via Scoop...
-      - powershell -NoProfile -ExecutionPolicy Bypass -Command "scoop install buf"
+      - >-
+        powershell -NoProfile -ExecutionPolicy Bypass -Command
+        "scoop install buf@{{.BUF_VERSION}}"
       - echo Buf installed. Restart your terminal if buf is not found.
 
   _install:undo:macos:

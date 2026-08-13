@@ -48,7 +48,7 @@ task actionlint:install
 
 | Variable | Default | Description |
 |---|---|---|
-| `ACTIONLINT_VERSION` | `"1.7.12"` | Pinned version used for Linux binary download |
+| `ACTIONLINT_VERSION` | `"1.7.12"` | Pinned version used for macOS and Linux binary download |
 | `ACTIONLINT_EXTRA_ARGS` | `""` | Additional flags passed to `actionlint` (e.g. `-ignore`, `-format`) |
 | `ACTIONLINT_TARGETS` | `""` | Paths to workflow files; empty = auto-discover `.github/workflows` |
 | `ACTIONLINT_LINT_SKIP_PATTERN` | _(empty)_ | Forward-slash path glob for files skipped by lint checks and fixes |
@@ -57,8 +57,7 @@ Skip patterns support `*` within one path segment, `**` across directories, and 
 
 ## Notes
 
-- **macOS** installs via Homebrew (`brew install actionlint`). Homebrew must be installed.
-- **Linux** downloads a pinned binary from GitHub Releases into `/usr/local/bin`. Requires `curl`, `tar`, and `install`. Only `x86_64` and `aarch64` architectures are supported.
+- **macOS** and **Linux** download a pinned binary from GitHub Releases into `/usr/local/bin`. Requires `curl`, `tar`, and `install`. Supported architectures: macOS `x86_64`/`arm64`, Linux `x86_64`/`aarch64`.
 - **Windows** installs via Scoop (`scoop install actionlint`). Scoop must be installed.
 - When `ACTIONLINT_TARGETS` is empty, actionlint automatically discovers all files under `.github/workflows/` in the current working directory.
 - The `lint` task auto-installs actionlint if it is not already present in `PATH`.

@@ -34,8 +34,7 @@ tasks:
     desc: Install hadolint on the current operating system
     summary: |
       Install hadolint for the current platform if it is not already available.
-      macOS uses Homebrew to install hadolint.
-      Linux uses apt-get or dnf depending on the package manager present.
+      macOS and Linux download the pinned HADOLINT_VERSION binary to /usr/local/bin.
       Windows uses Scoop to install hadolint.
     cmds:
       - task: _install:macos
@@ -157,16 +156,36 @@ tasks:
     internal: true
     platforms: [darwin]
     set: [errexit, nounset, pipefail]
+    vars:
+      HADOLINT_UNAME_ARCH:
+        sh: uname -m
+      HADOLINT_ASSET_ARCH: >-
+        {{if or (eq .HADOLINT_UNAME_ARCH "x86_64") (eq .HADOLINT_UNAME_ARCH "amd64")}}x86_64
+        {{- else if or (eq .HADOLINT_UNAME_ARCH "aarch64") (eq .HADOLINT_UNAME_ARCH "arm64")}}arm64
+        {{- else}}{{.HADOLINT_UNAME_ARCH}}{{end}}
     status:
       - >-
         command -v hadolint >/dev/null 2>&1
         && hadolint --version | grep -Fq "{{.HADOLINT_VERSION}}"
     preconditions:
-      - sh: command -v brew >/dev/null 2>&1
-        msg: Homebrew is required to install hadolint on macOS. Install it from https://brew.sh and re-run this task.
+      - sh: command -v curl >/dev/null 2>&1
+        msg: curl is required to download hadolint.
+      - sh: command -v install >/dev/null 2>&1
+        msg: install is required to place the hadolint binary.
+      - sh: >-
+          [ "{{.HADOLINT_ASSET_ARCH}}" = "x86_64" ] || [ "{{.HADOLINT_ASSET_ARCH}}" = "arm64" ]
+        msg: Unsupported macOS architecture. Only x86_64 and arm64 are supported.
     cmds:
-      - echo 'Installing hadolint via Homebrew...'
-      - brew install hadolint
+      - echo 'Installing hadolint v{{.HADOLINT_VERSION}} for macOS...'
+      - >-
+        download_url="https://github.com/hadolint/hadolint/releases/download/v{{.HADOLINT_VERSION}}";
+        download_url="${download_url}/hadolint-macos-{{.HADOLINT_ASSET_ARCH}}";
+        curl -fsSL -o /tmp/taskotter-hadolint "$download_url"
+      - cmd: install -m 0755 /tmp/taskotter-hadolint /usr/local/bin/hadolint
+        if: '[ "$(id -u)" -eq 0 ]'
+      - cmd: sudo install -m 0755 /tmp/taskotter-hadolint /usr/local/bin/hadolint
+        if: '[ "$(id -u)" -ne 0 ]'
+      - rm -f /tmp/taskotter-hadolint
       - echo 'hadolint installed.'
 
   _install:linux:
@@ -223,7 +242,9 @@ tasks:
         msg: Scoop is required to install hadolint on Windows. Install it from https://scoop.sh and re-run this task.
     cmds:
       - echo Installing hadolint via Scoop...
-      - powershell -NoProfile -ExecutionPolicy Bypass -Command "scoop install hadolint"
+      - >-
+        powershell -NoProfile -ExecutionPolicy Bypass -Command
+        "scoop install hadolint@{{.HADOLINT_VERSION}}"
       - echo hadolint installed. Restart your terminal if hadolint is not found.
 
   _install:undo:macos:

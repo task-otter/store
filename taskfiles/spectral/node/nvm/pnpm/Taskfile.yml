@@ -29,6 +29,7 @@ tasks:
 
   install:
     run: once
+    dir: "{{.USER_WORKING_DIR}}"
     desc: Install Spectral as a local devDependency
     summary: |
       Install @stoplight/spectral-cli as a local devDependency. Pass

@@ -85,10 +85,10 @@ tasks:
     desc: Install protoc and Go proto plugins on the current operating system
     summary: |
       Install protoc and the Go protobuf plugins for the current platform if
-      they are not already available in PATH. macOS uses Homebrew for protoc.
-      Linux downloads the pinned PROTOC_VERSION release into /usr/local.
-      Windows uses Scoop for protoc. Go plugins are installed into the global
-      Go bin (GOBIN or GOPATH/bin).
+      they are not already available in PATH. macOS and Linux download the
+      pinned PROTOC_VERSION release into /usr/local. Windows uses Scoop for
+      protoc. Go plugins are installed into the global Go bin (GOBIN or
+      GOPATH/bin).
     deps:
       - task: go:install
     cmds:
@@ -211,14 +211,46 @@ tasks:
     internal: true
     platforms: [darwin]
     set: [errexit, nounset, pipefail]
+    vars:
+      PROTOC_UNAME_ARCH:
+        sh: uname -m
+      PROTOC_ARCH: >-
+        {{if or (eq .PROTOC_UNAME_ARCH "x86_64") (eq .PROTOC_UNAME_ARCH "amd64")}}x86_64
+        {{- else if or (eq .PROTOC_UNAME_ARCH "aarch64") (eq .PROTOC_UNAME_ARCH "arm64")}}aarch_64
+        {{- else}}{{.PROTOC_UNAME_ARCH}}{{end}}
+      PROTOC_ARCHIVE: "/tmp/taskotter-protoc-{{.PROTOC_VERSION}}.zip"
+      PROTOC_TMP_DIR: "/tmp/taskotter-protoc-{{.PROTOC_VERSION}}"
     status:
       - command -v protoc >/dev/null 2>&1 && protoc --version | grep -Fqx "libprotoc {{.PROTOC_VERSION}}"
     preconditions:
-      - sh: command -v brew >/dev/null 2>&1
-        msg: Homebrew is required to install protoc on macOS. Install it from https://brew.sh and re-run this task.
+      - sh: command -v curl >/dev/null 2>&1
+        msg: curl is required to download protoc.
+      - sh: command -v unzip >/dev/null 2>&1
+        msg: unzip is required to extract protoc.
+      - sh: >-
+          [ "{{.PROTOC_ARCH}}" = "x86_64" ] || [ "{{.PROTOC_ARCH}}" = "aarch_64" ]
+        msg: Unsupported macOS architecture. Only x86_64 and arm64/aarch64 are supported.
     cmds:
-      - echo 'Installing protoc via Homebrew...'
-      - brew install protobuf
+      - echo 'Installing protoc v{{.PROTOC_VERSION}} for macOS ({{.PROTOC_ARCH}})...'
+      - mkdir -p "{{.PROTOC_TMP_DIR}}"
+      - >-
+        archive_url="https://github.com/protocolbuffers/protobuf/releases/download/v{{.PROTOC_VERSION}}";
+        archive_url="${archive_url}/protoc-{{.PROTOC_VERSION}}-osx-{{.PROTOC_ARCH}}.zip";
+        curl -fsSL -o "{{.PROTOC_ARCHIVE}}" "$archive_url"
+      - unzip -o "{{.PROTOC_ARCHIVE}}" -d "{{.PROTOC_TMP_DIR}}"
+      - cmd: cp "{{.PROTOC_TMP_DIR}}/bin/protoc" /usr/local/bin/protoc
+        if: '[ "$(id -u)" -eq 0 ]'
+      - cmd: cp -R "{{.PROTOC_TMP_DIR}}/include/." /usr/local/include/
+        if: '[ "$(id -u)" -eq 0 ]'
+      - cmd: chmod +x /usr/local/bin/protoc
+        if: '[ "$(id -u)" -eq 0 ]'
+      - cmd: sudo cp "{{.PROTOC_TMP_DIR}}/bin/protoc" /usr/local/bin/protoc
+        if: '[ "$(id -u)" -ne 0 ]'
+      - cmd: sudo cp -R "{{.PROTOC_TMP_DIR}}/include/." /usr/local/include/
+        if: '[ "$(id -u)" -ne 0 ]'
+      - cmd: sudo chmod +x /usr/local/bin/protoc
+        if: '[ "$(id -u)" -ne 0 ]'
+      - rm -rf "{{.PROTOC_ARCHIVE}}" "{{.PROTOC_TMP_DIR}}"
       - echo 'protoc installed.'
   _install:protoc:linux:
     run: once
@@ -283,20 +315,33 @@ tasks:
         msg: Scoop is required to install protoc on Windows. Install it from https://scoop.sh and re-run this task.
     cmds:
       - echo Installing protoc via Scoop...
-      - powershell -NoProfile -ExecutionPolicy Bypass -Command "scoop install protobuf"
+      - >-
+        powershell -NoProfile -ExecutionPolicy Bypass -Command
+        "scoop install protobuf@{{.PROTOC_VERSION}}"
       - echo protoc installed. Restart your terminal if protoc is not found.
   _install:plugins:
     run: once
     internal: true
     set: [errexit, nounset, pipefail]
     status:
-      - test -x "{{.GO_GLOBAL_BIN}}/protoc-gen-go"
-      - test -x "{{.GO_GLOBAL_BIN}}/protoc-gen-go-grpc"
-      - '"{{.GO_GLOBAL_BIN}}/protoc-gen-go" --version | grep -Fqx "protoc-gen-go {{.PROTOC_GEN_GO_VERSION}}"'
-      - >-
-        "{{.GO_GLOBAL_BIN}}/protoc-gen-go-grpc" --version | grep -Fqx
-        "protoc-gen-go-grpc {{.PROTOC_GEN_GO_GRPC_VERSION}}"
       - '[ "{{.FORCE}}" != "true" ]'
+      - >-
+        {{if eq .OS "windows"}}powershell -NoProfile -ExecutionPolicy Bypass -Command
+        "if ('{{.FORCE}}' -eq 'true') { exit 1 };
+        $goBin = '{{.GO_GLOBAL_BIN}}';
+        $goPlugin = Join-Path $goBin 'protoc-gen-go.exe';
+        $grpcPlugin = Join-Path $goBin 'protoc-gen-go-grpc.exe';
+        if (-not (Test-Path $goPlugin) -or -not (Test-Path $grpcPlugin)) { exit 1 };
+        $wantGo = '{{.PROTOC_GEN_GO_VERSION}}'.TrimStart('v');
+        $wantGrpc = '{{.PROTOC_GEN_GO_GRPC_VERSION}}'.TrimStart('v');
+        $gotGo = ((& $goPlugin --version) | Select-Object -Last 1).ToString().Trim().Split(' ')[-1].TrimStart('v');
+        $gotGrpc = ((& $grpcPlugin --version) | Select-Object -Last 1).ToString().Trim().Split(' ')[-1].TrimStart('v');
+        if ($gotGo -eq $wantGo -and $gotGrpc -eq $wantGrpc) { exit 0 }; exit 1"{{else}}test -x "{{.GO_GLOBAL_BIN}}/protoc-gen-go"
+        && test -x "{{.GO_GLOBAL_BIN}}/protoc-gen-go-grpc"
+        && "{{.GO_GLOBAL_BIN}}/protoc-gen-go" --version | awk '{print $NF}' | sed 's/^v//'
+        | grep -Fqx "$(printf '%s' '{{.PROTOC_GEN_GO_VERSION}}' | sed 's/^v//')"
+        && "{{.GO_GLOBAL_BIN}}/protoc-gen-go-grpc" --version | awk '{print $NF}' | sed 's/^v//'
+        | grep -Fqx "$(printf '%s' '{{.PROTOC_GEN_GO_GRPC_VERSION}}' | sed 's/^v//')"{{end}}
     preconditions:
       - sh: command -v "{{.GO_CMD}}" >/dev/null 2>&1 || test -x "{{.GO_CMD}}"
         msg: Go is required to install protoc-gen-go and protoc-gen-go-grpc.

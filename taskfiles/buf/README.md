@@ -6,9 +6,9 @@ A cross-platform Taskfile for linting, formatting, breaking-change detection,
 and code generation from [Protocol Buffer](https://protobuf.dev/) definitions
 using [Buf](https://buf.build/), the modern proto toolchain.
 
-Buf is installed globally via the platform package manager — Homebrew on macOS,
-a direct binary download to `/usr/local/bin` on Linux, and Scoop on Windows. The
-install task is skipped automatically when Buf is already present in PATH.
+Buf is installed globally via a pinned GitHub release binary to `/usr/local/bin`
+on macOS and Linux, and Scoop on Windows. The install task is skipped
+automatically when Buf is already present in PATH at the pinned version.
 
 ## Usage
 
@@ -74,7 +74,7 @@ task buf:generate BUF_INPUT=api/v1
 | `install`       | Install Buf on the current operating system              | none                           |
 | `install:undo`  | Remove Buf from the current operating system             | none                           |
 | `lint`          | Lint proto files with Buf                                | `BUF_INPUT`, `BUF_CONFIG`, `BUF_EXTRA_ARGS` |
-| `upgrade`       | Upgrade Buf to the latest release                        | `BUF_VERSION` (Linux only)     |
+| `upgrade`       | Upgrade Buf to the latest release                        | `BUF_VERSION` (Linux; brew on macOS) |
 | `version`       | Show the installed Buf version                           | none                           |
 
 ## Variables
@@ -82,7 +82,7 @@ task buf:generate BUF_INPUT=api/v1
 | Variable      | Default              | Description                                              |
 | ------------- | -------------------- | -------------------------------------------------------- |
 | `BUF_AGAINST`     | `.git#branch=main`   | Baseline for `breaking`: a git ref, Buf module, or path |
-| `BUF_VERSION` | `1.47.2`             | Buf release to download on Linux                        |
+| `BUF_VERSION` | `1.47.2`             | Buf release to download on macOS and Linux              |
 | `BUF_CONFIG`      | empty                | Path to a `buf.yaml` config file passed via `--config`  |
 | `BUF_EXTRA_ARGS`  | empty                | Extra arguments appended when `CLI_ARGS` is not provided |
 | `BUF_INPUT`       | `.`                  | Proto source directory or Buf module passed to buf       |
@@ -93,13 +93,12 @@ Skip patterns support `*` within one path segment, `**` across directories, and 
 
 ## Notes
 
-On macOS, Buf is installed from the Homebrew tap `bufbuild/buf` (`brew install
-bufbuild/buf/buf`). The `BUF_VERSION` variable is ignored on macOS and Windows
-— the package manager controls the installed version.
-
-On Linux, only `x86_64` and `aarch64` architectures are supported via the
-direct binary download. Other architectures require a manual installation; see
-the [Buf installation docs](https://buf.build/docs/installation).
+On macOS and Linux, Buf is installed from the pinned `BUF_VERSION` GitHub
+release binary into `/usr/local/bin`. macOS supports `x86_64` and `arm64`;
+Linux supports `x86_64` and `aarch64`. Other architectures require a manual
+installation; see the [Buf installation docs](https://buf.build/docs/installation).
+`BUF_VERSION` is ignored on Windows — Scoop controls the installed version.
+macOS `upgrade` still uses Homebrew (`brew upgrade bufbuild/buf/buf`).
 
 The `generate` task requires a `buf.gen.yaml` file in the working tree. See the
 [buf generate docs](https://buf.build/docs/generate/tutorial) for configuration

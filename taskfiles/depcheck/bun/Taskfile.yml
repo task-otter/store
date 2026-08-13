@@ -31,6 +31,7 @@ tasks:
 
   install:
     run: once
+    dir: "{{.USER_WORKING_DIR}}"
     desc: Install Depcheck as a local devDependency
     summary: |
       Install depcheck as a local devDependency. Pass DEPCHECK_VERSION=x.y.z to pin a

@@ -29,6 +29,7 @@ tasks:
 
   install:
     run: once
+    dir: "{{.USER_WORKING_DIR}}"
     desc: Install HTMLHint as a local devDependency
     summary: |
       Install htmlhint as a local devDependency. Pass HTMLHINT_VERSION=x.y.z to pin a

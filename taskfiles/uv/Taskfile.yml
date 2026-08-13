@@ -256,7 +256,7 @@ tasks:
         uv_bin="$HOME/.local/bin/uv";
         if [ ! -x "$uv_bin" ]; then uv_bin="$(command -v uv 2>/dev/null)"; fi;
         [ -n "$uv_bin" ] && [ -x "$uv_bin" ]
-        && { [ -z "{{.UV_VERSION}}" ] || "$uv_bin" --version | grep -Fqx "uv {{.UV_VERSION}}"; }
+        && { [ -z "{{.UV_VERSION}}" ] || "$uv_bin" --version | grep -Fq "uv {{.UV_VERSION}}"; }
     preconditions:
       - sh: command -v curl >/dev/null 2>&1
         msg: curl is required to download the uv installer.
@@ -279,7 +279,7 @@ tasks:
         if (-not $uv) { exit 1 };
         $requested = '{{.UV_VERSION}}';
         if ([string]::IsNullOrWhiteSpace($requested)
-        -or ((& $uv.Source --version) -eq ('uv ' + $requested))) { exit 0 };
+        -or ((& $uv.Source --version) -like ('uv ' + $requested + '*'))) { exit 0 };
         exit 1"
     cmds:
       - echo Installing uv via the official PowerShell installer...

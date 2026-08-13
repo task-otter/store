@@ -32,6 +32,7 @@ tasks:
 
   install:
     run: once
+    dir: "{{.USER_WORKING_DIR}}"
     desc: Install Prettier as a local devDependency
     summary: |
       Install prettier as a local devDependency. Pass PRETTIER_VERSION=x.y.z to pin a

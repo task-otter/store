@@ -5,9 +5,10 @@
 A cross-platform Taskfile for installing and running
 [hadolint](https://github.com/hadolint/hadolint), the Dockerfile linter.
 
-hadolint is installed globally via the platform package manager — Homebrew on
-macOS, apt-get or dnf on Linux, and Scoop on Windows. The install task is
-skipped automatically when hadolint is already present in PATH.
+hadolint is installed globally via a pinned GitHub release binary to
+`/usr/local/bin` on macOS and Linux, and Scoop on Windows. The install task is
+skipped automatically when hadolint is already present in PATH at the pinned
+version.
 
 ## Usage
 
@@ -69,8 +70,8 @@ Skip patterns support `*` within one path segment, `**` across directories, and 
 
 ## Notes
 
-On Linux, hadolint is installed via `apt-get` if available, then `dnf`. If
-neither package manager carries hadolint (e.g. older Ubuntu releases), install
-it manually by downloading the binary from the
-[hadolint releases page](https://github.com/hadolint/hadolint/releases) and
-placing it somewhere in your PATH.
+On macOS and Linux, hadolint is installed from the pinned `HADOLINT_VERSION`
+GitHub release binary into `/usr/local/bin` (`x86_64` and `arm64`). Other
+architectures require a manual install from the
+[hadolint releases page](https://github.com/hadolint/hadolint/releases).
+macOS `upgrade` still uses Homebrew (`brew upgrade hadolint`).

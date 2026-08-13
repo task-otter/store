@@ -43,14 +43,25 @@ tasks:
     deps:
       - task: go:install
     cmds:
-      - >-
-        GOBIN="{{.GO_GLOBAL_BIN}}" go install golang.org/x/vuln/cmd/govulncheck@{{default "latest"
-        .GOVULNCHECK_VERSION}}
+      - cmd: >-
+          GOBIN="{{.GO_GLOBAL_BIN}}" go install golang.org/x/vuln/cmd/govulncheck@{{default "latest"
+          .GOVULNCHECK_VERSION}}
+        platforms: [linux, darwin]
+      - cmd: >-
+          powershell -NoProfile -ExecutionPolicy Bypass -Command
+          "$env:GOBIN = '{{.GO_GLOBAL_BIN}}';
+          go install golang.org/x/vuln/cmd/govulncheck@{{default "latest" .GOVULNCHECK_VERSION}}"
+        platforms: [windows]
     status:
       - >-
-        test -x "{{.GO_GLOBAL_BIN}}/govulncheck" && { test -z "{{.GOVULNCHECK_VERSION}}" || test
+        {{if eq .OS "windows"}}powershell -NoProfile -ExecutionPolicy Bypass -Command
+        "if (-not (Test-Path '{{.GO_GLOBAL_BIN}}/govulncheck.exe')) { exit 1 };
+        $requested = '{{.GOVULNCHECK_VERSION}}';
+        if ([string]::IsNullOrWhiteSpace($requested) -or $requested -eq 'latest') { exit 0 };
+        if ((go version -m '{{.GO_GLOBAL_BIN}}/govulncheck.exe') -like ('*' + $requested + '*')) { exit 0 };
+        exit 1"{{else}}test -x "{{.GO_GLOBAL_BIN}}/govulncheck" && { test -z "{{.GOVULNCHECK_VERSION}}" || test
         "{{.GOVULNCHECK_VERSION}}" = "latest" || go version -m "{{.GO_GLOBAL_BIN}}/govulncheck" | awk -v
-        want="{{.GOVULNCHECK_VERSION}}" '$1 == "mod" && $3 == want { found = 1 } END { exit !found }'; }
+        want="{{.GOVULNCHECK_VERSION}}" '$1 == "mod" && $3 == want { found = 1 } END { exit !found }'; }{{end}}
   lint:
     run: once
     desc: Scan Go packages with govulncheck

@@ -571,7 +571,7 @@ tasks:
     status:
       - >-
         command -v git >/dev/null 2>&1
-        && { [ -z "{{.GIT_VERSION}}" ] || git --version | grep -Fqx "git version {{.GIT_VERSION}}"; }
+        && { [ -z "{{.GIT_VERSION}}" ] || git --version | grep -Fq "git version {{.GIT_VERSION}}"; }
     preconditions:
       - sh: command -v brew >/dev/null 2>&1
         msg: Homebrew is required to install git on macOS. Install it from https://brew.sh and re-run this task.
@@ -588,7 +588,7 @@ tasks:
     status:
       - >-
         command -v git >/dev/null 2>&1
-        && { [ -z "{{.GIT_VERSION}}" ] || git --version | grep -Fqx "git version {{.GIT_VERSION}}"; }
+        && { [ -z "{{.GIT_VERSION}}" ] || git --version | grep -Fq "git version {{.GIT_VERSION}}"; }
     cmds:
       - task: _install:linux:apt
       - task: _install:linux:dnf
@@ -634,7 +634,7 @@ tasks:
         if (-not $git) { exit 1 };
         $requested = '{{.GIT_VERSION}}';
         if ([string]::IsNullOrWhiteSpace($requested)
-        -or ((& $git.Source --version) -eq ('git version ' + $requested))) { exit 0 };
+        -or ((& $git.Source --version) -like ('git version ' + $requested + '*'))) { exit 0 };
         exit 1"
     preconditions:
       - sh: >-

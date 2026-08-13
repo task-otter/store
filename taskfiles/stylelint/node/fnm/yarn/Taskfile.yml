@@ -34,6 +34,7 @@ tasks:
 
   install:
     run: once
+    dir: "{{.USER_WORKING_DIR}}"
     desc: Install Stylelint and the standard config as local devDependencies
     summary: |
       Install stylelint and stylelint-config-standard as local devDependencies.

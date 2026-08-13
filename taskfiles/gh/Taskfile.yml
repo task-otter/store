@@ -1496,7 +1496,7 @@ tasks:
     status:
       - >-
         command -v gh >/dev/null 2>&1
-        && { [ -z "{{.GH_VERSION}}" ] || gh --version | grep -Fqx "gh version {{.GH_VERSION}}"; }
+        && { [ -z "{{.GH_VERSION}}" ] || gh --version | grep -Fq "gh version {{.GH_VERSION}}"; }
     cmds:
       - |
         GH_VERSION="{{.GH_VERSION}}"
@@ -1575,7 +1575,7 @@ tasks:
         $requested = '{{.GH_VERSION}}';
         if ([string]::IsNullOrWhiteSpace($requested)
         -or ((& $gh.Source --version) -match
-        ('(?m)^gh version ' + [regex]::Escape($requested) + '$'))) { exit 0 };
+        ('(?m)^gh version ' + [regex]::Escape($requested)))) { exit 0 };
         exit 1"
     cmds:
       - >-
@@ -1604,7 +1604,7 @@ tasks:
     status:
       - >-
         command -v gh >/dev/null 2>&1
-        && { [ -z "{{.GH_VERSION}}" ] || gh --version | grep -Fqx "gh version {{.GH_VERSION}}"; }
+        && { [ -z "{{.GH_VERSION}}" ] || gh --version | grep -Fq "gh version {{.GH_VERSION}}"; }
     preconditions:
       - sh: command -v brew >/dev/null 2>&1
         msg: "Homebrew is required. Install it from https://brew.sh"
@@ -1625,7 +1625,7 @@ tasks:
         "$gh = Get-Command gh -ErrorAction SilentlyContinue;
         $requested = '{{.GH_VERSION}}';
         if ($gh -and ([string]::IsNullOrWhiteSpace($requested)
-        -or ((& $gh.Source --version) -match ('(?m)^gh version ' + [regex]::Escape($requested) + '$')))) { exit 0 };
+        -or ((& $gh.Source --version) -match ('(?m)^gh version ' + [regex]::Escape($requested))))) { exit 0 };
         exit 1"
     preconditions:
       - sh: >-
@@ -1649,7 +1649,7 @@ tasks:
         "$gh = Get-Command gh -ErrorAction SilentlyContinue;
         $requested = '{{.GH_VERSION}}';
         if ($gh -and ([string]::IsNullOrWhiteSpace($requested)
-        -or ((& $gh.Source --version) -match ('(?m)^gh version ' + [regex]::Escape($requested) + '$')))) { exit 0 };
+        -or ((& $gh.Source --version) -match ('(?m)^gh version ' + [regex]::Escape($requested))))) { exit 0 };
         exit 1"
     preconditions:
       - sh: >-
@@ -1673,7 +1673,7 @@ tasks:
         "$gh = Get-Command gh -ErrorAction SilentlyContinue;
         $requested = '{{.GH_VERSION}}';
         if ($gh -and ([string]::IsNullOrWhiteSpace($requested)
-        -or ((& $gh.Source --version) -match ('(?m)^gh version ' + [regex]::Escape($requested) + '$')))) { exit 0 };
+        -or ((& $gh.Source --version) -match ('(?m)^gh version ' + [regex]::Escape($requested))))) { exit 0 };
         exit 1"
     preconditions:
       - sh: >-
@@ -1697,7 +1697,7 @@ tasks:
     status:
       - >-
         command -v gh >/dev/null 2>&1
-        && { [ -z "{{.GH_VERSION}}" ] || gh --version | grep -Fqx "gh version {{.GH_VERSION}}"; }
+        && { [ -z "{{.GH_VERSION}}" ] || gh --version | grep -Fq "gh version {{.GH_VERSION}}"; }
     preconditions:
       - sh: command -v apt-get >/dev/null 2>&1
         msg: "apt-get is required. This task supports Debian/Ubuntu-based systems only."
@@ -1730,7 +1730,7 @@ tasks:
     status:
       - >-
         command -v gh >/dev/null 2>&1
-        && { [ -z "{{.GH_VERSION}}" ] || gh --version | grep -Fqx "gh version {{.GH_VERSION}}"; }
+        && { [ -z "{{.GH_VERSION}}" ] || gh --version | grep -Fq "gh version {{.GH_VERSION}}"; }
     preconditions:
       - sh: command -v dnf >/dev/null 2>&1
         msg: "dnf is required. This task supports Fedora/RHEL-based systems only."
@@ -1753,7 +1753,7 @@ tasks:
     status:
       - >-
         command -v gh >/dev/null 2>&1
-        && { [ -z "{{.GH_VERSION}}" ] || gh --version | grep -Fqx "gh version {{.GH_VERSION}}"; }
+        && { [ -z "{{.GH_VERSION}}" ] || gh --version | grep -Fq "gh version {{.GH_VERSION}}"; }
     preconditions:
       - sh: command -v yum >/dev/null 2>&1
         msg: "yum is required. This task supports CentOS/RHEL-based systems only."
@@ -1775,7 +1775,7 @@ tasks:
     status:
       - >-
         command -v gh >/dev/null 2>&1
-        && { [ -z "{{.GH_VERSION}}" ] || gh --version | grep -Fqx "gh version {{.GH_VERSION}}"; }
+        && { [ -z "{{.GH_VERSION}}" ] || gh --version | grep -Fq "gh version {{.GH_VERSION}}"; }
     preconditions:
       - sh: command -v pacman >/dev/null 2>&1
         msg: "pacman is required. This task supports Arch Linux only."
@@ -1796,7 +1796,7 @@ tasks:
     status:
       - >-
         command -v gh >/dev/null 2>&1
-        && { [ -z "{{.GH_VERSION}}" ] || gh --version | grep -Fqx "gh version {{.GH_VERSION}}"; }
+        && { [ -z "{{.GH_VERSION}}" ] || gh --version | grep -Fq "gh version {{.GH_VERSION}}"; }
     preconditions:
       - sh: command -v zypper >/dev/null 2>&1
         msg: "zypper is required. This task supports openSUSE only."
@@ -1819,7 +1819,7 @@ tasks:
     status:
       - >-
         command -v gh >/dev/null 2>&1
-        && { [ -z "{{.GH_VERSION}}" ] || gh --version | grep -Fqx "gh version {{.GH_VERSION}}"; }
+        && { [ -z "{{.GH_VERSION}}" ] || gh --version | grep -Fq "gh version {{.GH_VERSION}}"; }
     preconditions:
       - sh: command -v snap >/dev/null 2>&1
         msg: "snapd is required. Install it for your distribution and try again."
@@ -1840,7 +1840,7 @@ tasks:
     status:
       - >-
         command -v gh >/dev/null 2>&1
-        && { [ -z "{{.GH_VERSION}}" ] || gh --version | grep -Fqx "gh version {{.GH_VERSION}}"; }
+        && { [ -z "{{.GH_VERSION}}" ] || gh --version | grep -Fq "gh version {{.GH_VERSION}}"; }
     preconditions:
       - sh: command -v brew >/dev/null 2>&1
         msg: "Homebrew is required. Install it from https://brew.sh"

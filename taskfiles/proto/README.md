@@ -4,7 +4,7 @@ A [TaskOtter](https://github.com/task-otter/store) module for generating Go and 
 
 ## What is this Taskfile?
 
-This module provides tasks to generate, install, and manage protoc and the Go protobuf plugins (`protoc-gen-go`, `protoc-gen-go-grpc`). Tools are installed globally and resolved from PATH — protoc via the platform package manager or `/usr/local`, and Go plugins via the global Go bin (GOBIN or GOPATH/bin).
+This module provides tasks to generate, install, and manage protoc and the Go protobuf plugins (`protoc-gen-go`, `protoc-gen-go-grpc`). Tools are installed globally and resolved from PATH — protoc via pinned GitHub releases into `/usr/local` on macOS/Linux (Scoop on Windows), and Go plugins via the global Go bin (GOBIN or GOPATH/bin).
 
 ## Usage
 
@@ -76,14 +76,13 @@ task proto:version
 | `GO_MODULE` | `""` | Module path stripped from generated output paths |
 | `PROTO_PATH` | `"."` | Search root and value passed to protoc `--proto_path` |
 | `PROTO_PATTERN` | `"*.proto"` | `find -name` pattern for discovering .proto source files |
-| `PROTOC_VERSION` | `"34.0"` | Pinned protoc release for Linux binary download |
+| `PROTOC_VERSION` | `"34.0"` | Pinned protoc release for macOS/Linux binary download |
 | `PROTOC_GEN_GO_VERSION` | `"v1.36.5"` | Pinned version of protoc-gen-go |
 | `PROTOC_GEN_GO_GRPC_VERSION` | `"v1.5.1"` | Pinned version of protoc-gen-go-grpc |
 
 ## Notes
 
-- **macOS** installs protoc via Homebrew (`brew install protobuf`). Homebrew must be installed.
-- **Linux** downloads the pinned `PROTOC_VERSION` release into `/usr/local/bin` and `/usr/local/include`. Requires `curl` and `unzip`. Only `x86_64` and `aarch64` are supported.
+- **macOS** and **Linux** download the pinned `PROTOC_VERSION` release into `/usr/local/bin` and `/usr/local/include`. Requires `curl` and `unzip`. Only `x86_64` and `arm64`/`aarch64` are supported.
 - **Windows** installs protoc via Scoop (`scoop install protobuf`). Scoop must be installed.
 - Go is installed automatically through the shared Go module before installing or upgrading the protobuf plugins.
 - Go plugins are installed with `go install` into `GO_GLOBAL_BIN`. Ensure that directory is on your PATH.
@@ -91,4 +90,4 @@ task proto:version
 - Included Taskfiles must pass generation settings through
   `GO_MODULE_OVERRIDE`, `PROTO_PATH_OVERRIDE`, and `PROTO_PATTERN_OVERRIDE`, as
   shown above.
-- On macOS and Windows, the package manager controls the protoc version — `PROTOC_VERSION` applies to Linux only.
+- On Windows, Scoop controls the protoc version — `PROTOC_VERSION` applies to macOS and Linux installs.

@@ -210,9 +210,8 @@ tasks:
     platforms: [darwin]
     set: [errexit, nounset, pipefail]
     status:
-      - >-
-        command -v docker >/dev/null 2>&1
-        && { [ -z "{{.DOCKER_VERSION}}" ] || docker --version | grep -Fq "{{.DOCKER_VERSION}}"; }
+      # Cask install cannot pin DOCKER_VERSION; presence-only so status can succeed.
+      - command -v docker >/dev/null 2>&1
     preconditions:
       - sh: command -v brew >/dev/null 2>&1
         msg: Homebrew is required to install Docker on macOS. Install it from https://brew.sh and re-run this task.

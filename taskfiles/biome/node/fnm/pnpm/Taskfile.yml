@@ -32,6 +32,7 @@ tasks:
 
   install:
     run: once
+    dir: "{{.USER_WORKING_DIR}}"
     desc: Install Biome as a local devDependency
     summary: |
       Install @biomejs/biome as a local devDependency. Pass BIOME_VERSION=x.y.z to

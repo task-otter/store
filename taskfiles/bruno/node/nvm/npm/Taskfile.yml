@@ -28,6 +28,7 @@ tasks:
 
   install:
     run: once
+    dir: "{{.USER_WORKING_DIR}}"
     desc: Install @usebruno/cli as a local devDependency
     summary: |
       Install @usebruno/cli as a local devDependency. Pass BRUNO_VERSION=x.y.z to

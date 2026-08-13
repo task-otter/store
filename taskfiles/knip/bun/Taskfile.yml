@@ -30,6 +30,7 @@ tasks:
 
   install:
     run: once
+    dir: "{{.USER_WORKING_DIR}}"
     desc: Install Knip as a local devDependency
     summary: |
       Install knip as a local devDependency. Pass KNIP_VERSION=x.y.z to pin a

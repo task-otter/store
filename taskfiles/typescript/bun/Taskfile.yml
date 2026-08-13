@@ -64,6 +64,7 @@ tasks:
 
   install:
     run: once
+    dir: "{{.USER_WORKING_DIR}}"
     desc: Install TypeScript dev dependencies (auto-detects package manager)
     summary: |
       Install typescript (provides tsc + tsserver), tsx, and @types/node as
@@ -328,6 +329,9 @@ tasks:
 
   config:init:
     run: once
+    dir: "{{.USER_WORKING_DIR}}"
+    status:
+      - test -f tsconfig.json
     desc: Generate a starter tsconfig.json in the current directory (tsc --init)
     summary: |
       Run tsc --init to create a tsconfig.json with sensible defaults and

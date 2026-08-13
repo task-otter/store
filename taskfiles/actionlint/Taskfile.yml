@@ -163,8 +163,7 @@ tasks:
     desc: Install actionlint on the current operating system
     summary: |
       Install actionlint for the current platform if it is not already available.
-      macOS uses Homebrew to install actionlint.
-      Linux downloads the pinned ACTIONLINT_VERSION binary to /usr/local/bin.
+      macOS and Linux download the pinned ACTIONLINT_VERSION binary to /usr/local/bin.
       Windows uses Scoop to install actionlint.
     cmds:
       - task: _install:macos
@@ -176,8 +175,7 @@ tasks:
     desc: Remove actionlint from the current operating system
     summary: |
       Remove actionlint for the current platform.
-      macOS uses Homebrew to uninstall actionlint.
-      Linux removes the binary from /usr/local/bin.
+      macOS and Linux remove the binary from /usr/local/bin.
       Windows uses Scoop to uninstall actionlint.
     prompt:
       - This will remove actionlint from this machine.
@@ -214,16 +212,48 @@ tasks:
     internal: true
     platforms: [darwin]
     set: [errexit, nounset, pipefail]
+    vars:
+      ACTIONLINT_UNAME_ARCH:
+        sh: uname -m
+      ACTIONLINT_ARCH: >-
+        {{if or (eq .ACTIONLINT_UNAME_ARCH "x86_64") (eq .ACTIONLINT_UNAME_ARCH "amd64")}}amd64
+        {{- else if or (eq .ACTIONLINT_UNAME_ARCH "aarch64") (eq .ACTIONLINT_UNAME_ARCH "arm64")}}arm64
+        {{- else}}{{.ACTIONLINT_UNAME_ARCH}}{{end}}
+      ACTIONLINT_ARCHIVE: "/tmp/taskotter-actionlint-{{.ACTIONLINT_VERSION}}.tar.gz"
+      ACTIONLINT_TMP_DIR: "/tmp/taskotter-actionlint-{{.ACTIONLINT_VERSION}}"
     status:
       - >-
         command -v actionlint >/dev/null 2>&1
-        && actionlint --version | grep -Fqx "{{.ACTIONLINT_VERSION}}"
+        && actionlint --version | head -n1 | sed 's/^v//' | grep -Fqx "{{.ACTIONLINT_VERSION}}"
     preconditions:
-      - sh: command -v brew >/dev/null 2>&1
-        msg: Homebrew is required to install actionlint on macOS. Install it from https://brew.sh and re-run this task.
+      - sh: command -v curl >/dev/null 2>&1
+        msg: curl is required to download actionlint.
+      - sh: command -v tar >/dev/null 2>&1
+        msg: tar is required to extract actionlint.
+      - sh: command -v install >/dev/null 2>&1
+        msg: install is required to place the actionlint binary.
+      - sh: >-
+          [ "{{.ACTIONLINT_ARCH}}" = "amd64" ] || [ "{{.ACTIONLINT_ARCH}}" = "arm64" ]
+        msg: Unsupported macOS architecture. Only x86_64 and arm64 are supported.
     cmds:
-      - echo 'Installing actionlint via Homebrew...'
-      - brew install actionlint
+      - echo 'Installing actionlint v{{.ACTIONLINT_VERSION}} for macOS ({{.ACTIONLINT_ARCH}})...'
+      - mkdir -p "{{.ACTIONLINT_TMP_DIR}}"
+      - >-
+        archive_url="https://github.com/rhysd/actionlint/releases/download/v{{.ACTIONLINT_VERSION}}";
+        archive_url="${archive_url}/actionlint_{{.ACTIONLINT_VERSION}}_darwin_{{.ACTIONLINT_ARCH}}.tar.gz";
+        curl -fsSL -o "{{.ACTIONLINT_ARCHIVE}}" "$archive_url"
+      - tar -xzf "{{.ACTIONLINT_ARCHIVE}}" -C "{{.ACTIONLINT_TMP_DIR}}"
+      - cmd: >-
+          install -m 0755
+          "$(find "{{.ACTIONLINT_TMP_DIR}}" -type f -name actionlint -print -quit)"
+          /usr/local/bin/actionlint
+        if: '[ "$(id -u)" -eq 0 ]'
+      - cmd: >-
+          sudo install -m 0755
+          "$(find "{{.ACTIONLINT_TMP_DIR}}" -type f -name actionlint -print -quit)"
+          /usr/local/bin/actionlint
+        if: '[ "$(id -u)" -ne 0 ]'
+      - rm -rf "{{.ACTIONLINT_ARCHIVE}}" "{{.ACTIONLINT_TMP_DIR}}"
       - echo 'actionlint installed.'
 
   _install:linux:
@@ -243,7 +273,7 @@ tasks:
     status:
       - >-
         command -v actionlint >/dev/null 2>&1
-        && actionlint --version | grep -Fqx "{{.ACTIONLINT_VERSION}}"
+        && actionlint --version | head -n1 | sed 's/^v//' | grep -Fqx "{{.ACTIONLINT_VERSION}}"
     preconditions:
       - sh: command -v curl >/dev/null 2>&1
         msg: curl is required to download actionlint.
@@ -283,7 +313,10 @@ tasks:
       - >-
         powershell -NoProfile -ExecutionPolicy Bypass -Command
         "$actionlint = Get-Command actionlint -ErrorAction SilentlyContinue;
-        if ($actionlint -and ((& $actionlint.Source --version) -eq '{{.ACTIONLINT_VERSION}}')) { exit 0 };
+        if (-not $actionlint) { exit 1 };
+        $version = ((& $actionlint.Source --version) | Select-Object -First 1).ToString().Trim();
+        if ($version.StartsWith('v')) { $version = $version.Substring(1) };
+        if ($version -eq '{{.ACTIONLINT_VERSION}}') { exit 0 };
         exit 1"
     preconditions:
       - sh: >-
@@ -292,7 +325,9 @@ tasks:
         msg: Scoop is required to install actionlint on Windows. Install it from https://scoop.sh and re-run this task.
     cmds:
       - echo Installing actionlint via Scoop...
-      - powershell -NoProfile -ExecutionPolicy Bypass -Command "scoop install actionlint"
+      - >-
+        powershell -NoProfile -ExecutionPolicy Bypass -Command
+        "scoop install actionlint@{{.ACTIONLINT_VERSION}}"
       - echo actionlint installed. Restart your terminal if actionlint is not found.
 
   _install:undo:macos:
@@ -302,12 +337,12 @@ tasks:
     set: [errexit, nounset, pipefail]
     status:
       - "! command -v actionlint >/dev/null 2>&1"
-    preconditions:
-      - sh: command -v brew >/dev/null 2>&1
-        msg: Homebrew is required to remove actionlint on macOS.
     cmds:
-      - echo 'Removing actionlint via Homebrew...'
-      - brew uninstall actionlint
+      - echo 'Removing actionlint...'
+      - cmd: rm -f /usr/local/bin/actionlint
+        if: '[ "$(id -u)" -eq 0 ]'
+      - cmd: sudo rm -f /usr/local/bin/actionlint
+        if: '[ "$(id -u)" -ne 0 ]'
       - echo 'actionlint removed.'
 
   _install:undo:linux:
