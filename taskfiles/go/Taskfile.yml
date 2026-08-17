@@ -419,7 +419,9 @@ tasks:
         msg: Go MSI install supports AMD64 and ARM64 Windows architectures.
     cmds:
       # #region agent log
-      - cmd: echo "debug-d0df0d runId=post-fix hypothesisId=H4 DOT_ARCH={{.ARCH}} FN_ARCH={{ARCH}} GO_VERSION={{.GO_VERSION}}"
+      - cmd: >-
+          echo "debug-d0df0d runId=post-fix hypothesisId=H4 DOT_ARCH={{.ARCH}}
+          FN_ARCH={{ARCH}} GO_VERSION={{.GO_VERSION}}"
       # #endregion
       # Quoted heredoc keeps PowerShell `$vars` away from POSIX expansion.
       # Resolve the version, pick the architecture, download, verify and install
