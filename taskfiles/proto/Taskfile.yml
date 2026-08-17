@@ -37,9 +37,9 @@ vars:
   PROTO_PATH: "."
   PROTO_PATTERN: "*.proto"
   GO_MODULE: ""
-  PROTOC_GEN_GO_VERSION: "v1.36.5"
-  PROTOC_GEN_GO_GRPC_VERSION: "v1.5.1"
-  PROTOC_VERSION: "34.0"
+  PROTOC_GEN_GO_VERSION: '{{default "v1.36.5" .PROTOC_GEN_GO_VERSION_OVERRIDE}}'
+  PROTOC_GEN_GO_GRPC_VERSION: '{{default "v1.5.1" .PROTOC_GEN_GO_GRPC_VERSION_OVERRIDE}}'
+  PROTOC_VERSION: '{{default "34.0" .PROTOC_VERSION_OVERRIDE}}'
 tasks:
   default:
     run: once
@@ -185,27 +185,35 @@ tasks:
       RESOLVED_PROTO_PATTERN: '{{default .PROTO_PATTERN .PROTO_PATTERN_OVERRIDE}}'
       RESOLVED_GO_MODULE: '{{if .GO_MODULE_OVERRIDE}}{{.GO_MODULE_OVERRIDE}}{{else}}{{.GO_MODULE}}{{end}}'
     cmds:
-      - >-
-        powershell -NoProfile -ExecutionPolicy Bypass -Command
-        "$ErrorActionPreference='Stop';
-        $env:Path='{{.GO_GLOBAL_BIN}};' + $env:Path;
-        $moduleOpts = @();
-        if ($env:GO_MODULE) {
-          $moduleOpts = @(
-            '--go_opt=module=' + $env:GO_MODULE,
-            '--go-grpc_opt=module=' + $env:GO_MODULE
-          );
-        }
-        $protos = Get-ChildItem -Path '{{.RESOLVED_PROTO_PATH}}' -Recurse -Filter '{{.RESOLVED_PROTO_PATTERN}}' -File |
-          Where-Object { $_.FullName -notmatch '\\\.git\\' };
-        if (-not $protos) { throw 'No .proto files found' };
-        protoc
-          --proto_path='{{.RESOLVED_PROTO_PATH}}'
-          --go_out=.
-          @($moduleOpts)
-          --go-grpc_out=.
-          @($moduleOpts)
-          @($protos | ForEach-Object { $_.FullName })"
+      # Windows PowerShell 5.1's `-Command -` executes redirected stdin one
+      # line at a time, which can silently skip the multi-line pipeline below.
+      # Write a script file so the whole block is parsed and executed together.
+      - cmd: |
+          script="${TEMP:-.}/taskotter-proto-gen-$RANDOM.ps1"
+          trap 'rm -f "$script"' EXIT
+          cat > "$script" <<'POWERSHELL'
+          $ErrorActionPreference = 'Stop'
+          $env:PSModulePath = Join-Path $PSHOME 'Modules'
+          $env:Path = "{{.GO_GLOBAL_BIN}};$env:USERPROFILE\scoop\shims;$env:Path"
+          $moduleOpts = @()
+          if ($env:GO_MODULE) {
+            $moduleOpts = @(
+              "--go_opt=module=$($env:GO_MODULE)",
+              "--go-grpc_opt=module=$($env:GO_MODULE)"
+            )
+          }
+          $separator = [IO.Path]::DirectorySeparatorChar.ToString()
+          $gitDirectory = $separator + '.git' + $separator
+          $protoRoot = (Resolve-Path -LiteralPath '{{.RESOLVED_PROTO_PATH}}').Path
+          $protos = Get-ChildItem -LiteralPath $protoRoot -Recurse -Filter '{{.RESOLVED_PROTO_PATTERN}}' -File |
+            Where-Object { $_.FullName.IndexOf($gitDirectory, [StringComparison]::OrdinalIgnoreCase) -lt 0 }
+          if (-not $protos) { throw 'No .proto files found' }
+          & protoc "--proto_path=$protoRoot" --go_out=. @moduleOpts --go-grpc_out=. @moduleOpts @(
+            $protos | ForEach-Object { $_.FullName }
+          )
+          if ($LASTEXITCODE -ne 0) { exit $LASTEXITCODE }
+          POWERSHELL
+          powershell -NoProfile -ExecutionPolicy Bypass -File "$script"
   _install:protoc:macos:
     run: once
     internal: true
@@ -298,26 +306,49 @@ tasks:
         if: '[ "$(id -u)" -ne 0 ]'
       - rm -rf "{{.PROTOC_ARCHIVE}}" "{{.PROTOC_TMP_DIR}}"
       - echo 'protoc installed.'
-  _install:protoc:windows:
+  _install:scoop:
     run: once
     internal: true
     platforms: [windows]
     status:
-      - >-
-        powershell -NoProfile -ExecutionPolicy Bypass -Command
-        "$protoc = Get-Command protoc -ErrorAction SilentlyContinue;
-        if ($protoc -and ((& $protoc.Source --version) -eq 'libprotoc {{.PROTOC_VERSION}}')) { exit 0 };
-        exit 1"
-    preconditions:
-      - sh: >-
-          powershell -NoProfile -ExecutionPolicy Bypass -Command
-          "if (Get-Command scoop -ErrorAction SilentlyContinue) { exit 0 } else { exit 1 }"
-        msg: Scoop is required to install protoc on Windows. Install it from https://scoop.sh and re-run this task.
+      # Task runs status/cmds through mvdan/sh (POSIX), so PowerShell `$vars`
+      # in double quotes are expanded before powershell.exe sees them.
+      - command -v scoop >/dev/null 2>&1 || test -f "$USERPROFILE/scoop/shims/scoop.cmd"
+    cmds:
+      - echo Installing Scoop...
+      # Quoted heredoc keeps PowerShell `$vars` away from POSIX expansion.
+      # -RunAsAdmin is required on elevated GitHub-hosted Windows runners.
+      # GitHub Actions runs Task from pwsh, so powershell.exe (5.1) inherits
+      # PowerShell 7's PSModulePath and cannot load Microsoft.PowerShell.Security.
+      # The Scoop installer calls Get-ExecutionPolicy from that module.
+      - cmd: |
+          powershell -NoProfile -ExecutionPolicy Bypass -Command - <<'POWERSHELL'
+          $ErrorActionPreference = 'Stop'
+          $env:PSModulePath = Join-Path $PSHOME 'Modules'
+          iex "& {$(irm get.scoop.sh)} -RunAsAdmin"
+          POWERSHELL
+      - echo Scoop installed.
+  _install:protoc:windows:
+    run: once
+    internal: true
+    platforms: [windows]
+    deps:
+      - task: _install:scoop
+    status:
+      # Scoop's extras/protobuf version is not PROTOC_VERSION (macOS/Linux only).
+      - command -v protoc >/dev/null 2>&1 || test -f "$USERPROFILE/scoop/shims/protoc.exe"
     cmds:
       - echo Installing protoc via Scoop...
-      - >-
-        powershell -NoProfile -ExecutionPolicy Bypass -Command
-        "scoop install protobuf@{{.PROTOC_VERSION}}"
+      # Installer updates user PATH; this process still has Task's original env.
+      # protobuf is in the extras bucket, not main, and has no @PROTOC_VERSION pin.
+      - cmd: |
+          powershell -NoProfile -ExecutionPolicy Bypass -Command - <<'POWERSHELL'
+          $ErrorActionPreference = 'Stop'
+          $env:PSModulePath = Join-Path $PSHOME 'Modules'
+          $env:Path = "$env:USERPROFILE\scoop\shims;$env:Path"
+          cmd.exe /c "scoop bucket add extras"
+          scoop install extras/protobuf
+          POWERSHELL
       - echo protoc installed. Restart your terminal if protoc is not found.
   _install:plugins:
     run: once
@@ -397,7 +428,13 @@ tasks:
         "if (Get-Command protoc -ErrorAction SilentlyContinue) { exit 1 } else { exit 0 }"
     cmds:
       - echo Removing protoc via Scoop...
-      - powershell -NoProfile -ExecutionPolicy Bypass -Command "scoop uninstall protobuf"
+      - cmd: |
+          powershell -NoProfile -ExecutionPolicy Bypass -Command - <<'POWERSHELL'
+          $ErrorActionPreference = 'Stop'
+          $env:PSModulePath = Join-Path $PSHOME 'Modules'
+          $env:Path = "$env:USERPROFILE\scoop\shims;$env:Path"
+          scoop uninstall protobuf
+          POWERSHELL
       - echo protoc removed.
   _install:undo:plugins:
     run: once
@@ -493,9 +530,18 @@ tasks:
     run: once
     internal: true
     platforms: [windows]
+    deps:
+      - task: _install:scoop
     cmds:
       - echo Upgrading protoc via Scoop...
-      - powershell -NoProfile -ExecutionPolicy Bypass -Command "scoop update protobuf"
+      - cmd: |
+          powershell -NoProfile -ExecutionPolicy Bypass -Command - <<'POWERSHELL'
+          $ErrorActionPreference = 'Stop'
+          $env:PSModulePath = Join-Path $PSHOME 'Modules'
+          $env:Path = "$env:USERPROFILE\scoop\shims;$env:Path"
+          cmd.exe /c "scoop bucket add extras"
+          scoop update extras/protobuf
+          POWERSHELL
       - echo protoc upgraded. Restart your terminal if prompted.
   _ungen:unix:
     run: once
