@@ -30,23 +30,10 @@ tasks:
     run: once
     internal: true
     status:
-      - |
-        # #region agent log
-        _dbg_log="/Users/mostafakhairy/TaskOtter-store/.cursor/debug-cb9c3d.log"
-        _gcl_path="$(command -v golangci-lint 2>/dev/null || true)"
-        _go_global_bin='{{.GO_GLOBAL_BIN}}'
-        _skip=false
-        if [ -n "$_go_global_bin" ] || [ -n "$_gcl_path" ]; then _skip=true; fi
-        printf '%s\n' "{\"sessionId\":\"cb9c3d\",\"hypothesisId\":\"A-B\",\"location\":\"golangci-lint/Taskfile.yml:_ensure:status\",\"message\":\"_ensure status check\",\"data\":{\"GO_GLOBAL_BIN\":\"$_go_global_bin\",\"gcl_path\":\"$_gcl_path\",\"status_will_skip\":$_skip},\"timestamp\":$(date +%s000)}" >> "$_dbg_log"
-        # #endregion
-        test -n "{{.GO_GLOBAL_BIN}}" \
-          || command -v golangci-lint >/dev/null 2>&1
+      - >-
+        test -n "{{.GO_GLOBAL_BIN}}"
+        || command -v golangci-lint >/dev/null 2>&1
     cmds:
-      - |
-        # #region agent log
-        _dbg_log="/Users/mostafakhairy/TaskOtter-store/.cursor/debug-cb9c3d.log"
-        printf '%s\n' "{\"sessionId\":\"cb9c3d\",\"hypothesisId\":\"D\",\"location\":\"golangci-lint/Taskfile.yml:_ensure:cmds\",\"message\":\"_ensure installing via nix\",\"data\":{\"NIX_INSTALLABLE\":\"{{.GOLANGCI_LINT_NIX_INSTALLABLE}}\"},\"timestamp\":$(date +%s000)}" >> "$_dbg_log"
-        # #endregion
       - task: nix:install:profile
         vars:
           NIX_INSTALLABLE: "{{.GOLANGCI_LINT_NIX_INSTALLABLE}}"
@@ -707,18 +694,8 @@ tasks:
     dir: "{{.USER_WORKING_DIR}}"
     cmds:
       - cmd: |
-          # #region agent log
-          _dbg_log="/Users/mostafakhairy/TaskOtter-store/.cursor/debug-cb9c3d.log"
-          _gcl_before="$(command -v golangci-lint 2>/dev/null || true)"
-          printf '%s\n' "{\"sessionId\":\"cb9c3d\",\"hypothesisId\":\"E\",\"location\":\"golangci-lint/Taskfile.yml:_fmt:pre-nix\",\"message\":\"_fmt before NIX_LOAD\",\"data\":{\"GO_GLOBAL_BIN\":\"{{.GO_GLOBAL_BIN}}\",\"gcl_before\":\"$_gcl_before\"},\"timestamp\":$(date +%s000),\"runId\":\"pre-fix\"}" >> "$_dbg_log"
-          # #endregion
           {{.NIX_LOAD}}
           {{if .GO_GLOBAL_BIN}}export PATH="{{.GO_GLOBAL_BIN}}:$PATH"{{end}}
-          # #region agent log
-          _gcl_after="$(command -v golangci-lint 2>/dev/null || true)"
-          _go_after="$(command -v go 2>/dev/null || true)"
-          printf '%s\n' "{\"sessionId\":\"cb9c3d\",\"hypothesisId\":\"A-D-E\",\"location\":\"golangci-lint/Taskfile.yml:_fmt:post-nix\",\"message\":\"_fmt after NIX_LOAD and GO_GLOBAL_BIN\",\"data\":{\"gcl_after\":\"$_gcl_after\",\"go_after\":\"$_go_after\",\"PATH_after\":\"$PATH\"},\"timestamp\":$(date +%s000),\"runId\":\"pre-fix\"}" >> "$_dbg_log"
-          # #endregion
           golangci-lint fmt \
             {{.GO_FMT_DIFF}} \
             {{.GOLANGCI_LINT_FMT_FORMATTER_FLAGS}} \
