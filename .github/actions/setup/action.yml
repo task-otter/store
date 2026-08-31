@@ -4,17 +4,8 @@ description: Set up Go and the Task CLI.
 runs:
   using: composite
   steps:
-    - name: Setup Go
-      uses: actions/setup-go@b7ad1dad31e06c5925ef5d2fc7ad053ef454303e  # v7
-      with:
-        go-version-file: go.mod
-        cache: true
-    - name: Install Taskfile CLI
-      uses: go-task/setup-task@01a4adf9db2d14c1de7a560f09170b6e0df736aa  # v2.1.0
-      with:
-        version: 3.5
+    - name: Install Task
+      uses: go-task/setup-task@a00fbb05ce67b35648be3c78cbc9fd85354c757e
     - name: Show versions
       shell: bash
-      run: |-
-        go version
-        task --version
+      run: task --version
