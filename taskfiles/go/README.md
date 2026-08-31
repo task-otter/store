@@ -3,11 +3,12 @@
 ## What is this Taskfile?
 
 A Taskfile for running Go unit tests, benchmarks, and fuzz targets. The Go
-toolchain and `go-junit-report` are installed through `nix:install:profile`.
+toolchain is installed through `nix:install:profile`.
 
 Linting and formatting live in the [`golangci-lint`](../golangci-lint/README.md)
-Taskfile, and vulnerability scanning lives in the
-[`govulncheck`](../govulncheck/README.md) Taskfile.
+Taskfile, vulnerability scanning lives in the
+[`govulncheck`](../govulncheck/README.md) Taskfile, and JUnit XML plus coverage
+reports live in the [`go-junit-report`](../go-junit-report/README.md) Taskfile.
 
 ## Usage
 
@@ -41,8 +42,7 @@ task nix:install:profile NIX_INSTALLABLE=nixpkgs#go
 
 ## Testing
 
-Run unit tests, benchmarks, fuzz targets, and coverage against the current
-project:
+Run unit tests, benchmarks, and fuzz targets against the current project:
 
 ```sh
 task go:test
@@ -56,13 +56,11 @@ after `--`:
 
 ```sh
 task go:test -- -race -run TestName ./internal/...
-task go:test GO_JUNIT_REPORT=report.xml GO_COVER_PROFILE=cover.out -- -race ./internal/...
 task go:bench -- -bench BenchmarkName ./internal/parser
 ```
 
-`test` runs `go test -v`, streams test output to stdout, writes a JUnit XML
-report to `GO_JUNIT_REPORT` (default `junit.xml`), and writes a coverage profile
-to `GO_COVER_PROFILE` (default `coverage.out`).
+`test` runs plain `go test -v`. For JUnit XML and coverage reports, use
+`go-junit-report:test`.
 `fuzz` runs a single target for `GO_FUZZTIME` (default `30s`); Go fuzzes one
 target in one package per run, so supply the `-fuzz` pattern and package after
 `--`:
@@ -76,25 +74,22 @@ Pin a revision by overriding the installable, for example
 
 ## Public Tasks
 
-| Task     | Description                                                |
-| -------- | ---------------------------------------------------------- |
-| `which`  | Show the path to the Go binary                             |
-| `verify` | Print Go version, GOROOT, and GOPATH                       |
-| `test`   | Run Go unit tests and write JUnit XML and coverage reports |
-| `bench`  | Run Go benchmarks                                          |
-| `fuzz`   | Run a Go fuzz target                                       |
+| Task     | Description                          |
+| -------- | ------------------------------------ |
+| `which`  | Show the path to the Go binary       |
+| `verify` | Print Go version, GOROOT, and GOPATH |
+| `test`   | Run Go unit tests                    |
+| `bench`  | Run Go benchmarks                    |
+| `fuzz`   | Run a Go fuzz target                 |
 
 ## Variables
 
-| Variable                          | Default             | Description                                         |
-| --------------------------------- | ------------------- | --------------------------------------------------- |
-| `GO_NIX_INSTALLABLE`              | `nixpkgs#go`        | Flake installable passed to `nix:install:profile`   |
-| `GO_JUNIT_REPORT_NIX_INSTALLABLE` | `nixpkgs#go-junit-report` | Flake installable for the `test` JUnit reporter |
-| `GO_JUNIT_REPORT`                 | empty (`junit.xml`) | Output path for the `test` XML report               |
-| `GO_COVER_PROFILE`                | empty (`coverage.out`) | Output path for the `test` coverage profile file |
-| `GO_FUZZTIME`                     | empty (`30s`)       | Duration a single `fuzz` target runs before stopping |
+| Variable             | Default      | Description                                       |
+| -------------------- | ------------ | ------------------------------------------------- |
+| `GO_NIX_INSTALLABLE` | `nixpkgs#go` | Flake installable passed to `nix:install:profile` |
+| `GO_FUZZTIME`        | empty (`30s`) | Duration a single `fuzz` target runs before stopping |
 
 ## Notes
 
 - Install goes through `nix:install:profile` (Nix is installed first if missing). Native Windows is not supported; use WSL2.
-- `test` auto-installs both Go and `go-junit-report`. `bench`, `fuzz`, `which`, and `verify` auto-install Go.
+- `test`, `bench`, `fuzz`, `which`, and `verify` auto-install Go.

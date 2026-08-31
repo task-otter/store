@@ -1,158 +1,182 @@
 # TaskOtter
 
-[![`Workflow for Taskotter store Action`](https://github.com/task-otter/store/actions/workflows/main.yml/badge.svg)](https://github.com/task-otter/store/actions/workflows/main.yml)
+[![CI](https://github.com/task-otter/store/actions/workflows/main.yml/badge.svg)](https://github.com/task-otter/store/actions/workflows/main.yml)
 [![codecov](https://codecov.io/gh/task-otter/store/graph/badge.svg)](https://codecov.io/gh/task-otter/store)
 
-Reusable, tested [Taskfile](https://taskfile.dev) modules for installing and running common dev tools. Each module lives under `taskfiles/<name>/` with a `Taskfile.yml`, `metadata.yml`, `README.md`, and Go tests.
+Reusable, tested [Taskfile](https://taskfile.dev) modules for installing and
+running common dev tools. Clone or submodule this repo, include a module, and
+run it — the CLI is installed automatically.
+
+Each module lives under `taskfiles/<name>/` with a `Taskfile.yml`,
+`metadata.yml`, `README.md`, and Go tests. **94 modules** in total.
+
+## Requirements
+
+- [Task](https://taskfile.dev) 3.5+
+- Linux, macOS, or Windows WSL2 (native Windows cannot auto-install via Nix)
+
+Nix itself is bootstrapped by the [`nix`](taskfiles/nix/README.md) module on
+first use. Keep the `taskfiles/` tree intact so relative `includes:` resolve.
 
 ## Quick start
 
-### Standalone
-
-```sh
-task nix:install:profile NIX_INSTALLABLE=nixpkgs#go
-task -t taskfiles/go/Taskfile.yml verify
-```
-
-### Included in your Taskfile
+Include a module in your Taskfile:
 
 ```yaml
 includes:
   go: ./taskfiles/go/Taskfile.yml
-  nix: ./taskfiles/nix/Taskfile.yml
 ```
 
-Then run:
+Then run it. Work tasks auto-install the tool through `nix:install:profile`:
 
 ```sh
-task nix:install:profile NIX_INSTALLABLE=nixpkgs#go
 task go:verify
 ```
 
-## Tools catalog
+Standalone, from this repo:
 
-| Category | Modules | Count | Example |
-| --- | --- | ---: | --- |
-| Node runtimes | `nodejs`, `bun` | 2 | [`nodejs`](taskfiles/nodejs/README.md) |
-| Package managers | `npm`, `pnpm`, `yarn` — flat nix-backed modules | 3 | [`npm`](taskfiles/npm/README.md) |
-| JS lint/format/check | `biome`, `depcheck`, `eslint`, `htmlhint`, `knip`, `prettier`, `spectral`, `stylelint`, `typescript` — each a nested family with six modules (root, `bun`, `node`, and `node/{npm,pnpm,yarn}`) | 54 | [`eslint`](taskfiles/eslint/README.md) |
-| Languages & runtimes | `go`, `golangci-lint`, `govulncheck`, `python`, `uv`, `cargo`, `proto`, `pulumi`, `nix` | 9 | [`go`](taskfiles/go/README.md) |
-| CI & infra | `actionlint`, `bencher`, `bruno-cli`, `shellcheck`, `shfmt`, `yamlfix`, `yamllint`, `zizmor`, `hadolint`, `buf`, `docker`, `git`, `gh`, `jq`, `vault`, `ansible`, `ansible-lint`, `sqlfluff`, `dotenv-linter`, `djlint`, `jsonlint`, `rumdl`, `protolint`, `adrs` | 24 | [`actionlint`](taskfiles/actionlint/README.md) |
-| Desktop & API clients | `bruno-gui` | 1 | [`bruno-gui`](taskfiles/bruno-gui/README.md) |
+```sh
+task -t taskfiles/go/Taskfile.yml verify
+```
 
-**93 modules** total. Per-module docs: `taskfiles/<name>/README.md`. Each module's
-`metadata.yml` is a self-contained, machine-readable list of the tasks it exports.
+Per-module docs and public tasks: `taskfiles/<name>/README.md`.
+
+## How install works
+
+Most CLI modules have no public `install` task. They depend on
+[`nix:install:profile`](taskfiles/nix/README.md), which adds a flake
+installable to `~/.nix-profile`. Pin with `{TOOL}_NIX_INSTALLABLE`:
+
+```sh
+task go:verify GO_NIX_INSTALLABLE=github:NixOS/nixpkgs/<rev>#go
+```
+
+Install without running the work task (needs a root `nix` include, or the
+nested `*:nix:` namespace):
+
+```yaml
+includes:
+  nix: ./taskfiles/nix/Taskfile.yml
+```
+
+```sh
+task nix:install:profile NIX_INSTALLABLE=nixpkgs#go
+```
+
+Install surfaces:
+
+| Kind | Modules | Install surface |
+| --- | --- | --- |
+| Nix profile (default) | CLI and system tools | `{TOOL}_NIX_INSTALLABLE` → `nix:install:profile` |
+| Local `devDependency` | JS lint/format families | `{TOOL}_VERSION` on `install` / `upgrade` |
+| Project package managers | [`npm`](taskfiles/npm/README.md), [`pnpm`](taskfiles/pnpm/README.md), [`yarn`](taskfiles/yarn/README.md) | project `install` (`npm install`, …); the CLIs come from Nix |
+| Docker daemon | [`docker`](taskfiles/docker/README.md) | keeps `install` / `upgrade` / `version` (Docker Desktop / get.docker.com) |
+
+See [ADR 0004](doc/adr/0004-install-cli-tools-via-nix-profile.md).
+
+## Catalog
+
+| Category | Modules |
+| --- | --- |
+| Node runtimes | [`nodejs`](taskfiles/nodejs/README.md), [`bun`](taskfiles/bun/README.md) |
+| Package managers | [`npm`](taskfiles/npm/README.md), [`pnpm`](taskfiles/pnpm/README.md), [`yarn`](taskfiles/yarn/README.md) |
+| JS lint / format / check | [`biome`](taskfiles/biome/README.md), [`depcheck`](taskfiles/depcheck/README.md), [`eslint`](taskfiles/eslint/README.md), [`htmlhint`](taskfiles/htmlhint/README.md), [`knip`](taskfiles/knip/README.md), [`prettier`](taskfiles/prettier/README.md), [`spectral`](taskfiles/spectral/README.md), [`stylelint`](taskfiles/stylelint/README.md), [`typescript`](taskfiles/typescript/README.md) |
+| Languages & runtimes | [`go`](taskfiles/go/README.md), [`go-junit-report`](taskfiles/go-junit-report/README.md), [`golangci-lint`](taskfiles/golangci-lint/README.md), [`govulncheck`](taskfiles/govulncheck/README.md), [`python`](taskfiles/python/README.md), [`uv`](taskfiles/uv/README.md), [`cargo`](taskfiles/cargo/README.md), [`proto`](taskfiles/proto/README.md), [`pulumi`](taskfiles/pulumi/README.md), [`nix`](taskfiles/nix/README.md) |
+| CI & infra | [`actionlint`](taskfiles/actionlint/README.md), [`adrs`](taskfiles/adrs/README.md), [`ansible`](taskfiles/ansible/README.md), [`ansible-lint`](taskfiles/ansible-lint/README.md), [`bencher`](taskfiles/bencher/README.md), [`bruno-cli`](taskfiles/bruno-cli/README.md), [`buf`](taskfiles/buf/README.md), [`djlint`](taskfiles/djlint/README.md), [`docker`](taskfiles/docker/README.md), [`dotenv-linter`](taskfiles/dotenv-linter/README.md), [`gh`](taskfiles/gh/README.md), [`git`](taskfiles/git/README.md), [`hadolint`](taskfiles/hadolint/README.md), [`jq`](taskfiles/jq/README.md), [`jsonlint`](taskfiles/jsonlint/README.md), [`protolint`](taskfiles/protolint/README.md), [`rumdl`](taskfiles/rumdl/README.md), [`shellcheck`](taskfiles/shellcheck/README.md), [`shfmt`](taskfiles/shfmt/README.md), [`sqlfluff`](taskfiles/sqlfluff/README.md), [`vault`](taskfiles/vault/README.md), [`yamlfix`](taskfiles/yamlfix/README.md), [`yamllint`](taskfiles/yamllint/README.md), [`zizmor`](taskfiles/zizmor/README.md) |
+| Desktop | [`bruno-gui`](taskfiles/bruno-gui/README.md) |
+
+Each JS family is six modules (root, `bun`, `node`, and `node/{npm,pnpm,yarn}`)
+— 54 of the 94. `metadata.yml` lists the tasks a module exports.
+
+### JS variants
+
+Include the family once, then invoke the leaf that matches your runtime and
+package manager:
+
+```yaml
+includes:
+  eslint: ./taskfiles/eslint/Taskfile.yml
+```
+
+```sh
+task eslint:bun:{task}                 # Bun runtime + Bun as package manager
+task eslint:node:{npm|pnpm|yarn}:{task}
+```
+
+Examples: `task eslint:node:npm:ci`, `task prettier:bun:fmt:check`,
+`task typescript:node:pnpm:build`.
+
+Package-manager modules are flat and nix-backed:
+
+```sh
+task npm:install
+task pnpm:install:clean
+task yarn:run SCRIPT=build
+```
+
+Node.js is installed via `nodejs:_ensure` (Nix profile).
+
+### Skip patterns
 
 Where a module documents `<TOOL>_LINT_SKIP_PATTERN` and/or
 `<TOOL>_FMT_SKIP_PATTERN`, those vars default to empty. Not every linter
-module exposes them — skip is owned by `config:skip` overlays or native
-`--exclude` on the modules that document it. Patterns are matched against
-forward-slash paths relative to the task working directory; `*` stays within
-a path segment, `**` crosses directories, and `?` matches one character. For
-example, `**/generated/**` skips generated files in any folder.
+exposes them — skip is owned by `config:skip` overlays or native `--exclude`
+on the modules that document it.
 
-### Choosing a variant
-
-Each JavaScript tool is a nested family. Include the family once
-(`{tool}: taskfiles/{tool}/Taskfile.yml`), then invoke the leaf that matches your
-runtime and package manager through its namespace:
-
-```
-task {tool}:bun:{task}                        # Bun runtime + Bun as package manager
-task {tool}:node:{npm|pnpm|yarn}:{task}
-```
-
-For example: `task eslint:node:npm:lint`, `task prettier:bun:fmt:check`,
-`task typescript:node:pnpm:build`.
-
-Package-manager modules are flat nix-backed Taskfiles. Include once
-(`npm: taskfiles/npm/Taskfile.yml`), then invoke directly:
-
-```
-task {npm|pnpm|yarn}:{task}
-```
-
-For example: `task npm:install`, `task pnpm:install:clean`, `task yarn:run SCRIPT=build`.
-Node.js is installed via `nodejs:_ensure` (Nix profile).
+Patterns match forward-slash paths relative to the task working directory:
+`*` stays in one path segment, `**` crosses directories, `?` matches one
+character. Example: `**/generated/**`.
 
 ## Dependencies
 
-Modules compose via Taskfile `includes:`. A JS tool variant typically depends on a package-manager module, which in turn depends on a Node runtime stack.
+Modules compose via Taskfile `includes:`. Arrows mean "depends on":
 
 ```mermaid
-flowchart BT
-  nix --> nodejs
-  nodejs --> npm
-  nix --> yarn
-  nix --> pnpm
-  nix --> bun
-  npm --> eslint_npm["eslint:node:npm"]
-  bun --> eslint_bun["eslint:bun"]
-
-  nix --> jq
-  jq --> gh
-  gh --> git
+flowchart LR
+  eslint_npm["eslint:node:npm"] --> npm --> nodejs --> nix
+  eslint_bun["eslint:bun"] --> bun --> nix
+  git --> gh --> jq --> nix
 ```
 
-See [deps-tree.md](deps-tree.md) for the complete dependency graph (forward and reverse views).
-
-Keep [deps-tree.md](deps-tree.md) in sync when editing [`.deps.yml`](.deps.yml).
+Full graph (forward and reverse): [deps-tree.md](deps-tree.md). Keep it in
+sync with [`.deps.yml`](.deps.yml).
 
 ## Development
-
-Validate all modules:
 
 ```sh
 go test ./...
 ```
 
-Each module README must include a `## Public Tasks` table listing every public task from its `Taskfile.yml`. Tests enforce this contract — run `go test ./...` after changing Taskfiles or READMEs.
+Two test layers on every Taskfile folder:
 
-After adding, removing, or renaming an exported task, update the corresponding
-`metadata.yml` and run `go test ./...`.
-
-### Test layers
-
-Every Taskfile folder carries two Go test layers:
-
-| Layer | File | What it does |
+| Layer | File | Checks |
 | --- | --- | --- |
-| Contract | `<module>_test.go` | Parses `Taskfile.yml`, `metadata.yml` and `README.md` and checks what the module *declares*. |
-| Integration | `integration_test.go` | Runs the real `task` CLI in that folder and checks what the module *does*. |
+| Contract | `<module>_test.go` | What the module *declares* (`Taskfile.yml`, `metadata.yml`, `README.md`) |
+| Integration | `integration_test.go` | What the module *does* — real `task` CLI, isolated `HOME`, nothing installed |
 
-The integration layer is one line per folder — it delegates to the shared suite
-in [`internal/taskintegration`](internal/taskintegration):
+The integration file is one call into
+[`internal/taskintegration`](internal/taskintegration):
 
 ```go
 func TestModuleIntegration(t *testing.T) {
 	t.Parallel()
-
 	taskintegration.RunHere(t)
 }
 ```
 
-The suite loads the Taskfile through `task --list-all --json`, checks the CLI
-and the Taskfile agree in both directions, checks every task `metadata.yml`
-advertises is reachable (including under each variant namespace), renders
-`task --summary` for every declared task, runs the module's `default` task, and
-requires an unknown task name to fail. Every run happens in an isolated `HOME`,
-and nothing is installed or downloaded.
+`TestEveryTaskfileFolderHasAnIntegrationTest` fails if a folder ships without
+one. Details: [ADR 0003](doc/adr/0003-run-every-taskfile-folder-through-the-task-cli-in-tests.md).
 
-A module can opt individual tasks into `task --dry` by calling `RunSpec`
-instead:
+Contract tests also enforce:
 
-```go
-taskintegration.RunSpec(t, &taskintegration.Spec{
-	Module:      "docker",
-	DryRunTasks: []string{"version"},
-})
-```
+- Every public task appears in the module's `## Public Tasks` table and in
+  `metadata.yml`
+- Top-level Taskfile vars use an owned `{TOOL}_` prefix (or a
+  foreign/companion prefix) — [ADR 0002](doc/adr/0002-prefix-top-level-taskfile-vars-with-the-module-name.md)
 
-`TestEveryTaskfileFolderHasAnIntegrationTest` in
-[`taskfiles/integration_coverage_test.go`](taskfiles/integration_coverage_test.go)
-fails when a new Taskfile folder ships without one. See
-[doc/adr/0003-run-every-taskfile-folder-through-the-task-cli-in-tests.md](doc/adr/0003-run-every-taskfile-folder-through-the-task-cli-in-tests.md).
+After adding, removing, or renaming an exported task, update `metadata.yml`
+and the module README, then run `go test ./...`.
 
-Top-level Taskfile vars must use an owned `{TOOL}_` prefix (or a
-foreign/companion prefix); see
-[doc/adr/0002-prefix-top-level-taskfile-vars-with-the-module-name.md](doc/adr/0002-prefix-top-level-taskfile-vars-with-the-module-name.md).
+## License
+
+[MIT](LICENSE)

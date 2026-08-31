@@ -29,6 +29,7 @@ includes:
   gh: taskfiles/gh/Taskfile.yml
   git: taskfiles/git/Taskfile.yml
   go: taskfiles/go/Taskfile.yml
+  go-junit-report: taskfiles/go-junit-report/Taskfile.yml
   golangci-lint: taskfiles/golangci-lint/Taskfile.yml
   govulncheck: taskfiles/govulncheck/Taskfile.yml
   hadolint: taskfiles/hadolint/Taskfile.yml

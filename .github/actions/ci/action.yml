@@ -11,7 +11,7 @@ runs:
       run: task -t Taskfile.yml ci
     - name: Run Tests
       shell: bash
-      run: task -t Taskfile.yml go:test
+      run: task -t Taskfile.yml go-junit-report:test
     - name: Upload coverage to Codecov
       if: ${{ !cancelled() }}
       uses: codecov/codecov-action@fb8b3582c8e4def4969c97caa2f19720cb33a72f  # v7.0.0

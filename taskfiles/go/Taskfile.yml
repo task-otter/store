@@ -13,9 +13,6 @@ includes:
 
 vars:
   GO_NIX_INSTALLABLE: nixpkgs#go
-  GO_JUNIT_REPORT_NIX_INSTALLABLE: nixpkgs#go-junit-report
-  GO_JUNIT_REPORT: ""
-  GO_COVER_PROFILE: ""
   GO_FUZZTIME: ""
 
 tasks:
@@ -60,31 +57,19 @@ tasks:
   test:
     run: once
     dir: "{{.USER_WORKING_DIR}}"
-    desc: Run Go unit tests and write JUnit XML and coverage reports
+    desc: Run Go unit tests
     summary: |
-      Run `go test -v` with coverage against all Go packages by default, stream
-      test output to stdout, write a JUnit XML report to GO_JUNIT_REPORT
-      (default junit.xml), and write a coverage profile to GO_COVER_PROFILE
-      (default coverage.out). Pass CLI arguments after -- to override the
-      default ./... target or add flags.
+      Run `go test -v` against all Go packages by default. Pass CLI arguments
+      after -- to override the default ./... target or add flags. For JUnit XML
+      and coverage reports, use the go-junit-report Taskfile.
     deps:
       - task: _ensure
-      - task: nix:install:profile
-        vars:
-          NIX_INSTALLABLE: "{{.GO_JUNIT_REPORT_NIX_INSTALLABLE}}"
-    vars:
-      GO_JUNIT_REPORT_OUT: '{{if .GO_JUNIT_REPORT}}{{.GO_JUNIT_REPORT}}{{else}}junit.xml{{end}}'
-      GO_COVER_OUT: '{{if .GO_COVER_PROFILE}}{{.GO_COVER_PROFILE}}{{else}}coverage.out{{end}}'
     cmds:
       - cmd: >-
-          bash -lc '{{.NIX_LOAD}}; go test -v -covermode atomic -coverprofile "{{.GO_COVER_OUT}}"
-          {{if .CLI_ARGS}}{{.CLI_ARGS}}{{else}}./...{{end}} 2>&1 | go-junit-report
-          -set-exit-code -iocopy -out "{{.GO_JUNIT_REPORT_OUT}}"'
+          bash -lc '{{.NIX_LOAD}}; go test -v
+          {{if .CLI_ARGS}}{{.CLI_ARGS}}{{else}}./...{{end}}'
         platforms: [linux, darwin]
-      - cmd: >-
-          go test -v -covermode atomic -coverprofile "{{.GO_COVER_OUT}}"
-          {{if .CLI_ARGS}}{{.CLI_ARGS}}{{else}}./...{{end}} 2>&1 | go-junit-report
-          -set-exit-code -iocopy -out "{{.GO_JUNIT_REPORT_OUT}}"
+      - cmd: go test -v {{if .CLI_ARGS}}{{.CLI_ARGS}}{{else}}./...{{end}}
         platforms: [windows]
 
   bench:
