@@ -4,7 +4,7 @@ A [TaskOtter](https://github.com/task-otter/store) module for [ShellCheck](https
 
 ## What is this Taskfile?
 
-This module provides tasks to lint, install, and manage [ShellCheck](https://www.shellcheck.net). ShellCheck finds bugs and style issues in Bash/sh scripts, covering syntax errors, quoting mistakes, deprecated constructs, and portability problems.
+This module lints Bash/sh scripts with [ShellCheck](https://www.shellcheck.net). ShellCheck finds syntax errors, quoting mistakes, deprecated constructs, and portability problems. The `ci` task auto-installs ShellCheck via `nix:install:profile`.
 
 ## Usage
 
@@ -14,6 +14,12 @@ This module provides tasks to lint, install, and manage [ShellCheck](https://www
 task -t taskfiles/shellcheck/Taskfile.yml ci
 task -t taskfiles/shellcheck/Taskfile.yml ci SHELLCHECK_TARGETS="scripts/*.sh"
 task -t taskfiles/shellcheck/Taskfile.yml ci SHELLCHECK_EXTRA_ARGS="--shell=bash --severity=warning"
+```
+
+Install only, without linting:
+
+```sh
+task nix:install:profile NIX_INSTALLABLE=nixpkgs#shellcheck
 ```
 
 ### Included in your Taskfile
@@ -31,35 +37,28 @@ Then run:
 
 ```sh
 task shellcheck:ci
-task shellcheck:install
 ```
 
 ## Public Tasks
 
 | Task | Description |
 |---|---|
-| `install` | Install ShellCheck on the current operating system |
-| `install:undo` | Remove ShellCheck from the current operating system |
 | `ci` | Lint shell scripts with ShellCheck (SHELLCHECK_TARGETS=glob) |
-| `upgrade` | Upgrade ShellCheck to the latest release |
-| `version` | Show the installed ShellCheck version |
 
 ## Variables
 
 | Variable | Default | Description |
 |---|---|---|
+| `SHELLCHECK_NIX_INSTALLABLE` | `nixpkgs#shellcheck` | Flake installable passed to `nix:install:profile` |
 | `SHELLCHECK_EXTRA_ARGS` | `""` | Additional flags passed to `shellcheck` (e.g. `--shell`, `--severity`) |
 | `SHELLCHECK_TARGETS` | `""` | Paths or globs of scripts to check; empty = discover all `*.sh` recursively |
-| `SHELLCHECK_VERSION` | `""` | Pin a specific shellcheck release for `install`; empty installs latest. Exact availability depends on the platform's package manager/repository. |
-| `SHELLCHECK_LINT_SKIP_PATTERN` | _(empty)_ | Forward-slash path glob for files skipped by lint checks and fixes |
 
-Skip patterns support `*` within one path segment, `**` across directories, and `?` for one character. Paths are matched relative to the task working directory; for example, `**/generated/**`.
+Pin a revision by overriding the installable, for example
+`SHELLCHECK_NIX_INSTALLABLE=github:NixOS/nixpkgs/<rev>#shellcheck`.
 
 ## Notes
 
-- **macOS** installs via Homebrew (`brew install shellcheck`). Homebrew must be installed.
-- **Linux** installs via `apt-get` (Debian/Ubuntu) or `dnf` (Fedora/RHEL). The task dispatches to whichever package manager is present.
-- **Windows** installs via Scoop (`scoop install shellcheck`). Scoop must be installed.
+- Install goes through `nix:install:profile` (Nix is installed first if missing). Native Windows is not supported; use WSL2.
 - When `SHELLCHECK_TARGETS` is empty, all `*.sh` and `*.bash` files under the working tree are discovered recursively (excluding `.git`).
 - Pass explicit paths or globs (e.g. `SHELLCHECK_TARGETS="scripts/*.sh"`) to limit the scope.
 - The `ci` task auto-installs ShellCheck if it is not already present in `PATH`.

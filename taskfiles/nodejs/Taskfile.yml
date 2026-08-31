@@ -1,0 +1,35 @@
+---
+version: "3.5"
+
+output:
+  group:
+    begin: "::group::{{.TASK}}"
+    end: "::endgroup::"
+    error_only: false
+
+silent: true
+
+includes:
+  nix:
+    taskfile: ../nix/Taskfile.yml
+
+vars:
+  NODEJS_NIX_INSTALLABLE: nixpkgs#nodejs
+
+tasks:
+  default:
+    run: once
+    desc: Show available Node.js automation tasks
+    summary: Display the list of available Node.js-related tasks defined in this Taskfile.
+    cmds:
+      - task --list
+
+  _ensure:
+    run: once
+    internal: true
+    status:
+      - bash -lc '{{.NIX_LOAD}}; command -v node >/dev/null 2>&1'
+    cmds:
+      - task: nix:install:profile
+        vars:
+          NIX_INSTALLABLE: "{{.NODEJS_NIX_INSTALLABLE}}"

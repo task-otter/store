@@ -2,8 +2,10 @@
 
 ## What is this Taskfile?
 
-A production-ready, cross-platform Taskfile for installing, verifying, upgrading, uninstalling,
-configuring, and operating the [GitHub CLI (`gh`)](https://cli.github.com) on macOS, Windows, and Linux.
+A production-ready, cross-platform Taskfile for verifying, configuring, and
+operating the [GitHub CLI (`gh`)](https://cli.github.com). Operational tasks
+auto-install gh via `nix:install:profile`. Native Windows auto-install fails;
+use WSL2.
 
 Include it in your root `Taskfile.yml` or use it standalone.
 
@@ -12,9 +14,14 @@ Include it in your root `Taskfile.yml` or use it standalone.
 ### Standalone
 
 ```sh
-task -t taskfiles/gh/Taskfile.yml install
 task -t taskfiles/gh/Taskfile.yml auth:login
 task -t taskfiles/gh/Taskfile.yml pr:list
+```
+
+Install only:
+
+```sh
+task nix:install:profile NIX_INSTALLABLE=nixpkgs#gh
 ```
 
 ### Included (recommended)
@@ -28,7 +35,6 @@ includes:
 Then run:
 
 ```sh
-task tools:install
 task tools:auth:login
 task tools:pr:list
 ```
@@ -37,10 +43,6 @@ task tools:pr:list
 
 | Task                     | Description                                  | Key variables                                    |
 | ------------------------ | -------------------------------------------- | ------------------------------------------------ |
-| `install`                | Auto-detect OS and install gh                | `GH_VERSION`                                        |
-| `install:undo`           | Auto-detect OS and remove gh                 | —                                                |
-| `upgrade`                | Auto-detect OS and upgrade gh                | —                                                |
-| `version`                | Show the installed gh version                | —                                                |
 | `doctor`                 | Run gh self-diagnostic check                 | —                                                |
 | `which`                  | Show path to the gh binary                   | —                                                |
 | `verify`                 | Verify gh installation and auth status       | —                                                |
@@ -142,7 +144,7 @@ task tools:pr:list
 | `GH_CLONE_DIR`      | `.`       | Local directory for `repo:clone`                                  |
 | `GH_DOWNLOAD_DIR`   | `.`       | Local directory for `release:download` and `release:download:all` |
 | `GH_DATA`           | `{}`      | JSON body for API POST/PATCH requests                             |
-| `GH_VERSION`        | _(empty)_ | Pin a specific gh release for `install`; empty installs latest. Exact availability depends on the detected package manager/repository. |
+| `GH_NIX_INSTALLABLE` | `nixpkgs#gh` | Flake installable passed to `nix:install:profile`              |
 | `OWNER`          | _(empty)_ | GitHub user or organisation name                                  |
 | `REPO`           | _(empty)_ | Repository name                                                   |
 | `DESCRIPTION`    | _(empty)_ | Repository description                                            |
@@ -185,11 +187,6 @@ task tools:pr:list
 ## Examples
 
 ```sh
-# Install gh automatically on the current OS
-task -t taskfiles/gh/Taskfile.yml install
-
-# Install using a specific package manager
-
 # Authenticate
 task -t taskfiles/gh/Taskfile.yml auth:login
 task -t taskfiles/gh/Taskfile.yml auth:login:web
@@ -232,9 +229,12 @@ task -t taskfiles/gh/Taskfile.yml api:post ENDPOINT=/repos/myorg/myrepo/issues G
 # Search
 task -t taskfiles/gh/Taskfile.yml search:repos QUERY="cli tool language:go stars:>100"
 task -t taskfiles/gh/Taskfile.yml search:issues QUERY="is:open label:bug"
-
-# Upgrade
-task -t taskfiles/gh/Taskfile.yml upgrade
-
-# Uninstall (requires confirmation prompt)
 ```
+
+Pin a revision by overriding the installable, for example
+`GH_NIX_INSTALLABLE=github:NixOS/nixpkgs/<rev>#gh`.
+
+## Notes
+
+- Install goes through `nix:install:profile` (Nix is installed first if missing). Native Windows is not supported; use WSL2.
+- Operational tasks auto-install gh if it is not already present in `PATH`.

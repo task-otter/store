@@ -6,19 +6,21 @@ A cross-platform Taskfile for linting, formatting, breaking-change detection,
 and code generation from [Protocol Buffer](https://protobuf.dev/) definitions
 using [Buf](https://buf.build/), the modern proto toolchain.
 
-Buf is installed globally via a pinned GitHub release binary to `/usr/local/bin`
-on macOS and Linux, and Scoop on Windows. The install task is skipped
-automatically when Buf is already present in PATH at the pinned version.
+Operational tasks auto-install Buf via `nix:install:profile`.
 
 ## Usage
 
 ### Standalone
 
 ```sh
-task -t taskfiles/buf/Taskfile.yml install
 task -t taskfiles/buf/Taskfile.yml lint
 task -t taskfiles/buf/Taskfile.yml fmt:check
-task -t taskfiles/buf/Taskfile.yml version
+```
+
+Install only, without linting:
+
+```sh
+task nix:install:profile NIX_INSTALLABLE=nixpkgs#buf
 ```
 
 Lint a specific proto directory:
@@ -65,40 +67,29 @@ task buf:generate BUF_INPUT=api/v1
 
 | Task            | Description                                              | Key variables                  |
 | --------------- | -------------------------------------------------------- | ------------------------------ |
-| `breaking`      | Check proto files for breaking changes against AGAINST   | `BUF_INPUT`, `BUF_AGAINST`, `BUF_EXTRA_ARGS` |
-| `ci`            | Run `fmt:check` then `lint`                              | `BUF_INPUT`, `BUF_CONFIG`, `BUF_EXTRA_ARGS` |
-| `ci:fix` | Format proto files in place with Buf | `BUF_INPUT`, `BUF_EXTRA_ARGS` |
-| `fmt:check`     | Check proto file formatting with Buf                     | `BUF_INPUT`, `BUF_EXTRA_ARGS`          |
-| `generate`      | Generate code from proto files with Buf                  | `BUF_INPUT`, `BUF_EXTRA_ARGS`          |
-| `install`       | Install Buf on the current operating system              | none                           |
-| `install:undo`  | Remove Buf from the current operating system             | none                           |
-| `lint`          | Lint proto files with Buf                                | `BUF_INPUT`, `BUF_CONFIG`, `BUF_EXTRA_ARGS` |
-| `upgrade`       | Upgrade Buf to the latest release                        | `BUF_VERSION` (Linux; brew on macOS) |
-| `version`       | Show the installed Buf version                           | none                           |
+| `breaking`  | Check proto files for breaking changes against AGAINST | `BUF_INPUT`, `BUF_AGAINST`, `BUF_EXTRA_ARGS` |
+| `ci`        | Run `fmt:check` then `lint`                            | `BUF_INPUT`, `BUF_CONFIG`, `BUF_EXTRA_ARGS` |
+| `ci:fix`    | Format proto files in place with Buf                   | `BUF_INPUT`, `BUF_EXTRA_ARGS` |
+| `fmt:check` | Check proto file formatting with Buf                   | `BUF_INPUT`, `BUF_EXTRA_ARGS` |
+| `generate`  | Generate code from proto files with Buf                | `BUF_INPUT`, `BUF_EXTRA_ARGS` |
+| `lint`      | Lint proto files with Buf                              | `BUF_INPUT`, `BUF_CONFIG`, `BUF_EXTRA_ARGS` |
 
 ## Variables
 
 | Variable      | Default              | Description                                              |
 | ------------- | -------------------- | -------------------------------------------------------- |
-| `BUF_AGAINST`     | `.git#branch=main`   | Baseline for `breaking`: a git ref, Buf module, or path |
-| `BUF_VERSION` | `1.47.2`             | Buf release to download on macOS and Linux              |
-| `BUF_CONFIG`      | empty                | Path to a `buf.yaml` config file passed via `--config`  |
+| `BUF_AGAINST`            | `.git#branch=main` | Baseline for `breaking`: a git ref, Buf module, or path |
+| `BUF_NIX_INSTALLABLE`    | `nixpkgs#buf`      | Flake installable passed to `nix:install:profile`       |
+| `BUF_CONFIG`             | empty              | Path to a `buf.yaml` config file passed via `--config`  |
 | `BUF_EXTRA_ARGS`  | empty                | Extra arguments appended when `CLI_ARGS` is not provided |
 | `BUF_INPUT`       | `.`                  | Proto source directory or Buf module passed to buf       |
-| `BUF_LINT_SKIP_PATTERN` | _(empty)_ | Forward-slash path glob for files skipped by lint and breaking checks |
-| `BUF_FMT_SKIP_PATTERN` | _(empty)_ | Forward-slash path glob for files skipped by formatting checks and fixes |
 
-Skip patterns support `*` within one path segment, `**` across directories, and `?` for one character. Paths are matched relative to the task working directory; for example, `**/generated/**`.
+Pin a revision by overriding the installable, for example
+`BUF_NIX_INSTALLABLE=github:NixOS/nixpkgs/<rev>#buf`.
 
 ## Notes
 
-On macOS and Linux, Buf is installed from the pinned `BUF_VERSION` GitHub
-release binary into `/usr/local/bin`. macOS supports `x86_64` and `arm64`;
-Linux supports `x86_64` and `aarch64`. Other architectures require a manual
-installation; see the [Buf installation docs](https://buf.build/docs/installation).
-`BUF_VERSION` is ignored on Windows — Scoop controls the installed version.
-macOS `upgrade` still uses Homebrew (`brew upgrade bufbuild/buf/buf`).
-
-The `generate` task requires a `buf.gen.yaml` file in the working tree. See the
-[buf generate docs](https://buf.build/docs/generate/tutorial) for configuration
-details.
+- Install goes through `nix:install:profile` (Nix is installed first if missing). Native Windows is not supported; use WSL2.
+- The `generate` task requires a `buf.gen.yaml` file in the working tree. See the
+  [buf generate docs](https://buf.build/docs/generate/tutorial) for configuration
+  details.

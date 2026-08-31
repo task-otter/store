@@ -22,11 +22,11 @@ Then run the leaf that matches your project through its namespace (replace
 
 ```bash
 task stylelint:bun:{TASK}                 # Bun runtime + Bun as package manager
-task stylelint:node:fnm:npm:{TASK}        # Node via fnm, npm as package manager
-task stylelint:node:nvm:pnpm:{TASK}       # Node via nvm, pnpm as package manager
+task stylelint:node:npm:{TASK}        # Node via the nodejs module, npm as package manager
+task stylelint:node:pnpm:{TASK}       # Node via the nodejs module, pnpm as package manager
 ```
 
-Available leaves: `bun`, `node/{fnm,nvm}/{npm,pnpm,yarn}`.
+Available leaves: `bun`, `node/{npm,pnpm,yarn}`.
 
 ## Public Tasks
 
@@ -72,8 +72,8 @@ deletes the whole ignore file.
 ## Examples
 
 ```bash
-task stylelint:node:fnm:npm:install
-task stylelint:node:fnm:npm:install STYLELINT_VERSION=16.6.1
-task stylelint:node:fnm:npm:ci
-task stylelint:node:fnm:npm:ci:fix STYLELINT_TARGETS="src/**/*.scss"
+task stylelint:node:npm:install
+task stylelint:node:npm:install STYLELINT_VERSION=16.6.1
+task stylelint:node:npm:ci
+task stylelint:node:npm:ci:fix STYLELINT_TARGETS="src/**/*.scss"
 ```

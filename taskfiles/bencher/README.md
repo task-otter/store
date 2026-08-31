@@ -4,16 +4,21 @@ A [TaskOtter](https://github.com/task-otter/store) module for the [Bencher CLI](
 
 ## What is this Taskfile?
 
-This module installs and manages the Bencher CLI using Bencher's official installer. It supports Bencher Cloud's latest CLI by default and can pin a compatible release when using Bencher Self-Hosted.
+This module runs the Bencher CLI. `run` and `exec` auto-install the CLI via `nix:install:profile`.
 
 ## Usage
 
 ### Standalone
 
 ```sh
-task -t taskfiles/bencher/Taskfile.yml install
-task -t taskfiles/bencher/Taskfile.yml version
-task -t taskfiles/bencher/Taskfile.yml install BENCHER_VERSION=0.6.8
+task -t taskfiles/bencher/Taskfile.yml run -- --project my-project "make benchmarks"
+task -t taskfiles/bencher/Taskfile.yml exec -- mock
+```
+
+Install only:
+
+```sh
+task nix:install:profile NIX_INSTALLABLE=nixpkgs#bencher
 ```
 
 ### Included in your Taskfile
@@ -27,8 +32,6 @@ includes:
 Then run:
 
 ```sh
-task bencher:install
-task bencher:version
 task bencher:run -- --project my-project "make benchmarks"
 task bencher:exec -- mock
 ```
@@ -37,25 +40,20 @@ task bencher:exec -- mock
 
 | Task | Description |
 |---|---|
-| `install` | Install the Bencher CLI on the current operating system |
-| `upgrade` | Upgrade the Bencher CLI with the official installer |
 | `run` | Execute a benchmark command and track its results with `bencher run` |
 | `exec` | Run any Bencher CLI subcommand (e.g. `mock`, `project`, `report`) |
-| `version` | Show the installed Bencher CLI version, installing it if missing |
 
 ## Variables
 
 | Variable | Default | Description |
 |---|---|---|
-| `BENCHER_INSTALL_URL` | `https://bencher.dev/download/install-cli.sh` | Unix installer URL; override with your self-hosted Bencher instance URL if needed |
-| `BENCHER_INSTALL_URL_WINDOWS` | `https://bencher.dev/download/install-cli.ps1` | Windows installer URL; override with your self-hosted Bencher instance URL if needed |
-| `BENCHER_VERSION` | `""` (latest) | Exact CLI release for Bencher Self-Hosted; leave empty for the latest Bencher Cloud CLI |
+| `BENCHER_NIX_INSTALLABLE` | `nixpkgs#bencher` | Flake installable passed to `nix:install:profile` |
 | `BENCHER_EXTRA_ARGS` | `""` | Arguments and flags appended to `run` and `exec` invocations |
+
+Pin a revision by overriding the installable, for example
+`BENCHER_NIX_INSTALLABLE=github:NixOS/nixpkgs/<rev>#bencher`.
 
 ## Notes
 
-- macOS, Linux, and other Unix-like systems run Bencher's documented `curl --proto '=https' --tlsv1.2 -sSfL … | sh` installer.
-- Windows runs Bencher's documented `irm … | iex` installer in PowerShell.
-- Bencher recommends leaving `BENCHER_VERSION` empty for Bencher Cloud. Pin it only when using Bencher Self-Hosted.
-- For Bencher Self-Hosted, set the installer URL to your instance's `/download/install-cli.sh` or `/download/install-cli.ps1` endpoint.
-- The installer may update your shell profile. Restart the shell or terminal if `bencher` is not immediately available in `PATH`.
+- Install goes through `nix:install:profile` (Nix is installed first if missing). Native Windows is not supported; use WSL2.
+- The `run` and `exec` tasks auto-install the Bencher CLI if it is not already present in `PATH`.

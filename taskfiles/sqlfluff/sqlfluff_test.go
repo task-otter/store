@@ -11,23 +11,19 @@ import (
 
 func publicTasks() []string {
 	return []string{
+		"ci",
+		"ci:fix",
 		"config:init",
 		"config:skip",
-		"ci:fix",
-		"install",
-		"install:undo",
-		"ci",
 		"parse",
-		"upgrade",
-		"version",
 	}
 }
 
 func publicVars() []string {
 	return []string{
+		"SQLFLUFF_INTERNAL_SKIP_CONFIG",
 		"SQLFLUFF_LINT_SKIP_PATTERN",
-		"SQLFLUFF_VERSION",
-		"UV_LOAD",
+		"SQLFLUFF_NIX_INSTALLABLE",
 	}
 }
 

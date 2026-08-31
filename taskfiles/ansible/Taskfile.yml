@@ -10,26 +10,18 @@ output:
 silent: true
 
 includes:
-  uv:
-    taskfile: ../uv/Taskfile.yml
-
-  skipfiles:
-    taskfile: ../internal/skipfiles/Taskfile.yml
-    internal: true
+  nix:
+    taskfile: ../nix/Taskfile.yml
 
 vars:
-  ANSIBLE_LINT_SKIP_PATTERN: ""
+  ANSIBLE_NIX_INSTALLABLE: nixpkgs#ansible
   ANSIBLE_CONFIG: "ansible/ansible.cfg"
-  UV_LOAD: 'export PATH="$HOME/.local/bin:$PATH"; export ANSIBLE_CONFIG="ansible/ansible.cfg"'
   ANSIBLE_PLAYBOOK: ""
   ANSIBLE_INVENTORY: ""
   ANSIBLE_PATTERN: "all"
-  ANSIBLE_TARGETS: "."
   ANSIBLE_FILE: ""
   ANSIBLE_REQUIREMENTS: "requirements.yml"
   ANSIBLE_EXTRA_ARGS: ""
-  ANSIBLE_VERSION: ""
-  ANSIBLE_LINT_VERSION: ""
 
 tasks:
   default:
@@ -39,79 +31,6 @@ tasks:
     cmds:
       - task --list
 
-  install:
-    run: once
-    desc: Install Ansible and ansible-lint on the current operating system
-    summary: |
-      Install ansible and ansible-lint via uv tool install on macOS and Linux.
-      Pass ANSIBLE_VERSION and/or ANSIBLE_LINT_VERSION to pin specific
-      releases instead of the latest. Ansible does not support Windows as a
-      control node.
-    deps:
-      - task: uv:install
-    cmds:
-      - task: _install:unix
-
-  install:undo:
-    run: once
-    desc: Remove Ansible and ansible-lint from the current operating system
-    summary: |
-      Uninstall ansible and ansible-lint via uv tool uninstall on macOS and Linux.
-    prompt:
-      - This will remove Ansible and ansible-lint from this machine.
-      - Continue?
-    cmds:
-      - task: _install:undo:unix
-
-  upgrade:
-    run: once
-    desc: Upgrade Ansible and ansible-lint to the latest release
-    summary: |
-      Upgrade ansible and ansible-lint via uv tool upgrade on macOS and Linux.
-      Auto-installs if missing.
-    deps:
-      - task: install
-    cmds:
-      - task: _upgrade:unix
-
-  version:
-    run: once
-    desc: Show the installed Ansible and ansible-lint versions
-    summary: Print ansible --version and ansible-lint --version. Auto-installs if missing.
-    deps:
-      - task: install
-    cmds:
-      - task: _version:unix
-
-  ci:fix:
-    run: once
-    desc: Auto-fix Ansible YAML files with ansible-lint --fix (ANSIBLE_TARGETS=path)
-    summary: |
-      Run ansible-lint --fix against ANSIBLE_TARGETS (default .) to automatically
-      resolve fixable lint violations. Pass ANSIBLE_EXTRA_ARGS for additional flags.
-      Auto-installs if missing.
-    deps:
-      - task: install
-    vars:
-      ANSIBLE_TARGETS: "."
-      ANSIBLE_EXTRA_ARGS: ""
-    cmds:
-      - task: _lint:fix:unix
-      - echo "✅ ansible-lint fixes applied"
-
-  ci:
-    run: once
-    desc: Run ansible-lint and ansible-playbook --syntax-check (ANSIBLE_PLAYBOOK=path)
-    summary: |
-      Run ansible-lint followed by syntax:check. Requires ANSIBLE_PLAYBOOK to
-      be set so ansible-playbook --syntax-check can validate the playbook.
-    deps:
-      - task: install
-    cmds:
-      - task: _lint:unix
-      - echo "✅ ansible-lint passed"
-      - task: syntax:check
-
   syntax:check:
     run: once
     desc: Check Ansible playbook syntax (ANSIBLE_PLAYBOOK=path)
@@ -120,7 +39,9 @@ tasks:
       without executing any tasks. Pass INVENTORY to specify the inventory file.
       Auto-installs if missing.
     deps:
-      - task: install
+      - task: nix:install:profile
+        vars:
+          NIX_INSTALLABLE: "{{.ANSIBLE_NIX_INSTALLABLE}}"
     requires:
       vars:
         - ANSIBLE_PLAYBOOK
@@ -138,7 +59,9 @@ tasks:
       inventory file and ANSIBLE_EXTRA_ARGS for additional flags such as --check,
       --diff, or --tags. Auto-installs if missing.
     deps:
-      - task: install
+      - task: nix:install:profile
+        vars:
+          NIX_INSTALLABLE: "{{.ANSIBLE_NIX_INSTALLABLE}}"
     requires:
       vars:
         - ANSIBLE_PLAYBOOK
@@ -156,7 +79,9 @@ tasks:
       specified INVENTORY. Confirms that Ansible can reach and authenticate
       to the target hosts. Auto-installs if missing.
     deps:
-      - task: install
+      - task: nix:install:profile
+        vars:
+          NIX_INSTALLABLE: "{{.ANSIBLE_NIX_INSTALLABLE}}"
     requires:
       vars:
         - ANSIBLE_INVENTORY
@@ -174,7 +99,9 @@ tasks:
       executing any tasks. Useful for verifying inventory content.
       Auto-installs if missing.
     deps:
-      - task: install
+      - task: nix:install:profile
+        vars:
+          NIX_INSTALLABLE: "{{.ANSIBLE_NIX_INSTALLABLE}}"
     requires:
       vars:
         - ANSIBLE_INVENTORY
@@ -192,7 +119,9 @@ tasks:
       to install all declared roles and collections. Pass ANSIBLE_EXTRA_ARGS for
       additional flags. Auto-installs if missing.
     deps:
-      - task: install
+      - task: nix:install:profile
+        vars:
+          NIX_INSTALLABLE: "{{.ANSIBLE_NIX_INSTALLABLE}}"
     cmds:
       - task: _galaxy:install:unix
 
@@ -204,7 +133,9 @@ tasks:
       password. Pass ANSIBLE_EXTRA_ARGS for additional flags such as --vault-id.
       Auto-installs if missing.
     deps:
-      - task: install
+      - task: nix:install:profile
+        vars:
+          NIX_INSTALLABLE: "{{.ANSIBLE_NIX_INSTALLABLE}}"
     requires:
       vars:
         - ANSIBLE_FILE
@@ -227,7 +158,9 @@ tasks:
       - This will decrypt and overwrite ANSIBLE_FILE with plaintext.
       - Continue?
     deps:
-      - task: install
+      - task: nix:install:profile
+        vars:
+          NIX_INSTALLABLE: "{{.ANSIBLE_NIX_INSTALLABLE}}"
     requires:
       vars:
         - ANSIBLE_FILE
@@ -239,171 +172,29 @@ tasks:
         vars:
           ARGS: 'decrypt "{{.ANSIBLE_FILE}}" {{.ANSIBLE_EXTRA_ARGS}}'
 
-  _install:unix:
-    run: once
-    internal: true
-    platforms: [linux, darwin]
-    set: [errexit, nounset, pipefail]
-    status:
-      - >-
-        bash -lc '{{.UV_LOAD}}; command -v ansible >/dev/null 2>&1
-        && { [ -z "{{.ANSIBLE_VERSION}}" ]
-        || uv tool list | grep -Eq "^ansible v?{{.ANSIBLE_VERSION}}( |$)"; }'
-      - >-
-        bash -lc '{{.UV_LOAD}}; command -v ansible-lint >/dev/null 2>&1
-        && { [ -z "{{.ANSIBLE_LINT_VERSION}}" ]
-        || uv tool list | grep -Eq "^ansible-lint v?{{.ANSIBLE_LINT_VERSION}}( |$)"; }'
-    cmds:
-      - echo 'Installing Ansible via uv...'
-      - >-
-        bash -lc '{{.UV_LOAD}}; uv tool install --force
-        "ansible{{if .ANSIBLE_VERSION}}=={{.ANSIBLE_VERSION}}{{end}}"'
-      - >-
-        bash -lc '{{.UV_LOAD}}; uv tool install --force
-        "ansible-lint{{if .ANSIBLE_LINT_VERSION}}=={{.ANSIBLE_LINT_VERSION}}{{end}}"'
-      - echo 'Ansible and ansible-lint installed.'
-
-  _install:undo:unix:
-    run: once
-    internal: true
-    platforms: [linux, darwin]
-    set: [errexit, nounset, pipefail]
-    status:
-      - bash -lc '{{.UV_LOAD}}; ! command -v ansible >/dev/null 2>&1'
-      - bash -lc '{{.UV_LOAD}}; ! command -v ansible-lint >/dev/null 2>&1'
-    cmds:
-      - echo 'Removing Ansible...'
-      - bash -lc '{{.UV_LOAD}}; uv tool uninstall ansible'
-      - bash -lc '{{.UV_LOAD}}; uv tool uninstall ansible-lint'
-      - echo 'Ansible and ansible-lint removed.'
-
-  _upgrade:unix:
-    run: once
-    internal: true
-    platforms: [linux, darwin]
-    set: [errexit, nounset, pipefail]
-    preconditions:
-      - sh: bash -lc '{{.UV_LOAD}}; command -v ansible >/dev/null 2>&1'
-        msg: Ansible is not installed. Run task install first.
-    cmds:
-      - echo 'Upgrading Ansible...'
-      - >-
-        bash -lc '{{.UV_LOAD}}; uv tool install --force
-        "ansible{{if .ANSIBLE_VERSION}}=={{.ANSIBLE_VERSION}}{{end}}"'
-      - >-
-        bash -lc '{{.UV_LOAD}}; uv tool install --force
-        "ansible-lint{{if .ANSIBLE_LINT_VERSION}}=={{.ANSIBLE_LINT_VERSION}}{{end}}"'
-      - echo 'Ansible and ansible-lint upgraded.'
-
-  _version:unix:
-    run: once
-    internal: true
-    platforms: [linux, darwin]
-    set: [errexit, nounset, pipefail]
-    preconditions:
-      - sh: bash -lc '{{.UV_LOAD}}; command -v ansible >/dev/null 2>&1'
-        msg: Ansible is not installed. Run task install first.
-    cmds:
-      - bash -lc '{{.UV_LOAD}}; ansible --version'
-      - bash -lc '{{.UV_LOAD}}; ansible-lint --version'
-
-  _lint:unix:
-    run: once
-    internal: true
-    platforms: [linux, darwin]
-    set: [errexit, nounset, pipefail]
-    cmds:
-      - task: _lint:run:unix
-        vars:
-          ANSIBLE_LINT_FIX_FLAG: ""
-
-  _lint:fix:unix:
-    run: once
-    internal: true
-    platforms: [linux, darwin]
-    set: [errexit, nounset, pipefail]
-    cmds:
-      - task: _lint:run:unix
-        vars:
-          ANSIBLE_LINT_FIX_FLAG: "--fix"
-
-  _lint:run:unix:
-    run: once
-    internal: true
-    platforms: [linux, darwin]
-    set: [errexit, nounset, pipefail]
-    cmds:
-      - |
-        {{.UV_LOAD}}
-        targets='{{if .ANSIBLE_TARGETS_OVERRIDE}}{{.ANSIBLE_TARGETS_OVERRIDE}}{{else if
-        .ANSIBLE_TARGETS}}{{.ANSIBLE_TARGETS}}{{else}}.{{end}}'
-        skip_pattern='{{if .ANSIBLE_LINT_SKIP_PATTERN_OVERRIDE}}{{.ANSIBLE_LINT_SKIP_PATTERN_OVERRIDE}}
-        {{- else}}{{.ANSIBLE_LINT_SKIP_PATTERN}}{{end}}'
-        if [ -z "$skip_pattern" ]; then
-          ansible-lint {{.ANSIBLE_LINT_FIX_FLAG}} $targets \
-            {{if .ANSIBLE_EXTRA_ARGS_OVERRIDE}}{{.ANSIBLE_EXTRA_ARGS_OVERRIDE}}
-            {{- else}}{{.ANSIBLE_EXTRA_ARGS}}{{end}}
-          exit
-        fi
-        matched_files="$(mktemp)"
-        trap 'rm -f "$matched_files"' EXIT
-        for target in $targets; do
-          if [ -d "$target" ]; then
-            find "$target" -type f \( -name '*.yml' -o -name '*.yaml' \) -print0
-          elif [ -f "$target" ]; then
-            printf '%s\000' "$target"
-          fi
-        done | task --silent --taskfile "{{.TASKFILE_DIR}}/../internal/skipfiles/Taskfile.yml" \
-          filter "SKIPFILES_PATTERN=$skip_pattern" SKIPFILES_MATCHING=true |
-          tr '\0' '\n' >"$matched_files"
-        set --
-        while IFS= read -r path; do
-          set -- "$@" --exclude "$path"
-        done <"$matched_files"
-        ansible-lint {{.ANSIBLE_LINT_FIX_FLAG}} "$@" $targets \
-          {{if .ANSIBLE_EXTRA_ARGS_OVERRIDE}}{{.ANSIBLE_EXTRA_ARGS_OVERRIDE}}
-          {{- else}}{{.ANSIBLE_EXTRA_ARGS}}{{end}}
-
   _syntax:check:unix:
     run: once
     internal: true
     platforms: [linux, darwin]
     set: [errexit, nounset, pipefail]
-    preconditions:
-      - sh: bash -lc '{{.UV_LOAD}}; command -v ansible-playbook >/dev/null 2>&1'
-        msg: ansible-playbook is not installed. Run task install first.
     cmds:
       - |
-        {{.UV_LOAD}}
-        playbook='{{if .ANSIBLE_PLAYBOOK_OVERRIDE}}{{.ANSIBLE_PLAYBOOK_OVERRIDE}}{{else}}{{.ANSIBLE_PLAYBOOK}}{{end}}'
-        skip_pattern='{{if .ANSIBLE_LINT_SKIP_PATTERN_OVERRIDE}}{{.ANSIBLE_LINT_SKIP_PATTERN_OVERRIDE}}
-        {{- else}}{{.ANSIBLE_LINT_SKIP_PATTERN}}{{end}}'
-        if [ -n "$skip_pattern" ] && [ -z "$(
-          printf '%s\000' "$playbook" |
-            task --silent --taskfile "{{.TASKFILE_DIR}}/../internal/skipfiles/Taskfile.yml" \
-              filter "SKIPFILES_PATTERN=$skip_pattern" |
-            tr -d '\0'
-        )" ]; then
-          echo 'Ansible syntax check skipped'
-          exit 0
-        fi
+        bash -lc '{{.NIX_LOAD}}; export ANSIBLE_CONFIG="{{.ANSIBLE_CONFIG}}";
+        playbook="{{if .ANSIBLE_PLAYBOOK_OVERRIDE}}{{.ANSIBLE_PLAYBOOK_OVERRIDE}}{{else}}{{.ANSIBLE_PLAYBOOK}}{{end}}"
         ansible-playbook --syntax-check "$playbook" \
           {{if .ANSIBLE_INVENTORY_OVERRIDE}}-i "{{.ANSIBLE_INVENTORY_OVERRIDE}}"
           {{- else if .ANSIBLE_INVENTORY}}-i "{{.ANSIBLE_INVENTORY}}"{{end}} \
           {{if .ANSIBLE_EXTRA_ARGS_OVERRIDE}}{{.ANSIBLE_EXTRA_ARGS_OVERRIDE}}
-          {{- else}}{{.ANSIBLE_EXTRA_ARGS}}{{end}} {{.CLI_ARGS}}
+          {{- else}}{{.ANSIBLE_EXTRA_ARGS}}{{end}} {{.CLI_ARGS}}'
 
   _run:unix:
     run: once
     internal: true
     platforms: [linux, darwin]
     set: [errexit, nounset, pipefail]
-    preconditions:
-      - sh: bash -lc '{{.UV_LOAD}}; command -v ansible-playbook >/dev/null 2>&1'
-        msg: ansible-playbook is not installed. Run task install first.
     cmds:
       - >-
-        bash -lc '{{.UV_LOAD}};
+        bash -lc '{{.NIX_LOAD}}; export ANSIBLE_CONFIG="{{.ANSIBLE_CONFIG}}";
         ansible-playbook
         "{{if .ANSIBLE_PLAYBOOK_OVERRIDE}}{{.ANSIBLE_PLAYBOOK_OVERRIDE}}{{else}}{{.ANSIBLE_PLAYBOOK}}{{end}}"
         {{if .ANSIBLE_INVENTORY_OVERRIDE}}-i "{{.ANSIBLE_INVENTORY_OVERRIDE}}"
@@ -415,12 +206,9 @@ tasks:
     internal: true
     platforms: [linux, darwin]
     set: [errexit, nounset, pipefail]
-    preconditions:
-      - sh: bash -lc '{{.UV_LOAD}}; command -v ansible >/dev/null 2>&1'
-        msg: Ansible is not installed. Run task install first.
     cmds:
       - >-
-        bash -lc '{{.UV_LOAD}};
+        bash -lc '{{.NIX_LOAD}}; export ANSIBLE_CONFIG="{{.ANSIBLE_CONFIG}}";
         ansible "{{.ANSIBLE_PATTERN}}" -m ping
         {{if .ANSIBLE_INVENTORY_OVERRIDE}}-i "{{.ANSIBLE_INVENTORY_OVERRIDE}}"
         {{else if .ANSIBLE_INVENTORY}}-i "{{.ANSIBLE_INVENTORY}}" {{end}}
@@ -431,12 +219,9 @@ tasks:
     internal: true
     platforms: [linux, darwin]
     set: [errexit, nounset, pipefail]
-    preconditions:
-      - sh: bash -lc '{{.UV_LOAD}}; command -v ansible >/dev/null 2>&1'
-        msg: Ansible is not installed. Run task install first.
     cmds:
       - >-
-        bash -lc '{{.UV_LOAD}};
+        bash -lc '{{.NIX_LOAD}}; export ANSIBLE_CONFIG="{{.ANSIBLE_CONFIG}}";
         ansible "{{.ANSIBLE_PATTERN}}" --list-hosts
         {{if .ANSIBLE_INVENTORY_OVERRIDE}}-i "{{.ANSIBLE_INVENTORY_OVERRIDE}}"
         {{else if .ANSIBLE_INVENTORY}}-i "{{.ANSIBLE_INVENTORY}}" {{end}}
@@ -447,12 +232,9 @@ tasks:
     internal: true
     platforms: [linux, darwin]
     set: [errexit, nounset, pipefail]
-    preconditions:
-      - sh: bash -lc '{{.UV_LOAD}}; command -v ansible-galaxy >/dev/null 2>&1'
-        msg: ansible-galaxy is not installed. Run task install first.
     cmds:
       - >-
-        bash -lc '{{.UV_LOAD}};
+        bash -lc '{{.NIX_LOAD}}; export ANSIBLE_CONFIG="{{.ANSIBLE_CONFIG}}";
         ansible-galaxy install -r "{{.ANSIBLE_REQUIREMENTS}}"
         {{if .ANSIBLE_EXTRA_ARGS_OVERRIDE}}{{.ANSIBLE_EXTRA_ARGS_OVERRIDE}}{{else}}{{.ANSIBLE_EXTRA_ARGS}}{{end}}'
 
@@ -463,8 +245,5 @@ tasks:
     set: [errexit, nounset, pipefail]
     requires:
       vars: [ARGS]
-    preconditions:
-      - sh: bash -lc '{{.UV_LOAD}}; command -v ansible-vault >/dev/null 2>&1'
-        msg: ansible-vault is not installed. Run task install first.
     cmds:
-      - bash -lc '{{.UV_LOAD}}; ansible-vault {{.ARGS}}'
+      - bash -lc '{{.NIX_LOAD}}; export ANSIBLE_CONFIG="{{.ANSIBLE_CONFIG}}"; ansible-vault {{.ARGS}}'

@@ -12,18 +12,13 @@ import (
 func publicTasks() []string {
 	return []string{
 		"exec",
-		"install",
 		"run",
-		"upgrade",
-		"version",
 	}
 }
 
 func publicVars() []string {
 	return []string{
-		"BENCHER_INSTALL_URL",
-		"BENCHER_INSTALL_URL_WINDOWS",
-		"BENCHER_VERSION",
+		"BENCHER_NIX_INSTALLABLE",
 		"BENCHER_EXTRA_ARGS",
 	}
 }

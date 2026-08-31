@@ -102,17 +102,17 @@ tasks:
         vars:
           ARGS: install --silent --no-fund --no-audit
 
-  ci:
+  install:clean:
     run: once
-    desc: Install project dependencies with npm ci
+    desc: Clean install project dependencies from the lockfile
     summary: |
       Run npm ci for a clean, reproducible install driven by package-lock.json.
       Removes node_modules before installing. Suited for CI pipelines where a
       consistent, reproducible dependency tree is required. Fails if
       package-lock.json is absent or out of sync with package.json.
     cmds:
-      - task: _ci:unix
-      - task: _ci:windows
+      - task: _install:clean:unix
+      - task: _install:clean:windows
 
   ci:fix:
     run: once
@@ -564,7 +564,7 @@ tasks:
         Write-Error 'corepack is not available. Run: task manager:setup'; exit 1 };
         corepack npm {{.ARGS}}"
 
-  _ci:unix:
+  _install:clean:unix:
     run: once
     internal: true
     platforms: [linux, darwin]
@@ -577,7 +577,7 @@ tasks:
         vars:
           ARGS: ci --silent --no-fund --no-audit
 
-  _ci:windows:
+  _install:clean:windows:
     run: once
     internal: true
     platforms: [windows]

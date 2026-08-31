@@ -19,13 +19,10 @@ type (
 )
 
 const (
-	constGovulncheckInstall = "install"
-	constGovulncheckLint    = "ci"
-	constGoInstall          = "go:install"
-	constGovulncheckModule  = "govulncheck"
+	constGovulncheckLint   = "ci"
+	constGovulncheckModule = "govulncheck"
 
-	envVarGovulncheckVersion         = "GOVULNCHECK_VERSION"
-	envVarGovulncheckLintSkipPattern = "GOVULNCHECK_LINT_SKIP_PATTERN"
+	envVarGovulncheckNixInstallable = "GOVULNCHECK_NIX_INSTALLABLE"
 
 	emptyString = ""
 	zeroLen     = 0
@@ -33,16 +30,13 @@ const (
 
 func publicTasks() []string {
 	return []string{
-		constGovulncheckInstall,
 		constGovulncheckLint,
 	}
 }
 
 func publicVars() []string {
 	return []string{
-		envVarGovulncheckVersion,
-		envVarGovulncheckLintSkipPattern,
-		"GO_GLOBAL_BIN",
+		envVarGovulncheckNixInstallable,
 	}
 }
 
@@ -57,36 +51,6 @@ func TestTaskfileModuleContract(t *testing.T) {
 	)
 }
 
-// TestLintSkipPatternDefaultsEmpty validates the behavior covered by this test case.
-func TestLintSkipPatternDefaultsEmpty(t *testing.T) {
-	t.Parallel()
-
-	assertEmptyVarDefault(t, envVarGovulncheckLintSkipPattern)
-}
-
-// TestVersionVariableIsOptional validates the behavior covered by this test case.
-func TestVersionVariableIsOptional(t *testing.T) {
-	t.Parallel()
-
-	assertEmptyVarDefault(t, envVarGovulncheckVersion)
-}
-
-func assertEmptyVarDefault(t *testing.T, name string) {
-	t.Helper()
-
-	taskfile := tasktest.LoadTaskfile(t, constGovulncheckModule)
-
-	value, exists := taskfile.Vars[name]
-
-	if !exists {
-		t.Fatalf("%s must be defined", name)
-	}
-
-	if value != emptyString {
-		t.Fatalf("%s default = %#v, want empty", name, value)
-	}
-}
-
 // TestDevelopmentToolDependencies validates the behavior covered by this test case.
 func TestDevelopmentToolDependencies(t *testing.T) {
 	t.Parallel()
@@ -94,8 +58,7 @@ func TestDevelopmentToolDependencies(t *testing.T) {
 	taskfile := tasktest.LoadTaskfile(t, constGovulncheckModule)
 
 	dependencies := map[string][]string{
-		constGovulncheckInstall: {constGoInstall},
-		constGovulncheckLint:    {constGovulncheckInstall},
+		constGovulncheckLint: {"_ensure"},
 	}
 
 	for taskName := range dependencies {

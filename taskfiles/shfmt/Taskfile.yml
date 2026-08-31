@@ -10,31 +10,12 @@ output:
 silent: true
 
 includes:
-  go:
-    taskfile: ../go/Taskfile.yml
-
-  skipfiles:
-    taskfile: ../internal/skipfiles/Taskfile.yml
-    internal: true
+  nix:
+    taskfile: ../nix/Taskfile.yml
 
 vars:
-  SHFMT_FMT_SKIP_PATTERN: ""
   SHFMT_EXTRA_ARGS: ""
-  GO_GLOBAL_BIN:
-    sh: |
-      gobin="${GOBIN:-}"
-      if [ -z "$gobin" ] && command -v go >/dev/null 2>&1; then
-        gobin="$(go env GOBIN)"
-      fi
-      if [ -z "$gobin" ]; then
-        gopath="${GOPATH:-}"
-        if [ -z "$gopath" ] && command -v go >/dev/null 2>&1; then
-          gopath="$(go env GOPATH)"
-        fi
-        gobin="${gopath:-$HOME/go}/bin"
-      fi
-      printf '%s' "$gobin"
-  SHFMT_VERSION: ""
+  SHFMT_NIX_INSTALLABLE: nixpkgs#shfmt
   SHFMT_TARGETS: "."
 
 tasks:
@@ -45,56 +26,18 @@ tasks:
     cmds:
       - task --list
 
-  install:
-    run: once
-    desc: Install shfmt into the global Go bin
-    summary: |
-      Install shfmt from its official Go module into GOBIN, or GOPATH/bin when
-      GOBIN is unset. Leave SHFMT_VERSION empty to install the latest stable v3
-      release, or set an exact module version such as v3.13.1.
-    deps:
-      - task: go:install
-    cmds:
-      - task: _install:unix
-      - task: _install:windows
-
-  install:undo:
-    run: once
-    desc: Remove shfmt from the global Go bin
-    summary: Remove the shfmt binary previously installed in the global Go bin.
-    prompt:
-      - This will remove shfmt from the global Go bin.
-      - Continue?
-    cmds:
-      - task: _install:undo:unix
-      - task: _install:undo:windows
-
-  upgrade:
-    run: once
-    desc: Upgrade shfmt to the requested version
-    summary: |
-      Reinstall shfmt from its official Go module. Leave SHFMT_VERSION empty to
-      upgrade to the latest stable v3 release, or set an exact version.
-    deps:
-      - task: go:install
-    cmds:
-      - task: _install:unix
-        vars:
-          FORCE: "true"
-      - task: _install:windows
-        vars:
-          FORCE: "true"
-
   ci:fix:
     run: once
     desc: Format shell scripts with shfmt (SHFMT_TARGETS=path)
     summary: |
       Reformat shell scripts at SHFMT_TARGETS (default: .) in place. Pass SHFMT_EXTRA_ARGS
       for shfmt options such as -i 2, -ci, -sr, or -ln bash. Auto-installs shfmt
-      and its Go toolchain if needed.
+      if needed.
     dir: "{{.USER_WORKING_DIR}}"
     deps:
-      - task: install
+      - task: nix:install:profile
+        vars:
+          NIX_INSTALLABLE: "{{.SHFMT_NIX_INSTALLABLE}}"
     cmds:
       - task: _fmt:unix
       - task: _fmt:windows
@@ -105,81 +48,15 @@ tasks:
     summary: |
       Report formatting differences for shell scripts at SHFMT_TARGETS (default: .)
       without modifying files. Pass SHFMT_EXTRA_ARGS for shfmt options such as -i 2,
-      -ci, -sr, or -ln bash. Auto-installs shfmt and its Go toolchain if needed.
+      -ci, -sr, or -ln bash. Auto-installs shfmt if needed.
     dir: "{{.USER_WORKING_DIR}}"
     deps:
-      - task: install
+      - task: nix:install:profile
+        vars:
+          NIX_INSTALLABLE: "{{.SHFMT_NIX_INSTALLABLE}}"
     cmds:
       - task: _fmt:check:unix
       - task: _fmt:check:windows
-
-  version:
-    run: once
-    desc: Show the installed shfmt version
-    summary: Print the active shfmt version with shfmt -version. Auto-installs shfmt if it is missing.
-    deps:
-      - task: install
-    cmds:
-      - task: _version:unix
-      - task: _version:windows
-
-  _install:unix:
-    run: once
-    internal: true
-    platforms: [linux, darwin]
-    set: [errexit, nounset, pipefail]
-    status:
-      - '[ "{{default "false" .FORCE}}" != "true" ]'
-      - test -x "{{.GO_GLOBAL_BIN}}/shfmt"
-      - >-
-        [ -z "{{.SHFMT_VERSION}}" ]
-        || go version -m "{{.GO_GLOBAL_BIN}}/shfmt" | grep -Fq "{{.SHFMT_VERSION}}"
-    cmds:
-      - >-
-        GOBIN="{{.GO_GLOBAL_BIN}}"
-        go install mvdan.cc/sh/v3/cmd/shfmt@{{default "latest" .SHFMT_VERSION}}
-
-  _install:windows:
-    run: once
-    internal: true
-    platforms: [windows]
-    status:
-      - >-
-        powershell -NoProfile -ExecutionPolicy Bypass -Command
-        "if ('{{default "false" .FORCE}}' -eq 'true') { exit 1 };
-        if (-not (Test-Path '{{.GO_GLOBAL_BIN}}/shfmt.exe')) { exit 1 };
-        $requested = '{{.SHFMT_VERSION}}';
-        if ([string]::IsNullOrWhiteSpace($requested)
-        -or ((go version -m '{{.GO_GLOBAL_BIN}}/shfmt.exe') -like ('*' + $requested + '*'))) { exit 0 };
-        exit 1"
-    cmds:
-      - >-
-        powershell -NoProfile -ExecutionPolicy Bypass -Command
-        "$env:GOBIN = '{{.GO_GLOBAL_BIN}}';
-        go install mvdan.cc/sh/v3/cmd/shfmt@{{default "latest" .SHFMT_VERSION}}"
-
-  _install:undo:unix:
-    run: once
-    internal: true
-    platforms: [linux, darwin]
-    set: [errexit, nounset, pipefail]
-    status:
-      - '! test -e "{{.GO_GLOBAL_BIN}}/shfmt"'
-    cmds:
-      - rm -f "{{.GO_GLOBAL_BIN}}/shfmt"
-
-  _install:undo:windows:
-    run: once
-    internal: true
-    platforms: [windows]
-    status:
-      - >-
-        powershell -NoProfile -ExecutionPolicy Bypass -Command
-        "if (Test-Path '{{.GO_GLOBAL_BIN}}/shfmt.exe') { exit 1 } else { exit 0 }"
-    cmds:
-      - >-
-        powershell -NoProfile -ExecutionPolicy Bypass -Command
-        "Remove-Item '{{.GO_GLOBAL_BIN}}/shfmt.exe' -Force -ErrorAction SilentlyContinue"
 
   _fmt:unix:
     run: once
@@ -187,33 +64,12 @@ tasks:
     platforms: [linux, darwin]
     cmds:
       - |
-        skip_pattern='{{if .SHFMT_FMT_SKIP_PATTERN_OVERRIDE}}{{.SHFMT_FMT_SKIP_PATTERN_OVERRIDE}}
-        {{- else}}{{.SHFMT_FMT_SKIP_PATTERN}}{{end}}'
-        if [ -z "$skip_pattern" ]; then
-          "{{.GO_GLOBAL_BIN}}/shfmt" -w \
-            {{if .SHFMT_EXTRA_ARGS_OVERRIDE}}{{.SHFMT_EXTRA_ARGS_OVERRIDE}}
-            {{- else}}{{.SHFMT_EXTRA_ARGS}}{{end}} \
-            "{{if .SHFMT_TARGETS_OVERRIDE}}{{.SHFMT_TARGETS_OVERRIDE}}
-            {{- else}}{{.SHFMT_TARGETS}}{{end}}"
-          exit
-        fi
-        file_list="$(mktemp)"
-        trap 'rm -f "$file_list"' EXIT
-        target='{{if .SHFMT_TARGETS_OVERRIDE}}{{.SHFMT_TARGETS_OVERRIDE}}
-        {{- else}}{{.SHFMT_TARGETS}}{{end}}'
-        if [ -d "$target" ]; then
-          find "$target" -type f \( -name '*.sh' -o -name '*.bash' \) -print0
-        elif [ -f "$target" ]; then
-          printf '%s\000' "$target"
-        fi | task --silent --taskfile "{{.TASKFILE_DIR}}/../internal/skipfiles/Taskfile.yml" \
-          filter "SKIPFILES_PATTERN=$skip_pattern" >"$file_list"
-        if [ ! -s "$file_list" ]; then
-          echo 'No matching shell scripts found'
-          exit 0
-        fi
-        xargs -0 "{{.GO_GLOBAL_BIN}}/shfmt" -w \
+        bash -lc '{{.NIX_LOAD}};
+        shfmt -w \
           {{if .SHFMT_EXTRA_ARGS_OVERRIDE}}{{.SHFMT_EXTRA_ARGS_OVERRIDE}}
-          {{- else}}{{.SHFMT_EXTRA_ARGS}}{{end}} <"$file_list"
+          {{- else}}{{.SHFMT_EXTRA_ARGS}}{{end}} \
+          "{{if .SHFMT_TARGETS_OVERRIDE}}{{.SHFMT_TARGETS_OVERRIDE}}
+          {{- else}}{{.SHFMT_TARGETS}}{{end}}"'
 
   _fmt:windows:
     run: once
@@ -222,29 +78,11 @@ tasks:
     cmds:
       - >-
         powershell -NoProfile -ExecutionPolicy Bypass -Command
-        "$skipPattern='{{if .SHFMT_FMT_SKIP_PATTERN_OVERRIDE}}{{.SHFMT_FMT_SKIP_PATTERN_OVERRIDE}}
-        {{- else}}{{.SHFMT_FMT_SKIP_PATTERN}}{{end}}';
-        $target='{{if .SHFMT_TARGETS_OVERRIDE}}{{.SHFMT_TARGETS_OVERRIDE}}
+        "$target='{{if .SHFMT_TARGETS_OVERRIDE}}{{.SHFMT_TARGETS_OVERRIDE}}
         {{- else}}{{.SHFMT_TARGETS}}{{end}}';
-        if (-not $skipPattern) {
-          & '{{.GO_GLOBAL_BIN}}/shfmt.exe' -w
-            {{if .SHFMT_EXTRA_ARGS_OVERRIDE}}{{.SHFMT_EXTRA_ARGS_OVERRIDE}}
-            {{- else}}{{.SHFMT_EXTRA_ARGS}}{{end}} $target;
-          exit $LASTEXITCODE
-        };
-        if (Test-Path -LiteralPath $target -PathType Container) {
-          $files = Get-ChildItem -LiteralPath $target -Recurse -File |
-            Where-Object { $_.Extension -in @('.sh', '.bash') }
-        } elseif (Test-Path -LiteralPath $target -PathType Leaf) {
-          $files = @(Get-Item -LiteralPath $target)
-        } else { $files = @() };
-        $paths = @($files | ForEach-Object FullName |
-          task --silent --taskfile '{{.TASKFILE_DIR}}/../internal/skipfiles/Taskfile.yml'
-            filter ('SKIPFILES_PATTERN=' + $skipPattern));
-        if (-not $paths) { Write-Host 'No matching shell scripts found'; exit 0 };
-        & '{{.GO_GLOBAL_BIN}}/shfmt.exe' -w
+        shfmt -w
           {{if .SHFMT_EXTRA_ARGS_OVERRIDE}}{{.SHFMT_EXTRA_ARGS_OVERRIDE}}
-          {{- else}}{{.SHFMT_EXTRA_ARGS}}{{end}} @paths;
+          {{- else}}{{.SHFMT_EXTRA_ARGS}}{{end}} $target;
         exit $LASTEXITCODE"
 
   _fmt:check:unix:
@@ -253,33 +91,12 @@ tasks:
     platforms: [linux, darwin]
     cmds:
       - |
-        skip_pattern='{{if .SHFMT_FMT_SKIP_PATTERN_OVERRIDE}}{{.SHFMT_FMT_SKIP_PATTERN_OVERRIDE}}
-        {{- else}}{{.SHFMT_FMT_SKIP_PATTERN}}{{end}}'
-        if [ -z "$skip_pattern" ]; then
-          "{{.GO_GLOBAL_BIN}}/shfmt" -d \
-            {{if .SHFMT_EXTRA_ARGS_OVERRIDE}}{{.SHFMT_EXTRA_ARGS_OVERRIDE}}
-            {{- else}}{{.SHFMT_EXTRA_ARGS}}{{end}} \
-            "{{if .SHFMT_TARGETS_OVERRIDE}}{{.SHFMT_TARGETS_OVERRIDE}}
-            {{- else}}{{.SHFMT_TARGETS}}{{end}}"
-          exit
-        fi
-        file_list="$(mktemp)"
-        trap 'rm -f "$file_list"' EXIT
-        target='{{if .SHFMT_TARGETS_OVERRIDE}}{{.SHFMT_TARGETS_OVERRIDE}}
-        {{- else}}{{.SHFMT_TARGETS}}{{end}}'
-        if [ -d "$target" ]; then
-          find "$target" -type f \( -name '*.sh' -o -name '*.bash' \) -print0
-        elif [ -f "$target" ]; then
-          printf '%s\000' "$target"
-        fi | task --silent --taskfile "{{.TASKFILE_DIR}}/../internal/skipfiles/Taskfile.yml" \
-          filter "SKIPFILES_PATTERN=$skip_pattern" >"$file_list"
-        if [ ! -s "$file_list" ]; then
-          echo 'No matching shell scripts found'
-          exit 0
-        fi
-        xargs -0 "{{.GO_GLOBAL_BIN}}/shfmt" -d \
+        bash -lc '{{.NIX_LOAD}};
+        shfmt -d \
           {{if .SHFMT_EXTRA_ARGS_OVERRIDE}}{{.SHFMT_EXTRA_ARGS_OVERRIDE}}
-          {{- else}}{{.SHFMT_EXTRA_ARGS}}{{end}} <"$file_list"
+          {{- else}}{{.SHFMT_EXTRA_ARGS}}{{end}} \
+          "{{if .SHFMT_TARGETS_OVERRIDE}}{{.SHFMT_TARGETS_OVERRIDE}}
+          {{- else}}{{.SHFMT_TARGETS}}{{end}}"'
 
   _fmt:check:windows:
     run: once
@@ -288,41 +105,9 @@ tasks:
     cmds:
       - >-
         powershell -NoProfile -ExecutionPolicy Bypass -Command
-        "$skipPattern='{{if .SHFMT_FMT_SKIP_PATTERN_OVERRIDE}}{{.SHFMT_FMT_SKIP_PATTERN_OVERRIDE}}
-        {{- else}}{{.SHFMT_FMT_SKIP_PATTERN}}{{end}}';
-        $target='{{if .SHFMT_TARGETS_OVERRIDE}}{{.SHFMT_TARGETS_OVERRIDE}}
+        "$target='{{if .SHFMT_TARGETS_OVERRIDE}}{{.SHFMT_TARGETS_OVERRIDE}}
         {{- else}}{{.SHFMT_TARGETS}}{{end}}';
-        if (-not $skipPattern) {
-          & '{{.GO_GLOBAL_BIN}}/shfmt.exe' -d
-            {{if .SHFMT_EXTRA_ARGS_OVERRIDE}}{{.SHFMT_EXTRA_ARGS_OVERRIDE}}
-            {{- else}}{{.SHFMT_EXTRA_ARGS}}{{end}} $target;
-          exit $LASTEXITCODE
-        };
-        if (Test-Path -LiteralPath $target -PathType Container) {
-          $files = Get-ChildItem -LiteralPath $target -Recurse -File |
-            Where-Object { $_.Extension -in @('.sh', '.bash') }
-        } elseif (Test-Path -LiteralPath $target -PathType Leaf) {
-          $files = @(Get-Item -LiteralPath $target)
-        } else { $files = @() };
-        $paths = @($files | ForEach-Object FullName |
-          task --silent --taskfile '{{.TASKFILE_DIR}}/../internal/skipfiles/Taskfile.yml'
-            filter ('SKIPFILES_PATTERN=' + $skipPattern));
-        if (-not $paths) { Write-Host 'No matching shell scripts found'; exit 0 };
-        & '{{.GO_GLOBAL_BIN}}/shfmt.exe' -d
+        shfmt -d
           {{if .SHFMT_EXTRA_ARGS_OVERRIDE}}{{.SHFMT_EXTRA_ARGS_OVERRIDE}}
-          {{- else}}{{.SHFMT_EXTRA_ARGS}}{{end}} @paths;
+          {{- else}}{{.SHFMT_EXTRA_ARGS}}{{end}} $target;
         exit $LASTEXITCODE"
-
-  _version:unix:
-    run: once
-    internal: true
-    platforms: [linux, darwin]
-    cmds:
-      - '"{{.GO_GLOBAL_BIN}}/shfmt" -version'
-
-  _version:windows:
-    run: once
-    internal: true
-    platforms: [windows]
-    cmds:
-      - '& "{{.GO_GLOBAL_BIN}}/shfmt.exe" -version'

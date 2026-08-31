@@ -11,20 +11,16 @@ import (
 
 func publicTasks() []string {
 	return []string{
-		"install",
-		"install:undo",
 		"ci",
-		"upgrade",
-		"version",
 	}
 }
 
 func publicVars() []string {
 	return []string{
-		"HADOLINT_LINT_SKIP_PATTERN",
 		"HADOLINT_CONFIG",
 		"HADOLINT_DOCKERFILE",
 		"HADOLINT_EXTRA_ARGS",
+		"HADOLINT_NIX_INSTALLABLE",
 	}
 }
 

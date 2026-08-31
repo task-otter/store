@@ -10,31 +10,24 @@ import (
 )
 
 const (
-	constProtoModule      = "proto"
-	constProtoTaskInstall = "install"
-	constProtoTaskUpgrade = "upgrade"
+	constProtoModule       = "proto"
+	constProtoTaskGen      = "gen"
+	constNixInstallProfile = "nix:install:profile"
 )
 
 func publicTasks() []string {
 	return []string{
-		"gen",
-		constProtoTaskInstall,
-		"install:undo",
-		constProtoTaskUpgrade,
+		constProtoTaskGen,
 		"ungen",
-		"version",
 	}
 }
 
 func publicVars() []string {
 	return []string{
-		"GO_CMD",
-		"GO_GLOBAL_BIN",
+		"GO_MODULE",
+		"PROTO_NIX_INSTALLABLE",
 		"PROTO_PATH",
 		"PROTO_PATTERN",
-		"PROTOC_GEN_GO_GRPC_VERSION",
-		"PROTOC_GEN_GO_VERSION",
-		"PROTOC_VERSION",
 	}
 }
 
@@ -49,23 +42,20 @@ func TestTaskfileModuleContract(t *testing.T) {
 	)
 }
 
-// TestPluginWorkflowsInstallGoFirst
-func TestPluginWorkflowsInstallGoFirst(t *testing.T) {
+// TestGenInstallsViaNixProfile
+func TestGenInstallsViaNixProfile(t *testing.T) {
 	t.Parallel()
 
 	taskfile := tasktest.LoadTaskfile(t, constProtoModule)
 
-	for i := range []string{constProtoTaskInstall, constProtoTaskUpgrade} {
-		taskName := []string{constProtoTaskInstall, constProtoTaskUpgrade}[i]
-		deps, ok := taskfile.Tasks[taskName].Deps.([]any)
+	deps, ok := taskfile.Tasks[constProtoTaskGen].Deps.([]any)
 
-		if !ok {
-			t.Fatalf("%s deps have type %T, want []any", taskName, taskfile.Tasks[taskName].Deps)
-		}
+	if !ok {
+		t.Fatalf("%s deps have type %T, want []any", constProtoTaskGen, taskfile.Tasks[constProtoTaskGen].Deps)
+	}
 
-		if !containsTaskDependency(deps, "go:install") {
-			t.Errorf("%s must depend on go:install; deps: %v", taskName, deps)
-		}
+	if !containsTaskDependency(deps, constNixInstallProfile) {
+		t.Errorf("%s must depend on %s; deps: %v", constProtoTaskGen, constNixInstallProfile, deps)
 	}
 }
 

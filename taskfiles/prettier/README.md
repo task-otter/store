@@ -23,11 +23,11 @@ Then run the leaf that matches your project through its namespace (replace
 
 ```bash
 task prettier:bun:{TASK}                 # Bun runtime + Bun as package manager
-task prettier:node:fnm:npm:{TASK}        # Node via fnm, npm as package manager
-task prettier:node:nvm:pnpm:{TASK}       # Node via nvm, pnpm as package manager
+task prettier:node:npm:{TASK}        # Node via the nodejs module, npm as package manager
+task prettier:node:pnpm:{TASK}       # Node via the nodejs module, pnpm as package manager
 ```
 
-Available leaves: `bun`, `node/{fnm,nvm}/{npm,pnpm,yarn}`.
+Available leaves: `bun`, `node/{npm,pnpm,yarn}`.
 
 ## Public Tasks
 
@@ -71,8 +71,8 @@ ignore file itself is never deleted. After `config:skip` creates the file,
 ## Examples
 
 ```bash
-task prettier:node:fnm:npm:install
-task prettier:node:fnm:npm:install PRETTIER_VERSION=3.3.3
-task prettier:node:fnm:npm:fmt:check
-task prettier:node:fnm:npm:ci:fix PRETTIER_TARGETS="src/**/*.ts"
+task prettier:node:npm:install
+task prettier:node:npm:install PRETTIER_VERSION=3.3.3
+task prettier:node:npm:fmt:check
+task prettier:node:npm:ci:fix PRETTIER_TARGETS="src/**/*.ts"
 ```

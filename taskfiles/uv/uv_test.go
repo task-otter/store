@@ -11,16 +11,12 @@ import (
 
 func publicTasks() []string {
 	return []string{
-		"install",
-		"install:undo",
 		"pip:install",
 		"python:install",
 		"run",
 		"tool:install",
 		"tool:upgrade",
-		"upgrade",
 		"venv",
-		"version",
 	}
 }
 
@@ -30,12 +26,9 @@ func publicVars() []string {
 		"UV_EXTRA_ARGS",
 		"UV_FILE",
 		"PYTHON_VERSION",
+		"UV_NIX_INSTALLABLE",
 		"UV_REQUIREMENTS",
 		"UV_TOOL",
-		"UV_INSTALL_URL",
-		"UV_INSTALL_URL_WINDOWS",
-		"UV_LOAD",
-		"UV_VERSION",
 		"UV_VENV",
 	}
 }

@@ -14,11 +14,7 @@ func publicTasks() []string {
 		"lint:fix",
 		"ci:fix",
 		"fmt",
-		"install",
-		"install:undo",
 		"ci",
-		"upgrade",
-		"version",
 	}
 }
 
@@ -27,9 +23,8 @@ func publicVars() []string {
 		"RUMDL_LINT_SKIP_PATTERN",
 		"RUMDL_FMT_SKIP_PATTERN",
 		"RUMDL_EXTRA_ARGS",
-		"RUMDL_VERSION",
+		"RUMDL_NIX_INSTALLABLE",
 		"RUMDL_TARGETS",
-		"UV_LOAD",
 	}
 }
 

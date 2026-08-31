@@ -10,19 +10,13 @@ output:
 silent: true
 
 includes:
-  cargo:
-    taskfile: ../cargo/Taskfile.yml
-
-  skipfiles:
-    taskfile: ../internal/skipfiles/Taskfile.yml
-    internal: true
+  nix:
+    taskfile: ../nix/Taskfile.yml
 
 vars:
-  DOTENV_LINTER_LINT_SKIP_PATTERN: ""
-  CARGO_BIN_UNIX: "$HOME/.cargo/bin"
+  DOTENV_LINTER_NIX_INSTALLABLE: nixpkgs#dotenv-linter
   DOTENV_LINTER_TARGETS: ".env"
   DOTENV_LINTER_EXTRA_ARGS: ""
-  DOTENV_LINTER_VERSION: ""
 
 tasks:
   default:
@@ -31,48 +25,6 @@ tasks:
     summary: Display the list of available dotenv-linter-related tasks defined in this Taskfile.
     cmds:
       - task --list
-
-  install:
-    run: once
-    desc: Install dotenv-linter on the current operating system
-    summary: |
-      Install dotenv-linter with cargo install for the current platform.
-      Pass DOTENV_LINTER_VERSION to pin a specific release instead of the
-      latest. Bootstraps the Rust toolchain via the cargo module if cargo is
-      not already present.
-    deps:
-      - task: cargo:install
-    cmds:
-      - task: _install:unix
-      - task: _install:windows
-
-  install:undo:
-    run: once
-    desc: Remove dotenv-linter from the current operating system
-    summary: Remove the dotenv-linter binary previously installed with cargo install.
-    prompt:
-      - This will remove dotenv-linter from this machine.
-      - Continue?
-    cmds:
-      - task: _install:undo:unix
-      - task: _install:undo:windows
-
-  upgrade:
-    run: once
-    desc: Upgrade dotenv-linter to the requested version
-    summary: |
-      Reinstall dotenv-linter with cargo install --force. Leave
-      DOTENV_LINTER_VERSION empty to upgrade to the latest release, or set an
-      exact version.
-    deps:
-      - task: cargo:install
-    cmds:
-      - task: _install:unix
-        vars:
-          FORCE: "true"
-      - task: _install:windows
-        vars:
-          FORCE: "true"
 
   ci:
     run: once
@@ -84,7 +36,9 @@ tasks:
       missing.
     dir: "{{.USER_WORKING_DIR}}"
     deps:
-      - task: install
+      - task: nix:install:profile
+        vars:
+          NIX_INSTALLABLE: "{{.DOTENV_LINTER_NIX_INSTALLABLE}}"
     cmds:
       - task: _lint:unix
       - task: _lint:windows
@@ -98,7 +52,9 @@ tasks:
       DOTENV_LINTER_EXTRA_ARGS for additional flags. Auto-installs dotenv-linter if missing.
     dir: "{{.USER_WORKING_DIR}}"
     deps:
-      - task: install
+      - task: nix:install:profile
+        vars:
+          NIX_INSTALLABLE: "{{.DOTENV_LINTER_NIX_INSTALLABLE}}"
     cmds:
       - task: _fix:unix
       - task: _fix:windows
@@ -112,99 +68,12 @@ tasks:
       Auto-installs dotenv-linter if missing.
     dir: "{{.USER_WORKING_DIR}}"
     deps:
-      - task: install
+      - task: nix:install:profile
+        vars:
+          NIX_INSTALLABLE: "{{.DOTENV_LINTER_NIX_INSTALLABLE}}"
     cmds:
       - task: _diff:unix
       - task: _diff:windows
-
-  version:
-    run: once
-    desc: Show the installed dotenv-linter version
-    summary: Print the active dotenv-linter version. Auto-installs dotenv-linter if missing.
-    deps:
-      - task: install
-    cmds:
-      - task: _version:unix
-      - task: _version:windows
-
-  _install:unix:
-    run: once
-    internal: true
-    platforms: [linux, darwin]
-    set: [errexit, nounset, pipefail]
-    status:
-      - '[ "{{default "false" .FORCE}}" != "true" ]'
-      - test -x "$(command -v dotenv-linter || echo "{{.CARGO_BIN_UNIX}}/dotenv-linter")"
-      - >-
-        [ -z "{{.DOTENV_LINTER_VERSION}}" ]
-        || "$(command -v dotenv-linter || echo "{{.CARGO_BIN_UNIX}}/dotenv-linter")" --version
-        | grep -Fq "{{.DOTENV_LINTER_VERSION}}"
-    cmds:
-      - echo 'Installing dotenv-linter via cargo...'
-      - >-
-        cargo="$(command -v cargo || echo "{{.CARGO_BIN_UNIX}}/cargo")";
-        "$cargo" install
-        {{if eq (default "false" .FORCE) "true"}}--force{{end}}
-        dotenv-linter{{if .DOTENV_LINTER_VERSION}}
-        --version {{.DOTENV_LINTER_VERSION}}{{end}}
-      - echo 'dotenv-linter installed.'
-
-  _install:windows:
-    run: once
-    internal: true
-    platforms: [windows]
-    status:
-      - >-
-        powershell -NoProfile -ExecutionPolicy Bypass -Command
-        "if ('{{default "false" .FORCE}}' -eq 'true') { exit 1 };
-        $b = (Get-Command dotenv-linter -ErrorAction SilentlyContinue).Source;
-        if (-not $b) { $b = Join-Path $env:USERPROFILE '.cargo\bin\dotenv-linter.exe' };
-        if (-not (Test-Path $b)) { exit 1 };
-        $requested = '{{.DOTENV_LINTER_VERSION}}';
-        if ([string]::IsNullOrWhiteSpace($requested)
-        -or ((& $b --version) -like ('*' + $requested + '*'))) { exit 0 };
-        exit 1"
-    cmds:
-      - >-
-        powershell -NoProfile -ExecutionPolicy Bypass -Command
-        "$c = (Get-Command cargo -ErrorAction SilentlyContinue).Source;
-        if (-not $c) { $c = Join-Path $env:USERPROFILE '.cargo\bin\cargo.exe' };
-        & $c install
-        {{if eq (default "false" .FORCE) "true"}}--force{{end}}
-        dotenv-linter{{if .DOTENV_LINTER_VERSION}}
-        --version {{.DOTENV_LINTER_VERSION}}{{end}}"
-
-  _install:undo:unix:
-    run: once
-    internal: true
-    platforms: [linux, darwin]
-    set: [errexit, nounset, pipefail]
-    status:
-      - >-
-        ! command -v dotenv-linter >/dev/null 2>&1
-        && ! test -x "{{.CARGO_BIN_UNIX}}/dotenv-linter"
-    cmds:
-      - |
-        cargo="$(command -v cargo || echo "{{.CARGO_BIN_UNIX}}/cargo")"
-        "$cargo" uninstall dotenv-linter
-      - echo 'dotenv-linter removed.'
-
-  _install:undo:windows:
-    run: once
-    internal: true
-    platforms: [windows]
-    status:
-      - >-
-        powershell -NoProfile -ExecutionPolicy Bypass -Command
-        "$b = (Get-Command dotenv-linter -ErrorAction SilentlyContinue).Source;
-        if (-not $b) { $b = Join-Path $env:USERPROFILE '.cargo\bin\dotenv-linter.exe' };
-        if (Test-Path $b) { exit 1 } else { exit 0 }"
-    cmds:
-      - >-
-        powershell -NoProfile -ExecutionPolicy Bypass -Command
-        "$c = (Get-Command cargo -ErrorAction SilentlyContinue).Source;
-        if (-not $c) { $c = Join-Path $env:USERPROFILE '.cargo\bin\cargo.exe' };
-        & $c uninstall dotenv-linter"
 
   _lint:unix:
     run: once
@@ -253,35 +122,12 @@ tasks:
     dir: "{{.USER_WORKING_DIR}}"
     cmds:
       - |
-        bin="$(command -v dotenv-linter || echo "{{.CARGO_BIN_UNIX}}/dotenv-linter")"
-        targets='{{if .DOTENV_LINTER_TARGETS_OVERRIDE}}{{.DOTENV_LINTER_TARGETS_OVERRIDE}}
-        {{- else}}{{.DOTENV_LINTER_TARGETS}}{{end}}'
-        skip_pattern='{{if .DOTENV_LINTER_LINT_SKIP_PATTERN_OVERRIDE}}{{.DOTENV_LINTER_LINT_SKIP_PATTERN_OVERRIDE}}
-        {{- else}}{{.DOTENV_LINTER_LINT_SKIP_PATTERN}}{{end}}'
-        if [ -z "$skip_pattern" ]; then
-          "$bin" {{.DOTENV_LINTER_SUBCOMMAND}} $targets \
-            {{if .DOTENV_LINTER_EXTRA_ARGS_OVERRIDE}}{{.DOTENV_LINTER_EXTRA_ARGS_OVERRIDE}}
-            {{- else}}{{.DOTENV_LINTER_EXTRA_ARGS}}{{end}} {{.CLI_ARGS}}
-          exit
-        fi
-        matched_files="$(mktemp)"
-        trap 'rm -f "$matched_files"' EXIT
-        for target in $targets; do
-          if [ -d "$target" ]; then
-            find "$target" -type f \( -name '.env' -o -name '.env.*' \) -print0
-          elif [ -f "$target" ]; then
-            printf '%s\000' "$target"
-          fi
-        done | task --silent --taskfile "{{.TASKFILE_DIR}}/../internal/skipfiles/Taskfile.yml" \
-          filter "SKIPFILES_PATTERN=$skip_pattern" SKIPFILES_MATCHING=true |
-          tr '\0' '\n' >"$matched_files"
-        set --
-        while IFS= read -r path; do
-          set -- "$@" --exclude "$path"
-        done <"$matched_files"
-        "$bin" {{.DOTENV_LINTER_SUBCOMMAND}} "$@" $targets \
+        bash -lc '{{.NIX_LOAD}};
+        targets="{{if .DOTENV_LINTER_TARGETS_OVERRIDE}}{{.DOTENV_LINTER_TARGETS_OVERRIDE}}
+        {{- else}}{{.DOTENV_LINTER_TARGETS}}{{end}}"
+        dotenv-linter {{.DOTENV_LINTER_SUBCOMMAND}} $targets \
           {{if .DOTENV_LINTER_EXTRA_ARGS_OVERRIDE}}{{.DOTENV_LINTER_EXTRA_ARGS_OVERRIDE}}
-          {{- else}}{{.DOTENV_LINTER_EXTRA_ARGS}}{{end}} {{.CLI_ARGS}}
+          {{- else}}{{.DOTENV_LINTER_EXTRA_ARGS}}{{end}} {{.CLI_ARGS}}'
 
   _lint:run:windows:
     run: once
@@ -291,29 +137,9 @@ tasks:
     cmds:
       - >-
         powershell -NoProfile -ExecutionPolicy Bypass -Command
-        "$b=(Get-Command dotenv-linter -ErrorAction SilentlyContinue).Source;
-        if (-not $b) { $b=Join-Path $env:USERPROFILE '.cargo\bin\dotenv-linter.exe' };
-        $targets='{{if .DOTENV_LINTER_TARGETS_OVERRIDE}}{{.DOTENV_LINTER_TARGETS_OVERRIDE}}
+        "$targets='{{if .DOTENV_LINTER_TARGETS_OVERRIDE}}{{.DOTENV_LINTER_TARGETS_OVERRIDE}}
         {{- else}}{{.DOTENV_LINTER_TARGETS}}{{end}}';
-        $skipPattern='{{if .DOTENV_LINTER_LINT_SKIP_PATTERN_OVERRIDE}}{{.DOTENV_LINTER_LINT_SKIP_PATTERN_OVERRIDE}}
-        {{- else}}{{.DOTENV_LINTER_LINT_SKIP_PATTERN}}{{end}}';
-        if (-not $skipPattern) {
-          & $b {{.DOTENV_LINTER_SUBCOMMAND}} $targets.Split(' ')
-            {{if .DOTENV_LINTER_EXTRA_ARGS_OVERRIDE}}{{.DOTENV_LINTER_EXTRA_ARGS_OVERRIDE}}
-            {{- else}}{{.DOTENV_LINTER_EXTRA_ARGS}}{{end}} {{.CLI_ARGS}};
-          exit $LASTEXITCODE
-        };
-        $files=@($targets.Split(' ') | ForEach-Object {
-          if (Test-Path -LiteralPath $_ -PathType Container) {
-            Get-ChildItem -LiteralPath $_ -Recurse -File |
-              Where-Object { $_.Name -eq '.env' -or $_.Name -like '.env.*' }
-          } elseif (Test-Path -LiteralPath $_ -PathType Leaf) { Get-Item -LiteralPath $_ }
-        });
-        $excluded=@($files | ForEach-Object FullName |
-          task --silent --taskfile '{{.TASKFILE_DIR}}/../internal/skipfiles/Taskfile.yml'
-            filter ('SKIPFILES_PATTERN=' + $skipPattern) 'SKIPFILES_MATCHING=true');
-        $excludeArgs=@(); foreach ($path in $excluded) { $excludeArgs += @('--exclude', $path) };
-        & $b {{.DOTENV_LINTER_SUBCOMMAND}} @excludeArgs $targets.Split(' ')
+        dotenv-linter {{.DOTENV_LINTER_SUBCOMMAND}} $targets.Split(' ')
           {{if .DOTENV_LINTER_EXTRA_ARGS_OVERRIDE}}{{.DOTENV_LINTER_EXTRA_ARGS_OVERRIDE}}
           {{- else}}{{.DOTENV_LINTER_EXTRA_ARGS}}{{end}} {{.CLI_ARGS}};
         exit $LASTEXITCODE"
@@ -325,14 +151,14 @@ tasks:
     dir: "{{.USER_WORKING_DIR}}"
     cmds:
       - |
-        bin="$(command -v dotenv-linter || echo "{{.CARGO_BIN_UNIX}}/dotenv-linter")"
-        targets='{{if .DOTENV_LINTER_TARGETS_OVERRIDE}}{{.DOTENV_LINTER_TARGETS_OVERRIDE}}
-        {{- else}}{{.DOTENV_LINTER_TARGETS}}{{end}}'
-        options='{{if .DOTENV_LINTER_EXTRA_ARGS_OVERRIDE}}{{.DOTENV_LINTER_EXTRA_ARGS_OVERRIDE}}
-        {{- else}}{{.DOTENV_LINTER_EXTRA_ARGS}}{{end}}'
-        if [ -n '{{.CLI_ARGS}}' ]; then
-          targets=''
-          options=''
+        bash -lc '{{.NIX_LOAD}};
+        targets="{{if .DOTENV_LINTER_TARGETS_OVERRIDE}}{{.DOTENV_LINTER_TARGETS_OVERRIDE}}
+        {{- else}}{{.DOTENV_LINTER_TARGETS}}{{end}}"
+        options="{{if .DOTENV_LINTER_EXTRA_ARGS_OVERRIDE}}{{.DOTENV_LINTER_EXTRA_ARGS_OVERRIDE}}
+        {{- else}}{{.DOTENV_LINTER_EXTRA_ARGS}}{{end}}"
+        if [ -n "{{.CLI_ARGS}}" ]; then
+          targets=""
+          options=""
           for argument in {{.CLI_ARGS}}; do
             case "$argument" in
               -*) options="$options $argument" ;;
@@ -340,32 +166,7 @@ tasks:
             esac
           done
         fi
-        skip_pattern='{{if .DOTENV_LINTER_LINT_SKIP_PATTERN_OVERRIDE}}{{.DOTENV_LINTER_LINT_SKIP_PATTERN_OVERRIDE}}
-        {{- else}}{{.DOTENV_LINTER_LINT_SKIP_PATTERN}}{{end}}'
-        if [ -z "$skip_pattern" ]; then
-          "$bin" diff $options $targets
-          exit
-        fi
-        file_list="$(mktemp)"
-        trap 'rm -f "$file_list"' EXIT
-        for target in $targets; do
-          if [ -d "$target" ]; then
-            find "$target" -type f \( -name '.env' -o -name '.env.*' \) -print0
-          elif [ -f "$target" ]; then
-            printf '%s\000' "$target"
-          fi
-        done | task --silent --taskfile "{{.TASKFILE_DIR}}/../internal/skipfiles/Taskfile.yml" \
-          filter "SKIPFILES_PATTERN=$skip_pattern" |
-          tr '\0' '\n' >"$file_list"
-        if [ ! -s "$file_list" ]; then
-          echo 'No matching dotenv files found'
-          exit 0
-        fi
-        set --
-        while IFS= read -r path; do
-          set -- "$@" "$path"
-        done <"$file_list"
-        "$bin" diff $options "$@"
+        dotenv-linter diff $options $targets'
 
   _diff:windows:
     run: once
@@ -375,9 +176,7 @@ tasks:
     cmds:
       - >-
         powershell -NoProfile -ExecutionPolicy Bypass -Command
-        "$b = (Get-Command dotenv-linter -ErrorAction SilentlyContinue).Source;
-        if (-not $b) { $b = Join-Path $env:USERPROFILE '.cargo\bin\dotenv-linter.exe' };
-        $targets='{{if .DOTENV_LINTER_TARGETS_OVERRIDE}}{{.DOTENV_LINTER_TARGETS_OVERRIDE}}
+        "$targets='{{if .DOTENV_LINTER_TARGETS_OVERRIDE}}{{.DOTENV_LINTER_TARGETS_OVERRIDE}}
         {{- else}}{{.DOTENV_LINTER_TARGETS}}{{end}}'.Split(' ', [System.StringSplitOptions]::RemoveEmptyEntries);
         $options='{{if .DOTENV_LINTER_EXTRA_ARGS_OVERRIDE}}{{.DOTENV_LINTER_EXTRA_ARGS_OVERRIDE}}
         {{- else}}{{.DOTENV_LINTER_EXTRA_ARGS}}{{end}}'.Split(' ', [System.StringSplitOptions]::RemoveEmptyEntries);
@@ -386,38 +185,5 @@ tasks:
           $targets=@($arguments | Where-Object { -not $_.StartsWith('-') });
           $options=@($arguments | Where-Object { $_.StartsWith('-') });
         };
-        $skipPattern='{{if .DOTENV_LINTER_LINT_SKIP_PATTERN_OVERRIDE}}{{.DOTENV_LINTER_LINT_SKIP_PATTERN_OVERRIDE}}
-        {{- else}}{{.DOTENV_LINTER_LINT_SKIP_PATTERN}}{{end}}';
-        if (-not $skipPattern) { & $b diff @options @targets; exit $LASTEXITCODE };
-        $files=@($targets | ForEach-Object {
-          if (Test-Path -LiteralPath $_ -PathType Container) {
-            Get-ChildItem -LiteralPath $_ -Recurse -File |
-              Where-Object { $_.Name -eq '.env' -or $_.Name -like '.env.*' }
-          } elseif (Test-Path -LiteralPath $_ -PathType Leaf) { Get-Item -LiteralPath $_ }
-        });
-        $paths=@($files | ForEach-Object FullName |
-          task --silent --taskfile '{{.TASKFILE_DIR}}/../internal/skipfiles/Taskfile.yml'
-            filter ('SKIPFILES_PATTERN=' + $skipPattern));
-        if (-not $paths) { Write-Host 'No matching dotenv files found'; exit 0 };
-        & $b diff @options @paths;
+        dotenv-linter diff @options @targets;
         exit $LASTEXITCODE"
-
-  _version:unix:
-    run: once
-    internal: true
-    platforms: [linux, darwin]
-    cmds:
-      - |
-        bin="$(command -v dotenv-linter || echo "{{.CARGO_BIN_UNIX}}/dotenv-linter")"
-        "$bin" --version
-
-  _version:windows:
-    run: once
-    internal: true
-    platforms: [windows]
-    cmds:
-      - >-
-        powershell -NoProfile -ExecutionPolicy Bypass -Command
-        "$b = (Get-Command dotenv-linter -ErrorAction SilentlyContinue).Source;
-        if (-not $b) { $b = Join-Path $env:USERPROFILE '.cargo\bin\dotenv-linter.exe' };
-        & $b --version"

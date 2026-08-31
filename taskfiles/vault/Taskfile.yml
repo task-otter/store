@@ -10,6 +10,9 @@ output:
 silent: true
 
 includes:
+  nix:
+    taskfile: ../nix/Taskfile.yml
+
   jq: ../jq/Taskfile.yml
 
 vars:
@@ -25,7 +28,7 @@ vars:
   VAULT_ROLE_ID: ""
   VAULT_SECRET_ID: ""
   VAULT_APPROLE_MOUNT: "approle"
-  VAULT_VERSION: ""
+  VAULT_NIX_INSTALLABLE: nixpkgs#vault
 
 env:
   VAULT_ADDR: "{{.VAULT_ADDR_TARGET}}"
@@ -38,59 +41,6 @@ tasks:
     cmds:
       - task --list
 
-  install:
-    run: once
-    desc: Install the Vault CLI on the current operating system
-    summary: |
-      Install the HashiCorp Vault CLI for the current platform if it is not already available.
-      Pass VAULT_VERSION=x.y.z to pin a specific release; exact availability
-      depends on what the platform's package manager/repository carries.
-      macOS taps hashicorp/tap and installs via Homebrew.
-      Linux adds the official HashiCorp APT or DNF repository and installs vault.
-      Windows uses winget to install Hashicorp.Vault.
-    cmds:
-      - task: _install:macos
-      - task: _install:linux
-      - task: _install:windows
-
-  install:undo:
-    run: once
-    desc: Remove the Vault CLI from the current operating system
-    summary: |
-      Remove the HashiCorp Vault CLI for the current platform.
-      macOS removes the Homebrew formula from hashicorp/tap.
-      Linux removes the vault package via apt-get or dnf.
-      Windows uses winget to uninstall Hashicorp.Vault.
-    prompt:
-      - This will remove the Vault CLI from this machine.
-      - Continue?
-    cmds:
-      - task: _install:undo:macos
-      - task: _install:undo:linux
-      - task: _install:undo:windows
-
-  upgrade:
-    run: once
-    desc: Upgrade the Vault CLI to the latest release
-    summary: |
-      Upgrade the HashiCorp Vault CLI to the latest available release.
-      macOS uses brew upgrade hashicorp/tap/vault.
-      Linux upgrades the vault package via apt-get or dnf.
-      Windows uses winget upgrade Hashicorp.Vault.
-    cmds:
-      - task: _upgrade:macos
-      - task: _upgrade:linux
-      - task: _upgrade:windows
-
-  version:
-    run: once
-    desc: Show the installed Vault CLI version
-    summary: Print the active Vault CLI version via vault version. Auto-installs if missing.
-    deps:
-      - task: install
-    cmds:
-      - vault version
-
   verify:
     run: once
     desc: Verify the Vault CLI installation and server connectivity
@@ -99,10 +49,18 @@ tasks:
       the binary is installed and the server at VAULT_ADDR is reachable.
       Auto-installs the CLI if missing.
     deps:
-      - task: install
+      - task: nix:install:profile
+        vars:
+          NIX_INSTALLABLE: "{{.VAULT_NIX_INSTALLABLE}}"
     cmds:
-      - vault version
-      - vault status -address="{{.VAULT_ADDR_TARGET}}"
+      - cmd: bash -lc '{{.NIX_LOAD}}; vault version'
+        platforms: [linux, darwin]
+      - cmd: vault version
+        platforms: [windows]
+      - cmd: bash -lc '{{.NIX_LOAD}}; vault status -address="{{.VAULT_ADDR_TARGET}}"'
+        platforms: [linux, darwin]
+      - cmd: vault status -address="{{.VAULT_ADDR_TARGET}}"
+        platforms: [windows]
 
   status:
     run: once
@@ -113,9 +71,14 @@ tasks:
       prevents task failure when the server is sealed or unreachable.
       Auto-installs the CLI if missing.
     deps:
-      - task: install
+      - task: nix:install:profile
+        vars:
+          NIX_INSTALLABLE: "{{.VAULT_NIX_INSTALLABLE}}"
     cmds:
-      - vault status -address="{{.VAULT_ADDR_TARGET}}" || true
+      - cmd: bash -lc '{{.NIX_LOAD}}; vault status -address="{{.VAULT_ADDR_TARGET}}" || true'
+        platforms: [linux, darwin]
+      - cmd: vault status -address="{{.VAULT_ADDR_TARGET}}" || true
+        platforms: [windows]
 
   health:
     run: once
@@ -127,15 +90,24 @@ tasks:
       This task only uses curl and jq — it does not require the Vault CLI.
     set: [errexit, nounset, pipefail]
     deps:
-      - task: jq:install
+      - task: jq:nix:install:profile
+        vars:
+          NIX_INSTALLABLE: "{{.JQ_NIX_INSTALLABLE}}"
     preconditions:
       - sh: command -v curl >/dev/null 2>&1
         msg: curl is required to query the Vault health endpoint.
     cmds:
-      - >-
-        curl -s
-        "{{.VAULT_ADDR_TARGET}}/v1/sys/health"
-        | jq .
+      - cmd: >-
+          bash -lc '{{.NIX_LOAD}};
+          curl -s
+          "{{.VAULT_ADDR_TARGET}}/v1/sys/health"
+          | jq .'
+        platforms: [linux, darwin]
+      - cmd: >-
+          curl -s
+          "{{.VAULT_ADDR_TARGET}}/v1/sys/health"
+          | jq .
+        platforms: [windows]
 
   init:
     run: once
@@ -155,8 +127,11 @@ tasks:
           {{if .VAULT_KEYS_FILE_OVERRIDE}}{{.VAULT_KEYS_FILE_OVERRIDE}}{{else}}{{.VAULT_KEYS_FILE}}{{end}}.
           Move or remove it before running init again.
     cmds:
-      - task: install
+      - task: nix:install:profile
+        vars:
+          NIX_INSTALLABLE: "{{.VAULT_NIX_INSTALLABLE}}"
       - |
+        {{.NIX_LOAD}}
         KF="{{if .VAULT_KEYS_FILE_OVERRIDE}}{{.VAULT_KEYS_FILE_OVERRIDE}}{{else}}{{.VAULT_KEYS_FILE}}{{end}}"
         TMP="${KF}.tmp.$$"
         trap 'rm -f "$TMP"' EXIT
@@ -190,9 +165,14 @@ tasks:
           KEYS_FILE not found. Run task init first to generate
           {{if .VAULT_KEYS_FILE_OVERRIDE}}{{.VAULT_KEYS_FILE_OVERRIDE}}{{else}}{{.VAULT_KEYS_FILE}}{{end}}.
     cmds:
-      - task: jq:install
-      - task: install
+      - task: jq:nix:install:profile
+        vars:
+          NIX_INSTALLABLE: "{{.JQ_NIX_INSTALLABLE}}"
+      - task: nix:install:profile
+        vars:
+          NIX_INSTALLABLE: "{{.VAULT_NIX_INSTALLABLE}}"
       - |
+        {{.NIX_LOAD}}
         VAULT_KEYS_FILE="{{if .VAULT_KEYS_FILE_OVERRIDE}}{{.VAULT_KEYS_FILE_OVERRIDE}}
         {{- else}}{{.VAULT_KEYS_FILE}}{{end}}"
         VAULT_THRESHOLD="{{if .VAULT_THRESHOLD_OVERRIDE}}{{.VAULT_THRESHOLD_OVERRIDE}}
@@ -210,9 +190,14 @@ tasks:
       required number of unseal key shares. Requires an authenticated session.
       Auto-installs the CLI if missing.
     deps:
-      - task: install
+      - task: nix:install:profile
+        vars:
+          NIX_INSTALLABLE: "{{.VAULT_NIX_INSTALLABLE}}"
     cmds:
-      - vault operator seal -address="{{.VAULT_ADDR_TARGET}}"
+      - cmd: bash -lc '{{.NIX_LOAD}}; vault operator seal -address="{{.VAULT_ADDR_TARGET}}"'
+        platforms: [linux, darwin]
+      - cmd: vault operator seal -address="{{.VAULT_ADDR_TARGET}}"
+        platforms: [windows]
 
   login:
     run: once
@@ -229,9 +214,14 @@ tasks:
           KEYS_FILE not found. Run task init first to generate
           {{if .VAULT_KEYS_FILE_OVERRIDE}}{{.VAULT_KEYS_FILE_OVERRIDE}}{{else}}{{.VAULT_KEYS_FILE}}{{end}}.
     cmds:
-      - task: jq:install
-      - task: install
+      - task: jq:nix:install:profile
+        vars:
+          NIX_INSTALLABLE: "{{.JQ_NIX_INSTALLABLE}}"
+      - task: nix:install:profile
+        vars:
+          NIX_INSTALLABLE: "{{.VAULT_NIX_INSTALLABLE}}"
       - |
+        {{.NIX_LOAD}}
         KF="{{if .VAULT_KEYS_FILE_OVERRIDE}}{{.VAULT_KEYS_FILE_OVERRIDE}}{{else}}{{.VAULT_KEYS_FILE}}{{end}}"
         jq -r '.root_token' "$KF" \
           | vault login -address="{{.VAULT_ADDR_TARGET}}" -method=token -no-print -
@@ -255,8 +245,11 @@ tasks:
       - sh: test -n "$VAULT_LOGIN_ROOT_TOKEN"
         msg: ROOT_TOKEN must be set. Pass VAULT_ROOT_TOKEN=<token> on the command line.
     cmds:
-      - task: install
+      - task: nix:install:profile
+        vars:
+          NIX_INSTALLABLE: "{{.VAULT_NIX_INSTALLABLE}}"
       - |
+        {{.NIX_LOAD}}
         printf '%s' "$VAULT_LOGIN_ROOT_TOKEN" \
           | vault login -address="{{.VAULT_ADDR_TARGET}}" -method=token -no-print -
 
@@ -285,8 +278,11 @@ tasks:
       - sh: test -n "$VAULT_LOGIN_SECRET_ID"
         msg: SECRET_ID must be set. Pass VAULT_SECRET_ID=<secret-id> on the command line.
     cmds:
-      - task: install
+      - task: nix:install:profile
+        vars:
+          NIX_INSTALLABLE: "{{.VAULT_NIX_INSTALLABLE}}"
       - |
+        {{.NIX_LOAD}}
         printf '%s' "$VAULT_LOGIN_SECRET_ID" \
           | vault write \
             -address="{{.VAULT_ADDR_TARGET}}" \
@@ -324,8 +320,11 @@ tasks:
       - sh: test -n "$VAULT_LOGIN_SECRET_ID"
         msg: SECRET_ID must be set. Pass VAULT_SECRET_ID=<secret-id> on the command line.
     cmds:
-      - task: install
+      - task: nix:install:profile
+        vars:
+          NIX_INSTALLABLE: "{{.VAULT_NIX_INSTALLABLE}}"
       - |
+        {{.NIX_LOAD}}
         printf '%s' "$VAULT_LOGIN_SECRET_ID" \
           | vault write \
             -address="{{.VAULT_ADDR_TARGET}}" \
@@ -371,6 +370,7 @@ tasks:
         msg: vault CLI is required to read the Vault KV endpoint.
     cmds:
       - |
+        {{.NIX_LOAD}}
         MOUNT="${KV_GET_MOUNT#/}"
         MOUNT="${MOUNT%/}"
 
@@ -393,8 +393,13 @@ tasks:
       - sh: test -n "${VAULT_TOKEN:-}"
         msg: VAULT_TOKEN environment variable must be set.
     cmds:
-      - task: install
-      - vault token revoke -address="{{.VAULT_ADDR_TARGET}}" -self
+      - task: nix:install:profile
+        vars:
+          NIX_INSTALLABLE: "{{.VAULT_NIX_INSTALLABLE}}"
+      - cmd: bash -lc '{{.NIX_LOAD}}; vault token revoke -address="{{.VAULT_ADDR_TARGET}}" -self'
+        platforms: [linux, darwin]
+      - cmd: vault token revoke -address="{{.VAULT_ADDR_TARGET}}" -self
+        platforms: [windows]
 
   root-token:
     run: once
@@ -404,17 +409,24 @@ tasks:
       scripting or when you need to pass the root token to another tool.
       KEYS_FILE must exist and contain the JSON produced by the init task.
     deps:
-      - task: jq:install
+      - task: jq:nix:install:profile
+        vars:
+          NIX_INSTALLABLE: "{{.JQ_NIX_INSTALLABLE}}"
     preconditions:
       - sh: test -f "{{if .VAULT_KEYS_FILE_OVERRIDE}}{{.VAULT_KEYS_FILE_OVERRIDE}}{{else}}{{.VAULT_KEYS_FILE}}{{end}}"
         msg: >-
           KEYS_FILE not found. Run task init first to generate
           {{if .VAULT_KEYS_FILE_OVERRIDE}}{{.VAULT_KEYS_FILE_OVERRIDE}}{{else}}{{.VAULT_KEYS_FILE}}{{end}}.
     cmds:
-      - >-
-        jq -r '.root_token'
-        "{{if .VAULT_KEYS_FILE_OVERRIDE}}{{.VAULT_KEYS_FILE_OVERRIDE}}
-        {{- else}}{{.VAULT_KEYS_FILE}}{{end}}"
+      - cmd: |
+          {{.NIX_LOAD}}
+          jq -r '.root_token' "{{if .VAULT_KEYS_FILE_OVERRIDE}}{{.VAULT_KEYS_FILE_OVERRIDE}}{{else}}{{.VAULT_KEYS_FILE}}{{end}}"
+        platforms: [linux, darwin]
+      - cmd: >-
+          jq -r '.root_token'
+          "{{if .VAULT_KEYS_FILE_OVERRIDE}}{{.VAULT_KEYS_FILE_OVERRIDE}}
+          {{- else}}{{.VAULT_KEYS_FILE}}{{end}}"
+        platforms: [windows]
 
   peers:
     run: once
@@ -425,9 +437,14 @@ tasks:
       Requires an authenticated session and an active Vault server.
       Auto-installs the CLI if missing.
     deps:
-      - task: install
+      - task: nix:install:profile
+        vars:
+          NIX_INSTALLABLE: "{{.VAULT_NIX_INSTALLABLE}}"
     cmds:
-      - vault operator raft list-peers -address="{{.VAULT_ADDR_TARGET}}"
+      - cmd: bash -lc '{{.NIX_LOAD}}; vault operator raft list-peers -address="{{.VAULT_ADDR_TARGET}}"'
+        platforms: [linux, darwin]
+      - cmd: vault operator raft list-peers -address="{{.VAULT_ADDR_TARGET}}"
+        platforms: [windows]
 
   snapshot:
     run: once
@@ -445,9 +462,14 @@ tasks:
         {{- else if .VAULT_SNAPSHOT_FILE_OVERRIDE}}{{.VAULT_SNAPSHOT_FILE_OVERRIDE -}}
         {{- else}}{{.VAULT_SNAPSHOT_FILE}}{{end}}
     deps:
-      - task: install
+      - task: nix:install:profile
+        vars:
+          NIX_INSTALLABLE: "{{.VAULT_NIX_INSTALLABLE}}"
     cmds:
-      - vault operator raft snapshot save -address="{{.VAULT_ADDR_TARGET}}" "{{.FILE_TARGET}}"
+      - cmd: bash -lc '{{.NIX_LOAD}}; vault operator raft snapshot save -address="{{.VAULT_ADDR_TARGET}}" "{{.FILE_TARGET}}"'
+        platforms: [linux, darwin]
+      - cmd: vault operator raft snapshot save -address="{{.VAULT_ADDR_TARGET}}" "{{.FILE_TARGET}}"
+        platforms: [windows]
 
   restore:
     run: once
@@ -475,303 +497,11 @@ tasks:
           Snapshot file not found. Pass VAULT_FILE=path/to/snapshot, or VAULT_FILE=path/to/snapshot from the root
           include.
     cmds:
-      - task: install
-      - vault operator raft snapshot restore -address="{{.VAULT_ADDR_TARGET}}" -force "{{.FILE_TARGET}}"
+      - task: nix:install:profile
+        vars:
+          NIX_INSTALLABLE: "{{.VAULT_NIX_INSTALLABLE}}"
+      - cmd: bash -lc '{{.NIX_LOAD}}; vault operator raft snapshot restore -address="{{.VAULT_ADDR_TARGET}}" -force "{{.FILE_TARGET}}"'
+        platforms: [linux, darwin]
+      - cmd: vault operator raft snapshot restore -address="{{.VAULT_ADDR_TARGET}}" -force "{{.FILE_TARGET}}"
+        platforms: [windows]
 
-  _install:macos:
-    run: once
-    internal: true
-    platforms: [darwin]
-    set: [errexit, nounset, pipefail]
-    status:
-      - >-
-        command -v vault >/dev/null 2>&1
-        && { [ -z "{{.VAULT_VERSION}}" ] || vault version | grep -Fq "v{{.VAULT_VERSION}}"; }
-    preconditions:
-      - sh: command -v brew >/dev/null 2>&1
-        msg: Homebrew is required to install Vault on macOS. Install it from https://brew.sh and re-run this task.
-    cmds:
-      - echo 'Installing Vault CLI via Homebrew...'
-      - brew tap hashicorp/tap
-      - brew install "hashicorp/tap/vault{{if .VAULT_VERSION}}@{{.VAULT_VERSION}}{{end}}"
-      - echo 'Vault CLI installed.'
-
-  _install:linux:
-    run: once
-    internal: true
-    platforms: [linux]
-    set: [errexit, nounset, pipefail]
-    preconditions:
-      - sh: command -v vault >/dev/null 2>&1 || command -v apt-get >/dev/null 2>&1 || command -v dnf >/dev/null 2>&1
-        msg: >-
-          Vault install supports Linux hosts with apt-get or dnf.
-          Install Vault manually from https://developer.hashicorp.com/vault/install
-          and re-run this task.
-    cmds:
-      - task: _install:linux:apt
-      - task: _install:linux:dnf
-
-  _install:linux:apt:
-    run: once
-    internal: true
-    platforms: [linux]
-    set: [errexit, nounset, pipefail]
-    status:
-      - >-
-        ! command -v apt-get >/dev/null 2>&1 || {
-        command -v vault >/dev/null 2>&1
-        && { [ -z "{{.VAULT_VERSION}}" ] || vault version | grep -Fq "v{{.VAULT_VERSION}}"; }; }
-    preconditions:
-      - sh: command -v curl >/dev/null 2>&1
-        msg: curl is required to add the HashiCorp APT repository.
-      - sh: command -v gpg >/dev/null 2>&1
-        msg: gpg is required to add the HashiCorp APT repository signing key.
-      - sh: command -v lsb_release >/dev/null 2>&1
-        msg: lsb_release is required to detect the Linux distribution codename.
-      - sh: 'test "$(id -u)" -eq 0 || command -v sudo >/dev/null 2>&1'
-        msg: sudo is required to install Vault when not running as root.
-    cmds:
-      - echo 'Adding HashiCorp APT repository...'
-      - cmd: >-
-          curl -fsSL https://apt.releases.hashicorp.com/gpg
-          | gpg --dearmor -o /usr/share/keyrings/hashicorp-archive-keyring.gpg
-        if: '[ "$(id -u)" -eq 0 ]'
-      - cmd: >-
-          curl -fsSL https://apt.releases.hashicorp.com/gpg
-          | sudo gpg --dearmor -o /usr/share/keyrings/hashicorp-archive-keyring.gpg
-        if: '[ "$(id -u)" -ne 0 ]'
-      - cmd: >-
-          echo "deb [signed-by=/usr/share/keyrings/hashicorp-archive-keyring.gpg]
-          https://apt.releases.hashicorp.com $(lsb_release -cs) main"
-          | tee /etc/apt/sources.list.d/hashicorp.list
-        if: '[ "$(id -u)" -eq 0 ]'
-      - cmd: >-
-          echo "deb [signed-by=/usr/share/keyrings/hashicorp-archive-keyring.gpg]
-          https://apt.releases.hashicorp.com $(lsb_release -cs) main"
-          | sudo tee /etc/apt/sources.list.d/hashicorp.list
-        if: '[ "$(id -u)" -ne 0 ]'
-      - echo 'Installing Vault CLI via apt...'
-      - cmd: apt-get update && apt-get install -y "vault{{if .VAULT_VERSION}}={{.VAULT_VERSION}}{{end}}"
-        if: '[ "$(id -u)" -eq 0 ]'
-      - cmd: sudo apt-get update && sudo apt-get install -y "vault{{if .VAULT_VERSION}}={{.VAULT_VERSION}}{{end}}"
-        if: '[ "$(id -u)" -ne 0 ]'
-      - echo 'Vault CLI installed.'
-
-  _install:linux:dnf:
-    run: once
-    internal: true
-    platforms: [linux]
-    set: [errexit, nounset, pipefail]
-    status:
-      - >-
-        ! command -v dnf >/dev/null 2>&1 || {
-        command -v vault >/dev/null 2>&1
-        && { [ -z "{{.VAULT_VERSION}}" ] || vault version | grep -Fq "v{{.VAULT_VERSION}}"; }; }
-    preconditions:
-      - sh: 'test "$(id -u)" -eq 0 || command -v sudo >/dev/null 2>&1'
-        msg: sudo is required to install Vault when not running as root.
-    cmds:
-      - echo 'Adding HashiCorp DNF repository...'
-      - cmd: |
-          dnf install -y dnf-plugins-core
-          dnf config-manager \
-            --add-repo https://rpm.releases.hashicorp.com/RHEL/hashicorp.repo
-        if: '[ "$(id -u)" -eq 0 ]'
-      - cmd: |
-          sudo dnf install -y dnf-plugins-core
-          sudo dnf config-manager \
-            --add-repo https://rpm.releases.hashicorp.com/RHEL/hashicorp.repo
-        if: '[ "$(id -u)" -ne 0 ]'
-      - echo 'Installing Vault CLI via dnf...'
-      - cmd: dnf install -y "vault{{if .VAULT_VERSION}}-{{.VAULT_VERSION}}{{end}}"
-        if: '[ "$(id -u)" -eq 0 ]'
-      - cmd: sudo dnf install -y "vault{{if .VAULT_VERSION}}-{{.VAULT_VERSION}}{{end}}"
-        if: '[ "$(id -u)" -ne 0 ]'
-      - echo 'Vault CLI installed.'
-
-  _install:windows:
-    run: once
-    internal: true
-    platforms: [windows]
-    status:
-      - >-
-        powershell -NoProfile -ExecutionPolicy Bypass -Command
-        "$vault = Get-Command vault -ErrorAction SilentlyContinue;
-        if (-not $vault) { exit 1 };
-        $requested = '{{.VAULT_VERSION}}';
-        if ([string]::IsNullOrWhiteSpace($requested)
-        -or ((& $vault.Source version) -like ('*v' + $requested + '*'))) { exit 0 };
-        exit 1"
-    preconditions:
-      - sh: >-
-          powershell -NoProfile -ExecutionPolicy Bypass -Command
-          "if (Get-Command winget -ErrorAction SilentlyContinue) { exit 0 } else { exit 1 }"
-        msg: >-
-          winget is required to install Vault on Windows.
-          Update Windows or install the App Installer package from the Microsoft Store.
-    cmds:
-      - echo Installing Vault CLI via winget...
-      - >-
-        powershell -NoProfile -ExecutionPolicy Bypass -Command
-        "winget install --id Hashicorp.Vault
-        {{if .VAULT_VERSION}}--version {{.VAULT_VERSION}}{{end}}
-        --accept-source-agreements --accept-package-agreements --silent"
-      - echo Vault CLI installed. Restart your terminal to use vault.
-
-  _install:undo:macos:
-    run: once
-    internal: true
-    platforms: [darwin]
-    set: [errexit, nounset, pipefail]
-    status:
-      - "! command -v vault >/dev/null 2>&1"
-    preconditions:
-      - sh: command -v brew >/dev/null 2>&1
-        msg: Homebrew is required to remove Vault on macOS.
-    cmds:
-      - echo 'Removing Vault CLI via Homebrew...'
-      - brew uninstall hashicorp/tap/vault
-      - echo 'Vault CLI removed.'
-
-  _install:undo:linux:
-    run: once
-    internal: true
-    platforms: [linux]
-    set: [errexit, nounset, pipefail]
-    preconditions:
-      - sh: "! command -v vault >/dev/null 2>&1 || command -v apt-get >/dev/null 2>&1 || command -v dnf >/dev/null 2>&1"
-        msg: Vault removal supports Linux hosts with apt-get or dnf. Remove Vault manually for this distribution.
-    cmds:
-      - task: _install:undo:linux:apt
-      - task: _install:undo:linux:dnf
-
-  _install:undo:linux:apt:
-    run: once
-    internal: true
-    platforms: [linux]
-    set: [errexit, nounset, pipefail]
-    status:
-      - "! command -v apt-get >/dev/null 2>&1 || ! command -v vault >/dev/null 2>&1"
-    preconditions:
-      - sh: 'test "$(id -u)" -eq 0 || command -v sudo >/dev/null 2>&1'
-        msg: sudo is required to remove Vault when not running as root.
-    cmds:
-      - echo 'Removing Vault CLI (apt)...'
-      - cmd: apt-get remove -y vault
-        if: '[ "$(id -u)" -eq 0 ]'
-      - cmd: sudo apt-get remove -y vault
-        if: '[ "$(id -u)" -ne 0 ]'
-      - echo 'Vault CLI removed.'
-
-  _install:undo:linux:dnf:
-    run: once
-    internal: true
-    platforms: [linux]
-    set: [errexit, nounset, pipefail]
-    status:
-      - "! command -v dnf >/dev/null 2>&1 || ! command -v vault >/dev/null 2>&1"
-    preconditions:
-      - sh: 'test "$(id -u)" -eq 0 || command -v sudo >/dev/null 2>&1'
-        msg: sudo is required to remove Vault when not running as root.
-    cmds:
-      - echo 'Removing Vault CLI (dnf)...'
-      - cmd: dnf remove -y vault
-        if: '[ "$(id -u)" -eq 0 ]'
-      - cmd: sudo dnf remove -y vault
-        if: '[ "$(id -u)" -ne 0 ]'
-      - echo 'Vault CLI removed.'
-
-  _install:undo:windows:
-    run: once
-    internal: true
-    platforms: [windows]
-    status:
-      - >-
-        powershell -NoProfile -ExecutionPolicy Bypass -Command
-        "if (Get-Command vault -ErrorAction SilentlyContinue) { exit 1 } else { exit 0 }"
-    cmds:
-      - echo Removing Vault CLI via winget...
-      - powershell -NoProfile -ExecutionPolicy Bypass -Command "winget uninstall --id Hashicorp.Vault --silent"
-      - echo Vault CLI removed. Restart your terminal.
-
-  _upgrade:macos:
-    run: once
-    internal: true
-    platforms: [darwin]
-    set: [errexit, nounset, pipefail]
-    preconditions:
-      - sh: command -v brew >/dev/null 2>&1
-        msg: Homebrew is required to upgrade Vault on macOS.
-    cmds:
-      - echo 'Upgrading Vault CLI via Homebrew...'
-      - brew update
-      - cmd: brew upgrade hashicorp/tap/vault
-        if: brew list hashicorp/tap/vault >/dev/null 2>&1
-      - cmd: brew install hashicorp/tap/vault
-        if: "! brew list hashicorp/tap/vault >/dev/null 2>&1"
-      - echo 'Vault CLI upgraded.'
-
-  _upgrade:linux:
-    run: once
-    internal: true
-    platforms: [linux]
-    set: [errexit, nounset, pipefail]
-    preconditions:
-      - sh: command -v vault >/dev/null 2>&1
-        msg: Vault is not installed. Run task install first.
-      - sh: command -v apt-get >/dev/null 2>&1 || command -v dnf >/dev/null 2>&1
-        msg: Vault upgrade supports Linux hosts with apt-get or dnf. Upgrade Vault manually for this distribution.
-    cmds:
-      - task: _upgrade:linux:apt
-      - task: _upgrade:linux:dnf
-
-  _upgrade:linux:apt:
-    run: once
-    internal: true
-    platforms: [linux]
-    set: [errexit, nounset, pipefail]
-    status:
-      - "! command -v apt-get >/dev/null 2>&1"
-    preconditions:
-      - sh: command -v vault >/dev/null 2>&1
-        msg: Vault is not installed. Run task install first.
-      - sh: 'test "$(id -u)" -eq 0 || command -v sudo >/dev/null 2>&1'
-        msg: sudo is required to upgrade Vault when not running as root.
-    cmds:
-      - echo 'Upgrading Vault CLI (apt)...'
-      - cmd: apt-get update && apt-get install -y --only-upgrade vault
-        if: '[ "$(id -u)" -eq 0 ]'
-      - cmd: sudo apt-get update && sudo apt-get install -y --only-upgrade vault
-        if: '[ "$(id -u)" -ne 0 ]'
-      - echo 'Vault CLI upgraded.'
-
-  _upgrade:linux:dnf:
-    run: once
-    internal: true
-    platforms: [linux]
-    set: [errexit, nounset, pipefail]
-    status:
-      - "! command -v dnf >/dev/null 2>&1"
-    preconditions:
-      - sh: command -v vault >/dev/null 2>&1
-        msg: Vault is not installed. Run task install first.
-      - sh: 'test "$(id -u)" -eq 0 || command -v sudo >/dev/null 2>&1'
-        msg: sudo is required to upgrade Vault when not running as root.
-    cmds:
-      - echo 'Upgrading Vault CLI (dnf)...'
-      - cmd: dnf update -y vault
-        if: '[ "$(id -u)" -eq 0 ]'
-      - cmd: sudo dnf update -y vault
-        if: '[ "$(id -u)" -ne 0 ]'
-      - echo 'Vault CLI upgraded.'
-
-  _upgrade:windows:
-    run: once
-    internal: true
-    platforms: [windows]
-    cmds:
-      - echo Upgrading Vault CLI via winget...
-      - >-
-        powershell -NoProfile -ExecutionPolicy Bypass -Command
-        "winget upgrade --id Hashicorp.Vault --accept-source-agreements --accept-package-agreements --silent"
-      - echo Vault CLI upgraded. Restart your terminal if prompted.

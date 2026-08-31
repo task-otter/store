@@ -55,8 +55,6 @@ func ghExtensionAndGistTasks() []string {
 		"gist:list",
 		"gist:view",
 		"help",
-		"install",
-		"install:undo",
 	}
 }
 
@@ -142,12 +140,10 @@ func ghSecretAndWorkflowTasks() []string {
 		"ssh-key:add",
 		"ssh-key:delete:danger",
 		"ssh-key:list",
-		"upgrade",
 		"variable:delete:danger",
 		"variable:list",
 		"variable:set",
 		"verify",
-		"version",
 		"which",
 		"workflow:list",
 		"workflow:run",
@@ -165,7 +161,7 @@ func expectedVars() []string {
 		"GH_DOWNLOAD_DIR",
 		"GH_MERGE_METHOD",
 		"GH_PAT_TOKEN",
-		"GH_VERSION",
+		"GH_NIX_INSTALLABLE",
 		"GH_VISIBILITY",
 	}
 }

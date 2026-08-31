@@ -11,22 +11,16 @@ import (
 
 func publicTasks() []string {
 	return []string{
-		"diff",
-		"install",
-		"install:undo",
 		"ci",
 		"ci:fix",
-		"upgrade",
-		"version",
+		"diff",
 	}
 }
 
 func publicVars() []string {
 	return []string{
-		"DOTENV_LINTER_LINT_SKIP_PATTERN",
-		"CARGO_BIN_UNIX",
-		"DOTENV_LINTER_VERSION",
 		"DOTENV_LINTER_EXTRA_ARGS",
+		"DOTENV_LINTER_NIX_INSTALLABLE",
 		"DOTENV_LINTER_TARGETS",
 	}
 }

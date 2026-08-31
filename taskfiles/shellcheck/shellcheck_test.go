@@ -11,20 +11,15 @@ import (
 
 func publicTasks() []string {
 	return []string{
-		"install",
-		"install:undo",
 		"ci",
-		"upgrade",
-		"version",
 	}
 }
 
 func publicVars() []string {
 	return []string{
-		"SHELLCHECK_LINT_SKIP_PATTERN",
 		"SHELLCHECK_EXTRA_ARGS",
 		"SHELLCHECK_TARGETS",
-		"SHELLCHECK_VERSION",
+		"SHELLCHECK_NIX_INSTALLABLE",
 	}
 }
 

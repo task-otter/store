@@ -1,5 +1,7 @@
 ---
 version: "3.5"
 includes:
-  fnm: fnm/Taskfile.yml
-  nvm: nvm/Taskfile.yml
+  npm: npm/Taskfile.yml
+  pnpm: pnpm/Taskfile.yml
+  yarn: yarn/Taskfile.yml
+

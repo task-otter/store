@@ -16,7 +16,7 @@ import (
 
 const (
 	constPnpmTestYes     = "--yes"
-	constPnpmTaskCi      = "ci"
+	constPnpmTaskInstallClean = "install:clean"
 	constPnpmTaskInstall = "install"
 	constPnpmTaskRun     = "run"
 	constPnpmTaskVersion = "version"
@@ -42,13 +42,13 @@ func publicTasksCore() []string {
 		"audit:json",
 		"audit:report",
 		"build",
-		constPnpmTaskCi,
 		"ci:fix",
 		"clean",
 		"clean:all",
 		"dev",
 		"exec",
 		constPnpmTaskInstall,
+		constPnpmTaskInstallClean,
 		"install:undo",
 	}
 }
@@ -143,7 +143,7 @@ func safePnpmFlowArgs() [][]string {
 	return [][]string{
 		{constPnpmTestYes, constPnpmTaskVersion},
 		{constPnpmTestYes, constPnpmTaskInstall},
-		{constPnpmTestYes, constPnpmTaskCi},
+		{constPnpmTestYes, constPnpmTaskInstallClean},
 		{
 			constPnpmTestYes,
 			constPnpmTaskRun,

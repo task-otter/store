@@ -15,13 +15,9 @@ const (
 
 func publicTasks() []string {
 	return []string{
-		"install",
-		"install:undo",
 		"login",
 		"new",
 		"up",
-		"upgrade",
-		"version",
 	}
 }
 
@@ -29,13 +25,10 @@ func publicVars() []string {
 	return []string{
 		"PULUMI_ARGS",
 		"PULUMI_EXTRA_ARGS",
-		"PULUMI_INSTALL_PS1_URL",
-		"PULUMI_INSTALL_URL",
-		"PULUMI_LOAD",
+		"PULUMI_NIX_INSTALLABLE",
 		"PULUMI_LOGIN_URL",
 		"PULUMI_STACK",
 		"PULUMI_TEMPLATE",
-		"PULUMI_VERSION",
 	}
 }
 

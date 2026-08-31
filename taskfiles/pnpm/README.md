@@ -1,90 +1,59 @@
 # pnpm Taskfile Public Tasks
 
-This Taskfile wraps common pnpm project workflows while loading Node.js through a
-**node version manager**. pnpm commands run through Corepack so the project's
-`packageManager` field controls the pnpm version. The runners set
-`COREPACK_ENABLE_AUTO_PIN=1`, so first use adds the field when it is missing.
+## What is this Taskfile?
 
-## Variants
+This Taskfile wraps common `pnpm` operations — installing dependencies, running scripts, auditing, and cleaning — behind consistent, cross-platform task commands. Node.js is provided via the [`nodejs`](../nodejs/) module (Nix profile); pnpm is installed from nixpkgs through this module's `_ensure` task.
 
-pnpm ships as two variants, one per node version manager. Both expose exactly the
-same tasks; pick the one matching your stack.
-
-| Variant | Node version manager | Taskfile                          |
-| ------- | -------------------- | --------------------------------- |
-| `fnm`   | [fnm](../fnm/)       | `taskfiles/pnpm/fnm/Taskfile.yml` |
-| `nvm`   | [nvm](../nvm/)       | `taskfiles/pnpm/nvm/Taskfile.yml` |
-
-## Setup
-
-Include the family and address a variant through its namespace:
+## Usage
 
 ```yaml
 includes:
-  pnpm: taskfiles/pnpm/Taskfile.yml
+  nodejs:
+    taskfile: taskfiles/nodejs/Taskfile.yml
+  pnpm:
+    taskfile: taskfiles/pnpm/Taskfile.yml
 ```
 
 ```bash
-task pnpm:fnm:install
-task pnpm:nvm:install
+task pnpm:install
+task pnpm:install:clean
+task pnpm:run SCRIPT=build
 ```
 
-Or include a single variant directly to keep the task names short (`task pnpm:install`).
-Swap `fnm` for `nvm` throughout to use the nvm stack:
-
-```yaml
-includes:
-  fnm:
-    taskfile: taskfiles/fnm/Taskfile.yml
-  corepack:
-    taskfile: taskfiles/corepack/fnm/Taskfile.yml
-  pnpm:
-    taskfile: taskfiles/pnpm/fnm/Taskfile.yml
-```
+Override the Node.js version by setting `NODEJS_NIX_INSTALLABLE` on the nodejs module before dependents run `nodejs:_ensure`.
 
 ## Public Tasks
 
-| Task              | Variables                              | Description                                                 |
-| ----------------- | -------------------------------------- | ----------------------------------------------------------- |
-| `add`             | Required `PACKAGES`; optional `EXTRA_ARGS` | Add packages as devDependencies with `pnpm add -D`.         |
-| `node:setup`      | Optional `NODE_VERSION`                | Install Node.js via fnm or nvm.                             |
-| `manager:setup`   | Optional `NODE_VERSION`                | Install Corepack when needed and enable its shims.          |
-| `manager:pin`     | Required `PACKAGE_MANAGER_VERSION`     | Pin pnpm in `package.json` with Corepack.                   |
-| `version`         | Optional `NODE_VERSION`                | Show active Node.js and pnpm versions.                      |
-| `install`         | Optional `NODE_VERSION`                | Run `pnpm install`.                                         |
-| `install:undo`    | —                                       | Disable the pnpm Corepack shim.                              |
-| `upgrade`         | —                                       | Upgrade pnpm via `corepack prepare pnpm@latest --activate`. |
-| `remove`          | Required `PACKAGES`; optional `EXTRA_ARGS` | Remove local packages with `pnpm remove`.                   |
-| `ci`              | Optional `NODE_VERSION`                | Run `pnpm install --frozen-lockfile` with `pnpm-lock.yaml`. |
-| `ci:fix` | Optional `NODE_VERSION` | Run `pnpm run format`. |
-| `run`             | Required `SCRIPT`; optional `NODE_VERSION` | Run a script via `pnpm run`.                                |
-| `dev`             | Optional `NODE_VERSION`                | Run `pnpm run dev`.                                         |
-| `exec`            | Required `BINARY`; optional `ARGS`, `EXTRA_ARGS` | Execute a local project binary via `pnpm exec`.             |
-| `test`            | Optional `NODE_VERSION`                | Run `pnpm test`.                                            |
-| `build`           | Optional `NODE_VERSION`                | Run `pnpm run build`.                                       |
-| `lint`            | Optional `NODE_VERSION`                | Run `pnpm run lint`.                                        |
-| `typecheck`       | Optional `NODE_VERSION`                | Run `pnpm run typecheck`.                                   |
-| `outdated`        | Optional `NODE_VERSION`                | List outdated packages without failing.                     |
-| `outdated:strict` | Optional `NODE_VERSION`                | List outdated packages with the pnpm exit code.             |
-| `update`          | Optional `NODE_VERSION`                | Run `pnpm update`.                                          |
-| `audit`           | Optional `NODE_VERSION`                | Run strict `pnpm audit`.                                    |
-| `audit:report`    | Optional `NODE_VERSION`                | Report audit findings without failing.                      |
-| `audit:fix`       | Optional `NODE_VERSION`                | Run `pnpm audit --fix`.                                     |
-| `audit:json`      | Optional `NODE_VERSION`                | Emit `pnpm audit --json`.                                   |
-| `store:prune`     | Optional `NODE_VERSION`                | Remove unreferenced pnpm store packages.                    |
-| `clean`           | -                                      | Remove `node_modules`.                                      |
-| `clean:all`       | -                                      | Remove `node_modules` and `pnpm-lock.yaml`.                 |
+| Task              | Variables                                  | Description                                                               |
+| ----------------- | ------------------------------------------ | ------------------------------------------------------------------------- |
+| `add`             | Required `PACKAGES`; optional `EXTRA_ARGS` | Add packages as devDependencies with `pnpm add -D`.                       |
+| `version`         | —                                          | Show the active Node.js and pnpm versions.                                |
+| `install`         | —                                          | Run `pnpm install` to install all dependencies from `package.json`.       |
+| `install:undo`    | —                                          | Explain how to remove the pnpm Nix profile installable.                   |
+| `upgrade`         | —                                          | Upgrade pnpm via the configured Nix installable.                          |
+| `install:clean`   | —                                          | Run `pnpm install --frozen-lockfile` with `pnpm-lock.yaml`.               |
+| `ci:fix`          | —                                          | Run `pnpm run format`.                                                    |
+| `clean`           | —                                          | Remove `node_modules`.                                                    |
+| `clean:all`       | —                                          | Remove `node_modules` and `pnpm-lock.yaml`.                               |
+| `dev`             | —                                          | Run `pnpm run dev`.                                                       |
+| `build`           | —                                          | Run `pnpm run build`.                                                     |
+| `test`            | —                                          | Run `pnpm test`.                                                          |
+| `lint`            | —                                          | Run `pnpm run lint`.                                                      |
+| `typecheck`       | —                                          | Run `pnpm run typecheck`.                                                 |
+| `run`             | Required `SCRIPT`; optional CLI args       | Run a `package.json` script.                                              |
+| `exec`            | Required `BINARY`                          | Execute a local binary via `pnpm exec`.                                   |
+| `remove`          | Required `PACKAGES`                        | Uninstall packages.                                                       |
+| `outdated`        | —                                          | List outdated packages (non-strict).                                      |
+| `outdated:strict` | —                                          | List outdated packages and fail if any exist.                             |
+| `audit`           | —                                          | Run `pnpm audit` (strict).                                                |
+| `audit:report`    | —                                          | Run `pnpm audit` without failing.                                         |
+| `audit:fix`       | —                                          | Run `pnpm audit --fix`.                                                   |
+| `audit:json`      | —                                          | Output audit results as JSON.                                             |
+| `update`          | —                                          | Update packages within declared ranges.                                   |
+| `store:prune`     | —                                          | Remove unreferenced packages from the pnpm store.                         |
 
-## Examples
+## Runtime
 
-```bash
-task pnpm:node:setup NODE_VERSION=22
-task pnpm:manager:setup
-task pnpm:manager:pin PACKAGE_MANAGER_VERSION=latest
-task pnpm:install
-task pnpm:ci
-task pnpm:run SCRIPT=test -- --watch
-task pnpm:audit:report
-task pnpm:store:prune
-task pnpm:clean --yes
-```
+Project commands depend on `nodejs:_ensure` and run `pnpm` with `NIX_LOAD` so the Nix profile tools are on PATH. Must be run from a directory containing `package.json`.
+
+Native Windows auto-install requires WSL2 (same as other Nix profile modules).

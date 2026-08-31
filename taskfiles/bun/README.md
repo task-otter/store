@@ -4,104 +4,49 @@
 
 Bun is an all-in-one JavaScript runtime and toolkit — a single binary that replaces Node.js, npm, a bundler, and a test runner. It is written in Zig and designed to be significantly faster than Node.js for startup, module resolution, and package installation.
 
-Key characteristics:
+This module does not ship an installer. Install Bun through the store's Nix profile task. Tool Taskfiles that need the Bun CLI should depend on `bun:_ensure` and invoke `bun` directly (for example `bun add -d`, `bun remove`, `bun x`).
 
-- **Single binary** — one executable provides the runtime, package manager (`bun install`), bundler, and test runner.
-- **Node.js compatible** — runs most Node.js programs and npm packages without modification.
-- **Fast install** — `bun install` is typically 10–100× faster than npm due to a global binary cache and parallel fetching.
-- **Cross-platform** — one tool for Linux, macOS, and Windows (Windows 10 build 17763 or later).
+## Usage
 
----
+### Standalone
 
-This document describes the public tasks exposed by the Bun Taskfile.
+```sh
+task nix:install:profile NIX_INSTALLABLE=nixpkgs#bun
+```
 
-The Taskfile provides one cross-platform interface for installing, removing, and upgrading Bun.
+Or, targeting the nix Taskfile directly:
 
-Linux and macOS use the official Bun install script. Windows uses the official PowerShell script.
+```sh
+task -t taskfiles/nix/Taskfile.yml install:profile NIX_INSTALLABLE=nixpkgs#bun
+```
 
-Tool Taskfiles that need the Bun CLI should depend only on `bun:install` and invoke `bun` directly (for example `bun add -d`, `bun remove`, `bun x`).
+### Included
 
----
+```yaml
+includes:
+  bun: ./taskfiles/bun/Taskfile.yml
+```
 
-## Auto-install behaviour
+Then run:
 
-Every task that requires Bun automatically installs it first if it is not already present — you do not need to run `task install` manually before using `version` or `upgrade`.
+```sh
+task bun:nix:install:profile NIX_INSTALLABLE=nixpkgs#bun
+```
 
-Installs are **idempotent**: the internal install task has a `status` check that exits early when Bun is already present and no specific version was requested, so running any task multiple times is safe.
-
-| Task           | Auto-installs                                     |
-| -------------- | ------------------------------------------------- |
-| `version`      | Bun (if missing)                                  |
-| `upgrade`      | Bun (if missing)                                  |
-| `install:undo` | — (removal; Bun being absent is already the goal) |
-
----
+Override `BUN_NIX_INSTALLABLE` to pin a flake (for example
+`github:NixOS/nixpkgs/<rev>#bun`) and pass that value as `NIX_INSTALLABLE`.
 
 ## Public Tasks
 
-| Task           | Variables          | Description                                                                                |
-| -------------- | ------------------ | ------------------------------------------------------------------------------------------ |
-| `install`      | Optional `BUN_VERSION` | Install Bun for the current operating system. Pass `BUN_VERSION=1.x.y` for a specific release. |
-| `install:undo` | —                  | Remove Bun from the current operating system.                                              |
-| `version`      | —                  | Show the installed Bun version and revision. Auto-installs Bun if missing.                 |
-| `upgrade`      | —                  | Upgrade Bun to the latest stable release. Auto-installs Bun if missing.                    |
+This module has no public tasks. Install Bun with `nix:install:profile`. Dependents auto-install via `bun:_ensure`.
 
----
+## Variables
 
-## Install Bun
+| Variable | Default | Description |
+| -------- | ------- | ----------- |
+| `BUN_NIX_INSTALLABLE` | `nixpkgs#bun` | Flake installable for `nix:install:profile` |
 
-Install the latest Bun release for the current platform:
+## Notes
 
-```bash
-task install
-```
-
-Install a specific release:
-
-```bash
-task install BUN_VERSION=1.1.38
-```
-
-All other tasks call `install` automatically, so this is only needed if you want to install Bun without doing anything else yet, or if you need a specific version pinned.
-
----
-
-## Remove Bun
-
-```bash
-task install:undo
-```
-
-On Linux and macOS this removes `~/.bun` entirely and reports any shell profile files that may still reference Bun's PATH so you can clean them manually.
-
-On Windows, the task runs the official Bun uninstall script if present at `%USERPROFILE%\.bun\uninstall.ps1`. If the script is missing but the `.bun` directory still exists, the directory is removed directly. The task detects Bun by directory presence rather than PATH, so it works correctly even if a fresh install has not yet been added to PATH.
-
----
-
-## Check the installed version
-
-```bash
-task version
-```
-
-Prints the version number and exact commit revision. Installs Bun first if it is not already present.
-
----
-
-## Upgrade Bun
-
-Upgrade to the latest stable release:
-
-```bash
-task upgrade
-```
-
-The upgrade task installs Bun first if it is not already present.
-
----
-
-## Security Notes
-
-**Unix install script**: The `install` task downloads the official Bun install script from `BUN_INSTALL_URL` to a temporary file using `curl -fsSL`, then executes it with `bash`. The temporary file is removed after execution via a shell `trap`. This relies on HTTPS transport for integrity — no additional checksum verification is performed. Review the script at `BUN_INSTALL_URL` before running in security-sensitive environments.
-
-**Windows install script**: The `install` task downloads the official Bun PowerShell script from `BUN_INSTALL_PS1_URL` using `Invoke-WebRequest`, writes it to a temporary `.ps1` file, executes it, and removes the file in a `finally` block. This relies on HTTPS transport for integrity.
+`nix:install:profile` auto-installs Nix if it is missing and adds Bun to the
+user profile (`~/.nix-profile`). Native Windows is not supported; use WSL2.

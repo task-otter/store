@@ -10,12 +10,11 @@ output:
 silent: true
 
 includes:
-  uv:
-    taskfile: ../uv/Taskfile.yml
+  nix:
+    taskfile: ../nix/Taskfile.yml
 
 vars:
-  UV_LOAD: 'export PATH="$HOME/.local/bin:$PATH"'
-  PYTHON_PIN_VERSION: "3.13"
+  PYTHON_NIX_INSTALLABLE: nixpkgs#python3
   PYTHON_VENV: ".venv"
   PYTHON_REQUIREMENTS: "requirements.txt"
   PYTHON_FILE: ""
@@ -30,55 +29,6 @@ tasks:
     cmds:
       - task --list
 
-  install:
-    run: once
-    desc: Install Python on the current operating system via uv
-    summary: |
-      Install Python (PYTHON_PIN_VERSION, default 3.13) via uv python install
-      --default, which exposes it as python3/python on PATH through uv's
-      shim directory. Auto-installs uv first if missing.
-    deps:
-      - task: uv:install
-    cmds:
-      - task: _install:unix
-      - task: _install:windows
-
-  install:undo:
-    run: once
-    desc: Remove the uv-managed Python from the current operating system
-    summary: |
-      Remove the Python version installed by this Taskfile via
-      uv python uninstall. Other Python installations on the system, if any,
-      are left untouched.
-    prompt:
-      - This will remove the uv-managed Python from this machine.
-      - Continue?
-    cmds:
-      - task: _install:undo:unix
-      - task: _install:undo:windows
-
-  upgrade:
-    run: once
-    desc: Upgrade Python to the latest patch of PYTHON_PIN_VERSION
-    summary: |
-      Reinstall PYTHON_PIN_VERSION via uv python install --reinstall to pick up
-      the latest available patch release. Auto-installs Python if missing.
-    deps:
-      - task: install
-    cmds:
-      - task: _upgrade:unix
-      - task: _upgrade:windows
-
-  version:
-    run: once
-    desc: Show the installed Python version
-    summary: Print the active Python version. Auto-installs Python if missing.
-    deps:
-      - task: install
-    cmds:
-      - task: _version:unix
-      - task: _version:windows
-
   verify:
     run: once
     desc: Verify the Python installation and pip availability
@@ -87,7 +37,9 @@ tasks:
       and reachable. Useful for diagnosing setup issues after install.
       Auto-installs Python if missing.
     deps:
-      - task: install
+      - task: nix:install:profile
+        vars:
+          NIX_INSTALLABLE: "{{.PYTHON_NIX_INSTALLABLE}}"
     cmds:
       - task: _verify:unix
       - task: _verify:windows
@@ -99,6 +51,10 @@ tasks:
       Create a virtual environment at the path given by PYTHON_VENV (default .venv)
       using the python3 -m venv module. Run pip:install afterward to install
       project dependencies into the new environment.
+    deps:
+      - task: nix:install:profile
+        vars:
+          NIX_INSTALLABLE: "{{.PYTHON_NIX_INSTALLABLE}}"
     cmds:
       - task: _venv:unix
       - task: _venv:windows
@@ -107,9 +63,13 @@ tasks:
     run: once
     desc: Install packages from a requirements file (PYTHON_REQUIREMENTS=path)
     summary: |
-      Run pip3 install -r PYTHON_REQUIREMENTS (default requirements.txt).
+      Run python3 -m pip install -r PYTHON_REQUIREMENTS (default requirements.txt).
       Pass PYTHON_EXTRA_ARGS to forward additional flags such as --upgrade or
       --no-cache-dir. Does not require an active virtual environment.
+    deps:
+      - task: nix:install:profile
+        vars:
+          NIX_INSTALLABLE: "{{.PYTHON_NIX_INSTALLABLE}}"
     cmds:
       - task: _pip:install:unix
       - task: _pip:install:windows
@@ -121,6 +81,10 @@ tasks:
       Execute PYTHON_FILE with python3 (Unix) or python (Windows).
       Pass PYTHON_ARGS to forward positional arguments to the script and
       PYTHON_EXTRA_ARGS for interpreter flags such as -u or -m.
+    deps:
+      - task: nix:install:profile
+        vars:
+          NIX_INSTALLABLE: "{{.PYTHON_NIX_INSTALLABLE}}"
     requires:
       vars:
         - PYTHON_FILE
@@ -131,151 +95,37 @@ tasks:
       - task: _run:unix
       - task: _run:windows
 
-  _install:unix:
-    run: once
-    internal: true
-    platforms: [linux, darwin]
-    set: [errexit, nounset, pipefail]
-    status:
-      - >-
-        python_bin="$HOME/.local/bin/python3";
-        if [ ! -x "$python_bin" ]; then python_bin="$(command -v python3 2>/dev/null)"; fi;
-        [ -n "$python_bin" ] && [ -x "$python_bin" ]
-        && "$python_bin" --version | grep -Eq "^Python {{.PYTHON_PIN_VERSION}}(\\.|$)"
-    cmds:
-      - echo 'Installing Python via uv...'
-      - bash -lc '{{.UV_LOAD}}; uv python install {{.PYTHON_PIN_VERSION}} --default'
-      - echo 'Python installed.'
-
-  _install:windows:
-    run: once
-    internal: true
-    platforms: [windows]
-    status:
-      - >-
-        powershell -NoProfile -ExecutionPolicy Bypass -Command
-        "$python = Get-Command python -ErrorAction SilentlyContinue;
-        if ($python -and ((& $python.Source --version) -match '^Python {{.PYTHON_PIN_VERSION}}(\.|$)')) { exit 0 };
-        exit 1"
-    cmds:
-      - echo Installing Python via uv...
-      - uv python install {{.PYTHON_PIN_VERSION}} --default
-      - echo Python installed. Restart your terminal to use python.
-
-  _install:undo:unix:
-    run: once
-    internal: true
-    platforms: [linux, darwin]
-    set: [errexit, nounset, pipefail]
-    status:
-      - '! test -f "$HOME/.local/bin/python3" && ! command -v python3 >/dev/null 2>&1'
-    cmds:
-      - echo 'Removing Python via uv...'
-      - bash -lc '{{.UV_LOAD}}; uv python uninstall {{.PYTHON_PIN_VERSION}}'
-      - echo 'Python removed.'
-
-  _install:undo:windows:
-    run: once
-    internal: true
-    platforms: [windows]
-    status:
-      - >-
-        powershell -NoProfile -ExecutionPolicy Bypass -Command
-        "if (Get-Command python -ErrorAction SilentlyContinue) { exit 1 } else { exit 0 }"
-    cmds:
-      - echo Removing Python via uv...
-      - uv python uninstall {{.PYTHON_PIN_VERSION}}
-      - echo Python removed.
-
-  _upgrade:unix:
-    run: once
-    internal: true
-    platforms: [linux, darwin]
-    set: [errexit, nounset, pipefail]
-    cmds:
-      - echo 'Upgrading Python via uv...'
-      - bash -lc '{{.UV_LOAD}}; uv python install {{.PYTHON_PIN_VERSION}} --default --reinstall'
-      - echo 'Python upgraded.'
-
-  _upgrade:windows:
-    run: once
-    internal: true
-    platforms: [windows]
-    cmds:
-      - echo Upgrading Python via uv...
-      - uv python install {{.PYTHON_PIN_VERSION}} --default --reinstall
-      - echo Python upgraded.
-
-  _version:unix:
-    run: once
-    internal: true
-    platforms: [linux, darwin]
-    set: [errexit, nounset, pipefail]
-    preconditions:
-      - sh: 'test -f "$HOME/.local/bin/python3" || command -v python3 >/dev/null 2>&1'
-        msg: Python is not installed or not available in PATH.
-    cmds:
-      - bash -lc '{{.UV_LOAD}}; python3 --version'
-
-  _version:windows:
-    run: once
-    internal: true
-    platforms: [windows]
-    preconditions:
-      - sh: >-
-          powershell -NoProfile -ExecutionPolicy Bypass -Command
-          "if (Get-Command python -ErrorAction SilentlyContinue) { exit 0 } else { exit 1 }"
-        msg: Python is not installed or not available in PATH.
-    cmds:
-      - python --version
-
   _verify:unix:
     run: once
     internal: true
     platforms: [linux, darwin]
     set: [errexit, nounset, pipefail]
-    preconditions:
-      - sh: 'test -f "$HOME/.local/bin/python3" || command -v python3 >/dev/null 2>&1'
-        msg: Python is not installed or not available in PATH.
     cmds:
-      - bash -lc '{{.UV_LOAD}}; python3 --version'
-      - bash -lc '{{.UV_LOAD}}; pip3 --version'
+      - bash -lc '{{.NIX_LOAD}}; python3 --version'
+      - bash -lc '{{.NIX_LOAD}}; python3 -m pip --version'
 
   _verify:windows:
     run: once
     internal: true
     platforms: [windows]
-    preconditions:
-      - sh: >-
-          powershell -NoProfile -ExecutionPolicy Bypass -Command
-          "if (Get-Command python -ErrorAction SilentlyContinue) { exit 0 } else { exit 1 }"
-        msg: Python is not installed or not available in PATH.
     cmds:
       - python --version
-      - pip --version
+      - python -m pip --version
 
   _venv:unix:
     run: once
     internal: true
     platforms: [linux, darwin]
     set: [errexit, nounset, pipefail]
-    preconditions:
-      - sh: 'test -f "$HOME/.local/bin/python3" || command -v python3 >/dev/null 2>&1'
-        msg: Python is not installed. Run task install first.
     cmds:
       - echo 'Creating virtual environment at {{.PYTHON_VENV}}...'
-      - bash -lc '{{.UV_LOAD}}; python3 -m venv "{{.PYTHON_VENV}}"'
+      - bash -lc '{{.NIX_LOAD}}; python3 -m venv "{{.PYTHON_VENV}}"'
       - echo 'Virtual environment ready.'
 
   _venv:windows:
     run: once
     internal: true
     platforms: [windows]
-    preconditions:
-      - sh: >-
-          powershell -NoProfile -ExecutionPolicy Bypass -Command
-          "if (Get-Command python -ErrorAction SilentlyContinue) { exit 0 } else { exit 1 }"
-        msg: Python is not installed. Run task install first.
     cmds:
       - echo Creating virtual environment at {{.PYTHON_VENV}}...
       - python -m venv "{{.PYTHON_VENV}}"
@@ -286,35 +136,24 @@ tasks:
     internal: true
     platforms: [linux, darwin]
     set: [errexit, nounset, pipefail]
-    preconditions:
-      - sh: 'test -f "$HOME/.local/bin/pip3" || command -v pip3 >/dev/null 2>&1'
-        msg: pip3 is not available. Run task install first.
     cmds:
-      - bash -lc '{{.UV_LOAD}}; pip3 install -r "{{.PYTHON_REQUIREMENTS}}" {{.PYTHON_EXTRA_ARGS}}'
+      - bash -lc '{{.NIX_LOAD}}; python3 -m pip install -r "{{.PYTHON_REQUIREMENTS}}" {{.PYTHON_EXTRA_ARGS}}'
 
   _pip:install:windows:
     run: once
     internal: true
     platforms: [windows]
-    preconditions:
-      - sh: >-
-          powershell -NoProfile -ExecutionPolicy Bypass -Command
-          "if (Get-Command pip -ErrorAction SilentlyContinue) { exit 0 } else { exit 1 }"
-        msg: pip is not available. Run task install first.
     cmds:
-      - pip install -r "{{.PYTHON_REQUIREMENTS}}" {{.PYTHON_EXTRA_ARGS}}
+      - python -m pip install -r "{{.PYTHON_REQUIREMENTS}}" {{.PYTHON_EXTRA_ARGS}}
 
   _run:unix:
     run: once
     internal: true
     platforms: [linux, darwin]
     set: [errexit, nounset, pipefail]
-    preconditions:
-      - sh: 'test -f "$HOME/.local/bin/python3" || command -v python3 >/dev/null 2>&1'
-        msg: Python is not installed. Run task install first.
     cmds:
       - >-
-        bash -lc '{{.UV_LOAD}};
+        bash -lc '{{.NIX_LOAD}};
         python3 "{{if .PYTHON_FILE_OVERRIDE}}{{.PYTHON_FILE_OVERRIDE}}{{else}}{{.PYTHON_FILE}}{{end}}"
         {{.PYTHON_ARGS}}
         {{if .PYTHON_EXTRA_ARGS_OVERRIDE}}{{.PYTHON_EXTRA_ARGS_OVERRIDE}}{{else}}{{.PYTHON_EXTRA_ARGS}}{{end}}'
@@ -323,11 +162,6 @@ tasks:
     run: once
     internal: true
     platforms: [windows]
-    preconditions:
-      - sh: >-
-          powershell -NoProfile -ExecutionPolicy Bypass -Command
-          "if (Get-Command python -ErrorAction SilentlyContinue) { exit 0 } else { exit 1 }"
-        msg: Python is not installed. Run task install first.
     cmds:
       - >-
         python "{{if .PYTHON_FILE_OVERRIDE}}{{.PYTHON_FILE_OVERRIDE}}{{else}}{{.PYTHON_FILE}}{{end}}"

@@ -4,8 +4,4 @@ module: proto
 taskfile: Taskfile.yml
 exported_tasks:
   - gen
-  - install
-  - install:undo
   - ungen
-  - upgrade
-  - version

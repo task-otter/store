@@ -302,7 +302,7 @@ func findModuleTaskfilePath(tester TestT, root string) string {
 
 // ModuleReadmePath returns the README.md documenting the module. Flat modules
 // keep their own README next to the Taskfile; nested family variants share one
-// README at the family root (e.g. taskfiles/npm/fnm/ documents itself in
+// README at the family root (e.g. taskfiles/npm/ documents itself in
 // taskfiles/npm/README.md), so ancestors are searched when the leaf has none.
 func ModuleReadmePath(tester TestT) string {
 	tester.Helper()

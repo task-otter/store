@@ -10,10 +10,10 @@ macOS, Linux, and Windows through the underlying package-manager module.
 
 ## Variants
 
-Every package-manager + Node-manager combination ships as its own leaf Taskfile
+Every runtime + package-manager combination ships as its own leaf Taskfile
 under `taskfiles/spectral/`. They all expose the identical public interface
-documented below; only the underlying package manager and Node provisioning
-differ. Include the tool family once in your root Taskfile:
+documented below; only the underlying runtime and package manager differ.
+Include the tool family once in your root Taskfile:
 
 ```yaml
 includes:
@@ -24,11 +24,13 @@ Then run the leaf that matches your project through its namespace (replace
 `{TASK}` with any public task):
 
 ```bash
-task spectral:node:fnm:npm:{TASK}        # Node via fnm, npm as package manager
-task spectral:node:nvm:pnpm:{TASK}       # Node via nvm, pnpm as package manager
+task spectral:bun:{TASK}             # Bun runtime + Bun as package manager
+task spectral:node:npm:{TASK}        # Node via the nodejs module, npm as package manager
+task spectral:node:pnpm:{TASK}       # Node via the nodejs module, pnpm as package manager
+task spectral:node:yarn:{TASK}       # Node via the nodejs module, yarn as package manager
 ```
 
-Available leaves: `node/{fnm,nvm}/{npm,pnpm}`. Run the tasks from the Node.js
+Available leaves: `bun`, `node/{npm,pnpm,yarn}`. Run the tasks from the
 project root (where `package.json` lives).
 
 ## Public Tasks
@@ -60,7 +62,7 @@ Spectral skips matching files as top-level lint targets, but may still load them
 ## Notes
 
 - Requires a package-manager stack: `ci` auto-installs Spectral on first use;
-  on a fresh machine provision Node.js first (e.g. `task fnm:node:install`).
+  on a fresh machine, run a leaf task such as `task spectral:node:npm:ci` to provision Node.js via `nodejs:_ensure`.
 - `ci` needs `SPECTRAL_TARGETS` — Spectral prints its usage message when no document
   is given. Without `SPECTRAL_RULESET`, Spectral discovers `.spectral.yaml` in the
   project automatically; `config:init` scaffolds one extending `spectral:oas`.

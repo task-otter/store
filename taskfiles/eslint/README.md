@@ -23,11 +23,11 @@ Then run the leaf that matches your project through its namespace (replace
 
 ```bash
 task eslint:bun:{TASK}                 # Bun runtime + Bun as package manager
-task eslint:node:fnm:npm:{TASK}        # Node via fnm, npm as package manager
-task eslint:node:nvm:pnpm:{TASK}       # Node via nvm, pnpm as package manager
+task eslint:node:npm:{TASK}        # Node via the nodejs module, npm as package manager
+task eslint:node:pnpm:{TASK}       # Node via the nodejs module, pnpm as package manager
 ```
 
-Available leaves: `bun`, `node/{fnm,nvm}/{npm,pnpm,yarn}`.
+Available leaves: `bun`, `node/{npm,pnpm,yarn}`.
 
 ## Public Tasks
 
@@ -56,8 +56,8 @@ Skip patterns support `*` within one path segment, `**` across directories, and 
 ## Examples
 
 ```bash
-task eslint:node:fnm:npm:install
-task eslint:node:fnm:npm:install ESLINT_VERSION=8.57.0
-task eslint:node:fnm:npm:ci
-task eslint:node:fnm:npm:ci:fix ESLINT_TARGETS="src test"
+task eslint:node:npm:install
+task eslint:node:npm:install ESLINT_VERSION=8.57.0
+task eslint:node:npm:ci
+task eslint:node:npm:ci:fix ESLINT_TARGETS="src test"
 ```

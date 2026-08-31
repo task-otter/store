@@ -12,19 +12,14 @@ import (
 func publicTasks() []string {
 	return []string{
 		"ci",
-		"install",
-		"install:undo",
-		"upgrade",
-		"version",
 	}
 }
 
 func publicVars() []string {
 	return []string{
-		"ACTIONLINT_LINT_SKIP_PATTERN",
 		"ACTIONLINT_EXTRA_ARGS",
 		"ACTIONLINT_TARGETS",
-		"ACTIONLINT_VERSION",
+		"ACTIONLINT_NIX_INSTALLABLE",
 	}
 }
 

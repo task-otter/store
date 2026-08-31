@@ -71,12 +71,10 @@ type (
 const (
 	metadataSchema = "taskotter.dev/taskfile-metadata/v1"
 
-	brunoFamily      = "bruno"
 	typescriptFamily = "typescript"
 	npmFamily        = "npm"
 	pnpmFamily       = "pnpm"
 	yarnFamily       = "yarn"
-	corepackFamily   = "corepack"
 
 	walkTaskfilesErrFormat = "walk taskfiles: %v"
 	noModulesDiscoveredMsg = "no modules discovered"
@@ -86,16 +84,16 @@ const (
 
 func toolFamilies() map[string]bool {
 	return map[string]bool{
-		eslintFamily: true, prettierFamily: true, biomeFamily: true, brunoFamily: true,
+		eslintFamily: true, prettierFamily: true, biomeFamily: true,
 		depcheckFamily: true, knipFamily: true, stylelintFamily: true, typescriptFamily: true,
 		htmlhintFamily: true, spectralFamily: true,
-		// Package managers are families too: taskfiles/<pm>/{fnm,nvm}.
-		npmFamily: true, pnpmFamily: true, yarnFamily: true, corepackFamily: true,
+		// Package managers are flat nix-backed modules.
+		npmFamily: true, pnpmFamily: true, yarnFamily: true,
 	}
 }
 
 // exportedTasks returns the sorted public task names for a module (its path
-// relative to taskfiles/, e.g. "jq" or "prettier/node/fnm/npm").
+// relative to taskfiles/, e.g. "jq" or "prettier/node/npm").
 func exportedTasks(t *testing.T, module string) []string {
 	t.Helper()
 

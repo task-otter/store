@@ -10,17 +10,12 @@ import (
 )
 
 func publicTasks() []string {
-	return []string{
-		"install",
-		"install:undo",
-		"upgrade",
-		"version",
-	}
+	return []string{}
 }
 
 func publicVars() []string {
 	return []string{
-		"JQ_VERSION",
+		"JQ_NIX_INSTALLABLE",
 	}
 }
 

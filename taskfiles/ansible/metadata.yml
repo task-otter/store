@@ -3,16 +3,10 @@ schema: taskotter.dev/taskfile-metadata/v1
 module: ansible
 taskfile: Taskfile.yml
 exported_tasks:
-  - ci
-  - ci:fix
   - galaxy:install
-  - install
-  - install:undo
   - list:hosts
   - ping
   - run
   - syntax:check
-  - upgrade
   - vault:decrypt
   - vault:encrypt
-  - version

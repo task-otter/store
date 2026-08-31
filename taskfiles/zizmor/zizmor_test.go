@@ -11,20 +11,15 @@ import (
 
 func publicTasks() []string {
 	return []string{
-		"install",
-		"install:undo",
 		"ci",
-		"upgrade",
-		"version",
 	}
 }
 
 func publicVars() []string {
 	return []string{
-		"ZIZMOR_LINT_SKIP_PATTERN",
 		"ZIZMOR_EXTRA_ARGS",
 		"ZIZMOR_TARGETS",
-		"ZIZMOR_VERSION",
+		"ZIZMOR_NIX_INSTALLABLE",
 	}
 }
 

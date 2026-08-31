@@ -5,11 +5,6 @@ taskfile: Taskfile.yml
 exported_tasks:
   - bench
   - fuzz
-  - install
-  - install:go-junit-report
-  - install:undo
   - test
-  - upgrade
   - verify
-  - version
   - which

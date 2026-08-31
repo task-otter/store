@@ -16,7 +16,7 @@ import (
 
 const (
 	constYarnTestYes     = "--yes"
-	constYarnTaskCi      = "ci"
+	constYarnTaskInstallClean = "install:clean"
 	constYarnTaskInstall = "install"
 	constYarnTaskRun     = "run"
 	constYarnTaskVersion = "version"
@@ -42,13 +42,13 @@ func publicTasksCore() []string {
 		"audit:report",
 		"build",
 		"cache:clean",
-		constYarnTaskCi,
 		"ci:fix",
 		"clean",
 		"clean:all",
 		"dev",
 		"exec",
 		constYarnTaskInstall,
+		constYarnTaskInstallClean,
 		"install:undo",
 	}
 }
@@ -134,7 +134,7 @@ func stubbedYarnTaskArgs() [][]string {
 	return [][]string{
 		{constYarnTestYes, constYarnTaskVersion},
 		{constYarnTestYes, constYarnTaskInstall},
-		{constYarnTestYes, constYarnTaskCi},
+		{constYarnTestYes, constYarnTaskInstallClean},
 		{
 			constYarnTestYes,
 			constYarnTaskRun,

@@ -24,11 +24,6 @@ type (
 		cmds        string
 		extraTokens []string
 	}
-
-	guardPreconditionsCheck struct {
-		name          string
-		preconditions string
-	}
 )
 
 const (
@@ -58,17 +53,12 @@ const (
 	roleReferenceArg          = `"$VAULT_LOGIN_ROLE_ID"`
 	approleKeyStdinArg        = `secret_id=-`
 	vaultAuthEnvVarName       = "VAULT_TOKEN"
-	installLinuxTask          = "_install:linux"
-	installUndoLinuxTask      = "_install:undo:linux"
-	upgradeLinuxTask          = "_upgrade:linux"
 )
 
 func publicTasksA() []string {
 	return []string{
 		healthTask,
 		initTask,
-		"install",
-		"install:undo",
 		kvGetTask,
 		loginTask,
 		loginTaskApprole,
@@ -87,9 +77,7 @@ func publicTasksB() []string {
 		issueApproleTask,
 		revokeSelfTask,
 		unsealTask,
-		"upgrade",
 		"verify",
-		"version",
 	}
 }
 
@@ -110,7 +98,7 @@ func publicVars() []string {
 		"VAULT_SNAPSHOT_FILE",
 		"VAULT_THRESHOLD",
 		vaultAddrEnvVarName,
-		"VAULT_VERSION",
+		"VAULT_NIX_INSTALLABLE",
 	}
 }
 
@@ -325,46 +313,6 @@ func TestLoginApproleRequiresBothCredentials(t *testing.T) {
 	cmds := taskFieldYAML(t, task.Cmds)
 
 	assertLoginApprolePreconditionsAndCmds(t, preconditions, cmds)
-}
-
-// TestLinuxParentTasksGuardUnsupportedPackageManagers validates the behavior covered by this test case.
-func TestLinuxParentTasksGuardUnsupportedPackageManagers(t *testing.T) {
-	t.Parallel()
-
-	taskfile := tasktest.LoadTaskfile(t, vaultModuleName)
-
-	linuxParentTasks := []string{installLinuxTask, installUndoLinuxTask, upgradeLinuxTask}
-
-	for i := range linuxParentTasks {
-		name := linuxParentTasks[i]
-		assertLinuxGuardsPackageManagers(t, taskfile, name)
-	}
-}
-
-func assertPreconditionsContainToken(t *testing.T, check *guardPreconditionsCheck, token string) {
-	t.Helper()
-
-	if !strings.Contains(check.preconditions, token) {
-		t.Fatalf(
-			"%s should guard unsupported Linux package managers with %s\npreconditions:\n%s",
-			check.name,
-			token,
-			check.preconditions,
-		)
-	}
-}
-
-func assertLinuxGuardsPackageManagers(t *testing.T, taskfile *tasktest.Taskfile, name string) {
-	t.Helper()
-
-	preconditions := taskFieldYAML(t, taskfile.Tasks[name].Preconditions)
-	check := &guardPreconditionsCheck{name: name, preconditions: preconditions}
-
-	tokens := []string{"apt-get", "dnf"}
-
-	for i := range tokens {
-		assertPreconditionsContainToken(t, check, tokens[i])
-	}
 }
 
 func strictShellTaskNames() []string {

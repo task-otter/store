@@ -1,0 +1,105 @@
+---
+version: "3.5"
+
+output:
+  group:
+    begin: "::group::{{.TASK}}"
+    end: "::endgroup::"
+    error_only: false
+
+silent: true
+
+includes:
+  nix:
+    taskfile: ../nix/Taskfile.yml
+
+vars:
+  BRUNO_CLI_NIX_INSTALLABLE: nixpkgs#bruno-cli
+  BRUNO_CLI_COLLECTION: "."
+  BRUNO_CLI_ENV: ""
+  BRUNO_CLI_EXTRA_ARGS: ""
+
+tasks:
+  default:
+    run: once
+    desc: Show available Bruno CLI tasks
+    summary: Display the list of available Bruno CLI-related tasks defined in this Taskfile.
+    cmds:
+      - task --list
+
+  _ensure:
+    run: once
+    internal: true
+    status:
+      - command -v bru >/dev/null 2>&1
+    cmds:
+      - task: nix:install:profile
+        vars:
+          NIX_INSTALLABLE: "{{.BRUNO_CLI_NIX_INSTALLABLE}}"
+
+  _run:
+    internal: true
+    run: when_changed
+    dir: "{{.USER_WORKING_DIR}}"
+    vars:
+      RESOLVED_COLLECTION: '{{default .BRUNO_CLI_COLLECTION .BRUNO_CLI_COLLECTION_OVERRIDE}}'
+      RESOLVED_ENV: '{{default .BRUNO_CLI_ENV .BRUNO_CLI_ENV_OVERRIDE}}'
+    deps:
+      - task: _ensure
+    cmds:
+      - cmd: >-
+          bash -lc '{{.NIX_LOAD}}; bru run {{.RESOLVED_COLLECTION}}
+          {{- if .RESOLVED_ENV}} --env "{{.RESOLVED_ENV}}"{{end}}
+          {{- if .MODE_ARGS}} {{.MODE_ARGS}}{{end}}
+          {{default .BRUNO_CLI_EXTRA_ARGS .BRUNO_CLI_EXTRA_ARGS_OVERRIDE}}{{if .CLI_ARGS}} {{.CLI_ARGS}}{{end}}'
+        platforms: [linux, darwin]
+      - cmd: >-
+          powershell -NoProfile -ExecutionPolicy Bypass -Command
+          "bru run {{.RESOLVED_COLLECTION}}
+          {{if .RESOLVED_ENV}}--env '{{.RESOLVED_ENV}}'{{end}}
+          {{if .MODE_ARGS}}{{.MODE_ARGS}}{{end}}
+          {{default .BRUNO_CLI_EXTRA_ARGS .BRUNO_CLI_EXTRA_ARGS_OVERRIDE}}{{if .CLI_ARGS}} {{.CLI_ARGS}}{{end}}"
+        platforms: [windows]
+
+  run:
+    run: once
+    desc: Run a Bruno collection (BRUNO_CLI_COLLECTION=path)
+    summary: |
+      Run all requests in the Bruno collection at BRUNO_CLI_COLLECTION (default:
+      current directory). Pass BRUNO_CLI_ENV to activate a named Bruno environment,
+      and BRUNO_CLI_EXTRA_ARGS for additional bru flags. Pass CLI arguments after
+      -- to override all variables directly. Auto-installs bru if missing.
+    cmds:
+      - task: _run
+        vars:
+          MODE_ARGS: ""
+
+  ci:
+    run: once
+    desc: Run Bruno collection in CI mode with --bail (BRUNO_CLI_COLLECTION=path)
+    summary: |
+      Run all requests in the Bruno collection and stop immediately on the first
+      failure via --bail. Pass BRUNO_CLI_ENV to activate a named Bruno environment.
+      Intended for CI pipelines where a single failure should abort the run.
+      Auto-installs bru if missing.
+    cmds:
+      - task: _run
+        vars:
+          MODE_ARGS: "--bail"
+
+  help:
+    run: once
+    desc: Show Bruno CLI help
+    summary: Display the built-in bru help output. Auto-installs bru if missing.
+    deps:
+      - task: _ensure
+    cmds:
+      - cmd: >-
+          bash -lc '{{.NIX_LOAD}}; bru --help
+          {{default .BRUNO_CLI_EXTRA_ARGS .BRUNO_CLI_EXTRA_ARGS_OVERRIDE}}{{if .CLI_ARGS}} {{.CLI_ARGS}}{{end}}'
+        platforms: [linux, darwin]
+      - cmd: >-
+          powershell -NoProfile -ExecutionPolicy Bypass -Command
+          "bru --help
+          {{default .BRUNO_CLI_EXTRA_ARGS .BRUNO_CLI_EXTRA_ARGS_OVERRIDE}}{{if .CLI_ARGS}} {{.CLI_ARGS}}{{end}}"
+        platforms: [windows]

@@ -1,0 +1,104 @@
+---
+version: "3.5"
+
+output:
+  group:
+    begin: "::group::{{.TASK}}"
+    end: "::endgroup::"
+    error_only: false
+
+silent: true
+
+includes:
+  nix:
+    taskfile: ../nix/Taskfile.yml
+
+vars:
+  ANSIBLE_LINT_NIX_INSTALLABLE: nixpkgs#ansible-lint
+  ANSIBLE_LINT_CONFIG: "ansible/ansible.cfg"
+  ANSIBLE_LINT_TARGETS: "."
+  ANSIBLE_LINT_EXTRA_ARGS: ""
+  ANSIBLE_LINT_LINT_SKIP_PATTERN: ""
+
+tasks:
+  default:
+    run: once
+    desc: Show available ansible-lint automation tasks
+    summary: Display the list of available ansible-lint-related tasks defined in this Taskfile.
+    cmds:
+      - task --list
+
+  ci:
+    run: once
+    desc: Lint Ansible YAML files with ansible-lint (ANSIBLE_LINT_TARGETS=path)
+    summary: |
+      Run ansible-lint against ANSIBLE_LINT_TARGETS (default .) to enforce best
+      practices and YAML checks. Pass ANSIBLE_LINT_EXTRA_ARGS for additional flags.
+      Auto-installs if missing.
+    dir: "{{.USER_WORKING_DIR}}"
+    deps:
+      - task: nix:install:profile
+        vars:
+          NIX_INSTALLABLE: "{{.ANSIBLE_LINT_NIX_INSTALLABLE}}"
+    cmds:
+      - task: _lint:unix
+      - echo "✅ ansible-lint passed"
+
+  ci:fix:
+    run: once
+    desc: Auto-fix Ansible YAML files with ansible-lint --fix (ANSIBLE_LINT_TARGETS=path)
+    summary: |
+      Run ansible-lint --fix against ANSIBLE_LINT_TARGETS (default .) to automatically
+      resolve fixable lint violations. Pass ANSIBLE_LINT_EXTRA_ARGS for additional flags.
+      Auto-installs if missing.
+    dir: "{{.USER_WORKING_DIR}}"
+    deps:
+      - task: nix:install:profile
+        vars:
+          NIX_INSTALLABLE: "{{.ANSIBLE_LINT_NIX_INSTALLABLE}}"
+    vars:
+      ANSIBLE_LINT_TARGETS: "."
+      ANSIBLE_LINT_EXTRA_ARGS: ""
+    cmds:
+      - task: _lint:fix:unix
+      - echo "✅ ansible-lint fixes applied"
+
+  _lint:unix:
+    run: once
+    internal: true
+    platforms: [linux, darwin]
+    set: [errexit, nounset, pipefail]
+    cmds:
+      - task: _lint:run:unix
+        vars:
+          ANSIBLE_LINT_FIX_FLAG: ""
+
+  _lint:fix:unix:
+    run: once
+    internal: true
+    platforms: [linux, darwin]
+    set: [errexit, nounset, pipefail]
+    cmds:
+      - task: _lint:run:unix
+        vars:
+          ANSIBLE_LINT_FIX_FLAG: "--fix"
+
+  _lint:run:unix:
+    run: once
+    internal: true
+    platforms: [linux, darwin]
+    set: [errexit, nounset, pipefail]
+    cmds:
+      - |
+        bash -lc '{{.NIX_LOAD}}; export ANSIBLE_CONFIG="{{.ANSIBLE_LINT_CONFIG}}";
+        targets="{{if .ANSIBLE_LINT_TARGETS_OVERRIDE}}{{.ANSIBLE_LINT_TARGETS_OVERRIDE}}{{else if
+        .ANSIBLE_LINT_TARGETS}}{{.ANSIBLE_LINT_TARGETS}}{{else}}.{{end}}"
+        skip="{{if .ANSIBLE_LINT_LINT_SKIP_PATTERN_OVERRIDE}}{{.ANSIBLE_LINT_LINT_SKIP_PATTERN_OVERRIDE}}
+        {{- else}}{{.ANSIBLE_LINT_LINT_SKIP_PATTERN}}{{end}}"
+        skip_args=""
+        if [ -n "$skip" ]; then
+          skip_args="--exclude $skip"
+        fi
+        ansible-lint {{.ANSIBLE_LINT_FIX_FLAG}} $skip_args $targets \
+          {{if .ANSIBLE_LINT_EXTRA_ARGS_OVERRIDE}}{{.ANSIBLE_LINT_EXTRA_ARGS_OVERRIDE}}
+          {{- else}}{{.ANSIBLE_LINT_EXTRA_ARGS}}{{end}}'

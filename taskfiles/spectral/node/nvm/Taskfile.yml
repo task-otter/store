@@ -1,5 +1,0 @@
----
-version: "3.5"
-includes:
-  npm: npm/Taskfile.yml
-  pnpm: pnpm/Taskfile.yml

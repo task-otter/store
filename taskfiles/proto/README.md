@@ -4,16 +4,22 @@ A [TaskOtter](https://github.com/task-otter/store) module for generating Go and 
 
 ## What is this Taskfile?
 
-This module provides tasks to generate, install, and manage protoc and the Go protobuf plugins (`protoc-gen-go`, `protoc-gen-go-grpc`). Tools are installed globally and resolved from PATH — protoc via pinned GitHub releases into `/usr/local` on macOS/Linux (Scoop on Windows), and Go plugins via the global Go bin (GOBIN or GOPATH/bin).
+This module generates Go and gRPC source files from `.proto` files. The `gen`
+task auto-installs `protoc`, `protoc-gen-go`, and `protoc-gen-go-grpc` via
+`nix:install:profile`.
 
 ## Usage
 
 ### Standalone
 
 ```sh
-task -t taskfiles/proto/Taskfile.yml install
 task -t taskfiles/proto/Taskfile.yml gen
-task -t taskfiles/proto/Taskfile.yml version
+```
+
+Install only, without generating:
+
+```sh
+task nix:install:profile NIX_INSTALLABLE="nixpkgs#protobuf nixpkgs#protoc-gen-go nixpkgs#protoc-gen-go-grpc"
 ```
 
 Generate from a specific proto directory and keep generated files relative to
@@ -52,8 +58,7 @@ Then run:
 
 ```sh
 task proto:gen
-task proto:install
-task proto:version
+task proto:ungen
 ```
 
 ## Public Tasks
@@ -61,33 +66,23 @@ task proto:version
 | Task | Description |
 |---|---|
 | `gen` | Generate Go files from proto definitions |
-| `install` | Install protoc and Go proto plugins on the current operating system |
-| `install:undo` | Remove protoc and Go proto plugins from the current operating system |
-| `upgrade` | Upgrade protoc and Go proto plugins |
 | `ungen` | Remove generated protobuf (.pb.go) files from the working tree |
-| `version` | Show the installed protoc version |
 
 ## Variables
 
 | Variable | Default | Description |
 |---|---|---|
-| `GO_CMD` | resolved from PATH | Go executable used to install protobuf plugins |
-| `GO_GLOBAL_BIN` | from `go env` | Global Go bin directory where plugins are installed |
+| `PROTO_NIX_INSTALLABLE` | `nixpkgs#protobuf nixpkgs#protoc-gen-go nixpkgs#protoc-gen-go-grpc` | Flake installables passed to `nix:install:profile` |
 | `GO_MODULE` | `""` | Module path stripped from generated output paths |
 | `PROTO_PATH` | `"."` | Search root and value passed to protoc `--proto_path` |
 | `PROTO_PATTERN` | `"*.proto"` | `find -name` pattern for discovering .proto source files |
-| `PROTOC_VERSION` | `"34.0"` | Pinned protoc release for macOS/Linux binary download |
-| `PROTOC_GEN_GO_VERSION` | `"v1.36.5"` | Pinned version of protoc-gen-go |
-| `PROTOC_GEN_GO_GRPC_VERSION` | `"v1.5.1"` | Pinned version of protoc-gen-go-grpc |
+
+Pin a revision by overriding the installable, for example
+`PROTO_NIX_INSTALLABLE=github:NixOS/nixpkgs/<rev>#protobuf`.
 
 ## Notes
 
-- **macOS** and **Linux** download the pinned `PROTOC_VERSION` release into `/usr/local/bin` and `/usr/local/include`. Requires `curl` and `unzip`. Only `x86_64` and `arm64`/`aarch64` are supported.
-- **Windows** installs protoc via Scoop (`scoop install protobuf`). Scoop must be installed.
-- Go is installed automatically through the shared Go module before installing or upgrading the protobuf plugins.
-- Go plugins are installed with `go install` into `GO_GLOBAL_BIN`. Ensure that directory is on your PATH.
-- The `gen` task prepends `GO_GLOBAL_BIN` to PATH so protoc can resolve the plugins automatically.
+- Install goes through `nix:install:profile` (Nix is installed first if missing). Native Windows is not supported; use WSL2.
 - Included Taskfiles must pass generation settings through
   `GO_MODULE_OVERRIDE`, `PROTO_PATH_OVERRIDE`, and `PROTO_PATTERN_OVERRIDE`, as
   shown above.
-- On Windows, Scoop controls the protoc version — `PROTOC_VERSION` applies to macOS and Linux installs.

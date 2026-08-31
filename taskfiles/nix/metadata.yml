@@ -1,0 +1,14 @@
+---
+schema: taskotter.dev/taskfile-metadata/v1
+module: nix
+taskfile: Taskfile.yml
+exported_tasks:
+  - features:enable
+  - features:show
+  - install
+  - install:profile
+  - install:shell
+  - install:undo
+  - uninstall
+  - upgrade
+  - version

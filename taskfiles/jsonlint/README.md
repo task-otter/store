@@ -2,11 +2,10 @@
 
 ## What is this Taskfile?
 
-This Taskfile wraps the `jsonlint` command-line JSON validator with automation
-tasks for installing the tool and validating JSON files on macOS, Linux, and
-Windows. The CLI is provided by the [demjson3](https://pypi.org/project/demjson3/)
-package and is installed through [uv](https://docs.astral.sh/uv/) in an
-isolated environment so it never conflicts with project dependencies.
+This Taskfile wraps the `jsonlint` command-line JSON validator. The CLI is
+provided by [demjson3](https://pypi.org/project/demjson3/) (`nixpkgs#python3Packages.demjson3`,
+not the Node jsonlint package). The `ci` task auto-installs it via
+`nix:install:profile`.
 
 ## Usage
 
@@ -14,6 +13,12 @@ isolated environment so it never conflicts with project dependencies.
 
 ```bash
 task --taskfile taskfiles/jsonlint/Taskfile.yml ci JSONLINT_TARGETS=config.json
+```
+
+Install only:
+
+```sh
+task nix:install:profile NIX_INSTALLABLE=nixpkgs#python3Packages.demjson3
 ```
 
 ### Included
@@ -27,38 +32,28 @@ includes:
 ```bash
 task jsonlint:ci JSONLINT_TARGETS=config.json
 task jsonlint:ci JSONLINT_TARGETS=data/   # validates every *.json under data/
-task jsonlint:install JSONLINT_VERSION=3.0.6
 ```
 
 ## Public Tasks
 
-| Task | Description | Key variables |
-|---|---|---|
-| `install` | Install the jsonlint CLI on the current operating system | `JSONLINT_VERSION` |
-| `install:undo` | Remove the jsonlint CLI (alias: `uninstall`) | |
-| `upgrade` | Upgrade the jsonlint CLI to the latest release | `JSONLINT_VERSION` |
-| `ci` | Validate JSON files with jsonlint | `JSONLINT_TARGETS`, `JSONLINT_EXTRA_ARGS` |
-| `version` | Show the installed jsonlint version | |
+| Task | Description |
+|---|---|
+| `ci` | Validate JSON files with jsonlint |
 
 ## Variables
 
 | Variable | Default | Description |
 |---|---|---|
-| `JSONLINT_VERSION` | `""` (latest) | Pin the demjson3 release that provides the jsonlint CLI |
+| `JSONLINT_NIX_INSTALLABLE` | `nixpkgs#python3Packages.demjson3` | Flake installable passed to `nix:install:profile` |
 | `JSONLINT_TARGETS` | `.` | File or directory to validate; directories are scanned recursively for `*.json` |
 | `JSONLINT_EXTRA_ARGS` | `""` | Extra flags forwarded to jsonlint |
-| `UV_LOAD` | `export PATH="$HOME/.local/bin:$PATH"` | Shell snippet that puts uv-managed tools on PATH (unix) |
-| `JSONLINT_LINT_SKIP_PATTERN` | _(empty)_ | Forward-slash path glob for files skipped by lint checks and fixes |
 
-Skip patterns support `*` within one path segment, `**` across directories, and `?` for one character. Paths are matched relative to the task working directory; for example, `**/generated/**`.
+Pin a revision by overriding the installable, for example
+`JSONLINT_NIX_INSTALLABLE=github:NixOS/nixpkgs/<rev>#python3Packages.demjson3`.
 
 ## Notes
 
 - The PyPI package named `jsonlint` is an unrelated validation library that
   ships no command-line tool; this Taskfile installs `demjson3`, which
   provides the actual `jsonlint` CLI.
-- Auto-install: every run task depends on `install`, so the tool is installed
-  on first use. Installs are idempotent and version-aware — changing
-  `JSONLINT_VERSION` triggers a reinstall.
-- Windows tasks invoke the uv-managed shims directly; macOS and Linux tasks
-  load `~/.local/bin` onto PATH first.
+- Install goes through `nix:install:profile` (Nix is installed first if missing). Native Windows is not supported; use WSL2.

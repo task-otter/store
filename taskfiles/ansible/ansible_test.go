@@ -11,35 +11,26 @@ import (
 
 func publicTasks() []string {
 	return []string{
-		"ci",
-		"ci:fix",
 		"galaxy:install",
-		"install",
-		"install:undo",
 		"list:hosts",
 		"ping",
 		"run",
 		"syntax:check",
-		"upgrade",
 		"vault:decrypt",
 		"vault:encrypt",
-		"version",
 	}
 }
 
 func publicVars() []string {
 	return []string{
-		"ANSIBLE_LINT_SKIP_PATTERN",
-		"ANSIBLE_LINT_VERSION",
-		"ANSIBLE_VERSION",
+		"ANSIBLE_CONFIG",
 		"ANSIBLE_EXTRA_ARGS",
 		"ANSIBLE_FILE",
 		"ANSIBLE_INVENTORY",
+		"ANSIBLE_NIX_INSTALLABLE",
 		"ANSIBLE_PATTERN",
 		"ANSIBLE_PLAYBOOK",
 		"ANSIBLE_REQUIREMENTS",
-		"ANSIBLE_TARGETS",
-		"UV_LOAD",
 	}
 }
 

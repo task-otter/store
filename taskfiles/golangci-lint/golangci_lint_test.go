@@ -47,12 +47,6 @@ type (
 	defaultVarCheck struct {
 		name string
 	}
-
-	containsCheck struct {
-		value  any
-		label  string
-		tokens []string
-	}
 )
 
 const (
@@ -62,8 +56,6 @@ const (
 	constGolangciLintFmtCheck           = "fmt:check"
 	constGolangciLintLint               = "lint"
 	constGolangciLintLintFix            = "lint:fix"
-	constGolangciLintInstall            = "install"
-	constGoInstall                      = "go:install"
 	constGolangciLintModule             = "golangci-lint"
 	constStockCustomLog                 = "stock:custom -v"
 	constCustomRunDefaultLog            = "custom:run ./..."
@@ -71,9 +63,8 @@ const (
 	constProjectCustomDestination       = ".tools"
 	constInitialPluginVersion           = "v1.0.0"
 	constUpdatedPluginVersion           = "v1.0.1"
-	constGolangciLintVersionVar         = "GOLANGCI_LINT_VERSION"
+	constGolangciLintNixInstallable     = "GOLANGCI_LINT_NIX_INSTALLABLE"
 	constGolangciLintLintSkipPatternVar = "GOLANGCI_LINT_LINT_SKIP_PATTERN"
-	constGolangciLintFmtSkipPatternVar  = "GOLANGCI_LINT_FMT_SKIP_PATTERN"
 	constEmptyValue                     = ""
 	constTaskBaseArgCount               = 4
 	constSecureFileMode                 = 0o600
@@ -111,7 +102,6 @@ func publicTasks() []string {
 		"config:skip",
 		constGolangciLintFmt,
 		constGolangciLintFmtCheck,
-		constGolangciLintInstall,
 		constGolangciLintLint,
 		constGolangciLintLintFix,
 	}
@@ -119,12 +109,10 @@ func publicTasks() []string {
 
 func publicVars() []string {
 	return []string{
-		constGolangciLintVersionVar,
+		constGolangciLintNixInstallable,
 		constGolangciLintLintSkipPatternVar,
-		constGolangciLintFmtSkipPatternVar,
 		"GOLANGCI_LINT_INTERNAL_SKIP_CONFIG",
 		"GOLANGCI_LINT_FMT_FORMATTER_FLAGS",
-		"GO_GLOBAL_BIN",
 	}
 }
 
@@ -137,55 +125,6 @@ func TestTaskfileModuleContract(t *testing.T) {
 		constGolangciLintModule,
 		&tasktest.ModuleExpectations{Tasks: publicTasks(), Vars: publicVars()},
 	)
-}
-
-func assertInstallerCmdsUseGoInstall(t *testing.T, task *tasktest.Task) {
-	t.Helper()
-
-	assertContainsAll(
-		t,
-		&containsCheck{
-			value: task.Cmds,
-			tokens: []string{
-				"go install github.com/golangci/golangci-lint/v2/cmd/golangci-lint@",
-				"default \"latest\" .GOLANGCI_LINT_VERSION",
-				"New-Item -ItemType Directory -Force",
-			},
-			label: "install cmds",
-		},
-	)
-}
-
-func assertInstallerStatusChecksVersion(t *testing.T, task *tasktest.Task) {
-	t.Helper()
-
-	assertContainsAll(
-		t,
-		&containsCheck{
-			value: task.Status,
-			tokens: []string{
-				"golangci-lint\" version --short",
-				"GOLANGCI_LINT_VERSION",
-			},
-			label: "install status",
-		},
-	)
-}
-
-// TestGolangciLintInstallerUsesGoInstall
-func TestGolangciLintInstallerUsesGoInstall(t *testing.T) {
-	t.Parallel()
-
-	taskfile := tasktest.LoadTaskfile(t, constGolangciLintModule)
-
-	task, ok := taskfile.Tasks[constGolangciLintInstall]
-
-	if !ok {
-		t.Fatal("golangci-lint Taskfile missing install")
-	}
-
-	assertInstallerCmdsUseGoInstall(t, task)
-	assertInstallerStatusChecksVersion(t, task)
 }
 
 // TestGolangciLintCustomBuildLifecycle
@@ -533,9 +472,7 @@ func TestGolangciLintVariableDefaultsEmpty(t *testing.T) {
 
 func defaultVarChecks() []defaultVarCheck {
 	return []defaultVarCheck{
-		{name: constGolangciLintFmtSkipPatternVar},
 		{name: constGolangciLintLintSkipPatternVar},
-		{name: constGolangciLintVersionVar},
 	}
 }
 
@@ -571,11 +508,10 @@ func TestDevelopmentToolDependencies(t *testing.T) {
 
 func developmentToolDependencies() map[string][]string {
 	return map[string][]string{
-		constGolangciLintInstall:  {constGoInstall},
-		constGolangciLintFmt:      {constGolangciLintInstall},
-		constGolangciLintFmtCheck: {constGolangciLintInstall},
-		constGolangciLintLint:     {constGolangciLintInstall},
-		constGolangciLintLintFix:  {constGolangciLintInstall},
+		constGolangciLintFmt:      {"_ensure"},
+		constGolangciLintFmtCheck: {"_ensure"},
+		constGolangciLintLint:     {"_ensure"},
+		constGolangciLintLintFix:  {"_ensure"},
 	}
 }
 
@@ -627,20 +563,6 @@ func dependencyNames(rawDeps []any) ([]string, bool) {
 	}
 
 	return actual, true
-}
-
-func assertContainsAll(t *testing.T, check *containsCheck) {
-	t.Helper()
-
-	text := fmt.Sprintf("%v", check.value)
-
-	for i := range check.tokens {
-		token := check.tokens[i]
-
-		if !strings.Contains(text, token) {
-			t.Fatalf("%s missing %q: %s", check.label, token, text)
-		}
-	}
 }
 
 func taskDependencyName(rawDep any) (string, bool) {

@@ -23,11 +23,11 @@ Then run the leaf that matches your project through its namespace (replace
 
 ```bash
 task knip:bun:{TASK}                 # Bun runtime + Bun as package manager
-task knip:node:fnm:npm:{TASK}        # Node via fnm, npm as package manager
-task knip:node:nvm:pnpm:{TASK}       # Node via nvm, pnpm as package manager
+task knip:node:npm:{TASK}        # Node via the nodejs module, npm as package manager
+task knip:node:pnpm:{TASK}       # Node via the nodejs module, pnpm as package manager
 ```
 
-Available leaves: `bun`, `node/{fnm,nvm}/{npm,pnpm,yarn}`.
+Available leaves: `bun`, `node/{npm,pnpm,yarn}`.
 
 ## Public Tasks
 
@@ -75,11 +75,11 @@ no skip pattern set deletes it.
 ## Examples
 
 ```bash
-task knip:node:fnm:npm:install
-task knip:node:fnm:npm:install KNIP_VERSION=5.27.0
-task knip:node:fnm:npm:ci
-task knip:node:fnm:npm:production
-task knip:node:fnm:npm:dependencies
-task knip:node:fnm:npm:files
-task knip:node:fnm:npm:exports
+task knip:node:npm:install
+task knip:node:npm:install KNIP_VERSION=5.27.0
+task knip:node:npm:ci
+task knip:node:npm:production
+task knip:node:npm:dependencies
+task knip:node:npm:files
+task knip:node:npm:exports
 ```

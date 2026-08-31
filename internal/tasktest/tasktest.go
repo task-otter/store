@@ -24,9 +24,10 @@ import (
 // Taskfile contains the top-level fields read from a Taskfile.yml.
 type (
 	Taskfile struct {
-		Vars    map[string]any   `yaml:"vars"`
-		Tasks   map[string]*Task `yaml:"tasks"`
-		Version string           `yaml:"version"`
+		Includes map[string]any   `yaml:"includes"`
+		Vars     map[string]any   `yaml:"vars"`
+		Tasks    map[string]*Task `yaml:"tasks"`
+		Version  string           `yaml:"version"`
 	}
 
 	// Task contains the task fields validated by the shared test helpers.

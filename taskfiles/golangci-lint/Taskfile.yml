@@ -7,37 +7,18 @@ output:
     error_only: false
 silent: true
 includes:
-  go:
-    taskfile: ../go/Taskfile.yml
-  skipfiles:
-    taskfile: ../internal/skipfiles/Taskfile.yml
-    internal: true
+  nix:
+    taskfile: ../nix/Taskfile.yml
 vars:
-  GOLANGCI_LINT_VERSION: ""
+  GOLANGCI_LINT_NIX_INSTALLABLE: nixpkgs#go nixpkgs#golangci-lint
   GOLANGCI_LINT_LINT_SKIP_PATTERN: ""
-  GOLANGCI_LINT_FMT_SKIP_PATTERN: ""
   # Written next to the project's golangci-lint config so relative paths inside
   # the merged copy keep resolving. Overwritten on every run, never deleted.
   GOLANGCI_LINT_INTERNAL_SKIP_CONFIG: ".golangci-taskotter-skip.yml"
-  # Formatter selection shared by every golangci-lint fmt invocation (both the
-  # skip-pattern and plain paths, on Unix and Windows). Kept in one place so the
-  # four call sites cannot drift apart.
+  # Formatter selection shared by every golangci-lint fmt invocation on Unix and
+  # Windows. Kept in one place so the two call sites cannot drift apart.
   GOLANGCI_LINT_FMT_FORMATTER_FLAGS: >-
     -E gci -E gofmt -E gofumpt -E goimports -E golines -E swaggo
-  GO_GLOBAL_BIN:
-    sh: |
-      gobin="${GOBIN:-}"
-      if [ -z "$gobin" ] && command -v go >/dev/null 2>&1; then
-        gobin="$(go env GOBIN)"
-      fi
-      if [ -z "$gobin" ]; then
-        gopath="${GOPATH:-}"
-        if [ -z "$gopath" ] && command -v go >/dev/null 2>&1; then
-          gopath="$(go env GOPATH)"
-        fi
-        gobin="${gopath:-$HOME/go}/bin"
-      fi
-      printf '%s' "$gobin"
 tasks:
   default:
     run: once
@@ -45,41 +26,17 @@ tasks:
     summary: Display the list of available golangci-lint-related tasks defined in this Taskfile.
     cmds:
       - task --list
-  install:
+  _ensure:
     run: once
-    desc: Install golangci-lint globally
-    summary: |
-      Install GOLANGCI_LINT_VERSION, defaulting to latest, into the global Go
-      bin.
-    deps:
-      - task: go:install
-    cmds:
-      - cmd: |
-          mkdir -p "{{.GO_GLOBAL_BIN}}"
-          GOBIN="{{.GO_GLOBAL_BIN}}" go install \
-            github.com/golangci/golangci-lint/v2/cmd/golangci-lint@{{default "latest" .GOLANGCI_LINT_VERSION}}
-        platforms: [linux, darwin]
-      - cmd: >-
-          powershell -NoProfile -ExecutionPolicy Bypass -Command "$ErrorActionPreference='Stop'; $globalGoBin =
-          '{{.GO_GLOBAL_BIN}}'; New-Item -ItemType Directory -Force -Path $globalGoBin | Out-Null; $env:GOBIN =
-          $globalGoBin; $installVersion = '{{default "latest" .GOLANGCI_LINT_VERSION}}'; go install
-          github.com/golangci/golangci-lint/v2/cmd/golangci-lint@$installVersion"
-        platforms: [windows]
+    internal: true
     status:
       - >-
-        {{if eq .OS "windows"}}powershell -NoProfile -ExecutionPolicy Bypass -Command
-        "if (-not (Test-Path '{{.GO_GLOBAL_BIN}}/golangci-lint.exe')) { exit 1 };
-        $requested = '{{.GOLANGCI_LINT_VERSION}}';
-        if ([string]::IsNullOrWhiteSpace($requested) -or $requested -eq 'latest') { exit 0 };
-        $got = (& '{{.GO_GLOBAL_BIN}}/golangci-lint.exe' version --short | Select-Object -First 1).ToString().Trim();
-        if ($got.StartsWith('v')) { $got = $got.Substring(1) };
-        if ($requested.StartsWith('v')) { $requested = $requested.Substring(1) };
-        if ($got -match '[-+]') { $got = $got -replace '[-+].*$','' };
-        if ($got -eq $requested) { exit 0 }; exit 1"{{else}}test -x "{{.GO_GLOBAL_BIN}}/golangci-lint"
-        && { test -z "{{.GOLANGCI_LINT_VERSION}}" || test "{{.GOLANGCI_LINT_VERSION}}" = "latest" ||
-        "{{.GO_GLOBAL_BIN}}/golangci-lint" version --short | awk -v want="{{.GOLANGCI_LINT_VERSION}}" '{ got = $1;
-        sub(/^v/, "", got); sub(/^v/, "", want); sub(/[-+].*$/, "", got); if (got == want) { found = 1 } } END { exit
-        !found }'; }{{end}}
+        test -n "{{.GO_GLOBAL_BIN}}"
+        || command -v golangci-lint >/dev/null 2>&1
+    cmds:
+      - task: nix:install:profile
+        vars:
+          NIX_INSTALLABLE: "{{.GOLANGCI_LINT_NIX_INSTALLABLE}}"
   lint:
     run: once
     desc: Lint Go packages with golangci-lint
@@ -90,7 +47,7 @@ tasks:
       Auto-installs golangci-lint if missing. When .custom-gcl.yml exists in the
       working directory, builds or reuses its custom binary instead.
     deps:
-      - task: install
+      - task: _ensure
     cmds:
       - task: _lint
         vars:
@@ -107,7 +64,7 @@ tasks:
       .custom-gcl.yml exists in the working directory, builds or reuses its
       custom binary instead.
     deps:
-      - task: install
+      - task: _ensure
     cmds:
       - task: _lint
         vars:
@@ -136,11 +93,10 @@ tasks:
     desc: Format Go files with golangci-lint formatters
     summary: |
       Rewrite Go files with golangci-lint's gci, gofmt, gofumpt, goimports,
-      golines, and swaggo formatters. Set GOLANGCI_LINT_FMT_SKIP_PATTERN to a
-      shell-style path glob for files to skip. Pass CLI arguments after -- to
-      override the default target. Auto-installs golangci-lint if missing.
+      golines, and swaggo formatters. Pass CLI arguments after -- to override
+      the default target. Auto-installs golangci-lint if missing.
     deps:
-      - task: install
+      - task: _ensure
     cmds:
       - task: _fmt
         vars:
@@ -152,11 +108,10 @@ tasks:
     summary: |
       Check Go files with golangci-lint's gci, gofmt, gofumpt, goimports,
       golines, and swaggo formatters by printing diffs instead of rewriting
-      files. Set GOLANGCI_LINT_FMT_SKIP_PATTERN to a shell-style path glob for
-      files to skip. Pass CLI arguments after -- to override the default
-      target. Auto-installs golangci-lint if missing.
+      files. Pass CLI arguments after -- to override the default target.
+      Auto-installs golangci-lint if missing.
     deps:
-      - task: install
+      - task: _ensure
     cmds:
       - task: _fmt
         vars:
@@ -179,8 +134,10 @@ tasks:
         {{- else}}{{.GOLANGCI_LINT_LINT_SKIP_PATTERN}}{{end}}
     cmds:
       - cmd: |
+          {{.NIX_LOAD}}
+          {{if .GO_GLOBAL_BIN}}export PATH="{{.GO_GLOBAL_BIN}}:$PATH"{{end}}
           pattern="$GO_SKIP_PATTERN"
-          source_config="$("{{.GO_GLOBAL_BIN}}/golangci-lint" config path 2>/dev/null || true)"
+          source_config="$(golangci-lint config path 2>/dev/null || true)"
           config_dir=.
           if [[ -n "$source_config" ]]; then
             config_dir="$(dirname "$source_config")"
@@ -394,7 +351,7 @@ tasks:
           powershell -NoProfile -ExecutionPolicy Bypass -Command - <<'POWERSHELL'
           $ErrorActionPreference = 'Stop'
           $pattern = $env:GO_SKIP_PATTERN
-          $sourceConfig = (& '{{.GO_GLOBAL_BIN}}/golangci-lint' config path 2>$null | Select-Object -First 1)
+          $sourceConfig = (& golangci-lint config path 2>$null | Select-Object -First 1)
           if ($LASTEXITCODE -ne 0) { $sourceConfig = '' }
           if ($sourceConfig) {
               $sourceConfig = (Resolve-Path -LiteralPath $sourceConfig).Path
@@ -633,7 +590,7 @@ tasks:
     generates:
       - "{{.CUSTOM_GCL_BINARY}}"
     cmds:
-      - '"{{.GO_GLOBAL_BIN}}/golangci-lint" custom -v'
+      - bash -lc '{{.NIX_LOAD}}; {{if .GO_GLOBAL_BIN}}export PATH="{{.GO_GLOBAL_BIN}}:$PATH"; {{end}}golangci-lint custom -v'
   _lint:
     run: once
     internal: true
@@ -653,7 +610,9 @@ tasks:
       CUSTOM_GCL_BINARY: "{{joinPath .CUSTOM_GCL_DESTINATION .CUSTOM_GCL_BINARY_NAME}}"
     cmds:
       - cmd: |
-          lint_binary="{{.GO_GLOBAL_BIN}}/golangci-lint"
+          {{.NIX_LOAD}}
+          {{if .GO_GLOBAL_BIN}}export PATH="{{.GO_GLOBAL_BIN}}:$PATH"{{end}}
+          lint_binary="golangci-lint"
           if [ "{{.CUSTOM_GCL_ENABLED}}" = "true" ]; then
             case "{{.CUSTOM_GCL_BINARY}}" in
               /*) lint_binary="{{.CUSTOM_GCL_BINARY}}" ;;
@@ -692,7 +651,7 @@ tasks:
         platforms: [linux, darwin]
       - cmd: >-
           powershell -NoProfile -ExecutionPolicy Bypass -Command "$ErrorActionPreference='Stop'; $lintBinary =
-          '{{.GO_GLOBAL_BIN}}/golangci-lint'; if ('{{.CUSTOM_GCL_ENABLED}}' -eq 'true') {
+          'golangci-lint'; if ('{{.CUSTOM_GCL_ENABLED}}' -eq 'true') {
 
             $lintBinary = '{{.CUSTOM_GCL_BINARY}}'; if (-not [System.IO.Path]::IsPathRooted($lintBinary)) {
 
@@ -733,90 +692,18 @@ tasks:
     dir: "{{.USER_WORKING_DIR}}"
     cmds:
       - cmd: |
-          skip_pattern='{{if .GOLANGCI_LINT_FMT_SKIP_PATTERN_OVERRIDE}}{{.GOLANGCI_LINT_FMT_SKIP_PATTERN_OVERRIDE}}
-          {{- else}}{{.GOLANGCI_LINT_FMT_SKIP_PATTERN}}{{end}}'
-          if [ -z "$skip_pattern" ]; then
-            "{{.GO_GLOBAL_BIN}}/golangci-lint" fmt \
-              {{.GO_FMT_DIFF}} \
-              {{.GOLANGCI_LINT_FMT_FORMATTER_FLAGS}} \
-              {{.GO_FMT_TARGETS}}
-            exit
-          fi
-
-          file_list="$(mktemp)"
-          trap 'rm -f "$file_list"' EXIT
-          set --
-          for target in {{.GO_FMT_TARGETS}}; do
-            target="${target%...}"
-            target="${target%/}"
-            if [ -z "$target" ]; then
-              target=.
-            fi
-            set -- "$@" "$target"
-          done
-
-          for target in "$@"; do
-            if [ -d "$target" ]; then
-              find "$target" \
-                -type f \
-                -name '*.go' \
-                ! -path '*/node_modules/*' \
-                ! -path '*/testdata/*' \
-                ! -path '*/vendor/*' \
-                -print0
-            elif [ -f "$target" ]; then
-              printf '%s\000' "$target"
-            fi
-          done | task --silent --taskfile "{{.TASKFILE_DIR}}/../internal/skipfiles/Taskfile.yml" \
-            filter "SKIPFILES_PATTERN=$skip_pattern" >"$file_list"
-
-          if [ ! -s "$file_list" ]; then
-            echo 'No matching Go files found'
-            exit 0
-          fi
-
-          xargs -0 "{{.GO_GLOBAL_BIN}}/golangci-lint" fmt \
-              {{.GO_FMT_DIFF}} \
-              {{.GOLANGCI_LINT_FMT_FORMATTER_FLAGS}} <"$file_list"
+          {{.NIX_LOAD}}
+          {{if .GO_GLOBAL_BIN}}export PATH="{{.GO_GLOBAL_BIN}}:$PATH"{{end}}
+          golangci-lint fmt \
+            {{.GO_FMT_DIFF}} \
+            {{.GOLANGCI_LINT_FMT_FORMATTER_FLAGS}} \
+            {{.GO_FMT_TARGETS}}
         platforms: [linux, darwin]
       - cmd: >-
-          powershell -NoProfile -ExecutionPolicy Bypass -Command "$ErrorActionPreference='Stop'; $skipPattern = '{{if
-          .GOLANGCI_LINT_FMT_SKIP_PATTERN_OVERRIDE}}{{.GOLANGCI_LINT_FMT_SKIP_PATTERN_OVERRIDE}} {{-
-          else}}{{.GOLANGCI_LINT_FMT_SKIP_PATTERN}}{{end}}';
-          if (-not $skipPattern) {
-
-            & '{{.GO_GLOBAL_BIN}}/golangci-lint' fmt
+          powershell -NoProfile -ExecutionPolicy Bypass -Command "$ErrorActionPreference='Stop';
+            & golangci-lint fmt
               {{.GO_FMT_DIFF}}
               {{.GOLANGCI_LINT_FMT_FORMATTER_FLAGS}}
               {{.GO_FMT_TARGETS}};
-            exit $LASTEXITCODE;
-          }; $targets = '{{.GO_FMT_TARGETS}}' -split '\s+'; $files = @($targets | ForEach-Object {
-
-            $target = $_ -replace '\.\.\.$', '';
-            $target = $target.TrimEnd('/').TrimEnd('\');
-            if (-not $target) { $target = '.' };
-            if (Test-Path -LiteralPath $target -PathType Leaf) {
-              Get-Item -LiteralPath $target;
-            } else {
-              Get-ChildItem -LiteralPath $target -Recurse -Filter '*.go' -File;
-            };
-          } | Where-Object {
-
-            $path = [string](Resolve-Path -LiteralPath $_.FullName -Relative);
-            $path = $path.Replace('\', '/');
-            $path -notlike '*/node_modules/*' -and
-              $path -notlike '*/testdata/*' -and
-              $path -notlike '*/vendor/*';
-          } | ForEach-Object FullName |
-
-            task --silent --taskfile '{{.TASKFILE_DIR}}/../internal/skipfiles/Taskfile.yml'
-              filter ('SKIPFILES_PATTERN=' + $skipPattern));
-          if ($files.Count -gt 0) {
-
-            & '{{.GO_GLOBAL_BIN}}/golangci-lint' fmt
-              {{.GO_FMT_DIFF}}
-              {{.GOLANGCI_LINT_FMT_FORMATTER_FLAGS}}
-              @files;
-            exit $LASTEXITCODE;
-          }"
+            exit $LASTEXITCODE"
         platforms: [windows]

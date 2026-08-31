@@ -6,9 +6,5 @@ exported_tasks:
   - exec
   - generate
   - init
-  - install
-  - install:undo
   - list
   - new
-  - upgrade
-  - version

@@ -13,19 +13,13 @@ func publicTasks() []string {
 	return []string{
 		"ci:fix",
 		"fmt:check",
-		"install",
-		"install:undo",
-		"upgrade",
-		"version",
 	}
 }
 
 func publicVars() []string {
 	return []string{
-		"SHFMT_FMT_SKIP_PATTERN",
 		"SHFMT_EXTRA_ARGS",
-		"GO_GLOBAL_BIN",
-		"SHFMT_VERSION",
+		"SHFMT_NIX_INSTALLABLE",
 		"SHFMT_TARGETS",
 	}
 }

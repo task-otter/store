@@ -9,10 +9,12 @@ output:
 
 silent: true
 
+includes:
+  nix:
+    taskfile: ../nix/Taskfile.yml
+
 vars:
-  UV_INSTALL_URL: https://astral.sh/uv/install.sh
-  UV_INSTALL_URL_WINDOWS: https://astral.sh/uv/install.ps1
-  UV_LOAD: 'export PATH="$HOME/.local/bin:$PATH"'
+  UV_NIX_INSTALLABLE: nixpkgs#uv
   UV_VENV: ".venv"
   UV_REQUIREMENTS: "requirements.txt"
   UV_FILE: ""
@@ -20,7 +22,6 @@ vars:
   UV_EXTRA_ARGS: ""
   PYTHON_VERSION: ""
   UV_TOOL: ""
-  UV_VERSION: ""
 
 tasks:
   default:
@@ -30,52 +31,13 @@ tasks:
     cmds:
       - task --list
 
-  install:
+  _ensure:
     run: once
-    desc: Install uv on the current operating system
-    summary: |
-      Install uv for the current platform if it is not already available.
-      macOS and Linux use the official install script from astral.sh.
-      Windows uses the official PowerShell installer from astral.sh.
-      Pass UV_VERSION=x.y.z to pin a specific release instead of the latest.
-      After installation, restart your shell or the uv binary will be loaded
-      automatically via UV_LOAD in subsequent task invocations.
+    internal: true
     cmds:
-      - task: _install:unix
-      - task: _install:windows
-
-  install:undo:
-    run: once
-    desc: Remove uv from the current operating system
-    summary: |
-      Remove uv via uv self uninstall on all platforms.
-      This removes the uv binary and cleans up the installation directory.
-    prompt:
-      - This will remove uv from this machine.
-      - Continue?
-    cmds:
-      - task: _install:undo:unix
-      - task: _install:undo:windows
-
-  upgrade:
-    run: once
-    desc: Upgrade uv to the latest release
-    summary: Run uv self update to upgrade the uv binary to the latest release. Auto-installs uv if missing.
-    deps:
-      - task: install
-    cmds:
-      - task: _upgrade:unix
-      - task: _upgrade:windows
-
-  version:
-    run: once
-    desc: Show the installed uv version
-    summary: Print the active uv version via uv --version. Auto-installs uv if missing.
-    deps:
-      - task: install
-    cmds:
-      - task: _version:unix
-      - task: _version:windows
+      - task: nix:install:profile
+        vars:
+          NIX_INSTALLABLE: "{{.UV_NIX_INSTALLABLE}}"
 
   python:install:
     run: once
@@ -85,7 +47,7 @@ tasks:
       Pass PYTHON_VERSION to select the version, e.g. PYTHON_VERSION=3.12.
       Auto-installs uv if missing.
     deps:
-      - task: install
+      - task: _ensure
     requires:
       vars:
         - PYTHON_VERSION
@@ -113,7 +75,7 @@ tasks:
       Create a virtual environment at UV_VENV (default .venv) using uv venv.
       Auto-installs uv if missing.
     deps:
-      - task: install
+      - task: _ensure
     cmds:
       - task: _uv:unix
         vars:
@@ -130,7 +92,7 @@ tasks:
       Pass UV_EXTRA_ARGS for additional flags such as --upgrade or --no-cache.
       Auto-installs uv if missing.
     deps:
-      - task: install
+      - task: _ensure
     cmds:
       - task: _uv:unix
         vars:
@@ -147,7 +109,7 @@ tasks:
       Pass UV_ARGS for positional arguments and UV_EXTRA_ARGS for uv flags.
       Auto-installs uv if missing.
     deps:
-      - task: install
+      - task: _ensure
     requires:
       vars:
         - UV_FILE
@@ -177,7 +139,7 @@ tasks:
       Pass UV_EXTRA_ARGS for additional flags such as --upgrade.
       Auto-installs uv if missing.
     deps:
-      - task: install
+      - task: _ensure
     requires:
       vars:
         - UV_TOOL
@@ -206,7 +168,7 @@ tasks:
       latest release. Pass UV_EXTRA_ARGS for additional flags.
       Auto-installs uv if missing.
     deps:
-      - task: install
+      - task: _ensure
     requires:
       vars:
         - UV_TOOL
@@ -235,7 +197,7 @@ tasks:
     requires:
       vars: [UV_ARGS]
     cmds:
-      - bash -lc '{{.UV_LOAD}}; uv {{.UV_ARGS}}'
+      - bash -lc '{{.NIX_LOAD}}; uv {{.UV_ARGS}}'
 
   _uv:windows:
     run: once
@@ -245,124 +207,3 @@ tasks:
       vars: [UV_ARGS]
     cmds:
       - uv {{.UV_ARGS}}
-
-  _install:unix:
-    run: once
-    internal: true
-    platforms: [linux, darwin]
-    set: [errexit, nounset, pipefail]
-    status:
-      - >-
-        uv_bin="$HOME/.local/bin/uv";
-        if [ ! -x "$uv_bin" ]; then uv_bin="$(command -v uv 2>/dev/null)"; fi;
-        [ -n "$uv_bin" ] && [ -x "$uv_bin" ]
-        && { [ -z "{{.UV_VERSION}}" ] || "$uv_bin" --version | grep -Fq "uv {{.UV_VERSION}}"; }
-    preconditions:
-      - sh: command -v curl >/dev/null 2>&1
-        msg: curl is required to download the uv installer.
-    cmds:
-      - echo 'Installing uv via the official install script...'
-      - >-
-        curl -LsSf
-        "{{if .UV_VERSION}}https://astral.sh/uv/{{.UV_VERSION}}/install.sh{{else}}{{.UV_INSTALL_URL}}{{end}}"
-        | sh
-      - echo 'uv installed. Restart your shell or tasks will use UV_LOAD to locate the binary.'
-
-  _install:windows:
-    run: once
-    internal: true
-    platforms: [windows]
-    status:
-      - >-
-        powershell -NoProfile -ExecutionPolicy Bypass -Command
-        "$uv = Get-Command uv -ErrorAction SilentlyContinue;
-        if (-not $uv) { exit 1 };
-        $requested = '{{.UV_VERSION}}';
-        if ([string]::IsNullOrWhiteSpace($requested)
-        -or ((& $uv.Source --version) -like ('uv ' + $requested + '*'))) { exit 0 };
-        exit 1"
-    cmds:
-      - echo Installing uv via the official PowerShell installer...
-      - >-
-        powershell -ExecutionPolicy ByPass -c
-        "$installer = if ('{{.UV_VERSION}}') {
-        'https://astral.sh/uv/' + '{{.UV_VERSION}}' + '/install.ps1'
-        } else {
-        '{{.UV_INSTALL_URL_WINDOWS}}'
-        }; irm $installer | iex"
-      - echo uv installed. Restart your terminal to use uv.
-
-  _install:undo:unix:
-    run: once
-    internal: true
-    platforms: [linux, darwin]
-    set: [errexit, nounset, pipefail]
-    status:
-      - '! test -f "$HOME/.local/bin/uv" && ! command -v uv >/dev/null 2>&1'
-    cmds:
-      - echo 'Removing uv...'
-      - bash -lc '{{.UV_LOAD}}; uv self uninstall'
-      - echo 'uv removed.'
-
-  _install:undo:windows:
-    run: once
-    internal: true
-    platforms: [windows]
-    status:
-      - >-
-        powershell -NoProfile -ExecutionPolicy Bypass -Command
-        "if (Get-Command uv -ErrorAction SilentlyContinue) { exit 1 } else { exit 0 }"
-    cmds:
-      - echo Removing uv...
-      - uv self uninstall
-      - echo uv removed. Restart your terminal.
-
-  _upgrade:unix:
-    run: once
-    internal: true
-    platforms: [linux, darwin]
-    set: [errexit, nounset, pipefail]
-    preconditions:
-      - sh: 'test -f "$HOME/.local/bin/uv" || command -v uv >/dev/null 2>&1'
-        msg: uv is not installed. Run task install first.
-    cmds:
-      - echo 'Upgrading uv...'
-      - bash -lc '{{.UV_LOAD}}; uv self update'
-      - echo 'uv upgraded.'
-
-  _upgrade:windows:
-    run: once
-    internal: true
-    platforms: [windows]
-    preconditions:
-      - sh: >-
-          powershell -NoProfile -ExecutionPolicy Bypass -Command
-          "if (Get-Command uv -ErrorAction SilentlyContinue) { exit 0 } else { exit 1 }"
-        msg: uv is not installed. Run task install first.
-    cmds:
-      - echo Upgrading uv...
-      - uv self update
-      - echo uv upgraded.
-
-  _version:unix:
-    run: once
-    internal: true
-    platforms: [linux, darwin]
-    set: [errexit, nounset, pipefail]
-    preconditions:
-      - sh: 'test -f "$HOME/.local/bin/uv" || command -v uv >/dev/null 2>&1'
-        msg: uv is not installed. Run task install first.
-    cmds:
-      - bash -lc '{{.UV_LOAD}}; uv --version'
-
-  _version:windows:
-    run: once
-    internal: true
-    platforms: [windows]
-    preconditions:
-      - sh: >-
-          powershell -NoProfile -ExecutionPolicy Bypass -Command
-          "if (Get-Command uv -ErrorAction SilentlyContinue) { exit 0 } else { exit 1 }"
-        msg: uv is not installed. Run task install first.
-    cmds:
-      - uv --version

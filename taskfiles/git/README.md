@@ -20,6 +20,12 @@ task -t taskfiles/git/Taskfile.yml commit GIT_COMMIT_MSG="feat: add login page"
 task -t taskfiles/git/Taskfile.yml pr:create GIT_TITLE="feat: login page" GIT_BASE=main
 ```
 
+Install git only:
+
+```sh
+task nix:install:profile NIX_INSTALLABLE=nixpkgs#git
+```
+
 ### Included (recommended)
 
 ```yaml
@@ -40,9 +46,6 @@ task git:pr:create GIT_TITLE="feat: add feature" GIT_BASE=main
 
 | Task             | Description                                                     | Key variables                     |
 | ---------------- | --------------------------------------------------------------- | --------------------------------- |
-| `install`        | Install git on the current operating system                    | `GIT_VERSION`                         |
-| `install:undo`   | Remove git from the current operating system                    | —                                 |
-| `upgrade`        | Upgrade git to the latest release                               | —                                 |
 | `auth:setup`     | Configure git to use gh as credential helper                    | —                                 |
 | `init`           | Initialize a new git repository                                 | `GIT_BRANCH`                          |
 | `clone`          | Clone a GitHub repository using the GitHub CLI                  | `GIT_REPO`, `GIT_OWNER`, `GIT_CLONE_DIR`      |
@@ -85,7 +88,6 @@ task git:pr:create GIT_TITLE="feat: add feature" GIT_BASE=main
 | `pr:create`      | Push the current branch and open a pull request on GitHub       | `GIT_TITLE`, `GIT_BASE`, `GIT_BODY`, `GIT_REMOTE` |
 | `pr:open`        | Open the current pull request in the browser via the GitHub CLI | —                                 |
 | `release:create` | Create a git tag and a GitHub release via the GitHub CLI        | `GIT_TAG`, `GIT_TITLE`, `GIT_NOTES`, `GIT_REMOTE` |
-| `version`        | Show the installed git version                                  | —                                 |
 | `help`           | Show the git built-in help and command list                     | —                                 |
 
 ## Variables
@@ -111,8 +113,8 @@ task git:pr:create GIT_TITLE="feat: add feature" GIT_BASE=main
 | `GIT_BODY`         | _(empty)_ | PR description                                        |
 | `GIT_URL`          | _(empty)_ | Remote URL for `remote:add` and `remote:set-url`      |
 | `GIT_MESSAGE`      | _(empty)_ | Tag annotation or stash description                   |
-| `GIT_EXTRA_ARGS`   | _(empty)_ | Extra arguments appended to the underlying command    |
-| `GIT_VERSION`      | _(empty)_ | Pin a specific git release for `install`; empty installs latest. Exact availability depends on the platform's package manager/repository. |
+| `GIT_EXTRA_ARGS`       | _(empty)_ | Extra arguments appended to the underlying command    |
+| `GIT_NIX_INSTALLABLE`  | `nixpkgs#git` | Flake installable passed to `nix:install:profile` |
 
 ## Examples
 
@@ -171,3 +173,12 @@ task -t taskfiles/git/Taskfile.yml remote:list
 task -t taskfiles/git/Taskfile.yml remote:add GIT_NAME=upstream GIT_URL=https://github.com/org/repo.git
 task -t taskfiles/git/Taskfile.yml remote:set-url GIT_NAME=origin GIT_URL=git@github.com:org/repo.git
 ```
+
+Pin a revision by overriding the installable, for example
+`GIT_NIX_INSTALLABLE=github:NixOS/nixpkgs/<rev>#git`.
+
+## Notes
+
+- Install goes through `nix:install:profile` (Nix is installed first if missing). Native Windows is not supported; use WSL2.
+- Tasks that call `gh` auto-install the GitHub CLI via `gh:nix:install:profile`.
+

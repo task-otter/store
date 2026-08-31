@@ -10,7 +10,7 @@ exported_tasks:
   - audit:report
   - build
   - cache:clean
-  - ci
+  - install:clean
   - ci:fix
   - clean
   - clean:all
@@ -20,9 +20,6 @@ exported_tasks:
   - install
   - install:undo
   - lint
-  - manager:pin
-  - manager:setup
-  - node:setup
   - outdated
   - outdated:strict
   - remove
@@ -32,4 +29,3 @@ exported_tasks:
   - update
   - upgrade
   - version
-variants: [fnm, nvm]

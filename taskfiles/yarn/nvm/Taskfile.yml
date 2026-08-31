@@ -88,13 +88,13 @@ tasks:
       - task: _yarn:windows
         vars: { ARGS: install --silent }
 
-  ci:
+  install:clean:
     run: once
-    desc: Validate a lockfile-safe Yarn install
-    summary: Run yarn install --immutable and fail if Yarn would modify yarn.lock.
+    desc: Clean install project dependencies from the lockfile
+    summary: Run yarn install --immutable (install:clean) and fail if Yarn would modify yarn.lock.
     cmds:
-      - task: _ci:unix
-      - task: _ci:windows
+      - task: _install:clean:unix
+      - task: _install:clean:windows
 
   ci:fix:
     run: once
@@ -416,18 +416,18 @@ tasks:
         Write-Error 'corepack is not available. Run: task manager:setup'; exit 1 };
         corepack yarn {{.ARGS}}"
 
-  _ci:unix:
+  _install:clean:unix:
     run: once
     internal: true
     platforms: [linux, darwin]
     preconditions:
       - sh: 'test -f "{{.USER_WORKING_DIR}}/yarn.lock"'
-        msg: "yarn.lock not found. Yarn CI installs require a lockfile."
+        msg: "yarn.lock not found. yarn install:clean requires a lockfile."
     cmds:
       - task: _yarn:unix
         vars: { ARGS: install --immutable --silent }
 
-  _ci:windows:
+  _install:clean:windows:
     run: once
     internal: true
     platforms: [windows]
@@ -435,7 +435,7 @@ tasks:
       - sh: >-
           powershell -NoProfile -ExecutionPolicy Bypass -Command
           "if (Test-Path '{{.USER_WORKING_DIR}}\yarn.lock') { exit 0 } else { exit 1 }"
-        msg: "yarn.lock not found. Yarn CI installs require a lockfile."
+        msg: "yarn.lock not found. yarn install:clean requires a lockfile."
     cmds:
       - task: _yarn:windows
         vars: { ARGS: install --immutable --silent }

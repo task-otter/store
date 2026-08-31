@@ -2,21 +2,23 @@
 
 ## What is this Taskfile?
 
-A cross-platform Taskfile for installing the HashiCorp Vault CLI and running
-common Vault operator workflows such as status checks, initialization, unseal,
-login, Raft peer inspection, snapshots, and restores.
-
-macOS uses Homebrew with `hashicorp/tap`. Linux uses the official HashiCorp APT
-or DNF repositories. Windows uses winget to install `Hashicorp.Vault`.
+A Taskfile for running common HashiCorp Vault operator workflows such as status
+checks, initialization, unseal, login, Raft peer inspection, snapshots, and
+restores. Operational tasks auto-install the Vault CLI via `nix:install:profile`.
 
 ## Usage
 
 ### Standalone
 
 ```sh
-task -t taskfiles/vault/Taskfile.yml install
 task -t taskfiles/vault/Taskfile.yml status
 task -t taskfiles/vault/Taskfile.yml health
+```
+
+Install only:
+
+```sh
+task nix:install:profile NIX_INSTALLABLE=nixpkgs#vault
 ```
 
 ### Included
@@ -29,7 +31,6 @@ includes:
 Then run:
 
 ```sh
-task vault:install
 task vault:status
 task vault:health VAULT_ADDR=http://127.0.0.1:8200
 task vault:snapshot VAULT_FILE=backup.snap
@@ -39,10 +40,6 @@ task vault:snapshot VAULT_FILE=backup.snap
 
 | Task           | Description                                  | Key variables                    |
 | -------------- | -------------------------------------------- | -------------------------------- |
-| `install`      | Install the Vault CLI on the current OS      | `VAULT_VERSION`                        |
-| `install:undo` | Remove the Vault CLI from the current OS     | none                             |
-| `upgrade`      | Upgrade the Vault CLI                        | none                             |
-| `version`      | Show the installed Vault CLI version         | none                             |
 | `verify`       | Verify CLI installation and server status    | `VAULT_ADDR`                     |
 | `status`       | Show Vault seal and HA status                | `VAULT_ADDR`                     |
 | `health`       | Query the Vault HTTP health endpoint as JSON | `VAULT_ADDR`                     |
@@ -78,7 +75,7 @@ task vault:snapshot VAULT_FILE=backup.snap
 | `KV_MOUNT`      | _(empty)_               | KV v2 engine mount path for `kv:get`             |
 | `SECRET_PATH`   | _(empty)_               | Secret path within the KV mount for `kv:get`     |
 | `SECRET_VERSION`| _(empty)_               | Optional KV version to pin for `kv:get`          |
-| `VAULT_VERSION`       | _(empty)_               | Pin a specific Vault CLI release for `install`; empty installs latest. Exact availability depends on the platform's package manager/repository. |
+| `VAULT_NIX_INSTALLABLE` | `nixpkgs#vault` | Flake installable passed to `nix:install:profile` |
 
 ## Notes
 
@@ -105,3 +102,9 @@ Pass `SECRET_VERSION=<n>` to pin to a specific KV version.
 When using this repository's root Taskfile include, pass `VAULT_FILE=path`
 instead of `VAULT_FILE=path` for `vault:snapshot` and `vault:restore`. The standalone
 Vault Taskfile continues to use `VAULT_FILE=path`.
+
+Pin a revision by overriding the installable, for example
+`VAULT_NIX_INSTALLABLE=github:NixOS/nixpkgs/<rev>#vault`.
+
+Install goes through `nix:install:profile` (Nix is installed first if missing).
+Native Windows is not supported; use WSL2.

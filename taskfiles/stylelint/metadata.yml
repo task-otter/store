@@ -15,9 +15,6 @@ exported_tasks:
   - version
 variants:
   - bun
-  - node/fnm/npm
-  - node/fnm/pnpm
-  - node/fnm/yarn
-  - node/nvm/npm
-  - node/nvm/pnpm
-  - node/nvm/yarn
+  - node/npm
+  - node/pnpm
+  - node/yarn

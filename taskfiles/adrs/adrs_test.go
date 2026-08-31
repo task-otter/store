@@ -14,20 +14,15 @@ func publicTasks() []string {
 		"exec",
 		"generate",
 		"init",
-		"install",
-		"install:undo",
 		"list",
 		"new",
-		"upgrade",
-		"version",
 	}
 }
 
 func publicVars() []string {
 	return []string{
-		"ADRS_VERSION",
-		"CARGO_BIN_UNIX",
 		"ADRS_EXTRA_ARGS",
+		"ADRS_NIX_INSTALLABLE",
 	}
 }
 

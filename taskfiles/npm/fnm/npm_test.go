@@ -37,7 +37,7 @@ const (
 	constNpmTestPackages       = "PACKAGES"
 	constNpmTestAuditReport    = "audit:report"
 	constNpmTestBuild          = "build"
-	constNpmTestCi             = "ci"
+	constNpmTestInstallClean   = "install:clean"
 	constNpmTestClean          = "clean"
 	constNpmTestDev            = "dev"
 	constNpmTestInstall        = "install"
@@ -89,7 +89,7 @@ func expectedPublicTasksA() []tasktestutil.PublicTaskSpec {
 		spec(constNpmTestAuditReport, dryGroupSummary...),
 		spec(constNpmTestBuild, dryGroupSummary...),
 		spec("cache:clean", dryGroupSummary...),
-		spec(constNpmTestCi, dryGroupSummary...),
+		spec(constNpmTestInstallClean, dryGroupSummary...),
 		spec("ci:fix", dryGroupSummary...),
 	}
 }
@@ -654,11 +654,11 @@ func TestInstallTaskExitsSuccessfully(t *testing.T) {
 	assertStubbedNpmTaskExits(t, constNpmTestInstall)
 }
 
-// TestCiTaskExitsSuccessfully
-func TestCiTaskExitsSuccessfully(t *testing.T) {
+// TestInstallCleanTaskExitsSuccessfully
+func TestInstallCleanTaskExitsSuccessfully(t *testing.T) {
 	t.Parallel()
 
-	assertStubbedNpmTaskExits(t, constNpmTestCi)
+	assertStubbedNpmTaskExits(t, constNpmTestInstallClean)
 }
 
 // TestBuildTaskExitsSuccessfully
@@ -857,8 +857,8 @@ func skipUnlessUnixShell(t *testing.T) {
 	}
 }
 
-// TestCiFailsWithoutLockfile validates the behavior covered by this test case.
-func TestCiFailsWithoutLockfile(t *testing.T) {
+// TestInstallCleanFailsWithoutLockfile validates the behavior covered by this test case.
+func TestInstallCleanFailsWithoutLockfile(t *testing.T) {
 	t.Parallel()
 	skipUnlessUnixShell(t)
 
@@ -866,10 +866,10 @@ func TestCiFailsWithoutLockfile(t *testing.T) {
 
 	writeProjectPackageJSON(t, projectDir)
 
-	result := runNpmTaskFor(t, projectDir, constNpmTestCi)
+	result := runNpmTaskFor(t, projectDir, constNpmTestInstallClean)
 
 	assertResultErrContains(t, &result, &errCheck{
-		noErrMsg: "expected task ci to fail without package-lock.json but it succeeded",
+		noErrMsg: "expected task install:clean to fail without package-lock.json but it succeeded",
 		substrA:  "package-lock.json",
 		substrB:  "lockfile",
 		msgFmt:   "expected error mentioning lockfile, got:\n%s",

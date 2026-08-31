@@ -11,21 +11,15 @@ import (
 
 func publicTasks() []string {
 	return []string{
-		"ci:fix",
-		"install",
-		"install:undo",
 		"ci",
-		"upgrade",
-		"version",
+		"ci:fix",
 	}
 }
 
 func publicVars() []string {
 	return []string{
-		"PROTOLINT_LINT_SKIP_PATTERN",
 		"PROTOLINT_EXTRA_ARGS",
-		"GO_GLOBAL_BIN",
-		"PROTOLINT_VERSION",
+		"PROTOLINT_NIX_INSTALLABLE",
 		"PROTOLINT_TARGETS",
 	}
 }

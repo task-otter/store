@@ -39,8 +39,6 @@ func publicTasksCoreB() []string {
 		"fetch",
 		"help",
 		"init",
-		"install",
-		"install:undo",
 		"log",
 		"log:graph",
 	}
@@ -79,8 +77,6 @@ func publicTasksReleaseAndSyncB() []string {
 		"tag:delete",
 		"tag:list",
 		"tag:push",
-		"upgrade",
-		"version",
 	}
 }
 
@@ -119,7 +115,7 @@ func publicVarsExtra() []string {
 		"GIT_TAG",
 		"GIT_TITLE",
 		"GIT_URL",
-		"GIT_VERSION",
+		"GIT_NIX_INSTALLABLE",
 	}
 }
 

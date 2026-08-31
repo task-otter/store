@@ -1,0 +1,294 @@
+---
+version: "3.5"
+
+output:
+  group:
+    begin: "::group::{{.TASK}}"
+    end: "::endgroup::"
+    error_only: false
+
+silent: true
+
+includes:
+  pnpm:
+    taskfile: ../../../pnpm/Taskfile.yml
+
+vars:
+  STYLELINT_LINT_SKIP_PATTERN: ""
+  STYLELINT_TARGETS: ""
+  STYLELINT_DEFAULT_TARGETS: "**/*.{css,scss,sass,less,vue,svelte,astro}"
+  STYLELINT_CONFIG: ""
+  STYLELINT_CACHE: ""
+  STYLELINT_DEFAULT_CACHE: "true"
+  STYLELINT_ALLOW_EMPTY_INPUT: ""
+  STYLELINT_DEFAULT_ALLOW_EMPTY_INPUT: "true"
+  STYLELINT_EXTRA_ARGS: ""
+  STYLELINT_VERSION: ""
+
+tasks:
+  default:
+    run: once
+    desc: Show available Stylelint tasks
+    cmds:
+      - task --list
+
+  install:
+    run: once
+    dir: "{{.USER_WORKING_DIR}}"
+    desc: Install Stylelint and the standard config as local devDependencies
+    summary: |
+      Install stylelint and stylelint-config-standard as local devDependencies.
+      Pass STYLELINT_VERSION=x.y.z to pin stylelint to a specific release.
+    vars:
+      RESOLVED_VERSION: '{{default .STYLELINT_VERSION .STYLELINT_VERSION_OVERRIDE}}'
+      RESOLVED_EXTRA_ARGS: '{{default .STYLELINT_EXTRA_ARGS .STYLELINT_EXTRA_ARGS_OVERRIDE}}'
+    status:
+      - >-
+        node -e "const installed = require('./node_modules/stylelint/package.json');
+        const requested = '{{.RESOLVED_VERSION}}';
+        process.exit(!requested || installed.version === requested ? 0 : 1)"
+    cmds:
+      - task: pnpm:add
+        vars:
+          PACKAGES: >-
+            stylelint{{if .RESOLVED_VERSION}}@{{.RESOLVED_VERSION}}{{end}} stylelint-config-standard
+          EXTRA_ARGS: '{{.RESOLVED_EXTRA_ARGS}}{{if .CLI_ARGS}} {{.CLI_ARGS}}{{end}}'
+
+  install:undo:
+    run: once
+    desc: Remove the locally installed Stylelint devDependencies
+    summary: Remove stylelint and stylelint-config-standard from local devDependencies.
+    prompt:
+      - This will remove stylelint and stylelint-config-standard from local devDependencies.
+      - Continue?
+    cmds:
+      - task: pnpm:remove
+        vars:
+          PACKAGES: "stylelint stylelint-config-standard"
+          EXTRA_ARGS: '{{default .STYLELINT_EXTRA_ARGS .STYLELINT_EXTRA_ARGS_OVERRIDE}}'
+
+  upgrade:
+    run: once
+    desc: Upgrade Stylelint to the latest release
+    summary: Reinstall stylelint and stylelint-config-standard at their latest versions.
+    cmds:
+      - task: pnpm:add
+        vars:
+          PACKAGES: "stylelint@latest stylelint-config-standard@latest"
+          EXTRA_ARGS: '{{default .STYLELINT_EXTRA_ARGS .STYLELINT_EXTRA_ARGS_OVERRIDE}}'
+
+  config:init:
+    run: once
+    dir: "{{.USER_WORKING_DIR}}"
+    desc: Create a starter Stylelint config when none exists
+    vars:
+      RESOLVED_CONFIG: '{{default .STYLELINT_CONFIG .STYLELINT_CONFIG_OVERRIDE}}'
+    cmds:
+      - |
+        config_file="{{.RESOLVED_CONFIG}}"
+        if [ -z "$config_file" ]; then
+          config_file=".stylelintrc.json"
+        fi
+        if [ -e "$config_file" ]; then
+          echo "$config_file already exists."
+        else
+          printf '%s\n' '{' '  "extends": "stylelint-config-standard"' '}' > "$config_file"
+          echo "Created $config_file."
+        fi
+
+  config:skip:
+    desc: Upsert the managed skip block in .stylelintignore
+    summary: |
+      Write STYLELINT_LINT_SKIP_PATTERN into a managed section of
+      .stylelintignore. Every lint, ci:fix, and ci task runs this first.
+      Empty pattern removes only the managed block; user entries are preserved.
+      Stylelint loads .stylelintignore from the working directory automatically.
+    dir: "{{.USER_WORKING_DIR}}"
+    set: [errexit, nounset, pipefail]
+    vars:
+      RESOLVED_SKIP: '{{default .STYLELINT_LINT_SKIP_PATTERN .STYLELINT_LINT_SKIP_PATTERN_OVERRIDE}}'
+    env:
+      STYLELINT_SKIP_PATTERN: "{{.RESOLVED_SKIP}}"
+      STYLELINT_IGNORE_FILE: ".stylelintignore"
+    cmds:
+      - cmd: |
+          pattern="$STYLELINT_SKIP_PATTERN"
+          ignore_path="$STYLELINT_IGNORE_FILE"
+          begin_marker="# BEGIN taskotter-skip"
+          end_marker="# END taskotter-skip"
+
+          remove_managed_block() {
+            local file="$1"
+            [[ -f "$file" ]] || return 0
+            local tmp
+            tmp="$(mktemp)"
+            awk -v begin="$begin_marker" -v end="$end_marker" '
+              $0 == begin { in_block = 1; next }
+              in_block && $0 == end { in_block = 0; next }
+              !in_block { print }
+            ' "$file" >"$tmp"
+            mv "$tmp" "$file"
+          }
+
+          # Nothing to skip: drop only the managed block a previous run left
+          # behind. Never delete the ignore file itself.
+          if [[ -z "$pattern" ]]; then
+            remove_managed_block "$ignore_path"
+            exit 0
+          fi
+
+          pattern="${pattern//\\//}"
+
+          if [[ -f "$ignore_path" ]] && grep -qxF -- "$begin_marker" "$ignore_path"; then
+            tmp="$(mktemp)"
+            awk -v begin="$begin_marker" -v end="$end_marker" -v pattern="$pattern" '
+              $0 == begin {
+                print begin
+                print pattern
+                print end
+                in_block = 1
+                next
+              }
+              in_block && $0 == end { in_block = 0; next }
+              !in_block { print }
+            ' "$ignore_path" >"$tmp"
+            mv "$tmp" "$ignore_path"
+            exit 0
+          fi
+
+          if [[ -f "$ignore_path" && -s "$ignore_path" ]]; then
+            if [[ "$(tail -c1 "$ignore_path" | wc -l)" -eq 0 ]]; then
+              printf '\n' >>"$ignore_path"
+            fi
+            printf '%s\n%s\n%s\n' "$begin_marker" "$pattern" "$end_marker" >>"$ignore_path"
+          else
+            printf '%s\n%s\n%s\n' "$begin_marker" "$pattern" "$end_marker" >"$ignore_path"
+          fi
+        platforms: [linux, darwin]
+      - cmd: |
+          powershell -NoProfile -ExecutionPolicy Bypass -Command - <<'POWERSHELL'
+          $ErrorActionPreference = 'Stop'
+          $pattern = $env:STYLELINT_SKIP_PATTERN
+          $ignorePath = $env:STYLELINT_IGNORE_FILE
+          $beginMarker = '# BEGIN taskotter-skip'
+          $endMarker = '# END taskotter-skip'
+
+          function Remove-ManagedBlock([string]$path) {
+              if (-not (Test-Path -LiteralPath $path -PathType Leaf)) { return }
+              $lines = @(Get-Content -LiteralPath $path)
+              $result = [System.Collections.Generic.List[string]]::new()
+              $inBlock = $false
+              foreach ($line in $lines) {
+                  if ($line -eq $beginMarker) { $inBlock = $true; continue }
+                  if ($inBlock -and $line -eq $endMarker) { $inBlock = $false; continue }
+                  if (-not $inBlock) { $result.Add($line) }
+              }
+              Set-Content -LiteralPath $path -Value $result -Encoding utf8
+          }
+
+          if ([string]::IsNullOrWhiteSpace($pattern)) {
+              Remove-ManagedBlock $ignorePath
+              exit 0
+          }
+
+          $pattern = $pattern.Replace('\', '/')
+          $block = @($beginMarker, $pattern, $endMarker)
+
+          if (Test-Path -LiteralPath $ignorePath -PathType Leaf) {
+              $lines = @(Get-Content -LiteralPath $ignorePath)
+              if ($lines -contains $beginMarker) {
+                  $result = [System.Collections.Generic.List[string]]::new()
+                  $inBlock = $false
+                  foreach ($line in $lines) {
+                      if ($line -eq $beginMarker) {
+                          $result.Add($beginMarker)
+                          $result.Add($pattern)
+                          $result.Add($endMarker)
+                          $inBlock = $true
+                          continue
+                      }
+                      if ($inBlock -and $line -eq $endMarker) { $inBlock = $false; continue }
+                      if (-not $inBlock) { $result.Add($line) }
+                  }
+                  Set-Content -LiteralPath $ignorePath -Value $result -Encoding utf8
+                  exit 0
+              }
+              $result = [System.Collections.Generic.List[string]]::new()
+              foreach ($line in $lines) { $result.Add($line) }
+              foreach ($line in $block) { $result.Add($line) }
+              Set-Content -LiteralPath $ignorePath -Value $result -Encoding utf8
+              exit 0
+          }
+
+          Set-Content -LiteralPath $ignorePath -Value $block -Encoding utf8
+          POWERSHELL
+        platforms: [windows]
+
+  # Shared implementation of lint / ci:fix / ci. Each override is resolved
+  # exactly once here; the three public tasks differ only by MODE_ARGS.
+  _run:
+    internal: true
+    run: when_changed
+    vars:
+      RESOLVED_TARGETS: '{{or .STYLELINT_TARGETS_OVERRIDE .STYLELINT_TARGETS .STYLELINT_DEFAULT_TARGETS}}'
+      RESOLVED_CONFIG: '{{default .STYLELINT_CONFIG .STYLELINT_CONFIG_OVERRIDE}}'
+      RESOLVED_CACHE: '{{or .STYLELINT_CACHE_OVERRIDE .STYLELINT_CACHE .STYLELINT_DEFAULT_CACHE}}'
+      RESOLVED_EMPTY: >-
+        {{or .STYLELINT_ALLOW_EMPTY_INPUT_OVERRIDE .STYLELINT_ALLOW_EMPTY_INPUT .STYLELINT_DEFAULT_ALLOW_EMPTY_INPUT}}
+      RESOLVED_EXTRA_ARGS: '{{default .STYLELINT_EXTRA_ARGS .STYLELINT_EXTRA_ARGS_OVERRIDE}}'
+    cmds:
+      - task: config:skip
+      - task: pnpm:exec
+        vars:
+          BINARY: stylelint
+          ARGS: >-
+            {{.RESOLVED_TARGETS}}
+            {{- if .MODE_ARGS}} {{.MODE_ARGS}}{{end}}
+            {{- if .RESOLVED_CONFIG}} --config "{{.RESOLVED_CONFIG}}"{{end}}
+            {{- if eq .RESOLVED_CACHE "true"}} --cache --cache-location .cache/stylelint/{{end}}
+            {{- if eq .RESOLVED_EMPTY "true"}} --allow-empty-input{{end}}
+          EXTRA_ARGS: '{{.RESOLVED_EXTRA_ARGS}}{{if .CLI_ARGS}} {{.CLI_ARGS}}{{end}}'
+
+  ci:fix:
+    run: once
+    desc: Lint stylesheet targets with Stylelint and apply fixes
+    cmds:
+      - task: _run
+        vars:
+          MODE_ARGS: "--fix"
+      - echo "✅ stylelint fixes applied"
+
+  ci:
+    run: once
+    desc: Run Stylelint with zero-warning CI enforcement
+    cmds:
+      - task: _run
+        vars:
+          MODE_ARGS: "--max-warnings=0"
+      - echo "✅ stylelint passed"
+
+  cache:clean:
+    run: once
+    desc: Remove the Stylelint cache directory
+    cmds:
+      - if [ -d .cache/stylelint ]; then rm -rf .cache/stylelint; fi
+
+  version:
+    run: once
+    desc: Show the locally resolved Stylelint version
+    cmds:
+      - task: pnpm:exec
+        vars:
+          BINARY: stylelint
+          ARGS: "--version"
+
+  help:
+    run: once
+    desc: Show Stylelint CLI help
+    cmds:
+      - task: pnpm:exec
+        vars:
+          BINARY: stylelint
+          ARGS: "--help"
+          EXTRA_ARGS: >-
+            {{default .STYLELINT_EXTRA_ARGS .STYLELINT_EXTRA_ARGS_OVERRIDE}}{{if .CLI_ARGS}} {{.CLI_ARGS}}{{end}}

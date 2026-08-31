@@ -14,22 +14,17 @@ func publicTasks() []string {
 		"ci",
 		"ci:fix",
 		"fmt:check",
-		"install",
-		"install:undo",
 		"lint",
-		"upgrade",
-		"version",
 	}
 }
 
 func publicVars() []string {
 	return []string{
-		"DJLINT_LINT_SKIP_PATTERN",
-		"DJLINT_FMT_SKIP_PATTERN",
-		"DJLINT_VERSION",
 		"DJLINT_EXTRA_ARGS",
+		"DJLINT_FMT_SKIP_PATTERN",
+		"DJLINT_LINT_SKIP_PATTERN",
+		"DJLINT_NIX_INSTALLABLE",
 		"DJLINT_TARGETS",
-		"UV_LOAD",
 	}
 }
 

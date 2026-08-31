@@ -28,11 +28,11 @@ Then run the leaf that matches your project through its namespace (replace
 
 ```bash
 task typescript:bun:{TASK}                 # Bun runtime + Bun as package manager
-task typescript:node:fnm:npm:{TASK}        # Node via fnm, npm as package manager
-task typescript:node:nvm:pnpm:{TASK}       # Node via nvm, pnpm as package manager
+task typescript:node:npm:{TASK}        # Node via the nodejs module, npm as package manager
+task typescript:node:pnpm:{TASK}       # Node via the nodejs module, pnpm as package manager
 ```
 
-Available leaves: `bun`, `node/{fnm,nvm}/{npm,pnpm,yarn}`.
+Available leaves: `bun`, `node/{npm,pnpm,yarn}`.
 
 ## Public Tasks
 
@@ -65,30 +65,30 @@ Available leaves: `bun`, `node/{fnm,nvm}/{npm,pnpm,yarn}`.
 ## Examples
 
 ```bash
-task typescript:node:fnm:npm:install
-task typescript:node:fnm:npm:install TYPESCRIPT_VERSION=5.6.3
-task typescript:node:fnm:npm:version
-task typescript:node:fnm:npm:config:init
+task typescript:node:npm:install
+task typescript:node:npm:install TYPESCRIPT_VERSION=5.6.3
+task typescript:node:npm:version
+task typescript:node:npm:config:init
 
-task typescript:node:fnm:npm:run TYPESCRIPT_FILE=scripts/seed.ts
-task typescript:node:fnm:npm:dev TYPESCRIPT_FILE=src/server.ts TYPESCRIPT_TSX_FLAGS="--env-file .env"
+task typescript:node:npm:run TYPESCRIPT_FILE=scripts/seed.ts
+task typescript:node:npm:dev TYPESCRIPT_FILE=src/server.ts TYPESCRIPT_TSX_FLAGS="--env-file .env"
 
-task typescript:node:fnm:npm:typecheck
-task typescript:node:fnm:npm:typecheck TYPESCRIPT_TSCONFIG=tsconfig.strict.json
-task typescript:node:fnm:npm:typecheck:files FILES="src/index.ts src/api.ts" TYPESCRIPT_TSC_FLAGS="--strict"
+task typescript:node:npm:typecheck
+task typescript:node:npm:typecheck TYPESCRIPT_TSCONFIG=tsconfig.strict.json
+task typescript:node:npm:typecheck:files FILES="src/index.ts src/api.ts" TYPESCRIPT_TSC_FLAGS="--strict"
 
-task typescript:node:fnm:npm:build
-task typescript:node:fnm:npm:build:clean TYPESCRIPT_OUT_DIR=build
-task typescript:node:fnm:npm:emit:dts TYPESCRIPT_OUT_DIR=types
+task typescript:node:npm:build
+task typescript:node:npm:build:clean TYPESCRIPT_OUT_DIR=build
+task typescript:node:npm:emit:dts TYPESCRIPT_OUT_DIR=types
 
-task typescript:node:fnm:npm:config:show
-task typescript:node:fnm:npm:config:files
-task typescript:node:fnm:npm:config:diagnostics
-task typescript:node:fnm:npm:config:trace TYPESCRIPT_TRACE_DIR=.traces/tsc
+task typescript:node:npm:config:show
+task typescript:node:npm:config:files
+task typescript:node:npm:config:diagnostics
+task typescript:node:npm:config:trace TYPESCRIPT_TRACE_DIR=.traces/tsc
 
-task typescript:node:fnm:npm:start TYPESCRIPT_OUTFILE=dist/server.js
-task typescript:node:fnm:npm:clean --yes
-task typescript:node:fnm:npm:clean:all --yes
+task typescript:node:npm:start TYPESCRIPT_OUTFILE=dist/server.js
+task typescript:node:npm:clean --yes
+task typescript:node:npm:clean:all --yes
 ```
 
 ## Notes

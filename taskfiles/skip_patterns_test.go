@@ -161,7 +161,7 @@ const (
 	taskfilesDirName = "taskfiles"
 
 	actionlintModule          = "actionlint"
-	ansibleModule             = "ansible"
+	ansibleLintModule         = "ansible-lint"
 	bufModule                 = "buf"
 	cargoModule               = "cargo"
 	dotenvLinterModule        = "dotenv-linter"
@@ -178,37 +178,25 @@ const (
 	yamllintModule            = "yamllint"
 	zizmorModule              = "zizmor"
 
-	biomeBunModule         = "biome/bun"
-	biomeNodeFnmNpmModule  = "biome/node/fnm/npm"
-	biomeNodeNvmNpmModule  = "biome/node/nvm/npm"
-	biomeNodeFnmPnpmModule = "biome/node/fnm/pnpm"
-	biomeNodeNvmPnpmModule = "biome/node/nvm/pnpm"
-	biomeNodeFnmYarnModule = "biome/node/fnm/yarn"
-	biomeNodeNvmYarnModule = "biome/node/nvm/yarn"
+	biomeBunModule      = "biome/bun"
+	biomeNodeNpmModule  = "biome/node/npm"
+	biomeNodePnpmModule = "biome/node/pnpm"
+	biomeNodeYarnModule = "biome/node/yarn"
 
-	knipBunModule         = "knip/bun"
-	knipNodeFnmNpmModule  = "knip/node/fnm/npm"
-	knipNodeNvmNpmModule  = "knip/node/nvm/npm"
-	knipNodeFnmPnpmModule = "knip/node/fnm/pnpm"
-	knipNodeNvmPnpmModule = "knip/node/nvm/pnpm"
-	knipNodeFnmYarnModule = "knip/node/fnm/yarn"
-	knipNodeNvmYarnModule = "knip/node/nvm/yarn"
+	knipBunModule      = "knip/bun"
+	knipNodeNpmModule  = "knip/node/npm"
+	knipNodePnpmModule = "knip/node/pnpm"
+	knipNodeYarnModule = "knip/node/yarn"
 
-	prettierBunModule         = "prettier/bun"
-	prettierNodeFnmNpmModule  = "prettier/node/fnm/npm"
-	prettierNodeNvmNpmModule  = "prettier/node/nvm/npm"
-	prettierNodeFnmPnpmModule = "prettier/node/fnm/pnpm"
-	prettierNodeNvmPnpmModule = "prettier/node/nvm/pnpm"
-	prettierNodeFnmYarnModule = "prettier/node/fnm/yarn"
-	prettierNodeNvmYarnModule = "prettier/node/nvm/yarn"
+	prettierBunModule      = "prettier/bun"
+	prettierNodeNpmModule  = "prettier/node/npm"
+	prettierNodePnpmModule = "prettier/node/pnpm"
+	prettierNodeYarnModule = "prettier/node/yarn"
 
-	stylelintBunModule         = "stylelint/bun"
-	stylelintNodeFnmNpmModule  = "stylelint/node/fnm/npm"
-	stylelintNodeNvmNpmModule  = "stylelint/node/nvm/npm"
-	stylelintNodeFnmPnpmModule = "stylelint/node/fnm/pnpm"
-	stylelintNodeNvmPnpmModule = "stylelint/node/nvm/pnpm"
-	stylelintNodeFnmYarnModule = "stylelint/node/fnm/yarn"
-	stylelintNodeNvmYarnModule = "stylelint/node/nvm/yarn"
+	stylelintBunModule      = "stylelint/bun"
+	stylelintNodeNpmModule  = "stylelint/node/npm"
+	stylelintNodePnpmModule = "stylelint/node/pnpm"
+	stylelintNodeYarnModule = "stylelint/node/yarn"
 
 	biomeFamily     = "biome"
 	depcheckFamily  = "depcheck"
@@ -300,14 +288,14 @@ const (
 	prepareOverlayPs1File    = "Prepare-Overlay.ps1"
 	knipConfigMjsFile        = "knip-config.mjs"
 
-	constZero       = 0
-	constOne        = 1
-	constTwo        = 2
-	constThree      = 3
-	constFifteen    = 15
-	constThirty     = 30
-	constSixtyEight = 68
-	perm0600        = 0o600
+	constZero     = 0
+	constOne      = 1
+	constTwo      = 2
+	constThree    = 3
+	constFifteen  = 15
+	constFifty    = 50
+	constEighteen = 18
+	perm0600      = 0o600
 
 	underscoreChar = "_"
 	hyphenChar     = "-"
@@ -332,7 +320,7 @@ func skipPatternFlatModules() []skipPatternModule {
 func skipPatternFlatModulesA() []skipPatternModule {
 	return []skipPatternModule{
 		{name: actionlintModule, vars: []string{"ACTIONLINT_LINT_SKIP_PATTERN"}},
-		{name: ansibleModule, vars: []string{"ANSIBLE_LINT_SKIP_PATTERN"}},
+		{name: ansibleLintModule, vars: []string{"ANSIBLE_LINT_LINT_SKIP_PATTERN"}},
 		{name: bufModule, vars: []string{"BUF_LINT_SKIP_PATTERN", "BUF_FMT_SKIP_PATTERN"}},
 		{name: cargoModule, vars: []string{"CARGO_LINT_SKIP_PATTERN", "CARGO_FMT_SKIP_PATTERN"}},
 		{name: "djlint", vars: []string{"DJLINT_LINT_SKIP_PATTERN", "DJLINT_FMT_SKIP_PATTERN"}},
@@ -375,64 +363,49 @@ func skipPatternVariantModules() []skipPatternModule {
 func skipPatternBiomeModules() []skipPatternModule {
 	return []skipPatternModule{
 		{name: biomeBunModule, vars: []string{biomeLintSkipVar, biomeFmtSkipVar}},
-		{name: biomeNodeFnmNpmModule, vars: []string{biomeLintSkipVar, biomeFmtSkipVar}},
-		{name: biomeNodeNvmNpmModule, vars: []string{biomeLintSkipVar, biomeFmtSkipVar}},
-		{name: biomeNodeFnmPnpmModule, vars: []string{biomeLintSkipVar, biomeFmtSkipVar}},
-		{name: biomeNodeNvmPnpmModule, vars: []string{biomeLintSkipVar, biomeFmtSkipVar}},
-		{name: biomeNodeFnmYarnModule, vars: []string{biomeLintSkipVar, biomeFmtSkipVar}},
-		{name: biomeNodeNvmYarnModule, vars: []string{biomeLintSkipVar, biomeFmtSkipVar}},
+		{name: biomeNodeNpmModule, vars: []string{biomeLintSkipVar, biomeFmtSkipVar}},
+		{name: biomeNodePnpmModule, vars: []string{biomeLintSkipVar, biomeFmtSkipVar}},
+		{name: biomeNodeYarnModule, vars: []string{biomeLintSkipVar, biomeFmtSkipVar}},
 	}
 }
 
 func skipPatternDepcheckAndEslintModules() []skipPatternModule {
 	return []skipPatternModule{
 		{name: "depcheck/bun", vars: []string{depcheckLintSkipVar}},
-		{name: "depcheck/node/fnm/npm", vars: []string{depcheckLintSkipVar}},
-		{name: "depcheck/node/nvm/npm", vars: []string{depcheckLintSkipVar}},
-		{name: "depcheck/node/fnm/pnpm", vars: []string{depcheckLintSkipVar}},
-		{name: "depcheck/node/nvm/pnpm", vars: []string{depcheckLintSkipVar}},
-		{name: "depcheck/node/fnm/yarn", vars: []string{depcheckLintSkipVar}},
-		{name: "depcheck/node/nvm/yarn", vars: []string{depcheckLintSkipVar}},
+		{name: "depcheck/node/npm", vars: []string{depcheckLintSkipVar}},
+		{name: "depcheck/node/pnpm", vars: []string{depcheckLintSkipVar}},
+		{name: "depcheck/node/yarn", vars: []string{depcheckLintSkipVar}},
 		{name: "eslint/bun", vars: []string{eslintLintSkipVar}},
-		{name: "eslint/node/fnm/npm", vars: []string{eslintLintSkipVar}},
-		{name: "eslint/node/nvm/npm", vars: []string{eslintLintSkipVar}},
-		{name: "eslint/node/fnm/pnpm", vars: []string{eslintLintSkipVar}},
-		{name: "eslint/node/nvm/pnpm", vars: []string{eslintLintSkipVar}},
-		{name: "eslint/node/fnm/yarn", vars: []string{eslintLintSkipVar}},
-		{name: "eslint/node/nvm/yarn", vars: []string{eslintLintSkipVar}},
+		{name: "eslint/node/npm", vars: []string{eslintLintSkipVar}},
+		{name: "eslint/node/pnpm", vars: []string{eslintLintSkipVar}},
+		{name: "eslint/node/yarn", vars: []string{eslintLintSkipVar}},
 	}
 }
 
 func skipPatternHtmlhintModules() []skipPatternModule {
 	return skipPatternSingleVarModules([]string{
-		"htmlhint/node/fnm/npm",
-		"htmlhint/node/nvm/npm",
-		"htmlhint/node/fnm/pnpm",
-		"htmlhint/node/nvm/pnpm",
+		"htmlhint/bun",
+		"htmlhint/node/npm",
+		"htmlhint/node/pnpm",
+		"htmlhint/node/yarn",
 	}, htmlhintLintSkipVar)
 }
 
 func skipPatternKnipModules() []skipPatternModule {
 	return skipPatternSingleVarModules([]string{
 		knipBunModule,
-		knipNodeFnmNpmModule,
-		knipNodeNvmNpmModule,
-		knipNodeFnmPnpmModule,
-		knipNodeNvmPnpmModule,
-		knipNodeFnmYarnModule,
-		knipNodeNvmYarnModule,
+		knipNodeNpmModule,
+		knipNodePnpmModule,
+		knipNodeYarnModule,
 	}, knipLintSkipVar)
 }
 
 func skipPatternPrettierModules() []skipPatternModule {
 	return skipPatternSingleVarModules([]string{
 		prettierBunModule,
-		prettierNodeFnmNpmModule,
-		prettierNodeNvmNpmModule,
-		prettierNodeFnmPnpmModule,
-		prettierNodeNvmPnpmModule,
-		prettierNodeFnmYarnModule,
-		prettierNodeNvmYarnModule,
+		prettierNodeNpmModule,
+		prettierNodePnpmModule,
+		prettierNodeYarnModule,
 	}, prettierFmtSkipVar)
 }
 
@@ -452,10 +425,10 @@ func skipPatternSingleVarModules(names []string, skipVar string) []skipPatternMo
 func skipPatternSpectralModules() []skipPatternModule {
 	return skipPatternSingleVarModules(
 		[]string{
-			"spectral/node/fnm/npm",
-			"spectral/node/nvm/npm",
-			"spectral/node/fnm/pnpm",
-			"spectral/node/nvm/pnpm",
+			"spectral/bun",
+			"spectral/node/npm",
+			"spectral/node/pnpm",
+			"spectral/node/yarn",
 		},
 		spectralLintSkipVar,
 	)
@@ -465,12 +438,9 @@ func skipPatternStylelintModules() []skipPatternModule {
 	return skipPatternSingleVarModules(
 		[]string{
 			stylelintBunModule,
-			stylelintNodeFnmNpmModule,
-			stylelintNodeNvmNpmModule,
-			stylelintNodeFnmPnpmModule,
-			stylelintNodeNvmPnpmModule,
-			stylelintNodeFnmYarnModule,
-			stylelintNodeNvmYarnModule,
+			stylelintNodeNpmModule,
+			stylelintNodePnpmModule,
+			stylelintNodeYarnModule,
 		},
 		stylelintLintSkipVar,
 	)
@@ -483,7 +453,7 @@ func skipPatternStylelintModules() []skipPatternModule {
 func sharedSkipfilesConsumers() []string {
 	return []string{
 		actionlintModule,
-		ansibleModule,
+		ansibleLintModule,
 		bufModule,
 		cargoModule,
 		dotenvLinterModule,
@@ -512,38 +482,26 @@ func configSkipModules() []string {
 func configSkipBiomeAndKnipModules() []string {
 	return []string{
 		biomeBunModule,
-		biomeNodeFnmNpmModule,
-		biomeNodeNvmNpmModule,
-		biomeNodeFnmPnpmModule,
-		biomeNodeNvmPnpmModule,
-		biomeNodeFnmYarnModule,
-		biomeNodeNvmYarnModule,
+		biomeNodeNpmModule,
+		biomeNodePnpmModule,
+		biomeNodeYarnModule,
 		knipBunModule,
-		knipNodeFnmNpmModule,
-		knipNodeNvmNpmModule,
-		knipNodeFnmPnpmModule,
-		knipNodeNvmPnpmModule,
-		knipNodeFnmYarnModule,
-		knipNodeNvmYarnModule,
+		knipNodeNpmModule,
+		knipNodePnpmModule,
+		knipNodeYarnModule,
 	}
 }
 
 func configSkipIgnoreFileModules() []string {
 	return []string{
 		prettierBunModule,
-		prettierNodeFnmNpmModule,
-		prettierNodeNvmNpmModule,
-		prettierNodeFnmPnpmModule,
-		prettierNodeNvmPnpmModule,
-		prettierNodeFnmYarnModule,
-		prettierNodeNvmYarnModule,
+		prettierNodeNpmModule,
+		prettierNodePnpmModule,
+		prettierNodeYarnModule,
 		stylelintBunModule,
-		stylelintNodeFnmNpmModule,
-		stylelintNodeNvmNpmModule,
-		stylelintNodeFnmPnpmModule,
-		stylelintNodeNvmPnpmModule,
-		stylelintNodeFnmYarnModule,
-		stylelintNodeNvmYarnModule,
+		stylelintNodeNpmModule,
+		stylelintNodePnpmModule,
+		stylelintNodeYarnModule,
 	}
 }
 
@@ -551,11 +509,11 @@ func configSkipIgnoreFileModules() []string {
 func TestSkipPatternContract(t *testing.T) {
 	t.Parallel()
 
-	if len(skipPatternModules()) != constSixtyEight {
+	if len(skipPatternModules()) != constFifty {
 		t.Fatalf(
 			"skip-pattern module count = %d, want %d",
 			len(skipPatternModules()),
-			constSixtyEight,
+			constFifty,
 		)
 	}
 
@@ -1543,8 +1501,8 @@ func assertSharedSkipfilesConsumer(t *testing.T, root, module string) {
 func assertConfigSkipModules(t *testing.T) {
 	t.Helper()
 
-	if len(configSkipModules()) != constThirty {
-		t.Fatalf("config:skip module count = %d, want %d", len(configSkipModules()), constThirty)
+	if len(configSkipModules()) != constEighteen {
+		t.Fatalf("config:skip module count = %d, want %d", len(configSkipModules()), constEighteen)
 	}
 
 	for i := range configSkipModules() {
@@ -2059,7 +2017,7 @@ func (fixture *govulncheckSkipFixture) taskCommand(args ...string) *exec.Cmd {
 }
 
 // variantLeaves returns every concrete leaf Taskfile of a nested tool family
-// (the bun leaf plus each node/<vm>/<pm> leaf), excluding aggregators.
+// (the bun leaf plus each node/<pm> leaf), excluding aggregators.
 func variantLeafPatterns(root, family string) []string {
 	return []string{
 		filepath.Join(root, taskfilesDirName, family, bunRuntime, skipTaskfileYML),
@@ -2068,7 +2026,6 @@ func variantLeafPatterns(root, family string) []string {
 			taskfilesDirName,
 			family,
 			nodeRuntime,
-			globStar,
 			globStar,
 			skipTaskfileYML,
 		),

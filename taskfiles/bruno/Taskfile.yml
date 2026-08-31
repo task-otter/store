@@ -1,5 +1,0 @@
----
-version: "3.5"
-includes:
-  bun: bun/Taskfile.yml
-  node: node/Taskfile.yml

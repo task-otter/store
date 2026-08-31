@@ -17,27 +17,19 @@ func publicTasks() []string {
 		"ci:fix",
 		"fmt",
 		"fmt:check",
-		"install",
-		"install:undo",
 		"lint",
 		"lint:fix",
 		"test",
-		"upgrade",
 		"verify",
-		"version",
 		"which",
 	}
 }
 
 func publicVars() []string {
 	return []string{
-		"CARGO_LINT_SKIP_PATTERN",
-		"CARGO_FMT_SKIP_PATTERN",
-		"CARGO_BIN_UNIX",
 		"CARGO_EXTRA_ARGS",
+		"CARGO_NIX_INSTALLABLE",
 		"RUST_TOOLCHAIN",
-		"RUSTUP_INSTALL_URL",
-		"RUSTUP_INSTALL_URL_WINDOWS",
 	}
 }
 

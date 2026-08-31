@@ -10,14 +10,13 @@ output:
 silent: true
 
 includes:
-  uv:
-    taskfile: ../uv/Taskfile.yml
+  nix:
+    taskfile: ../nix/Taskfile.yml
 
 vars:
   SQLFLUFF_LINT_SKIP_PATTERN: ""
   SQLFLUFF_INTERNAL_SKIP_CONFIG: ".taskotter-sqlfluff-skip.cfg"
-  UV_LOAD: 'export PATH="$HOME/.local/bin:$PATH"'
-  SQLFLUFF_VERSION: "4.2.2"
+  SQLFLUFF_NIX_INSTALLABLE: nixpkgs#sqlfluff
 
 tasks:
   default:
@@ -27,49 +26,6 @@ tasks:
     cmds:
       - task --list
 
-  install:
-    run: once
-    desc: Install sqlfluff on the current operating system
-    summary: |
-      Install sqlfluff via uv tool install for the current platform.
-      uv manages an isolated environment so sqlfluff never conflicts with
-      project dependencies. Installs uv first if it is not already present.
-    cmds:
-      - task: _install:unix
-      - task: _install:windows
-
-  install:undo:
-    run: once
-    desc: Remove sqlfluff from the current operating system
-    summary: |
-      Remove sqlfluff via uv tool uninstall on all platforms.
-      The uv-managed isolated environment is cleaned up automatically.
-    prompt:
-      - This will remove sqlfluff from this machine.
-      - Continue?
-    cmds:
-      - task: _install:undo:unix
-      - task: _install:undo:windows
-
-  upgrade:
-    run: once
-    desc: Upgrade sqlfluff to the latest release
-    summary: |
-      Upgrade sqlfluff via uv tool upgrade on all platforms.
-      Auto-installs sqlfluff if missing.
-    cmds:
-      - task: _upgrade:unix
-      - task: _upgrade:windows
-
-  version:
-    run: once
-    desc: Show the installed sqlfluff version
-    summary: Print the active sqlfluff version via sqlfluff --version. Auto-installs sqlfluff if missing.
-    deps:
-      - task: install
-    cmds:
-      - bash -c '{{.UV_LOAD}}; sqlfluff --version'
-
   ci:
     run: once
     desc: Lint SQL files with sqlfluff (TARGETS=path)
@@ -78,7 +34,9 @@ tasks:
       custom config file via --config, DIALECT to override the SQL dialect,
       and EXTRA_ARGS for additional flags. Auto-installs sqlfluff if missing.
     deps:
-      - task: install
+      - task: nix:install:profile
+        vars:
+          NIX_INSTALLABLE: "{{.SQLFLUFF_NIX_INSTALLABLE}}"
     dir: "{{.USER_WORKING_DIR}}"
     vars:
       TARGETS: "."
@@ -88,32 +46,7 @@ tasks:
     cmds:
       - task: config:skip
       - >-
-        bash -c '{{.UV_LOAD}};
-        _skip="{{if .SQLFLUFF_LINT_SKIP_PATTERN_OVERRIDE}}{{.SQLFLUFF_LINT_SKIP_PATTERN_OVERRIDE}}
-        {{- else}}{{.SQLFLUFF_LINT_SKIP_PATTERN}}{{end}}";
-        if [ -n "$_skip" ]; then
-        _files="$(mktemp)"; trap "rm -f $_files" EXIT;
-        _targets="{{if .TARGETS_OVERRIDE}}{{.TARGETS_OVERRIDE}}{{else}}{{.TARGETS}}{{end}}";
-        if [ -n "{{.CLI_ARGS}}" ]; then _targets="";
-        for _argument in {{.CLI_ARGS}}; do
-        if [ -e "$_argument" ]; then _targets="$_targets $_argument"; fi; done;
-        [ -n "$_targets" ] || _targets="{{if .TARGETS_OVERRIDE}}{{.TARGETS_OVERRIDE}}{{else}}{{.TARGETS}}{{end}}"; fi;
-        for _target in $_targets; do
-        if [ -d "$_target" ]; then find "$_target" -type f
-        \( -name "*.sql" -o -name "*.sql.j2" -o -name "*.dml" -o -name "*.ddl" \) -print0;
-        elif [ -f "$_target" ]; then printf "%s\000" "$_target"; fi; done
-        | task --silent --taskfile "{{.TASKFILE_DIR}}/../internal/skipfiles/Taskfile.yml"
-        filter "SKIPFILES_PATTERN=$_skip" >"$_files";
-        if [ ! -s "$_files" ]; then echo "No matching SQL files found"; exit 0; fi;
-        xargs -0 sqlfluff lint
-        {{if .CLI_ARGS}}{{.CLI_ARGS}}
-        {{else}}
-        {{if .DIALECT_OVERRIDE}}--dialect {{.DIALECT_OVERRIDE}}
-        {{else if .DIALECT}}--dialect {{.DIALECT}} {{end}}
-        {{if .EXTRA_ARGS_OVERRIDE}}{{.EXTRA_ARGS_OVERRIDE}}
-        {{- else}}{{.EXTRA_ARGS}}{{end}}{{end}}
-        --config "{{.SQLFLUFF_INTERNAL_SKIP_CONFIG}}" <"$_files"
-        && echo "✅ sqlfluff passed" || { echo "❌ sqlfluff failed"; exit 1; }; exit; fi;
+        bash -lc '{{.NIX_LOAD}};
         sqlfluff lint
         {{if .CLI_ARGS}}{{.CLI_ARGS}}
         {{else}}
@@ -136,7 +69,9 @@ tasks:
       lint violations. Pass CONFIG, DIALECT, and EXTRA_ARGS as needed.
       Auto-installs sqlfluff if missing.
     deps:
-      - task: install
+      - task: nix:install:profile
+        vars:
+          NIX_INSTALLABLE: "{{.SQLFLUFF_NIX_INSTALLABLE}}"
     dir: "{{.USER_WORKING_DIR}}"
     vars:
       TARGETS: "."
@@ -146,32 +81,7 @@ tasks:
     cmds:
       - task: config:skip
       - >-
-        bash -c '{{.UV_LOAD}};
-        _skip="{{if .SQLFLUFF_LINT_SKIP_PATTERN_OVERRIDE}}{{.SQLFLUFF_LINT_SKIP_PATTERN_OVERRIDE}}
-        {{- else}}{{.SQLFLUFF_LINT_SKIP_PATTERN}}{{end}}";
-        if [ -n "$_skip" ]; then
-        _files="$(mktemp)"; trap "rm -f $_files" EXIT;
-        _targets="{{if .TARGETS_OVERRIDE}}{{.TARGETS_OVERRIDE}}{{else}}{{.TARGETS}}{{end}}";
-        if [ -n "{{.CLI_ARGS}}" ]; then _targets="";
-        for _argument in {{.CLI_ARGS}}; do
-        if [ -e "$_argument" ]; then _targets="$_targets $_argument"; fi; done;
-        [ -n "$_targets" ] || _targets="{{if .TARGETS_OVERRIDE}}{{.TARGETS_OVERRIDE}}{{else}}{{.TARGETS}}{{end}}"; fi;
-        for _target in $_targets; do
-        if [ -d "$_target" ]; then find "$_target" -type f
-        \( -name "*.sql" -o -name "*.sql.j2" -o -name "*.dml" -o -name "*.ddl" \) -print0;
-        elif [ -f "$_target" ]; then printf "%s\000" "$_target"; fi; done
-        | task --silent --taskfile "{{.TASKFILE_DIR}}/../internal/skipfiles/Taskfile.yml"
-        filter "SKIPFILES_PATTERN=$_skip" >"$_files";
-        if [ ! -s "$_files" ]; then echo "No matching SQL files found"; exit 0; fi;
-        xargs -0 sqlfluff fix
-        {{if .CLI_ARGS}}{{.CLI_ARGS}}
-        {{else}}
-        {{if .DIALECT_OVERRIDE}}--dialect {{.DIALECT_OVERRIDE}}
-        {{else if .DIALECT}}--dialect {{.DIALECT}} {{end}}
-        {{if .EXTRA_ARGS_OVERRIDE}}{{.EXTRA_ARGS_OVERRIDE}}
-        {{- else}}{{.EXTRA_ARGS}}{{end}}{{end}}
-        --config "{{.SQLFLUFF_INTERNAL_SKIP_CONFIG}}" <"$_files"
-        && echo "✅ sqlfluff fixes applied" || exit 1; exit; fi;
+        bash -lc '{{.NIX_LOAD}};
         sqlfluff fix
         {{if .CLI_ARGS}}{{.CLI_ARGS}}
         {{else}}
@@ -195,7 +105,9 @@ tasks:
       interprets a query. Pass CONFIG, DIALECT, and EXTRA_ARGS as needed.
       Auto-installs sqlfluff if missing.
     deps:
-      - task: install
+      - task: nix:install:profile
+        vars:
+          NIX_INSTALLABLE: "{{.SQLFLUFF_NIX_INSTALLABLE}}"
     dir: "{{.USER_WORKING_DIR}}"
     vars:
       TARGETS: "."
@@ -205,31 +117,7 @@ tasks:
     cmds:
       - task: config:skip
       - >-
-        bash -c '{{.UV_LOAD}};
-        _skip="{{if .SQLFLUFF_LINT_SKIP_PATTERN_OVERRIDE}}{{.SQLFLUFF_LINT_SKIP_PATTERN_OVERRIDE}}
-        {{- else}}{{.SQLFLUFF_LINT_SKIP_PATTERN}}{{end}}";
-        if [ -n "$_skip" ]; then
-        _files="$(mktemp)"; trap "rm -f $_files" EXIT;
-        _targets="{{if .TARGETS_OVERRIDE}}{{.TARGETS_OVERRIDE}}{{else}}{{.TARGETS}}{{end}}";
-        if [ -n "{{.CLI_ARGS}}" ]; then _targets="";
-        for _argument in {{.CLI_ARGS}}; do
-        if [ -e "$_argument" ]; then _targets="$_targets $_argument"; fi; done;
-        [ -n "$_targets" ] || _targets="{{if .TARGETS_OVERRIDE}}{{.TARGETS_OVERRIDE}}{{else}}{{.TARGETS}}{{end}}"; fi;
-        for _target in $_targets; do
-        if [ -d "$_target" ]; then find "$_target" -type f
-        \( -name "*.sql" -o -name "*.sql.j2" -o -name "*.dml" -o -name "*.ddl" \) -print0;
-        elif [ -f "$_target" ]; then printf "%s\000" "$_target"; fi; done
-        | task --silent --taskfile "{{.TASKFILE_DIR}}/../internal/skipfiles/Taskfile.yml"
-        filter "SKIPFILES_PATTERN=$_skip" >"$_files";
-        if [ ! -s "$_files" ]; then echo "No matching SQL files found"; exit 0; fi;
-        xargs -0 sqlfluff parse
-        {{if .CLI_ARGS}}{{.CLI_ARGS}}
-        {{else}}
-        {{if .DIALECT_OVERRIDE}}--dialect {{.DIALECT_OVERRIDE}}
-        {{else if .DIALECT}}--dialect {{.DIALECT}} {{end}}
-        {{if .EXTRA_ARGS_OVERRIDE}}{{.EXTRA_ARGS_OVERRIDE}}
-        {{- else}}{{.EXTRA_ARGS}}{{end}}{{end}}
-        --config "{{.SQLFLUFF_INTERNAL_SKIP_CONFIG}}" <"$_files"; exit; fi;
+        bash -lc '{{.NIX_LOAD}};
         sqlfluff parse
         {{if .CLI_ARGS}}{{.CLI_ARGS}}
         {{else}}
@@ -375,87 +263,3 @@ tasks:
           }
           POWERSHELL
         platforms: [windows]
-
-  _install:unix:
-    run: once
-    internal: true
-    platforms: [linux, darwin]
-    set: [errexit, nounset, pipefail]
-    status:
-      - >-
-        bash -c '{{.UV_LOAD}};
-        sqlfluff --version | grep -q "version {{.SQLFLUFF_VERSION}}$"'
-    deps:
-      - task: uv:install
-    cmds:
-      - echo 'Installing sqlfluff via uv...'
-      - bash -c '{{.UV_LOAD}}; uv tool install --force "sqlfluff=={{.SQLFLUFF_VERSION}}"'
-      - echo 'sqlfluff installed.'
-
-  _install:windows:
-    run: once
-    internal: true
-    platforms: [windows]
-    status:
-      - >-
-        powershell -NoProfile -ExecutionPolicy Bypass -Command
-        "if ((Get-Command sqlfluff -ErrorAction SilentlyContinue)
-        -and ((sqlfluff --version) -match 'version {{.SQLFLUFF_VERSION}}$')) { exit 0 } else { exit 1 }"
-    deps:
-      - task: uv:install
-    cmds:
-      - echo Installing sqlfluff via uv...
-      - uv tool install --force sqlfluff=={{.SQLFLUFF_VERSION}}
-      - echo sqlfluff installed.
-
-  _install:undo:unix:
-    run: once
-    internal: true
-    platforms: [linux, darwin]
-    set: [errexit, nounset, pipefail]
-    status:
-      - bash -c '{{.UV_LOAD}}; ! command -v sqlfluff >/dev/null 2>&1'
-    cmds:
-      - echo 'Removing sqlfluff...'
-      - bash -c '{{.UV_LOAD}}; uv tool uninstall sqlfluff'
-      - echo 'sqlfluff removed.'
-
-  _install:undo:windows:
-    run: once
-    internal: true
-    platforms: [windows]
-    status:
-      - >-
-        powershell -NoProfile -ExecutionPolicy Bypass -Command
-        "if (Get-Command sqlfluff -ErrorAction SilentlyContinue) { exit 1 } else { exit 0 }"
-    cmds:
-      - echo Removing sqlfluff via uv...
-      - uv tool uninstall sqlfluff
-      - echo sqlfluff removed.
-
-  _upgrade:unix:
-    run: once
-    internal: true
-    platforms: [linux, darwin]
-    set: [errexit, nounset, pipefail]
-    preconditions:
-      - sh: bash -c '{{.UV_LOAD}}; command -v sqlfluff >/dev/null 2>&1'
-        msg: sqlfluff is not installed. Run task install first.
-    cmds:
-      - echo 'Upgrading sqlfluff via uv...'
-      - bash -c '{{.UV_LOAD}}; uv tool install --force "sqlfluff=={{.SQLFLUFF_VERSION}}"'
-      - echo 'sqlfluff upgraded.'
-
-  _upgrade:windows:
-    run: once
-    internal: true
-    platforms: [windows]
-    preconditions:
-      - sh: >-
-          powershell -NoProfile -ExecutionPolicy Bypass -Command
-          "if (Get-Command sqlfluff -ErrorAction SilentlyContinue) { exit 0 } else { exit 1 }"
-        msg: sqlfluff is not installed. Run task install first.
-    cmds:
-      - echo Upgrading sqlfluff via uv...
-      - uv tool upgrade sqlfluff
-      - echo sqlfluff upgraded.

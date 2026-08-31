@@ -7,39 +7,13 @@ output:
     error_only: false
 silent: true
 includes:
-  go:
-    taskfile: ../go/Taskfile.yml
+  nix:
+    taskfile: ../nix/Taskfile.yml
 vars:
-  GO_CMD:
-    sh: |
-      if command -v go >/dev/null 2>&1; then
-        command -v go
-      elif [ "$(uname -s 2>/dev/null || true)" = "Linux" ]; then
-        printf '%s' "/usr/local/go/bin/go"
-      else
-        printf '%s' "go"
-      fi
-  GO_GLOBAL_BIN:
-    sh: |
-      go_cmd="{{.GO_CMD}}"
-      gobin="${GOBIN:-}"
-      if [ -z "$gobin" ] && { command -v "$go_cmd" >/dev/null 2>&1 || [ -x "$go_cmd" ]; }; then
-        gobin="$("$go_cmd" env GOBIN 2>/dev/null || true)"
-      fi
-      if [ -z "$gobin" ]; then
-        gopath="${GOPATH:-}"
-        if [ -z "$gopath" ] && { command -v "$go_cmd" >/dev/null 2>&1 || [ -x "$go_cmd" ]; }; then
-          gopath="$("$go_cmd" env GOPATH 2>/dev/null || true)"
-        fi
-        gobin="${gopath:-$HOME/go}/bin"
-      fi
-      printf '%s' "$gobin"
+  PROTO_NIX_INSTALLABLE: nixpkgs#protobuf nixpkgs#protoc-gen-go nixpkgs#protoc-gen-go-grpc
   PROTO_PATH: "."
   PROTO_PATTERN: "*.proto"
   GO_MODULE: ""
-  PROTOC_GEN_GO_VERSION: '{{default "v1.36.5" .PROTOC_GEN_GO_VERSION_OVERRIDE}}'
-  PROTOC_GEN_GO_GRPC_VERSION: '{{default "v1.5.1" .PROTOC_GEN_GO_GRPC_VERSION_OVERRIDE}}'
-  PROTOC_VERSION: '{{default "34.0" .PROTOC_VERSION_OVERRIDE}}'
 tasks:
   default:
     run: once
@@ -53,7 +27,7 @@ tasks:
     summary: |
       Run protoc to generate Go and gRPC source files from all .proto files
       matching PROTO_PATTERN under PROTO_PATH. Auto-installs protoc and the
-      Go plugins globally if they are not already present in PATH.
+      Go plugins if they are not already present in PATH.
 
       Set GO_MODULE to the Go module path so protoc strips it from the
       go_package option and writes next to the sources instead of into a
@@ -62,7 +36,9 @@ tasks:
       the vars declared below outrank vars supplied by an inclusion, so the
       plain names are only settable from the environment.
     deps:
-      - task: install
+      - task: nix:install:profile
+        vars:
+          NIX_INSTALLABLE: "{{.PROTO_NIX_INSTALLABLE}}"
     cmds:
       - task: _gen:unix
         vars:
@@ -80,54 +56,6 @@ tasks:
           PROTO_PATTERN_OVERRIDE: "{{.PROTO_PATTERN_OVERRIDE}}"
           GO_MODULE: "{{.GO_MODULE}}"
           GO_MODULE_OVERRIDE: "{{.GO_MODULE_OVERRIDE}}"
-  install:
-    run: once
-    desc: Install protoc and Go proto plugins on the current operating system
-    summary: |
-      Install protoc and the Go protobuf plugins for the current platform if
-      they are not already available in PATH. macOS and Linux download the
-      pinned PROTOC_VERSION release into /usr/local. Windows uses Scoop for
-      protoc. Go plugins are installed into the global Go bin (GOBIN or
-      GOPATH/bin).
-    deps:
-      - task: go:install
-    cmds:
-      - task: _install:protoc:macos
-      - task: _install:protoc:linux
-      - task: _install:protoc:windows
-      - task: _install:plugins
-  install:undo:
-    run: once
-    desc: Remove protoc and Go proto plugins from the current operating system
-    summary: |
-      Remove protoc for the current platform and delete the Go plugin binaries
-      from the global Go bin. macOS uses Homebrew to uninstall protoc. Linux
-      removes protoc from /usr/local/bin and bundled includes from
-      /usr/local/include/google/protobuf. Windows uses Scoop to uninstall protoc.
-    prompt:
-      - This will remove protoc and all proto plugins from this machine.
-      - Continue?
-    cmds:
-      - task: _install:undo:protoc:macos
-      - task: _install:undo:protoc:linux
-      - task: _install:undo:protoc:windows
-      - task: _install:undo:plugins
-  upgrade:
-    run: once
-    desc: Upgrade protoc and Go proto plugins
-    summary: |
-      Upgrade protoc and the Go protobuf plugins. macOS uses brew upgrade protobuf.
-      Linux re-downloads the pinned PROTOC_VERSION release. Windows uses
-      scoop update protobuf. Go plugins are reinstalled at their pinned versions.
-    deps:
-      - task: go:install
-    cmds:
-      - task: _upgrade:protoc:macos
-      - task: _upgrade:protoc:linux
-      - task: _upgrade:protoc:windows
-      - task: _install:plugins
-        vars:
-          FORCE: "true"
   ungen:
     run: once
     desc: Remove generated protobuf (.pb.go) files from the working tree
@@ -137,14 +65,6 @@ tasks:
     cmds:
       - task: _ungen:unix
       - task: _ungen:windows
-  version:
-    run: once
-    desc: Show the installed protoc version
-    summary: Print the active protoc version via protoc --version. Auto-installs protoc if missing.
-    deps:
-      - task: install
-    cmds:
-      - protoc --version
   _gen:unix:
     run: once
     internal: true
@@ -158,7 +78,7 @@ tasks:
       RESOLVED_GO_MODULE: '{{if .GO_MODULE_OVERRIDE}}{{.GO_MODULE_OVERRIDE}}{{else}}{{.GO_MODULE}}{{end}}'
     cmds:
       - |
-        export PATH="{{.GO_GLOBAL_BIN}}:$PATH"
+        bash -lc '{{.NIX_LOAD}};
         module_opts=""
         if [ -n "${GO_MODULE:-}" ]; then
           module_opts="--go_opt=module=${GO_MODULE} --go-grpc_opt=module=${GO_MODULE}"
@@ -173,7 +93,7 @@ tasks:
           -exec protoc --proto_path="{{.RESOLVED_PROTO_PATH}}" \
           --go_out=. ${module_opts} \
           --go-grpc_out=. ${module_opts} \
-          {} +
+          {} +'
   _gen:windows:
     run: once
     internal: true
@@ -194,7 +114,6 @@ tasks:
           cat > "$script" <<'POWERSHELL'
           $ErrorActionPreference = 'Stop'
           $env:PSModulePath = Join-Path $PSHOME 'Modules'
-          $env:Path = "{{.GO_GLOBAL_BIN}};$env:USERPROFILE\scoop\shims;$env:Path"
           $moduleOpts = @()
           if ($env:GO_MODULE) {
             $moduleOpts = @(
@@ -214,335 +133,6 @@ tasks:
           if ($LASTEXITCODE -ne 0) { exit $LASTEXITCODE }
           POWERSHELL
           powershell -NoProfile -ExecutionPolicy Bypass -File "$script"
-  _install:protoc:macos:
-    run: once
-    internal: true
-    platforms: [darwin]
-    set: [errexit, nounset, pipefail]
-    vars:
-      PROTOC_UNAME_ARCH:
-        sh: uname -m
-      PROTOC_ARCH: >-
-        {{if or (eq .PROTOC_UNAME_ARCH "x86_64") (eq .PROTOC_UNAME_ARCH "amd64")}}x86_64
-        {{- else if or (eq .PROTOC_UNAME_ARCH "aarch64") (eq .PROTOC_UNAME_ARCH "arm64")}}aarch_64
-        {{- else}}{{.PROTOC_UNAME_ARCH}}{{end}}
-      PROTOC_ARCHIVE: "/tmp/taskotter-protoc-{{.PROTOC_VERSION}}.zip"
-      PROTOC_TMP_DIR: "/tmp/taskotter-protoc-{{.PROTOC_VERSION}}"
-    status:
-      - command -v protoc >/dev/null 2>&1 && protoc --version | grep -Fqx "libprotoc {{.PROTOC_VERSION}}"
-    preconditions:
-      - sh: command -v curl >/dev/null 2>&1
-        msg: curl is required to download protoc.
-      - sh: command -v unzip >/dev/null 2>&1
-        msg: unzip is required to extract protoc.
-      - sh: >-
-          [ "{{.PROTOC_ARCH}}" = "x86_64" ] || [ "{{.PROTOC_ARCH}}" = "aarch_64" ]
-        msg: Unsupported macOS architecture. Only x86_64 and arm64/aarch64 are supported.
-    cmds:
-      - echo 'Installing protoc v{{.PROTOC_VERSION}} for macOS ({{.PROTOC_ARCH}})...'
-      - mkdir -p "{{.PROTOC_TMP_DIR}}"
-      - >-
-        archive_url="https://github.com/protocolbuffers/protobuf/releases/download/v{{.PROTOC_VERSION}}";
-        archive_url="${archive_url}/protoc-{{.PROTOC_VERSION}}-osx-{{.PROTOC_ARCH}}.zip";
-        curl -fsSL -o "{{.PROTOC_ARCHIVE}}" "$archive_url"
-      - unzip -o "{{.PROTOC_ARCHIVE}}" -d "{{.PROTOC_TMP_DIR}}"
-      - cmd: cp "{{.PROTOC_TMP_DIR}}/bin/protoc" /usr/local/bin/protoc
-        if: '[ "$(id -u)" -eq 0 ]'
-      - cmd: cp -R "{{.PROTOC_TMP_DIR}}/include/." /usr/local/include/
-        if: '[ "$(id -u)" -eq 0 ]'
-      - cmd: chmod +x /usr/local/bin/protoc
-        if: '[ "$(id -u)" -eq 0 ]'
-      - cmd: sudo cp "{{.PROTOC_TMP_DIR}}/bin/protoc" /usr/local/bin/protoc
-        if: '[ "$(id -u)" -ne 0 ]'
-      - cmd: sudo cp -R "{{.PROTOC_TMP_DIR}}/include/." /usr/local/include/
-        if: '[ "$(id -u)" -ne 0 ]'
-      - cmd: sudo chmod +x /usr/local/bin/protoc
-        if: '[ "$(id -u)" -ne 0 ]'
-      - rm -rf "{{.PROTOC_ARCHIVE}}" "{{.PROTOC_TMP_DIR}}"
-      - echo 'protoc installed.'
-  _install:protoc:linux:
-    run: once
-    internal: true
-    platforms: [linux]
-    set: [errexit, nounset, pipefail]
-    vars:
-      PROTOC_UNAME_ARCH:
-        sh: uname -m
-      PROTOC_ARCH: >-
-        {{if or (eq .PROTOC_UNAME_ARCH "x86_64") (eq .PROTOC_UNAME_ARCH "amd64")}}x86_64
-        {{- else if or (eq .PROTOC_UNAME_ARCH "aarch64") (eq .PROTOC_UNAME_ARCH "arm64")}}aarch_64
-        {{- else}}{{.PROTOC_UNAME_ARCH}}{{end}}
-      PROTOC_ARCHIVE: "/tmp/taskotter-protoc-{{.PROTOC_VERSION}}.zip"
-      PROTOC_TMP_DIR: "/tmp/taskotter-protoc-{{.PROTOC_VERSION}}"
-    status:
-      - command -v protoc >/dev/null 2>&1 && protoc --version | grep -Fqx "libprotoc {{.PROTOC_VERSION}}"
-    preconditions:
-      - sh: command -v curl >/dev/null 2>&1
-        msg: curl is required to download protoc.
-      - sh: command -v unzip >/dev/null 2>&1
-        msg: unzip is required to extract protoc.
-      - sh: >-
-          [ "{{.PROTOC_ARCH}}" = "x86_64" ] || [ "{{.PROTOC_ARCH}}" = "aarch_64" ]
-        msg: Unsupported Linux architecture. Only x86_64 and aarch64 are supported.
-    cmds:
-      - echo 'Installing protoc v{{.PROTOC_VERSION}} for Linux ({{.PROTOC_ARCH}})...'
-      - mkdir -p "{{.PROTOC_TMP_DIR}}"
-      - >-
-        archive_url="https://github.com/protocolbuffers/protobuf/releases/download/v{{.PROTOC_VERSION}}";
-        archive_url="${archive_url}/protoc-{{.PROTOC_VERSION}}-linux-{{.PROTOC_ARCH}}.zip";
-        curl -fsSL -o "{{.PROTOC_ARCHIVE}}" "$archive_url"
-      - unzip -o "{{.PROTOC_ARCHIVE}}" -d "{{.PROTOC_TMP_DIR}}"
-      - cmd: cp "{{.PROTOC_TMP_DIR}}/bin/protoc" /usr/local/bin/protoc
-        if: '[ "$(id -u)" -eq 0 ]'
-      - cmd: cp -R "{{.PROTOC_TMP_DIR}}/include/." /usr/local/include/
-        if: '[ "$(id -u)" -eq 0 ]'
-      - cmd: chmod +x /usr/local/bin/protoc
-        if: '[ "$(id -u)" -eq 0 ]'
-      - cmd: sudo cp "{{.PROTOC_TMP_DIR}}/bin/protoc" /usr/local/bin/protoc
-        if: '[ "$(id -u)" -ne 0 ]'
-      - cmd: sudo cp -R "{{.PROTOC_TMP_DIR}}/include/." /usr/local/include/
-        if: '[ "$(id -u)" -ne 0 ]'
-      - cmd: sudo chmod +x /usr/local/bin/protoc
-        if: '[ "$(id -u)" -ne 0 ]'
-      - rm -rf "{{.PROTOC_ARCHIVE}}" "{{.PROTOC_TMP_DIR}}"
-      - echo 'protoc installed.'
-  _install:scoop:
-    run: once
-    internal: true
-    platforms: [windows]
-    status:
-      # Task runs status/cmds through mvdan/sh (POSIX), so PowerShell `$vars`
-      # in double quotes are expanded before powershell.exe sees them.
-      - command -v scoop >/dev/null 2>&1 || test -f "$USERPROFILE/scoop/shims/scoop.cmd"
-    cmds:
-      - echo Installing Scoop...
-      # Quoted heredoc keeps PowerShell `$vars` away from POSIX expansion.
-      # -RunAsAdmin is required on elevated GitHub-hosted Windows runners.
-      # GitHub Actions runs Task from pwsh, so powershell.exe (5.1) inherits
-      # PowerShell 7's PSModulePath and cannot load Microsoft.PowerShell.Security.
-      # The Scoop installer calls Get-ExecutionPolicy from that module.
-      - cmd: |
-          powershell -NoProfile -ExecutionPolicy Bypass -Command - <<'POWERSHELL'
-          $ErrorActionPreference = 'Stop'
-          $env:PSModulePath = Join-Path $PSHOME 'Modules'
-          iex "& {$(irm get.scoop.sh)} -RunAsAdmin"
-          POWERSHELL
-      - echo Scoop installed.
-  _install:protoc:windows:
-    run: once
-    internal: true
-    platforms: [windows]
-    deps:
-      - task: _install:scoop
-    status:
-      # Scoop's extras/protobuf version is not PROTOC_VERSION (macOS/Linux only).
-      - command -v protoc >/dev/null 2>&1 || test -f "$USERPROFILE/scoop/shims/protoc.exe"
-    cmds:
-      - echo Installing protoc via Scoop...
-      # Installer updates user PATH; this process still has Task's original env.
-      # protobuf is in the extras bucket, not main, and has no @PROTOC_VERSION pin.
-      - cmd: |
-          powershell -NoProfile -ExecutionPolicy Bypass -Command - <<'POWERSHELL'
-          $ErrorActionPreference = 'Stop'
-          $env:PSModulePath = Join-Path $PSHOME 'Modules'
-          $env:Path = "$env:USERPROFILE\scoop\shims;$env:Path"
-          cmd.exe /c "scoop bucket add extras"
-          scoop install extras/protobuf
-          POWERSHELL
-      - echo protoc installed. Restart your terminal if protoc is not found.
-  _install:plugins:
-    run: once
-    internal: true
-    set: [errexit, nounset, pipefail]
-    status:
-      - '[ "{{.FORCE}}" != "true" ]'
-      - >-
-        {{if eq .OS "windows"}}powershell -NoProfile -ExecutionPolicy Bypass -Command
-        "if ('{{.FORCE}}' -eq 'true') { exit 1 };
-        $goBin = '{{.GO_GLOBAL_BIN}}';
-        $goPlugin = Join-Path $goBin 'protoc-gen-go.exe';
-        $grpcPlugin = Join-Path $goBin 'protoc-gen-go-grpc.exe';
-        if (-not (Test-Path $goPlugin) -or -not (Test-Path $grpcPlugin)) { exit 1 };
-        $wantGo = '{{.PROTOC_GEN_GO_VERSION}}'.TrimStart('v');
-        $wantGrpc = '{{.PROTOC_GEN_GO_GRPC_VERSION}}'.TrimStart('v');
-        $gotGo = ((& $goPlugin --version) | Select-Object -Last 1).ToString().Trim().Split(' ')[-1].TrimStart('v');
-        $gotGrpc = ((& $grpcPlugin --version) | Select-Object -Last 1).ToString().Trim().Split(' ')[-1].TrimStart('v');
-        if ($gotGo -eq $wantGo -and $gotGrpc -eq $wantGrpc) { exit 0 };
-        exit 1"{{else}}test -x "{{.GO_GLOBAL_BIN}}/protoc-gen-go"
-        && test -x "{{.GO_GLOBAL_BIN}}/protoc-gen-go-grpc"
-        && "{{.GO_GLOBAL_BIN}}/protoc-gen-go" --version | awk '{print $NF}' | sed 's/^v//'
-        | grep -Fqx "$(printf '%s' '{{.PROTOC_GEN_GO_VERSION}}' | sed 's/^v//')"
-        && "{{.GO_GLOBAL_BIN}}/protoc-gen-go-grpc" --version | awk '{print $NF}' | sed 's/^v//'
-        | grep -Fqx "$(printf '%s' '{{.PROTOC_GEN_GO_GRPC_VERSION}}' | sed 's/^v//')"{{end}}
-    preconditions:
-      - sh: command -v "{{.GO_CMD}}" >/dev/null 2>&1 || test -x "{{.GO_CMD}}"
-        msg: Go is required to install protoc-gen-go and protoc-gen-go-grpc.
-    cmds:
-      - mkdir -p "{{.GO_GLOBAL_BIN}}"
-      - >-
-        GOBIN="{{.GO_GLOBAL_BIN}}"
-        "{{.GO_CMD}}" install google.golang.org/protobuf/cmd/protoc-gen-go@{{.PROTOC_GEN_GO_VERSION}}
-      - >-
-        GOBIN="{{.GO_GLOBAL_BIN}}"
-        "{{.GO_CMD}}" install google.golang.org/grpc/cmd/protoc-gen-go-grpc@{{.PROTOC_GEN_GO_GRPC_VERSION}}
-      - echo 'protoc Go plugins installed.'
-  _install:undo:protoc:macos:
-    run: once
-    internal: true
-    platforms: [darwin]
-    set: [errexit, nounset, pipefail]
-    status:
-      - "! command -v protoc >/dev/null 2>&1"
-    preconditions:
-      - sh: command -v brew >/dev/null 2>&1
-        msg: Homebrew is required to remove protoc on macOS.
-    cmds:
-      - echo 'Removing protoc via Homebrew...'
-      - brew uninstall protobuf
-      - echo 'protoc removed.'
-  _install:undo:protoc:linux:
-    run: once
-    internal: true
-    platforms: [linux]
-    set: [errexit, nounset, pipefail]
-    status:
-      - "! command -v protoc >/dev/null 2>&1"
-    cmds:
-      - echo 'Removing protoc...'
-      - cmd: rm -f /usr/local/bin/protoc
-        if: '[ "$(id -u)" -eq 0 ]'
-      - cmd: rm -rf /usr/local/include/google/protobuf
-        if: '[ "$(id -u)" -eq 0 ]'
-      - cmd: sudo rm -f /usr/local/bin/protoc
-        if: '[ "$(id -u)" -ne 0 ]'
-      - cmd: sudo rm -rf /usr/local/include/google/protobuf
-        if: '[ "$(id -u)" -ne 0 ]'
-      - echo 'protoc removed.'
-  _install:undo:protoc:windows:
-    run: once
-    internal: true
-    platforms: [windows]
-    status:
-      - >-
-        powershell -NoProfile -ExecutionPolicy Bypass -Command
-        "if (Get-Command protoc -ErrorAction SilentlyContinue) { exit 1 } else { exit 0 }"
-    cmds:
-      - echo Removing protoc via Scoop...
-      - cmd: |
-          powershell -NoProfile -ExecutionPolicy Bypass -Command - <<'POWERSHELL'
-          $ErrorActionPreference = 'Stop'
-          $env:PSModulePath = Join-Path $PSHOME 'Modules'
-          $env:Path = "$env:USERPROFILE\scoop\shims;$env:Path"
-          scoop uninstall protobuf
-          POWERSHELL
-      - echo protoc removed.
-  _install:undo:plugins:
-    run: once
-    internal: true
-    cmds:
-      - task: _install:undo:plugins:unix
-      - task: _install:undo:plugins:windows
-  _install:undo:plugins:unix:
-    run: once
-    internal: true
-    platforms: [darwin, linux]
-    set: [errexit, nounset, pipefail]
-    status:
-      - "! test -x '{{.GO_GLOBAL_BIN}}/protoc-gen-go'"
-      - "! test -x '{{.GO_GLOBAL_BIN}}/protoc-gen-go-grpc'"
-    cmds:
-      - echo 'Removing protoc Go plugins from {{.GO_GLOBAL_BIN}}...'
-      - rm -f "{{.GO_GLOBAL_BIN}}/protoc-gen-go" "{{.GO_GLOBAL_BIN}}/protoc-gen-go-grpc"
-      - echo 'protoc Go plugins removed.'
-  _install:undo:plugins:windows:
-    run: once
-    internal: true
-    platforms: [windows]
-    cmds:
-      - echo Removing protoc Go plugins...
-      - >-
-        powershell -NoProfile -ExecutionPolicy Bypass -Command
-        "Remove-Item -Force
-        '{{.GO_GLOBAL_BIN}}\protoc-gen-go.exe',
-        '{{.GO_GLOBAL_BIN}}\protoc-gen-go-grpc.exe'
-        -ErrorAction SilentlyContinue"
-      - echo protoc Go plugins removed.
-  _upgrade:protoc:macos:
-    run: once
-    internal: true
-    platforms: [darwin]
-    set: [errexit, nounset, pipefail]
-    preconditions:
-      - sh: command -v brew >/dev/null 2>&1
-        msg: Homebrew is required to upgrade protoc on macOS.
-    cmds:
-      - echo 'Upgrading protoc via Homebrew...'
-      - cmd: brew upgrade protobuf
-        if: brew list protobuf >/dev/null 2>&1
-      - cmd: brew install protobuf
-        if: "! brew list protobuf >/dev/null 2>&1"
-      - echo 'protoc upgraded.'
-  _upgrade:protoc:linux:
-    run: once
-    internal: true
-    platforms: [linux]
-    set: [errexit, nounset, pipefail]
-    vars:
-      PROTOC_UNAME_ARCH:
-        sh: uname -m
-      PROTOC_ARCH: >-
-        {{if or (eq .PROTOC_UNAME_ARCH "x86_64") (eq .PROTOC_UNAME_ARCH "amd64")}}x86_64
-        {{- else if or (eq .PROTOC_UNAME_ARCH "aarch64") (eq .PROTOC_UNAME_ARCH "arm64")}}aarch_64
-        {{- else}}{{.PROTOC_UNAME_ARCH}}{{end}}
-      PROTOC_ARCHIVE: "/tmp/taskotter-protoc-{{.PROTOC_VERSION}}.zip"
-      PROTOC_TMP_DIR: "/tmp/taskotter-protoc-{{.PROTOC_VERSION}}"
-    preconditions:
-      - sh: command -v curl >/dev/null 2>&1
-        msg: curl is required to download protoc.
-      - sh: command -v unzip >/dev/null 2>&1
-        msg: unzip is required to extract protoc.
-      - sh: >-
-          [ "{{.PROTOC_ARCH}}" = "x86_64" ] || [ "{{.PROTOC_ARCH}}" = "aarch_64" ]
-        msg: Unsupported Linux architecture. Only x86_64 and aarch64 are supported.
-    cmds:
-      - echo 'Upgrading protoc to v{{.PROTOC_VERSION}} for Linux ({{.PROTOC_ARCH}})...'
-      - mkdir -p "{{.PROTOC_TMP_DIR}}"
-      - >-
-        archive_url="https://github.com/protocolbuffers/protobuf/releases/download/v{{.PROTOC_VERSION}}";
-        archive_url="${archive_url}/protoc-{{.PROTOC_VERSION}}-linux-{{.PROTOC_ARCH}}.zip";
-        curl -fsSL -o "{{.PROTOC_ARCHIVE}}" "$archive_url"
-      - unzip -o "{{.PROTOC_ARCHIVE}}" -d "{{.PROTOC_TMP_DIR}}"
-      - cmd: cp "{{.PROTOC_TMP_DIR}}/bin/protoc" /usr/local/bin/protoc
-        if: '[ "$(id -u)" -eq 0 ]'
-      - cmd: cp -R "{{.PROTOC_TMP_DIR}}/include/." /usr/local/include/
-        if: '[ "$(id -u)" -eq 0 ]'
-      - cmd: chmod +x /usr/local/bin/protoc
-        if: '[ "$(id -u)" -eq 0 ]'
-      - cmd: sudo cp "{{.PROTOC_TMP_DIR}}/bin/protoc" /usr/local/bin/protoc
-        if: '[ "$(id -u)" -ne 0 ]'
-      - cmd: sudo cp -R "{{.PROTOC_TMP_DIR}}/include/." /usr/local/include/
-        if: '[ "$(id -u)" -ne 0 ]'
-      - cmd: sudo chmod +x /usr/local/bin/protoc
-        if: '[ "$(id -u)" -ne 0 ]'
-      - rm -rf "{{.PROTOC_ARCHIVE}}" "{{.PROTOC_TMP_DIR}}"
-      - echo 'protoc upgraded.'
-  _upgrade:protoc:windows:
-    run: once
-    internal: true
-    platforms: [windows]
-    deps:
-      - task: _install:scoop
-    cmds:
-      - echo Upgrading protoc via Scoop...
-      - cmd: |
-          powershell -NoProfile -ExecutionPolicy Bypass -Command - <<'POWERSHELL'
-          $ErrorActionPreference = 'Stop'
-          $env:PSModulePath = Join-Path $PSHOME 'Modules'
-          $env:Path = "$env:USERPROFILE\scoop\shims;$env:Path"
-          cmd.exe /c "scoop bucket add extras"
-          scoop update extras/protobuf
-          POWERSHELL
-      - echo protoc upgraded. Restart your terminal if prompted.
   _ungen:unix:
     run: once
     internal: true

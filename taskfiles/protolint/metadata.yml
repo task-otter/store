@@ -5,7 +5,3 @@ taskfile: Taskfile.yml
 exported_tasks:
   - ci
   - ci:fix
-  - install
-  - install:undo
-  - upgrade
-  - version

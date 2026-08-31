@@ -16,20 +16,14 @@ func publicTasks() []string {
 		"ci:fix",
 		"fmt:check",
 		"generate",
-		"install",
-		"install:undo",
 		"lint",
-		"upgrade",
-		"version",
 	}
 }
 
 func publicVars() []string {
 	return []string{
-		"BUF_LINT_SKIP_PATTERN",
-		"BUF_FMT_SKIP_PATTERN",
 		"BUF_AGAINST",
-		"BUF_VERSION",
+		"BUF_NIX_INSTALLABLE",
 		"BUF_CONFIG",
 		"BUF_EXTRA_ARGS",
 		"BUF_INPUT",

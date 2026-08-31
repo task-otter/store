@@ -8,6 +8,5 @@ exported_tasks:
   - config:skip
   - fmt
   - fmt:check
-  - install
   - lint
   - lint:fix

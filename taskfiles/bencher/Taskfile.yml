@@ -9,10 +9,12 @@ output:
 
 silent: true
 
+includes:
+  nix:
+    taskfile: ../nix/Taskfile.yml
+
 vars:
-  BENCHER_INSTALL_URL: "https://bencher.dev/download/install-cli.sh"
-  BENCHER_INSTALL_URL_WINDOWS: "https://bencher.dev/download/install-cli.ps1"
-  BENCHER_VERSION: ""
+  BENCHER_NIX_INSTALLABLE: nixpkgs#bencher
   BENCHER_EXTRA_ARGS: ""
 
 tasks:
@@ -22,31 +24,6 @@ tasks:
     summary: Display the list of available Bencher CLI-related tasks defined in this Taskfile.
     cmds:
       - task --list
-
-  install:
-    run: once
-    desc: Install the Bencher CLI on the current operating system
-    summary: |
-      Install the Bencher CLI with Bencher's official installer when it is not
-      already available. macOS, Linux, and other Unix-like systems use the
-      install-cli.sh script; Windows uses the install-cli.ps1 PowerShell script.
-      Leave BENCHER_VERSION empty to install the latest release. Set it only for
-      Bencher Self-Hosted, which requires a CLI version compatible with the server.
-      Override the installer URL variables to use a self-hosted Bencher instance.
-    cmds:
-      - task: _install:unix
-      - task: _install:windows
-
-  upgrade:
-    run: once
-    desc: Upgrade the Bencher CLI with the official installer
-    summary: |
-      Re-run Bencher's official installer to update the CLI. With the default
-      empty BENCHER_VERSION, it installs the latest release. For Bencher
-      Self-Hosted, set BENCHER_VERSION to the release compatible with the server.
-    cmds:
-      - task: _install:unix:force
-      - task: _install:windows:force
 
   run:
     run: once
@@ -58,12 +35,21 @@ tasks:
       Auto-installs the CLI if it is missing.
     dir: "{{.USER_WORKING_DIR}}"
     deps:
-      - task: install
+      - task: nix:install:profile
+        vars:
+          NIX_INSTALLABLE: "{{.BENCHER_NIX_INSTALLABLE}}"
     cmds:
-      - >-
-        bencher run
-        {{if .CLI_ARGS}}{{.CLI_ARGS}}{{else}}{{if .BENCHER_EXTRA_ARGS_OVERRIDE}}{{.BENCHER_EXTRA_ARGS_OVERRIDE}}
-        {{- else}}{{.BENCHER_EXTRA_ARGS}}{{end}}{{end}}
+      - cmd: >-
+          bash -lc '{{.NIX_LOAD}};
+          bencher run
+          {{if .CLI_ARGS}}{{.CLI_ARGS}}{{else}}{{if .BENCHER_EXTRA_ARGS_OVERRIDE}}{{.BENCHER_EXTRA_ARGS_OVERRIDE}}
+          {{- else}}{{.BENCHER_EXTRA_ARGS}}{{end}}{{end}}'
+        platforms: [linux, darwin]
+      - cmd: >-
+          bencher run
+          {{if .CLI_ARGS}}{{.CLI_ARGS}}{{else}}{{if .BENCHER_EXTRA_ARGS_OVERRIDE}}{{.BENCHER_EXTRA_ARGS_OVERRIDE}}
+          {{- else}}{{.BENCHER_EXTRA_ARGS}}{{end}}{{end}}
+        platforms: [windows]
 
   exec:
     run: once
@@ -74,78 +60,18 @@ tasks:
       Auto-installs the CLI if it is missing.
     dir: "{{.USER_WORKING_DIR}}"
     deps:
-      - task: install
+      - task: nix:install:profile
+        vars:
+          NIX_INSTALLABLE: "{{.BENCHER_NIX_INSTALLABLE}}"
     cmds:
-      - >-
-        bencher
-        {{if .CLI_ARGS}}{{.CLI_ARGS}}{{else}}{{if .BENCHER_EXTRA_ARGS_OVERRIDE}}{{.BENCHER_EXTRA_ARGS_OVERRIDE}}
-        {{- else}}{{.BENCHER_EXTRA_ARGS}}{{end}}{{end}}
-
-  version:
-    run: once
-    desc: Show the installed Bencher CLI version
-    summary: Print the active Bencher CLI version via bencher --version. Auto-installs the CLI if it is missing.
-    deps:
-      - task: install
-    cmds:
-      - bencher --version
-
-  _install:unix:
-    run: once
-    internal: true
-    platforms: [linux, darwin]
-    set: [errexit, nounset, pipefail]
-    status:
-      - >-
-        command -v bencher >/dev/null 2>&1
-        && { [ -z "{{.BENCHER_VERSION}}" ]
-        || bencher --version | grep -Fq "{{.BENCHER_VERSION}}"; }
-    preconditions:
-      - sh: command -v curl >/dev/null 2>&1
-        msg: curl is required to download the Bencher CLI installer.
-    cmds:
-      - task: _install:unix:force
-
-  _install:unix:force:
-    run: once
-    internal: true
-    platforms: [linux, darwin]
-    set: [errexit, nounset, pipefail]
-    preconditions:
-      - sh: command -v curl >/dev/null 2>&1
-        msg: curl is required to download the Bencher CLI installer.
-    cmds:
-      - echo 'Installing Bencher CLI via the official install script...'
-      - >-
-        {{if .BENCHER_VERSION}}export BENCHER_VERSION="{{.BENCHER_VERSION}}"; {{end}}
-        curl --proto '=https' --tlsv1.2 -sSfL "{{.BENCHER_INSTALL_URL}}" | sh
-      - echo 'Bencher CLI installed. Restart your shell if the bencher command is not yet in PATH.'
-
-  _install:windows:
-    run: once
-    internal: true
-    platforms: [windows]
-    status:
-      - >-
-        powershell -NoProfile -Command
-        "$bencher = Get-Command bencher -ErrorAction SilentlyContinue;
-        if (-not $bencher) { exit 1 };
-        $requested = '{{.BENCHER_VERSION}}';
-        if ([string]::IsNullOrWhiteSpace($requested)
-        -or ((& $bencher.Source --version) -like ('*' + $requested + '*'))) { exit 0 };
-        exit 1"
-    cmds:
-      - task: _install:windows:force
-
-  _install:windows:force:
-    run: once
-    internal: true
-    platforms: [windows]
-    cmds:
-      - echo Installing Bencher CLI via the official PowerShell installer...
-      - >-
-        powershell -c
-        "$version = '{{.BENCHER_VERSION}}';
-        if ($version) { $env:BENCHER_VERSION = $version };
-        irm '{{.BENCHER_INSTALL_URL_WINDOWS}}' | iex"
-      - echo Bencher CLI installed. Restart your terminal if the bencher command is not yet in PATH.
+      - cmd: >-
+          bash -lc '{{.NIX_LOAD}};
+          bencher
+          {{if .CLI_ARGS}}{{.CLI_ARGS}}{{else}}{{if .BENCHER_EXTRA_ARGS_OVERRIDE}}{{.BENCHER_EXTRA_ARGS_OVERRIDE}}
+          {{- else}}{{.BENCHER_EXTRA_ARGS}}{{end}}{{end}}'
+        platforms: [linux, darwin]
+      - cmd: >-
+          bencher
+          {{if .CLI_ARGS}}{{.CLI_ARGS}}{{else}}{{if .BENCHER_EXTRA_ARGS_OVERRIDE}}{{.BENCHER_EXTRA_ARGS_OVERRIDE}}
+          {{- else}}{{.BENCHER_EXTRA_ARGS}}{{end}}{{end}}
+        platforms: [windows]

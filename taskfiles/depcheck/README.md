@@ -23,11 +23,11 @@ Then run the leaf that matches your project through its namespace (replace
 
 ```bash
 task depcheck:bun:{TASK}                 # Bun runtime + Bun as package manager
-task depcheck:node:fnm:npm:{TASK}        # Node via fnm, npm as package manager
-task depcheck:node:nvm:pnpm:{TASK}       # Node via nvm, pnpm as package manager
+task depcheck:node:npm:{TASK}        # Node via the nodejs module, npm as package manager
+task depcheck:node:pnpm:{TASK}       # Node via the nodejs module, pnpm as package manager
 ```
 
-Available leaves: `bun`, `node/{fnm,nvm}/{npm,pnpm,yarn}`.
+Available leaves: `bun`, `node/{npm,pnpm,yarn}`.
 
 ## Public Tasks
 
@@ -58,10 +58,10 @@ Skip patterns support `*` within one path segment, `**` across directories, and 
 ## Examples
 
 ```bash
-task depcheck:node:fnm:npm:install
-task depcheck:node:fnm:npm:install DEPCHECK_VERSION=1.4.7
-task depcheck:node:fnm:npm:ci
-task depcheck:node:fnm:npm:json
-task depcheck:node:fnm:npm:ci DEPCHECK_PROJECT_PATH=packages/app
-task depcheck:node:fnm:npm:ci -- --ignores="@types/*,eslint-*"
+task depcheck:node:npm:install
+task depcheck:node:npm:install DEPCHECK_VERSION=1.4.7
+task depcheck:node:npm:ci
+task depcheck:node:npm:json
+task depcheck:node:npm:ci DEPCHECK_PROJECT_PATH=packages/app
+task depcheck:node:npm:ci -- --ignores="@types/*,eslint-*"
 ```

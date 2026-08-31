@@ -11,21 +11,15 @@ import (
 
 func publicTasks() []string {
 	return []string{
-		"install",
-		"install:undo",
 		"ci",
-		"upgrade",
-		"version",
 	}
 }
 
 func publicVars() []string {
 	return []string{
-		"JSONLINT_LINT_SKIP_PATTERN",
 		"JSONLINT_EXTRA_ARGS",
-		"JSONLINT_VERSION",
+		"JSONLINT_NIX_INSTALLABLE",
 		"JSONLINT_TARGETS",
-		"UV_LOAD",
 	}
 }
 

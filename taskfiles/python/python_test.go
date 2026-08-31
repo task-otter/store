@@ -11,14 +11,10 @@ import (
 
 func publicTasks() []string {
 	return []string{
-		"install",
-		"install:undo",
 		"pip:install",
 		"run",
-		"upgrade",
-		"verify",
-		"version",
 		"venv",
+		"verify",
 	}
 }
 
@@ -27,9 +23,8 @@ func publicVars() []string {
 		"PYTHON_ARGS",
 		"PYTHON_EXTRA_ARGS",
 		"PYTHON_FILE",
-		"PYTHON_PIN_VERSION",
+		"PYTHON_NIX_INSTALLABLE",
 		"PYTHON_REQUIREMENTS",
-		"UV_LOAD",
 		"PYTHON_VENV",
 	}
 }

@@ -5,8 +5,6 @@ taskfile: Taskfile.yml
 exported_tasks:
   - health
   - init
-  - install
-  - install:undo
   - kv:get
   - login
   - login:approle
@@ -20,6 +18,4 @@ exported_tasks:
   - token:issue:approle
   - token:revoke-self
   - unseal
-  - upgrade
   - verify
-  - version

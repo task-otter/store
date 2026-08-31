@@ -2,20 +2,23 @@
 
 ## What is this Taskfile?
 
-A cross-platform Taskfile for installing sqlfluff, managing upgrades, linting
-and auto-fixing SQL files, and generating a project configuration.
-
-sqlfluff is installed via [uv](../uv/) into an isolated tool environment so it
-never conflicts with project dependencies.
+A cross-platform Taskfile for linting and auto-fixing SQL files and generating
+a project configuration. Remaining tasks auto-install sqlfluff via
+`nix:install:profile`.
 
 ## Usage
 
 ### Standalone
 
 ```sh
-task -t taskfiles/sqlfluff/Taskfile.yml install
 task -t taskfiles/sqlfluff/Taskfile.yml config:init
 task -t taskfiles/sqlfluff/Taskfile.yml ci
+```
+
+Install only:
+
+```sh
+task nix:install:profile NIX_INSTALLABLE=nixpkgs#sqlfluff
 ```
 
 ### Included
@@ -28,39 +31,36 @@ includes:
 Then run:
 
 ```sh
-task sqlfluff:install
 task sqlfluff:ci
 task sqlfluff:ci:fix DIALECT_OVERRIDE=postgres
 ```
 
 ## Public Tasks
 
-| Task           | Description                                     | Key variables                                |
-| -------------- | ----------------------------------------------- | -------------------------------------------- |
-| `install`      | Install sqlfluff on the current OS if missing   | none                                         |
-| `install:undo` | Remove sqlfluff from the current OS             | none                                         |
-| `upgrade`      | Upgrade sqlfluff to the latest release          | none                                         |
-| `version`      | Show the installed sqlfluff version             | none                                         |
-| `ci`         | Lint SQL files with sqlfluff                    | `TARGETS_OVERRIDE`, `CONFIG_OVERRIDE`, `DIALECT_OVERRIDE`, `EXTRA_ARGS_OVERRIDE` |
-| `ci:fix` | Auto-fix SQL lint violations | `TARGETS_OVERRIDE`, `CONFIG_OVERRIDE`, `DIALECT_OVERRIDE`, `EXTRA_ARGS_OVERRIDE` |
-| `parse`        | Print the sqlfluff parse tree for SQL files     | `TARGETS_OVERRIDE`, `CONFIG_OVERRIDE`, `DIALECT_OVERRIDE`, `EXTRA_ARGS_OVERRIDE` |
-| `config:init`  | Create a default `.sqlfluff` configuration file | none                                         |
-| `config:skip`  | Write the skip-pattern config overlay (run automatically by `ci`, `ci:fix`, and `parse`) | `CONFIG_OVERRIDE` |
+| Task           | Description                                     |
+| -------------- | ----------------------------------------------- |
+| `ci`           | Lint SQL files with sqlfluff                    |
+| `ci:fix`       | Auto-fix SQL lint violations |
+| `parse`        | Print the sqlfluff parse tree for SQL files     |
+| `config:init`  | Create a default `.sqlfluff` configuration file |
+| `config:skip`  | Write the skip-pattern config overlay (run automatically by `ci`, `ci:fix`, and `parse`) |
 
 ## Variables
 
 | Variable              | Default   | Description                                                  |
 | --------------------- | --------- | ------------------------------------------------------------ |
-| `SQLFLUFF_VERSION`    | `4.2.2`   | Pinned sqlfluff version installed and enforced by `install`/`upgrade` |
-| `TARGETS_OVERRIDE`    | _(empty)_ | Files or directories to lint/fix/parse (overrides task default `.`) |
-| `CONFIG_OVERRIDE`     | _(empty)_ | Path to a sqlfluff config file passed via `--config`         |
-| `DIALECT_OVERRIDE`    | _(empty)_ | SQL dialect passed via `--dialect` (e.g. `ansi`, `postgres`) |
-| `EXTRA_ARGS_OVERRIDE` | _(empty)_ | Extra flags forwarded to sqlfluff                            |
+| `SQLFLUFF_NIX_INSTALLABLE` | `nixpkgs#sqlfluff` | Flake installable passed to `nix:install:profile` |
+| `SQLFLUFF_INTERNAL_SKIP_CONFIG` | `.taskotter-sqlfluff-skip.cfg` | Overlay config written by `config:skip` |
 | `SQLFLUFF_LINT_SKIP_PATTERN` | _(empty)_ | Forward-slash path glob for files skipped by lint, fix, and parse tasks |
 
 Skip patterns support `*` within one path segment, `**` across directories, and `?` for one character. Paths are matched relative to the task working directory; for example, `**/generated/**`.
 
+Pin a revision by overriding the installable, for example
+`SQLFLUFF_NIX_INSTALLABLE=github:NixOS/nixpkgs/<rev>#sqlfluff`.
+
 ## Notes
+
+- Install goes through `nix:install:profile` (Nix is installed first if missing). Native Windows is not supported; use WSL2.
 
 **`config:init`** writes a `.sqlfluff` file in the current directory and is
 skipped if the file already exists. To regenerate, delete `.sqlfluff` first.

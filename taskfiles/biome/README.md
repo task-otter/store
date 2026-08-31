@@ -23,11 +23,11 @@ Then run the leaf that matches your project through its namespace (replace
 
 ```bash
 task biome:bun:{TASK}                 # Bun runtime + Bun as package manager
-task biome:node:fnm:npm:{TASK}        # Node via fnm, npm as package manager
-task biome:node:nvm:pnpm:{TASK}       # Node via nvm, pnpm as package manager
+task biome:node:npm:{TASK}        # Node via the nodejs module, npm as package manager
+task biome:node:pnpm:{TASK}       # Node via the nodejs module, pnpm as package manager
 ```
 
-Available leaves: `bun`, `node/{fnm,nvm}/{npm,pnpm,yarn}`.
+Available leaves: `bun`, `node/{npm,pnpm,yarn}`.
 
 ## Public Tasks
 
@@ -70,11 +70,11 @@ your `.gitignore`**. Running `config:skip` with no skip pattern set deletes it.
 ## Examples
 
 ```bash
-task biome:node:fnm:npm:install
-task biome:node:fnm:npm:install BIOME_VERSION=1.9.4
-task biome:node:fnm:npm:config:init
-task biome:node:fnm:npm:lint
-task biome:node:fnm:npm:lint:fix
-task biome:node:fnm:npm:fmt:check
-task biome:node:fnm:npm:fmt
+task biome:node:npm:install
+task biome:node:npm:install BIOME_VERSION=1.9.4
+task biome:node:npm:config:init
+task biome:node:npm:lint
+task biome:node:npm:lint:fix
+task biome:node:npm:fmt:check
+task biome:node:npm:fmt
 ```

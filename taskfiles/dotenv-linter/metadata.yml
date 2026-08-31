@@ -6,7 +6,3 @@ exported_tasks:
   - ci
   - ci:fix
   - diff
-  - install
-  - install:undo
-  - upgrade
-  - version

@@ -1,0 +1,5 @@
+---
+schema: taskotter.dev/taskfile-metadata/v1
+module: bruno-gui
+taskfile: Taskfile.yml
+exported_tasks: [help, open]

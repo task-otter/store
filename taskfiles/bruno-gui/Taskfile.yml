@@ -1,0 +1,79 @@
+---
+version: "3.5"
+
+output:
+  group:
+    begin: "::group::{{.TASK}}"
+    end: "::endgroup::"
+    error_only: false
+
+silent: true
+
+includes:
+  nix:
+    taskfile: ../nix/Taskfile.yml
+
+vars:
+  BRUNO_GUI_NIX_INSTALLABLE: nixpkgs#bruno
+  BRUNO_GUI_COLLECTION: ""
+  BRUNO_GUI_EXTRA_ARGS: ""
+
+tasks:
+  default:
+    run: once
+    desc: Show available Bruno GUI tasks
+    summary: Display the list of available Bruno desktop app tasks defined in this Taskfile.
+    cmds:
+      - task --list
+
+  _ensure:
+    run: once
+    internal: true
+    status:
+      - command -v bruno >/dev/null 2>&1
+    cmds:
+      - task: nix:install:profile
+        vars:
+          NIX_INSTALLABLE: "{{.BRUNO_GUI_NIX_INSTALLABLE}}"
+
+  open:
+    run: once
+    desc: Launch the Bruno desktop app (BRUNO_GUI_COLLECTION=path)
+    summary: |
+      Launch the Bruno desktop application. Pass BRUNO_GUI_COLLECTION to open a
+      specific collection directory, and BRUNO_GUI_EXTRA_ARGS for additional
+      flags. On macOS and Linux the app runs in the background so the task
+      returns immediately. Auto-installs bruno if missing.
+    dir: "{{.USER_WORKING_DIR}}"
+    vars:
+      RESOLVED_COLLECTION: '{{default .BRUNO_GUI_COLLECTION .BRUNO_GUI_COLLECTION_OVERRIDE}}'
+    deps:
+      - task: _ensure
+    cmds:
+      - cmd: >-
+          bash -lc '{{.NIX_LOAD}}; bruno{{if .RESOLVED_COLLECTION}} {{.RESOLVED_COLLECTION}}{{end}}
+          {{default .BRUNO_GUI_EXTRA_ARGS .BRUNO_GUI_EXTRA_ARGS_OVERRIDE}}{{if .CLI_ARGS}} {{.CLI_ARGS}}{{end}} &'
+        platforms: [linux, darwin]
+      - cmd: >-
+          powershell -NoProfile -ExecutionPolicy Bypass -Command
+          "Start-Process bruno{{if .RESOLVED_COLLECTION}} -ArgumentList '{{.RESOLVED_COLLECTION}}
+          {{default .BRUNO_GUI_EXTRA_ARGS .BRUNO_GUI_EXTRA_ARGS_OVERRIDE}}{{if .CLI_ARGS}} {{.CLI_ARGS}}{{end}}'{{else if or .BRUNO_GUI_EXTRA_ARGS .BRUNO_GUI_EXTRA_ARGS_OVERRIDE .CLI_ARGS}}
+          -ArgumentList '{{default .BRUNO_GUI_EXTRA_ARGS .BRUNO_GUI_EXTRA_ARGS_OVERRIDE}}{{if .CLI_ARGS}} {{.CLI_ARGS}}{{end}}'{{end}}"
+        platforms: [windows]
+
+  help:
+    run: once
+    desc: Show Bruno desktop app help
+    summary: Display the built-in bruno help output. Auto-installs bruno if missing.
+    deps:
+      - task: _ensure
+    cmds:
+      - cmd: >-
+          bash -lc '{{.NIX_LOAD}}; bruno --help
+          {{default .BRUNO_GUI_EXTRA_ARGS .BRUNO_GUI_EXTRA_ARGS_OVERRIDE}}{{if .CLI_ARGS}} {{.CLI_ARGS}}{{end}}'
+        platforms: [linux, darwin]
+      - cmd: >-
+          powershell -NoProfile -ExecutionPolicy Bypass -Command
+          "bruno --help
+          {{default .BRUNO_GUI_EXTRA_ARGS .BRUNO_GUI_EXTRA_ARGS_OVERRIDE}}{{if .CLI_ARGS}} {{.CLI_ARGS}}{{end}}"
+        platforms: [windows]

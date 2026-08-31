@@ -32,47 +32,34 @@ type (
 )
 
 const (
-	constGoTestTest      = "test"
-	benchTask            = "bench"
-	fuzzTask             = "fuzz"
-	installTask          = "install"
-	installGoJunitReport = "install:go-junit-report"
-	goCoverProfileVar    = "GO_COVER_PROFILE"
-	goJunitReportVar     = "GO_JUNIT_REPORT"
-	goModuleName         = "go"
-	goTestCmd            = "go test"
-	fmtPercentV          = "%v"
-	zeroLen              = 0
+	constGoTestTest   = "test"
+	benchTask         = "bench"
+	fuzzTask          = "fuzz"
+	goCoverProfileVar = "GO_COVER_PROFILE"
+	goJunitReportVar  = "GO_JUNIT_REPORT"
+	goModuleName      = "go"
+	goTestCmd         = "go test"
+	fmtPercentV       = "%v"
+	zeroLen           = 0
 )
 
 func publicTasks() []string {
 	return []string{
 		benchTask,
 		fuzzTask,
-		installTask,
-		installGoJunitReport,
-		"install:undo",
 		constGoTestTest,
-		"upgrade",
 		"verify",
-		"version",
 		"which",
 	}
 }
 
 func publicVars() []string {
 	return []string{
-		"GO_BIN_UNIX",
-		"GO_CMD_UNIX",
 		goCoverProfileVar,
-		"GO_DOWNLOAD_BASE_URL",
 		"GO_FUZZTIME",
 		goJunitReportVar,
-		"GO_VERSION",
-		"GO_ROOT_UNIX",
-		"GO_VERSION_URL",
-		"GO_GLOBAL_BIN",
-		"GO_INSTALL_DIR_UNIX",
+		"GO_JUNIT_REPORT_NIX_INSTALLABLE",
+		"GO_NIX_INSTALLABLE",
 	}
 }
 
@@ -179,42 +166,19 @@ func assertGoTestVarsContainTokens(t *testing.T, taskfile *tasktest.Taskfile) {
 	}
 }
 
-// TestVersionVariableIsOptional
-func TestVersionVariableIsOptional(t *testing.T) {
+// TestOperationalTaskDependencies
+func TestOperationalTaskDependencies(t *testing.T) {
 	t.Parallel()
 
 	taskfile := tasktest.LoadTaskfile(t, goModuleName)
 
-	if _, exists := taskfile.Vars["VERSION"]; exists {
-		t.Fatal("shared VERSION variable must not be defined")
-	}
-
-	value, exists := taskfile.Vars["GO_VERSION"]
-
-	if !exists {
-		t.Fatal("GO_VERSION must be defined")
-	}
-
-	if value != "" {
-		t.Fatalf("GO_VERSION default = %#v, want empty", value)
-	}
-}
-
-// TestDevelopmentToolDependencies
-func TestDevelopmentToolDependencies(t *testing.T) {
-	t.Parallel()
-
-	taskfile := tasktest.LoadTaskfile(t, goModuleName)
-
-	installTasks := map[string][]string{
-		installGoJunitReport: {installTask},
-	}
-	testTasks := map[string][]string{
-		constGoTestTest: {installGoJunitReport},
-	}
-
-	assertDependencyMap(t, taskfile, installTasks)
-	assertDependencyMap(t, taskfile, testTasks)
+	assertDependencyMap(t, taskfile, map[string][]string{
+		constGoTestTest: {"_ensure", "nix:install:profile"},
+		benchTask:       {"_ensure"},
+		fuzzTask:        {"_ensure"},
+		"which":         {"_ensure"},
+		"verify":        {"_ensure"},
+	})
 }
 
 func assertDependencyMap(t *testing.T, taskfile *tasktest.Taskfile, deps map[string][]string) {

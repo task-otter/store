@@ -6,8 +6,4 @@ exported_tasks:
   - ci
   - ci:fix
   - fmt
-  - install
-  - install:undo
   - lint:fix
-  - upgrade
-  - version

@@ -13,19 +13,19 @@ includes:
   actionlint: taskfiles/actionlint/Taskfile.yml
   adrs: taskfiles/adrs/Taskfile.yml
   ansible: taskfiles/ansible/Taskfile.yml
+  ansible-lint: taskfiles/ansible-lint/Taskfile.yml
   bencher: taskfiles/bencher/Taskfile.yml
   biome: taskfiles/biome/Taskfile.yml
-  bruno: taskfiles/bruno/Taskfile.yml
+  bruno-cli: taskfiles/bruno-cli/Taskfile.yml
+  bruno-gui: taskfiles/bruno-gui/Taskfile.yml
   buf: taskfiles/buf/Taskfile.yml
   bun: taskfiles/bun/Taskfile.yml
   cargo: taskfiles/cargo/Taskfile.yml
-  corepack: taskfiles/corepack/Taskfile.yml
   depcheck: taskfiles/depcheck/Taskfile.yml
   djlint: taskfiles/djlint/Taskfile.yml
   docker: taskfiles/docker/Taskfile.yml
   dotenv-linter: taskfiles/dotenv-linter/Taskfile.yml
   eslint: taskfiles/eslint/Taskfile.yml
-  fnm: taskfiles/fnm/Taskfile.yml
   gh: taskfiles/gh/Taskfile.yml
   git: taskfiles/git/Taskfile.yml
   go: taskfiles/go/Taskfile.yml
@@ -36,8 +36,9 @@ includes:
   jq: taskfiles/jq/Taskfile.yml
   jsonlint: taskfiles/jsonlint/Taskfile.yml
   knip: taskfiles/knip/Taskfile.yml
+  nix: taskfiles/nix/Taskfile.yml
+  nodejs: taskfiles/nodejs/Taskfile.yml
   npm: taskfiles/npm/Taskfile.yml
-  nvm: taskfiles/nvm/Taskfile.yml
   pnpm: taskfiles/pnpm/Taskfile.yml
   prettier: taskfiles/prettier/Taskfile.yml
   proto: taskfiles/proto/Taskfile.yml

@@ -22,8 +22,6 @@ exported_tasks:
   - fetch
   - help
   - init
-  - install
-  - install:undo
   - log
   - log:graph
   - pr:create
@@ -48,5 +46,3 @@ exported_tasks:
   - tag:delete
   - tag:list
   - tag:push
-  - upgrade
-  - version

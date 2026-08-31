@@ -10,6 +10,9 @@ output:
 silent: true
 
 includes:
+  nix:
+    taskfile: ../nix/Taskfile.yml
+
   jq: ../jq/Taskfile.yml
 
 vars:
@@ -20,7 +23,7 @@ vars:
   GH_DOWNLOAD_DIR: "."
   GH_DATA: "{}"
   GH_PAT_TOKEN: ""
-  GH_VERSION: ""
+  GH_NIX_INSTALLABLE: nixpkgs#gh
 
 env:
   GH_TOKEN: "{{.GH_PAT_TOKEN}}"
@@ -33,59 +36,6 @@ tasks:
     cmds:
       - task --list
 
-  install:
-    run: once
-    desc: Install the GitHub CLI on the current operating system
-    summary: |
-      Detect the current OS and available package managers, then install gh
-      using the best available method.
-      Pass GH_VERSION=x.y.z to pin a specific release; exact availability
-      depends on what the detected package manager/repository carries.
-      On macOS, prefers Homebrew.
-      On Windows, prefers winget, then Chocolatey, then Scoop.
-      On Linux, detects apt, dnf, yum, pacman, zypper, snap, or brew.
-    cmds:
-      - task: _install:auto:unix
-      - task: _install:auto:windows
-
-  install:undo:
-    run: once
-    desc: Remove the GitHub CLI from the current operating system
-    summary: |
-      Detect the current OS and available package managers, then remove gh
-      using the matching uninstall method.
-      On macOS uses Homebrew. On Windows tries winget, then Chocolatey, then
-      Scoop. On Linux detects apt, dnf, yum, pacman, zypper, snap, or brew.
-    prompt:
-      - This will remove the GitHub CLI from this machine.
-      - Continue?
-    cmds:
-      - task: _uninstall:auto:unix
-      - task: _uninstall:auto:windows
-
-  upgrade:
-    run: once
-    desc: Upgrade the GitHub CLI to the latest version on the current OS
-    summary: |
-      Auto-detect the OS and package manager used to install gh, then upgrade
-      to the latest release. On macOS uses brew upgrade. On Windows uses winget
-      upgrade. On Linux uses the detected package manager.
-    deps:
-      - task: install
-    cmds:
-      - task: _upgrade:auto:unix
-      - task: _upgrade:auto:windows
-
-  version:
-    run: once
-    desc: Show the installed GitHub CLI version
-    summary: Print the installed gh version string via `gh --version`.
-    deps:
-      - task: install
-    cmds:
-      - task: _version:unix
-      - task: _version:windows
-
   doctor:
     run: once
     desc: Run the GitHub CLI self-diagnostic check
@@ -93,7 +43,9 @@ tasks:
       Run `gh doctor` to check your gh configuration, authentication,
       and network connectivity to GitHub.
     deps:
-      - task: install
+      - task: nix:install:profile
+        vars:
+          NIX_INSTALLABLE: "{{.GH_NIX_INSTALLABLE}}"
     cmds:
       - task: _doctor:unix
       - task: _doctor:windows
@@ -103,7 +55,9 @@ tasks:
     desc: Show the path to the GitHub CLI binary
     summary: Print the filesystem path of the gh binary resolved from PATH.
     deps:
-      - task: install
+      - task: nix:install:profile
+        vars:
+          NIX_INSTALLABLE: "{{.GH_NIX_INSTALLABLE}}"
     cmds:
       - task: _which:unix
       - task: _which:windows
@@ -116,7 +70,9 @@ tasks:
       and report the current authentication status via `gh auth status`.
       Prints a clear message if the user is not yet authenticated.
     deps:
-      - task: install
+      - task: nix:install:profile
+        vars:
+          NIX_INSTALLABLE: "{{.GH_NIX_INSTALLABLE}}"
     cmds:
       - task: _verify:unix
       - task: _verify:windows
@@ -126,9 +82,14 @@ tasks:
     desc: Show the GitHub CLI built-in help
     summary: Display the built-in gh help output via `gh help`.
     deps:
-      - task: install
+      - task: nix:install:profile
+        vars:
+          NIX_INSTALLABLE: "{{.GH_NIX_INSTALLABLE}}"
     cmds:
-      - gh help
+      - cmd: bash -lc '{{.NIX_LOAD}}; gh help'
+        platforms: [linux, darwin]
+      - cmd: gh help
+        platforms: [windows]
 
   auth:login:
     run: once
@@ -138,9 +99,14 @@ tasks:
       Prompts for hostname, protocol, and authentication method.
       This task is interactive and requires a terminal.
     deps:
-      - task: install
+      - task: nix:install:profile
+        vars:
+          NIX_INSTALLABLE: "{{.GH_NIX_INSTALLABLE}}"
     cmds:
-      - gh auth login
+      - cmd: bash -lc '{{.NIX_LOAD}}; gh auth login'
+        platforms: [linux, darwin]
+      - cmd: gh auth login
+        platforms: [windows]
 
   auth:login:web:
     run: once
@@ -149,9 +115,14 @@ tasks:
       Authenticate with GitHub by opening a browser window for OAuth.
       Uses `gh auth login --web`. This task is interactive.
     deps:
-      - task: install
+      - task: nix:install:profile
+        vars:
+          NIX_INSTALLABLE: "{{.GH_NIX_INSTALLABLE}}"
     cmds:
-      - gh auth login --web
+      - cmd: bash -lc '{{.NIX_LOAD}}; gh auth login --web'
+        platforms: [linux, darwin]
+      - cmd: gh auth login --web
+        platforms: [windows]
 
   auth:login:ssh:
     run: once
@@ -160,9 +131,14 @@ tasks:
       Authenticate with GitHub using the SSH git protocol.
       Uses `gh auth login --git-protocol ssh`. This task is interactive.
     deps:
-      - task: install
+      - task: nix:install:profile
+        vars:
+          NIX_INSTALLABLE: "{{.GH_NIX_INSTALLABLE}}"
     cmds:
-      - gh auth login --git-protocol ssh
+      - cmd: bash -lc '{{.NIX_LOAD}}; gh auth login --git-protocol ssh'
+        platforms: [linux, darwin]
+      - cmd: gh auth login --git-protocol ssh
+        platforms: [windows]
 
   auth:status:
     run: once
@@ -171,9 +147,14 @@ tasks:
       Display the current GitHub authentication status for all configured
       hosts via `gh auth status`.
     deps:
-      - task: install
+      - task: nix:install:profile
+        vars:
+          NIX_INSTALLABLE: "{{.GH_NIX_INSTALLABLE}}"
     cmds:
-      - gh auth status
+      - cmd: bash -lc '{{.NIX_LOAD}}; gh auth status'
+        platforms: [linux, darwin]
+      - cmd: gh auth status
+        platforms: [windows]
 
   auth:refresh:
     run: once
@@ -182,9 +163,14 @@ tasks:
       Refresh the stored GitHub CLI credentials to extend their validity
       via `gh auth refresh`. This task is interactive.
     deps:
-      - task: install
+      - task: nix:install:profile
+        vars:
+          NIX_INSTALLABLE: "{{.GH_NIX_INSTALLABLE}}"
     cmds:
-      - gh auth refresh
+      - cmd: bash -lc '{{.NIX_LOAD}}; gh auth refresh'
+        platforms: [linux, darwin]
+      - cmd: gh auth refresh
+        platforms: [windows]
 
   auth:logout:
     run: once
@@ -193,9 +179,14 @@ tasks:
       Remove locally stored GitHub credentials via `gh auth logout`.
       You will need to re-authenticate with `task auth:login` afterwards.
     deps:
-      - task: install
+      - task: nix:install:profile
+        vars:
+          NIX_INSTALLABLE: "{{.GH_NIX_INSTALLABLE}}"
     cmds:
-      - gh auth logout
+      - cmd: bash -lc '{{.NIX_LOAD}}; gh auth logout'
+        platforms: [linux, darwin]
+      - cmd: gh auth logout
+        platforms: [windows]
 
   auth:setup-git:
     run: once
@@ -204,9 +195,14 @@ tasks:
       Configure git to delegate GitHub authentication to gh via
       `gh auth setup-git`. This enables seamless HTTPS git operations.
     deps:
-      - task: install
+      - task: nix:install:profile
+        vars:
+          NIX_INSTALLABLE: "{{.GH_NIX_INSTALLABLE}}"
     cmds:
-      - gh auth setup-git
+      - cmd: bash -lc '{{.NIX_LOAD}}; gh auth setup-git'
+        platforms: [linux, darwin]
+      - cmd: gh auth setup-git
+        platforms: [windows]
 
   repo:view:
     run: once
@@ -217,9 +213,14 @@ tasks:
       repository in the current working directory.
       Example: OWNER=github REPO=cli
     deps:
-      - task: install
+      - task: nix:install:profile
+        vars:
+          NIX_INSTALLABLE: "{{.GH_NIX_INSTALLABLE}}"
     cmds:
-      - gh repo view {{if .OWNER}}{{.OWNER}}/{{end}}{{.REPO}}
+      - cmd: bash -lc '{{.NIX_LOAD}}; gh repo view {{if .OWNER}}{{.OWNER}}/{{end}}{{.REPO}}'
+        platforms: [linux, darwin]
+      - cmd: gh repo view {{if .OWNER}}{{.OWNER}}/{{end}}{{.REPO}}
+        platforms: [windows]
 
   repo:create:
     run: once
@@ -232,13 +233,23 @@ tasks:
       vars:
         - REPO
     deps:
-      - task: install
+      - task: nix:install:profile
+        vars:
+          NIX_INSTALLABLE: "{{.GH_NIX_INSTALLABLE}}"
     cmds:
-      - >-
-        gh repo create
-        {{if .OWNER}}{{.OWNER}}/{{end}}{{.REPO}}
-        --{{default "public" .GH_VISIBILITY}}
-        {{if .DESCRIPTION}}--description "{{.DESCRIPTION}}"{{end}}
+      - cmd: >-
+          bash -lc '{{.NIX_LOAD}};
+          gh repo create
+          {{if .OWNER}}{{.OWNER}}/{{end}}{{.REPO}}
+          --{{default "public" .GH_VISIBILITY}}
+          {{if .DESCRIPTION}}--description "{{.DESCRIPTION}}"{{end}}'
+        platforms: [linux, darwin]
+      - cmd: >-
+          gh repo create
+          {{if .OWNER}}{{.OWNER}}/{{end}}{{.REPO}}
+          --{{default "public" .GH_VISIBILITY}}
+          {{if .DESCRIPTION}}--description "{{.DESCRIPTION}}"{{end}}
+        platforms: [windows]
 
   repo:clone:
     run: once
@@ -256,7 +267,9 @@ tasks:
       vars:
         - REPO
     deps:
-      - task: install
+      - task: nix:install:profile
+        vars:
+          NIX_INSTALLABLE: "{{.GH_NIX_INSTALLABLE}}"
     cmds:
       - task: _repo:clone:unix
       - task: _repo:clone:windows
@@ -271,9 +284,14 @@ tasks:
       Example: OWNER=github REPO=cli
       Private: OWNER=myorg REPO=private-repo GH_PAT_TOKEN=ghp_xxx
     deps:
-      - task: install
+      - task: nix:install:profile
+        vars:
+          NIX_INSTALLABLE: "{{.GH_NIX_INSTALLABLE}}"
     cmds:
-      - gh repo fork {{if .OWNER}}{{.OWNER}}/{{end}}{{.REPO}} --clone
+      - cmd: bash -lc '{{.NIX_LOAD}}; gh repo fork {{if .OWNER}}{{.OWNER}}/{{end}}{{.REPO}} --clone'
+        platforms: [linux, darwin]
+      - cmd: gh repo fork {{if .OWNER}}{{.OWNER}}/{{end}}{{.REPO}} --clone
+        platforms: [windows]
 
   repo:list:
     run: once
@@ -283,9 +301,14 @@ tasks:
       repositories for a specific user or organisation instead.
       Example: OWNER=github
     deps:
-      - task: install
+      - task: nix:install:profile
+        vars:
+          NIX_INSTALLABLE: "{{.GH_NIX_INSTALLABLE}}"
     cmds:
-      - gh repo list {{.OWNER}}
+      - cmd: bash -lc '{{.NIX_LOAD}}; gh repo list {{.OWNER}}'
+        platforms: [linux, darwin]
+      - cmd: gh repo list {{.OWNER}}
+        platforms: [windows]
 
   repo:sync:
     run: once
@@ -295,9 +318,14 @@ tasks:
       Optionally set BRANCH to sync a specific branch.
       Example: BRANCH=main
     deps:
-      - task: install
+      - task: nix:install:profile
+        vars:
+          NIX_INSTALLABLE: "{{.GH_NIX_INSTALLABLE}}"
     cmds:
-      - gh repo sync {{if .BRANCH}}--branch {{.BRANCH}}{{end}}
+      - cmd: bash -lc '{{.NIX_LOAD}}; gh repo sync {{if .BRANCH}}--branch {{.BRANCH}}{{end}}'
+        platforms: [linux, darwin]
+      - cmd: gh repo sync {{if .BRANCH}}--branch {{.BRANCH}}{{end}}
+        platforms: [windows]
 
   repo:archive:
     run: once
@@ -310,9 +338,14 @@ tasks:
       vars:
         - REPO
     deps:
-      - task: install
+      - task: nix:install:profile
+        vars:
+          NIX_INSTALLABLE: "{{.GH_NIX_INSTALLABLE}}"
     cmds:
-      - gh repo archive {{if .OWNER}}{{.OWNER}}/{{end}}{{.REPO}} --yes
+      - cmd: bash -lc '{{.NIX_LOAD}}; gh repo archive {{if .OWNER}}{{.OWNER}}/{{end}}{{.REPO}} --yes'
+        platforms: [linux, darwin]
+      - cmd: gh repo archive {{if .OWNER}}{{.OWNER}}/{{end}}{{.REPO}} --yes
+        platforms: [windows]
 
   repo:delete:danger:
     run: once
@@ -330,27 +363,42 @@ tasks:
       - All code, issues, pull requests, and history will be permanently lost.
       - This action cannot be undone. Are you sure you want to continue?
     deps:
-      - task: install
+      - task: nix:install:profile
+        vars:
+          NIX_INSTALLABLE: "{{.GH_NIX_INSTALLABLE}}"
     cmds:
-      - gh repo delete {{if .OWNER}}{{.OWNER}}/{{end}}{{.REPO}} --yes
+      - cmd: bash -lc '{{.NIX_LOAD}}; gh repo delete {{if .OWNER}}{{.OWNER}}/{{end}}{{.REPO}} --yes'
+        platforms: [linux, darwin]
+      - cmd: gh repo delete {{if .OWNER}}{{.OWNER}}/{{end}}{{.REPO}} --yes
+        platforms: [windows]
 
   pr:list:
     run: once
     desc: List open pull requests in the current repository
     summary: List open pull requests for the current repository via `gh pr list`.
     deps:
-      - task: install
+      - task: nix:install:profile
+        vars:
+          NIX_INSTALLABLE: "{{.GH_NIX_INSTALLABLE}}"
     cmds:
-      - gh pr list
+      - cmd: bash -lc '{{.NIX_LOAD}}; gh pr list'
+        platforms: [linux, darwin]
+      - cmd: gh pr list
+        platforms: [windows]
 
   pr:status:
     run: once
     desc: Show pull request status for the current branch
     summary: Display the status of pull requests related to the current branch via `gh pr status`.
     deps:
-      - task: install
+      - task: nix:install:profile
+        vars:
+          NIX_INSTALLABLE: "{{.GH_NIX_INSTALLABLE}}"
     cmds:
-      - gh pr status
+      - cmd: bash -lc '{{.NIX_LOAD}}; gh pr status'
+        platforms: [linux, darwin]
+      - cmd: gh pr status
+        platforms: [windows]
 
   pr:view:
     run: once
@@ -359,9 +407,14 @@ tasks:
       View the pull request for the current branch, or the PR specified by
       PR_NUMBER. Example: PR_NUMBER=42
     deps:
-      - task: install
+      - task: nix:install:profile
+        vars:
+          NIX_INSTALLABLE: "{{.GH_NIX_INSTALLABLE}}"
     cmds:
-      - gh pr view {{.PR_NUMBER}}
+      - cmd: bash -lc '{{.NIX_LOAD}}; gh pr view {{.PR_NUMBER}}'
+        platforms: [linux, darwin]
+      - cmd: gh pr view {{.PR_NUMBER}}
+        platforms: [windows]
 
   pr:create:
     run: once
@@ -371,14 +424,25 @@ tasks:
       BASE (default: main), and HEAD to pre-fill fields.
       Example: PR_TITLE="Add feature" GH_BASE=main
     deps:
-      - task: install
+      - task: nix:install:profile
+        vars:
+          NIX_INSTALLABLE: "{{.GH_NIX_INSTALLABLE}}"
     cmds:
-      - >-
-        gh pr create
-        {{if .PR_TITLE}}--title "{{.PR_TITLE}}"{{end}}
-        {{if .PR_BODY}}--body "{{.PR_BODY}}"{{end}}
-        {{if .GH_BASE}}--base {{.GH_BASE}}{{end}}
-        {{if .HEAD}}--head {{.HEAD}}{{end}}
+      - cmd: >-
+          bash -lc '{{.NIX_LOAD}};
+          gh pr create
+          {{if .PR_TITLE}}--title "{{.PR_TITLE}}"{{end}}
+          {{if .PR_BODY}}--body "{{.PR_BODY}}"{{end}}
+          {{if .GH_BASE}}--base {{.GH_BASE}}{{end}}
+          {{if .HEAD}}--head {{.HEAD}}{{end}}'
+        platforms: [linux, darwin]
+      - cmd: >-
+          gh pr create
+          {{if .PR_TITLE}}--title "{{.PR_TITLE}}"{{end}}
+          {{if .PR_BODY}}--body "{{.PR_BODY}}"{{end}}
+          {{if .GH_BASE}}--base {{.GH_BASE}}{{end}}
+          {{if .HEAD}}--head {{.HEAD}}{{end}}
+        platforms: [windows]
 
   pr:checkout:
     run: once
@@ -390,9 +454,14 @@ tasks:
       vars:
         - PR_NUMBER
     deps:
-      - task: install
+      - task: nix:install:profile
+        vars:
+          NIX_INSTALLABLE: "{{.GH_NIX_INSTALLABLE}}"
     cmds:
-      - gh pr checkout {{.PR_NUMBER}}
+      - cmd: bash -lc '{{.NIX_LOAD}}; gh pr checkout {{.PR_NUMBER}}'
+        platforms: [linux, darwin]
+      - cmd: gh pr checkout {{.PR_NUMBER}}
+        platforms: [windows]
 
   pr:diff:
     run: once
@@ -401,9 +470,14 @@ tasks:
       Show the diff for the current branch's PR, or for PR_NUMBER.
       Example: PR_NUMBER=42
     deps:
-      - task: install
+      - task: nix:install:profile
+        vars:
+          NIX_INSTALLABLE: "{{.GH_NIX_INSTALLABLE}}"
     cmds:
-      - gh pr diff {{.PR_NUMBER}}
+      - cmd: bash -lc '{{.NIX_LOAD}}; gh pr diff {{.PR_NUMBER}}'
+        platforms: [linux, darwin]
+      - cmd: gh pr diff {{.PR_NUMBER}}
+        platforms: [windows]
 
   pr:review:
     run: once
@@ -412,9 +486,14 @@ tasks:
       Open an interactive review for the current branch's PR, or for PR_NUMBER.
       Example: PR_NUMBER=42
     deps:
-      - task: install
+      - task: nix:install:profile
+        vars:
+          NIX_INSTALLABLE: "{{.GH_NIX_INSTALLABLE}}"
     cmds:
-      - gh pr review {{.PR_NUMBER}}
+      - cmd: bash -lc '{{.NIX_LOAD}}; gh pr review {{.PR_NUMBER}}'
+        platforms: [linux, darwin]
+      - cmd: gh pr review {{.PR_NUMBER}}
+        platforms: [windows]
 
   pr:merge:
     run: once
@@ -427,9 +506,14 @@ tasks:
       vars:
         - PR_NUMBER
     deps:
-      - task: install
+      - task: nix:install:profile
+        vars:
+          NIX_INSTALLABLE: "{{.GH_NIX_INSTALLABLE}}"
     cmds:
-      - gh pr merge {{.PR_NUMBER}} --{{default "merge" .GH_MERGE_METHOD}}
+      - cmd: bash -lc '{{.NIX_LOAD}}; gh pr merge {{.PR_NUMBER}} --{{default "merge" .GH_MERGE_METHOD}}'
+        platforms: [linux, darwin]
+      - cmd: gh pr merge {{.PR_NUMBER}} --{{default "merge" .GH_MERGE_METHOD}}
+        platforms: [windows]
 
   pr:close:
     run: once
@@ -441,9 +525,14 @@ tasks:
       vars:
         - PR_NUMBER
     deps:
-      - task: install
+      - task: nix:install:profile
+        vars:
+          NIX_INSTALLABLE: "{{.GH_NIX_INSTALLABLE}}"
     cmds:
-      - gh pr close {{.PR_NUMBER}}
+      - cmd: bash -lc '{{.NIX_LOAD}}; gh pr close {{.PR_NUMBER}}'
+        platforms: [linux, darwin]
+      - cmd: gh pr close {{.PR_NUMBER}}
+        platforms: [windows]
 
   pr:ready:
     run: once
@@ -453,9 +542,14 @@ tasks:
       Optionally set PR_NUMBER; otherwise uses the current branch's PR.
       Example: PR_NUMBER=42
     deps:
-      - task: install
+      - task: nix:install:profile
+        vars:
+          NIX_INSTALLABLE: "{{.GH_NIX_INSTALLABLE}}"
     cmds:
-      - gh pr ready {{.PR_NUMBER}}
+      - cmd: bash -lc '{{.NIX_LOAD}}; gh pr ready {{.PR_NUMBER}}'
+        platforms: [linux, darwin]
+      - cmd: gh pr ready {{.PR_NUMBER}}
+        platforms: [windows]
 
   pr:comment:
     run: once
@@ -468,18 +562,28 @@ tasks:
         - PR_NUMBER
         - PR_BODY
     deps:
-      - task: install
+      - task: nix:install:profile
+        vars:
+          NIX_INSTALLABLE: "{{.GH_NIX_INSTALLABLE}}"
     cmds:
-      - gh pr comment {{.PR_NUMBER}} --body "{{.PR_BODY}}"
+      - cmd: bash -lc '{{.NIX_LOAD}}; gh pr comment {{.PR_NUMBER}} --body "{{.PR_BODY}}"'
+        platforms: [linux, darwin]
+      - cmd: gh pr comment {{.PR_NUMBER}} --body "{{.PR_BODY}}"
+        platforms: [windows]
 
   issue:list:
     run: once
     desc: List open issues in the current repository
     summary: List open issues for the current repository via `gh issue list`.
     deps:
-      - task: install
+      - task: nix:install:profile
+        vars:
+          NIX_INSTALLABLE: "{{.GH_NIX_INSTALLABLE}}"
     cmds:
-      - gh issue list
+      - cmd: bash -lc '{{.NIX_LOAD}}; gh issue list'
+        platforms: [linux, darwin]
+      - cmd: gh issue list
+        platforms: [windows]
 
   issue:view:
     run: once
@@ -491,9 +595,14 @@ tasks:
       vars:
         - ISSUE_NUMBER
     deps:
-      - task: install
+      - task: nix:install:profile
+        vars:
+          NIX_INSTALLABLE: "{{.GH_NIX_INSTALLABLE}}"
     cmds:
-      - gh issue view {{.ISSUE_NUMBER}}
+      - cmd: bash -lc '{{.NIX_LOAD}}; gh issue view {{.ISSUE_NUMBER}}'
+        platforms: [linux, darwin]
+      - cmd: gh issue view {{.ISSUE_NUMBER}}
+        platforms: [windows]
 
   issue:create:
     run: once
@@ -502,12 +611,21 @@ tasks:
       Create an issue interactively. Optionally set ISSUE_TITLE and ISSUE_BODY
       to pre-fill fields. Example: ISSUE_TITLE="Bug report" ISSUE_BODY="..."
     deps:
-      - task: install
+      - task: nix:install:profile
+        vars:
+          NIX_INSTALLABLE: "{{.GH_NIX_INSTALLABLE}}"
     cmds:
-      - >-
-        gh issue create
-        {{if .ISSUE_TITLE}}--title "{{.ISSUE_TITLE}}"{{end}}
-        {{if .ISSUE_BODY}}--body "{{.ISSUE_BODY}}"{{end}}
+      - cmd: >-
+          bash -lc '{{.NIX_LOAD}};
+          gh issue create
+          {{if .ISSUE_TITLE}}--title "{{.ISSUE_TITLE}}"{{end}}
+          {{if .ISSUE_BODY}}--body "{{.ISSUE_BODY}}"{{end}}'
+        platforms: [linux, darwin]
+      - cmd: >-
+          gh issue create
+          {{if .ISSUE_TITLE}}--title "{{.ISSUE_TITLE}}"{{end}}
+          {{if .ISSUE_BODY}}--body "{{.ISSUE_BODY}}"{{end}}
+        platforms: [windows]
 
   issue:comment:
     run: once
@@ -521,9 +639,14 @@ tasks:
         - ISSUE_NUMBER
         - ISSUE_BODY
     deps:
-      - task: install
+      - task: nix:install:profile
+        vars:
+          NIX_INSTALLABLE: "{{.GH_NIX_INSTALLABLE}}"
     cmds:
-      - gh issue comment {{.ISSUE_NUMBER}} --body "{{.ISSUE_BODY}}"
+      - cmd: bash -lc '{{.NIX_LOAD}}; gh issue comment {{.ISSUE_NUMBER}} --body "{{.ISSUE_BODY}}"'
+        platforms: [linux, darwin]
+      - cmd: gh issue comment {{.ISSUE_NUMBER}} --body "{{.ISSUE_BODY}}"
+        platforms: [windows]
 
   issue:close:
     run: once
@@ -535,9 +658,14 @@ tasks:
       vars:
         - ISSUE_NUMBER
     deps:
-      - task: install
+      - task: nix:install:profile
+        vars:
+          NIX_INSTALLABLE: "{{.GH_NIX_INSTALLABLE}}"
     cmds:
-      - gh issue close {{.ISSUE_NUMBER}}
+      - cmd: bash -lc '{{.NIX_LOAD}}; gh issue close {{.ISSUE_NUMBER}}'
+        platforms: [linux, darwin]
+      - cmd: gh issue close {{.ISSUE_NUMBER}}
+        platforms: [windows]
 
   issue:reopen:
     run: once
@@ -549,9 +677,14 @@ tasks:
       vars:
         - ISSUE_NUMBER
     deps:
-      - task: install
+      - task: nix:install:profile
+        vars:
+          NIX_INSTALLABLE: "{{.GH_NIX_INSTALLABLE}}"
     cmds:
-      - gh issue reopen {{.ISSUE_NUMBER}}
+      - cmd: bash -lc '{{.NIX_LOAD}}; gh issue reopen {{.ISSUE_NUMBER}}'
+        platforms: [linux, darwin]
+      - cmd: gh issue reopen {{.ISSUE_NUMBER}}
+        platforms: [windows]
 
   issue:assign:
     run: once
@@ -565,9 +698,14 @@ tasks:
         - ISSUE_NUMBER
         - ASSIGNEE
     deps:
-      - task: install
+      - task: nix:install:profile
+        vars:
+          NIX_INSTALLABLE: "{{.GH_NIX_INSTALLABLE}}"
     cmds:
-      - gh issue edit {{.ISSUE_NUMBER}} --add-assignee {{.ASSIGNEE}}
+      - cmd: bash -lc '{{.NIX_LOAD}}; gh issue edit {{.ISSUE_NUMBER}} --add-assignee {{.ASSIGNEE}}'
+        platforms: [linux, darwin]
+      - cmd: gh issue edit {{.ISSUE_NUMBER}} --add-assignee {{.ASSIGNEE}}
+        platforms: [windows]
 
   issue:label:
     run: once
@@ -581,18 +719,28 @@ tasks:
         - ISSUE_NUMBER
         - LABEL
     deps:
-      - task: install
+      - task: nix:install:profile
+        vars:
+          NIX_INSTALLABLE: "{{.GH_NIX_INSTALLABLE}}"
     cmds:
-      - gh issue edit {{.ISSUE_NUMBER}} --add-label {{.LABEL}}
+      - cmd: bash -lc '{{.NIX_LOAD}}; gh issue edit {{.ISSUE_NUMBER}} --add-label {{.LABEL}}'
+        platforms: [linux, darwin]
+      - cmd: gh issue edit {{.ISSUE_NUMBER}} --add-label {{.LABEL}}
+        platforms: [windows]
 
   workflow:list:
     run: once
     desc: List GitHub Actions workflows in the current repository
     summary: List all available workflows via `gh workflow list`.
     deps:
-      - task: install
+      - task: nix:install:profile
+        vars:
+          NIX_INSTALLABLE: "{{.GH_NIX_INSTALLABLE}}"
     cmds:
-      - gh workflow list
+      - cmd: bash -lc '{{.NIX_LOAD}}; gh workflow list'
+        platforms: [linux, darwin]
+      - cmd: gh workflow list
+        platforms: [windows]
 
   workflow:view:
     run: once
@@ -604,9 +752,14 @@ tasks:
       vars:
         - WORKFLOW
     deps:
-      - task: install
+      - task: nix:install:profile
+        vars:
+          NIX_INSTALLABLE: "{{.GH_NIX_INSTALLABLE}}"
     cmds:
-      - gh workflow view {{.WORKFLOW}}
+      - cmd: bash -lc '{{.NIX_LOAD}}; gh workflow view {{.WORKFLOW}}'
+        platforms: [linux, darwin]
+      - cmd: gh workflow view {{.WORKFLOW}}
+        platforms: [windows]
 
   workflow:run:
     run: once
@@ -619,9 +772,14 @@ tasks:
       vars:
         - WORKFLOW
     deps:
-      - task: install
+      - task: nix:install:profile
+        vars:
+          NIX_INSTALLABLE: "{{.GH_NIX_INSTALLABLE}}"
     cmds:
-      - gh workflow run {{.WORKFLOW}} {{if .BRANCH}}--ref {{.BRANCH}}{{end}}
+      - cmd: bash -lc '{{.NIX_LOAD}}; gh workflow run {{.WORKFLOW}} {{if .BRANCH}}--ref {{.BRANCH}}{{end}}'
+        platforms: [linux, darwin]
+      - cmd: gh workflow run {{.WORKFLOW}} {{if .BRANCH}}--ref {{.BRANCH}}{{end}}
+        platforms: [windows]
 
   workflow:watch:
     run: once
@@ -633,8 +791,12 @@ tasks:
       vars:
         - WORKFLOW
     deps:
-      - task: install
-      - task: jq:install
+      - task: nix:install:profile
+        vars:
+          NIX_INSTALLABLE: "{{.GH_NIX_INSTALLABLE}}"
+      - task: jq:nix:install:profile
+        vars:
+          NIX_INSTALLABLE: "{{.JQ_NIX_INSTALLABLE}}"
     cmds:
       - task: _workflow:watch:unix
       - task: _workflow:watch:windows
@@ -644,9 +806,14 @@ tasks:
     desc: List recent GitHub Actions runs in the current repository
     summary: List recent workflow runs via `gh run list`.
     deps:
-      - task: install
+      - task: nix:install:profile
+        vars:
+          NIX_INSTALLABLE: "{{.GH_NIX_INSTALLABLE}}"
     cmds:
-      - gh run list
+      - cmd: bash -lc '{{.NIX_LOAD}}; gh run list'
+        platforms: [linux, darwin]
+      - cmd: gh run list
+        platforms: [windows]
 
   run:view:
     run: once
@@ -658,9 +825,14 @@ tasks:
       vars:
         - RUN_ID
     deps:
-      - task: install
+      - task: nix:install:profile
+        vars:
+          NIX_INSTALLABLE: "{{.GH_NIX_INSTALLABLE}}"
     cmds:
-      - gh run view {{.RUN_ID}}
+      - cmd: bash -lc '{{.NIX_LOAD}}; gh run view {{.RUN_ID}}'
+        platforms: [linux, darwin]
+      - cmd: gh run view {{.RUN_ID}}
+        platforms: [windows]
 
   run:logs:
     run: once
@@ -672,9 +844,14 @@ tasks:
       vars:
         - RUN_ID
     deps:
-      - task: install
+      - task: nix:install:profile
+        vars:
+          NIX_INSTALLABLE: "{{.GH_NIX_INSTALLABLE}}"
     cmds:
-      - gh run view {{.RUN_ID}} --log
+      - cmd: bash -lc '{{.NIX_LOAD}}; gh run view {{.RUN_ID}} --log'
+        platforms: [linux, darwin]
+      - cmd: gh run view {{.RUN_ID}} --log
+        platforms: [windows]
 
   run:rerun:
     run: once
@@ -686,9 +863,14 @@ tasks:
       vars:
         - RUN_ID
     deps:
-      - task: install
+      - task: nix:install:profile
+        vars:
+          NIX_INSTALLABLE: "{{.GH_NIX_INSTALLABLE}}"
     cmds:
-      - gh run rerun {{.RUN_ID}}
+      - cmd: bash -lc '{{.NIX_LOAD}}; gh run rerun {{.RUN_ID}}'
+        platforms: [linux, darwin]
+      - cmd: gh run rerun {{.RUN_ID}}
+        platforms: [windows]
 
   run:cancel:
     run: once
@@ -700,9 +882,14 @@ tasks:
       vars:
         - RUN_ID
     deps:
-      - task: install
+      - task: nix:install:profile
+        vars:
+          NIX_INSTALLABLE: "{{.GH_NIX_INSTALLABLE}}"
     cmds:
-      - gh run cancel {{.RUN_ID}}
+      - cmd: bash -lc '{{.NIX_LOAD}}; gh run cancel {{.RUN_ID}}'
+        platforms: [linux, darwin]
+      - cmd: gh run cancel {{.RUN_ID}}
+        platforms: [windows]
 
   release:list:
     run: once
@@ -712,9 +899,14 @@ tasks:
       (requires GH_PAT_TOKEN with repo scope).
       Example: OWNER=hashicorp REPO=terraform GH_PAT_TOKEN=ghp_...
     deps:
-      - task: install
+      - task: nix:install:profile
+        vars:
+          NIX_INSTALLABLE: "{{.GH_NIX_INSTALLABLE}}"
     cmds:
-      - gh release list {{if .OWNER}}--repo {{.OWNER}}/{{.REPO}}{{end}}
+      - cmd: bash -lc '{{.NIX_LOAD}}; gh release list {{if .OWNER}}--repo {{.OWNER}}/{{.REPO}}{{end}}'
+        platforms: [linux, darwin]
+      - cmd: gh release list {{if .OWNER}}--repo {{.OWNER}}/{{.REPO}}{{end}}
+        platforms: [windows]
 
   release:view:
     run: once
@@ -724,9 +916,14 @@ tasks:
       release. Set OWNER and REPO to target a repo not owned by you.
       Example: TAG=v1.0.0 OWNER=hashicorp REPO=terraform
     deps:
-      - task: install
+      - task: nix:install:profile
+        vars:
+          NIX_INSTALLABLE: "{{.GH_NIX_INSTALLABLE}}"
     cmds:
-      - gh release view {{.TAG}} {{if .OWNER}}--repo {{.OWNER}}/{{.REPO}}{{end}}
+      - cmd: bash -lc '{{.NIX_LOAD}}; gh release view {{.TAG}} {{if .OWNER}}--repo {{.OWNER}}/{{.REPO}}{{end}}'
+        platforms: [linux, darwin]
+      - cmd: gh release view {{.TAG}} {{if .OWNER}}--repo {{.OWNER}}/{{.REPO}}{{end}}
+        platforms: [windows]
 
   release:create:
     run: once
@@ -741,13 +938,23 @@ tasks:
       vars:
         - TAG
     deps:
-      - task: install
+      - task: nix:install:profile
+        vars:
+          NIX_INSTALLABLE: "{{.GH_NIX_INSTALLABLE}}"
     cmds:
-      - >-
-        gh release create {{.TAG}}
-        {{if .OWNER}}--repo {{.OWNER}}/{{.REPO}}{{end}}
-        {{if .TITLE}}--title "{{.TITLE}}"{{end}}
-        {{if .NOTES}}--notes "{{.NOTES}}"{{end}}
+      - cmd: >-
+          bash -lc '{{.NIX_LOAD}};
+          gh release create {{.TAG}}
+          {{if .OWNER}}--repo {{.OWNER}}/{{.REPO}}{{end}}
+          {{if .TITLE}}--title "{{.TITLE}}"{{end}}
+          {{if .NOTES}}--notes "{{.NOTES}}"{{end}}'
+        platforms: [linux, darwin]
+      - cmd: >-
+          gh release create {{.TAG}}
+          {{if .OWNER}}--repo {{.OWNER}}/{{.REPO}}{{end}}
+          {{if .TITLE}}--title "{{.TITLE}}"{{end}}
+          {{if .NOTES}}--notes "{{.NOTES}}"{{end}}
+        platforms: [windows]
 
   release:upload:
     run: once
@@ -762,9 +969,14 @@ tasks:
         - TAG
         - ASSET
     deps:
-      - task: install
+      - task: nix:install:profile
+        vars:
+          NIX_INSTALLABLE: "{{.GH_NIX_INSTALLABLE}}"
     cmds:
-      - gh release upload {{.TAG}} {{.ASSET}} {{if .OWNER}}--repo {{.OWNER}}/{{.REPO}}{{end}}
+      - cmd: bash -lc '{{.NIX_LOAD}}; gh release upload {{.TAG}} {{.ASSET}} {{if .OWNER}}--repo {{.OWNER}}/{{.REPO}}{{end}}'
+        platforms: [linux, darwin]
+      - cmd: gh release upload {{.TAG}} {{.ASSET}} {{if .OWNER}}--repo {{.OWNER}}/{{.REPO}}{{end}}
+        platforms: [windows]
 
   release:download:
     run: once
@@ -776,12 +988,21 @@ tasks:
       (requires GH_PAT_TOKEN with repo scope for private repos).
       Example: TAG=v1.0.0 OWNER=hashicorp REPO=terraform GH_DOWNLOAD_DIR=./dist
     deps:
-      - task: install
+      - task: nix:install:profile
+        vars:
+          NIX_INSTALLABLE: "{{.GH_NIX_INSTALLABLE}}"
     cmds:
-      - >-
-        gh release download {{.TAG}}
-        {{if .OWNER}}--repo {{.OWNER}}/{{.REPO}}{{end}}
-        {{if ne .GH_DOWNLOAD_DIR "."}}--dir {{.GH_DOWNLOAD_DIR}}{{end}}
+      - cmd: >-
+          bash -lc '{{.NIX_LOAD}};
+          gh release download {{.TAG}}
+          {{if .OWNER}}--repo {{.OWNER}}/{{.REPO}}{{end}}
+          {{if ne .GH_DOWNLOAD_DIR "."}}--dir {{.GH_DOWNLOAD_DIR}}{{end}}'
+        platforms: [linux, darwin]
+      - cmd: >-
+          gh release download {{.TAG}}
+          {{if .OWNER}}--repo {{.OWNER}}/{{.REPO}}{{end}}
+          {{if ne .GH_DOWNLOAD_DIR "."}}--dir {{.GH_DOWNLOAD_DIR}}{{end}}
+        platforms: [windows]
 
   release:download:all:
     run: once
@@ -792,8 +1013,12 @@ tasks:
       (requires GH_PAT_TOKEN with repo scope for private repos).
       Example: OWNER=hashicorp REPO=terraform GH_DOWNLOAD_DIR=./releases
     deps:
-      - task: install
-      - task: jq:install
+      - task: nix:install:profile
+        vars:
+          NIX_INSTALLABLE: "{{.GH_NIX_INSTALLABLE}}"
+      - task: jq:nix:install:profile
+        vars:
+          NIX_INSTALLABLE: "{{.JQ_NIX_INSTALLABLE}}"
     cmds:
       - task: _release:download:all:unix
       - task: _release:download:all:windows
@@ -806,6 +1031,7 @@ tasks:
     set: [errexit, nounset, pipefail]
     cmds:
       - |
+        {{.NIX_LOAD}}
         REPO_FLAG="{{if .OWNER}}--repo {{.OWNER}}/{{.REPO}}{{end}}"
         BASE_DIR="{{.GH_DOWNLOAD_DIR}}"
         for tag in $(gh release list $REPO_FLAG --json tagName --jq '.[].tagName'); do
@@ -848,9 +1074,14 @@ tasks:
       - The git tag itself will be preserved, but the release record will be gone.
       - Are you sure you want to continue?
     deps:
-      - task: install
+      - task: nix:install:profile
+        vars:
+          NIX_INSTALLABLE: "{{.GH_NIX_INSTALLABLE}}"
     cmds:
-      - gh release delete {{.TAG}} --yes {{if .OWNER}}--repo {{.OWNER}}/{{.REPO}}{{end}}
+      - cmd: bash -lc '{{.NIX_LOAD}}; gh release delete {{.TAG}} --yes {{if .OWNER}}--repo {{.OWNER}}/{{.REPO}}{{end}}'
+        platforms: [linux, darwin]
+      - cmd: gh release delete {{.TAG}} --yes {{if .OWNER}}--repo {{.OWNER}}/{{.REPO}}{{end}}
+        platforms: [windows]
 
   secret:list:
     run: once
@@ -860,9 +1091,14 @@ tasks:
       Optionally set ENVIRONMENT to list secrets for a specific environment.
       Example: ENVIRONMENT=production
     deps:
-      - task: install
+      - task: nix:install:profile
+        vars:
+          NIX_INSTALLABLE: "{{.GH_NIX_INSTALLABLE}}"
     cmds:
-      - gh secret list {{if .ENVIRONMENT}}--env {{.ENVIRONMENT}}{{end}}
+      - cmd: bash -lc '{{.NIX_LOAD}}; gh secret list {{if .ENVIRONMENT}}--env {{.ENVIRONMENT}}{{end}}'
+        platforms: [linux, darwin]
+      - cmd: gh secret list {{if .ENVIRONMENT}}--env {{.ENVIRONMENT}}{{end}}
+        platforms: [windows]
 
   secret:set:
     run: once
@@ -878,7 +1114,9 @@ tasks:
         - SECRET_NAME
         - SECRET_VALUE
     deps:
-      - task: install
+      - task: nix:install:profile
+        vars:
+          NIX_INSTALLABLE: "{{.GH_NIX_INSTALLABLE}}"
     cmds:
       - task: _secret:set:unix
       - task: _secret:set:windows
@@ -898,9 +1136,14 @@ tasks:
       - Any workflows depending on this secret will break until it is re-created.
       - Are you sure you want to continue?
     deps:
-      - task: install
+      - task: nix:install:profile
+        vars:
+          NIX_INSTALLABLE: "{{.GH_NIX_INSTALLABLE}}"
     cmds:
-      - gh secret delete {{.SECRET_NAME}} {{if .ENVIRONMENT}}--env {{.ENVIRONMENT}}{{end}}
+      - cmd: bash -lc '{{.NIX_LOAD}}; gh secret delete {{.SECRET_NAME}} {{if .ENVIRONMENT}}--env {{.ENVIRONMENT}}{{end}}'
+        platforms: [linux, darwin]
+      - cmd: gh secret delete {{.SECRET_NAME}} {{if .ENVIRONMENT}}--env {{.ENVIRONMENT}}{{end}}
+        platforms: [windows]
 
   variable:list:
     run: once
@@ -910,9 +1153,14 @@ tasks:
       Optionally set ENVIRONMENT to list variables for a specific environment.
       Example: ENVIRONMENT=staging
     deps:
-      - task: install
+      - task: nix:install:profile
+        vars:
+          NIX_INSTALLABLE: "{{.GH_NIX_INSTALLABLE}}"
     cmds:
-      - gh variable list {{if .ENVIRONMENT}}--env {{.ENVIRONMENT}}{{end}}
+      - cmd: bash -lc '{{.NIX_LOAD}}; gh variable list {{if .ENVIRONMENT}}--env {{.ENVIRONMENT}}{{end}}'
+        platforms: [linux, darwin]
+      - cmd: gh variable list {{if .ENVIRONMENT}}--env {{.ENVIRONMENT}}{{end}}
+        platforms: [windows]
 
   variable:set:
     run: once
@@ -927,12 +1175,21 @@ tasks:
         - VARIABLE_NAME
         - VARIABLE_VALUE
     deps:
-      - task: install
+      - task: nix:install:profile
+        vars:
+          NIX_INSTALLABLE: "{{.GH_NIX_INSTALLABLE}}"
     cmds:
-      - >-
-        gh variable set {{.VARIABLE_NAME}}
-        --body "{{.VARIABLE_VALUE}}"
-        {{if .ENVIRONMENT}}--env {{.ENVIRONMENT}}{{end}}
+      - cmd: >-
+          bash -lc '{{.NIX_LOAD}};
+          gh variable set {{.VARIABLE_NAME}}
+          --body "{{.VARIABLE_VALUE}}"
+          {{if .ENVIRONMENT}}--env {{.ENVIRONMENT}}{{end}}'
+        platforms: [linux, darwin]
+      - cmd: >-
+          gh variable set {{.VARIABLE_NAME}}
+          --body "{{.VARIABLE_VALUE}}"
+          {{if .ENVIRONMENT}}--env {{.ENVIRONMENT}}{{end}}
+        platforms: [windows]
 
   variable:delete:danger:
     run: once
@@ -948,18 +1205,28 @@ tasks:
       - "This will permanently delete the variable {{.VARIABLE_NAME}}."
       - Are you sure you want to continue?
     deps:
-      - task: install
+      - task: nix:install:profile
+        vars:
+          NIX_INSTALLABLE: "{{.GH_NIX_INSTALLABLE}}"
     cmds:
-      - gh variable delete {{.VARIABLE_NAME}} {{if .ENVIRONMENT}}--env {{.ENVIRONMENT}}{{end}}
+      - cmd: bash -lc '{{.NIX_LOAD}}; gh variable delete {{.VARIABLE_NAME}} {{if .ENVIRONMENT}}--env {{.ENVIRONMENT}}{{end}}'
+        platforms: [linux, darwin]
+      - cmd: gh variable delete {{.VARIABLE_NAME}} {{if .ENVIRONMENT}}--env {{.ENVIRONMENT}}{{end}}
+        platforms: [windows]
 
   gist:list:
     run: once
     desc: List gists for the authenticated GitHub user
     summary: List all gists belonging to the authenticated user via `gh gist list`.
     deps:
-      - task: install
+      - task: nix:install:profile
+        vars:
+          NIX_INSTALLABLE: "{{.GH_NIX_INSTALLABLE}}"
     cmds:
-      - gh gist list
+      - cmd: bash -lc '{{.NIX_LOAD}}; gh gist list'
+        platforms: [linux, darwin]
+      - cmd: gh gist list
+        platforms: [windows]
 
   gist:view:
     run: once
@@ -971,9 +1238,14 @@ tasks:
       vars:
         - GIST_ID
     deps:
-      - task: install
+      - task: nix:install:profile
+        vars:
+          NIX_INSTALLABLE: "{{.GH_NIX_INSTALLABLE}}"
     cmds:
-      - gh gist view {{.GIST_ID}}
+      - cmd: bash -lc '{{.NIX_LOAD}}; gh gist view {{.GIST_ID}}'
+        platforms: [linux, darwin]
+      - cmd: gh gist view {{.GIST_ID}}
+        platforms: [windows]
 
   gist:create:
     run: once
@@ -986,9 +1258,14 @@ tasks:
       vars:
         - FILE
     deps:
-      - task: install
+      - task: nix:install:profile
+        vars:
+          NIX_INSTALLABLE: "{{.GH_NIX_INSTALLABLE}}"
     cmds:
-      - gh gist create {{.FILE}} {{if .DESCRIPTION}}--desc "{{.DESCRIPTION}}"{{end}}
+      - cmd: bash -lc '{{.NIX_LOAD}}; gh gist create {{.FILE}} {{if .DESCRIPTION}}--desc "{{.DESCRIPTION}}"{{end}}'
+        platforms: [linux, darwin]
+      - cmd: gh gist create {{.FILE}} {{if .DESCRIPTION}}--desc "{{.DESCRIPTION}}"{{end}}
+        platforms: [windows]
 
   gist:delete:danger:
     run: once
@@ -1003,9 +1280,14 @@ tasks:
       - "This will permanently delete gist {{.GIST_ID}}."
       - This action cannot be undone. Are you sure you want to continue?
     deps:
-      - task: install
+      - task: nix:install:profile
+        vars:
+          NIX_INSTALLABLE: "{{.GH_NIX_INSTALLABLE}}"
     cmds:
-      - gh gist delete {{.GIST_ID}}
+      - cmd: bash -lc '{{.NIX_LOAD}}; gh gist delete {{.GIST_ID}}'
+        platforms: [linux, darwin]
+      - cmd: gh gist delete {{.GIST_ID}}
+        platforms: [windows]
 
   api:get:
     run: once
@@ -1017,9 +1299,14 @@ tasks:
       vars:
         - ENDPOINT
     deps:
-      - task: install
+      - task: nix:install:profile
+        vars:
+          NIX_INSTALLABLE: "{{.GH_NIX_INSTALLABLE}}"
     cmds:
-      - gh api {{.ENDPOINT}}
+      - cmd: bash -lc '{{.NIX_LOAD}}; gh api {{.ENDPOINT}}'
+        platforms: [linux, darwin]
+      - cmd: gh api {{.ENDPOINT}}
+        platforms: [windows]
 
   api:post:
     run: once
@@ -1032,7 +1319,9 @@ tasks:
       vars:
         - ENDPOINT
     deps:
-      - task: install
+      - task: nix:install:profile
+        vars:
+          NIX_INSTALLABLE: "{{.GH_NIX_INSTALLABLE}}"
     cmds:
       - task: _api:post:unix
       - task: _api:post:windows
@@ -1048,7 +1337,9 @@ tasks:
       vars:
         - ENDPOINT
     deps:
-      - task: install
+      - task: nix:install:profile
+        vars:
+          NIX_INSTALLABLE: "{{.GH_NIX_INSTALLABLE}}"
     cmds:
       - task: _api:patch:unix
       - task: _api:patch:windows
@@ -1067,18 +1358,28 @@ tasks:
       - "This will send a DELETE request to the GitHub API: {{.ENDPOINT}}"
       - This may permanently remove resources. Are you sure you want to continue?
     deps:
-      - task: install
+      - task: nix:install:profile
+        vars:
+          NIX_INSTALLABLE: "{{.GH_NIX_INSTALLABLE}}"
     cmds:
-      - gh api --method DELETE {{.ENDPOINT}}
+      - cmd: bash -lc '{{.NIX_LOAD}}; gh api --method DELETE {{.ENDPOINT}}'
+        platforms: [linux, darwin]
+      - cmd: gh api --method DELETE {{.ENDPOINT}}
+        platforms: [windows]
 
   extension:list:
     run: once
     desc: List installed GitHub CLI extensions
     summary: List all locally installed gh extensions via `gh extension list`.
     deps:
-      - task: install
+      - task: nix:install:profile
+        vars:
+          NIX_INSTALLABLE: "{{.GH_NIX_INSTALLABLE}}"
     cmds:
-      - gh extension list
+      - cmd: bash -lc '{{.NIX_LOAD}}; gh extension list'
+        platforms: [linux, darwin]
+      - cmd: gh extension list
+        platforms: [windows]
 
   extension:install:
     run: once
@@ -1090,9 +1391,14 @@ tasks:
       vars:
         - EXTENSION
     deps:
-      - task: install
+      - task: nix:install:profile
+        vars:
+          NIX_INSTALLABLE: "{{.GH_NIX_INSTALLABLE}}"
     cmds:
-      - gh extension install {{.EXTENSION}}
+      - cmd: bash -lc '{{.NIX_LOAD}}; gh extension install {{.EXTENSION}}'
+        platforms: [linux, darwin]
+      - cmd: gh extension install {{.EXTENSION}}
+        platforms: [windows]
 
   extension:upgrade:
     run: once
@@ -1105,9 +1411,14 @@ tasks:
       vars:
         - EXTENSION
     deps:
-      - task: install
+      - task: nix:install:profile
+        vars:
+          NIX_INSTALLABLE: "{{.GH_NIX_INSTALLABLE}}"
     cmds:
-      - gh extension upgrade {{.EXTENSION}}
+      - cmd: bash -lc '{{.NIX_LOAD}}; gh extension upgrade {{.EXTENSION}}'
+        platforms: [linux, darwin]
+      - cmd: gh extension upgrade {{.EXTENSION}}
+        platforms: [windows]
 
   extension:remove:
     run: once
@@ -1119,18 +1430,28 @@ tasks:
       vars:
         - EXTENSION
     deps:
-      - task: install
+      - task: nix:install:profile
+        vars:
+          NIX_INSTALLABLE: "{{.GH_NIX_INSTALLABLE}}"
     cmds:
-      - gh extension remove {{.EXTENSION}}
+      - cmd: bash -lc '{{.NIX_LOAD}}; gh extension remove {{.EXTENSION}}'
+        platforms: [linux, darwin]
+      - cmd: gh extension remove {{.EXTENSION}}
+        platforms: [windows]
 
   config:list:
     run: once
     desc: List all GitHub CLI configuration values
     summary: Display all current gh configuration settings via `gh config list`.
     deps:
-      - task: install
+      - task: nix:install:profile
+        vars:
+          NIX_INSTALLABLE: "{{.GH_NIX_INSTALLABLE}}"
     cmds:
-      - gh config list
+      - cmd: bash -lc '{{.NIX_LOAD}}; gh config list'
+        platforms: [linux, darwin]
+      - cmd: gh config list
+        platforms: [windows]
 
   config:get:
     run: once
@@ -1142,9 +1463,14 @@ tasks:
       vars:
         - CONFIG_KEY
     deps:
-      - task: install
+      - task: nix:install:profile
+        vars:
+          NIX_INSTALLABLE: "{{.GH_NIX_INSTALLABLE}}"
     cmds:
-      - gh config get {{.CONFIG_KEY}}
+      - cmd: bash -lc '{{.NIX_LOAD}}; gh config get {{.CONFIG_KEY}}'
+        platforms: [linux, darwin]
+      - cmd: gh config get {{.CONFIG_KEY}}
+        platforms: [windows]
 
   config:set:
     run: once
@@ -1158,18 +1484,28 @@ tasks:
         - CONFIG_KEY
         - CONFIG_VALUE
     deps:
-      - task: install
+      - task: nix:install:profile
+        vars:
+          NIX_INSTALLABLE: "{{.GH_NIX_INSTALLABLE}}"
     cmds:
-      - gh config set {{.CONFIG_KEY}} {{.CONFIG_VALUE}}
+      - cmd: bash -lc '{{.NIX_LOAD}}; gh config set {{.CONFIG_KEY}} {{.CONFIG_VALUE}}'
+        platforms: [linux, darwin]
+      - cmd: gh config set {{.CONFIG_KEY}} {{.CONFIG_VALUE}}
+        platforms: [windows]
 
   ssh-key:list:
     run: once
     desc: List SSH keys associated with the GitHub account
     summary: List all SSH keys for the authenticated GitHub user via `gh ssh-key list`.
     deps:
-      - task: install
+      - task: nix:install:profile
+        vars:
+          NIX_INSTALLABLE: "{{.GH_NIX_INSTALLABLE}}"
     cmds:
-      - gh ssh-key list
+      - cmd: bash -lc '{{.NIX_LOAD}}; gh ssh-key list'
+        platforms: [linux, darwin]
+      - cmd: gh ssh-key list
+        platforms: [windows]
 
   ssh-key:add:
     run: once
@@ -1182,9 +1518,14 @@ tasks:
       vars:
         - SSH_KEY_FILE
     deps:
-      - task: install
+      - task: nix:install:profile
+        vars:
+          NIX_INSTALLABLE: "{{.GH_NIX_INSTALLABLE}}"
     cmds:
-      - gh ssh-key add {{.SSH_KEY_FILE}} {{if .SSH_KEY_TITLE}}--title "{{.SSH_KEY_TITLE}}"{{end}}
+      - cmd: bash -lc '{{.NIX_LOAD}}; gh ssh-key add {{.SSH_KEY_FILE}} {{if .SSH_KEY_TITLE}}--title "{{.SSH_KEY_TITLE}}"{{end}}'
+        platforms: [linux, darwin]
+      - cmd: gh ssh-key add {{.SSH_KEY_FILE}} {{if .SSH_KEY_TITLE}}--title "{{.SSH_KEY_TITLE}}"{{end}}
+        platforms: [windows]
 
   ssh-key:delete:danger:
     run: once
@@ -1200,18 +1541,28 @@ tasks:
       - "This will permanently delete SSH key {{.SSH_KEY_ID}} from your GitHub account."
       - Are you sure you want to continue?
     deps:
-      - task: install
+      - task: nix:install:profile
+        vars:
+          NIX_INSTALLABLE: "{{.GH_NIX_INSTALLABLE}}"
     cmds:
-      - gh ssh-key delete {{.SSH_KEY_ID}} --yes
+      - cmd: bash -lc '{{.NIX_LOAD}}; gh ssh-key delete {{.SSH_KEY_ID}} --yes'
+        platforms: [linux, darwin]
+      - cmd: gh ssh-key delete {{.SSH_KEY_ID}} --yes
+        platforms: [windows]
 
   alias:list:
     run: once
     desc: List all GitHub CLI command aliases
     summary: List all configured gh command aliases via `gh alias list`.
     deps:
-      - task: install
+      - task: nix:install:profile
+        vars:
+          NIX_INSTALLABLE: "{{.GH_NIX_INSTALLABLE}}"
     cmds:
-      - gh alias list
+      - cmd: bash -lc '{{.NIX_LOAD}}; gh alias list'
+        platforms: [linux, darwin]
+      - cmd: gh alias list
+        platforms: [windows]
 
   alias:set:
     run: once
@@ -1225,7 +1576,9 @@ tasks:
         - ALIAS_NAME
         - ALIAS_COMMAND
     deps:
-      - task: install
+      - task: nix:install:profile
+        vars:
+          NIX_INSTALLABLE: "{{.GH_NIX_INSTALLABLE}}"
     cmds:
       - task: _alias:set:unix
       - task: _alias:set:windows
@@ -1240,9 +1593,14 @@ tasks:
       vars:
         - ALIAS_NAME
     deps:
-      - task: install
+      - task: nix:install:profile
+        vars:
+          NIX_INSTALLABLE: "{{.GH_NIX_INSTALLABLE}}"
     cmds:
-      - gh alias delete {{.ALIAS_NAME}}
+      - cmd: bash -lc '{{.NIX_LOAD}}; gh alias delete {{.ALIAS_NAME}}'
+        platforms: [linux, darwin]
+      - cmd: gh alias delete {{.ALIAS_NAME}}
+        platforms: [windows]
 
   project:list:
     run: once
@@ -1252,9 +1610,14 @@ tasks:
       projects for a specific user or organisation.
       Example: OWNER=myorg
     deps:
-      - task: install
+      - task: nix:install:profile
+        vars:
+          NIX_INSTALLABLE: "{{.GH_NIX_INSTALLABLE}}"
     cmds:
-      - gh project list {{if .OWNER}}--owner {{.OWNER}}{{end}}
+      - cmd: bash -lc '{{.NIX_LOAD}}; gh project list {{if .OWNER}}--owner {{.OWNER}}{{end}}'
+        platforms: [linux, darwin]
+      - cmd: gh project list {{if .OWNER}}--owner {{.OWNER}}{{end}}
+        platforms: [windows]
 
   project:view:
     run: once
@@ -1267,9 +1630,14 @@ tasks:
       vars:
         - PROJECT_NUMBER
     deps:
-      - task: install
+      - task: nix:install:profile
+        vars:
+          NIX_INSTALLABLE: "{{.GH_NIX_INSTALLABLE}}"
     cmds:
-      - gh project view {{.PROJECT_NUMBER}} {{if .OWNER}}--owner {{.OWNER}}{{end}}
+      - cmd: bash -lc '{{.NIX_LOAD}}; gh project view {{.PROJECT_NUMBER}} {{if .OWNER}}--owner {{.OWNER}}{{end}}'
+        platforms: [linux, darwin]
+      - cmd: gh project view {{.PROJECT_NUMBER}} {{if .OWNER}}--owner {{.OWNER}}{{end}}
+        platforms: [windows]
 
   project:create:
     run: once
@@ -1282,18 +1650,28 @@ tasks:
       vars:
         - PROJECT_TITLE
     deps:
-      - task: install
+      - task: nix:install:profile
+        vars:
+          NIX_INSTALLABLE: "{{.GH_NIX_INSTALLABLE}}"
     cmds:
-      - gh project create --title "{{.PROJECT_TITLE}}" {{if .OWNER}}--owner {{.OWNER}}{{end}}
+      - cmd: bash -lc '{{.NIX_LOAD}}; gh project create --title "{{.PROJECT_TITLE}}" {{if .OWNER}}--owner {{.OWNER}}{{end}}'
+        platforms: [linux, darwin]
+      - cmd: gh project create --title "{{.PROJECT_TITLE}}" {{if .OWNER}}--owner {{.OWNER}}{{end}}
+        platforms: [windows]
 
   open:
     run: once
     desc: Open the current repository in the browser
     summary: Open the current repository's GitHub page in the default web browser.
     deps:
-      - task: install
+      - task: nix:install:profile
+        vars:
+          NIX_INSTALLABLE: "{{.GH_NIX_INSTALLABLE}}"
     cmds:
-      - gh repo view --web
+      - cmd: bash -lc '{{.NIX_LOAD}}; gh repo view --web'
+        platforms: [linux, darwin]
+      - cmd: gh repo view --web
+        platforms: [windows]
 
   browse:
     run: once
@@ -1302,9 +1680,14 @@ tasks:
       Open the current branch of the repository in the default web browser
       via `gh browse`.
     deps:
-      - task: install
+      - task: nix:install:profile
+        vars:
+          NIX_INSTALLABLE: "{{.GH_NIX_INSTALLABLE}}"
     cmds:
-      - gh browse
+      - cmd: bash -lc '{{.NIX_LOAD}}; gh browse'
+        platforms: [linux, darwin]
+      - cmd: gh browse
+        platforms: [windows]
 
   search:repos:
     run: once
@@ -1316,9 +1699,14 @@ tasks:
       vars:
         - QUERY
     deps:
-      - task: install
+      - task: nix:install:profile
+        vars:
+          NIX_INSTALLABLE: "{{.GH_NIX_INSTALLABLE}}"
     cmds:
-      - gh search repos "{{.QUERY}}"
+      - cmd: bash -lc '{{.NIX_LOAD}}; gh search repos "{{.QUERY}}"'
+        platforms: [linux, darwin]
+      - cmd: gh search repos "{{.QUERY}}"
+        platforms: [windows]
 
   search:issues:
     run: once
@@ -1330,9 +1718,14 @@ tasks:
       vars:
         - QUERY
     deps:
-      - task: install
+      - task: nix:install:profile
+        vars:
+          NIX_INSTALLABLE: "{{.GH_NIX_INSTALLABLE}}"
     cmds:
-      - gh search issues "{{.QUERY}}"
+      - cmd: bash -lc '{{.NIX_LOAD}}; gh search issues "{{.QUERY}}"'
+        platforms: [linux, darwin]
+      - cmd: gh search issues "{{.QUERY}}"
+        platforms: [windows]
 
   search:prs:
     run: once
@@ -1344,9 +1737,14 @@ tasks:
       vars:
         - QUERY
     deps:
-      - task: install
+      - task: nix:install:profile
+        vars:
+          NIX_INSTALLABLE: "{{.GH_NIX_INSTALLABLE}}"
     cmds:
-      - gh search prs "{{.QUERY}}"
+      - cmd: bash -lc '{{.NIX_LOAD}}; gh search prs "{{.QUERY}}"'
+        platforms: [linux, darwin]
+      - cmd: gh search prs "{{.QUERY}}"
+        platforms: [windows]
 
   _repo:clone:unix:
     run: once
@@ -1362,6 +1760,7 @@ tasks:
       GH_PAT: "{{.GH_PAT_TOKEN}}"
     cmds:
       - |
+        {{.NIX_LOAD}}
         TARGET="{{if .OWNER}}{{.OWNER}}/{{end}}{{.REPO}}"
         DEST="{{if ne .GH_CLONE_DIR "."}}{{.GH_CLONE_DIR}}{{end}}"
         if [ -n "$GH_PAT" ]; then
@@ -1400,7 +1799,9 @@ tasks:
     env:
       GH_DATA: "{{.GH_DATA}}"
     cmds:
-      - printf '%s' "$GH_DATA" | gh api --method POST {{.ENDPOINT}} --input -
+      - |
+        {{.NIX_LOAD}}
+        printf '%s' "$GH_DATA" | gh api --method POST {{.ENDPOINT}} --input -
 
   _api:post:windows:
     run: once
@@ -1425,7 +1826,9 @@ tasks:
     env:
       GH_DATA: "{{.GH_DATA}}"
     cmds:
-      - printf '%s' "$GH_DATA" | gh api --method PATCH {{.ENDPOINT}} --input -
+      - |
+        {{.NIX_LOAD}}
+        printf '%s' "$GH_DATA" | gh api --method PATCH {{.ENDPOINT}} --input -
 
   _api:patch:windows:
     run: once
@@ -1448,7 +1851,9 @@ tasks:
     platforms: [linux, darwin]
     set: [errexit, nounset, pipefail]
     cmds:
-      - gh alias set {{.ALIAS_NAME}} '{{.ALIAS_COMMAND}}'
+      - |
+        {{.NIX_LOAD}}
+        gh alias set {{.ALIAS_NAME}} '{{.ALIAS_COMMAND}}'
 
   _alias:set:windows:
     run: once
@@ -1467,7 +1872,9 @@ tasks:
     platforms: [linux, darwin]
     set: [errexit, nounset, pipefail]
     cmds:
-      - gh run watch $(gh run list --workflow {{.WORKFLOW}} --limit 1 --json databaseId --jq '.[0].databaseId')
+      - |
+        {{.NIX_LOAD}}
+        gh run watch $(gh run list --workflow {{.WORKFLOW}} --limit 1 --json databaseId --jq '.[0].databaseId')
 
   _workflow:watch:windows:
     run: once
@@ -1482,683 +1889,6 @@ tasks:
         | ConvertFrom-Json)[0].databaseId;
         gh run watch $runId"
 
-  _install:auto:unix:
-    run: once
-    internal: true
-    desc: Auto-detect package manager and install gh on macOS or Linux
-    summary: |
-      Check whether gh is already installed. If not, detect the OS and
-      available package managers, then install gh using the best method.
-      On macOS prefers Homebrew. On Linux checks apt, dnf, yum, pacman,
-      zypper, snap, brew in order and uses the first one found.
-    platforms: [linux, darwin]
-    set: [errexit, nounset, pipefail]
-    status:
-      - >-
-        command -v gh >/dev/null 2>&1
-        && { [ -z "{{.GH_VERSION}}" ] || gh --version | grep -Fq "gh version {{.GH_VERSION}}"; }
-    cmds:
-      - |
-        GH_VERSION="{{.GH_VERSION}}"
-        OS="$(uname -s)"
-        if [ "$OS" = "Darwin" ]; then
-          if command -v brew >/dev/null 2>&1; then
-            echo 'macOS detected. Installing gh via Homebrew...'
-            brew install "gh${GH_VERSION:+@$GH_VERSION}"
-          else
-            echo 'ERROR: Homebrew is required to install gh on macOS.'
-            echo 'Install Homebrew from https://brew.sh and then re-run: task install'
-            exit 1
-          fi
-        elif [ "$OS" = "Linux" ]; then
-          if command -v apt-get >/dev/null 2>&1; then
-            echo 'Debian/Ubuntu detected. Installing gh via apt...'
-            sudo apt-get update
-            sudo apt-get install -y wget
-            sudo mkdir -p -m 755 /etc/apt/keyrings
-            wget -qO- https://cli.github.com/packages/githubcli-archive-keyring.gpg \
-              | sudo tee /etc/apt/keyrings/githubcli-archive-keyring.gpg > /dev/null
-            sudo chmod go+r /etc/apt/keyrings/githubcli-archive-keyring.gpg
-            _key="signed-by=/etc/apt/keyrings/githubcli-archive-keyring.gpg"
-            echo "deb [arch=$(dpkg --print-architecture) $_key] https://cli.github.com/packages stable main" \
-              | sudo tee /etc/apt/sources.list.d/github-cli.list > /dev/null
-            sudo apt-get update
-            sudo apt-get install -y "gh${GH_VERSION:+=$GH_VERSION}"
-          elif command -v dnf >/dev/null 2>&1; then
-            echo 'Fedora/RHEL detected. Installing gh via dnf...'
-            sudo dnf install -y 'dnf-command(config-manager)'
-            sudo dnf config-manager --add-repo https://cli.github.com/packages/rpm/gh-cli.repo
-            sudo dnf install -y "gh${GH_VERSION:+-$GH_VERSION}" --repo gh-cli
-          elif command -v yum >/dev/null 2>&1; then
-            echo 'CentOS/RHEL detected. Installing gh via yum...'
-            sudo yum-config-manager --add-repo https://cli.github.com/packages/rpm/gh-cli.repo
-            sudo yum install -y "gh${GH_VERSION:+-$GH_VERSION}"
-          elif command -v pacman >/dev/null 2>&1; then
-            echo 'Arch Linux detected. Installing gh via pacman...'
-            sudo pacman -S --noconfirm github-cli
-          elif command -v zypper >/dev/null 2>&1; then
-            echo 'openSUSE detected. Installing gh via zypper...'
-            sudo zypper addrepo https://cli.github.com/packages/rpm/gh-cli.repo
-            sudo zypper ref
-            sudo zypper install -y "gh${GH_VERSION:+-$GH_VERSION}"
-          elif command -v snap >/dev/null 2>&1; then
-            echo 'snap detected. Installing gh via snap...'
-            sudo snap install gh
-          elif command -v brew >/dev/null 2>&1; then
-            echo 'Homebrew detected. Installing gh via brew...'
-            brew install "gh${GH_VERSION:+@$GH_VERSION}"
-          else
-            echo 'ERROR: No supported package manager detected.'
-            echo 'See https://cli.github.com/manual/installation'
-            exit 1
-          fi
-        else
-          echo "ERROR: Unsupported OS: $OS"
-          echo 'See https://cli.github.com/manual/installation'
-          exit 1
-        fi
-
-  _install:auto:windows:
-    run: once
-    internal: true
-    desc: Auto-detect package manager and install gh on Windows
-    summary: |
-      Check whether gh is already installed on Windows. If not, detect
-      available package managers (winget, choco, scoop) and install gh
-      using the first one found. Prefers winget, then Chocolatey, then Scoop.
-    platforms: [windows]
-    status:
-      - >-
-        powershell -NoProfile -ExecutionPolicy Bypass -Command
-        "$gh = Get-Command gh -ErrorAction SilentlyContinue;
-        if (-not $gh) { exit 1 };
-        $requested = '{{.GH_VERSION}}';
-        if ([string]::IsNullOrWhiteSpace($requested)
-        -or ((& $gh.Source --version) -match
-        ('(?m)^gh version ' + [regex]::Escape($requested)))) { exit 0 };
-        exit 1"
-    cmds:
-      - >-
-        powershell -NoProfile -ExecutionPolicy Bypass -Command
-        "$v = '{{.GH_VERSION}}';
-        if (Get-Command winget -ErrorAction SilentlyContinue) {
-        Write-Host 'winget detected. Installing gh via winget...';
-        winget install --id GitHub.cli $(if ($v) { '--version', $v })
-        --accept-source-agreements --accept-package-agreements }
-        elseif (Get-Command choco -ErrorAction SilentlyContinue) {
-        Write-Host 'Chocolatey detected. Installing gh via choco...';
-        choco install gh -y $(if ($v) { '--version', $v }) }
-        elseif (Get-Command scoop -ErrorAction SilentlyContinue) {
-        Write-Host 'Scoop detected. Installing gh via scoop...';
-        scoop install $(if ($v) { \"gh@$v\" } else { 'gh' }) }
-        else { $err = 'ERROR: No supported package manager detected (winget, choco, scoop).' +
-        ' See https://cli.github.com/manual/installation'; Write-Error $err; exit 1 }"
-
-  _install:macos:brew:
-    run: once
-    internal: true
-    desc: Install gh on macOS using Homebrew
-    summary: Run `brew install gh` on macOS. Skipped if gh is already installed.
-    platforms: [darwin]
-    set: [errexit, nounset, pipefail]
-    status:
-      - >-
-        command -v gh >/dev/null 2>&1
-        && { [ -z "{{.GH_VERSION}}" ] || gh --version | grep -Fq "gh version {{.GH_VERSION}}"; }
-    preconditions:
-      - sh: command -v brew >/dev/null 2>&1
-        msg: "Homebrew is required. Install it from https://brew.sh"
-    cmds:
-      - echo 'Installing gh via Homebrew...'
-      - brew install gh
-      - echo 'gh installed successfully.'
-
-  _install:windows:winget:
-    run: once
-    internal: true
-    desc: Install gh on Windows using winget
-    summary: Run `winget install --id GitHub.cli` on Windows. Skipped if gh is already installed.
-    platforms: [windows]
-    status:
-      - >-
-        powershell -NoProfile -ExecutionPolicy Bypass -Command
-        "$gh = Get-Command gh -ErrorAction SilentlyContinue;
-        $requested = '{{.GH_VERSION}}';
-        if ($gh -and ([string]::IsNullOrWhiteSpace($requested)
-        -or ((& $gh.Source --version) -match ('(?m)^gh version ' + [regex]::Escape($requested))))) { exit 0 };
-        exit 1"
-    preconditions:
-      - sh: >-
-          powershell -NoProfile -ExecutionPolicy Bypass -Command
-          "if (Get-Command winget -ErrorAction SilentlyContinue) { exit 0 } else { exit 1 }"
-        msg: "winget is required. Update Windows or install App Installer from the Microsoft Store."
-    cmds:
-      - echo Installing gh via winget...
-      - winget install --id GitHub.cli --accept-source-agreements --accept-package-agreements
-      - echo gh installed successfully. Restart your terminal if gh is not in PATH.
-
-  _install:windows:choco:
-    run: once
-    internal: true
-    desc: Install gh on Windows using Chocolatey
-    summary: Run `choco install gh` on Windows. Skipped if gh is already installed.
-    platforms: [windows]
-    status:
-      - >-
-        powershell -NoProfile -ExecutionPolicy Bypass -Command
-        "$gh = Get-Command gh -ErrorAction SilentlyContinue;
-        $requested = '{{.GH_VERSION}}';
-        if ($gh -and ([string]::IsNullOrWhiteSpace($requested)
-        -or ((& $gh.Source --version) -match ('(?m)^gh version ' + [regex]::Escape($requested))))) { exit 0 };
-        exit 1"
-    preconditions:
-      - sh: >-
-          powershell -NoProfile -ExecutionPolicy Bypass -Command
-          "if (Get-Command choco -ErrorAction SilentlyContinue) { exit 0 } else { exit 1 }"
-        msg: "Chocolatey is required. Install it from https://chocolatey.org"
-    cmds:
-      - echo Installing gh via Chocolatey...
-      - choco install gh -y
-      - echo gh installed successfully.
-
-  _install:windows:scoop:
-    run: once
-    internal: true
-    desc: Install gh on Windows using Scoop
-    summary: Run `scoop install gh` on Windows. Skipped if gh is already installed.
-    platforms: [windows]
-    status:
-      - >-
-        powershell -NoProfile -ExecutionPolicy Bypass -Command
-        "$gh = Get-Command gh -ErrorAction SilentlyContinue;
-        $requested = '{{.GH_VERSION}}';
-        if ($gh -and ([string]::IsNullOrWhiteSpace($requested)
-        -or ((& $gh.Source --version) -match ('(?m)^gh version ' + [regex]::Escape($requested))))) { exit 0 };
-        exit 1"
-    preconditions:
-      - sh: >-
-          powershell -NoProfile -ExecutionPolicy Bypass -Command
-          "if (Get-Command scoop -ErrorAction SilentlyContinue) { exit 0 } else { exit 1 }"
-        msg: "Scoop is required. Install it from https://scoop.sh"
-    cmds:
-      - echo Installing gh via Scoop...
-      - scoop install gh
-      - echo gh installed successfully.
-
-  _install:linux:apt:
-    run: once
-    internal: true
-    desc: Install gh on Debian or Ubuntu using apt
-    summary: |
-      Add the official GitHub apt repository and GPG key, then install gh.
-      Skipped if gh is already installed. Requires sudo.
-    platforms: [linux]
-    set: [errexit, nounset, pipefail]
-    status:
-      - >-
-        command -v gh >/dev/null 2>&1
-        && { [ -z "{{.GH_VERSION}}" ] || gh --version | grep -Fq "gh version {{.GH_VERSION}}"; }
-    preconditions:
-      - sh: command -v apt-get >/dev/null 2>&1
-        msg: "apt-get is required. This task supports Debian/Ubuntu-based systems only."
-    cmds:
-      - echo 'Installing gh via apt...'
-      - sudo apt-get update
-      - sudo apt-get install -y wget
-      - sudo mkdir -p -m 755 /etc/apt/keyrings
-      - >-
-        wget -qO- https://cli.github.com/packages/githubcli-archive-keyring.gpg
-        | sudo tee /etc/apt/keyrings/githubcli-archive-keyring.gpg > /dev/null
-      - sudo chmod go+r /etc/apt/keyrings/githubcli-archive-keyring.gpg
-      - >-
-        _key="signed-by=/etc/apt/keyrings/githubcli-archive-keyring.gpg";
-        echo "deb [arch=$(dpkg --print-architecture) $_key] https://cli.github.com/packages stable main"
-        | sudo tee /etc/apt/sources.list.d/github-cli.list > /dev/null
-      - sudo apt-get update
-      - sudo apt-get install -y gh
-      - echo 'gh installed successfully.'
-
-  _install:linux:dnf:
-    run: once
-    internal: true
-    desc: Install gh on Fedora or RHEL using dnf
-    summary: |
-      Add the official GitHub rpm repository and install gh via dnf.
-      Skipped if gh is already installed. Requires sudo.
-    platforms: [linux]
-    set: [errexit, nounset, pipefail]
-    status:
-      - >-
-        command -v gh >/dev/null 2>&1
-        && { [ -z "{{.GH_VERSION}}" ] || gh --version | grep -Fq "gh version {{.GH_VERSION}}"; }
-    preconditions:
-      - sh: command -v dnf >/dev/null 2>&1
-        msg: "dnf is required. This task supports Fedora/RHEL-based systems only."
-    cmds:
-      - echo 'Installing gh via dnf...'
-      - sudo dnf install -y 'dnf-command(config-manager)'
-      - sudo dnf config-manager --add-repo https://cli.github.com/packages/rpm/gh-cli.repo
-      - sudo dnf install -y gh --repo gh-cli
-      - echo 'gh installed successfully.'
-
-  _install:linux:yum:
-    run: once
-    internal: true
-    desc: Install gh on CentOS or RHEL using yum
-    summary: |
-      Add the official GitHub rpm repository and install gh via yum.
-      Skipped if gh is already installed. Requires sudo.
-    platforms: [linux]
-    set: [errexit, nounset, pipefail]
-    status:
-      - >-
-        command -v gh >/dev/null 2>&1
-        && { [ -z "{{.GH_VERSION}}" ] || gh --version | grep -Fq "gh version {{.GH_VERSION}}"; }
-    preconditions:
-      - sh: command -v yum >/dev/null 2>&1
-        msg: "yum is required. This task supports CentOS/RHEL-based systems only."
-    cmds:
-      - echo 'Installing gh via yum...'
-      - sudo yum-config-manager --add-repo https://cli.github.com/packages/rpm/gh-cli.repo
-      - sudo yum install -y gh
-      - echo 'gh installed successfully.'
-
-  _install:linux:pacman:
-    run: once
-    internal: true
-    desc: Install gh on Arch Linux using pacman
-    summary: |
-      Install gh via `sudo pacman -S github-cli`.
-      Skipped if gh is already installed. Requires sudo.
-    platforms: [linux]
-    set: [errexit, nounset, pipefail]
-    status:
-      - >-
-        command -v gh >/dev/null 2>&1
-        && { [ -z "{{.GH_VERSION}}" ] || gh --version | grep -Fq "gh version {{.GH_VERSION}}"; }
-    preconditions:
-      - sh: command -v pacman >/dev/null 2>&1
-        msg: "pacman is required. This task supports Arch Linux only."
-    cmds:
-      - echo 'Installing gh via pacman...'
-      - sudo pacman -S --noconfirm github-cli
-      - echo 'gh installed successfully.'
-
-  _install:linux:zypper:
-    run: once
-    internal: true
-    desc: Install gh on openSUSE using zypper
-    summary: |
-      Add the official GitHub rpm repository and install gh via zypper.
-      Skipped if gh is already installed. Requires sudo.
-    platforms: [linux]
-    set: [errexit, nounset, pipefail]
-    status:
-      - >-
-        command -v gh >/dev/null 2>&1
-        && { [ -z "{{.GH_VERSION}}" ] || gh --version | grep -Fq "gh version {{.GH_VERSION}}"; }
-    preconditions:
-      - sh: command -v zypper >/dev/null 2>&1
-        msg: "zypper is required. This task supports openSUSE only."
-    cmds:
-      - echo 'Installing gh via zypper...'
-      - sudo zypper addrepo https://cli.github.com/packages/rpm/gh-cli.repo
-      - sudo zypper ref
-      - sudo zypper install -y gh
-      - echo 'gh installed successfully.'
-
-  _install:linux:snap:
-    run: once
-    internal: true
-    desc: Install gh on Linux using snap
-    summary: |
-      Install gh via `sudo snap install gh`.
-      Skipped if gh is already installed. Requires snapd.
-    platforms: [linux]
-    set: [errexit, nounset, pipefail]
-    status:
-      - >-
-        command -v gh >/dev/null 2>&1
-        && { [ -z "{{.GH_VERSION}}" ] || gh --version | grep -Fq "gh version {{.GH_VERSION}}"; }
-    preconditions:
-      - sh: command -v snap >/dev/null 2>&1
-        msg: "snapd is required. Install it for your distribution and try again."
-    cmds:
-      - echo 'Installing gh via snap...'
-      - sudo snap install gh
-      - echo 'gh installed successfully.'
-
-  _install:linux:brew:
-    run: once
-    internal: true
-    desc: Install gh on Linux using Homebrew
-    summary: |
-      Install gh via `brew install gh` on Linux.
-      Skipped if gh is already installed. Requires Homebrew for Linux.
-    platforms: [linux]
-    set: [errexit, nounset, pipefail]
-    status:
-      - >-
-        command -v gh >/dev/null 2>&1
-        && { [ -z "{{.GH_VERSION}}" ] || gh --version | grep -Fq "gh version {{.GH_VERSION}}"; }
-    preconditions:
-      - sh: command -v brew >/dev/null 2>&1
-        msg: "Homebrew is required. Install it from https://brew.sh"
-    cmds:
-      - echo 'Installing gh via Homebrew on Linux...'
-      - brew install gh
-      - echo 'gh installed successfully.'
-
-  _upgrade:auto:unix:
-    run: once
-    internal: true
-    desc: Auto-detect package manager and upgrade gh on macOS or Linux
-    summary: |
-      Detect the OS and available package manager, then upgrade gh to the
-      latest version. On macOS uses brew. On Linux checks apt, dnf, snap,
-      and brew in order and uses the first one found.
-    platforms: [linux, darwin]
-    set: [errexit, nounset, pipefail]
-    cmds:
-      - |
-        OS="$(uname -s)"
-        if [ "$OS" = "Darwin" ]; then
-          brew upgrade gh
-        elif [ "$OS" = "Linux" ]; then
-          if command -v apt-get >/dev/null 2>&1; then
-            sudo apt-get install --only-upgrade -y gh
-          elif command -v dnf >/dev/null 2>&1; then
-            sudo dnf upgrade -y gh
-          elif command -v snap >/dev/null 2>&1 && snap list gh >/dev/null 2>&1; then
-            sudo snap refresh gh
-          elif command -v brew >/dev/null 2>&1; then
-            brew upgrade gh
-          else
-            echo 'ERROR: Could not detect a supported package manager for upgrade.'
-            echo 'See https://cli.github.com/manual/installation'
-            exit 1
-          fi
-        fi
-
-  _upgrade:auto:windows:
-    run: once
-    internal: true
-    desc: Auto-detect package manager and upgrade gh on Windows
-    summary: |
-      Detect available package managers on Windows and upgrade gh to the latest
-      version. Prefers winget, then Chocolatey, then Scoop.
-    platforms: [windows]
-    cmds:
-      - >-
-        powershell -NoProfile -ExecutionPolicy Bypass -Command
-        "if (Get-Command winget -ErrorAction SilentlyContinue) {
-        winget upgrade --id GitHub.cli --accept-source-agreements --accept-package-agreements }
-        elseif (Get-Command choco -ErrorAction SilentlyContinue) { choco upgrade gh -y }
-        elseif (Get-Command scoop -ErrorAction SilentlyContinue) { scoop update gh }
-        else { Write-Error 'ERROR: No supported package manager detected for upgrade.'; exit 1 }"
-
-  _upgrade:macos:brew:
-    run: once
-    internal: true
-    desc: Upgrade gh on macOS using Homebrew
-    summary: Run `brew upgrade gh` on macOS.
-    platforms: [darwin]
-    set: [errexit, nounset, pipefail]
-    preconditions:
-      - sh: command -v brew >/dev/null 2>&1
-        msg: "Homebrew is required. Install it from https://brew.sh"
-    cmds:
-      - echo 'Upgrading gh via Homebrew...'
-      - brew upgrade gh
-
-  _upgrade:windows:winget:
-    run: once
-    internal: true
-    desc: Upgrade gh on Windows using winget
-    summary: Run `winget upgrade --id GitHub.cli` on Windows.
-    platforms: [windows]
-    preconditions:
-      - sh: >-
-          powershell -NoProfile -ExecutionPolicy Bypass -Command
-          "if (Get-Command winget -ErrorAction SilentlyContinue) { exit 0 } else { exit 1 }"
-        msg: "winget is required."
-    cmds:
-      - echo Upgrading gh via winget...
-      - winget upgrade --id GitHub.cli --accept-source-agreements --accept-package-agreements
-
-  _upgrade:windows:choco:
-    run: once
-    internal: true
-    desc: Upgrade gh on Windows using Chocolatey
-    summary: Run `choco upgrade gh` on Windows.
-    platforms: [windows]
-    preconditions:
-      - sh: >-
-          powershell -NoProfile -ExecutionPolicy Bypass -Command
-          "if (Get-Command choco -ErrorAction SilentlyContinue) { exit 0 } else { exit 1 }"
-        msg: "Chocolatey is required."
-    cmds:
-      - echo Upgrading gh via Chocolatey...
-      - choco upgrade gh -y
-
-  _upgrade:windows:scoop:
-    run: once
-    internal: true
-    desc: Upgrade gh on Windows using Scoop
-    summary: Run `scoop update gh` on Windows.
-    platforms: [windows]
-    preconditions:
-      - sh: >-
-          powershell -NoProfile -ExecutionPolicy Bypass -Command
-          "if (Get-Command scoop -ErrorAction SilentlyContinue) { exit 0 } else { exit 1 }"
-        msg: "Scoop is required."
-    cmds:
-      - echo Upgrading gh via Scoop...
-      - scoop update gh
-
-  _upgrade:linux:apt:
-    run: once
-    internal: true
-    desc: Upgrade gh on Debian or Ubuntu using apt
-    summary: Run `sudo apt-get install --only-upgrade gh` to upgrade gh on Debian/Ubuntu.
-    platforms: [linux]
-    set: [errexit, nounset, pipefail]
-    preconditions:
-      - sh: command -v apt-get >/dev/null 2>&1
-        msg: "apt-get is required."
-    cmds:
-      - echo 'Upgrading gh via apt...'
-      - sudo apt-get install --only-upgrade -y gh
-
-  _upgrade:linux:dnf:
-    run: once
-    internal: true
-    desc: Upgrade gh on Fedora or RHEL using dnf
-    summary: Run `sudo dnf upgrade gh` to upgrade gh on Fedora/RHEL.
-    platforms: [linux]
-    set: [errexit, nounset, pipefail]
-    preconditions:
-      - sh: command -v dnf >/dev/null 2>&1
-        msg: "dnf is required."
-    cmds:
-      - echo 'Upgrading gh via dnf...'
-      - sudo dnf upgrade -y gh
-
-  _upgrade:linux:snap:
-    run: once
-    internal: true
-    desc: Upgrade gh on Linux using snap
-    summary: Run `sudo snap refresh gh` to upgrade gh via snap.
-    platforms: [linux]
-    set: [errexit, nounset, pipefail]
-    preconditions:
-      - sh: command -v snap >/dev/null 2>&1
-        msg: "snapd is required."
-    cmds:
-      - echo 'Upgrading gh via snap...'
-      - sudo snap refresh gh
-
-  _uninstall:auto:unix:
-    run: once
-    internal: true
-    desc: Auto-detect package manager and uninstall gh on macOS or Linux
-    summary: |
-      Detect the OS and available package managers, then remove gh using the
-      matching uninstall command. On macOS uses Homebrew. On Linux checks
-      apt, dnf, yum, pacman, zypper, snap, and brew in order.
-    platforms: [linux, darwin]
-    set: [errexit, nounset, pipefail]
-    status:
-      - "! command -v gh >/dev/null 2>&1"
-    cmds:
-      - |
-        OS="$(uname -s)"
-        if [ "$OS" = "Darwin" ]; then
-          if command -v brew >/dev/null 2>&1; then
-            echo 'Removing gh via Homebrew...'
-            brew uninstall gh
-          else
-            echo 'ERROR: Homebrew is required to remove gh on macOS.'
-            exit 1
-          fi
-        elif [ "$OS" = "Linux" ]; then
-          if command -v apt-get >/dev/null 2>&1; then
-            echo 'Removing gh via apt...'
-            sudo apt-get remove -y gh
-          elif command -v dnf >/dev/null 2>&1; then
-            echo 'Removing gh via dnf...'
-            sudo dnf remove -y gh
-          elif command -v yum >/dev/null 2>&1; then
-            echo 'Removing gh via yum...'
-            sudo yum remove -y gh
-          elif command -v pacman >/dev/null 2>&1; then
-            echo 'Removing gh via pacman...'
-            sudo pacman -R --noconfirm github-cli
-          elif command -v zypper >/dev/null 2>&1; then
-            echo 'Removing gh via zypper...'
-            sudo zypper remove -y gh
-          elif command -v snap >/dev/null 2>&1; then
-            echo 'Removing gh via snap...'
-            sudo snap remove gh
-          elif command -v brew >/dev/null 2>&1; then
-            echo 'Removing gh via Homebrew...'
-            brew uninstall gh
-          else
-            echo 'ERROR: No supported package manager detected.'
-            exit 1
-          fi
-        else
-          echo "ERROR: Unsupported OS: $OS"
-          exit 1
-        fi
-        echo 'gh removed.'
-
-  _uninstall:auto:windows:
-    run: once
-    internal: true
-    desc: Auto-detect package manager and uninstall gh on Windows
-    summary: |
-      Detect available package managers on Windows and remove gh using the
-      matching uninstall command. Prefers winget, then Chocolatey, then Scoop.
-    platforms: [windows]
-    status:
-      - >-
-        powershell -NoProfile -ExecutionPolicy Bypass -Command
-        "if (Get-Command gh -ErrorAction SilentlyContinue) { exit 1 } else { exit 0 }"
-    cmds:
-      - >-
-        powershell -NoProfile -ExecutionPolicy Bypass -Command
-        "if (Get-Command winget -ErrorAction SilentlyContinue) {
-        Write-Host 'winget detected. Removing gh via winget...';
-        winget uninstall --id GitHub.cli }
-        elseif (Get-Command choco -ErrorAction SilentlyContinue) {
-        Write-Host 'Chocolatey detected. Removing gh via choco...'; choco uninstall gh -y }
-        elseif (Get-Command scoop -ErrorAction SilentlyContinue) {
-        Write-Host 'Scoop detected. Removing gh via scoop...'; scoop uninstall gh }
-        else { Write-Error 'ERROR: No supported package manager detected (winget, choco, scoop).'; exit 1 }"
-
-  _uninstall:macos:brew:
-    run: once
-    internal: true
-    desc: Uninstall gh on macOS using Homebrew
-    summary: Run `brew uninstall gh` on macOS.
-    platforms: [darwin]
-    set: [errexit, nounset, pipefail]
-    preconditions:
-      - sh: command -v brew >/dev/null 2>&1
-        msg: "Homebrew is required."
-    cmds:
-      - echo 'Uninstalling gh via Homebrew...'
-      - brew uninstall gh
-      - echo 'gh uninstalled.'
-
-  _uninstall:windows:winget:
-    run: once
-    internal: true
-    desc: Uninstall gh on Windows using winget
-    summary: Run `winget uninstall --id GitHub.cli` on Windows.
-    platforms: [windows]
-    preconditions:
-      - sh: >-
-          powershell -NoProfile -ExecutionPolicy Bypass -Command
-          "if (Get-Command winget -ErrorAction SilentlyContinue) { exit 0 } else { exit 1 }"
-        msg: "winget is required."
-    cmds:
-      - echo Uninstalling gh via winget...
-      - winget uninstall --id GitHub.cli
-      - echo gh uninstalled.
-
-  _uninstall:windows:choco:
-    run: once
-    internal: true
-    desc: Uninstall gh on Windows using Chocolatey
-    summary: Run `choco uninstall gh` on Windows.
-    platforms: [windows]
-    preconditions:
-      - sh: >-
-          powershell -NoProfile -ExecutionPolicy Bypass -Command
-          "if (Get-Command choco -ErrorAction SilentlyContinue) { exit 0 } else { exit 1 }"
-        msg: "Chocolatey is required."
-    cmds:
-      - echo Uninstalling gh via Chocolatey...
-      - choco uninstall gh -y
-      - echo gh uninstalled.
-
-  _uninstall:windows:scoop:
-    run: once
-    internal: true
-    desc: Uninstall gh on Windows using Scoop
-    summary: Run `scoop uninstall gh` on Windows.
-    platforms: [windows]
-    preconditions:
-      - sh: >-
-          powershell -NoProfile -ExecutionPolicy Bypass -Command
-          "if (Get-Command scoop -ErrorAction SilentlyContinue) { exit 0 } else { exit 1 }"
-        msg: "Scoop is required."
-    cmds:
-      - echo Uninstalling gh via Scoop...
-      - scoop uninstall gh
-      - echo gh uninstalled.
-
-  _version:unix:
-    run: once
-    internal: true
-    desc: Show the gh version on macOS or Linux
-    summary: Print the installed gh version string on macOS or Linux.
-    platforms: [linux, darwin]
-    set: [errexit, nounset, pipefail]
-    cmds:
-      - gh --version
-
-  _version:windows:
-    run: once
-    internal: true
-    desc: Show the gh version on Windows
-    summary: Print the installed gh version string on Windows.
-    platforms: [windows]
-    cmds:
-      - gh --version
-
   _doctor:unix:
     run: once
     internal: true
@@ -2167,7 +1897,7 @@ tasks:
     platforms: [linux, darwin]
     set: [errexit, nounset, pipefail]
     cmds:
-      - gh doctor
+      - bash -lc '{{.NIX_LOAD}}; gh doctor'
 
   _doctor:windows:
     run: once
@@ -2186,7 +1916,7 @@ tasks:
     platforms: [linux, darwin]
     set: [errexit, nounset, pipefail]
     cmds:
-      - command -v gh
+      - bash -lc '{{.NIX_LOAD}}; command -v gh'
 
   _which:windows:
     run: once
@@ -2208,6 +1938,7 @@ tasks:
     set: [errexit, nounset, pipefail]
     cmds:
       - |
+        {{.NIX_LOAD}}
         echo '=== gh binary ==='
         command -v gh
         echo ''
@@ -2246,10 +1977,9 @@ tasks:
     env:
       GH_SECRET_VALUE: "{{.SECRET_VALUE}}"
     cmds:
-      - >-
-        printf '%s' "$GH_SECRET_VALUE"
-        | gh secret set {{.SECRET_NAME}} --body -
-        {{if .ENVIRONMENT}}--env {{.ENVIRONMENT}}{{end}}
+      - |
+        {{.NIX_LOAD}}
+        printf '%s' "$GH_SECRET_VALUE" | gh secret set {{.SECRET_NAME}} --body - {{if .ENVIRONMENT}}--env {{.ENVIRONMENT}}{{end}}
 
   _secret:set:windows:
     run: once

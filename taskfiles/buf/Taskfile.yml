@@ -10,15 +10,12 @@ output:
 silent: true
 
 includes:
-  skipfiles:
-    taskfile: ../internal/skipfiles/Taskfile.yml
-    internal: true
+  nix:
+    taskfile: ../nix/Taskfile.yml
 
 vars:
-  BUF_LINT_SKIP_PATTERN: ""
-  BUF_FMT_SKIP_PATTERN: ""
   BUF_AGAINST: ".git#branch=main"
-  BUF_VERSION: "1.47.2"
+  BUF_NIX_INSTALLABLE: nixpkgs#buf
   BUF_CONFIG: ""
   BUF_EXTRA_ARGS: ""
   BUF_INPUT: "."
@@ -38,26 +35,22 @@ tasks:
       Run buf lint against INPUT (default: .). Pass BUF_CONFIG to use a custom
       buf.yaml via --config, and BUF_EXTRA_ARGS for additional flags such as
       --error-format. Pass CLI arguments after -- to override targets and
-      options; BUF_LINT_SKIP_PATTERN remains active. Auto-installs Buf if missing.
+      options. Auto-installs Buf if missing.
     dir: "{{.USER_WORKING_DIR}}"
     deps:
-      - task: install
+      - task: nix:install:profile
+        vars:
+          NIX_INSTALLABLE: "{{.BUF_NIX_INSTALLABLE}}"
     cmds:
       - task: _buf:unix
         vars:
           BUF_SUBCOMMAND: "lint"
-          BUF_SKIP_PATTERN: >-
-            {{if .BUF_LINT_SKIP_PATTERN_OVERRIDE}}{{.BUF_LINT_SKIP_PATTERN_OVERRIDE}}
-            {{- else}}{{.BUF_LINT_SKIP_PATTERN}}{{end}}
           BUF_CONFIG_FLAG: >-
             {{if .BUF_CONFIG_OVERRIDE}}--config "{{.BUF_CONFIG_OVERRIDE}}"
             {{else if .BUF_CONFIG}}--config "{{.BUF_CONFIG}}"{{end}}
       - task: _buf:windows
         vars:
           BUF_SUBCOMMAND: "lint"
-          BUF_SKIP_PATTERN: >-
-            {{if .BUF_LINT_SKIP_PATTERN_OVERRIDE}}{{.BUF_LINT_SKIP_PATTERN_OVERRIDE}}
-            {{- else}}{{.BUF_LINT_SKIP_PATTERN}}{{end}}
           BUF_CONFIG_FLAG: >-
             {{if .BUF_CONFIG_OVERRIDE}}--config "{{.BUF_CONFIG_OVERRIDE}}"
             {{else if .BUF_CONFIG}}--config "{{.BUF_CONFIG}}"{{end}}
@@ -78,21 +71,17 @@ tasks:
       place. Auto-installs Buf if missing.
     dir: "{{.USER_WORKING_DIR}}"
     deps:
-      - task: install
+      - task: nix:install:profile
+        vars:
+          NIX_INSTALLABLE: "{{.BUF_NIX_INSTALLABLE}}"
     cmds:
       - task: _buf:unix
         vars:
           BUF_SUBCOMMAND: "format --write"
-          BUF_SKIP_PATTERN: >-
-            {{if .BUF_FMT_SKIP_PATTERN_OVERRIDE}}{{.BUF_FMT_SKIP_PATTERN_OVERRIDE}}
-            {{- else}}{{.BUF_FMT_SKIP_PATTERN}}{{end}}
           BUF_CONFIG_FLAG: ""
       - task: _buf:windows
         vars:
           BUF_SUBCOMMAND: "format --write"
-          BUF_SKIP_PATTERN: >-
-            {{if .BUF_FMT_SKIP_PATTERN_OVERRIDE}}{{.BUF_FMT_SKIP_PATTERN_OVERRIDE}}
-            {{- else}}{{.BUF_FMT_SKIP_PATTERN}}{{end}}
           BUF_CONFIG_FLAG: ""
 
   fmt:check:
@@ -104,21 +93,17 @@ tasks:
       apply fixes. Auto-installs Buf if missing.
     dir: "{{.USER_WORKING_DIR}}"
     deps:
-      - task: install
+      - task: nix:install:profile
+        vars:
+          NIX_INSTALLABLE: "{{.BUF_NIX_INSTALLABLE}}"
     cmds:
       - task: _buf:unix
         vars:
           BUF_SUBCOMMAND: "format --diff"
-          BUF_SKIP_PATTERN: >-
-            {{if .BUF_FMT_SKIP_PATTERN_OVERRIDE}}{{.BUF_FMT_SKIP_PATTERN_OVERRIDE}}
-            {{- else}}{{.BUF_FMT_SKIP_PATTERN}}{{end}}
           BUF_CONFIG_FLAG: ""
       - task: _buf:windows
         vars:
           BUF_SUBCOMMAND: "format --diff"
-          BUF_SKIP_PATTERN: >-
-            {{if .BUF_FMT_SKIP_PATTERN_OVERRIDE}}{{.BUF_FMT_SKIP_PATTERN_OVERRIDE}}
-            {{- else}}{{.BUF_FMT_SKIP_PATTERN}}{{end}}
           BUF_CONFIG_FLAG: ""
       - echo "✅ buf format check passed"
 
@@ -128,32 +113,10 @@ tasks:
     platforms: [linux, darwin]
     cmds:
       - |
+        {{.NIX_LOAD}}
         input='{{if .BUF_INPUT_OVERRIDE}}{{.BUF_INPUT_OVERRIDE}}
         {{- else}}{{.BUF_INPUT}}{{end}}'
-        skip_pattern='{{.BUF_SKIP_PATTERN}}'
-        if [ -z "$skip_pattern" ]; then
-          buf {{.BUF_SUBCOMMAND}} {{.BUF_CONFIG_FLAG}} \
-            {{if .CLI_ARGS}}{{.CLI_ARGS}}{{else}}"$input" \
-            {{if .BUF_EXTRA_ARGS_OVERRIDE}}{{.BUF_EXTRA_ARGS_OVERRIDE}}
-            {{- else}}{{.BUF_EXTRA_ARGS}}{{end}}{{end}}
-          exit
-        fi
-        matched_files="$(mktemp)"
-        trap 'rm -f "$matched_files"' EXIT
-        scan_input="$input"
-        if [ -n "{{.CLI_ARGS}}" ]; then scan_input=.; fi
-        if [ -d "$scan_input" ]; then
-          find "$scan_input" -type f -name '*.proto' -print0
-        elif [ -f "$scan_input" ]; then
-          printf '%s\000' "$scan_input"
-        fi | task --silent --taskfile "{{.TASKFILE_DIR}}/../internal/skipfiles/Taskfile.yml" \
-          filter "SKIPFILES_PATTERN=$skip_pattern" SKIPFILES_MATCHING=true |
-          tr '\0' '\n' >"$matched_files"
-        set --
-        while IFS= read -r path; do
-          set -- "$@" --exclude-path "$path"
-        done <"$matched_files"
-        buf {{.BUF_SUBCOMMAND}} "$@" {{.BUF_CONFIG_FLAG}} \
+        buf {{.BUF_SUBCOMMAND}} {{.BUF_CONFIG_FLAG}} \
           {{if .CLI_ARGS}}{{.CLI_ARGS}}{{else}}"$input" \
           {{if .BUF_EXTRA_ARGS_OVERRIDE}}{{.BUF_EXTRA_ARGS_OVERRIDE}}
           {{- else}}{{.BUF_EXTRA_ARGS}}{{end}}{{end}}
@@ -167,25 +130,7 @@ tasks:
         powershell -NoProfile -ExecutionPolicy Bypass -Command
         "$inputPath='{{if .BUF_INPUT_OVERRIDE}}{{.BUF_INPUT_OVERRIDE}}
         {{- else}}{{.BUF_INPUT}}{{end}}';
-        $skipPattern='{{.BUF_SKIP_PATTERN}}';
-        if (-not $skipPattern) {
-          buf {{.BUF_SUBCOMMAND}} {{.BUF_CONFIG_FLAG}}
-            {{if .CLI_ARGS}}{{.CLI_ARGS}}{{else}}$inputPath
-            {{if .BUF_EXTRA_ARGS_OVERRIDE}}{{.BUF_EXTRA_ARGS_OVERRIDE}}
-            {{- else}}{{.BUF_EXTRA_ARGS}}{{end}}{{end}};
-          exit $LASTEXITCODE
-        };
-        $scanInput=if ('{{.CLI_ARGS}}') { '.' } else { $inputPath };
-        if (Test-Path -LiteralPath $scanInput -PathType Container) {
-          $files=Get-ChildItem -LiteralPath $scanInput -Recurse -Filter '*.proto' -File
-        } elseif (Test-Path -LiteralPath $scanInput -PathType Leaf) {
-          $files=@(Get-Item -LiteralPath $scanInput)
-        } else { $files=@() };
-        $excluded=@($files | ForEach-Object FullName |
-          task --silent --taskfile '{{.TASKFILE_DIR}}/../internal/skipfiles/Taskfile.yml'
-            filter ('SKIPFILES_PATTERN=' + $skipPattern) 'SKIPFILES_MATCHING=true');
-        $excludeArgs=@(); foreach ($path in $excluded) { $excludeArgs += @('--exclude-path', $path) };
-        buf {{.BUF_SUBCOMMAND}} @excludeArgs {{.BUF_CONFIG_FLAG}}
+        buf {{.BUF_SUBCOMMAND}} {{.BUF_CONFIG_FLAG}}
           {{if .CLI_ARGS}}{{.CLI_ARGS}}{{else}}$inputPath
           {{if .BUF_EXTRA_ARGS_OVERRIDE}}{{.BUF_EXTRA_ARGS_OVERRIDE}}
           {{- else}}{{.BUF_EXTRA_ARGS}}{{end}}{{end}};
@@ -201,24 +146,20 @@ tasks:
       arguments after -- to override all variables directly. Auto-installs
       Buf if missing.
     deps:
-      - task: install
+      - task: nix:install:profile
+        vars:
+          NIX_INSTALLABLE: "{{.BUF_NIX_INSTALLABLE}}"
     dir: "{{.USER_WORKING_DIR}}"
     cmds:
       - task: _buf:unix
         vars:
           BUF_SUBCOMMAND: "breaking"
-          BUF_SKIP_PATTERN: >-
-            {{if .BUF_LINT_SKIP_PATTERN_OVERRIDE}}{{.BUF_LINT_SKIP_PATTERN_OVERRIDE}}
-            {{- else}}{{.BUF_LINT_SKIP_PATTERN}}{{end}}
           BUF_CONFIG_FLAG: >-
             {{if not .CLI_ARGS}}--against
             "{{if .BUF_AGAINST_OVERRIDE}}{{.BUF_AGAINST_OVERRIDE}}{{else}}{{.BUF_AGAINST}}{{end}}"{{end}}
       - task: _buf:windows
         vars:
           BUF_SUBCOMMAND: "breaking"
-          BUF_SKIP_PATTERN: >-
-            {{if .BUF_LINT_SKIP_PATTERN_OVERRIDE}}{{.BUF_LINT_SKIP_PATTERN_OVERRIDE}}
-            {{- else}}{{.BUF_LINT_SKIP_PATTERN}}{{end}}
           BUF_CONFIG_FLAG: >-
             {{if not .CLI_ARGS}}--against
             "{{if .BUF_AGAINST_OVERRIDE}}{{.BUF_AGAINST_OVERRIDE}}{{else}}{{.BUF_AGAINST}}{{end}}"{{end}}
@@ -232,258 +173,26 @@ tasks:
       buf.gen.yaml in the project root or at the path given by CLI_ARGS.
       Auto-installs Buf if missing.
     deps:
-      - task: install
+      - task: nix:install:profile
+        vars:
+          NIX_INSTALLABLE: "{{.BUF_NIX_INSTALLABLE}}"
     cmds:
-      - >-
-        buf generate
-        {{if .CLI_ARGS}}{{.CLI_ARGS}}
-        {{else}}
-        "{{if .BUF_INPUT_OVERRIDE}}{{.BUF_INPUT_OVERRIDE}}{{else}}{{.BUF_INPUT}}{{end}}"
-        {{if .BUF_EXTRA_ARGS_OVERRIDE}}{{.BUF_EXTRA_ARGS_OVERRIDE}}
-        {{else}}{{.BUF_EXTRA_ARGS}}{{end}}{{end}}
-        && echo "✅ buf generate passed" || { echo "❌ buf generate failed"; exit 1; }
-
-  install:
-    run: once
-    desc: Install Buf on the current operating system
-    summary: |
-      Install Buf for the current platform if it is not already available.
-      macOS and Linux download the pinned BUF_VERSION binary to /usr/local/bin.
-      Windows uses Scoop to install Buf.
-    cmds:
-      - task: _install:macos
-      - task: _install:linux
-      - task: _install:windows
-
-  install:undo:
-    run: once
-    desc: Remove Buf from the current operating system
-    summary: |
-      Remove Buf for the current platform.
-      macOS uses Homebrew to uninstall Buf.
-      Linux removes the binary from /usr/local/bin.
-      Windows uses Scoop to uninstall Buf.
-    prompt:
-      - This will remove Buf from this machine.
-      - Continue?
-    cmds:
-      - task: _install:undo:macos
-      - task: _install:undo:linux
-      - task: _install:undo:windows
-
-  upgrade:
-    run: once
-    desc: Upgrade Buf to the latest release
-    summary: |
-      Upgrade Buf to the latest available release.
-      macOS uses brew upgrade bufbuild/buf/buf.
-      Linux re-downloads the pinned BUF_VERSION binary, replacing any existing installation.
-      Windows uses scoop update buf.
-    cmds:
-      - task: _upgrade:macos
-      - task: _upgrade:linux
-      - task: _upgrade:windows
-
-  version:
-    run: once
-    desc: Show the installed Buf version
-    summary: Print the active Buf version via buf --version. Auto-installs Buf if missing.
-    deps:
-      - task: install
-    cmds:
-      - buf --version
-
-  _install:macos:
-    run: once
-    internal: true
-    platforms: [darwin]
-    set: [errexit, nounset, pipefail]
-    vars:
-      BUF_UNAME_ARCH:
-        sh: uname -m
-      BUF_ARCH: >-
-        {{if or (eq .BUF_UNAME_ARCH "x86_64") (eq .BUF_UNAME_ARCH "amd64")}}x86_64
-        {{- else if or (eq .BUF_UNAME_ARCH "aarch64") (eq .BUF_UNAME_ARCH "arm64")}}arm64
-        {{- else}}{{.BUF_UNAME_ARCH}}{{end}}
-    status:
-      - command -v buf >/dev/null 2>&1 && buf --version | grep -Fqx "{{.BUF_VERSION}}"
-    preconditions:
-      - sh: 'command -v curl >/dev/null 2>&1'
-        msg: curl is required to download Buf.
-      - sh: 'command -v install >/dev/null 2>&1'
-        msg: install is required to place the Buf binary.
-      - sh: >-
-          [ "{{.BUF_ARCH}}" = "x86_64" ] || [ "{{.BUF_ARCH}}" = "arm64" ]
-        msg: Unsupported macOS architecture. Only x86_64 and arm64 are supported.
-    cmds:
-      - echo 'Installing Buf v{{.BUF_VERSION}} for macOS ({{.BUF_ARCH}})...'
-      - >-
-        curl -fsSL
-        -o /tmp/taskotter-buf
-        "https://github.com/bufbuild/buf/releases/download/v{{.BUF_VERSION}}/buf-Darwin-{{.BUF_ARCH}}"
-      - cmd: install -m 0755 /tmp/taskotter-buf /usr/local/bin/buf
-        if: '[ "$(id -u)" -eq 0 ]'
-      - cmd: sudo install -m 0755 /tmp/taskotter-buf /usr/local/bin/buf
-        if: '[ "$(id -u)" -ne 0 ]'
-      - rm -f /tmp/taskotter-buf
-      - echo 'Buf installed.'
-
-  _install:linux:
-    run: once
-    internal: true
-    platforms: [linux]
-    set: [errexit, nounset, pipefail]
-    vars:
-      BUF_UNAME_ARCH:
-        sh: uname -m
-      BUF_ARCH: >-
-        {{if or (eq .BUF_UNAME_ARCH "x86_64") (eq .BUF_UNAME_ARCH "amd64")}}x86_64
-        {{- else if or (eq .BUF_UNAME_ARCH "aarch64") (eq .BUF_UNAME_ARCH "arm64")}}aarch64
-        {{- else}}{{.BUF_UNAME_ARCH}}{{end}}
-    status:
-      - command -v buf >/dev/null 2>&1 && buf --version | grep -Fqx "{{.BUF_VERSION}}"
-    preconditions:
-      - sh: 'command -v curl >/dev/null 2>&1'
-        msg: curl is required to download Buf.
-      - sh: 'command -v install >/dev/null 2>&1'
-        msg: install is required to place the Buf binary.
-      - sh: >-
-          [ "{{.BUF_ARCH}}" = "x86_64" ] || [ "{{.BUF_ARCH}}" = "aarch64" ]
-        msg: Unsupported Linux architecture. Only x86_64 and aarch64 are supported.
-    cmds:
-      - echo 'Installing Buf v{{.BUF_VERSION}} for Linux ({{.BUF_ARCH}})...'
-      - >-
-        curl -fsSL
-        -o /tmp/taskotter-buf
-        "https://github.com/bufbuild/buf/releases/download/v{{.BUF_VERSION}}/buf-Linux-{{.BUF_ARCH}}"
-      - cmd: install -m 0755 /tmp/taskotter-buf /usr/local/bin/buf
-        if: '[ "$(id -u)" -eq 0 ]'
-      - cmd: sudo install -m 0755 /tmp/taskotter-buf /usr/local/bin/buf
-        if: '[ "$(id -u)" -ne 0 ]'
-      - rm -f /tmp/taskotter-buf
-      - echo 'Buf installed.'
-
-  _install:windows:
-    run: once
-    internal: true
-    platforms: [windows]
-    status:
-      - >-
-        powershell -NoProfile -ExecutionPolicy Bypass -Command
-        "$buf = Get-Command buf -ErrorAction SilentlyContinue;
-        if ($buf -and ((& $buf.Source --version) -eq '{{.BUF_VERSION}}')) { exit 0 };
-        exit 1"
-    preconditions:
-      - sh: >-
-          powershell -NoProfile -ExecutionPolicy Bypass -Command
-          "if (Get-Command scoop -ErrorAction SilentlyContinue) { exit 0 } else { exit 1 }"
-        msg: Scoop is required to install Buf on Windows. Install it from https://scoop.sh and re-run this task.
-    cmds:
-      - echo Installing Buf via Scoop...
-      - >-
-        powershell -NoProfile -ExecutionPolicy Bypass -Command
-        "scoop install buf@{{.BUF_VERSION}}"
-      - echo Buf installed. Restart your terminal if buf is not found.
-
-  _install:undo:macos:
-    run: once
-    internal: true
-    platforms: [darwin]
-    set: [errexit, nounset, pipefail]
-    status:
-      - "! command -v buf >/dev/null 2>&1"
-    preconditions:
-      - sh: command -v brew >/dev/null 2>&1
-        msg: Homebrew is required to remove Buf on macOS.
-    cmds:
-      - echo 'Removing Buf via Homebrew...'
-      - brew uninstall bufbuild/buf/buf
-      - echo 'Buf removed.'
-
-  _install:undo:linux:
-    run: once
-    internal: true
-    platforms: [linux]
-    set: [errexit, nounset, pipefail]
-    status:
-      - "! command -v buf >/dev/null 2>&1"
-    cmds:
-      - echo 'Removing Buf...'
-      - cmd: rm -f /usr/local/bin/buf
-        if: '[ "$(id -u)" -eq 0 ]'
-      - cmd: sudo rm -f /usr/local/bin/buf
-        if: '[ "$(id -u)" -ne 0 ]'
-      - echo 'Buf removed.'
-
-  _install:undo:windows:
-    run: once
-    internal: true
-    platforms: [windows]
-    status:
-      - >-
-        powershell -NoProfile -ExecutionPolicy Bypass -Command
-        "if (Get-Command buf -ErrorAction SilentlyContinue) { exit 1 } else { exit 0 }"
-    cmds:
-      - echo Removing Buf via Scoop...
-      - powershell -NoProfile -ExecutionPolicy Bypass -Command "scoop uninstall buf"
-      - echo Buf removed.
-
-  _upgrade:macos:
-    run: once
-    internal: true
-    platforms: [darwin]
-    set: [errexit, nounset, pipefail]
-    preconditions:
-      - sh: command -v brew >/dev/null 2>&1
-        msg: Homebrew is required to upgrade Buf on macOS.
-    cmds:
-      - echo 'Upgrading Buf via Homebrew...'
-      - |
-        if brew list bufbuild/buf/buf >/dev/null 2>&1; then
-          brew upgrade bufbuild/buf/buf
-        else
-          brew install bufbuild/buf/buf
-        fi
-      - echo 'Buf upgraded.'
-
-  _upgrade:linux:
-    run: once
-    internal: true
-    platforms: [linux]
-    set: [errexit, nounset, pipefail]
-    vars:
-      BUF_UNAME_ARCH:
-        sh: uname -m
-      BUF_ARCH: >-
-        {{if or (eq .BUF_UNAME_ARCH "x86_64") (eq .BUF_UNAME_ARCH "amd64")}}x86_64
-        {{- else if or (eq .BUF_UNAME_ARCH "aarch64") (eq .BUF_UNAME_ARCH "arm64")}}aarch64
-        {{- else}}{{.BUF_UNAME_ARCH}}{{end}}
-    preconditions:
-      - sh: 'command -v curl >/dev/null 2>&1'
-        msg: curl is required to download Buf.
-      - sh: 'command -v install >/dev/null 2>&1'
-        msg: install is required to place the Buf binary.
-      - sh: >-
-          [ "{{.BUF_ARCH}}" = "x86_64" ] || [ "{{.BUF_ARCH}}" = "aarch64" ]
-        msg: Unsupported Linux architecture. Only x86_64 and aarch64 are supported.
-    cmds:
-      - echo 'Upgrading Buf to v{{.BUF_VERSION}} for Linux ({{.BUF_ARCH}})...'
-      - >-
-        curl -fsSL
-        -o /tmp/taskotter-buf
-        "https://github.com/bufbuild/buf/releases/download/v{{.BUF_VERSION}}/buf-Linux-{{.BUF_ARCH}}"
-      - cmd: install -m 0755 /tmp/taskotter-buf /usr/local/bin/buf
-        if: '[ "$(id -u)" -eq 0 ]'
-      - cmd: sudo install -m 0755 /tmp/taskotter-buf /usr/local/bin/buf
-        if: '[ "$(id -u)" -ne 0 ]'
-      - rm -f /tmp/taskotter-buf
-      - echo 'Buf upgraded.'
-
-  _upgrade:windows:
-    run: once
-    internal: true
-    platforms: [windows]
-    cmds:
-      - echo Upgrading Buf via Scoop...
-      - powershell -NoProfile -ExecutionPolicy Bypass -Command "scoop update buf"
-      - echo Buf upgraded. Restart your terminal if prompted.
+      - cmd: >-
+          bash -lc '{{.NIX_LOAD}};
+          buf generate
+          {{if .CLI_ARGS}}{{.CLI_ARGS}}
+          {{else}}
+          "{{if .BUF_INPUT_OVERRIDE}}{{.BUF_INPUT_OVERRIDE}}{{else}}{{.BUF_INPUT}}{{end}}"
+          {{if .BUF_EXTRA_ARGS_OVERRIDE}}{{.BUF_EXTRA_ARGS_OVERRIDE}}
+          {{else}}{{.BUF_EXTRA_ARGS}}{{end}}{{end}}
+          && echo "✅ buf generate passed" || { echo "❌ buf generate failed"; exit 1; }'
+        platforms: [linux, darwin]
+      - cmd: >-
+          buf generate
+          {{if .CLI_ARGS}}{{.CLI_ARGS}}
+          {{else}}
+          "{{if .BUF_INPUT_OVERRIDE}}{{.BUF_INPUT_OVERRIDE}}{{else}}{{.BUF_INPUT}}{{end}}"
+          {{if .BUF_EXTRA_ARGS_OVERRIDE}}{{.BUF_EXTRA_ARGS_OVERRIDE}}
+          {{else}}{{.BUF_EXTRA_ARGS}}{{end}}{{end}}
+          && echo "✅ buf generate passed" || { echo "❌ buf generate failed"; exit 1; }
+        platforms: [windows]
