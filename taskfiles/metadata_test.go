@@ -72,9 +72,6 @@ const (
 	metadataSchema = "taskotter.dev/taskfile-metadata/v1"
 
 	typescriptFamily = "typescript"
-	npmFamily        = "npm"
-	pnpmFamily       = "pnpm"
-	yarnFamily       = "yarn"
 
 	walkTaskfilesErrFormat = "walk taskfiles: %v"
 	noModulesDiscoveredMsg = "no modules discovered"
@@ -120,8 +117,6 @@ func toolFamilies() map[string]bool {
 		eslintFamily: true, prettierFamily: true, biomeFamily: true,
 		depcheckFamily: true, knipFamily: true, stylelintFamily: true, typescriptFamily: true,
 		htmlhintFamily: true, spectralFamily: true,
-		// Package managers are flat nix-backed modules.
-		npmFamily: true, pnpmFamily: true, yarnFamily: true,
 	}
 }
 

@@ -10,7 +10,6 @@ exported_tasks:
   - audit:report
   - build
   - cache:clean
-  - install:clean
   - ci:fix
   - clean
   - clean:all
@@ -18,6 +17,7 @@ exported_tasks:
   - doctor
   - exec
   - install
+  - install:clean
   - install:undo
   - lint
   - outdated

@@ -9,13 +9,13 @@ exported_tasks:
   - audit:json
   - audit:report
   - build
-  - install:clean
   - ci:fix
   - clean
   - clean:all
   - dev
   - exec
   - install
+  - install:clean
   - install:undo
   - lint
   - outdated
