@@ -6,7 +6,6 @@ package taskfiles_test
 import (
 	"bytes"
 	"context"
-	"fmt"
 	"io/fs"
 	"math"
 	"os"
@@ -34,14 +33,6 @@ type (
 		retained []string
 	}
 
-	knipMergeCase struct {
-		name     string
-		file     string
-		content  string
-		overlay  string
-		expected string
-	}
-
 	actionlintSkipFixture struct {
 		taskfilePath string
 		project      string
@@ -63,19 +54,6 @@ type (
 		project      string
 		logPath      string
 		env          []string
-	}
-
-	ignoreFileConfigSkipCase struct {
-		module     string
-		ignoreFile string
-		varName    string
-	}
-
-	ignoreFileConfigSkipSuite struct {
-		module     string
-		ignoreFile string
-		patternVar string
-		skipVar    string
 	}
 
 	skipPatternVariableCheck struct {
@@ -145,63 +123,36 @@ type (
 )
 
 const (
-	biomeLintSkipVar     = "BIOME_LINT_SKIP_PATTERN"
-	biomeFmtSkipVar      = "BIOME_FMT_SKIP_PATTERN"
-	depcheckLintSkipVar  = "DEPCHECK_LINT_SKIP_PATTERN"
-	eslintLintSkipVar    = "ESLINT_LINT_SKIP_PATTERN"
-	htmlhintLintSkipVar  = "HTMLHINT_LINT_SKIP_PATTERN"
-	knipLintSkipVar      = "KNIP_LINT_SKIP_PATTERN"
-	prettierFmtSkipVar   = "PRETTIER_FMT_SKIP_PATTERN"
-	spectralLintSkipVar  = "SPECTRAL_LINT_SKIP_PATTERN"
-	sqlfluffModule       = "sqlfluff"
-	stylelintLintSkipVar = "STYLELINT_LINT_SKIP_PATTERN"
-	taskfileFlag         = "--taskfile"
-	skipTaskfileYML      = "Taskfile.yml"
+	depcheckLintSkipVar = "DEPCHECK_LINT_SKIP_PATTERN"
+	eslintLintSkipVar   = "ESLINT_LINT_SKIP_PATTERN"
+	htmlhintLintSkipVar = "HTMLHINT_LINT_SKIP_PATTERN"
+	spectralLintSkipVar = "SPECTRAL_LINT_SKIP_PATTERN"
+	sqlfluffModule      = "sqlfluff"
+	taskfileFlag        = "--taskfile"
+	skipTaskfileYML     = "Taskfile.yml"
 
 	taskfilesDirName = "taskfiles"
 
-	actionlintModule          = "actionlint"
-	ansibleLintModule         = "ansible-lint"
-	bufModule                 = "buf"
-	cargoModule               = "cargo"
-	dotenvLinterModule        = "dotenv-linter"
-	golangciLintModule        = "golangci-lint"
-	govulncheckModule         = "govulncheck"
-	hadolintModule            = "hadolint"
-	jsonlintModule            = "jsonlint"
-	protolintModule           = "protolint"
-	shellcheckModule          = "shellcheck"
-	biomeConfigSkipOverlay    = ".taskotter-biome-bun-skip.json"
-	sqlfluffConfigSkipOverlay = ".taskotter-sqlfluff-skip.cfg"
-	shfmtModule               = "shfmt"
-	yamlfixModule             = "yamlfix"
-	yamllintModule            = "yamllint"
-	zizmorModule              = "zizmor"
+	actionlintModule   = "actionlint"
+	ansibleLintModule  = "ansible-lint"
+	bufModule          = "buf"
+	cargoModule        = "cargo"
+	dotenvLinterModule = "dotenv-linter"
+	golangciLintModule = "golangci-lint"
+	govulncheckModule  = "govulncheck"
+	hadolintModule     = "hadolint"
+	jsonlintModule     = "jsonlint"
+	protolintModule    = "protolint"
+	shellcheckModule   = "shellcheck"
+	shfmtModule        = "shfmt"
+	yamlfixModule      = "yamlfix"
+	yamllintModule     = "yamllint"
+	zizmorModule       = "zizmor"
 
-	biomeBunModule      = "biome/bun"
-	biomeNodeNpmModule  = "biome/node/npm"
-	biomeNodePnpmModule = "biome/node/pnpm"
-	biomeNodeYarnModule = "biome/node/yarn"
-
-	knipBunModule      = "knip/bun"
-	knipNodeNpmModule  = "knip/node/npm"
-	knipNodePnpmModule = "knip/node/pnpm"
-	knipNodeYarnModule = "knip/node/yarn"
-
-	prettierBunModule      = "prettier/bun"
-	prettierNodeNpmModule  = "prettier/node/npm"
-	prettierNodePnpmModule = "prettier/node/pnpm"
-	prettierNodeYarnModule = "prettier/node/yarn"
-
-	stylelintBunModule      = "stylelint/bun"
-	stylelintNodeNpmModule  = "stylelint/node/npm"
-	stylelintNodePnpmModule = "stylelint/node/pnpm"
-	stylelintNodeYarnModule = "stylelint/node/yarn"
-
-	biomeFamily     = "biome"
 	depcheckFamily  = "depcheck"
 	eslintFamily    = "eslint"
 	htmlhintFamily  = "htmlhint"
+	biomeFamily     = "biome"
 	knipFamily      = "knip"
 	prettierFamily  = "prettier"
 	spectralFamily  = "spectral"
@@ -219,46 +170,20 @@ const (
 
 	nullSeparator = "\x00"
 
-	taskCommandName    = "task"
-	silentFlag         = "--silent"
-	configSkipTaskName = "config:skip"
-	yesFlag            = "--yes"
-	lintTaskName       = "lint"
-	ciTaskName         = "ci"
-	onelineFlag        = "-oneline"
-	pathEnvVar         = "PATH"
-
-	writeFileErrFormat = "write %s: %v"
-
-	biomeLintGeneratedPattern      = "BIOME_LINT_SKIP_PATTERN=**/generated/**"
-	biomeFmtVendorPattern          = "BIOME_FMT_SKIP_PATTERN=**/vendor/**"
-	negatedGeneratedPattern        = `"!**/generated/**"`
-	knipLintGeneratedPattern       = "KNIP_LINT_SKIP_PATTERN=**/generated/**"
-	golangciLintGeneratedPattern   = "GOLANGCI_LINT_LINT_SKIP_PATTERN=**/generated/**"
-	actionlintLintGeneratedPattern = "ACTIONLINT_LINT_SKIP_PATTERN=**/generated/**"
-	prettierFmtGeneratedPattern    = "PRETTIER_FMT_SKIP_PATTERN=**/generated/**"
-	stylelintLintGeneratedPattern  = "STYLELINT_LINT_SKIP_PATTERN=**/generated/**"
-
-	prettierIgnoreFile    = ".prettierignore"
-	stylelintIgnoreFile   = ".stylelintignore"
-	taskotterSkipBegin    = "# BEGIN taskotter-skip"
-	taskotterSkipEnd      = "# END taskotter-skip"
-	userIgnoreNodeModules = "node_modules/"
-	userIgnoreDist        = "dist/"
-	oldSkipPattern        = "**/old/**"
-	mocksSkipPattern      = "**/mocks/**"
-	runTaskName           = "_run"
-
-	staleOverlayRemovedCase  = "no pattern removes a stale overlay"
-	staleOverlayRemovedMsg   = "empty skip pattern did not remove the stale overlay"
-	noProjectConfigCase      = "no project config"
-	createsIgnoreFileCase    = "creates the ignore file"
-	upsertsManagedBlockCase  = "upserts the managed block"
-	clearsManagedBlockCase   = "clears the managed block without wiping user lines"
-	runInvokesConfigSkipCase = "_run invokes config:skip"
+	taskCommandName = "task"
+	silentFlag      = "--silent"
+	yesFlag         = "--yes"
+	lintTaskName    = "lint"
+	ciTaskName      = "ci"
+	onelineFlag     = "-oneline"
+	pathEnvVar      = "PATH"
 
 	bunRuntime  = "bun"
 	nodeRuntime = "node"
+
+	writeFileErrFormat = "write %s: %v"
+
+	actionlintLintGeneratedPattern = "ACTIONLINT_LINT_SKIP_PATTERN=**/generated/**"
 
 	generatedDirName    = "generated"
 	generatedBadYmlPath = "generated/bad.yml"
@@ -288,14 +213,13 @@ const (
 	prepareOverlayPs1File    = "Prepare-Overlay.ps1"
 	knipConfigMjsFile        = "knip-config.mjs"
 
-	constZero     = 0
-	constOne      = 1
-	constTwo      = 2
-	constThree    = 3
-	constFifteen  = 15
-	constFifty    = 50
-	constEighteen = 18
-	perm0600      = 0o600
+	constZero    = 0
+	constOne     = 1
+	constTwo     = 2
+	constThree   = 3
+	constFifteen = 15
+	constTwenty  = 20
+	perm0600     = 0o600
 
 	underscoreChar = "_"
 	hyphenChar     = "-"
@@ -306,18 +230,17 @@ const (
 
 	windowsSeparator = "\n"
 	crlfSeparator    = "\r\n"
-	staleFixtureBody = "stale\n"
 )
 
 // TestSkipPatternContract
 func TestSkipPatternContract(t *testing.T) {
 	t.Parallel()
 
-	if len(skipPatternModules()) != constFifty {
+	if len(skipPatternModules()) != constTwenty {
 		t.Fatalf(
 			"skip-pattern module count = %d, want %d",
 			len(skipPatternModules()),
-			constFifty,
+			constTwenty,
 		)
 	}
 
@@ -371,84 +294,6 @@ func TestSharedSkipFileMatcher(t *testing.T) {
 	}
 }
 
-// TestBiomeConfigSkipTask validates the behavior covered by this test case.
-func TestBiomeConfigSkipTask(t *testing.T) {
-	t.Parallel()
-
-	testBiomeConfigSkipBothPatterns(t)
-	testBiomeConfigSkipLintScope(t)
-	testBiomeConfigSkipExtendsDiscovered(t)
-	testBiomeConfigSkipStaleOverlayRemoved(t)
-}
-
-// TestKnipConfigSkipTask
-func TestKnipConfigSkipTask(t *testing.T) {
-	t.Parallel()
-
-	const overlay = ".taskotter-knip-bun-skip.json"
-
-	testKnipConfigSkipNoProjectConfig(t, overlay)
-	testKnipConfigSkipMergesJSONC(t, overlay)
-	testKnipConfigSkipMergesPackageJSON(t, overlay)
-	testKnipConfigSkipRejectsDynamicJS(t)
-	testKnipConfigSkipRemovesStaleOverlay(t, overlay)
-}
-
-// TestSQLFluffConfigSkipTask
-func TestSQLFluffConfigSkipTask(t *testing.T) {
-	t.Parallel()
-
-	testSQLFluffConfigSkipMerges(t)
-	testSQLFluffConfigSkipNoProjectConfig(t)
-	testSQLFluffConfigSkipStaleOverlayRemoved(t)
-}
-
-// TestGolangciLintConfigSkipTask
-func TestGolangciLintConfigSkipTask(t *testing.T) {
-	t.Parallel()
-
-	const overlay = ".golangci-taskotter-skip.yml"
-
-	t.Run("translates the glob into an exclusion regex", func(t *testing.T) {
-		t.Parallel()
-		assertGolangciLintOverlayTranslatesGlob(t, overlay)
-	})
-
-	t.Run("rewrites rather than accumulating overlays", func(t *testing.T) {
-		t.Parallel()
-		assertGolangciLintOverlayRewrites(t, overlay)
-	})
-
-	t.Run(staleOverlayRemovedCase, func(t *testing.T) {
-		t.Parallel()
-		assertGolangciLintOverlayRemovesStale(t, overlay)
-	})
-}
-
-// TestPrettierConfigSkipTask validates the ignore-file managed block for Prettier.
-func TestPrettierConfigSkipTask(t *testing.T) {
-	t.Parallel()
-
-	testIgnoreFileConfigSkipTask(t, &ignoreFileConfigSkipSuite{
-		module:     prettierBunModule,
-		ignoreFile: prettierIgnoreFile,
-		patternVar: prettierFmtGeneratedPattern,
-		skipVar:    prettierFmtSkipVar,
-	})
-}
-
-// TestStylelintConfigSkipTask validates the ignore-file managed block for Stylelint.
-func TestStylelintConfigSkipTask(t *testing.T) {
-	t.Parallel()
-
-	testIgnoreFileConfigSkipTask(t, &ignoreFileConfigSkipSuite{
-		module:     stylelintBunModule,
-		ignoreFile: stylelintIgnoreFile,
-		patternVar: stylelintLintGeneratedPattern,
-		skipVar:    stylelintLintSkipVar,
-	})
-}
-
 // TestSharedSkipfilesTaskfileContract
 func TestSharedSkipfilesTaskfileContract(t *testing.T) {
 	t.Parallel()
@@ -457,7 +302,6 @@ func TestSharedSkipfilesTaskfileContract(t *testing.T) {
 	helperDirectory := filepath.Join(root, taskfilesDirName, internalDirName, skipfilesDirName)
 	assertSharedSkipfilesDirectory(t, helperDirectory)
 	assertSharedSkipfilesConsumers(t, root)
-	assertConfigSkipModules(t)
 }
 
 // TestActionlintSkipPatternFiltersFiles
@@ -510,54 +354,24 @@ func skipPatternFlatModules() []skipPatternModule {
 
 func skipPatternFlatModulesA() []skipPatternModule {
 	return []skipPatternModule{
-		{name: actionlintModule, vars: []string{"ACTIONLINT_LINT_SKIP_PATTERN"}},
 		{name: ansibleLintModule, vars: []string{"ANSIBLE_LINT_LINT_SKIP_PATTERN"}},
-		{name: bufModule, vars: []string{"BUF_LINT_SKIP_PATTERN", "BUF_FMT_SKIP_PATTERN"}},
-		{name: cargoModule, vars: []string{"CARGO_LINT_SKIP_PATTERN", "CARGO_FMT_SKIP_PATTERN"}},
 		{name: "djlint", vars: []string{"DJLINT_LINT_SKIP_PATTERN", "DJLINT_FMT_SKIP_PATTERN"}},
-		{name: dotenvLinterModule, vars: []string{"DOTENV_LINTER_LINT_SKIP_PATTERN"}},
-		{
-			name: golangciLintModule,
-			vars: []string{"GOLANGCI_LINT_LINT_SKIP_PATTERN", "GOLANGCI_LINT_FMT_SKIP_PATTERN"},
-		},
-		{name: govulncheckModule, vars: []string{"GOVULNCHECK_LINT_SKIP_PATTERN"}},
 	}
 }
 
 func skipPatternFlatModulesB() []skipPatternModule {
 	return []skipPatternModule{
-		{name: hadolintModule, vars: []string{"HADOLINT_LINT_SKIP_PATTERN"}},
-		{name: jsonlintModule, vars: []string{"JSONLINT_LINT_SKIP_PATTERN"}},
-		{name: protolintModule, vars: []string{"PROTOLINT_LINT_SKIP_PATTERN"}},
 		{name: "rumdl", vars: []string{"RUMDL_LINT_SKIP_PATTERN", "RUMDL_FMT_SKIP_PATTERN"}},
-		{name: shellcheckModule, vars: []string{"SHELLCHECK_LINT_SKIP_PATTERN"}},
-		{name: shfmtModule, vars: []string{"SHFMT_FMT_SKIP_PATTERN"}},
-		{name: sqlfluffModule, vars: []string{"SQLFLUFF_LINT_SKIP_PATTERN"}},
 		{name: yamlfixModule, vars: []string{"YAMLFIX_FMT_SKIP_PATTERN"}},
-		{name: yamllintModule, vars: []string{"YAMLLINT_LINT_SKIP_PATTERN"}},
-		{name: zizmorModule, vars: []string{"ZIZMOR_LINT_SKIP_PATTERN"}},
 	}
 }
 
 func skipPatternVariantModules() []skipPatternModule {
 	return slices.Concat(
-		skipPatternBiomeModules(),
 		skipPatternDepcheckAndEslintModules(),
 		skipPatternHtmlhintModules(),
-		skipPatternKnipModules(),
-		skipPatternPrettierModules(),
 		skipPatternSpectralModules(),
-		skipPatternStylelintModules(),
 	)
-}
-
-func skipPatternBiomeModules() []skipPatternModule {
-	return []skipPatternModule{
-		{name: biomeBunModule, vars: []string{biomeLintSkipVar, biomeFmtSkipVar}},
-		{name: biomeNodeNpmModule, vars: []string{biomeLintSkipVar, biomeFmtSkipVar}},
-		{name: biomeNodePnpmModule, vars: []string{biomeLintSkipVar, biomeFmtSkipVar}},
-		{name: biomeNodeYarnModule, vars: []string{biomeLintSkipVar, biomeFmtSkipVar}},
-	}
 }
 
 func skipPatternDepcheckAndEslintModules() []skipPatternModule {
@@ -580,24 +394,6 @@ func skipPatternHtmlhintModules() []skipPatternModule {
 		"htmlhint/node/pnpm",
 		"htmlhint/node/yarn",
 	}, htmlhintLintSkipVar)
-}
-
-func skipPatternKnipModules() []skipPatternModule {
-	return skipPatternSingleVarModules([]string{
-		knipBunModule,
-		knipNodeNpmModule,
-		knipNodePnpmModule,
-		knipNodeYarnModule,
-	}, knipLintSkipVar)
-}
-
-func skipPatternPrettierModules() []skipPatternModule {
-	return skipPatternSingleVarModules([]string{
-		prettierBunModule,
-		prettierNodeNpmModule,
-		prettierNodePnpmModule,
-		prettierNodeYarnModule,
-	}, prettierFmtSkipVar)
 }
 
 func skipPatternSingleVarModules(names []string, skipVar string) []skipPatternModule {
@@ -625,22 +421,7 @@ func skipPatternSpectralModules() []skipPatternModule {
 	)
 }
 
-func skipPatternStylelintModules() []skipPatternModule {
-	return skipPatternSingleVarModules(
-		[]string{
-			stylelintBunModule,
-			stylelintNodeNpmModule,
-			stylelintNodePnpmModule,
-			stylelintNodeYarnModule,
-		},
-		stylelintLintSkipVar,
-	)
-}
-
-// Modules that still delegate to the shared skipfiles helper. Biome and Knip
-// dropped out when their config overlays moved into their own config:skip
-// tasks; SQLFluff, golangci-lint, and govulncheck stay because they still use
-// filter / go-packages.
+// Modules that still delegate to the shared skipfiles helper.
 func sharedSkipfilesConsumers() []string {
 	return []string{
 		actionlintModule,
@@ -658,41 +439,6 @@ func sharedSkipfilesConsumers() []string {
 		sqlfluffModule,
 		yamllintModule,
 		zizmorModule,
-	}
-}
-
-// Modules that own their config overlay through a local config:skip task.
-func configSkipModules() []string {
-	return slices.Concat(
-		configSkipBiomeAndKnipModules(),
-		configSkipIgnoreFileModules(),
-		[]string{golangciLintModule, sqlfluffModule},
-	)
-}
-
-func configSkipBiomeAndKnipModules() []string {
-	return []string{
-		biomeBunModule,
-		biomeNodeNpmModule,
-		biomeNodePnpmModule,
-		biomeNodeYarnModule,
-		knipBunModule,
-		knipNodeNpmModule,
-		knipNodePnpmModule,
-		knipNodeYarnModule,
-	}
-}
-
-func configSkipIgnoreFileModules() []string {
-	return []string{
-		prettierBunModule,
-		prettierNodeNpmModule,
-		prettierNodePnpmModule,
-		prettierNodeYarnModule,
-		stylelintBunModule,
-		stylelintNodeNpmModule,
-		stylelintNodePnpmModule,
-		stylelintNodeYarnModule,
 	}
 }
 
@@ -772,14 +518,10 @@ func assertSkipPatternVariableUsage(t *testing.T, check *skipPatternVariableChec
 
 func skipPatternVariantParityFamilies() map[string][]string {
 	return map[string][]string{
-		biomeFamily:     {biomeLintSkipVar, biomeFmtSkipVar},
-		depcheckFamily:  {depcheckLintSkipVar},
-		eslintFamily:    {eslintLintSkipVar},
-		htmlhintFamily:  {htmlhintLintSkipVar},
-		knipFamily:      {knipLintSkipVar},
-		prettierFamily:  {prettierFmtSkipVar},
-		spectralFamily:  {spectralLintSkipVar},
-		stylelintFamily: {stylelintLintSkipVar},
+		depcheckFamily: {depcheckLintSkipVar},
+		eslintFamily:   {eslintLintSkipVar},
+		htmlhintFamily: {htmlhintLintSkipVar},
+		spectralFamily: {spectralLintSkipVar},
 	}
 }
 
@@ -918,26 +660,6 @@ func parseFilterOutput(output []byte, separator string) []string {
 	return strings.Split(strings.TrimSuffix(outputText, separator), separator)
 }
 
-// runConfigSkip runs a module's config:skip task inside project, which is the
-// USER_WORKING_DIR the task writes its overlay relative to.
-func runConfigSkip(t *testing.T, project string, moduleAndVars ...string) {
-	t.Helper()
-
-	if len(moduleAndVars) == constZero {
-		t.Fatal("module is required")
-	}
-
-	root := tasktest.RepoRoot(t)
-	module := moduleAndVars[constZero]
-	vars := moduleAndVars[constOne:]
-	arguments := append([]string{
-		silentFlag, taskfileFlag,
-		filepath.Join(root, taskfilesDirName, module, skipTaskfileYML),
-		configSkipTaskName,
-	}, vars...)
-	runCommand(t, project, arguments...)
-}
-
 func assertPathDoesNotExist(t *testing.T, path, message string) {
 	t.Helper()
 
@@ -952,15 +674,6 @@ func assertPathDoesNotExist(t *testing.T, path, message string) {
 	}
 }
 
-func assertStaleOverlayRemoved(t *testing.T, overlay string, moduleAndVars ...string) {
-	t.Helper()
-
-	project := t.TempDir()
-	writeFixture(t, project, overlay, staleFixtureBody)
-	runConfigSkip(t, project, moduleAndVars...)
-	assertPathDoesNotExist(t, filepath.Join(project, overlay), staleOverlayRemovedMsg)
-}
-
 func newSkipFixtureCommand(input *skipFixtureCommand) *exec.Cmd {
 	commandContext := exec.CommandContext
 	command := commandContext(
@@ -972,469 +685,6 @@ func newSkipFixtureCommand(input *skipFixtureCommand) *exec.Cmd {
 	command.Env = input.env
 
 	return command
-}
-
-// writeFixture creates a file inside a fresh project directory.
-func writeFixture(t *testing.T, project string, fixture ...string) {
-	t.Helper()
-
-	if len(fixture) != constTwo {
-		t.Fatalf("fixture requires name and content, got %d values", len(fixture))
-	}
-
-	name := fixture[constZero]
-	content := fixture[constOne]
-
-	err := os.WriteFile(filepath.Join(project, name), []byte(content), perm0600)
-	if err != nil {
-		t.Fatalf(writeFileErrFormat, name, err)
-	}
-}
-
-// assertOverlayContains reads an overlay written into project and checks tokens.
-func assertOverlayContains(t *testing.T, project string, nameAndTokens ...string) {
-	t.Helper()
-
-	if len(nameAndTokens) == constZero {
-		t.Fatal("overlay name is required")
-	}
-
-	name := nameAndTokens[constZero]
-	tokens := nameAndTokens[constOne:]
-	content := readFile(t, filepath.Join(project, name))
-
-	for i := range tokens {
-		token := tokens[i]
-
-		if !strings.Contains(content, token) {
-			t.Fatalf("%s does not contain %q:\n%s", name, token, content)
-		}
-	}
-}
-
-// TestBiomeConfigSkipTask
-func testBiomeConfigSkipBothPatterns(t *testing.T) {
-	t.Helper()
-
-	t.Run("both patterns", func(t *testing.T) {
-		t.Parallel()
-
-		project := t.TempDir()
-		runConfigSkip(t, project, biomeBunModule,
-			biomeLintGeneratedPattern,
-			biomeFmtVendorPattern)
-		assertOverlayContains(
-			t, project, biomeConfigSkipOverlay, negatedGeneratedPattern, `"!**/vendor/**"`,
-		)
-	})
-}
-
-func assertBiomeLintScopeOverlayHasNoFmtPattern(t *testing.T, project string) {
-	t.Helper()
-
-	content := readFile(t, filepath.Join(project, biomeConfigSkipOverlay))
-
-	if strings.Contains(content, "vendor") {
-		t.Fatalf("lint-scoped overlay leaked the fmt pattern:\n%s", content)
-	}
-}
-
-func testBiomeConfigSkipLintScope(t *testing.T) {
-	t.Helper()
-
-	t.Run("lint scope excludes fmt pattern", func(t *testing.T) {
-		t.Parallel()
-
-		project := t.TempDir()
-		runConfigSkip(t, project, biomeBunModule, "SKIP_SCOPE=lint",
-			biomeLintGeneratedPattern,
-			biomeFmtVendorPattern)
-		assertOverlayContains(t, project, biomeConfigSkipOverlay, negatedGeneratedPattern)
-		assertBiomeLintScopeOverlayHasNoFmtPattern(t, project)
-	})
-}
-
-func testBiomeConfigSkipExtendsDiscovered(t *testing.T) {
-	t.Helper()
-
-	t.Run("extends a discovered config", func(t *testing.T) {
-		t.Parallel()
-
-		project := t.TempDir()
-		writeFixture(t, project, "biome.json", `{"linter":{"enabled":true}}`)
-		runConfigSkip(t, project, biomeBunModule, biomeLintGeneratedPattern)
-		assertOverlayContains(t, project, biomeConfigSkipOverlay, `"extends":["biome.json"]`)
-	})
-}
-
-func testBiomeConfigSkipStaleOverlayRemoved(t *testing.T) {
-	t.Helper()
-
-	t.Run(staleOverlayRemovedCase, func(t *testing.T) {
-		t.Parallel()
-		assertStaleOverlayRemoved(t, biomeConfigSkipOverlay, biomeBunModule)
-	})
-}
-
-// jsRuntimeVar pins the Knip overlay generator to a JS runtime that exists on
-// this machine. The bun module defaults to bun, which CI does not install.
-func jsRuntimeVar(t *testing.T) string {
-	t.Helper()
-
-	for i := range []string{bunRuntime, nodeRuntime} {
-		runtimeName := []string{bunRuntime, nodeRuntime}[i]
-
-		_, err := exec.LookPath(runtimeName)
-		if err == nil {
-			return "KNIP_INTERNAL_JS_RUNTIME=" + runtimeName
-		}
-	}
-
-	t.Skip("neither bun nor node is installed")
-
-	return ""
-}
-
-func testKnipConfigSkipNoProjectConfig(t *testing.T, overlay string) {
-	t.Helper()
-
-	t.Run(noProjectConfigCase, func(t *testing.T) {
-		t.Parallel()
-
-		project := t.TempDir()
-		runConfigSkip(
-			t,
-			project,
-			knipBunModule,
-			knipLintGeneratedPattern,
-			jsRuntimeVar(t),
-		)
-		assertOverlayContains(t, project, overlay, generatedGlob)
-	})
-}
-
-func testKnipConfigSkipMergesJSONC(t *testing.T, overlay string) {
-	t.Helper()
-
-	assertKnipConfigSkipMerges(t, &knipMergeCase{
-		name:     "merges jsonc",
-		file:     "knip.jsonc",
-		content:  "{\n  // keep this entry\n  \"entry\": [\"src/index.ts\"],\n}\n",
-		overlay:  overlay,
-		expected: "src/index.ts",
-	})
-}
-
-func testKnipConfigSkipMergesPackageJSON(t *testing.T, overlay string) {
-	t.Helper()
-
-	assertKnipConfigSkipMerges(t, &knipMergeCase{
-		name:     "merges the package.json knip section",
-		file:     "package.json",
-		content:  `{"name":"fixture","knip":{"ignore":["existing/**"]}}`,
-		overlay:  overlay,
-		expected: "existing/**",
-	})
-}
-
-func assertKnipConfigSkipMerges(t *testing.T, testCase *knipMergeCase) {
-	t.Helper()
-
-	t.Run(testCase.name, func(t *testing.T) {
-		t.Parallel()
-
-		project := t.TempDir()
-		writeFixture(t, project, testCase.file, testCase.content)
-		runConfigSkip(
-			t,
-			project,
-			knipBunModule,
-			knipLintGeneratedPattern,
-			jsRuntimeVar(t),
-		)
-		assertOverlayContains(t, project, testCase.overlay, testCase.expected, generatedGlob)
-	})
-}
-
-func runKnipDynamicJSRejectionCommand(t *testing.T, project string) ([]byte, error) {
-	t.Helper()
-
-	command := exec.CommandContext(t.Context(), taskCommandName)
-
-	command.Args = append(command.Args,
-		silentFlag,
-		taskfileFlag,
-		knipDynamicJSTaskfilePath(t),
-		configSkipTaskName,
-		knipLintGeneratedPattern,
-	)
-
-	command.Dir = project
-
-	output, err := command.CombinedOutput()
-	if err != nil {
-		return output, fmt.Errorf("run knip dynamic js rejection command: %w", err)
-	}
-
-	return output, nil
-}
-
-func knipDynamicJSTaskfilePath(t *testing.T) string {
-	t.Helper()
-
-	return filepath.Join(
-		tasktest.RepoRoot(t),
-		taskfilesDirName,
-		knipFamily,
-		bunRuntime,
-		skipTaskfileYML,
-	)
-}
-
-func testKnipConfigSkipRejectsDynamicJS(t *testing.T) {
-	t.Helper()
-
-	t.Run("rejects a dynamic JS config", func(t *testing.T) {
-		t.Parallel()
-
-		project := t.TempDir()
-		writeFixture(t, project, "knip.config.js", "export default {};\n")
-
-		output, err := runKnipDynamicJSRejectionCommand(t, project)
-
-		if err == nil || !strings.Contains(string(output), "dynamic JS/TS Knip config") {
-			t.Fatalf("dynamic Knip config was not rejected clearly: err=%v\n%s", err, output)
-		}
-	})
-}
-
-func testKnipConfigSkipRemovesStaleOverlay(t *testing.T, overlay string) {
-	t.Helper()
-
-	t.Run(staleOverlayRemovedCase, func(t *testing.T) {
-		t.Parallel()
-		assertStaleOverlayRemoved(t, overlay, knipBunModule)
-	})
-}
-
-func testSQLFluffConfigSkipMerges(t *testing.T) {
-	t.Helper()
-
-	t.Run("merges ignore_paths and normalizes separators", func(t *testing.T) {
-		t.Parallel()
-
-		project := t.TempDir()
-		writeFixture(t, project, "source.cfg",
-			"[sqlfluff]\ndialect = postgres\nignore_paths = build/**\n")
-		runConfigSkip(t, project, sqlfluffModule,
-			`SQLFLUFF_LINT_SKIP_PATTERN=**\generated\**`, "CONFIG_OVERRIDE=source.cfg")
-		assertOverlayContains(t, project, sqlfluffConfigSkipOverlay,
-			"dialect = postgres", "ignore_paths = build/**,**/generated/**")
-	})
-}
-
-func testSQLFluffConfigSkipNoProjectConfig(t *testing.T) {
-	t.Helper()
-
-	t.Run(noProjectConfigCase, func(t *testing.T) {
-		t.Parallel()
-
-		project := t.TempDir()
-		runConfigSkip(t, project, sqlfluffModule, "SQLFLUFF_LINT_SKIP_PATTERN=**/generated/**")
-		assertOverlayContains(
-			t, project, sqlfluffConfigSkipOverlay, "[sqlfluff]", "ignore_paths = **/generated/**",
-		)
-	})
-}
-
-func testSQLFluffConfigSkipStaleOverlayRemoved(t *testing.T) {
-	t.Helper()
-
-	t.Run(staleOverlayRemovedCase, func(t *testing.T) {
-		t.Parallel()
-		assertStaleOverlayRemoved(t, sqlfluffConfigSkipOverlay, sqlfluffModule)
-	})
-}
-
-func assertGolangciLintOverlayTranslatesGlob(t *testing.T, overlay string) {
-	t.Helper()
-
-	project := t.TempDir()
-	runConfigSkip(t, project, golangciLintModule, golangciLintGeneratedPattern)
-	assertOverlayContains(t, project, overlay,
-		"linters:", "exclusions:", "paths:", `^(?:.*/)?generated/.*$`)
-}
-
-func assertGolangciLintOverlayRewrites(t *testing.T, overlay string) {
-	t.Helper()
-
-	project := t.TempDir()
-	runConfigSkip(t, project, golangciLintModule, golangciLintGeneratedPattern)
-	runConfigSkip(t, project, golangciLintModule, "GOLANGCI_LINT_LINT_SKIP_PATTERN=**/mocks/*.go")
-
-	assertOverlayPatternReplaced(t, project, overlay)
-	assertSingleOverlayFile(t, project)
-}
-
-func assertOverlayPatternReplaced(t *testing.T, project, overlay string) {
-	t.Helper()
-
-	content := readFile(t, filepath.Join(project, overlay))
-
-	if strings.Contains(content, generatedDirName) {
-		t.Fatalf("second run did not replace the first pattern:\n%s", content)
-	}
-
-	if !strings.Contains(content, `^(?:.*/)?mocks/[^/]*\.go$`) {
-		t.Fatalf("second run did not write the new pattern:\n%s", content)
-	}
-}
-
-func assertSingleOverlayFile(t *testing.T, project string) {
-	t.Helper()
-
-	entries, err := os.ReadDir(project)
-	if err != nil {
-		t.Fatalf("read project: %v", err)
-	}
-
-	if len(entries) != constOne {
-		t.Fatalf("expected exactly one overlay file, found %d", len(entries))
-	}
-}
-
-func assertGolangciLintOverlayRemovesStale(t *testing.T, overlay string) {
-	t.Helper()
-
-	assertStaleOverlayRemoved(t, overlay, golangciLintModule)
-}
-
-func testIgnoreFileConfigSkipTask(t *testing.T, suite *ignoreFileConfigSkipSuite) {
-	t.Helper()
-
-	testIgnoreFileConfigSkipCreates(t, &ignoreFileConfigSkipCase{
-		module:     suite.module,
-		ignoreFile: suite.ignoreFile,
-		varName:    suite.patternVar,
-	})
-	testIgnoreFileConfigSkipUpserts(t, &ignoreFileConfigSkipCase{
-		module:     suite.module,
-		ignoreFile: suite.ignoreFile,
-		varName:    suite.skipVar,
-	})
-	testIgnoreFileConfigSkipClears(t, suite.module, suite.ignoreFile)
-	testIgnoreFileRunInvokesConfigSkip(t, suite.module)
-}
-
-func testIgnoreFileConfigSkipCreates(t *testing.T, testCase *ignoreFileConfigSkipCase) {
-	t.Helper()
-
-	t.Run(createsIgnoreFileCase, func(t *testing.T) {
-		t.Parallel()
-
-		project := t.TempDir()
-		runConfigSkip(t, project, testCase.module, testCase.varName)
-		assertOverlayContains(
-			t, project, testCase.ignoreFile, taskotterSkipBegin, generatedGlob, taskotterSkipEnd,
-		)
-	})
-}
-
-func testIgnoreFileConfigSkipUpserts(t *testing.T, testCase *ignoreFileConfigSkipCase) {
-	t.Helper()
-
-	t.Run(upsertsManagedBlockCase, func(t *testing.T) {
-		t.Parallel()
-
-		project := t.TempDir()
-		writeFixture(t, project, testCase.ignoreFile, ignoreFileWithManagedBlock(oldSkipPattern))
-		runConfigSkip(t, project, testCase.module, testCase.varName+"="+mocksSkipPattern)
-		assertIgnoreFileManagedUpsert(t, project, testCase.ignoreFile)
-	})
-}
-
-func testIgnoreFileConfigSkipClears(t *testing.T, module, ignoreFile string) {
-	t.Helper()
-
-	t.Run(clearsManagedBlockCase, func(t *testing.T) {
-		t.Parallel()
-
-		project := t.TempDir()
-		writeFixture(t, project, ignoreFile, ignoreFileWithManagedBlock(oldSkipPattern))
-		runConfigSkip(t, project, module)
-		assertIgnoreFileManagedCleared(t, project, ignoreFile)
-	})
-}
-
-func testIgnoreFileRunInvokesConfigSkip(t *testing.T, module string) {
-	t.Helper()
-
-	t.Run(runInvokesConfigSkipCase, func(t *testing.T) {
-		t.Parallel()
-
-		assertRunInvokesConfigSkip(t, module)
-	})
-}
-
-func ignoreFileWithManagedBlock(pattern string) string {
-	return strings.Join([]string{
-		userIgnoreNodeModules,
-		taskotterSkipBegin,
-		pattern,
-		taskotterSkipEnd,
-		userIgnoreDist,
-		"",
-	}, windowsSeparator)
-}
-
-func assertIgnoreFileManagedUpsert(t *testing.T, project, ignoreFile string) {
-	t.Helper()
-
-	content := readFile(t, filepath.Join(project, ignoreFile))
-
-	assertOverlayContains(
-		t, project, ignoreFile,
-		userIgnoreNodeModules, userIgnoreDist,
-		taskotterSkipBegin, mocksSkipPattern, taskotterSkipEnd,
-	)
-
-	if strings.Contains(content, oldSkipPattern) {
-		t.Fatalf("managed block still contains the previous pattern:\n%s", content)
-	}
-}
-
-func assertIgnoreFileManagedCleared(t *testing.T, project, ignoreFile string) {
-	t.Helper()
-
-	path := filepath.Join(project, ignoreFile)
-	content := readFile(t, path)
-
-	assertOverlayContains(t, project, ignoreFile, userIgnoreNodeModules, userIgnoreDist)
-
-	for i := range []string{taskotterSkipBegin, taskotterSkipEnd, oldSkipPattern} {
-		token := []string{taskotterSkipBegin, taskotterSkipEnd, oldSkipPattern}[i]
-
-		if strings.Contains(content, token) {
-			t.Fatalf("empty pattern left managed content %q:\n%s", token, content)
-		}
-	}
-}
-
-func assertRunInvokesConfigSkip(t *testing.T, module string) {
-	t.Helper()
-
-	taskfile := tasktest.LoadTaskfile(t, module)
-	task, exists := taskfile.Tasks[runTaskName]
-
-	if !exists {
-		t.Fatalf("%s does not define %s", module, runTaskName)
-	}
-
-	cmds := fmt.Sprintf("%v", task.Cmds)
-
-	if !strings.Contains(cmds, configSkipTaskName) {
-		t.Fatalf("%s %s does not invoke %s:\n%s", module, runTaskName, configSkipTaskName, cmds)
-	}
 }
 
 func assertSharedSkipfilesDirectory(t *testing.T, helperDirectory string) {
@@ -1474,9 +724,6 @@ func assertOnlySharedTaskfile(t *testing.T, entries []os.DirEntry) {
 	t.Fatalf("shared skipfiles directory contains %v, want only Taskfile.yml", names)
 }
 
-// assertSharedSkipfilesTaskfileTrimmed checks that the helper is down to
-// filter and go-packages; overlay generation now lives in each tool's own
-// config:skip task.
 func assertSharedSkipfilesTaskfileTrimmed(t *testing.T, helperDirectory string) {
 	t.Helper()
 
@@ -1536,49 +783,6 @@ func assertSharedSkipfilesConsumer(t *testing.T, root, module string) {
 	}
 
 	assertNoRemovedSkipfilesHelpers(t, module, content)
-}
-
-func assertConfigSkipModules(t *testing.T) {
-	t.Helper()
-
-	if len(configSkipModules()) != constEighteen {
-		t.Fatalf("config:skip module count = %d, want %d", len(configSkipModules()), constEighteen)
-	}
-
-	for i := range configSkipModules() {
-		module := configSkipModules()[i]
-		assertConfigSkipModule(t, module)
-	}
-}
-
-func assertConfigSkipModule(t *testing.T, module string) {
-	t.Helper()
-
-	taskfile := tasktest.LoadTaskfile(t, module)
-
-	task, exists := taskfile.Tasks[configSkipTaskName]
-
-	if !exists {
-		t.Errorf("%s does not define a config:skip task", module)
-
-		return
-	}
-
-	assertConfigSkipTaskShape(t, module, task)
-}
-
-func assertConfigSkipTaskShape(t *testing.T, module string, task *tasktest.Task) {
-	t.Helper()
-
-	if task.Internal {
-		t.Errorf("%s config:skip is internal, want a public task", module)
-	}
-
-	// run: once would let one caller's overlay be reused by the next call in
-	// the same run, which passes a different scope or pattern.
-	if task.Run == "once" {
-		t.Errorf("%s config:skip must not use run: once", module)
-	}
 }
 
 func actionlintSkipFixtureEnv(binDirectory, logPath string) []string {
@@ -2170,20 +1374,5 @@ func mustRemove(t *testing.T, path string) {
 	err := os.Remove(path)
 	if err != nil {
 		t.Fatalf("remove %s: %v", path, err)
-	}
-}
-
-func runCommand(t *testing.T, directory string, arguments ...string) {
-	t.Helper()
-
-	command := exec.CommandContext(t.Context(), taskCommandName)
-
-	command.Args = append(command.Args, arguments...)
-
-	command.Dir = directory
-
-	output, err := command.CombinedOutput()
-	if err != nil {
-		t.Fatalf("run task: %v\n%s", err, output)
 	}
 }

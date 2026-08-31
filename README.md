@@ -120,8 +120,8 @@ Node.js is installed via `nodejs:_ensure` (Nix profile).
 
 Where a module documents `<TOOL>_LINT_SKIP_PATTERN` and/or
 `<TOOL>_FMT_SKIP_PATTERN`, those vars default to empty. Not every linter
-exposes them — skip is owned by `config:skip` overlays or native `--exclude`
-on the modules that document it.
+exposes them — skip is owned by native `--exclude` on the modules that
+document it.
 
 Patterns match forward-slash paths relative to the task working directory:
 `*` stays in one path segment, `**` crosses directories, `?` matches one

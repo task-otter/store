@@ -37,7 +37,6 @@ Available leaves: `bun`, `node/{npm,pnpm,yarn}`.
 | `install:undo` | Optional `BIOME_EXTRA_ARGS`                                  | Remove the locally installed `@biomejs/biome` devDependency.               |
 | `upgrade`      | Optional `BIOME_EXTRA_ARGS`                                  | Reinstall `@biomejs/biome` at the latest version.                          |
 | `config:init`  | Optional `BIOME_EXTRA_ARGS`, `CLI_ARGS`                      | Run `biome init`. Skipped if `biome.json` or `biome.jsonc` already exists. |
-| `config:skip`  | Optional `SKIP_SCOPE`                                  | Write the skip-pattern config overlay. Run automatically by the tasks below. |
 | `lint`         | Optional `BIOME_TARGETS`, `BIOME_CONFIG`, `BIOME_EXTRA_ARGS`, `CLI_ARGS` | Run `biome check`.                                                         |
 | `lint:fix`     | Optional `BIOME_TARGETS`, `BIOME_CONFIG`, `BIOME_EXTRA_ARGS`, `CLI_ARGS` | Run `biome check --write`.                                                 |
 | `fmt:check`    | Optional `BIOME_TARGETS`, `BIOME_CONFIG`, `BIOME_EXTRA_ARGS`, `CLI_ARGS` | Run `biome format`.                                                        |
@@ -54,18 +53,6 @@ Available leaves: `bun`, `node/{npm,pnpm,yarn}`.
 - `BIOME_TARGETS` (default `.`): paths passed to `biome check|lint|format`. Defaults to the current directory.
 - `BIOME_CONFIG` (default empty): adds `--config-path <path>` to Biome invocations.
 - `BIOME_EXTRA_ARGS` (default empty): appended to the underlying command. Arguments after `--` (available as `CLI_ARGS`) are also appended.
-- `BIOME_LINT_SKIP_PATTERN` (default empty): forward-slash path glob for files skipped by lint checks and fixes.
-- `BIOME_FMT_SKIP_PATTERN` (default empty): forward-slash path glob for files skipped by formatting checks and fixes.
-
-Skip patterns support `*` within one path segment, `**` across directories, and `?` for one character. Paths are matched relative to the task working directory; for example, `**/generated/**`.
-
-When a skip pattern is set, `config:skip` writes `.taskotter-biome-<pm>-skip.json`
-next to your `biome.json` — a config that extends it and negates the pattern —
-and the task runs Biome against that overlay so the rest of your configuration
-stays active. Pass `SKIP_SCOPE=lint` or `SKIP_SCOPE=fmt` to negate only one of
-the two patterns; the default negates both. The overlay is rewritten on every
-run and is not deleted afterwards, so **add `.taskotter-biome-*-skip.json` to
-your `.gitignore`**. Running `config:skip` with no skip pattern set deletes it.
 
 ## Examples
 

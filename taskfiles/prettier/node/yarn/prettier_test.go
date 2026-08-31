@@ -23,7 +23,6 @@ func TestTaskfileModuleContract(t *testing.T) {
 func publicTasks() []string {
 	return []string{
 		"config:init",
-		"config:skip",
 		"ci:fix",
 		"fmt:check",
 		"help",
@@ -36,7 +35,6 @@ func publicTasks() []string {
 
 func publicVars() []string {
 	return []string{
-		"PRETTIER_FMT_SKIP_PATTERN",
 		"PRETTIER_CONFIG",
 		"PRETTIER_EXTRA_ARGS",
 		"PRETTIER_IGNORE_PATH",

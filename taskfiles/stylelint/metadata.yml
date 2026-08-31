@@ -7,7 +7,6 @@ exported_tasks:
   - ci
   - ci:fix
   - config:init
-  - config:skip
   - help
   - install
   - install:undo

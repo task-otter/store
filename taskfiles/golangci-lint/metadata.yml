@@ -5,7 +5,6 @@ taskfile: Taskfile.yml
 exported_tasks:
   - ci
   - ci:fix
-  - config:skip
   - fmt
   - fmt:check
   - lint

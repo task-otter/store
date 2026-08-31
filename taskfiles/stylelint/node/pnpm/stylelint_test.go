@@ -26,7 +26,6 @@ func publicTasks() []string {
 		"ci",
 		"ci:fix",
 		"config:init",
-		"config:skip",
 		"help",
 		"install",
 		"install:undo",
@@ -37,7 +36,6 @@ func publicTasks() []string {
 
 func publicVars() []string {
 	return []string{
-		"STYLELINT_LINT_SKIP_PATTERN",
 		"STYLELINT_ALLOW_EMPTY_INPUT",
 		"STYLELINT_CACHE",
 		"STYLELINT_CONFIG",

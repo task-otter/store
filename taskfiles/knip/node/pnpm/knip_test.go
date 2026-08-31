@@ -25,7 +25,6 @@ func publicTasks() []string {
 		"ci",
 		"ci:fix",
 		"config:init",
-		"config:skip",
 		"dependencies",
 		"dev-dependencies",
 		"exports",
@@ -41,7 +40,6 @@ func publicTasks() []string {
 
 func publicVars() []string {
 	return []string{
-		"KNIP_LINT_SKIP_PATTERN",
 		"KNIP_CONFIG",
 		"KNIP_EXTRA_ARGS",
 		"KNIP_VERSION",

@@ -6,7 +6,6 @@ exported_tasks:
   - ci
   - ci:fix
   - config:init
-  - config:skip
   - dependencies
   - dev-dependencies
   - exports

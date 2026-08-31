@@ -26,7 +26,6 @@ func publicTasks() []string {
 		"ci",
 		"ci:fix",
 		"config:init",
-		"config:skip",
 		"help",
 		"install",
 		"install:undo",
@@ -41,8 +40,6 @@ func publicTasks() []string {
 
 func publicVars() []string {
 	return []string{
-		"BIOME_LINT_SKIP_PATTERN",
-		"BIOME_FMT_SKIP_PATTERN",
 		"BIOME_CONFIG",
 		"BIOME_EXTRA_ARGS",
 		"BIOME_TARGETS",

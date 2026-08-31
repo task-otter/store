@@ -43,37 +43,32 @@ type (
 		taskName string
 		expected []string
 	}
-
-	defaultVarCheck struct {
-		name string
-	}
 )
 
 const (
-	constGolangciLintCi                 = "ci"
-	constGolangciLintCiFix              = "ci:fix"
-	constGolangciLintFmt                = "fmt"
-	constGolangciLintFmtCheck           = "fmt:check"
-	constGolangciLintLint               = "lint"
-	constGolangciLintLintFix            = "lint:fix"
-	constGolangciLintModule             = "golangci-lint"
-	constStockCustomLog                 = "stock:custom -v"
-	constCustomRunDefaultLog            = "custom:run ./..."
-	constProjectCustomName              = "project-gcl"
-	constProjectCustomDestination       = ".tools"
-	constInitialPluginVersion           = "v1.0.0"
-	constUpdatedPluginVersion           = "v1.0.1"
-	constGolangciLintNixInstallable     = "GOLANGCI_LINT_NIX_INSTALLABLE"
-	constGolangciLintLintSkipPatternVar = "GOLANGCI_LINT_LINT_SKIP_PATTERN"
-	constEmptyValue                     = ""
-	constEnsureTask                     = "_ensure"
-	constTaskBaseArgCount               = 4
-	constSecureFileMode                 = 0o600
-	constPrivateDirectoryMode           = 0o750
-	constExecutableFileMode             = 0o700
-	constNewline                        = "\n"
-	constZeroLen                        = 0
-	stockGolangciLintScriptTemplate     = `#!/bin/sh
+	constGolangciLintCi             = "ci"
+	constGolangciLintCiFix          = "ci:fix"
+	constGolangciLintFmt            = "fmt"
+	constGolangciLintFmtCheck       = "fmt:check"
+	constGolangciLintLint           = "lint"
+	constGolangciLintLintFix        = "lint:fix"
+	constGolangciLintModule         = "golangci-lint"
+	constStockCustomLog             = "stock:custom -v"
+	constCustomRunDefaultLog        = "custom:run ./..."
+	constProjectCustomName          = "project-gcl"
+	constProjectCustomDestination   = ".tools"
+	constInitialPluginVersion       = "v1.0.0"
+	constUpdatedPluginVersion       = "v1.0.1"
+	constGolangciLintNixInstallable = "GOLANGCI_LINT_NIX_INSTALLABLE"
+	constEmptyValue                 = ""
+	constEnsureTask                 = "_ensure"
+	constTaskBaseArgCount           = 4
+	constSecureFileMode             = 0o600
+	constPrivateDirectoryMode       = 0o750
+	constExecutableFileMode         = 0o700
+	constNewline                    = "\n"
+	constZeroLen                    = 0
+	stockGolangciLintScriptTemplate = `#!/bin/sh
 set -eu
 printf 'stock:%s\n' "$*" >>"$GCL_LOG"
 if [ "${1:-}" = "custom" ]; then
@@ -130,19 +125,6 @@ func TestGolangciLintCustomBuildDefaultsAndFallback(t *testing.T) {
 	t.Run("build failure", assertCustomBuildFailure)
 }
 
-// TestGolangciLintVariableDefaultsEmpty
-func TestGolangciLintVariableDefaultsEmpty(t *testing.T) {
-	t.Parallel()
-
-	for i := range defaultVarChecks() {
-		check := defaultVarChecks()[i]
-		t.Run(check.name, func(t *testing.T) {
-			t.Parallel()
-			assertDefaultVarEmpty(t, check)
-		})
-	}
-}
-
 // TestDevelopmentToolDependencies
 func TestDevelopmentToolDependencies(t *testing.T) {
 	t.Parallel()
@@ -162,7 +144,6 @@ func publicTasks() []string {
 	return []string{
 		constGolangciLintCi,
 		constGolangciLintCiFix,
-		"config:skip",
 		constGolangciLintFmt,
 		constGolangciLintFmtCheck,
 		constGolangciLintLint,
@@ -173,8 +154,6 @@ func publicTasks() []string {
 func publicVars() []string {
 	return []string{
 		constGolangciLintNixInstallable,
-		constGolangciLintLintSkipPatternVar,
-		"GOLANGCI_LINT_INTERNAL_SKIP_CONFIG",
 		"GOLANGCI_LINT_FMT_FORMATTER_FLAGS",
 	}
 }
@@ -483,27 +462,6 @@ func writeExecutable(t *testing.T, path, content string) {
 	err = os.Chmod(path, constExecutableFileMode)
 	if err != nil {
 		t.Fatalf("make executable %s: %v", path, err)
-	}
-}
-
-func defaultVarChecks() []defaultVarCheck {
-	return []defaultVarCheck{
-		{name: constGolangciLintLintSkipPatternVar},
-	}
-}
-
-func assertDefaultVarEmpty(t *testing.T, check defaultVarCheck) {
-	t.Helper()
-
-	taskfile := tasktest.LoadTaskfile(t, constGolangciLintModule)
-	value, exists := taskfile.Vars[check.name]
-
-	if !exists {
-		t.Fatalf("%s must be defined", check.name)
-	}
-
-	if value != constEmptyValue {
-		t.Fatalf("%s default = %#v, want empty", check.name, value)
 	}
 }
 

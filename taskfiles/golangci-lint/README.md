@@ -58,24 +58,6 @@ Override the default `./...` target or pass extra flags with `--`:
 task golangci-lint:lint -- ./internal/...
 ```
 
-Set `GOLANGCI_LINT_LINT_SKIP_PATTERN` to exclude matching file paths from
-lint analysis. Skip patterns support `*` within one path segment, `**`
-across directories, and `?` for one character. Quote the value so your
-shell passes it through unchanged:
-
-```sh
-task golangci-lint:lint GOLANGCI_LINT_LINT_SKIP_PATTERN="**/generated/**"
-```
-
-The `config:skip` task translates the pattern into a
-`linters.exclusions.paths` regex and merges it into a copy of the existing
-golangci-lint YAML or JSON configuration, so project-specific settings
-remain active. The copy is written as `.golangci-taskotter-skip.yml` next to
-your golangci-lint config, and `lint` and `lint:fix` run it first. It is
-rewritten on every run and is not deleted afterwards, so **add
-`.golangci-taskotter-skip.yml` to your `.gitignore`**; running `config:skip`
-with no skip pattern set deletes it.
-
 Auto-fix lint issues golangci-lint can rewrite (run `fmt` separately to also
 reformat):
 
@@ -111,15 +93,12 @@ task golangci-lint:fmt -- ./internal/...
 | `ci:fix`      | Run `fmt` then `lint:fix` for CI |
 | `fmt`         | Format Go files with golangci-lint formatters            |
 | `fmt:check`   | Check Go formatting with golangci-lint formatters         |
-| `config:skip` | Write the golangci-lint skip-pattern config overlay       |
 
 ## Variables
 
 | Variable                             | Default                                   | Description                                                      |
 | ------------------------------------- | ------------------------------------------ | ------------------------------------------------------------------ |
 | `GOLANGCI_LINT_NIX_INSTALLABLE`       | `nixpkgs#go nixpkgs#golangci-lint`         | Flake installables passed to `nix:install:profile` (Go plus the linter) |
-| `GOLANGCI_LINT_LINT_SKIP_PATTERN`     | empty                                      | Shell-style path glob for Go files skipped by `lint` and `lint:fix` |
-| `GOLANGCI_LINT_INTERNAL_SKIP_CONFIG`  | `.golangci-taskotter-skip.yml`             | Filename for the generated skip-pattern config overlay              |
 | `GOLANGCI_LINT_FMT_FORMATTER_FLAGS`   | `-E gci -E gofmt -E gofumpt -E goimports -E golines -E swaggo` | Formatter set passed to `golangci-lint fmt`     |
 
 Pin a revision by overriding the installable, for example
