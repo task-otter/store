@@ -309,6 +309,197 @@ const (
 	staleFixtureBody = "stale\n"
 )
 
+// TestSkipPatternContract
+func TestSkipPatternContract(t *testing.T) {
+	t.Parallel()
+
+	if len(skipPatternModules()) != constFifty {
+		t.Fatalf(
+			"skip-pattern module count = %d, want %d",
+			len(skipPatternModules()),
+			constFifty,
+		)
+	}
+
+	root := tasktest.RepoRoot(t)
+
+	for i := range skipPatternModules() {
+		module := skipPatternModules()[i]
+		t.Run(module.name, func(t *testing.T) {
+			t.Parallel()
+			assertSkipPatternModule(t, root, &module)
+		})
+	}
+}
+
+// TestSkipPatternVariantParity
+func TestSkipPatternVariantParity(t *testing.T) {
+	t.Parallel()
+
+	families := skipPatternVariantParityFamilies()
+
+	root := tasktest.RepoRoot(t)
+
+	for family := range families {
+		variables := families[family]
+		t.Run(family, func(t *testing.T) {
+			t.Parallel()
+			assertSkipPatternVariantParity(t, &skipPatternVariantParityCheck{
+				root: root, family: family, variables: variables,
+			})
+		})
+	}
+}
+
+// TestSharedSkipFileMatcher
+func TestSharedSkipFileMatcher(t *testing.T) {
+	t.Parallel()
+
+	root := tasktest.RepoRoot(t)
+	filter := sharedSkipFileMatcherFilter(root)
+
+	for i := range sharedSkipFileMatcherCases() {
+		test := sharedSkipFileMatcherCases()[i]
+		t.Run(test.name, func(t *testing.T) {
+			t.Parallel()
+			assertSharedSkipFileMatcher(t, &sharedSkipFileMatcher{
+				root:   root,
+				filter: filter,
+				test:   test,
+			})
+		})
+	}
+}
+
+// TestBiomeConfigSkipTask validates the behavior covered by this test case.
+func TestBiomeConfigSkipTask(t *testing.T) {
+	t.Parallel()
+
+	testBiomeConfigSkipBothPatterns(t)
+	testBiomeConfigSkipLintScope(t)
+	testBiomeConfigSkipExtendsDiscovered(t)
+	testBiomeConfigSkipStaleOverlayRemoved(t)
+}
+
+// TestKnipConfigSkipTask
+func TestKnipConfigSkipTask(t *testing.T) {
+	t.Parallel()
+
+	const overlay = ".taskotter-knip-bun-skip.json"
+
+	testKnipConfigSkipNoProjectConfig(t, overlay)
+	testKnipConfigSkipMergesJSONC(t, overlay)
+	testKnipConfigSkipMergesPackageJSON(t, overlay)
+	testKnipConfigSkipRejectsDynamicJS(t)
+	testKnipConfigSkipRemovesStaleOverlay(t, overlay)
+}
+
+// TestSQLFluffConfigSkipTask
+func TestSQLFluffConfigSkipTask(t *testing.T) {
+	t.Parallel()
+
+	testSQLFluffConfigSkipMerges(t)
+	testSQLFluffConfigSkipNoProjectConfig(t)
+	testSQLFluffConfigSkipStaleOverlayRemoved(t)
+}
+
+// TestGolangciLintConfigSkipTask
+func TestGolangciLintConfigSkipTask(t *testing.T) {
+	t.Parallel()
+
+	const overlay = ".golangci-taskotter-skip.yml"
+
+	t.Run("translates the glob into an exclusion regex", func(t *testing.T) {
+		t.Parallel()
+		assertGolangciLintOverlayTranslatesGlob(t, overlay)
+	})
+
+	t.Run("rewrites rather than accumulating overlays", func(t *testing.T) {
+		t.Parallel()
+		assertGolangciLintOverlayRewrites(t, overlay)
+	})
+
+	t.Run(staleOverlayRemovedCase, func(t *testing.T) {
+		t.Parallel()
+		assertGolangciLintOverlayRemovesStale(t, overlay)
+	})
+}
+
+// TestPrettierConfigSkipTask validates the ignore-file managed block for Prettier.
+func TestPrettierConfigSkipTask(t *testing.T) {
+	t.Parallel()
+
+	testIgnoreFileConfigSkipTask(t, &ignoreFileConfigSkipSuite{
+		module:     prettierBunModule,
+		ignoreFile: prettierIgnoreFile,
+		patternVar: prettierFmtGeneratedPattern,
+		skipVar:    prettierFmtSkipVar,
+	})
+}
+
+// TestStylelintConfigSkipTask validates the ignore-file managed block for Stylelint.
+func TestStylelintConfigSkipTask(t *testing.T) {
+	t.Parallel()
+
+	testIgnoreFileConfigSkipTask(t, &ignoreFileConfigSkipSuite{
+		module:     stylelintBunModule,
+		ignoreFile: stylelintIgnoreFile,
+		patternVar: stylelintLintGeneratedPattern,
+		skipVar:    stylelintLintSkipVar,
+	})
+}
+
+// TestSharedSkipfilesTaskfileContract
+func TestSharedSkipfilesTaskfileContract(t *testing.T) {
+	t.Parallel()
+
+	root := tasktest.RepoRoot(t)
+	helperDirectory := filepath.Join(root, taskfilesDirName, internalDirName, skipfilesDirName)
+	assertSharedSkipfilesDirectory(t, helperDirectory)
+	assertSharedSkipfilesConsumers(t, root)
+	assertConfigSkipModules(t)
+}
+
+// TestActionlintSkipPatternFiltersFiles
+func TestActionlintSkipPatternFiltersFiles(t *testing.T) {
+	t.Parallel()
+
+	if testing.Short() {
+		t.Skip(shortModeSkipMsg)
+	}
+
+	fixture := newActionlintSkipFixture(t)
+	fixture.assertDefaultDiscovery(t)
+	fixture.assertCliTargets(t)
+	fixture.assertAllSkipped(t)
+}
+
+// TestCargoSkipPatternExcludesWorkspacePackages
+func TestCargoSkipPatternExcludesWorkspacePackages(t *testing.T) {
+	t.Parallel()
+
+	if testing.Short() {
+		t.Skip(shortModeSkipMsg)
+	}
+
+	fixture := newCargoSkipFixture(t)
+	fixture.assertRetainedPackage(t)
+	fixture.assertAllSkipped(t)
+}
+
+// TestGovulncheckSkipPatternExcludesPackages
+func TestGovulncheckSkipPatternExcludesPackages(t *testing.T) {
+	t.Parallel()
+
+	if testing.Short() {
+		t.Skip(shortModeSkipMsg)
+	}
+
+	fixture := newGovulncheckSkipFixture(t)
+	fixture.assertRetainedPackage(t)
+	fixture.assertAllSkipped(t)
+}
+
 func skipPatternModules() []skipPatternModule {
 	return append(skipPatternFlatModules(), skipPatternVariantModules()...)
 }
@@ -505,29 +696,6 @@ func configSkipIgnoreFileModules() []string {
 	}
 }
 
-// TestSkipPatternContract
-func TestSkipPatternContract(t *testing.T) {
-	t.Parallel()
-
-	if len(skipPatternModules()) != constFifty {
-		t.Fatalf(
-			"skip-pattern module count = %d, want %d",
-			len(skipPatternModules()),
-			constFifty,
-		)
-	}
-
-	root := tasktest.RepoRoot(t)
-
-	for i := range skipPatternModules() {
-		module := skipPatternModules()[i]
-		t.Run(module.name, func(t *testing.T) {
-			t.Parallel()
-			assertSkipPatternModule(t, root, &module)
-		})
-	}
-}
-
 // skipPatternDocModule resolves the module whose README documents a skip
 // pattern variable. Tool families keep a single README at the tool root;
 // flat modules keep their own.
@@ -615,25 +783,6 @@ func skipPatternVariantParityFamilies() map[string][]string {
 	}
 }
 
-// TestSkipPatternVariantParity
-func TestSkipPatternVariantParity(t *testing.T) {
-	t.Parallel()
-
-	families := skipPatternVariantParityFamilies()
-
-	root := tasktest.RepoRoot(t)
-
-	for family := range families {
-		variables := families[family]
-		t.Run(family, func(t *testing.T) {
-			t.Parallel()
-			assertSkipPatternVariantParity(t, &skipPatternVariantParityCheck{
-				root: root, family: family, variables: variables,
-			})
-		})
-	}
-}
-
 func assertSkipPatternVariantParity(t *testing.T, check *skipPatternVariantParityCheck) {
 	t.Helper()
 
@@ -677,26 +826,6 @@ func sharedSkipFileMatcherFilter(root string) string {
 		skipfilesDirName,
 		skipTaskfileYML,
 	)
-}
-
-// TestSharedSkipFileMatcher
-func TestSharedSkipFileMatcher(t *testing.T) {
-	t.Parallel()
-
-	root := tasktest.RepoRoot(t)
-	filter := sharedSkipFileMatcherFilter(root)
-
-	for i := range sharedSkipFileMatcherCases() {
-		test := sharedSkipFileMatcherCases()[i]
-		t.Run(test.name, func(t *testing.T) {
-			t.Parallel()
-			assertSharedSkipFileMatcher(t, &sharedSkipFileMatcher{
-				root:   root,
-				filter: filter,
-				test:   test,
-			})
-		})
-	}
 }
 
 func sharedSkipFileMatcherCasesA() []sharedSkipFileMatcherCase {
@@ -947,16 +1076,6 @@ func testBiomeConfigSkipStaleOverlayRemoved(t *testing.T) {
 	})
 }
 
-// TestBiomeConfigSkipTask validates the behavior covered by this test case.
-func TestBiomeConfigSkipTask(t *testing.T) {
-	t.Parallel()
-
-	testBiomeConfigSkipBothPatterns(t)
-	testBiomeConfigSkipLintScope(t)
-	testBiomeConfigSkipExtendsDiscovered(t)
-	testBiomeConfigSkipStaleOverlayRemoved(t)
-}
-
 // jsRuntimeVar pins the Knip overlay generator to a JS runtime that exists on
 // this machine. The bun module defaults to bun, which CI does not install.
 func jsRuntimeVar(t *testing.T) string {
@@ -974,19 +1093,6 @@ func jsRuntimeVar(t *testing.T) string {
 	t.Skip("neither bun nor node is installed")
 
 	return ""
-}
-
-// TestKnipConfigSkipTask
-func TestKnipConfigSkipTask(t *testing.T) {
-	t.Parallel()
-
-	const overlay = ".taskotter-knip-bun-skip.json"
-
-	testKnipConfigSkipNoProjectConfig(t, overlay)
-	testKnipConfigSkipMergesJSONC(t, overlay)
-	testKnipConfigSkipMergesPackageJSON(t, overlay)
-	testKnipConfigSkipRejectsDynamicJS(t)
-	testKnipConfigSkipRemovesStaleOverlay(t, overlay)
 }
 
 func testKnipConfigSkipNoProjectConfig(t *testing.T, overlay string) {
@@ -1150,37 +1256,6 @@ func testSQLFluffConfigSkipStaleOverlayRemoved(t *testing.T) {
 	})
 }
 
-// TestSQLFluffConfigSkipTask
-func TestSQLFluffConfigSkipTask(t *testing.T) {
-	t.Parallel()
-
-	testSQLFluffConfigSkipMerges(t)
-	testSQLFluffConfigSkipNoProjectConfig(t)
-	testSQLFluffConfigSkipStaleOverlayRemoved(t)
-}
-
-// TestGolangciLintConfigSkipTask
-func TestGolangciLintConfigSkipTask(t *testing.T) {
-	t.Parallel()
-
-	const overlay = ".golangci-taskotter-skip.yml"
-
-	t.Run("translates the glob into an exclusion regex", func(t *testing.T) {
-		t.Parallel()
-		assertGolangciLintOverlayTranslatesGlob(t, overlay)
-	})
-
-	t.Run("rewrites rather than accumulating overlays", func(t *testing.T) {
-		t.Parallel()
-		assertGolangciLintOverlayRewrites(t, overlay)
-	})
-
-	t.Run(staleOverlayRemovedCase, func(t *testing.T) {
-		t.Parallel()
-		assertGolangciLintOverlayRemovesStale(t, overlay)
-	})
-}
-
 func assertGolangciLintOverlayTranslatesGlob(t *testing.T, overlay string) {
 	t.Helper()
 
@@ -1232,30 +1307,6 @@ func assertGolangciLintOverlayRemovesStale(t *testing.T, overlay string) {
 	t.Helper()
 
 	assertStaleOverlayRemoved(t, overlay, golangciLintModule)
-}
-
-// TestPrettierConfigSkipTask validates the ignore-file managed block for Prettier.
-func TestPrettierConfigSkipTask(t *testing.T) {
-	t.Parallel()
-
-	testIgnoreFileConfigSkipTask(t, &ignoreFileConfigSkipSuite{
-		module:     prettierBunModule,
-		ignoreFile: prettierIgnoreFile,
-		patternVar: prettierFmtGeneratedPattern,
-		skipVar:    prettierFmtSkipVar,
-	})
-}
-
-// TestStylelintConfigSkipTask validates the ignore-file managed block for Stylelint.
-func TestStylelintConfigSkipTask(t *testing.T) {
-	t.Parallel()
-
-	testIgnoreFileConfigSkipTask(t, &ignoreFileConfigSkipSuite{
-		module:     stylelintBunModule,
-		ignoreFile: stylelintIgnoreFile,
-		patternVar: stylelintLintGeneratedPattern,
-		skipVar:    stylelintLintSkipVar,
-	})
 }
 
 func testIgnoreFileConfigSkipTask(t *testing.T, suite *ignoreFileConfigSkipSuite) {
@@ -1384,17 +1435,6 @@ func assertRunInvokesConfigSkip(t *testing.T, module string) {
 	if !strings.Contains(cmds, configSkipTaskName) {
 		t.Fatalf("%s %s does not invoke %s:\n%s", module, runTaskName, configSkipTaskName, cmds)
 	}
-}
-
-// TestSharedSkipfilesTaskfileContract
-func TestSharedSkipfilesTaskfileContract(t *testing.T) {
-	t.Parallel()
-
-	root := tasktest.RepoRoot(t)
-	helperDirectory := filepath.Join(root, taskfilesDirName, internalDirName, skipfilesDirName)
-	assertSharedSkipfilesDirectory(t, helperDirectory)
-	assertSharedSkipfilesConsumers(t, root)
-	assertConfigSkipModules(t)
 }
 
 func assertSharedSkipfilesDirectory(t *testing.T, helperDirectory string) {
@@ -1541,20 +1581,6 @@ func assertConfigSkipTaskShape(t *testing.T, module string, task *tasktest.Task)
 	}
 }
 
-// TestActionlintSkipPatternFiltersFiles
-func TestActionlintSkipPatternFiltersFiles(t *testing.T) {
-	t.Parallel()
-
-	if testing.Short() {
-		t.Skip(shortModeSkipMsg)
-	}
-
-	fixture := newActionlintSkipFixture(t)
-	fixture.assertDefaultDiscovery(t)
-	fixture.assertCliTargets(t)
-	fixture.assertAllSkipped(t)
-}
-
 func actionlintSkipFixtureEnv(binDirectory, logPath string) []string {
 	return append(os.Environ(),
 		"PATH="+binDirectory+":"+os.Getenv(pathEnvVar),
@@ -1606,38 +1632,6 @@ func newActionlintFixtureDirs(t *testing.T, project string) actionlintFixtureDir
 	return dirs
 }
 
-func writeActionlintFixtureFiles(t *testing.T, dirs *actionlintFixtureDirs) actionlintFixturePaths {
-	t.Helper()
-
-	goodPath := filepath.Join(dirs.workflowDirectory, goodWorkflowFile)
-	skippedPath := filepath.Join(dirs.generatedDirectory, "bad.yml")
-	cliGoodPath := filepath.Join(dirs.cliWorkflowDirectory, cliGoodWorkflowFile)
-
-	paths := []string{goodPath, skippedPath, cliGoodPath}
-
-	for i := range paths {
-		path := paths[i]
-
-		mustWriteFile(t, path, "name: test\n", perm0644)
-	}
-
-	return actionlintFixturePaths{skippedPath: skippedPath, cliGoodPath: cliGoodPath}
-}
-
-func writeActionlintStub(t *testing.T, binDirectory string) {
-	t.Helper()
-
-	stub := `#!/usr/bin/env bash
-if [[ "${1-}" == "--version" ]]; then
-  echo "1.7.12"
-  exit 0
-fi
-printf '%s\n' "$@" >"$TASKOTTER_ACTIONLINT_LOG"
-`
-
-	mustWriteFile(t, filepath.Join(binDirectory, actionlintModule), stub, perm0500)
-}
-
 func (fixture *actionlintSkipFixture) assertAllSkipped(t *testing.T) {
 	t.Helper()
 
@@ -1662,19 +1656,22 @@ func (fixture *actionlintSkipFixture) assertCliTargets(t *testing.T) {
 	fixture.removeLog(t, "CLI-target")
 }
 
-func assertCliTargetArguments(t *testing.T, arguments string) {
+func writeActionlintFixtureFiles(t *testing.T, dirs *actionlintFixtureDirs) actionlintFixturePaths {
 	t.Helper()
 
-	missingCliTargets := !strings.Contains(arguments, cliGoodWorkflowFile) ||
-		!strings.Contains(arguments, onelineFlag)
+	goodPath := filepath.Join(dirs.workflowDirectory, goodWorkflowFile)
+	skippedPath := filepath.Join(dirs.generatedDirectory, "bad.yml")
+	cliGoodPath := filepath.Join(dirs.cliWorkflowDirectory, cliGoodWorkflowFile)
 
-	if missingCliTargets {
-		t.Fatalf("actionlint CLI targets or options were not retained:\n%s", arguments)
+	paths := []string{goodPath, skippedPath, cliGoodPath}
+
+	for i := range paths {
+		path := paths[i]
+
+		mustWriteFile(t, path, "name: test\n", perm0644)
 	}
 
-	if strings.Contains(arguments, generatedBadYmlPath) {
-		t.Fatalf("actionlint CLI target bypassed skip filtering:\n%s", arguments)
-	}
+	return actionlintFixturePaths{skippedPath: skippedPath, cliGoodPath: cliGoodPath}
 }
 
 func (fixture *actionlintSkipFixture) assertDefaultDiscovery(t *testing.T) {
@@ -1734,17 +1731,33 @@ func (fixture *actionlintSkipFixture) taskCommand(args ...string) *exec.Cmd {
 	})
 }
 
-// TestCargoSkipPatternExcludesWorkspacePackages
-func TestCargoSkipPatternExcludesWorkspacePackages(t *testing.T) {
-	t.Parallel()
+func writeActionlintStub(t *testing.T, binDirectory string) {
+	t.Helper()
 
-	if testing.Short() {
-		t.Skip(shortModeSkipMsg)
+	stub := `#!/usr/bin/env bash
+if [[ "${1-}" == "--version" ]]; then
+  echo "1.7.12"
+  exit 0
+fi
+printf '%s\n' "$@" >"$TASKOTTER_ACTIONLINT_LOG"
+`
+
+	mustWriteFile(t, filepath.Join(binDirectory, actionlintModule), stub, perm0500)
+}
+
+func assertCliTargetArguments(t *testing.T, arguments string) {
+	t.Helper()
+
+	missingCliTargets := !strings.Contains(arguments, cliGoodWorkflowFile) ||
+		!strings.Contains(arguments, onelineFlag)
+
+	if missingCliTargets {
+		t.Fatalf("actionlint CLI targets or options were not retained:\n%s", arguments)
 	}
 
-	fixture := newCargoSkipFixture(t)
-	fixture.assertRetainedPackage(t)
-	fixture.assertAllSkipped(t)
+	if strings.Contains(arguments, generatedBadYmlPath) {
+		t.Fatalf("actionlint CLI target bypassed skip filtering:\n%s", arguments)
+	}
 }
 
 func newCargoSkipFixture(t *testing.T) cargoSkipFixture {
@@ -1824,16 +1837,6 @@ func writeCargoFixtureFiles(t *testing.T, dirs *cargoFixtureDirs) {
 	}
 }
 
-func writeCargoStub(t *testing.T, binDirectory string) {
-	t.Helper()
-
-	stub := `#!/usr/bin/env bash
-printf '%s\n' "$@" >"$TASKOTTER_CARGO_LOG"
-`
-
-	mustWriteFile(t, filepath.Join(binDirectory, cargoModule), stub, perm0500)
-}
-
 func (fixture *cargoSkipFixture) assertAllSkipped(t *testing.T) {
 	t.Helper()
 
@@ -1881,17 +1884,14 @@ func (fixture *cargoSkipFixture) taskCommand(args ...string) *exec.Cmd {
 	})
 }
 
-// TestGovulncheckSkipPatternExcludesPackages
-func TestGovulncheckSkipPatternExcludesPackages(t *testing.T) {
-	t.Parallel()
+func writeCargoStub(t *testing.T, binDirectory string) {
+	t.Helper()
 
-	if testing.Short() {
-		t.Skip(shortModeSkipMsg)
-	}
+	stub := `#!/usr/bin/env bash
+printf '%s\n' "$@" >"$TASKOTTER_CARGO_LOG"
+`
 
-	fixture := newGovulncheckSkipFixture(t)
-	fixture.assertRetainedPackage(t)
-	fixture.assertAllSkipped(t)
+	mustWriteFile(t, filepath.Join(binDirectory, cargoModule), stub, perm0500)
 }
 
 func govulncheckSkipFixtureEnv(binDirectory, logPath string) []string {

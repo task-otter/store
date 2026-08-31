@@ -9,6 +9,17 @@ import (
 	"github.com/task-otter/store/internal/tasktest"
 )
 
+// TestTaskfileModuleContract
+func TestTaskfileModuleContract(t *testing.T) {
+	t.Parallel()
+
+	tasktest.AssertModule(
+		t,
+		"htmlhint/bun",
+		&tasktest.ModuleExpectations{Tasks: publicTasks(), Vars: publicVars()},
+	)
+}
+
 func publicTasks() []string {
 	return []string{
 		"config:init",
@@ -29,15 +40,4 @@ func publicVars() []string {
 		"HTMLHINT_TARGETS",
 		"HTMLHINT_VERSION",
 	}
-}
-
-// TestTaskfileModuleContract
-func TestTaskfileModuleContract(t *testing.T) {
-	t.Parallel()
-
-	tasktest.AssertModule(
-		t,
-		"htmlhint/bun",
-		&tasktest.ModuleExpectations{Tasks: publicTasks(), Vars: publicVars()},
-	)
 }

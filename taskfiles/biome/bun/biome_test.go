@@ -9,6 +9,17 @@ import (
 	"github.com/task-otter/store/internal/tasktest"
 )
 
+// TestTaskfileModuleContract
+func TestTaskfileModuleContract(t *testing.T) {
+	t.Parallel()
+
+	tasktest.AssertModule(
+		t,
+		"biome/bun",
+		&tasktest.ModuleExpectations{Tasks: publicTasks(), Vars: publicVars()},
+	)
+}
+
 func publicTasks() []string {
 	return []string{
 		"cache:clean",
@@ -37,17 +48,6 @@ func publicVars() []string {
 		"BIOME_TARGETS",
 		"BIOME_VERSION",
 	}
-}
-
-// TestTaskfileModuleContract
-func TestTaskfileModuleContract(t *testing.T) {
-	t.Parallel()
-
-	tasktest.AssertModule(
-		t,
-		"biome/bun",
-		&tasktest.ModuleExpectations{Tasks: publicTasks(), Vars: publicVars()},
-	)
 }
 
 // covered by module contract

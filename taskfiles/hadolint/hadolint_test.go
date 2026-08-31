@@ -9,6 +9,17 @@ import (
 	"github.com/task-otter/store/internal/tasktest"
 )
 
+// TestTaskfileModuleContract
+func TestTaskfileModuleContract(t *testing.T) {
+	t.Parallel()
+
+	tasktest.AssertModule(
+		t,
+		"hadolint",
+		&tasktest.ModuleExpectations{Tasks: publicTasks(), Vars: publicVars()},
+	)
+}
+
 func publicTasks() []string {
 	return []string{
 		"ci",
@@ -22,15 +33,4 @@ func publicVars() []string {
 		"HADOLINT_EXTRA_ARGS",
 		"HADOLINT_NIX_INSTALLABLE",
 	}
-}
-
-// TestTaskfileModuleContract
-func TestTaskfileModuleContract(t *testing.T) {
-	t.Parallel()
-
-	tasktest.AssertModule(
-		t,
-		"hadolint",
-		&tasktest.ModuleExpectations{Tasks: publicTasks(), Vars: publicVars()},
-	)
 }

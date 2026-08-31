@@ -66,6 +66,7 @@ const (
 	constGolangciLintNixInstallable     = "GOLANGCI_LINT_NIX_INSTALLABLE"
 	constGolangciLintLintSkipPatternVar = "GOLANGCI_LINT_LINT_SKIP_PATTERN"
 	constEmptyValue                     = ""
+	constEnsureTask                     = "_ensure"
 	constTaskBaseArgCount               = 4
 	constSecureFileMode                 = 0o600
 	constPrivateDirectoryMode           = 0o750
@@ -95,27 +96,6 @@ fi
 `
 )
 
-func publicTasks() []string {
-	return []string{
-		constGolangciLintCi,
-		constGolangciLintCiFix,
-		"config:skip",
-		constGolangciLintFmt,
-		constGolangciLintFmtCheck,
-		constGolangciLintLint,
-		constGolangciLintLintFix,
-	}
-}
-
-func publicVars() []string {
-	return []string{
-		constGolangciLintNixInstallable,
-		constGolangciLintLintSkipPatternVar,
-		"GOLANGCI_LINT_INTERNAL_SKIP_CONFIG",
-		"GOLANGCI_LINT_FMT_FORMATTER_FLAGS",
-	}
-}
-
 // TestTaskfileModuleContract
 func TestTaskfileModuleContract(t *testing.T) {
 	t.Parallel()
@@ -138,6 +118,65 @@ func TestGolangciLintCustomBuildLifecycle(t *testing.T) {
 	assertCachedCustomBuild(t, &fixture)
 	assertUpdatedCustomBuild(t, &fixture)
 	assertCustomRebuildAfterRemoval(t, &fixture)
+}
+
+// TestGolangciLintCustomBuildDefaultsAndFallback
+func TestGolangciLintCustomBuildDefaultsAndFallback(t *testing.T) {
+	t.Parallel()
+	skipWindows(t)
+
+	t.Run("stock fallback", assertCustomBuildStockFallback)
+	t.Run("default output", assertCustomBuildDefaultOutput)
+	t.Run("build failure", assertCustomBuildFailure)
+}
+
+// TestGolangciLintVariableDefaultsEmpty
+func TestGolangciLintVariableDefaultsEmpty(t *testing.T) {
+	t.Parallel()
+
+	for i := range defaultVarChecks() {
+		check := defaultVarChecks()[i]
+		t.Run(check.name, func(t *testing.T) {
+			t.Parallel()
+			assertDefaultVarEmpty(t, check)
+		})
+	}
+}
+
+// TestDevelopmentToolDependencies
+func TestDevelopmentToolDependencies(t *testing.T) {
+	t.Parallel()
+
+	taskfile := tasktest.LoadTaskfile(t, constGolangciLintModule)
+
+	for taskName := range developmentToolDependencies() {
+		expected := developmentToolDependencies()[taskName]
+		assertTaskDependencies(
+			t,
+			&dependencyCheck{taskfile: taskfile, taskName: taskName, expected: expected},
+		)
+	}
+}
+
+func publicTasks() []string {
+	return []string{
+		constGolangciLintCi,
+		constGolangciLintCiFix,
+		"config:skip",
+		constGolangciLintFmt,
+		constGolangciLintFmtCheck,
+		constGolangciLintLint,
+		constGolangciLintLintFix,
+	}
+}
+
+func publicVars() []string {
+	return []string{
+		constGolangciLintNixInstallable,
+		constGolangciLintLintSkipPatternVar,
+		"GOLANGCI_LINT_INTERNAL_SKIP_CONFIG",
+		"GOLANGCI_LINT_FMT_FORMATTER_FLAGS",
+	}
 }
 
 func assertCustomBuildStockFallback(t *testing.T) {
@@ -203,16 +242,6 @@ func assertCustomBuildFailure(t *testing.T) {
 	}
 
 	fixture.assertLog(t, constStockCustomLog)
-}
-
-// TestGolangciLintCustomBuildDefaultsAndFallback
-func TestGolangciLintCustomBuildDefaultsAndFallback(t *testing.T) {
-	t.Parallel()
-	skipWindows(t)
-
-	t.Run("stock fallback", assertCustomBuildStockFallback)
-	t.Run("default output", assertCustomBuildDefaultOutput)
-	t.Run("build failure", assertCustomBuildFailure)
 }
 
 func skipWindows(t *testing.T) {
@@ -318,20 +347,6 @@ func newCustomGolangciLintFixtureDirs(t *testing.T) (project, bin string) {
 	return project, bin
 }
 
-func customGolangciLintScript() string {
-	return `#!/bin/sh
-set -eu
-printf 'custom:%s\n' "$*" >>"$GCL_LOG"
-if [ "${1:-}" = "run" ]; then
-  exit "${GCL_RUN_EXIT:-0}"
-fi
-`
-}
-
-func stockGolangciLintScript() string {
-	return stockGolangciLintScriptTemplate
-}
-
 func (fixture *gclFixture) assertLog(t *testing.T, expected ...string) {
 	t.Helper()
 
@@ -408,6 +423,35 @@ func (fixture *gclFixture) taskArgs(run *golangciLintRun) []string {
 	}, taskArgs...)
 }
 
+func customGolangciLintScript() string {
+	return `#!/bin/sh
+set -eu
+printf 'custom:%s\n' "$*" >>"$GCL_LOG"
+if [ "${1:-}" = "run" ]; then
+  exit "${GCL_RUN_EXIT:-0}"
+fi
+`
+}
+
+func (fixture *gclFixture) writeConfig(t *testing.T, config *golangciLintConfig) {
+	t.Helper()
+
+	lines := golangciLintConfigLines(config)
+
+	err := os.WriteFile(
+		filepath.Join(fixture.project, ".custom-gcl.yml"),
+		[]byte(strings.Join(lines, constNewline)+constNewline),
+		constSecureFileMode,
+	)
+	if err != nil {
+		t.Fatalf("write custom golangci-lint config: %v", err)
+	}
+}
+
+func stockGolangciLintScript() string {
+	return stockGolangciLintScriptTemplate
+}
+
 func golangciLintConfigLines(config *golangciLintConfig) []string {
 	lines := []string{"version: v2.12.2"}
 
@@ -427,21 +471,6 @@ func golangciLintConfigLines(config *golangciLintConfig) []string {
 	)
 }
 
-func (fixture *gclFixture) writeConfig(t *testing.T, config *golangciLintConfig) {
-	t.Helper()
-
-	lines := golangciLintConfigLines(config)
-
-	err := os.WriteFile(
-		filepath.Join(fixture.project, ".custom-gcl.yml"),
-		[]byte(strings.Join(lines, constNewline)+constNewline),
-		constSecureFileMode,
-	)
-	if err != nil {
-		t.Fatalf("write custom golangci-lint config: %v", err)
-	}
-}
-
 func writeExecutable(t *testing.T, path, content string) {
 	t.Helper()
 
@@ -454,19 +483,6 @@ func writeExecutable(t *testing.T, path, content string) {
 	err = os.Chmod(path, constExecutableFileMode)
 	if err != nil {
 		t.Fatalf("make executable %s: %v", path, err)
-	}
-}
-
-// TestGolangciLintVariableDefaultsEmpty
-func TestGolangciLintVariableDefaultsEmpty(t *testing.T) {
-	t.Parallel()
-
-	for i := range defaultVarChecks() {
-		check := defaultVarChecks()[i]
-		t.Run(check.name, func(t *testing.T) {
-			t.Parallel()
-			assertDefaultVarEmpty(t, check)
-		})
 	}
 }
 
@@ -491,27 +507,12 @@ func assertDefaultVarEmpty(t *testing.T, check defaultVarCheck) {
 	}
 }
 
-// TestDevelopmentToolDependencies
-func TestDevelopmentToolDependencies(t *testing.T) {
-	t.Parallel()
-
-	taskfile := tasktest.LoadTaskfile(t, constGolangciLintModule)
-
-	for taskName := range developmentToolDependencies() {
-		expected := developmentToolDependencies()[taskName]
-		assertTaskDependencies(
-			t,
-			&dependencyCheck{taskfile: taskfile, taskName: taskName, expected: expected},
-		)
-	}
-}
-
 func developmentToolDependencies() map[string][]string {
 	return map[string][]string{
-		constGolangciLintFmt:      {"_ensure"},
-		constGolangciLintFmtCheck: {"_ensure"},
-		constGolangciLintLint:     {"_ensure"},
-		constGolangciLintLintFix:  {"_ensure"},
+		constGolangciLintFmt:      {constEnsureTask},
+		constGolangciLintFmtCheck: {constEnsureTask},
+		constGolangciLintLint:     {constEnsureTask},
+		constGolangciLintLintFix:  {constEnsureTask},
 	}
 }
 

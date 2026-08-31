@@ -9,6 +9,17 @@ import (
 	"github.com/task-otter/store/internal/tasktest"
 )
 
+// TestTaskfileModuleContract
+func TestTaskfileModuleContract(t *testing.T) {
+	t.Parallel()
+
+	tasktest.AssertModule(
+		t,
+		"rumdl",
+		&tasktest.ModuleExpectations{Tasks: publicTasks(), Vars: publicVars()},
+	)
+}
+
 func publicTasks() []string {
 	return []string{
 		"lint:fix",
@@ -26,15 +37,4 @@ func publicVars() []string {
 		"RUMDL_NIX_INSTALLABLE",
 		"RUMDL_TARGETS",
 	}
-}
-
-// TestTaskfileModuleContract
-func TestTaskfileModuleContract(t *testing.T) {
-	t.Parallel()
-
-	tasktest.AssertModule(
-		t,
-		"rumdl",
-		&tasktest.ModuleExpectations{Tasks: publicTasks(), Vars: publicVars()},
-	)
 }

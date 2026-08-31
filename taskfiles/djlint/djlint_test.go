@@ -9,6 +9,17 @@ import (
 	"github.com/task-otter/store/internal/tasktest"
 )
 
+// TestTaskfileModuleContract
+func TestTaskfileModuleContract(t *testing.T) {
+	t.Parallel()
+
+	tasktest.AssertModule(
+		t,
+		"djlint",
+		&tasktest.ModuleExpectations{Tasks: publicTasks(), Vars: publicVars()},
+	)
+}
+
 func publicTasks() []string {
 	return []string{
 		"ci",
@@ -26,15 +37,4 @@ func publicVars() []string {
 		"DJLINT_NIX_INSTALLABLE",
 		"DJLINT_TARGETS",
 	}
-}
-
-// TestTaskfileModuleContract
-func TestTaskfileModuleContract(t *testing.T) {
-	t.Parallel()
-
-	tasktest.AssertModule(
-		t,
-		"djlint",
-		&tasktest.ModuleExpectations{Tasks: publicTasks(), Vars: publicVars()},
-	)
 }

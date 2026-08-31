@@ -82,6 +82,39 @@ const (
 	parseMetadataErrFormat = "parse metadata.yml: %v"
 )
 
+// TestModuleMetadataListsEveryExportedTask verifies each module's metadata.yml
+// is in sync with its Taskfile. Flat modules are checked directly; each JS-tool
+// family carries one metadata.yml at its root whose exported_tasks must match
+// every one of its variant leaves (the shared-interface guarantee) and whose
+// variants list must match the leaves actually present on disk.
+// TestModuleMetadataListsEveryExportedTask
+func TestModuleMetadataListsEveryExportedTask(t *testing.T) {
+	t.Parallel()
+
+	root := tasktest.RepoRoot(t)
+	taskfilesDir := filepath.Join(root, taskfilesDirName)
+	discovered := discoverMetadataModules(t, taskfilesDir)
+
+	assertFlatMetadataModules(t, taskfilesDir, discovered.flatModules)
+	assertToolMetadataModules(t, taskfilesDir, discovered.toolLeaves)
+}
+
+// TestTaskCliLoadsEveryFamily forks the task CLI once per family to prove every
+// shipped Taskfile still parses. Per-module contract tests only parse the YAML
+// themselves; this is the single place that pays for the CLI round trip.
+// TestTaskCliLoadsEveryFamily
+func TestTaskCliLoadsEveryFamily(t *testing.T) {
+	t.Parallel()
+
+	for i := range familyRepresentatives(t) {
+		module := familyRepresentatives(t)[i]
+		t.Run(module, func(t *testing.T) {
+			t.Parallel()
+			tasktest.AssertTaskCliCanLoad(t, module)
+		})
+	}
+}
+
 func toolFamilies() map[string]bool {
 	return map[string]bool{
 		eslintFamily: true, prettierFamily: true, biomeFamily: true,
@@ -114,23 +147,6 @@ func exportedTasks(t *testing.T, module string) []string {
 	slices.Sort(tasks)
 
 	return tasks
-}
-
-// TestModuleMetadataListsEveryExportedTask verifies each module's metadata.yml
-// is in sync with its Taskfile. Flat modules are checked directly; each JS-tool
-// family carries one metadata.yml at its root whose exported_tasks must match
-// every one of its variant leaves (the shared-interface guarantee) and whose
-// variants list must match the leaves actually present on disk.
-// TestModuleMetadataListsEveryExportedTask
-func TestModuleMetadataListsEveryExportedTask(t *testing.T) {
-	t.Parallel()
-
-	root := tasktest.RepoRoot(t)
-	taskfilesDir := filepath.Join(root, taskfilesDirName)
-	discovered := discoverMetadataModules(t, taskfilesDir)
-
-	assertFlatMetadataModules(t, taskfilesDir, discovered.flatModules)
-	assertToolMetadataModules(t, taskfilesDir, discovered.toolLeaves)
 }
 
 func assertFlatMetadataModules(t *testing.T, taskfilesDir string, modules []string) {
@@ -169,24 +185,6 @@ func assertToolMetadataModules(t *testing.T, taskfilesDir string, toolLeaves map
 			})
 		})
 	}
-}
-
-func discoverMetadataModules(t *testing.T, taskfilesDir string) discoveredMetadataModules {
-	t.Helper()
-
-	discovered := discoveredMetadataModules{flatModules: nil, toolLeaves: map[string][]string{}}
-	discoverer := metadataDiscoverer{t: t, taskfilesDir: taskfilesDir, discovered: &discovered}
-
-	err := filepath.WalkDir(taskfilesDir, discoverer.discover)
-	if err != nil {
-		t.Fatalf(walkTaskfilesErrFormat, err)
-	}
-
-	if len(discovered.flatModules) == constZero || len(discovered.toolLeaves) == constZero {
-		t.Fatal(noModulesDiscoveredMsg)
-	}
-
-	return discovered
 }
 
 func (discoverer *metadataDiscoverer) discover(path string, entry fs.DirEntry, err error) error {
@@ -246,6 +244,24 @@ func (discoverer *metadataDiscoverer) recordModuleFor(path string) error {
 	return nil
 }
 
+func discoverMetadataModules(t *testing.T, taskfilesDir string) discoveredMetadataModules {
+	t.Helper()
+
+	discovered := discoveredMetadataModules{flatModules: nil, toolLeaves: map[string][]string{}}
+	discoverer := metadataDiscoverer{t: t, taskfilesDir: taskfilesDir, discovered: &discovered}
+
+	err := filepath.WalkDir(taskfilesDir, discoverer.discover)
+	if err != nil {
+		t.Fatalf(walkTaskfilesErrFormat, err)
+	}
+
+	if len(discovered.flatModules) == constZero || len(discovered.toolLeaves) == constZero {
+		t.Fatal(noModulesDiscoveredMsg)
+	}
+
+	return discovered
+}
+
 func addToolLeaf(t *testing.T, leaf *toolLeaf) {
 	t.Helper()
 
@@ -300,22 +316,6 @@ func assertToolMetadata(t *testing.T, check *toolMetadataCheck) {
 		expectedTasks:    base,
 		expectedVariants: variants,
 	})
-}
-
-// TestTaskCliLoadsEveryFamily forks the task CLI once per family to prove every
-// shipped Taskfile still parses. Per-module contract tests only parse the YAML
-// themselves; this is the single place that pays for the CLI round trip.
-// TestTaskCliLoadsEveryFamily
-func TestTaskCliLoadsEveryFamily(t *testing.T) {
-	t.Parallel()
-
-	for i := range familyRepresentatives(t) {
-		module := familyRepresentatives(t)[i]
-		t.Run(module, func(t *testing.T) {
-			t.Parallel()
-			tasktest.AssertTaskCliCanLoad(t, module)
-		})
-	}
 }
 
 // familyRepresentatives returns one module per family: flat modules stand for

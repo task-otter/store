@@ -17,7 +17,10 @@ bun: [nix]
 cargo: [nix]
 depcheck: [depcheck/bun, depcheck/node]
 depcheck/bun: [bun]
-depcheck/node: [depcheck/node/npm, depcheck/node/pnpm, depcheck/node/yarn]
+depcheck/node:
+  - depcheck/node/npm
+  - depcheck/node/pnpm
+  - depcheck/node/yarn
 depcheck/node/npm: [npm]
 depcheck/node/pnpm: [pnpm]
 depcheck/node/yarn: [yarn]
@@ -38,7 +41,10 @@ govulncheck: [nix]
 hadolint: [nix]
 htmlhint: [htmlhint/bun, htmlhint/node]
 htmlhint/bun: [bun]
-htmlhint/node: [htmlhint/node/npm, htmlhint/node/pnpm, htmlhint/node/yarn]
+htmlhint/node:
+  - htmlhint/node/npm
+  - htmlhint/node/pnpm
+  - htmlhint/node/yarn
 htmlhint/node/npm: [npm]
 htmlhint/node/pnpm: [pnpm]
 htmlhint/node/yarn: [yarn]
@@ -56,7 +62,10 @@ npm: [nix, nodejs]
 pnpm: [nix, nodejs]
 prettier: [prettier/bun, prettier/node]
 prettier/bun: [bun]
-prettier/node: [prettier/node/npm, prettier/node/pnpm, prettier/node/yarn]
+prettier/node:
+  - prettier/node/npm
+  - prettier/node/pnpm
+  - prettier/node/yarn
 prettier/node/npm: [npm]
 prettier/node/pnpm: [pnpm]
 prettier/node/yarn: [yarn]
@@ -69,20 +78,29 @@ shellcheck: [nix]
 shfmt: [nix]
 spectral: [spectral/bun, spectral/node]
 spectral/bun: [bun]
-spectral/node: [spectral/node/npm, spectral/node/pnpm, spectral/node/yarn]
+spectral/node:
+  - spectral/node/npm
+  - spectral/node/pnpm
+  - spectral/node/yarn
 spectral/node/npm: [npm]
 spectral/node/pnpm: [pnpm]
 spectral/node/yarn: [yarn]
 sqlfluff: [nix]
 stylelint: [stylelint/bun, stylelint/node]
 stylelint/bun: [bun]
-stylelint/node: [stylelint/node/npm, stylelint/node/pnpm, stylelint/node/yarn]
+stylelint/node:
+  - stylelint/node/npm
+  - stylelint/node/pnpm
+  - stylelint/node/yarn
 stylelint/node/npm: [npm]
 stylelint/node/pnpm: [pnpm]
 stylelint/node/yarn: [yarn]
 typescript: [typescript/bun, typescript/node]
 typescript/bun: [bun]
-typescript/node: [typescript/node/npm, typescript/node/pnpm, typescript/node/yarn]
+typescript/node:
+  - typescript/node/npm
+  - typescript/node/pnpm
+  - typescript/node/yarn
 typescript/node/npm: [npm]
 typescript/node/pnpm: [pnpm]
 typescript/node/yarn: [yarn]

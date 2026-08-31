@@ -101,19 +101,6 @@ const (
 	windowsLineEnding        = "\r\n"
 )
 
-func workingDir() (string, error) {
-	workingDirectory, err := os.Getwd()
-	if err != nil {
-		return "", fmt.Errorf("get working directory: %w", err)
-	}
-
-	return workingDirectory, nil
-}
-
-func currentTaskCommandSettings() taskCommandSettings {
-	return taskCommandSettings{timeout: time.Minute}
-}
-
 // AssertModule checks a module's README and Taskfile against its declared
 // public surface. It does not fork the task CLI: the Taskfile is parsed here,
 // and CLI loadability is covered once per family by AssertTaskCliCanLoad.
@@ -139,6 +126,31 @@ func LoadTaskfile(tester TestingT, module string) *Taskfile {
 	validateTaskfileFormatting(tester, module, content)
 
 	return mustParseTaskfile(tester, module, content)
+}
+
+// RepoRoot walks upward from the working directory to find the repository root.
+func RepoRoot(tester TestingT) string {
+	tester.Helper()
+
+	workingDirectory, err := workingDir()
+	if err != nil {
+		tester.Fatalf("get working directory: %v", err)
+	}
+
+	return findRepoRoot(tester, workingDirectory)
+}
+
+func workingDir() (string, error) {
+	workingDirectory, err := os.Getwd()
+	if err != nil {
+		return "", fmt.Errorf("get working directory: %w", err)
+	}
+
+	return workingDirectory, nil
+}
+
+func currentTaskCommandSettings() taskCommandSettings {
+	return taskCommandSettings{timeout: time.Minute}
 }
 
 func mustReadTaskfile(tester TestingT, module string) []byte {
@@ -172,18 +184,6 @@ func mustParseTaskfile(tester TestingT, module string, content []byte) *Taskfile
 	}
 
 	return taskfile
-}
-
-// RepoRoot walks upward from the working directory to find the repository root.
-func RepoRoot(tester TestingT) string {
-	tester.Helper()
-
-	workingDirectory, err := workingDir()
-	if err != nil {
-		tester.Fatalf("get working directory: %v", err)
-	}
-
-	return findRepoRoot(tester, workingDirectory)
 }
 
 func findRepoRoot(tester TestingT, directory string) string {

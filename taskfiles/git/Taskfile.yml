@@ -63,7 +63,9 @@ tasks:
       Run `git init`. Set BRANCH to specify the initial branch name.
       Example: GIT_BRANCH=main
     cmds:
-      - cmd: bash -lc '{{.NIX_LOAD}}; git init{{if .GIT_BRANCH}} --initial-branch={{.GIT_BRANCH}}{{end}} {{.GIT_EXTRA_ARGS}}'
+      - cmd: >-
+          bash -lc '{{.NIX_LOAD}};
+          git init{{if .GIT_BRANCH}} --initial-branch={{.GIT_BRANCH}}{{end}} {{.GIT_EXTRA_ARGS}}'
         platforms: [linux, darwin]
       - cmd: git init{{if .GIT_BRANCH}} --initial-branch={{.GIT_BRANCH}}{{end}} {{.GIT_EXTRA_ARGS}}
         platforms: [windows]
@@ -150,9 +152,14 @@ tasks:
       COMMIT_MSG to keep the existing message (--no-edit).
       Example: GIT_COMMIT_MSG="fix: corrected typo"
     cmds:
-      - cmd: bash -lc '{{.NIX_LOAD}}; git commit --amend {{if .GIT_COMMIT_MSG}}-m "{{.GIT_COMMIT_MSG}}"{{else}}--no-edit{{end}} {{.GIT_EXTRA_ARGS}}'
+      - cmd: >-
+          bash -lc '{{.NIX_LOAD}};
+          git commit --amend
+          {{if .GIT_COMMIT_MSG}}-m "{{.GIT_COMMIT_MSG}}"{{else}}--no-edit{{end}} {{.GIT_EXTRA_ARGS}}'
         platforms: [linux, darwin]
-      - cmd: git commit --amend {{if .GIT_COMMIT_MSG}}-m "{{.GIT_COMMIT_MSG}}"{{else}}--no-edit{{end}} {{.GIT_EXTRA_ARGS}}
+      - cmd: >-
+          git commit --amend
+          {{if .GIT_COMMIT_MSG}}-m "{{.GIT_COMMIT_MSG}}"{{else}}--no-edit{{end}} {{.GIT_EXTRA_ARGS}}
         platforms: [windows]
 
   push:
@@ -163,7 +170,10 @@ tasks:
       to a specific remote branch; otherwise pushes HEAD.
       Example: GIT_REMOTE=origin GIT_BRANCH=main
     cmds:
-      - cmd: bash -lc '{{.NIX_LOAD}}; git push {{.GIT_REMOTE}} {{if .GIT_BRANCH}}{{.GIT_BRANCH}}{{else}}HEAD{{end}} {{.GIT_EXTRA_ARGS}}'
+      - cmd: >-
+          bash -lc '{{.NIX_LOAD}};
+          git push {{.GIT_REMOTE}}
+          {{if .GIT_BRANCH}}{{.GIT_BRANCH}}{{else}}HEAD{{end}} {{.GIT_EXTRA_ARGS}}'
         platforms: [linux, darwin]
       - cmd: git push {{.GIT_REMOTE}} {{if .GIT_BRANCH}}{{.GIT_BRANCH}}{{else}}HEAD{{end}} {{.GIT_EXTRA_ARGS}}
         platforms: [windows]
@@ -176,9 +186,14 @@ tasks:
       WARNING: This rewrites history on the remote branch.
     prompt: Force-push will rewrite remote history. Continue?
     cmds:
-      - cmd: bash -lc '{{.NIX_LOAD}}; git push {{.GIT_REMOTE}} {{if .GIT_BRANCH}}{{.GIT_BRANCH}}{{else}}HEAD{{end}} --force-with-lease {{.GIT_EXTRA_ARGS}}'
+      - cmd: >-
+          bash -lc '{{.NIX_LOAD}};
+          git push {{.GIT_REMOTE}}
+          {{if .GIT_BRANCH}}{{.GIT_BRANCH}}{{else}}HEAD{{end}} --force-with-lease {{.GIT_EXTRA_ARGS}}'
         platforms: [linux, darwin]
-      - cmd: git push {{.GIT_REMOTE}} {{if .GIT_BRANCH}}{{.GIT_BRANCH}}{{else}}HEAD{{end}} --force-with-lease {{.GIT_EXTRA_ARGS}}
+      - cmd: >-
+          git push {{.GIT_REMOTE}}
+          {{if .GIT_BRANCH}}{{.GIT_BRANCH}}{{else}}HEAD{{end}} --force-with-lease {{.GIT_EXTRA_ARGS}}
         platforms: [windows]
 
   pull:
@@ -189,7 +204,10 @@ tasks:
       Set BRANCH to pull a specific branch.
       Example: GIT_REMOTE=origin GIT_BRANCH=main
     cmds:
-      - cmd: bash -lc '{{.NIX_LOAD}}; git pull {{.GIT_REMOTE}}{{if .GIT_BRANCH}} {{.GIT_BRANCH}}{{end}} {{.GIT_EXTRA_ARGS}}'
+      - cmd: >-
+          bash -lc '{{.NIX_LOAD}};
+          git pull {{.GIT_REMOTE}}
+          {{- if .GIT_BRANCH}} {{.GIT_BRANCH}}{{end}} {{.GIT_EXTRA_ARGS}}'
         platforms: [linux, darwin]
       - cmd: git pull {{.GIT_REMOTE}}{{if .GIT_BRANCH}} {{.GIT_BRANCH}}{{end}} {{.GIT_EXTRA_ARGS}}
         platforms: [windows]
@@ -220,7 +238,9 @@ tasks:
         vars:
           NIX_INSTALLABLE: "{{.GH_NIX_INSTALLABLE}}"
     cmds:
-      - cmd: bash -lc '{{.NIX_LOAD}}; gh repo sync {{if .GIT_BRANCH}}--branch {{.GIT_BRANCH}}{{end}} {{.GIT_EXTRA_ARGS}}'
+      - cmd: >-
+          bash -lc '{{.NIX_LOAD}};
+          gh repo sync {{if .GIT_BRANCH}}--branch {{.GIT_BRANCH}}{{end}} {{.GIT_EXTRA_ARGS}}'
         platforms: [linux, darwin]
       - cmd: gh repo sync {{if .GIT_BRANCH}}--branch {{.GIT_BRANCH}}{{end}} {{.GIT_EXTRA_ARGS}}
         platforms: [windows]
@@ -255,9 +275,14 @@ tasks:
       Display commits with short hash, author, date, and message.
       Example: GIT_EXTRA_ARGS="-n 20"
     cmds:
-      - cmd: bash -lc '{{.NIX_LOAD}}; git log --format="%C(yellow)%h%Creset %C(blue)%ad%Creset %s %C(green)<%an>%Creset" --date=short {{.GIT_EXTRA_ARGS}}'
+      - cmd: >-
+          bash -lc '{{.NIX_LOAD}};
+          git log --format="%C(yellow)%h%Creset %C(blue)%ad%Creset %s %C(green)<%an>%Creset"
+          --date=short {{.GIT_EXTRA_ARGS}}'
         platforms: [linux, darwin]
-      - cmd: git log --format="%C(yellow)%h%Creset %C(blue)%ad%Creset %s %C(green)<%an>%Creset" --date=short {{.GIT_EXTRA_ARGS}}
+      - cmd: >-
+          git log --format="%C(yellow)%h%Creset %C(blue)%ad%Creset %s %C(green)<%an>%Creset"
+          --date=short {{.GIT_EXTRA_ARGS}}
         platforms: [windows]
 
   log:graph:
@@ -363,7 +388,9 @@ tasks:
       vars:
         - GIT_TAG
     cmds:
-      - cmd: bash -lc '{{.NIX_LOAD}}; git tag -a {{.GIT_TAG}} -m "{{default .GIT_TAG .GIT_MESSAGE}}" {{.GIT_EXTRA_ARGS}}'
+      - cmd: >-
+          bash -lc '{{.NIX_LOAD}};
+          git tag -a {{.GIT_TAG}} -m "{{default .GIT_TAG .GIT_MESSAGE}}" {{.GIT_EXTRA_ARGS}}'
         platforms: [linux, darwin]
       - cmd: git tag -a {{.GIT_TAG}} -m "{{default .GIT_TAG .GIT_MESSAGE}}" {{.GIT_EXTRA_ARGS}}
         platforms: [windows]
@@ -375,7 +402,10 @@ tasks:
       Push TAG to the remote. Omit TAG to push all tags via --tags.
       Example: GIT_TAG=v1.0.0 GIT_REMOTE=origin
     cmds:
-      - cmd: bash -lc '{{.NIX_LOAD}}; git push {{.GIT_REMOTE}} {{if .GIT_TAG}}{{.GIT_TAG}}{{else}}--tags{{end}} {{.GIT_EXTRA_ARGS}}'
+      - cmd: >-
+          bash -lc '{{.NIX_LOAD}};
+          git push {{.GIT_REMOTE}}
+          {{if .GIT_TAG}}{{.GIT_TAG}}{{else}}--tags{{end}} {{.GIT_EXTRA_ARGS}}'
         platforms: [linux, darwin]
       - cmd: git push {{.GIT_REMOTE}} {{if .GIT_TAG}}{{.GIT_TAG}}{{else}}--tags{{end}} {{.GIT_EXTRA_ARGS}}
         platforms: [windows]
@@ -409,7 +439,9 @@ tasks:
       a description of the stashed changes.
       Example: GIT_MESSAGE="WIP: refactor auth module"
     cmds:
-      - cmd: bash -lc '{{.NIX_LOAD}}; git stash push {{if .GIT_MESSAGE}}-m "{{.GIT_MESSAGE}}"{{end}} {{.GIT_EXTRA_ARGS}}'
+      - cmd: >-
+          bash -lc '{{.NIX_LOAD}};
+          git stash push {{if .GIT_MESSAGE}}-m "{{.GIT_MESSAGE}}"{{end}} {{.GIT_EXTRA_ARGS}}'
         platforms: [linux, darwin]
       - cmd: git stash push {{if .GIT_MESSAGE}}-m "{{.GIT_MESSAGE}}"{{end}} {{.GIT_EXTRA_ARGS}}
         platforms: [windows]
@@ -598,7 +630,10 @@ tasks:
         vars:
           NIX_INSTALLABLE: "{{.GH_NIX_INSTALLABLE}}"
     cmds:
-      - cmd: bash -lc '{{.NIX_LOAD}}; git push {{.GIT_REMOTE}} {{if .GIT_BRANCH}}{{.GIT_BRANCH}}{{else}}HEAD{{end}} {{.GIT_EXTRA_ARGS}}'
+      - cmd: >-
+          bash -lc '{{.NIX_LOAD}};
+          git push {{.GIT_REMOTE}}
+          {{if .GIT_BRANCH}}{{.GIT_BRANCH}}{{else}}HEAD{{end}} {{.GIT_EXTRA_ARGS}}'
         platforms: [linux, darwin]
       - cmd: git push {{.GIT_REMOTE}} {{if .GIT_BRANCH}}{{.GIT_BRANCH}}{{else}}HEAD{{end}} {{.GIT_EXTRA_ARGS}}
         platforms: [windows]
@@ -677,4 +712,3 @@ tasks:
         platforms: [linux, darwin]
       - cmd: git help
         platforms: [windows]
-

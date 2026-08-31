@@ -590,7 +590,9 @@ tasks:
     generates:
       - "{{.CUSTOM_GCL_BINARY}}"
     cmds:
-      - bash -lc '{{.NIX_LOAD}}; {{if .GO_GLOBAL_BIN}}export PATH="{{.GO_GLOBAL_BIN}}:$PATH"; {{end}}golangci-lint custom -v'
+      - >-
+        bash -lc '{{.NIX_LOAD}};
+        {{if .GO_GLOBAL_BIN}}export PATH="{{.GO_GLOBAL_BIN}}:$PATH"; {{end}}golangci-lint custom -v'
   _lint:
     run: once
     internal: true

@@ -1,7 +1,7 @@
 // Taskotter 2026.
 // SPDX-License-Identifier: Apache-2.0.
 
-package go_junit_report_test
+package gojunitreport_test
 
 import (
 	"testing"

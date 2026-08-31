@@ -100,7 +100,8 @@ tasks:
     platforms: [windows]
     preconditions:
       - sh: >-
-          powershell -NoProfile -ExecutionPolicy Bypass -Command "if (Get-Command go-junit-report -ErrorAction SilentlyContinue) {
+          powershell -NoProfile -ExecutionPolicy Bypass -Command
+          "if (Get-Command go-junit-report -ErrorAction SilentlyContinue) {
           exit 0 } else { exit 1 }"
         msg: go-junit-report is not installed or not available in PATH.
     cmds:
@@ -123,7 +124,8 @@ tasks:
     platforms: [windows]
     preconditions:
       - sh: >-
-          powershell -NoProfile -ExecutionPolicy Bypass -Command "if (Get-Command go-junit-report -ErrorAction SilentlyContinue) {
+          powershell -NoProfile -ExecutionPolicy Bypass -Command
+          "if (Get-Command go-junit-report -ErrorAction SilentlyContinue) {
           exit 0 } else { exit 1 }"
         msg: go-junit-report is not installed or not available in PATH.
     cmds:

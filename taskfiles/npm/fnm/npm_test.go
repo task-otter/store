@@ -67,100 +67,6 @@ const (
 	constNpmTestMinSummaryLen  = 25
 )
 
-func dryGroupSummaryOptions() []tasktestutil.PublicTaskSpecOption {
-	return []tasktestutil.PublicTaskSpecOption{
-		tasktestutil.WithDryRunArgs(),
-		tasktestutil.WithGroupOutput(),
-		tasktestutil.WithSummary(),
-	}
-}
-
-func expectedPublicTasksA() []tasktestutil.PublicTaskSpec {
-	spec := tasktestutil.NewPublicTaskSpec
-	withArgs := tasktestutil.WithArgs
-	dryGroupSummary := dryGroupSummaryOptions()
-
-	return []tasktestutil.PublicTaskSpec{
-		spec("add", withArgs(map[string]string{constNpmTestPackages: constNpmTestPrettier}),
-			tasktestutil.WithDryRunArgs(), tasktestutil.WithGroupOutput()),
-		spec("audit", dryGroupSummary...),
-		spec("audit:fix", dryGroupSummary...),
-		spec("audit:json", dryGroupSummary...),
-		spec(constNpmTestAuditReport, dryGroupSummary...),
-		spec(constNpmTestBuild, dryGroupSummary...),
-		spec("cache:clean", dryGroupSummary...),
-		spec(constNpmTestInstallClean, dryGroupSummary...),
-		spec("ci:fix", dryGroupSummary...),
-	}
-}
-
-func expectedPublicTasksB() []tasktestutil.PublicTaskSpec {
-	spec := tasktestutil.NewPublicTaskSpec
-	withArgs := tasktestutil.WithArgs
-	dryGroupSummary := dryGroupSummaryOptions()
-
-	return []tasktestutil.PublicTaskSpec{
-		spec(constNpmTestClean, append(dryGroupSummary, tasktestutil.WithPrompt())...),
-		spec("clean:all", append(dryGroupSummary, tasktestutil.WithPrompt())...),
-		spec(constNpmTestDev, dryGroupSummary...),
-		spec("exec", withArgs(map[string]string{"BINARY": constNpmTestPrettier}),
-			tasktestutil.WithDryRunArgs(), tasktestutil.WithGroupOutput()),
-		spec("doctor", dryGroupSummary...),
-		spec(constNpmTestInstall, dryGroupSummary...),
-		spec("install:undo", dryGroupSummary...),
-		spec("lint", dryGroupSummary...),
-	}
-}
-
-func expectedPublicTasksC1() []tasktestutil.PublicTaskSpec {
-	spec := tasktestutil.NewPublicTaskSpec
-	withArgs := tasktestutil.WithArgs
-	dryGroupSummary := dryGroupSummaryOptions()
-
-	return []tasktestutil.PublicTaskSpec{
-		spec("manager:pin", append(
-			[]tasktestutil.PublicTaskSpecOption{
-				withArgs(map[string]string{"PACKAGE_MANAGER_VERSION": "latest"}),
-			},
-			dryGroupSummary...,
-		)...),
-		spec("manager:setup", dryGroupSummary...),
-		spec("node:setup", dryGroupSummary...),
-		spec(constNpmTestOutdated, dryGroupSummary...),
-		spec(constNpmTestOutdatedStrict, dryGroupSummary...),
-		spec("remove", withArgs(map[string]string{constNpmTestPackages: constNpmTestPrettier}),
-			tasktestutil.WithDryRunArgs(), tasktestutil.WithGroupOutput()),
-	}
-}
-
-func expectedPublicTasksC2() []tasktestutil.PublicTaskSpec {
-	spec := tasktestutil.NewPublicTaskSpec
-	withArgs := tasktestutil.WithArgs
-	dryGroupSummary := dryGroupSummaryOptions()
-
-	return []tasktestutil.PublicTaskSpec{
-		spec(constNpmTestRun, append(
-			[]tasktestutil.PublicTaskSpecOption{
-				withArgs(map[string]string{"SCRIPT": constNpmTestBuild}),
-			},
-			dryGroupSummary...,
-		)...),
-		spec("test", dryGroupSummary...),
-		spec("typecheck", dryGroupSummary...),
-		spec("update", dryGroupSummary...),
-		spec("upgrade", dryGroupSummary...),
-		spec(constNpmTestVersion, tasktestutil.WithDryRunArgs(), tasktestutil.WithSummary()),
-	}
-}
-
-func expectedPublicTasksC() []tasktestutil.PublicTaskSpec {
-	return append(expectedPublicTasksC1(), expectedPublicTasksC2()...)
-}
-
-func expectedPublicTasks() []tasktestutil.PublicTaskSpec {
-	return slices.Concat(expectedPublicTasksA(), expectedPublicTasksB(), expectedPublicTasksC())
-}
-
 // TestTaskBinaryIsAvailable
 func TestTaskBinaryIsAvailable(t *testing.T) {
 	t.Parallel()
@@ -172,39 +78,6 @@ func TestTaskBinaryIsAvailable(t *testing.T) {
 	)
 	tasktestutil.AssertExitCode(t, result, constNpmTestExitSuccess)
 	tasktestutil.AssertNotEmpty(t, result.Combined(), "task --version output is empty")
-}
-
-func parseTaskfileYamlDoc(t *testing.T, content string) yaml.Node {
-	t.Helper()
-
-	var doc yaml.Node
-
-	err := yaml.Unmarshal([]byte(content), &doc)
-	if err != nil {
-		t.Fatalf("Taskfile YAML is invalid: %v", err)
-	}
-
-	return doc
-}
-
-func assertTaskfileVersionIsV3(t *testing.T, root *yaml.Node) {
-	t.Helper()
-
-	version := tasktestutil.ScalarField(root, constNpmTestVersion)
-
-	if version != "3" && !strings.HasPrefix(version, "3.") {
-		t.Fatalf("Taskfile version must be 3 or 3.x, got %q", version)
-	}
-}
-
-func assertTaskfileHasTasks(t *testing.T, root *yaml.Node) {
-	t.Helper()
-
-	tasks := tasktestutil.MappingField(root, "tasks")
-
-	if tasks == nil || len(tasks.Content) == constNpmTestExitSuccess {
-		t.Fatal("Taskfile must contain non-empty tasks map")
-	}
 }
 
 // TestTaskfileYamlIsCleanAndValid
@@ -224,34 +97,6 @@ func TestTaskfileYamlIsCleanAndValid(t *testing.T) {
 
 	assertTaskfileVersionIsV3(t, root)
 	assertTaskfileHasTasks(t, root)
-}
-
-func taskCliLoadTaskfileArgs() [][]string {
-	return [][]string{
-		{constNpmTestFlagList},
-		{constNpmTestListAll},
-		{constNpmTestListAll, constNpmTestFlagSort, constNpmTestSortAlpha},
-		{constNpmTestListAll, constNpmTestJSON},
-	}
-}
-
-func runTaskCliCanLoadTaskfileCase(t *testing.T, root string, args []string) {
-	t.Helper()
-	t.Run(strings.Join(args, " "), func(t *testing.T) {
-		t.Parallel()
-
-		result := tasktestutil.RunTask(
-			t,
-			tasktestutil.TaskRun{Root: root, Env: tasktestutil.IsolatedEnv(t), Args: args},
-		)
-		tasktestutil.AssertExitCode(t, result, constNpmTestExitSuccess)
-		tasktestutil.AssertNotContains(
-			t,
-			strings.ToLower(result.Combined()),
-			"taskfile does not exist",
-		)
-		tasktestutil.AssertNotContains(t, strings.ToLower(result.Combined()), "unknown")
-	})
 }
 
 // TestTaskCliCanLoadTaskfile
@@ -322,21 +167,6 @@ func TestReadmePublicTaskTableDoesNotDrift(t *testing.T) {
 	}
 }
 
-func assertTaskIsPublicOrInternal(t *testing.T, name string, task tasktestutil.TaskNode) {
-	t.Helper()
-
-	if strings.HasPrefix(name, "_") || task.BoolField("internal") {
-		return
-	}
-
-	if task.StringField(constNpmTestDesc) == "" {
-		t.Fatalf(
-			"task %q is not internal and has no desc. Either add desc/summary or mark it internal: true",
-			name,
-		)
-	}
-}
-
 // TestEveryTaskIsEitherPublicOrInternal
 func TestEveryTaskIsEitherPublicOrInternal(t *testing.T) {
 	t.Parallel()
@@ -350,62 +180,6 @@ func TestEveryTaskIsEitherPublicOrInternal(t *testing.T) {
 			assertTaskIsPublicOrInternal(t, name, task)
 		})
 	}
-}
-
-func assertTaskUsesMappingSyntax(t *testing.T, task tasktestutil.TaskNode, name string) {
-	t.Helper()
-
-	if task.Node.Kind != yaml.MappingNode {
-		t.Fatalf("public task %q must use full mapping syntax, not short syntax", name)
-	}
-}
-
-func assertTaskDescMeetsRequirements(t *testing.T, desc, name string) {
-	t.Helper()
-
-	if strings.TrimSpace(desc) == constNpmTestEmpty {
-		t.Fatalf("public task %q is missing desc", name)
-	}
-
-	if len(strings.TrimSpace(desc)) < constNpmTestMinDescLen {
-		t.Fatalf("public task %q desc is too short: %q", name, desc)
-	}
-}
-
-func assertTaskSummaryValid(t *testing.T, spec *tasktestutil.PublicTaskSpec, summary string) {
-	t.Helper()
-
-	if !spec.RequiresSummary {
-		return
-	}
-
-	if strings.TrimSpace(summary) == constNpmTestEmpty {
-		t.Fatalf("public task %q is missing summary", spec.Name)
-	}
-
-	if len(strings.TrimSpace(summary)) < constNpmTestMinSummaryLen {
-		t.Fatalf("public task %q summary is too short:\n%s", spec.Name, summary)
-	}
-}
-
-// TestPublicTasksHaveMetadata
-func runPublicTaskMetadataCase(t *testing.T, check *publicTaskCase) {
-	t.Helper()
-	t.Run(check.spec.Name, func(t *testing.T) {
-		t.Parallel()
-
-		task := tasktestutil.MustTask(t, check.taskfile, check.spec.Name)
-		assertTaskUsesMappingSyntax(t, task, check.spec.Name)
-
-		desc := task.StringField(constNpmTestDesc)
-		summary := task.StringField("summary")
-
-		assertTaskDescMeetsRequirements(t, desc, check.spec.Name)
-		assertTaskSummaryValid(t, check.spec, summary)
-
-		tasktestutil.AssertNoPlaceholderText(t, check.spec.Name, desc)
-		tasktestutil.AssertNoPlaceholderText(t, check.spec.Name, summary)
-	})
 }
 
 // TestPublicTasksHaveMetadata validates the behavior covered by this test case.
@@ -442,40 +216,6 @@ func TestDestructivePublicTasksHavePrompt(t *testing.T) {
 	}
 }
 
-func assertTaskUsesGithubGroupOutput(t *testing.T, check *publicTaskCase) {
-	t.Helper()
-
-	if !check.spec.RequiresGroupOutput {
-		return
-	}
-
-	task := tasktestutil.MustTask(t, check.taskfile, check.spec.Name)
-
-	outputNode := task.Field(constNpmTestOutput)
-
-	if outputNode == nil {
-		outputNode = check.taskfile.Root.Field(constNpmTestOutput)
-	}
-
-	tasktestutil.AssertGithubGroupOutput(t, check.spec.Name, outputNode)
-}
-
-func forEachPublicTask(t *testing.T, callback func(*testing.T, *publicTaskCase)) {
-	t.Helper()
-
-	taskfile := tasktestutil.LoadTaskfile(t)
-	specs := expectedPublicTasks()
-
-	for i := range specs {
-		spec := specs[i]
-
-		t.Run(spec.Name, func(t *testing.T) {
-			t.Parallel()
-			callback(t, &publicTaskCase{taskfile: &taskfile, spec: &spec})
-		})
-	}
-}
-
 // TestInstallTasksUseGithubGroupOutput
 func TestInstallTasksUseGithubGroupOutput(t *testing.T) {
 	t.Parallel()
@@ -483,56 +223,11 @@ func TestInstallTasksUseGithubGroupOutput(t *testing.T) {
 	forEachPublicTask(t, assertTaskUsesGithubGroupOutput)
 }
 
-func assertTaskHasCommands(t *testing.T, check *publicTaskCase) {
-	t.Helper()
-
-	task := tasktestutil.MustTask(t, check.taskfile, check.spec.Name)
-	missingCmdsAndDeps := tasktestutil.IsEmptyNode(task.Field(constNpmTestCmds)) &&
-		tasktestutil.IsEmptyNode(task.Field("deps"))
-
-	if missingCmdsAndDeps {
-		t.Fatalf("public task %q must have cmds or deps", check.spec.Name)
-	}
-}
-
 // TestPublicTasksHaveCommands
 func TestPublicTasksHaveCommands(t *testing.T) {
 	t.Parallel()
 
 	forEachPublicTask(t, assertTaskHasCommands)
-}
-
-// TestTaskSummariesWork
-func runTaskSummary(t *testing.T, root, name string) tasktestutil.CommandResult {
-	t.Helper()
-
-	return tasktestutil.RunTask(
-		t,
-		tasktestutil.TaskRun{Root: root, Env: tasktestutil.IsolatedEnv(t), Args: []string{
-			"--summary",
-			name,
-		}},
-	)
-}
-
-func runTaskSummaryCase(t *testing.T, root string, spec *tasktestutil.PublicTaskSpec) {
-	t.Helper()
-	t.Run(spec.Name, func(t *testing.T) {
-		t.Parallel()
-
-		if !spec.RequiresSummary {
-			return
-		}
-
-		result := runTaskSummary(t, root, spec.Name)
-		tasktestutil.AssertExitCode(t, result, constNpmTestExitSuccess)
-
-		out := result.Combined()
-		tasktestutil.AssertContains(t, out, spec.Name)
-		tasktestutil.AssertNotContains(t, strings.ToLower(out), "task not found")
-		tasktestutil.AssertNotContains(t, strings.ToLower(out), "unknown task")
-		tasktestutil.AssertNotContains(t, strings.ToLower(out), "no summary")
-	})
 }
 
 // TestTaskSummariesWork validates the behavior covered by this test case.
@@ -545,23 +240,6 @@ func TestTaskSummariesWork(t *testing.T) {
 
 	for i := range specs {
 		runTaskSummaryCase(t, root, &specs[i])
-	}
-}
-
-func assertCommandHasNoDangerousPattern(t *testing.T, taskName, command string) {
-	t.Helper()
-
-	for i := range tasktestutil.DangerousCommandPatterns() {
-		pattern := tasktestutil.DangerousCommandPatterns()[i]
-
-		if pattern.MatchString(command) {
-			t.Fatalf(
-				"task %q contains dangerous command pattern %q:\n%s",
-				taskName,
-				pattern.String(),
-				command,
-			)
-		}
 	}
 }
 
@@ -704,27 +382,6 @@ func TestAuditReportTaskExitsSuccessfully(t *testing.T) {
 	assertStubbedNpmTaskExits(t, constNpmTestAuditReport)
 }
 
-func assertStubbedNpmTaskExits(t *testing.T, task string) {
-	t.Helper()
-
-	tasktestutil.AssertExitCode(t, runStubbedNpmTask(t, task), constNpmTestExitSuccess)
-}
-
-func runStubbedNpmTask(t *testing.T, task string, args ...string) tasktestutil.CommandResult {
-	t.Helper()
-
-	if runtime.GOOS == constNpmTestWindows {
-		t.Skip(constNpmTestUnixSkipMsg)
-	}
-
-	taskArgs := append([]string{constNpmTestYes, task}, args...)
-
-	return tasktestutil.RunTask(
-		t,
-		tasktestutil.TaskRun{Root: tasktestutil.ModuleRoot(t), Env: npmStubEnv(t), Args: taskArgs},
-	)
-}
-
 // TestRunTaskForwardsCliArgs
 func TestRunTaskForwardsCliArgs(t *testing.T) {
 	t.Parallel()
@@ -785,23 +442,6 @@ func TestDevTaskExitsSuccessfully(t *testing.T) {
 	tasktestutil.AssertExitCode(t, result, constNpmTestExitSuccess)
 }
 
-func runNpmTaskFor(t *testing.T, projectDir, taskName string) tasktestutil.CommandResult {
-	t.Helper()
-
-	taskfileDir := tasktestutil.ModuleRoot(t)
-
-	return tasktestutil.RunTask(t, tasktestutil.TaskRun{
-		Root: projectDir,
-		Env:  npmStubEnv(t),
-		Args: []string{
-			constNpmTestTaskfileFlag,
-			filepath.Join(taskfileDir, constNpmTestTaskfileYml),
-			constNpmTestYes,
-			taskName,
-		},
-	})
-}
-
 // TestInstallFailsOutsideProjectRoot validates the behavior covered by this test case.
 func TestInstallFailsOutsideProjectRoot(t *testing.T) {
 	t.Parallel()
@@ -819,41 +459,6 @@ func TestInstallFailsOutsideProjectRoot(t *testing.T) {
 
 	if !strings.Contains(strings.ToLower(result.Combined()), constNpmTestPackageJSON) {
 		t.Fatalf("expected error mentioning package.json, got:\n%s", result.Combined())
-	}
-}
-
-func writeProjectPackageJSON(t *testing.T, projectDir string) {
-	t.Helper()
-
-	err := os.WriteFile(
-		filepath.Join(projectDir, constNpmTestPackageJSON),
-		[]byte(`{"name":"test","version":"1.0.0"}`),
-		constNpmTestFileMode0600,
-	)
-	if err != nil {
-		t.Fatalf("failed to create package.json: %v", err)
-	}
-}
-
-func assertResultErrContains(t *testing.T, result *tasktestutil.CommandResult, check *errCheck) {
-	t.Helper()
-
-	if result.Err == nil {
-		t.Fatal(check.noErrMsg)
-	}
-
-	out := strings.ToLower(result.Combined())
-
-	if !strings.Contains(out, check.substrA) && !strings.Contains(out, check.substrB) {
-		t.Fatalf(check.msgFmt, result.Combined())
-	}
-}
-
-func skipUnlessUnixShell(t *testing.T) {
-	t.Helper()
-
-	if runtime.GOOS == constNpmTestWindows {
-		t.Skip(constNpmTestUnixSkipMsg)
 	}
 }
 
@@ -898,19 +503,6 @@ func TestRunTaskRejectsUnsafeScript(t *testing.T) {
 	})
 }
 
-// TestRealNpmFlowOnlyWhenExplicitlyEnabled
-func skipUnlessRealNpmFlowEnabled(t *testing.T) {
-	t.Helper()
-
-	if os.Getenv("RUN_INSTALLER_TESTS") != "1" {
-		t.Skip("set RUN_INSTALLER_TESTS=1 to run real npm install/build/test tests")
-	}
-
-	if runtime.GOOS == constNpmTestWindows {
-		t.Skip("real npm flow tests target Unix-like systems")
-	}
-}
-
 // TestRealNpmFlowOnlyWhenExplicitlyEnabled validates the behavior covered by this test case.
 func TestRealNpmFlowOnlyWhenExplicitlyEnabled(t *testing.T) {
 	t.Parallel()
@@ -929,6 +521,414 @@ func TestRealNpmFlowOnlyWhenExplicitlyEnabled(t *testing.T) {
 	)
 	tasktestutil.AssertExitCode(t, result, constNpmTestExitSuccess)
 	tasktestutil.AssertNotEmpty(t, result.Combined(), "version output is empty")
+}
+
+func dryGroupSummaryOptions() []tasktestutil.PublicTaskSpecOption {
+	return []tasktestutil.PublicTaskSpecOption{
+		tasktestutil.WithDryRunArgs(),
+		tasktestutil.WithGroupOutput(),
+		tasktestutil.WithSummary(),
+	}
+}
+
+func expectedPublicTasksA() []tasktestutil.PublicTaskSpec {
+	spec := tasktestutil.NewPublicTaskSpec
+	withArgs := tasktestutil.WithArgs
+	dryGroupSummary := dryGroupSummaryOptions()
+
+	return []tasktestutil.PublicTaskSpec{
+		spec("add", withArgs(map[string]string{constNpmTestPackages: constNpmTestPrettier}),
+			tasktestutil.WithDryRunArgs(), tasktestutil.WithGroupOutput()),
+		spec("audit", dryGroupSummary...),
+		spec("audit:fix", dryGroupSummary...),
+		spec("audit:json", dryGroupSummary...),
+		spec(constNpmTestAuditReport, dryGroupSummary...),
+		spec(constNpmTestBuild, dryGroupSummary...),
+		spec("cache:clean", dryGroupSummary...),
+		spec(constNpmTestInstallClean, dryGroupSummary...),
+		spec("ci:fix", dryGroupSummary...),
+	}
+}
+
+func expectedPublicTasksB() []tasktestutil.PublicTaskSpec {
+	spec := tasktestutil.NewPublicTaskSpec
+	withArgs := tasktestutil.WithArgs
+	dryGroupSummary := dryGroupSummaryOptions()
+
+	return []tasktestutil.PublicTaskSpec{
+		spec(constNpmTestClean, append(dryGroupSummary, tasktestutil.WithPrompt())...),
+		spec("clean:all", append(dryGroupSummary, tasktestutil.WithPrompt())...),
+		spec(constNpmTestDev, dryGroupSummary...),
+		spec("exec", withArgs(map[string]string{"BINARY": constNpmTestPrettier}),
+			tasktestutil.WithDryRunArgs(), tasktestutil.WithGroupOutput()),
+		spec("doctor", dryGroupSummary...),
+		spec(constNpmTestInstall, dryGroupSummary...),
+		spec("install:undo", dryGroupSummary...),
+		spec("lint", dryGroupSummary...),
+	}
+}
+
+func expectedPublicTasksC1() []tasktestutil.PublicTaskSpec {
+	spec := tasktestutil.NewPublicTaskSpec
+	withArgs := tasktestutil.WithArgs
+	dryGroupSummary := dryGroupSummaryOptions()
+
+	return []tasktestutil.PublicTaskSpec{
+		spec("manager:pin", append(
+			[]tasktestutil.PublicTaskSpecOption{
+				withArgs(map[string]string{"PACKAGE_MANAGER_VERSION": "latest"}),
+			},
+			dryGroupSummary...,
+		)...),
+		spec("manager:setup", dryGroupSummary...),
+		spec("node:setup", dryGroupSummary...),
+		spec(constNpmTestOutdated, dryGroupSummary...),
+		spec(constNpmTestOutdatedStrict, dryGroupSummary...),
+		spec("remove", withArgs(map[string]string{constNpmTestPackages: constNpmTestPrettier}),
+			tasktestutil.WithDryRunArgs(), tasktestutil.WithGroupOutput()),
+	}
+}
+
+func expectedPublicTasksC2() []tasktestutil.PublicTaskSpec {
+	spec := tasktestutil.NewPublicTaskSpec
+	withArgs := tasktestutil.WithArgs
+	dryGroupSummary := dryGroupSummaryOptions()
+
+	return []tasktestutil.PublicTaskSpec{
+		spec(constNpmTestRun, append(
+			[]tasktestutil.PublicTaskSpecOption{
+				withArgs(map[string]string{"SCRIPT": constNpmTestBuild}),
+			},
+			dryGroupSummary...,
+		)...),
+		spec("test", dryGroupSummary...),
+		spec("typecheck", dryGroupSummary...),
+		spec("update", dryGroupSummary...),
+		spec("upgrade", dryGroupSummary...),
+		spec(constNpmTestVersion, tasktestutil.WithDryRunArgs(), tasktestutil.WithSummary()),
+	}
+}
+
+func expectedPublicTasksC() []tasktestutil.PublicTaskSpec {
+	return append(expectedPublicTasksC1(), expectedPublicTasksC2()...)
+}
+
+func expectedPublicTasks() []tasktestutil.PublicTaskSpec {
+	return slices.Concat(expectedPublicTasksA(), expectedPublicTasksB(), expectedPublicTasksC())
+}
+
+func parseTaskfileYamlDoc(t *testing.T, content string) yaml.Node {
+	t.Helper()
+
+	var doc yaml.Node
+
+	err := yaml.Unmarshal([]byte(content), &doc)
+	if err != nil {
+		t.Fatalf("Taskfile YAML is invalid: %v", err)
+	}
+
+	return doc
+}
+
+func assertTaskfileVersionIsV3(t *testing.T, root *yaml.Node) {
+	t.Helper()
+
+	version := tasktestutil.ScalarField(root, constNpmTestVersion)
+
+	if version != "3" && !strings.HasPrefix(version, "3.") {
+		t.Fatalf("Taskfile version must be 3 or 3.x, got %q", version)
+	}
+}
+
+func assertTaskfileHasTasks(t *testing.T, root *yaml.Node) {
+	t.Helper()
+
+	tasks := tasktestutil.MappingField(root, "tasks")
+
+	if tasks == nil || len(tasks.Content) == constNpmTestExitSuccess {
+		t.Fatal("Taskfile must contain non-empty tasks map")
+	}
+}
+
+func taskCliLoadTaskfileArgs() [][]string {
+	return [][]string{
+		{constNpmTestFlagList},
+		{constNpmTestListAll},
+		{constNpmTestListAll, constNpmTestFlagSort, constNpmTestSortAlpha},
+		{constNpmTestListAll, constNpmTestJSON},
+	}
+}
+
+func runTaskCliCanLoadTaskfileCase(t *testing.T, root string, args []string) {
+	t.Helper()
+	t.Run(strings.Join(args, " "), func(t *testing.T) {
+		t.Parallel()
+
+		result := tasktestutil.RunTask(
+			t,
+			tasktestutil.TaskRun{Root: root, Env: tasktestutil.IsolatedEnv(t), Args: args},
+		)
+		tasktestutil.AssertExitCode(t, result, constNpmTestExitSuccess)
+		tasktestutil.AssertNotContains(
+			t,
+			strings.ToLower(result.Combined()),
+			"taskfile does not exist",
+		)
+		tasktestutil.AssertNotContains(t, strings.ToLower(result.Combined()), "unknown")
+	})
+}
+
+func assertTaskIsPublicOrInternal(t *testing.T, name string, task tasktestutil.TaskNode) {
+	t.Helper()
+
+	if strings.HasPrefix(name, "_") || task.BoolField("internal") {
+		return
+	}
+
+	if task.StringField(constNpmTestDesc) == "" {
+		t.Fatalf(
+			"task %q is not internal and has no desc. Either add desc/summary or mark it internal: true",
+			name,
+		)
+	}
+}
+
+func assertTaskUsesMappingSyntax(t *testing.T, task tasktestutil.TaskNode, name string) {
+	t.Helper()
+
+	if task.Node.Kind != yaml.MappingNode {
+		t.Fatalf("public task %q must use full mapping syntax, not short syntax", name)
+	}
+}
+
+func assertTaskDescMeetsRequirements(t *testing.T, desc, name string) {
+	t.Helper()
+
+	if strings.TrimSpace(desc) == constNpmTestEmpty {
+		t.Fatalf("public task %q is missing desc", name)
+	}
+
+	if len(strings.TrimSpace(desc)) < constNpmTestMinDescLen {
+		t.Fatalf("public task %q desc is too short: %q", name, desc)
+	}
+}
+
+func assertTaskSummaryValid(t *testing.T, spec *tasktestutil.PublicTaskSpec, summary string) {
+	t.Helper()
+
+	if !spec.RequiresSummary {
+		return
+	}
+
+	if strings.TrimSpace(summary) == constNpmTestEmpty {
+		t.Fatalf("public task %q is missing summary", spec.Name)
+	}
+
+	if len(strings.TrimSpace(summary)) < constNpmTestMinSummaryLen {
+		t.Fatalf("public task %q summary is too short:\n%s", spec.Name, summary)
+	}
+}
+
+// TestPublicTasksHaveMetadata
+func runPublicTaskMetadataCase(t *testing.T, check *publicTaskCase) {
+	t.Helper()
+	t.Run(check.spec.Name, func(t *testing.T) {
+		t.Parallel()
+
+		task := tasktestutil.MustTask(t, check.taskfile, check.spec.Name)
+		assertTaskUsesMappingSyntax(t, task, check.spec.Name)
+
+		desc := task.StringField(constNpmTestDesc)
+		summary := task.StringField("summary")
+
+		assertTaskDescMeetsRequirements(t, desc, check.spec.Name)
+		assertTaskSummaryValid(t, check.spec, summary)
+
+		tasktestutil.AssertNoPlaceholderText(t, check.spec.Name, desc)
+		tasktestutil.AssertNoPlaceholderText(t, check.spec.Name, summary)
+	})
+}
+
+func assertTaskUsesGithubGroupOutput(t *testing.T, check *publicTaskCase) {
+	t.Helper()
+
+	if !check.spec.RequiresGroupOutput {
+		return
+	}
+
+	task := tasktestutil.MustTask(t, check.taskfile, check.spec.Name)
+
+	outputNode := task.Field(constNpmTestOutput)
+
+	if outputNode == nil {
+		outputNode = check.taskfile.Root.Field(constNpmTestOutput)
+	}
+
+	tasktestutil.AssertGithubGroupOutput(t, check.spec.Name, outputNode)
+}
+
+func forEachPublicTask(t *testing.T, callback func(*testing.T, *publicTaskCase)) {
+	t.Helper()
+
+	taskfile := tasktestutil.LoadTaskfile(t)
+	specs := expectedPublicTasks()
+
+	for i := range specs {
+		spec := specs[i]
+
+		t.Run(spec.Name, func(t *testing.T) {
+			t.Parallel()
+			callback(t, &publicTaskCase{taskfile: &taskfile, spec: &spec})
+		})
+	}
+}
+
+func assertTaskHasCommands(t *testing.T, check *publicTaskCase) {
+	t.Helper()
+
+	task := tasktestutil.MustTask(t, check.taskfile, check.spec.Name)
+	missingCmdsAndDeps := tasktestutil.IsEmptyNode(task.Field(constNpmTestCmds)) &&
+		tasktestutil.IsEmptyNode(task.Field("deps"))
+
+	if missingCmdsAndDeps {
+		t.Fatalf("public task %q must have cmds or deps", check.spec.Name)
+	}
+}
+
+// TestTaskSummariesWork
+func runTaskSummary(t *testing.T, root, name string) tasktestutil.CommandResult {
+	t.Helper()
+
+	return tasktestutil.RunTask(
+		t,
+		tasktestutil.TaskRun{Root: root, Env: tasktestutil.IsolatedEnv(t), Args: []string{
+			"--summary",
+			name,
+		}},
+	)
+}
+
+func runTaskSummaryCase(t *testing.T, root string, spec *tasktestutil.PublicTaskSpec) {
+	t.Helper()
+	t.Run(spec.Name, func(t *testing.T) {
+		t.Parallel()
+
+		if !spec.RequiresSummary {
+			return
+		}
+
+		result := runTaskSummary(t, root, spec.Name)
+		tasktestutil.AssertExitCode(t, result, constNpmTestExitSuccess)
+
+		out := result.Combined()
+		tasktestutil.AssertContains(t, out, spec.Name)
+		tasktestutil.AssertNotContains(t, strings.ToLower(out), "task not found")
+		tasktestutil.AssertNotContains(t, strings.ToLower(out), "unknown task")
+		tasktestutil.AssertNotContains(t, strings.ToLower(out), "no summary")
+	})
+}
+
+func assertCommandHasNoDangerousPattern(t *testing.T, taskName, command string) {
+	t.Helper()
+
+	for i := range tasktestutil.DangerousCommandPatterns() {
+		pattern := tasktestutil.DangerousCommandPatterns()[i]
+
+		if pattern.MatchString(command) {
+			t.Fatalf(
+				"task %q contains dangerous command pattern %q:\n%s",
+				taskName,
+				pattern.String(),
+				command,
+			)
+		}
+	}
+}
+
+func assertStubbedNpmTaskExits(t *testing.T, task string) {
+	t.Helper()
+
+	tasktestutil.AssertExitCode(t, runStubbedNpmTask(t, task), constNpmTestExitSuccess)
+}
+
+func runStubbedNpmTask(t *testing.T, task string, args ...string) tasktestutil.CommandResult {
+	t.Helper()
+
+	if runtime.GOOS == constNpmTestWindows {
+		t.Skip(constNpmTestUnixSkipMsg)
+	}
+
+	taskArgs := append([]string{constNpmTestYes, task}, args...)
+
+	return tasktestutil.RunTask(
+		t,
+		tasktestutil.TaskRun{Root: tasktestutil.ModuleRoot(t), Env: npmStubEnv(t), Args: taskArgs},
+	)
+}
+
+func runNpmTaskFor(t *testing.T, projectDir, taskName string) tasktestutil.CommandResult {
+	t.Helper()
+
+	taskfileDir := tasktestutil.ModuleRoot(t)
+
+	return tasktestutil.RunTask(t, tasktestutil.TaskRun{
+		Root: projectDir,
+		Env:  npmStubEnv(t),
+		Args: []string{
+			constNpmTestTaskfileFlag,
+			filepath.Join(taskfileDir, constNpmTestTaskfileYml),
+			constNpmTestYes,
+			taskName,
+		},
+	})
+}
+
+func writeProjectPackageJSON(t *testing.T, projectDir string) {
+	t.Helper()
+
+	err := os.WriteFile(
+		filepath.Join(projectDir, constNpmTestPackageJSON),
+		[]byte(`{"name":"test","version":"1.0.0"}`),
+		constNpmTestFileMode0600,
+	)
+	if err != nil {
+		t.Fatalf("failed to create package.json: %v", err)
+	}
+}
+
+func assertResultErrContains(t *testing.T, result *tasktestutil.CommandResult, check *errCheck) {
+	t.Helper()
+
+	if result.Err == nil {
+		t.Fatal(check.noErrMsg)
+	}
+
+	out := strings.ToLower(result.Combined())
+
+	if !strings.Contains(out, check.substrA) && !strings.Contains(out, check.substrB) {
+		t.Fatalf(check.msgFmt, result.Combined())
+	}
+}
+
+func skipUnlessUnixShell(t *testing.T) {
+	t.Helper()
+
+	if runtime.GOOS == constNpmTestWindows {
+		t.Skip(constNpmTestUnixSkipMsg)
+	}
+}
+
+// TestRealNpmFlowOnlyWhenExplicitlyEnabled
+func skipUnlessRealNpmFlowEnabled(t *testing.T) {
+	t.Helper()
+
+	if os.Getenv("RUN_INSTALLER_TESTS") != "1" {
+		t.Skip("set RUN_INSTALLER_TESTS=1 to run real npm install/build/test tests")
+	}
+
+	if runtime.GOOS == constNpmTestWindows {
+		t.Skip("real npm flow tests target Unix-like systems")
+	}
 }
 
 // NpmStubEnv returns an isolated environment with stub fnm, node, npm, and

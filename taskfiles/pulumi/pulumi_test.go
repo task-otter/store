@@ -13,6 +13,17 @@ const (
 	constPulumiModule = "pulumi"
 )
 
+// TestTaskfileModuleContract validates the behavior covered by this test case.
+func TestTaskfileModuleContract(t *testing.T) {
+	t.Parallel()
+
+	tasktest.AssertModule(
+		t,
+		constPulumiModule,
+		&tasktest.ModuleExpectations{Tasks: publicTasks(), Vars: publicVars()},
+	)
+}
+
 func publicTasks() []string {
 	return []string{
 		"login",
@@ -30,15 +41,4 @@ func publicVars() []string {
 		"PULUMI_STACK",
 		"PULUMI_TEMPLATE",
 	}
-}
-
-// TestTaskfileModuleContract validates the behavior covered by this test case.
-func TestTaskfileModuleContract(t *testing.T) {
-	t.Parallel()
-
-	tasktest.AssertModule(
-		t,
-		constPulumiModule,
-		&tasktest.ModuleExpectations{Tasks: publicTasks(), Vars: publicVars()},
-	)
 }

@@ -198,6 +198,219 @@ func (fake *fakeTest) TempDir() string {
 	return dir
 }
 
+// TestTaskNodeAndYamlHelpers validates the behavior covered by this test case.
+func TestTaskNodeAndYamlHelpers(t *testing.T) {
+	t.Parallel()
+
+	doc := parseYAML(t, `task:
+  desc: "  description  "
+  enabled: TRUE
+  aliases: [one, two]
+  nested:
+    value: text
+  sequence: [alpha, "", beta]
+`)
+	root := tasktestutil.DocumentRoot(t, doc)
+	taskNode := tasktestutil.MappingField(root, taskBinaryName)
+	task := tasktestutil.TaskNode{Name: taskBinaryName, Node: taskNode}
+
+	assertTaskNodeHelpers(t, task)
+	assertMappingHelpers(t, root, taskNode)
+	assertTextAndEmptyHelpers(t, taskNode)
+	assertDocumentRootFailures(t)
+}
+
+// TestModuleDiscoveryAndLoading validates the behavior covered by this test case.
+func TestModuleDiscoveryAndLoading(t *testing.T) {
+	t.Parallel()
+
+	root := makeModule(t)
+	nested := makeNestedModuleDir(t, root)
+	taskfile := assertDiscoverAndLoad(t, root, nested)
+
+	assertModuleDiscoveryFatals(t, &taskfile)
+}
+
+// TestModuleDiscoveryMissingTaskfile validates the behavior covered by this test case.
+func TestModuleDiscoveryMissingTaskfile(t *testing.T) {
+	inDir(t, t.TempDir(), func() {
+		expectFatal(
+			t,
+			taskfileNotFoundMsg,
+			func(fakeTester *fakeTest) { tasktestutil.ModuleRoot(fakeTester) },
+		)
+	})
+
+	t.Parallel()
+}
+
+// TestLoadTaskfileFailures validates the behavior covered by this test case.
+func TestLoadTaskfileFailures(t *testing.T) {
+	root := makeModule(t)
+	path := filepath.Join(root, taskfileYML)
+
+	assertLoadTaskfileParseFailures(t, root, path)
+
+	expectFatal(t, "failed to read", func(fakeTester *fakeTest) {
+		tasktestutil.ReadFile(fakeTester, filepath.Join(root, missingName))
+	})
+
+	t.Parallel()
+}
+
+// TestCommandResultsAndRunners validates the behavior covered by this test case.
+func TestCommandResultsAndRunners(t *testing.T) {
+	root := t.TempDir()
+	stub := writeExecutable(t, `printf 'stdout:%s' "$*"
+printf 'stderr' >&2
+if [ "${FAIL_TASK:-}" = yes ]; then exit 7; fi`)
+	t.Setenv(pathEnvVar, filepath.Dir(stub)+string(os.PathListSeparator)+os.Getenv(pathEnvVar))
+
+	assertHappyPathRun(t, root)
+	assertFailedRun(t, root)
+	assertTimedOutRun(t, root)
+}
+
+// TestDefaultTaskBinaryAndSimpleRunner validates the behavior covered by this test case.
+//
+//nolint:paralleltest // This test cannot call t.Parallel()
+func TestDefaultTaskBinaryAndSimpleRunner(t *testing.T) {
+	root := t.TempDir()
+
+	setupDefaultTaskBinary(t, root)
+	assertDefaultTaskBinaryResult(t, root)
+	assertSimpleTaskRunnerResult(t, root)
+}
+
+// TestEnvironmentHelpers validates the behavior covered by this test case.
+func TestEnvironmentHelpers(t *testing.T) {
+	t.Parallel()
+
+	env := tasktestutil.IsolatedEnv(t)
+	home := tasktestutil.EnvValue(env, "HOME")
+
+	assertIsolatedEnvValues(t, env, home)
+	assertFileExistsHelpers(t, home)
+	assertSetEnvHelpers(t)
+	assertIsolatedEnvFailure(t)
+}
+
+// TestCollectionAndTextHelpers validates the behavior covered by this test case.
+func TestCollectionAndTextHelpers(t *testing.T) {
+	t.Parallel()
+
+	assertCollectionHelpers(t)
+	assertTextHelpers(t)
+}
+
+// TestFileHelpers validates the behavior covered by this test case.
+func TestFileHelpers(t *testing.T) {
+	t.Parallel()
+
+	dir := t.TempDir()
+	tasktestutil.WriteStub(t, dir, stubName, "#!/bin/sh\necho stub\n")
+
+	assertFileHelperReads(t, dir)
+	assertFileHelperFailures(t, dir)
+}
+
+// TestCommandStringExtraction validates the behavior covered by this test case.
+func TestCommandStringExtraction(t *testing.T) {
+	t.Parallel()
+
+	assertCollectCommandStrings(t)
+	assertReferencedLocalShellScripts(t)
+}
+
+// TestAssertExitCode validates the behavior covered by this test case.
+func TestAssertExitCode(t *testing.T) {
+	t.Parallel()
+
+	assertExitCodeSuccesses(t)
+	assertExitCodeFailures(t)
+}
+
+// TestBasicAssertions validates the behavior covered by this test case.
+func TestBasicAssertions(t *testing.T) {
+	t.Parallel()
+
+	tasktestutil.AssertContains(t, alphaBetaText, betaName)
+	tasktestutil.AssertNotContains(t, alphaName, betaName)
+	tasktestutil.AssertNotEmpty(t, " value ", "must not be empty")
+	expectFatal(t, "expected output to contain", func(fakeTester *fakeTest) {
+		tasktestutil.AssertContains(fakeTester, alphaName, betaName)
+	})
+	expectFatal(t, "expected output not to contain", func(fakeTester *fakeTest) {
+		tasktestutil.AssertNotContains(fakeTester, alphaName, alphaName)
+	})
+	expectFatal(t, emptySentinelMsg, func(fakeTester *fakeTest) {
+		tasktestutil.AssertNotEmpty(fakeTester, " \n", emptySentinelMsg)
+	})
+}
+
+// TestFilesystemAssertions validates the behavior covered by this test case.
+func TestFilesystemAssertions(t *testing.T) {
+	t.Parallel()
+
+	fixture := makeFilesystemAssertionFixture(t)
+
+	assertFilesystemAssertionSuccesses(t, &fixture)
+	assertFilesystemAssertionFailures(t, &fixture)
+}
+
+// TestGithubGroupAssertion validates the behavior covered by this test case.
+func TestGithubGroupAssertion(t *testing.T) {
+	t.Parallel()
+
+	falseValue := "false"
+	tasktestutil.AssertGithubGroupOutput(
+		t,
+		alphaName,
+		groupOutputNode(t, groupBeginTemplate, groupEndMarker, &falseValue),
+	)
+
+	assertGithubGroupAssertionShapeFailures(t)
+	assertGithubGroupAssertionValueFailures(t, falseValue)
+}
+
+// TestTextFileAssertion validates the behavior covered by this test case.
+func TestTextFileAssertion(t *testing.T) {
+	t.Parallel()
+
+	tasktestutil.AssertTextFileClean(t, "clean.yml", "key: value\n")
+
+	tests := textFileAssertionCases()
+
+	for i := range tests {
+		testCase := tests[i]
+
+		expectFatal(
+			t,
+			testCase.want,
+			func(fakeTester *fakeTest) {
+				tasktestutil.AssertTextFileClean(fakeTester, "bad.yml", testCase.content)
+			},
+		)
+	}
+}
+
+// TestYamlStructureAssertions validates the behavior covered by this test case.
+func TestYamlStructureAssertions(t *testing.T) {
+	t.Parallel()
+
+	assertYamlStructureCleanCases(t)
+	assertYamlStructureFailureCases(t)
+}
+
+// TestPlaceholderJsonAndDangerousPatterns validates the behavior covered by this test case.
+func TestPlaceholderJsonAndDangerousPatterns(t *testing.T) {
+	t.Parallel()
+
+	assertPlaceholderText(t)
+	assertValidateJSON(t)
+	assertDangerousCommandPatterns(t)
+}
+
 func expectFatal(t *testing.T, want string, fatalFunc func(*fakeTest)) {
 	t.Helper()
 
@@ -401,28 +614,6 @@ func samePath(t *testing.T, left, right string) bool {
 	return leftErr == nil && rightErr == nil && os.SameFile(leftInfo, rightInfo)
 }
 
-// TestTaskNodeAndYamlHelpers validates the behavior covered by this test case.
-func TestTaskNodeAndYamlHelpers(t *testing.T) {
-	t.Parallel()
-
-	doc := parseYAML(t, `task:
-  desc: "  description  "
-  enabled: TRUE
-  aliases: [one, two]
-  nested:
-    value: text
-  sequence: [alpha, "", beta]
-`)
-	root := tasktestutil.DocumentRoot(t, doc)
-	taskNode := tasktestutil.MappingField(root, taskBinaryName)
-	task := tasktestutil.TaskNode{Name: taskBinaryName, Node: taskNode}
-
-	assertTaskNodeHelpers(t, task)
-	assertMappingHelpers(t, root, taskNode)
-	assertTextAndEmptyHelpers(t, taskNode)
-	assertDocumentRootFailures(t)
-}
-
 func assertTaskNodeHelpers(t *testing.T, task tasktestutil.TaskNode) {
 	t.Helper()
 
@@ -617,17 +808,6 @@ func assertModuleDiscoveryFatals(t *testing.T, taskfile *tasktestutil.LoadedTask
 	})
 }
 
-// TestModuleDiscoveryAndLoading validates the behavior covered by this test case.
-func TestModuleDiscoveryAndLoading(t *testing.T) {
-	t.Parallel()
-
-	root := makeModule(t)
-	nested := makeNestedModuleDir(t, root)
-	taskfile := assertDiscoverAndLoad(t, root, nested)
-
-	assertModuleDiscoveryFatals(t, &taskfile)
-}
-
 func assertDiscoverAndLoad(t *testing.T, root, nested string) tasktestutil.LoadedTaskfile {
 	t.Helper()
 
@@ -701,19 +881,6 @@ func loadedTaskfileMismatch(t *testing.T, root string, taskfile *tasktestutil.Lo
 		taskfile.Root.Name != rootName || len(taskfile.Tasks) != expectedTaskCount
 }
 
-// TestModuleDiscoveryMissingTaskfile validates the behavior covered by this test case.
-func TestModuleDiscoveryMissingTaskfile(t *testing.T) {
-	inDir(t, t.TempDir(), func() {
-		expectFatal(
-			t,
-			taskfileNotFoundMsg,
-			func(fakeTester *fakeTest) { tasktestutil.ModuleRoot(fakeTester) },
-		)
-	})
-
-	t.Parallel()
-}
-
 func assertLoadTaskfileParseFailures(t *testing.T, root, path string) {
 	t.Helper()
 
@@ -732,33 +899,6 @@ func assertLoadTaskfileParseFailures(t *testing.T, root, path string) {
 			func(fakeTester *fakeTest) { tasktestutil.LoadTaskfile(fakeTester) },
 		)
 	})
-}
-
-// TestLoadTaskfileFailures validates the behavior covered by this test case.
-func TestLoadTaskfileFailures(t *testing.T) {
-	root := makeModule(t)
-	path := filepath.Join(root, taskfileYML)
-
-	assertLoadTaskfileParseFailures(t, root, path)
-
-	expectFatal(t, "failed to read", func(fakeTester *fakeTest) {
-		tasktestutil.ReadFile(fakeTester, filepath.Join(root, missingName))
-	})
-
-	t.Parallel()
-}
-
-// TestCommandResultsAndRunners validates the behavior covered by this test case.
-func TestCommandResultsAndRunners(t *testing.T) {
-	root := t.TempDir()
-	stub := writeExecutable(t, `printf 'stdout:%s' "$*"
-printf 'stderr' >&2
-if [ "${FAIL_TASK:-}" = yes ]; then exit 7; fi`)
-	t.Setenv(pathEnvVar, filepath.Dir(stub)+string(os.PathListSeparator)+os.Getenv(pathEnvVar))
-
-	assertHappyPathRun(t, root)
-	assertFailedRun(t, root)
-	assertTimedOutRun(t, root)
 }
 
 func assertHappyPathRun(t *testing.T, root string) {
@@ -856,30 +996,6 @@ func assertSimpleTaskRunnerResult(t *testing.T, root string) {
 	}
 }
 
-// TestDefaultTaskBinaryAndSimpleRunner validates the behavior covered by this test case.
-//
-//nolint:paralleltest // This test cannot call t.Parallel()
-func TestDefaultTaskBinaryAndSimpleRunner(t *testing.T) {
-	root := t.TempDir()
-
-	setupDefaultTaskBinary(t, root)
-	assertDefaultTaskBinaryResult(t, root)
-	assertSimpleTaskRunnerResult(t, root)
-}
-
-// TestEnvironmentHelpers validates the behavior covered by this test case.
-func TestEnvironmentHelpers(t *testing.T) {
-	t.Parallel()
-
-	env := tasktestutil.IsolatedEnv(t)
-	home := tasktestutil.EnvValue(env, "HOME")
-
-	assertIsolatedEnvValues(t, env, home)
-	assertFileExistsHelpers(t, home)
-	assertSetEnvHelpers(t)
-	assertIsolatedEnvFailure(t)
-}
-
 func assertIsolatedEnvValues(t *testing.T, env []string, home string) {
 	t.Helper()
 
@@ -941,14 +1057,6 @@ func assertIsolatedEnvFailure(t *testing.T) {
 			fatalFunc: func() { tasktestutil.IsolatedEnv(fakeTester) },
 		},
 	)
-}
-
-// TestCollectionAndTextHelpers validates the behavior covered by this test case.
-func TestCollectionAndTextHelpers(t *testing.T) {
-	t.Parallel()
-
-	assertCollectionHelpers(t)
-	assertTextHelpers(t)
 }
 
 func assertCollectionHelpers(t *testing.T) {
@@ -1090,25 +1198,6 @@ func assertFileHelperFailures(t *testing.T, dir string) {
 	)
 }
 
-// TestFileHelpers validates the behavior covered by this test case.
-func TestFileHelpers(t *testing.T) {
-	t.Parallel()
-
-	dir := t.TempDir()
-	tasktestutil.WriteStub(t, dir, stubName, "#!/bin/sh\necho stub\n")
-
-	assertFileHelperReads(t, dir)
-	assertFileHelperFailures(t, dir)
-}
-
-// TestCommandStringExtraction validates the behavior covered by this test case.
-func TestCommandStringExtraction(t *testing.T) {
-	t.Parallel()
-
-	assertCollectCommandStrings(t)
-	assertReferencedLocalShellScripts(t)
-}
-
 func assertCollectCommandStringsMatch(t *testing.T) {
 	t.Helper()
 
@@ -1196,32 +1285,6 @@ func assertExitCodeFailures(t *testing.T) {
 	})
 }
 
-// TestAssertExitCode validates the behavior covered by this test case.
-func TestAssertExitCode(t *testing.T) {
-	t.Parallel()
-
-	assertExitCodeSuccesses(t)
-	assertExitCodeFailures(t)
-}
-
-// TestBasicAssertions validates the behavior covered by this test case.
-func TestBasicAssertions(t *testing.T) {
-	t.Parallel()
-
-	tasktestutil.AssertContains(t, alphaBetaText, betaName)
-	tasktestutil.AssertNotContains(t, alphaName, betaName)
-	tasktestutil.AssertNotEmpty(t, " value ", "must not be empty")
-	expectFatal(t, "expected output to contain", func(fakeTester *fakeTest) {
-		tasktestutil.AssertContains(fakeTester, alphaName, betaName)
-	})
-	expectFatal(t, "expected output not to contain", func(fakeTester *fakeTest) {
-		tasktestutil.AssertNotContains(fakeTester, alphaName, alphaName)
-	})
-	expectFatal(t, emptySentinelMsg, func(fakeTester *fakeTest) {
-		tasktestutil.AssertNotEmpty(fakeTester, " \n", emptySentinelMsg)
-	})
-}
-
 func makeEmptyAssertionDir(t *testing.T, dir string) string {
 	t.Helper()
 
@@ -1292,16 +1355,6 @@ func assertFilesystemAssertionFailures(t *testing.T, fixture *filesystemAssertio
 			func(fakeTester *fakeTest) { testCase.assert(fakeTester, testCase.path) },
 		)
 	}
-}
-
-// TestFilesystemAssertions validates the behavior covered by this test case.
-func TestFilesystemAssertions(t *testing.T) {
-	t.Parallel()
-
-	fixture := makeFilesystemAssertionFixture(t)
-
-	assertFilesystemAssertionSuccesses(t, &fixture)
-	assertFilesystemAssertionFailures(t, &fixture)
 }
 
 func groupOutputNode(t *testing.T, groupValue any, parts ...any) *yaml.Node {
@@ -1456,21 +1509,6 @@ func assertGithubGroupAssertionValueFailures(t *testing.T, falseValue string) {
 	assertGithubGroupErrorOnlyFailures(t)
 }
 
-// TestGithubGroupAssertion validates the behavior covered by this test case.
-func TestGithubGroupAssertion(t *testing.T) {
-	t.Parallel()
-
-	falseValue := "false"
-	tasktestutil.AssertGithubGroupOutput(
-		t,
-		alphaName,
-		groupOutputNode(t, groupBeginTemplate, groupEndMarker, &falseValue),
-	)
-
-	assertGithubGroupAssertionShapeFailures(t)
-	assertGithubGroupAssertionValueFailures(t, falseValue)
-}
-
 func textFileAssertionCases() []textFileAssertionCase {
 	return []textFileAssertionCase{
 		{content: emptyStr, want: "is empty"},
@@ -1478,27 +1516,6 @@ func textFileAssertionCases() []textFileAssertionCase {
 		{content: "key:\tvalue\n", want: "contains tabs"},
 		{content: "key: value", want: "end with a newline"},
 		{content: "key: value \n", want: "trailing whitespace"},
-	}
-}
-
-// TestTextFileAssertion validates the behavior covered by this test case.
-func TestTextFileAssertion(t *testing.T) {
-	t.Parallel()
-
-	tasktestutil.AssertTextFileClean(t, "clean.yml", "key: value\n")
-
-	tests := textFileAssertionCases()
-
-	for i := range tests {
-		testCase := tests[i]
-
-		expectFatal(
-			t,
-			testCase.want,
-			func(fakeTester *fakeTest) {
-				tasktestutil.AssertTextFileClean(fakeTester, "bad.yml", testCase.content)
-			},
-		)
 	}
 }
 
@@ -1545,23 +1562,6 @@ func assertYamlStructureFailureCases(t *testing.T) {
 
 	assertDuplicateMappingKeyFailure(t)
 	assertYamlAliasFailure(t)
-}
-
-// TestYamlStructureAssertions validates the behavior covered by this test case.
-func TestYamlStructureAssertions(t *testing.T) {
-	t.Parallel()
-
-	assertYamlStructureCleanCases(t)
-	assertYamlStructureFailureCases(t)
-}
-
-// TestPlaceholderJsonAndDangerousPatterns validates the behavior covered by this test case.
-func TestPlaceholderJsonAndDangerousPatterns(t *testing.T) {
-	t.Parallel()
-
-	assertPlaceholderText(t)
-	assertValidateJSON(t)
-	assertDangerousCommandPatterns(t)
 }
 
 func assertPlaceholderText(t *testing.T) {

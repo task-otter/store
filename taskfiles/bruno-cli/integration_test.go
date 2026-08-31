@@ -1,7 +1,7 @@
 // Taskotter 2026.
 // SPDX-License-Identifier: Apache-2.0.
 
-package bruno_cli_test
+package brunocli_test
 
 import (
 	"testing"

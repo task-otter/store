@@ -28,18 +28,6 @@ const (
 	zeroLen     = 0
 )
 
-func publicTasks() []string {
-	return []string{
-		constGovulncheckLint,
-	}
-}
-
-func publicVars() []string {
-	return []string{
-		envVarGovulncheckNixInstallable,
-	}
-}
-
 // TestTaskfileModuleContract validates the behavior covered by this test case.
 func TestTaskfileModuleContract(t *testing.T) {
 	t.Parallel()
@@ -67,6 +55,18 @@ func TestDevelopmentToolDependencies(t *testing.T) {
 			t,
 			&dependencyCheck{taskfile: taskfile, taskName: taskName, expected: expected},
 		)
+	}
+}
+
+func publicTasks() []string {
+	return []string{
+		constGovulncheckLint,
+	}
+}
+
+func publicVars() []string {
+	return []string{
+		envVarGovulncheckNixInstallable,
 	}
 }
 

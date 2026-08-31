@@ -13,8 +13,4 @@ exported_tasks:
   - install:undo
   - upgrade
   - version
-variants:
-  - bun
-  - node/npm
-  - node/pnpm
-  - node/yarn
+variants: [bun, node/npm, node/pnpm, node/yarn]

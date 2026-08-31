@@ -15,22 +15,6 @@ const (
 	constNixInstallProfile = "nix:install:profile"
 )
 
-func publicTasks() []string {
-	return []string{
-		constProtoTaskGen,
-		"ungen",
-	}
-}
-
-func publicVars() []string {
-	return []string{
-		"GO_MODULE",
-		"PROTO_NIX_INSTALLABLE",
-		"PROTO_PATH",
-		"PROTO_PATTERN",
-	}
-}
-
 // TestTaskfileModuleContract
 func TestTaskfileModuleContract(t *testing.T) {
 	t.Parallel()
@@ -51,11 +35,31 @@ func TestGenInstallsViaNixProfile(t *testing.T) {
 	deps, ok := taskfile.Tasks[constProtoTaskGen].Deps.([]any)
 
 	if !ok {
-		t.Fatalf("%s deps have type %T, want []any", constProtoTaskGen, taskfile.Tasks[constProtoTaskGen].Deps)
+		t.Fatalf(
+			"%s deps have type %T, want []any",
+			constProtoTaskGen,
+			taskfile.Tasks[constProtoTaskGen].Deps,
+		)
 	}
 
 	if !containsTaskDependency(deps, constNixInstallProfile) {
 		t.Errorf("%s must depend on %s; deps: %v", constProtoTaskGen, constNixInstallProfile, deps)
+	}
+}
+
+func publicTasks() []string {
+	return []string{
+		constProtoTaskGen,
+		"ungen",
+	}
+}
+
+func publicVars() []string {
+	return []string{
+		"GO_MODULE",
+		"PROTO_NIX_INSTALLABLE",
+		"PROTO_PATH",
+		"PROTO_PATTERN",
 	}
 }
 

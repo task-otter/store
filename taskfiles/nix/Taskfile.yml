@@ -240,7 +240,8 @@ tasks:
         esac
         extra="{{if .NIX_EXTRA_ARGS_OVERRIDE}}{{.NIX_EXTRA_ARGS_OVERRIDE}}{{else}}{{.NIX_EXTRA_ARGS}}{{end}}"
         trailing="{{.NIX_TRAILING}}"
-        bash -lc '{{.NIX_LOAD}}; nix --extra-experimental-features "{{.NIX_NEEDED_FEATURES}}" {{.NIX_SUBCMD}} '"$i"' '"$extra"' '"$trailing"
+        bash -lc '{{.NIX_LOAD}};
+        nix --extra-experimental-features "{{.NIX_NEEDED_FEATURES}}" {{.NIX_SUBCMD}} '"$i"' '"$extra"' '"$trailing"
 
   _install:unix:
     run: once
@@ -446,11 +447,13 @@ tasks:
       - echo 'Upgrading Nix from channel {{.NIX_CHANNEL}}...'
       - |
         if [ -e /nix/var/nix/profiles/default/etc/profile.d/nix-daemon.sh ]; then
-          sudo bash -lc '{{.NIX_LOAD}}; nix-env --install --file "<nixpkgs>" --attr nix cacert -I nixpkgs=channel:{{.NIX_CHANNEL}}'
+          sudo bash -lc '{{.NIX_LOAD}};
+          nix-env --install --file "<nixpkgs>" --attr nix cacert -I nixpkgs=channel:{{.NIX_CHANNEL}}'
           sudo systemctl daemon-reload
           sudo systemctl restart nix-daemon
         else
-          bash -lc '{{.NIX_LOAD}}; nix-env --install --file "<nixpkgs>" --attr nix cacert -I nixpkgs=channel:{{.NIX_CHANNEL}}'
+          bash -lc '{{.NIX_LOAD}};
+          nix-env --install --file "<nixpkgs>" --attr nix cacert -I nixpkgs=channel:{{.NIX_CHANNEL}}'
         fi
       - echo 'Nix upgraded.'
 
@@ -471,7 +474,9 @@ tasks:
         msg: Nix is not installed. Run task install first.
     cmds:
       - echo 'Upgrading Nix from channel {{.NIX_CHANNEL}}...'
-      - sudo bash -lc '{{.NIX_LOAD}}; nix-env --install --file "<nixpkgs>" --attr nix cacert -I nixpkgs=channel:{{.NIX_CHANNEL}}'
+      - >-
+        sudo bash -lc '{{.NIX_LOAD}};
+        nix-env --install --file "<nixpkgs>" --attr nix cacert -I nixpkgs=channel:{{.NIX_CHANNEL}}'
       - sudo launchctl remove org.nixos.nix-daemon
       - sudo launchctl load /Library/LaunchDaemons/org.nixos.nix-daemon.plist
       - echo 'Nix upgraded.'
@@ -509,7 +514,8 @@ tasks:
         if grep -E '^experimental-features[[:space:]]*=' "$conf" >/dev/null 2>&1; then
           existing="$(sed -n 's/^experimental-features[[:space:]]*=[[:space:]]*//p' "$conf" | tr '\n' ' ')"
         fi
-        merged="$(printf '%s\n' $existing $features | awk 'NF && !seen[$0]++ { printf "%s%s", sep, $0; sep=" " } END { print "" }')"
+        merged="$(printf '%s\n' $existing $features | awk 'NF && !seen[$0]++ {
+          printf "%s%s", sep, $0; sep=" " } END { print "" }')"
         tmp="$(mktemp)"
         if grep -E '^experimental-features[[:space:]]*=' "$conf" >/dev/null 2>&1; then
           awk -v val="$merged" '
@@ -578,5 +584,6 @@ tasks:
     cmds:
       - >-
         powershell -NoProfile -ExecutionPolicy Bypass -Command
-        "Write-Error 'Nix is not supported on native Windows. Install WSL2 with systemd, then run this task from inside WSL.';
+        "Write-Error 'Nix is not supported on native Windows. Install WSL2 with systemd,
+        then run this task from inside WSL.';
         exit 1"

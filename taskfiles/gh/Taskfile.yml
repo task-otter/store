@@ -973,7 +973,10 @@ tasks:
         vars:
           NIX_INSTALLABLE: "{{.GH_NIX_INSTALLABLE}}"
     cmds:
-      - cmd: bash -lc '{{.NIX_LOAD}}; gh release upload {{.TAG}} {{.ASSET}} {{if .OWNER}}--repo {{.OWNER}}/{{.REPO}}{{end}}'
+      - cmd: >-
+          bash -lc '{{.NIX_LOAD}};
+          gh release upload {{.TAG}} {{.ASSET}}
+          {{if .OWNER}}--repo {{.OWNER}}/{{.REPO}}{{end}}'
         platforms: [linux, darwin]
       - cmd: gh release upload {{.TAG}} {{.ASSET}} {{if .OWNER}}--repo {{.OWNER}}/{{.REPO}}{{end}}
         platforms: [windows]
@@ -1140,7 +1143,10 @@ tasks:
         vars:
           NIX_INSTALLABLE: "{{.GH_NIX_INSTALLABLE}}"
     cmds:
-      - cmd: bash -lc '{{.NIX_LOAD}}; gh secret delete {{.SECRET_NAME}} {{if .ENVIRONMENT}}--env {{.ENVIRONMENT}}{{end}}'
+      - cmd: >-
+          bash -lc '{{.NIX_LOAD}};
+          gh secret delete {{.SECRET_NAME}}
+          {{if .ENVIRONMENT}}--env {{.ENVIRONMENT}}{{end}}'
         platforms: [linux, darwin]
       - cmd: gh secret delete {{.SECRET_NAME}} {{if .ENVIRONMENT}}--env {{.ENVIRONMENT}}{{end}}
         platforms: [windows]
@@ -1209,7 +1215,10 @@ tasks:
         vars:
           NIX_INSTALLABLE: "{{.GH_NIX_INSTALLABLE}}"
     cmds:
-      - cmd: bash -lc '{{.NIX_LOAD}}; gh variable delete {{.VARIABLE_NAME}} {{if .ENVIRONMENT}}--env {{.ENVIRONMENT}}{{end}}'
+      - cmd: >-
+          bash -lc '{{.NIX_LOAD}};
+          gh variable delete {{.VARIABLE_NAME}}
+          {{if .ENVIRONMENT}}--env {{.ENVIRONMENT}}{{end}}'
         platforms: [linux, darwin]
       - cmd: gh variable delete {{.VARIABLE_NAME}} {{if .ENVIRONMENT}}--env {{.ENVIRONMENT}}{{end}}
         platforms: [windows]
@@ -1522,7 +1531,10 @@ tasks:
         vars:
           NIX_INSTALLABLE: "{{.GH_NIX_INSTALLABLE}}"
     cmds:
-      - cmd: bash -lc '{{.NIX_LOAD}}; gh ssh-key add {{.SSH_KEY_FILE}} {{if .SSH_KEY_TITLE}}--title "{{.SSH_KEY_TITLE}}"{{end}}'
+      - cmd: >-
+          bash -lc '{{.NIX_LOAD}};
+          gh ssh-key add {{.SSH_KEY_FILE}}
+          {{if .SSH_KEY_TITLE}}--title "{{.SSH_KEY_TITLE}}"{{end}}'
         platforms: [linux, darwin]
       - cmd: gh ssh-key add {{.SSH_KEY_FILE}} {{if .SSH_KEY_TITLE}}--title "{{.SSH_KEY_TITLE}}"{{end}}
         platforms: [windows]
@@ -1654,7 +1666,10 @@ tasks:
         vars:
           NIX_INSTALLABLE: "{{.GH_NIX_INSTALLABLE}}"
     cmds:
-      - cmd: bash -lc '{{.NIX_LOAD}}; gh project create --title "{{.PROJECT_TITLE}}" {{if .OWNER}}--owner {{.OWNER}}{{end}}'
+      - cmd: >-
+          bash -lc '{{.NIX_LOAD}};
+          gh project create --title "{{.PROJECT_TITLE}}"
+          {{if .OWNER}}--owner {{.OWNER}}{{end}}'
         platforms: [linux, darwin]
       - cmd: gh project create --title "{{.PROJECT_TITLE}}" {{if .OWNER}}--owner {{.OWNER}}{{end}}
         platforms: [windows]
@@ -1977,9 +1992,10 @@ tasks:
     env:
       GH_SECRET_VALUE: "{{.SECRET_VALUE}}"
     cmds:
-      - |
-        {{.NIX_LOAD}}
-        printf '%s' "$GH_SECRET_VALUE" | gh secret set {{.SECRET_NAME}} --body - {{if .ENVIRONMENT}}--env {{.ENVIRONMENT}}{{end}}
+      - >-
+        {{.NIX_LOAD}};
+        printf '%s' "$GH_SECRET_VALUE" | gh secret set {{.SECRET_NAME}} --body -
+        {{if .ENVIRONMENT}}--env {{.ENVIRONMENT}}{{end}}
 
   _secret:set:windows:
     run: once

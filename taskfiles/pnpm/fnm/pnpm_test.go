@@ -15,19 +15,43 @@ import (
 )
 
 const (
-	constPnpmTestYes     = "--yes"
+	constPnpmTestYes          = "--yes"
 	constPnpmTaskInstallClean = "install:clean"
-	constPnpmTaskInstall = "install"
-	constPnpmTaskRun     = "run"
-	constPnpmTaskVersion = "version"
-	constPnpmCurrentDir  = "."
-	constPnpmPathEnvVar  = "PATH"
-	constPnpmDirMode     = 0o700
-	constPnpmMinTasks    = 0
-	constPnpmScriptTest  = "SCRIPT=test"
-	constPnpmDoubleDash  = "--"
-	constPnpmWatchFlag   = "--watch"
+	constPnpmTaskInstall      = "install"
+	constPnpmTaskRun          = "run"
+	constPnpmTaskVersion      = "version"
+	constPnpmCurrentDir       = "."
+	constPnpmPathEnvVar       = "PATH"
+	constPnpmDirMode          = 0o700
+	constPnpmMinTasks         = 0
+	constPnpmScriptTest       = "SCRIPT=test"
+	constPnpmDoubleDash       = "--"
+	constPnpmWatchFlag        = "--watch"
 )
+
+// TestTaskfileAndReadmePublicApi
+func TestTaskfileAndReadmePublicApi(t *testing.T) {
+	t.Parallel()
+
+	tasks := decodeTaskfileTasks(t)
+
+	assertPublicTaskNamesMatch(t, tasks)
+	assertReadmeTaskNamesMatch(t)
+}
+
+// TestStubbedPnpmFlows
+func TestStubbedPnpmFlows(t *testing.T) {
+	t.Parallel()
+
+	if runtime.GOOS == "windows" {
+		t.Skip("Unix shell stubs cover these flows")
+	}
+
+	env := stubEnv(t)
+
+	runSafePnpmFlows(t, env)
+	assertUnsafeScriptRejected(t, env)
+}
 
 func publicTasks() []string {
 	return append(publicTasksCore(), publicTasksExtra()...)
@@ -71,16 +95,6 @@ func publicTasksExtra() []string {
 	}
 }
 
-// TestTaskfileAndReadmePublicApi
-func TestTaskfileAndReadmePublicApi(t *testing.T) {
-	t.Parallel()
-
-	tasks := decodeTaskfileTasks(t)
-
-	assertPublicTaskNamesMatch(t, tasks)
-	assertReadmeTaskNamesMatch(t)
-}
-
 func decodeTaskfileTasks(t *testing.T) map[string]any {
 	t.Helper()
 
@@ -122,20 +136,6 @@ func assertReadmeTaskNamesMatch(t *testing.T) {
 	if !slices.Equal(publicTasks(), readmeTasks) {
 		t.Fatalf("README public task drift\nexpected: %v\nactual:   %v", publicTasks(), readmeTasks)
 	}
-}
-
-// TestStubbedPnpmFlows
-func TestStubbedPnpmFlows(t *testing.T) {
-	t.Parallel()
-
-	if runtime.GOOS == "windows" {
-		t.Skip("Unix shell stubs cover these flows")
-	}
-
-	env := stubEnv(t)
-
-	runSafePnpmFlows(t, env)
-	assertUnsafeScriptRejected(t, env)
 }
 
 func safePnpmFlowArgs() [][]string {

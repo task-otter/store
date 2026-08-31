@@ -2,6 +2,4 @@
 schema: taskotter.dev/taskfile-metadata/v1
 module: protolint
 taskfile: Taskfile.yml
-exported_tasks:
-  - ci
-  - ci:fix
+exported_tasks: [ci, ci:fix]

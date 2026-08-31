@@ -55,53 +55,6 @@ const (
 	vaultAuthEnvVarName       = "VAULT_TOKEN"
 )
 
-func publicTasksA() []string {
-	return []string{
-		healthTask,
-		initTask,
-		kvGetTask,
-		loginTask,
-		loginTaskApprole,
-		loginTaskRootAuth,
-		"peers",
-		restoreTask,
-	}
-}
-
-func publicTasksB() []string {
-	return []string{
-		"root-token",
-		"seal",
-		"snapshot",
-		"status",
-		issueApproleTask,
-		revokeSelfTask,
-		unsealTask,
-		"verify",
-	}
-}
-
-func publicTasks() []string {
-	return append(publicTasksA(), publicTasksB()...)
-}
-
-func publicVars() []string {
-	return []string{
-		"VAULT_APPROLE_MOUNT",
-		"VAULT_EXTRA_ARGS",
-		"VAULT_FILE",
-		"VAULT_KEYS_FILE",
-		roleEnvVarName,
-		"VAULT_ROOT_TOKEN",
-		approleKeyEnvVarName,
-		"VAULT_SHARES",
-		"VAULT_SNAPSHOT_FILE",
-		"VAULT_THRESHOLD",
-		vaultAddrEnvVarName,
-		"VAULT_NIX_INSTALLABLE",
-	}
-}
-
 // TestTaskfileModuleContract validates the behavior covered by this test case.
 func TestTaskfileModuleContract(t *testing.T) {
 	t.Parallel()
@@ -111,19 +64,6 @@ func TestTaskfileModuleContract(t *testing.T) {
 		vaultModuleName,
 		&tasktest.ModuleExpectations{Tasks: publicTasks(), Vars: publicVars()},
 	)
-}
-
-func inputValidatedTaskNames() []string {
-	return []string{
-		initTask,
-		loginTask,
-		loginTaskApprole,
-		loginTaskRootAuth,
-		restoreTask,
-		issueApproleTask,
-		revokeSelfTask,
-		unsealTask,
-	}
 }
 
 // TestInputValidatedTasksDoNotInstallBeforePreconditions validates the behavior covered by this test case.
@@ -164,30 +104,6 @@ func TestVerifyDoesNotMaskStatusFailures(t *testing.T) {
 	}
 }
 
-func assertInitPreconditionsRefuseExistingKeysFile(t *testing.T, preconditions string) {
-	t.Helper()
-
-	assertCmdsContainAll(t, &cmdsAssertion{
-		content: preconditions,
-		tokens:  []string{"test ! -e", "KEYS_FILE already exists"},
-		msgFmt:  "init should refuse an existing KEYS_FILE with %q\npreconditions:\n%s",
-	})
-}
-
-func assertInitStagesOutputSafely(t *testing.T, cmds string) {
-	t.Helper()
-
-	assertCmdsContainAll(t, &cmdsAssertion{
-		content: cmds,
-		tokens:  []string{`TMP="${KF}.tmp.$$"`, `-format=json > "$TMP"`, `mv "$TMP" "$KF"`},
-		msgFmt:  "init should stage init output safely with %q\ncmds:\n%s",
-	})
-
-	if strings.Contains(cmds, `-format=json > "$KF"`) {
-		t.Fatalf("init should not redirect operator init directly to KEYS_FILE\ncmds:\n%s", cmds)
-	}
-}
-
 // TestInitDoesNotOverwriteExistingKeysFile validates the behavior covered by this test case.
 func TestInitDoesNotOverwriteExistingKeysFile(t *testing.T) {
 	t.Parallel()
@@ -199,14 +115,6 @@ func TestInitDoesNotOverwriteExistingKeysFile(t *testing.T) {
 
 	assertInitPreconditionsRefuseExistingKeysFile(t, preconditions)
 	assertInitStagesOutputSafely(t, cmds)
-}
-
-func loginTaskCmds(t *testing.T, taskName string) string {
-	t.Helper()
-
-	taskfile := tasktest.LoadTaskfile(t, vaultModuleName)
-
-	return taskFieldYAML(t, taskfile.Tasks[taskName].Cmds)
 }
 
 // TestLoginDoesNotPassRootTokenAsCommandArgument validates the behavior covered by this test case.
@@ -257,6 +165,185 @@ func TestLoginRootTokenPipesTokenViaStdin(t *testing.T) {
 	})
 }
 
+// TestLoginApproleRequiresBothCredentials validates the behavior covered by this test case.
+func TestLoginApproleRequiresBothCredentials(t *testing.T) {
+	t.Parallel()
+
+	taskfile := tasktest.LoadTaskfile(t, vaultModuleName)
+	task := taskfile.Tasks[loginTaskApprole]
+	preconditions := taskFieldYAML(t, task.Preconditions)
+	cmds := taskFieldYAML(t, task.Cmds)
+
+	assertLoginApprolePreconditionsAndCmds(t, preconditions, cmds)
+}
+
+// TestStrictShellSetOnSensitiveTasks validates the behavior covered by this test case.
+func TestStrictShellSetOnSensitiveTasks(t *testing.T) {
+	t.Parallel()
+
+	taskfile := tasktest.LoadTaskfile(t, vaultModuleName)
+
+	names := strictShellTaskNames()
+
+	for i := range names {
+		assertTaskSetsStrictShellOptions(t, taskfile, names[i])
+	}
+}
+
+// TestTokenIssueApRolePipesSecretViaStdinWithoutLogin validates the behavior covered by this test case.
+func TestTokenIssueApRolePipesSecretViaStdinWithoutLogin(t *testing.T) {
+	t.Parallel()
+
+	taskfile := tasktest.LoadTaskfile(t, vaultModuleName)
+	task := taskfile.Tasks[issueApproleTask]
+	preconditions := taskFieldYAML(t, task.Preconditions)
+	cmds := taskFieldYAML(t, task.Cmds)
+
+	assertCmdsContainAll(t, &cmdsAssertion{
+		content: preconditions,
+		tokens:  []string{roleEnvVarName, approleKeyEnvVarName},
+		msgFmt:  "token:issue:approle should require %s in preconditions\npreconditions:\n%s",
+	})
+
+	assertApproleCredentialsExchanged(
+		t,
+		&approleCredentialsCheck{msgPrefix: "token:issue:approle", cmds: cmds, extraTokens: nil},
+	)
+
+	assertTokenIssueApRoleSkipsVaultLogin(t, cmds)
+}
+
+// TestTokenRevokeSelfRequiresVaultToken validates the behavior covered by this test case.
+func TestTokenRevokeSelfRequiresVaultToken(t *testing.T) {
+	t.Parallel()
+
+	taskfile := tasktest.LoadTaskfile(t, vaultModuleName)
+	task := taskfile.Tasks[revokeSelfTask]
+	preconditions := taskFieldYAML(t, task.Preconditions)
+	cmds := taskFieldYAML(t, task.Cmds)
+
+	if !strings.Contains(preconditions, vaultAuthEnvVarName) {
+		t.Fatalf(
+			"token:revoke-self should require VAULT_TOKEN in preconditions\npreconditions:\n%s",
+			preconditions,
+		)
+	}
+
+	if !strings.Contains(cmds, "-self") {
+		t.Fatalf("token:revoke-self should pass -self to vault token revoke\ncmds:\n%s", cmds)
+	}
+}
+
+// TestKvGetRequiresMountPathAndToken validates the behavior covered by this test case.
+func TestKvGetRequiresMountPathAndToken(t *testing.T) {
+	t.Parallel()
+
+	taskfile := tasktest.LoadTaskfile(t, vaultModuleName)
+	task := taskfile.Tasks[kvGetTask]
+	preconditions := taskFieldYAML(t, task.Preconditions)
+	cmds := taskFieldYAML(t, task.Cmds)
+
+	assertCmdsContainAll(t, &cmdsAssertion{
+		content: preconditions,
+		tokens:  []string{"KV_GET_MOUNT", "KV_GET_PATH", vaultAuthEnvVarName, vaultAddrEnvVarName},
+		msgFmt:  "kv:get should require %s in preconditions\npreconditions:\n%s",
+	})
+
+	assertKvGetCallsVaultWithJSON(t, cmds)
+}
+
+func publicTasksA() []string {
+	return []string{
+		healthTask,
+		initTask,
+		kvGetTask,
+		loginTask,
+		loginTaskApprole,
+		loginTaskRootAuth,
+		"peers",
+		restoreTask,
+	}
+}
+
+func publicTasksB() []string {
+	return []string{
+		"root-token",
+		"seal",
+		"snapshot",
+		"status",
+		issueApproleTask,
+		revokeSelfTask,
+		unsealTask,
+		"verify",
+	}
+}
+
+func publicTasks() []string {
+	return append(publicTasksA(), publicTasksB()...)
+}
+
+func publicVars() []string {
+	return []string{
+		"VAULT_APPROLE_MOUNT",
+		"VAULT_EXTRA_ARGS",
+		"VAULT_FILE",
+		"VAULT_KEYS_FILE",
+		roleEnvVarName,
+		"VAULT_ROOT_TOKEN",
+		approleKeyEnvVarName,
+		"VAULT_SHARES",
+		"VAULT_SNAPSHOT_FILE",
+		"VAULT_THRESHOLD",
+		vaultAddrEnvVarName,
+		"VAULT_NIX_INSTALLABLE",
+	}
+}
+
+func inputValidatedTaskNames() []string {
+	return []string{
+		initTask,
+		loginTask,
+		loginTaskApprole,
+		loginTaskRootAuth,
+		restoreTask,
+		issueApproleTask,
+		revokeSelfTask,
+		unsealTask,
+	}
+}
+
+func assertInitPreconditionsRefuseExistingKeysFile(t *testing.T, preconditions string) {
+	t.Helper()
+
+	assertCmdsContainAll(t, &cmdsAssertion{
+		content: preconditions,
+		tokens:  []string{"test ! -e", "KEYS_FILE already exists"},
+		msgFmt:  "init should refuse an existing KEYS_FILE with %q\npreconditions:\n%s",
+	})
+}
+
+func assertInitStagesOutputSafely(t *testing.T, cmds string) {
+	t.Helper()
+
+	assertCmdsContainAll(t, &cmdsAssertion{
+		content: cmds,
+		tokens:  []string{`TMP="${KF}.tmp.$$"`, `-format=json > "$TMP"`, `mv "$TMP" "$KF"`},
+		msgFmt:  "init should stage init output safely with %q\ncmds:\n%s",
+	})
+
+	if strings.Contains(cmds, `-format=json > "$KF"`) {
+		t.Fatalf("init should not redirect operator init directly to KEYS_FILE\ncmds:\n%s", cmds)
+	}
+}
+
+func loginTaskCmds(t *testing.T, taskName string) string {
+	t.Helper()
+
+	taskfile := tasktest.LoadTaskfile(t, vaultModuleName)
+
+	return taskFieldYAML(t, taskfile.Tasks[taskName].Cmds)
+}
+
 func assertApproleCredentialsExchanged(t *testing.T, check *approleCredentialsCheck) {
 	t.Helper()
 
@@ -303,18 +390,6 @@ func assertLoginApprolePreconditionsAndCmds(t *testing.T, preconditions, cmds st
 	})
 }
 
-// TestLoginApproleRequiresBothCredentials validates the behavior covered by this test case.
-func TestLoginApproleRequiresBothCredentials(t *testing.T) {
-	t.Parallel()
-
-	taskfile := tasktest.LoadTaskfile(t, vaultModuleName)
-	task := taskfile.Tasks[loginTaskApprole]
-	preconditions := taskFieldYAML(t, task.Preconditions)
-	cmds := taskFieldYAML(t, task.Cmds)
-
-	assertLoginApprolePreconditionsAndCmds(t, preconditions, cmds)
-}
-
 func strictShellTaskNames() []string {
 	return []string{
 		healthTask,
@@ -327,19 +402,6 @@ func strictShellTaskNames() []string {
 		issueApproleTask,
 		revokeSelfTask,
 		unsealTask,
-	}
-}
-
-// TestStrictShellSetOnSensitiveTasks validates the behavior covered by this test case.
-func TestStrictShellSetOnSensitiveTasks(t *testing.T) {
-	t.Parallel()
-
-	taskfile := tasktest.LoadTaskfile(t, vaultModuleName)
-
-	names := strictShellTaskNames()
-
-	for i := range names {
-		assertTaskSetsStrictShellOptions(t, taskfile, names[i])
 	}
 }
 
@@ -359,29 +421,6 @@ func assertTaskSetsStrictShellOptions(t *testing.T, taskfile *tasktest.Taskfile,
 	}
 }
 
-// TestTokenIssueApRolePipesSecretViaStdinWithoutLogin validates the behavior covered by this test case.
-func TestTokenIssueApRolePipesSecretViaStdinWithoutLogin(t *testing.T) {
-	t.Parallel()
-
-	taskfile := tasktest.LoadTaskfile(t, vaultModuleName)
-	task := taskfile.Tasks[issueApproleTask]
-	preconditions := taskFieldYAML(t, task.Preconditions)
-	cmds := taskFieldYAML(t, task.Cmds)
-
-	assertCmdsContainAll(t, &cmdsAssertion{
-		content: preconditions,
-		tokens:  []string{roleEnvVarName, approleKeyEnvVarName},
-		msgFmt:  "token:issue:approle should require %s in preconditions\npreconditions:\n%s",
-	})
-
-	assertApproleCredentialsExchanged(
-		t,
-		&approleCredentialsCheck{msgPrefix: "token:issue:approle", cmds: cmds, extraTokens: nil},
-	)
-
-	assertTokenIssueApRoleSkipsVaultLogin(t, cmds)
-}
-
 func assertTokenIssueApRoleSkipsVaultLogin(t *testing.T, cmds string) {
 	t.Helper()
 
@@ -390,27 +429,6 @@ func assertTokenIssueApRoleSkipsVaultLogin(t *testing.T, cmds string) {
 		tokens:  []string{vaultLoginPipe, noPrintFlag},
 		msgFmt:  "token:issue:approle should not call vault login (found %q, token must go to stdout)\ncmds:\n%s",
 	})
-}
-
-// TestTokenRevokeSelfRequiresVaultToken validates the behavior covered by this test case.
-func TestTokenRevokeSelfRequiresVaultToken(t *testing.T) {
-	t.Parallel()
-
-	taskfile := tasktest.LoadTaskfile(t, vaultModuleName)
-	task := taskfile.Tasks[revokeSelfTask]
-	preconditions := taskFieldYAML(t, task.Preconditions)
-	cmds := taskFieldYAML(t, task.Cmds)
-
-	if !strings.Contains(preconditions, vaultAuthEnvVarName) {
-		t.Fatalf(
-			"token:revoke-self should require VAULT_TOKEN in preconditions\npreconditions:\n%s",
-			preconditions,
-		)
-	}
-
-	if !strings.Contains(cmds, "-self") {
-		t.Fatalf("token:revoke-self should pass -self to vault token revoke\ncmds:\n%s", cmds)
-	}
 }
 
 func assertKvGetCallsVaultWithJSON(t *testing.T, cmds string) {
@@ -425,24 +443,6 @@ func assertKvGetCallsVaultWithJSON(t *testing.T, cmds string) {
 	if !strings.Contains(cmds, "KV_GET_VERSION") {
 		t.Fatalf("kv:get should handle optional SECRET_VERSION\ncmds:\n%s", cmds)
 	}
-}
-
-// TestKvGetRequiresMountPathAndToken validates the behavior covered by this test case.
-func TestKvGetRequiresMountPathAndToken(t *testing.T) {
-	t.Parallel()
-
-	taskfile := tasktest.LoadTaskfile(t, vaultModuleName)
-	task := taskfile.Tasks[kvGetTask]
-	preconditions := taskFieldYAML(t, task.Preconditions)
-	cmds := taskFieldYAML(t, task.Cmds)
-
-	assertCmdsContainAll(t, &cmdsAssertion{
-		content: preconditions,
-		tokens:  []string{"KV_GET_MOUNT", "KV_GET_PATH", vaultAuthEnvVarName, vaultAddrEnvVarName},
-		msgFmt:  "kv:get should require %s in preconditions\npreconditions:\n%s",
-	})
-
-	assertKvGetCallsVaultWithJSON(t, cmds)
 }
 
 func assertCmdsContainAll(t *testing.T, check *cmdsAssertion) {

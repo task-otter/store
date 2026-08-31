@@ -2,7 +2,4 @@
 schema: taskotter.dev/taskfile-metadata/v1
 module: go-junit-report
 taskfile: Taskfile.yml
-exported_tasks:
-  - test
-  - verify
-  - which
+exported_tasks: [test, verify, which]

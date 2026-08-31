@@ -418,9 +418,11 @@ tasks:
           KEYS_FILE not found. Run task init first to generate
           {{if .VAULT_KEYS_FILE_OVERRIDE}}{{.VAULT_KEYS_FILE_OVERRIDE}}{{else}}{{.VAULT_KEYS_FILE}}{{end}}.
     cmds:
-      - cmd: |
-          {{.NIX_LOAD}}
-          jq -r '.root_token' "{{if .VAULT_KEYS_FILE_OVERRIDE}}{{.VAULT_KEYS_FILE_OVERRIDE}}{{else}}{{.VAULT_KEYS_FILE}}{{end}}"
+      - cmd: >-
+          {{.NIX_LOAD}};
+          jq -r '.root_token'
+          "{{if .VAULT_KEYS_FILE_OVERRIDE}}{{.VAULT_KEYS_FILE_OVERRIDE}}
+          {{- else}}{{.VAULT_KEYS_FILE}}{{end}}"
         platforms: [linux, darwin]
       - cmd: >-
           jq -r '.root_token'
@@ -466,7 +468,10 @@ tasks:
         vars:
           NIX_INSTALLABLE: "{{.VAULT_NIX_INSTALLABLE}}"
     cmds:
-      - cmd: bash -lc '{{.NIX_LOAD}}; vault operator raft snapshot save -address="{{.VAULT_ADDR_TARGET}}" "{{.FILE_TARGET}}"'
+      - cmd: >-
+          bash -lc '{{.NIX_LOAD}};
+          vault operator raft snapshot save -address="{{.VAULT_ADDR_TARGET}}"
+          "{{.FILE_TARGET}}"'
         platforms: [linux, darwin]
       - cmd: vault operator raft snapshot save -address="{{.VAULT_ADDR_TARGET}}" "{{.FILE_TARGET}}"
         platforms: [windows]
@@ -500,8 +505,10 @@ tasks:
       - task: nix:install:profile
         vars:
           NIX_INSTALLABLE: "{{.VAULT_NIX_INSTALLABLE}}"
-      - cmd: bash -lc '{{.NIX_LOAD}}; vault operator raft snapshot restore -address="{{.VAULT_ADDR_TARGET}}" -force "{{.FILE_TARGET}}"'
+      - cmd: >-
+          bash -lc '{{.NIX_LOAD}};
+          vault operator raft snapshot restore -address="{{.VAULT_ADDR_TARGET}}"
+          -force "{{.FILE_TARGET}}"'
         platforms: [linux, darwin]
       - cmd: vault operator raft snapshot restore -address="{{.VAULT_ADDR_TARGET}}" -force "{{.FILE_TARGET}}"
         platforms: [windows]
-

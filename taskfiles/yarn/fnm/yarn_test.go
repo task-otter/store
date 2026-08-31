@@ -15,19 +15,47 @@ import (
 )
 
 const (
-	constYarnTestYes     = "--yes"
+	constYarnTestYes          = "--yes"
 	constYarnTaskInstallClean = "install:clean"
-	constYarnTaskInstall = "install"
-	constYarnTaskRun     = "run"
-	constYarnTaskVersion = "version"
-	constYarnCurrentDir  = "."
-	constYarnPathEnvVar  = "PATH"
-	constYarnDirMode     = 0o700
-	constYarnMinTasks    = 0
-	constYarnScriptTest  = "SCRIPT=test"
-	constYarnDoubleDash  = "--"
-	constYarnWatchFlag   = "--watch"
+	constYarnTaskInstall      = "install"
+	constYarnTaskRun          = "run"
+	constYarnTaskVersion      = "version"
+	constYarnCurrentDir       = "."
+	constYarnPathEnvVar       = "PATH"
+	constYarnDirMode          = 0o700
+	constYarnMinTasks         = 0
+	constYarnScriptTest       = "SCRIPT=test"
+	constYarnDoubleDash       = "--"
+	constYarnWatchFlag        = "--watch"
 )
+
+// TestTaskfileAndReadmePublicApi
+func TestTaskfileAndReadmePublicApi(t *testing.T) {
+	t.Parallel()
+
+	tasks := loadTaskfileTasks(t)
+	actual := tasktestutil.SimplePublicTaskNames(tasks)
+
+	if !slices.Equal(publicTasks(), actual) {
+		t.Fatalf("public task drift\nexpected: %v\nactual:   %v", publicTasks(), actual)
+	}
+
+	assertReadmeTasksMatch(t)
+}
+
+// TestStubbedYarnFlows
+func TestStubbedYarnFlows(t *testing.T) {
+	t.Parallel()
+
+	if runtime.GOOS == "windows" {
+		t.Skip("Unix shell stubs cover these flows")
+	}
+
+	env := stubEnv(t)
+
+	runStubbedYarnTasks(t, env)
+	assertUnsafeScriptRejected(t, env)
+}
 
 func publicTasks() []string {
 	return append(publicTasksCore(), publicTasksExtra()...)
@@ -68,20 +96,6 @@ func publicTasksExtra() []string {
 	}
 }
 
-// TestTaskfileAndReadmePublicApi
-func TestTaskfileAndReadmePublicApi(t *testing.T) {
-	t.Parallel()
-
-	tasks := loadTaskfileTasks(t)
-	actual := tasktestutil.SimplePublicTaskNames(tasks)
-
-	if !slices.Equal(publicTasks(), actual) {
-		t.Fatalf("public task drift\nexpected: %v\nactual:   %v", publicTasks(), actual)
-	}
-
-	assertReadmeTasksMatch(t)
-}
-
 func loadTaskfileTasks(t *testing.T) map[string]any {
 	t.Helper()
 
@@ -113,20 +127,6 @@ func assertReadmeTasksMatch(t *testing.T) {
 	if !slices.Equal(publicTasks(), readmeTasks) {
 		t.Fatalf("README public task drift\nexpected: %v\nactual:   %v", publicTasks(), readmeTasks)
 	}
-}
-
-// TestStubbedYarnFlows
-func TestStubbedYarnFlows(t *testing.T) {
-	t.Parallel()
-
-	if runtime.GOOS == "windows" {
-		t.Skip("Unix shell stubs cover these flows")
-	}
-
-	env := stubEnv(t)
-
-	runStubbedYarnTasks(t, env)
-	assertUnsafeScriptRejected(t, env)
 }
 
 func stubbedYarnTaskArgs() [][]string {

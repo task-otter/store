@@ -167,15 +167,6 @@ func WithSummary() PublicTaskSpecOption {
 // Combined returns stdout and stderr joined with a newline.
 func (result *CommandResult) Combined() string { return result.Stdout + newline + result.Stderr }
 
-func workingDir() (string, error) {
-	workingDirectory, err := os.Getwd()
-	if err != nil {
-		return emptyString, fmt.Errorf("get working directory: %w", err)
-	}
-
-	return workingDirectory, nil
-}
-
 // MustTask returns the named task or fails the test if it is missing.
 func MustTask(tester TestT, taskfile any, name string) TaskNode {
 	tester.Helper()
@@ -190,19 +181,31 @@ func MustTask(tester TestT, taskfile any, name string) TaskNode {
 	return task
 }
 
-func normalizeLoadedTaskfile(tester TestT, taskfile any) *LoadedTaskfile {
+// ModuleRoot walks up from the working directory to find the nearest ancestor
+// that contains a Taskfile.yml or Taskfile.yaml. When tests run from a module
+// directory (e.g. taskfiles/bun/) this returns that directory, not the repo root.
+func ModuleRoot(tester TestT) string {
 	tester.Helper()
 
-	switch loaded := taskfile.(type) {
-	case *LoadedTaskfile:
-		return loaded
-	case LoadedTaskfile:
-		return &loaded
-	default:
-		tester.Fatalf("taskfile must be LoadedTaskfile or *LoadedTaskfile, got %T", taskfile)
-
-		return nil
+	workingDirectory, err := workingDir()
+	if err != nil {
+		tester.Fatalf("failed to get working directory: %v", err)
 	}
+
+	root, ok := findAncestorWithTaskfile(workingDirectory)
+
+	if !ok {
+		tester.Fatal(errTaskfileNotFound)
+	}
+
+	return root
+}
+
+// ModuleTaskfilePath returns the path of the Taskfile.yml found by ModuleRoot.
+func ModuleTaskfilePath(tester TestT) string {
+	tester.Helper()
+
+	return findModuleTaskfilePath(tester, ModuleRoot(tester))
 }
 
 // BoolField returns true when the mapping field is the string "true" (case-insensitive).
@@ -234,72 +237,6 @@ func (node TaskNode) Field(name string) *yaml.Node {
 // StringField returns the text value of a scalar mapping field.
 func (node TaskNode) StringField(name string) string { return NodeText(node.Field(name)) }
 
-// ModuleRoot walks up from the working directory to find the nearest ancestor
-// that contains a Taskfile.yml or Taskfile.yaml. When tests run from a module
-// directory (e.g. taskfiles/bun/) this returns that directory, not the repo root.
-func ModuleRoot(tester TestT) string {
-	tester.Helper()
-
-	workingDirectory, err := workingDir()
-	if err != nil {
-		tester.Fatalf("failed to get working directory: %v", err)
-	}
-
-	root, ok := findAncestorWithTaskfile(workingDirectory)
-
-	if !ok {
-		tester.Fatal(errTaskfileNotFound)
-	}
-
-	return root
-}
-
-func findAncestorWithTaskfile(start string) (string, bool) {
-	current := start
-
-	for {
-		if hasTaskfile(current) {
-			return current, true
-		}
-
-		parent := filepath.Dir(current)
-
-		if parent == current {
-			return emptyString, false
-		}
-
-		current = parent
-	}
-}
-
-func hasTaskfile(dir string) bool {
-	return FileExists(filepath.Join(dir, taskfileYML)) ||
-		FileExists(filepath.Join(dir, taskfileYAML))
-}
-
-// ModuleTaskfilePath returns the path of the Taskfile.yml found by ModuleRoot.
-func ModuleTaskfilePath(tester TestT) string {
-	tester.Helper()
-
-	return findModuleTaskfilePath(tester, ModuleRoot(tester))
-}
-
-func findModuleTaskfilePath(tester TestT, root string) string {
-	tester.Helper()
-
-	for i := range []string{taskfileYML, taskfileYAML} {
-		name := []string{taskfileYML, taskfileYAML}[i]
-
-		if path := filepath.Join(root, name); FileExists(path) {
-			return path
-		}
-	}
-
-	tester.Fatal(errTaskfileNotFound)
-
-	return emptyString
-}
-
 // ModuleReadmePath returns the README.md documenting the module. Flat modules
 // keep their own README next to the Taskfile; nested family variants share one
 // README at the family root (e.g. taskfiles/npm/ documents itself in
@@ -316,26 +253,6 @@ func ModuleReadmePath(tester TestT) string {
 	}
 
 	return path
-}
-
-func findModuleReadme(start string) (string, bool) {
-	current := start
-
-	for {
-		if path := filepath.Join(current, "README.md"); FileExists(path) {
-			return path, true
-		}
-
-		if reachedReadmeSearchBoundary(current) {
-			return emptyString, false
-		}
-
-		current = filepath.Dir(current)
-	}
-}
-
-func reachedReadmeSearchBoundary(dir string) bool {
-	return filepath.Dir(dir) == dir || filepath.Base(dir) == "taskfiles"
 }
 
 // LoadTaskfile parses the Taskfile in the module root and returns a LoadedTaskfile.
@@ -355,33 +272,6 @@ func LoadTaskfile(tester TestT) LoadedTaskfile {
 		Root:  TaskNode{Name: "root", Node: root},
 		Tasks: buildTaskMap(tasksNode),
 	}
-}
-
-func parseTaskfileRoot(tester TestT, path string) *yaml.Node {
-	tester.Helper()
-
-	content := ReadFile(tester, path)
-
-	var doc yaml.Node
-
-	err := yaml.Unmarshal([]byte(content), &doc)
-	if err != nil {
-		tester.Fatalf("failed to parse Taskfile: %v", err)
-	}
-
-	return DocumentRoot(tester, &doc)
-}
-
-func buildTaskMap(tasksNode *yaml.Node) map[string]TaskNode {
-	tasks := map[string]TaskNode{}
-
-	for i := zeroIndex; i < len(tasksNode.Content); i += readmeTableMatchCount {
-		key := tasksNode.Content[i]
-
-		tasks[key.Value] = TaskNode{Name: key.Value, Node: tasksNode.Content[i+valueOffset]}
-	}
-
-	return tasks
 }
 
 // HasAlias reports whether the task declares the given alias.
@@ -423,6 +313,681 @@ func RunTaskTimeout(tester TestT, run any, timeoutParts ...any) CommandResult {
 	return executeTaskCommand(ctx, &normalizedRun)
 }
 
+// RunSimpleTask runs task in the given directory and returns combined output
+// in Stdout. Use this for the simple pnpm/yarn-style tests that don'tester
+// need separate stdout/stderr.
+func RunSimpleTask(tester TestT, run any, parts ...any) CommandResult {
+	tester.Helper()
+
+	normalizedRun := normalizeTaskRun(tester, run, parts)
+
+	ctx, cancel := context.WithTimeout(context.Background(), defaultTaskTimeout)
+
+	defer cancel()
+
+	cmd := buildTaskCmd(ctx, &normalizedRun)
+	out, err := cmd.CombinedOutput()
+
+	return CommandResult{
+		Stdout: string(out),
+		Stderr: emptyString,
+		Err:    err,
+		Args:   normalizedRun.Args,
+	}
+}
+
+// IsolatedEnv returns a clean environment with a temporary HOME for tests that
+// must not interact with the real user's shell profile or tool installations.
+func IsolatedEnv(tester TestT) []string {
+	tester.Helper()
+
+	home := tester.TempDir()
+	profile := filepath.Join(home, ".bashrc")
+
+	err := os.WriteFile(profile, []byte(emptyString), privateFileMode)
+	if err != nil {
+		tester.Fatalf("failed to create fake shell profile: %v", err)
+	}
+
+	return isolatedEnvVars(home, profile)
+}
+
+// SetEnv sets or replaces a key=value pair in an env slice.
+func SetEnv(env []string, key, value string) []string {
+	prefix := key + "="
+
+	for i := range env {
+		item := env[i]
+
+		if strings.HasPrefix(item, prefix) {
+			env[i] = prefix + value
+
+			return env
+		}
+	}
+
+	return append(env, prefix+value)
+}
+
+// EnvValue returns the value for the given key from an env slice.
+func EnvValue(env []string, key string) string {
+	prefix := key + "="
+
+	for i := range env {
+		item := env[i]
+
+		if after, ok := strings.CutPrefix(item, prefix); ok {
+			return after
+		}
+	}
+
+	return emptyString
+}
+
+// ExpectedPublicTaskNames returns sorted task names from a PublicTaskSpec slice.
+func ExpectedPublicTaskNames(specs []PublicTaskSpec) []string {
+	names := make([]string, zeroIndex, len(specs))
+
+	for i := range specs {
+		spec := specs[i]
+
+		names = append(names, spec.Name)
+	}
+
+	slices.Sort(names)
+
+	return names
+}
+
+// PublicTaskNamesFromTaskfile returns sorted names of public tasks in the Taskfile.
+func PublicTaskNamesFromTaskfile(tester TestT, taskfile any) []string {
+	tester.Helper()
+
+	loaded := normalizeLoadedTaskfile(tester, taskfile)
+
+	var names []string
+
+	for name := range loaded.Tasks {
+		if isPublicTaskfileTask(name, loaded.Tasks[name]) {
+			names = append(names, name)
+		}
+	}
+
+	slices.Sort(names)
+
+	return names
+}
+
+// TaskArgs converts a map of task variable assignments to "KEY=VALUE" args.
+func TaskArgs(args map[string]string) []string {
+	if len(args) == zeroIndex {
+		return nil
+	}
+
+	keys := sortedMapKeys(args)
+	slices.Sort(keys)
+
+	out := make([]string, zeroIndex, len(keys))
+
+	for i := range keys {
+		key := keys[i]
+
+		out = append(out, fmt.Sprintf("%s=%s", key, args[key]))
+	}
+
+	return out
+}
+
+// FormatList formats a string slice as a bulleted list.
+func FormatList(values []string) string { return "- " + strings.Join(values, "\n- ") }
+
+// WriteStub writes a stub shell script to dir/name with the given body.
+func WriteStub(tester TestT, dirOrStub any, parts ...string) {
+	tester.Helper()
+
+	normalizedStub := normalizeStub(tester, dirOrStub, parts)
+
+	path := filepath.Join(normalizedStub.Dir, normalizedStub.Name)
+
+	err := os.WriteFile(path, []byte(normalizedStub.Body), privateFileMode)
+	if err != nil {
+		tester.Fatalf("write %s stub: %v", normalizedStub.Name, err)
+	}
+
+	err = os.Chmod(path, stubExecutableMode)
+	if err != nil {
+		tester.Fatalf("mark %s stub executable: %v", normalizedStub.Name, err)
+	}
+}
+
+// SimplePublicTaskNames extracts public task names from a decoded tasks map.
+func SimplePublicTaskNames(tasks map[string]any) []string {
+	var names []string
+
+	for name := range tasks {
+		raw := tasks[name]
+
+		if isSimplePublicTask(name, raw) {
+			names = append(names, name)
+		}
+	}
+
+	slices.Sort(names)
+
+	return names
+}
+
+// ReadmePublicTaskNames parses a README and returns task names listed in the
+// "## Public Tasks" table (backtick-quoted entries in the first column).
+func ReadmePublicTaskNames(content string) []string {
+	row := regexp.MustCompile(`^\|\s*` + "`" + `([^` + "`" + `]+)` + "`" + `\s*\|`)
+
+	names := collectReadmeTaskNames(content, row)
+
+	slices.Sort(names)
+
+	return names
+}
+
+// MustRead reads a file and fails the test on error.
+func MustRead(tester TestT, path string) string {
+	tester.Helper()
+
+	content, err := readFileBytes(path)
+	if err != nil {
+		tester.Fatalf("read %s: %v", path, err)
+	}
+
+	return string(content)
+}
+
+// DocumentRoot returns the root mapping node of a YAML document node.
+func DocumentRoot(tester TestT, doc *yaml.Node) *yaml.Node {
+	tester.Helper()
+
+	if doc.Kind != yaml.DocumentNode || len(doc.Content) == zeroIndex {
+		tester.Fatal("invalid YAML document")
+	}
+
+	root := doc.Content[zeroIndex]
+
+	if root.Kind != yaml.MappingNode {
+		tester.Fatal("Taskfile root must be a YAML mapping")
+	}
+
+	return root
+}
+
+// MappingField returns the mapping-typed child of root named name, or nil.
+func MappingField(root *yaml.Node, name string) *yaml.Node {
+	node := NodeMappingValue(root, name)
+
+	if node == nil || node.Kind != yaml.MappingNode {
+		return nil
+	}
+
+	return node
+}
+
+// ScalarField returns the text of the scalar child of root named name.
+func ScalarField(root *yaml.Node, name string) string {
+	return NodeText(NodeMappingValue(root, name))
+}
+
+// NodeMappingValue returns the value node for the given key in a mapping node.
+func NodeMappingValue(mapping *yaml.Node, key string) *yaml.Node {
+	if mapping == nil || mapping.Kind != yaml.MappingNode {
+		return nil
+	}
+
+	for i := zeroIndex; i < len(mapping.Content); i += readmeTableMatchCount {
+		if mapping.Content[i].Value == key {
+			return mapping.Content[i+valueOffset]
+		}
+	}
+
+	return nil
+}
+
+// NodeText returns the trimmed text content of a YAML node.
+func NodeText(node *yaml.Node) string {
+	if node == nil {
+		return emptyString
+	}
+
+	if node.Kind == yaml.ScalarNode {
+		return strings.TrimSpace(node.Value)
+	}
+
+	var parts []string
+
+	for i := range node.Content {
+		child := node.Content[i]
+
+		if text := NodeText(child); text != emptyString {
+			parts = append(parts, text)
+		}
+	}
+
+	return strings.TrimSpace(strings.Join(parts, singleSpace))
+}
+
+// IsEmptyNode reports whether a YAML node is nil or carries no content.
+func IsEmptyNode(node *yaml.Node) bool {
+	if node == nil {
+		return true
+	}
+
+	if node.Kind == yaml.ScalarNode {
+		return strings.TrimSpace(node.Value) == emptyString
+	}
+
+	return len(node.Content) == zeroIndex
+}
+
+// FileExists reports whether the given path exists.
+func FileExists(path string) bool {
+	info, err := os.Stat(path)
+
+	if info == nil {
+		return false
+	}
+
+	return err == nil
+}
+
+// ReadFile reads a file and fails the test on error.
+func ReadFile(tester TestT, path string) string {
+	tester.Helper()
+
+	content, err := readFileBytes(path)
+	if err != nil {
+		tester.Fatalf("failed to read %s: %v", path, err)
+	}
+
+	return string(content)
+}
+
+// CollectCommandStrings extracts all command/sh scalar values from a task node.
+func CollectCommandStrings(node *yaml.Node) []string {
+	if node == nil {
+		return nil
+	}
+
+	return collectByKind(node)
+}
+
+// ReferencedLocalShellScripts returns all ./path/to/script.sh references in a command string.
+func ReferencedLocalShellScripts(command string) []string {
+	re := regexp.MustCompile(`(?:^|\s)(\./[A-Za-z0-9_./-]+\.sh)(?:\s|$)`)
+	matches := re.FindAllStringSubmatch(command, -1)
+
+	var out []string
+
+	for i := range matches {
+		match := matches[i]
+
+		if len(match) > valueOffset {
+			out = append(out, match[valueOffset])
+		}
+	}
+
+	return out
+}
+
+// AssertExitCode fails the test if the command result exit code differs from expected.
+func AssertExitCode(tester TestT, result any, expected int) {
+	tester.Helper()
+
+	commandResult := normalizeCommandResult(tester, result)
+	actual := commandExitCode(tester, commandResult)
+
+	if actual != expected {
+		failExitCodeMismatch(tester, &exitCodeMismatch{
+			result:   commandResult,
+			expected: expected,
+			actual:   actual,
+		})
+	}
+}
+
+// AssertContains fails the test if value does not contain expected.
+func AssertContains(tester TestT, value, expected string) {
+	tester.Helper()
+
+	if !strings.Contains(value, expected) {
+		tester.Fatalf("expected output to contain %q\n\nOutput:\n%s", expected, value)
+	}
+}
+
+// AssertNotContains fails the test if value contains unexpected.
+func AssertNotContains(tester TestT, value, unexpected string) {
+	tester.Helper()
+
+	if strings.Contains(value, unexpected) {
+		tester.Fatalf("expected output not to contain %q\n\nOutput:\n%s", unexpected, value)
+	}
+}
+
+// AssertNotEmpty fails the test if value is empty after trimming whitespace.
+func AssertNotEmpty(tester TestT, value, message string) {
+	tester.Helper()
+
+	if strings.TrimSpace(value) == emptyString {
+		tester.Fatal(message)
+	}
+}
+
+// AssertFileExists fails the test unless path exists and is a file.
+func AssertFileExists(tester TestT, path string) {
+	tester.Helper()
+
+	info, err := os.Stat(path)
+	if err != nil {
+		tester.Fatalf("expected file %s to exist: %v", path, err)
+	}
+
+	if info.IsDir() {
+		tester.Fatalf("expected file but found directory at %s", path)
+	}
+}
+
+// AssertDirExists fails the test unless path exists and is a directory.
+func AssertDirExists(tester TestT, path string) {
+	tester.Helper()
+
+	info, err := os.Stat(path)
+	if err != nil {
+		tester.Fatalf("expected directory %s to exist: %v", path, err)
+	}
+
+	if !info.IsDir() {
+		tester.Fatalf("expected directory but found file at %s", path)
+	}
+}
+
+// AssertDirNotExists fails the test unless path does not exist.
+func AssertDirNotExists(tester TestT, path string) {
+	tester.Helper()
+
+	info, err := os.Stat(path)
+
+	if info != nil && err == nil {
+		tester.Fatalf(msgExpectedNotToExist, path)
+	}
+
+	if !os.IsNotExist(err) {
+		tester.Fatalf(msgExpectedNotToExist, path)
+	}
+}
+
+// AssertDirHasEntries fails the test unless path is a non-empty directory.
+func AssertDirHasEntries(tester TestT, path string) {
+	tester.Helper()
+
+	entries, err := os.ReadDir(path)
+	if err != nil {
+		tester.Fatalf("failed to read directory %s: %v", path, err)
+	}
+
+	if len(entries) == zeroIndex {
+		tester.Fatalf("expected %s to contain at least one entry", path)
+	}
+}
+
+// AssertGithubGroupOutput validates GitHub Actions grouped-output configuration.
+func AssertGithubGroupOutput(tester TestT, taskName string, outputNode *yaml.Node) {
+	tester.Helper()
+
+	groupNode := requireGroupNode(tester, taskName, outputNode)
+
+	if groupNode == nil {
+		return
+	}
+
+	assertGroupBeginEnd(tester, taskName, groupNode)
+	assertGroupErrorOnly(tester, taskName, groupNode)
+}
+
+// AssertDestructivePrompt validates that a destructive task has an explicit prompt.
+func AssertDestructivePrompt(tester TestT, taskName string, prompt *yaml.Node) {
+	tester.Helper()
+
+	if prompt == nil || NodeText(prompt) == emptyString {
+		tester.Fatalf("destructive task %q must have a non-empty prompt", taskName)
+	}
+
+	if !explicitPromptText(NodeText(prompt)) {
+		tester.Fatalf(
+			"prompt for task %q does not look explicit enough:\n%s",
+			taskName,
+			NodeText(prompt),
+		)
+	}
+}
+
+// AssertTextFileClean validates portable text-file formatting rules.
+func AssertTextFileClean(tester TestT, path, content string) {
+	tester.Helper()
+
+	assertTextFileNotEmpty(tester, path, content)
+	assertTextFileLineEndings(tester, path, content)
+	assertTextFileNoTabs(tester, path, content)
+	assertTextFileTrailingNewline(tester, path, content)
+	assertTextFileNoTrailingWhitespace(tester, path, content)
+}
+
+// AssertNoDuplicateMappingKeys fails the test if a YAML tree contains duplicate keys.
+func AssertNoDuplicateMappingKeys(tester TestT, node *yaml.Node, path string) {
+	tester.Helper()
+
+	if node == nil {
+		return
+	}
+
+	if isNonEmptyDocumentNode(node) {
+		AssertNoDuplicateMappingKeys(tester, node.Content[zeroIndex], path)
+
+		return
+	}
+
+	assertNoDuplicateKeysByKind(tester, node, path)
+}
+
+// AssertNoYamlAliases fails the test if a YAML tree contains anchors or aliases.
+func AssertNoYamlAliases(tester TestT, node *yaml.Node, path string) {
+	tester.Helper()
+
+	if node == nil {
+		return
+	}
+
+	if node.Kind == yaml.AliasNode {
+		tester.Fatalf("YAML aliases/anchors are not allowed for clean Taskfile config at %s", path)
+	}
+
+	for i := range node.Content {
+		child := node.Content[i]
+		AssertNoYamlAliases(tester, child, fmt.Sprintf(seqIndexFormat, path, i))
+	}
+}
+
+// AssertNoPlaceholderText fails the test if value contains common placeholder text.
+func AssertNoPlaceholderText(tester TestT, taskName, value string) {
+	tester.Helper()
+
+	upper := strings.ToUpper(value)
+
+	for i := range []string{
+		placeholderTODO, placeholderFIXME, placeholderChangeme, placeholderCopyright, placeholderLoremIpsum,
+	} {
+		placeholder := []string{
+			placeholderTODO, placeholderFIXME, placeholderChangeme, placeholderCopyright, placeholderLoremIpsum,
+		}[i]
+
+		if strings.Contains(upper, placeholder) {
+			tester.Fatalf("task %q contains placeholder text %q", taskName, placeholder)
+		}
+	}
+}
+
+// ValidateJSON returns an error if s is not valid JSON.
+func ValidateJSON(s string) error {
+	var payload any
+
+	err := json.Unmarshal([]byte(s), &payload)
+	if err != nil {
+		return fmt.Errorf("validate JSON: %w", err)
+	}
+
+	return nil
+}
+
+// DangerousCommandPatterns returns regexps that match unsafe shell command patterns.
+func DangerousCommandPatterns() []*regexp.Regexp {
+	return []*regexp.Regexp{
+		regexp.MustCompile(`(?m)\brm\s+-[a-zA-Z]*r[a-zA-Z]*f[a-zA-Z]*\s+/(?:\s|$)`),
+		regexp.MustCompile(`(?m)\bsudo\s+rm\s+-[a-zA-Z]*r[a-zA-Z]*f`),
+		regexp.MustCompile(`(?m)\bchmod\s+-R\s+777\s+/`),
+		regexp.MustCompile(`(?m)\bcurl\b.*\s-k(?:\s|$)`),
+		regexp.MustCompile(`(?m)\bcurl\b.*--insecure`),
+	}
+}
+
+func workingDir() (string, error) {
+	workingDirectory, err := os.Getwd()
+	if err != nil {
+		return emptyString, fmt.Errorf("get working directory: %w", err)
+	}
+
+	return workingDirectory, nil
+}
+
+func normalizeLoadedTaskfile(tester TestT, taskfile any) *LoadedTaskfile {
+	tester.Helper()
+
+	switch loaded := taskfile.(type) {
+	case *LoadedTaskfile:
+		return loaded
+	case LoadedTaskfile:
+		return &loaded
+	default:
+		tester.Fatalf("taskfile must be LoadedTaskfile or *LoadedTaskfile, got %T", taskfile)
+
+		return nil
+	}
+}
+
+func (scanner *readmeTableScanner) consume(trimmed string) bool {
+	if trimmed == constTasktestutilPublicTasks {
+		scanner.inTable = true
+
+		return true
+	}
+
+	if !scanner.inTable {
+		return true
+	}
+
+	if strings.HasPrefix(trimmed, "## ") {
+		return false
+	}
+
+	if name, ok := matchReadmeTaskRow(scanner.row, trimmed); ok {
+		scanner.names = append(scanner.names, name)
+	}
+
+	return true
+}
+
+func findAncestorWithTaskfile(start string) (string, bool) {
+	current := start
+
+	for {
+		if hasTaskfile(current) {
+			return current, true
+		}
+
+		parent := filepath.Dir(current)
+
+		if parent == current {
+			return emptyString, false
+		}
+
+		current = parent
+	}
+}
+
+func hasTaskfile(dir string) bool {
+	return FileExists(filepath.Join(dir, taskfileYML)) ||
+		FileExists(filepath.Join(dir, taskfileYAML))
+}
+
+// --- YAML helpers ---.
+
+func findModuleTaskfilePath(tester TestT, root string) string {
+	tester.Helper()
+
+	for i := range []string{taskfileYML, taskfileYAML} {
+		name := []string{taskfileYML, taskfileYAML}[i]
+
+		if path := filepath.Join(root, name); FileExists(path) {
+			return path
+		}
+	}
+
+	tester.Fatal(errTaskfileNotFound)
+
+	return emptyString
+}
+
+func findModuleReadme(start string) (string, bool) {
+	current := start
+
+	for {
+		if path := filepath.Join(current, "README.md"); FileExists(path) {
+			return path, true
+		}
+
+		if reachedReadmeSearchBoundary(current) {
+			return emptyString, false
+		}
+
+		current = filepath.Dir(current)
+	}
+}
+
+func reachedReadmeSearchBoundary(dir string) bool {
+	return filepath.Dir(dir) == dir || filepath.Base(dir) == "taskfiles"
+}
+
+func parseTaskfileRoot(tester TestT, path string) *yaml.Node {
+	tester.Helper()
+
+	content := ReadFile(tester, path)
+
+	var doc yaml.Node
+
+	err := yaml.Unmarshal([]byte(content), &doc)
+	if err != nil {
+		tester.Fatalf("failed to parse Taskfile: %v", err)
+	}
+
+	return DocumentRoot(tester, &doc)
+}
+
+func buildTaskMap(tasksNode *yaml.Node) map[string]TaskNode {
+	tasks := map[string]TaskNode{}
+
+	for i := zeroIndex; i < len(tasksNode.Content); i += readmeTableMatchCount {
+		key := tasksNode.Content[i]
+
+		tasks[key.Value] = TaskNode{Name: key.Value, Node: tasksNode.Content[i+valueOffset]}
+	}
+
+	return tasks
+}
+
 func executeTaskCommand(ctx context.Context, run *TaskRun) CommandResult {
 	cmd := buildTaskCmd(ctx, run)
 
@@ -453,29 +1018,6 @@ func buildTaskCmd(ctx context.Context, run *TaskRun) *exec.Cmd {
 	}
 
 	return cmd
-}
-
-// RunSimpleTask runs task in the given directory and returns combined output
-// in Stdout. Use this for the simple pnpm/yarn-style tests that don'tester
-// need separate stdout/stderr.
-func RunSimpleTask(tester TestT, run any, parts ...any) CommandResult {
-	tester.Helper()
-
-	normalizedRun := normalizeTaskRun(tester, run, parts)
-
-	ctx, cancel := context.WithTimeout(context.Background(), defaultTaskTimeout)
-
-	defer cancel()
-
-	cmd := buildTaskCmd(ctx, &normalizedRun)
-	out, err := cmd.CombinedOutput()
-
-	return CommandResult{
-		Stdout: string(out),
-		Stderr: emptyString,
-		Err:    err,
-		Args:   normalizedRun.Args,
-	}
 }
 
 func requireNoExtraArgs(tester TestT, message string, parts []any) {
@@ -617,22 +1159,6 @@ func stringArgs(tester TestT, values []any) []string {
 	return args
 }
 
-// IsolatedEnv returns a clean environment with a temporary HOME for tests that
-// must not interact with the real user's shell profile or tool installations.
-func IsolatedEnv(tester TestT) []string {
-	tester.Helper()
-
-	home := tester.TempDir()
-	profile := filepath.Join(home, ".bashrc")
-
-	err := os.WriteFile(profile, []byte(emptyString), privateFileMode)
-	if err != nil {
-		tester.Fatalf("failed to create fake shell profile: %v", err)
-	}
-
-	return isolatedEnvVars(home, profile)
-}
-
 func isolatedEnvVars(home, profile string) []string {
 	env := os.Environ()
 
@@ -647,72 +1173,6 @@ func isolatedEnvVars(home, profile string) []string {
 	return env
 }
 
-// SetEnv sets or replaces a key=value pair in an env slice.
-func SetEnv(env []string, key, value string) []string {
-	prefix := key + "="
-
-	for i := range env {
-		item := env[i]
-
-		if strings.HasPrefix(item, prefix) {
-			env[i] = prefix + value
-
-			return env
-		}
-	}
-
-	return append(env, prefix+value)
-}
-
-// EnvValue returns the value for the given key from an env slice.
-func EnvValue(env []string, key string) string {
-	prefix := key + "="
-
-	for i := range env {
-		item := env[i]
-
-		if after, ok := strings.CutPrefix(item, prefix); ok {
-			return after
-		}
-	}
-
-	return emptyString
-}
-
-// ExpectedPublicTaskNames returns sorted task names from a PublicTaskSpec slice.
-func ExpectedPublicTaskNames(specs []PublicTaskSpec) []string {
-	names := make([]string, zeroIndex, len(specs))
-
-	for i := range specs {
-		spec := specs[i]
-
-		names = append(names, spec.Name)
-	}
-
-	slices.Sort(names)
-
-	return names
-}
-
-// PublicTaskNamesFromTaskfile returns sorted names of public tasks in the Taskfile.
-func PublicTaskNamesFromTaskfile(tester TestT, taskfile any) []string {
-	tester.Helper()
-
-	loaded := normalizeLoadedTaskfile(tester, taskfile)
-
-	var names []string
-
-	for name := range loaded.Tasks {
-		if isPublicTaskfileTask(name, loaded.Tasks[name]) {
-			names = append(names, name)
-		}
-	}
-
-	slices.Sort(names)
-
-	return names
-}
-
 func isPublicTaskfileTask(name string, task TaskNode) bool {
 	isDefaultOrPrivate := name == constTasktestutilDefault ||
 		strings.HasPrefix(name, underscorePrefix)
@@ -724,26 +1184,6 @@ func isPublicTaskfileTask(name string, task TaskNode) bool {
 	return task.StringField("desc") != emptyString
 }
 
-// TaskArgs converts a map of task variable assignments to "KEY=VALUE" args.
-func TaskArgs(args map[string]string) []string {
-	if len(args) == zeroIndex {
-		return nil
-	}
-
-	keys := sortedMapKeys(args)
-	slices.Sort(keys)
-
-	out := make([]string, zeroIndex, len(keys))
-
-	for i := range keys {
-		key := keys[i]
-
-		out = append(out, fmt.Sprintf("%s=%s", key, args[key]))
-	}
-
-	return out
-}
-
 func sortedMapKeys(args map[string]string) []string {
 	keys := make([]string, zeroIndex, len(args))
 
@@ -752,28 +1192,6 @@ func sortedMapKeys(args map[string]string) []string {
 	}
 
 	return keys
-}
-
-// FormatList formats a string slice as a bulleted list.
-func FormatList(values []string) string { return "- " + strings.Join(values, "\n- ") }
-
-// WriteStub writes a stub shell script to dir/name with the given body.
-func WriteStub(tester TestT, dirOrStub any, parts ...string) {
-	tester.Helper()
-
-	normalizedStub := normalizeStub(tester, dirOrStub, parts)
-
-	path := filepath.Join(normalizedStub.Dir, normalizedStub.Name)
-
-	err := os.WriteFile(path, []byte(normalizedStub.Body), privateFileMode)
-	if err != nil {
-		tester.Fatalf("write %s stub: %v", normalizedStub.Name, err)
-	}
-
-	err = os.Chmod(path, stubExecutableMode)
-	if err != nil {
-		tester.Fatalf("mark %s stub executable: %v", normalizedStub.Name, err)
-	}
 }
 
 func normalizeStub(tester TestT, dirOrStub any, parts []string) stub {
@@ -804,23 +1222,6 @@ func newStubFromParts(tester TestT, dirOrStub any, parts []string) stub {
 	return stub{Dir: dir, Name: parts[zeroIndex], Body: parts[valueOffset]}
 }
 
-// SimplePublicTaskNames extracts public task names from a decoded tasks map.
-func SimplePublicTaskNames(tasks map[string]any) []string {
-	var names []string
-
-	for name := range tasks {
-		raw := tasks[name]
-
-		if isSimplePublicTask(name, raw) {
-			names = append(names, name)
-		}
-	}
-
-	slices.Sort(names)
-
-	return names
-}
-
 func isSimplePublicTask(name string, raw any) bool {
 	if isDefaultOrPrivateTaskName(name) {
 		return false
@@ -845,18 +1246,6 @@ func isInternalSimpleTask(raw any) bool {
 	return internalOK && internal
 }
 
-// ReadmePublicTaskNames parses a README and returns task names listed in the
-// "## Public Tasks" table (backtick-quoted entries in the first column).
-func ReadmePublicTaskNames(content string) []string {
-	row := regexp.MustCompile(`^\|\s*` + "`" + `([^` + "`" + `]+)` + "`" + `\s*\|`)
-
-	names := collectReadmeTaskNames(content, row)
-
-	slices.Sort(names)
-
-	return names
-}
-
 func collectReadmeTaskNames(content string, row *regexp.Regexp) []string {
 	scanner := readmeTableScanner{row: row, names: nil, inTable: false}
 
@@ -869,28 +1258,6 @@ func collectReadmeTaskNames(content string, row *regexp.Regexp) []string {
 	return scanner.names
 }
 
-func (scanner *readmeTableScanner) consume(trimmed string) bool {
-	if trimmed == constTasktestutilPublicTasks {
-		scanner.inTable = true
-
-		return true
-	}
-
-	if !scanner.inTable {
-		return true
-	}
-
-	if strings.HasPrefix(trimmed, "## ") {
-		return false
-	}
-
-	if name, ok := matchReadmeTaskRow(scanner.row, trimmed); ok {
-		scanner.names = append(scanner.names, name)
-	}
-
-	return true
-}
-
 func matchReadmeTaskRow(row *regexp.Regexp, line string) (string, bool) {
 	matches := row.FindStringSubmatch(line)
 
@@ -899,136 +1266,6 @@ func matchReadmeTaskRow(row *regexp.Regexp, line string) (string, bool) {
 	}
 
 	return matches[valueOffset], true
-}
-
-// MustRead reads a file and fails the test on error.
-func MustRead(tester TestT, path string) string {
-	tester.Helper()
-
-	content, err := readFileBytes(path)
-	if err != nil {
-		tester.Fatalf("read %s: %v", path, err)
-	}
-
-	return string(content)
-}
-
-// --- YAML helpers ---.
-
-// DocumentRoot returns the root mapping node of a YAML document node.
-func DocumentRoot(tester TestT, doc *yaml.Node) *yaml.Node {
-	tester.Helper()
-
-	if doc.Kind != yaml.DocumentNode || len(doc.Content) == zeroIndex {
-		tester.Fatal("invalid YAML document")
-	}
-
-	root := doc.Content[zeroIndex]
-
-	if root.Kind != yaml.MappingNode {
-		tester.Fatal("Taskfile root must be a YAML mapping")
-	}
-
-	return root
-}
-
-// MappingField returns the mapping-typed child of root named name, or nil.
-func MappingField(root *yaml.Node, name string) *yaml.Node {
-	node := NodeMappingValue(root, name)
-
-	if node == nil || node.Kind != yaml.MappingNode {
-		return nil
-	}
-
-	return node
-}
-
-// ScalarField returns the text of the scalar child of root named name.
-func ScalarField(root *yaml.Node, name string) string {
-	return NodeText(NodeMappingValue(root, name))
-}
-
-// NodeMappingValue returns the value node for the given key in a mapping node.
-func NodeMappingValue(mapping *yaml.Node, key string) *yaml.Node {
-	if mapping == nil || mapping.Kind != yaml.MappingNode {
-		return nil
-	}
-
-	for i := zeroIndex; i < len(mapping.Content); i += readmeTableMatchCount {
-		if mapping.Content[i].Value == key {
-			return mapping.Content[i+valueOffset]
-		}
-	}
-
-	return nil
-}
-
-// NodeText returns the trimmed text content of a YAML node.
-func NodeText(node *yaml.Node) string {
-	if node == nil {
-		return emptyString
-	}
-
-	if node.Kind == yaml.ScalarNode {
-		return strings.TrimSpace(node.Value)
-	}
-
-	var parts []string
-
-	for i := range node.Content {
-		child := node.Content[i]
-
-		if text := NodeText(child); text != emptyString {
-			parts = append(parts, text)
-		}
-	}
-
-	return strings.TrimSpace(strings.Join(parts, singleSpace))
-}
-
-// IsEmptyNode reports whether a YAML node is nil or carries no content.
-func IsEmptyNode(node *yaml.Node) bool {
-	if node == nil {
-		return true
-	}
-
-	if node.Kind == yaml.ScalarNode {
-		return strings.TrimSpace(node.Value) == emptyString
-	}
-
-	return len(node.Content) == zeroIndex
-}
-
-// FileExists reports whether the given path exists.
-func FileExists(path string) bool {
-	info, err := os.Stat(path)
-
-	if info == nil {
-		return false
-	}
-
-	return err == nil
-}
-
-// ReadFile reads a file and fails the test on error.
-func ReadFile(tester TestT, path string) string {
-	tester.Helper()
-
-	content, err := readFileBytes(path)
-	if err != nil {
-		tester.Fatalf("failed to read %s: %v", path, err)
-	}
-
-	return string(content)
-}
-
-// CollectCommandStrings extracts all command/sh scalar values from a task node.
-func CollectCommandStrings(node *yaml.Node) []string {
-	if node == nil {
-		return nil
-	}
-
-	return collectByKind(node)
 }
 
 func collectByKind(node *yaml.Node) []string {
@@ -1100,40 +1337,6 @@ func scalarCommandString(node *yaml.Node) []string {
 	return []string{node.Value}
 }
 
-// ReferencedLocalShellScripts returns all ./path/to/script.sh references in a command string.
-func ReferencedLocalShellScripts(command string) []string {
-	re := regexp.MustCompile(`(?:^|\s)(\./[A-Za-z0-9_./-]+\.sh)(?:\s|$)`)
-	matches := re.FindAllStringSubmatch(command, -1)
-
-	var out []string
-
-	for i := range matches {
-		match := matches[i]
-
-		if len(match) > valueOffset {
-			out = append(out, match[valueOffset])
-		}
-	}
-
-	return out
-}
-
-// AssertExitCode fails the test if the command result exit code differs from expected.
-func AssertExitCode(tester TestT, result any, expected int) {
-	tester.Helper()
-
-	commandResult := normalizeCommandResult(tester, result)
-	actual := commandExitCode(tester, commandResult)
-
-	if actual != expected {
-		failExitCodeMismatch(tester, &exitCodeMismatch{
-			result:   commandResult,
-			expected: expected,
-			actual:   actual,
-		})
-	}
-}
-
 func commandExitCode(tester TestT, result *CommandResult) int {
 	tester.Helper()
 
@@ -1183,104 +1386,6 @@ func normalizeCommandResult(tester TestT, result any) *CommandResult {
 
 		return nil
 	}
-}
-
-// AssertContains fails the test if value does not contain expected.
-func AssertContains(tester TestT, value, expected string) {
-	tester.Helper()
-
-	if !strings.Contains(value, expected) {
-		tester.Fatalf("expected output to contain %q\n\nOutput:\n%s", expected, value)
-	}
-}
-
-// AssertNotContains fails the test if value contains unexpected.
-func AssertNotContains(tester TestT, value, unexpected string) {
-	tester.Helper()
-
-	if strings.Contains(value, unexpected) {
-		tester.Fatalf("expected output not to contain %q\n\nOutput:\n%s", unexpected, value)
-	}
-}
-
-// AssertNotEmpty fails the test if value is empty after trimming whitespace.
-func AssertNotEmpty(tester TestT, value, message string) {
-	tester.Helper()
-
-	if strings.TrimSpace(value) == emptyString {
-		tester.Fatal(message)
-	}
-}
-
-// AssertFileExists fails the test unless path exists and is a file.
-func AssertFileExists(tester TestT, path string) {
-	tester.Helper()
-
-	info, err := os.Stat(path)
-	if err != nil {
-		tester.Fatalf("expected file %s to exist: %v", path, err)
-	}
-
-	if info.IsDir() {
-		tester.Fatalf("expected file but found directory at %s", path)
-	}
-}
-
-// AssertDirExists fails the test unless path exists and is a directory.
-func AssertDirExists(tester TestT, path string) {
-	tester.Helper()
-
-	info, err := os.Stat(path)
-	if err != nil {
-		tester.Fatalf("expected directory %s to exist: %v", path, err)
-	}
-
-	if !info.IsDir() {
-		tester.Fatalf("expected directory but found file at %s", path)
-	}
-}
-
-// AssertDirNotExists fails the test unless path does not exist.
-func AssertDirNotExists(tester TestT, path string) {
-	tester.Helper()
-
-	info, err := os.Stat(path)
-
-	if info != nil && err == nil {
-		tester.Fatalf(msgExpectedNotToExist, path)
-	}
-
-	if !os.IsNotExist(err) {
-		tester.Fatalf(msgExpectedNotToExist, path)
-	}
-}
-
-// AssertDirHasEntries fails the test unless path is a non-empty directory.
-func AssertDirHasEntries(tester TestT, path string) {
-	tester.Helper()
-
-	entries, err := os.ReadDir(path)
-	if err != nil {
-		tester.Fatalf("failed to read directory %s: %v", path, err)
-	}
-
-	if len(entries) == zeroIndex {
-		tester.Fatalf("expected %s to contain at least one entry", path)
-	}
-}
-
-// AssertGithubGroupOutput validates GitHub Actions grouped-output configuration.
-func AssertGithubGroupOutput(tester TestT, taskName string, outputNode *yaml.Node) {
-	tester.Helper()
-
-	groupNode := requireGroupNode(tester, taskName, outputNode)
-
-	if groupNode == nil {
-		return
-	}
-
-	assertGroupBeginEnd(tester, taskName, groupNode)
-	assertGroupErrorOnly(tester, taskName, groupNode)
 }
 
 func requireGroupNode(tester TestT, taskName string, outputNode *yaml.Node) *yaml.Node {
@@ -1364,23 +1469,6 @@ func assertGroupErrorOnly(tester TestT, taskName string, groupNode *yaml.Node) {
 	}
 }
 
-// AssertDestructivePrompt validates that a destructive task has an explicit prompt.
-func AssertDestructivePrompt(tester TestT, taskName string, prompt *yaml.Node) {
-	tester.Helper()
-
-	if prompt == nil || NodeText(prompt) == emptyString {
-		tester.Fatalf("destructive task %q must have a non-empty prompt", taskName)
-	}
-
-	if !explicitPromptText(NodeText(prompt)) {
-		tester.Fatalf(
-			"prompt for task %q does not look explicit enough:\n%s",
-			taskName,
-			NodeText(prompt),
-		)
-	}
-}
-
 func explicitPromptTokens() []string {
 	return []string{
 		promptTextSure,
@@ -1404,17 +1492,6 @@ func explicitPromptText(text string) bool {
 	}
 
 	return false
-}
-
-// AssertTextFileClean validates portable text-file formatting rules.
-func AssertTextFileClean(tester TestT, path, content string) {
-	tester.Helper()
-
-	assertTextFileNotEmpty(tester, path, content)
-	assertTextFileLineEndings(tester, path, content)
-	assertTextFileNoTabs(tester, path, content)
-	assertTextFileTrailingNewline(tester, path, content)
-	assertTextFileNoTrailingWhitespace(tester, path, content)
 }
 
 func assertTextFileNotEmpty(tester TestT, path, content string) {
@@ -1461,23 +1538,6 @@ func assertTextFileNoTrailingWhitespace(tester TestT, path, content string) {
 	}
 }
 
-// AssertNoDuplicateMappingKeys fails the test if a YAML tree contains duplicate keys.
-func AssertNoDuplicateMappingKeys(tester TestT, node *yaml.Node, path string) {
-	tester.Helper()
-
-	if node == nil {
-		return
-	}
-
-	if isNonEmptyDocumentNode(node) {
-		AssertNoDuplicateMappingKeys(tester, node.Content[zeroIndex], path)
-
-		return
-	}
-
-	assertNoDuplicateKeysByKind(tester, node, path)
-}
-
 func assertNoDuplicateKeysByKind(tester TestT, node *yaml.Node, path string) {
 	tester.Helper()
 
@@ -1520,66 +1580,6 @@ func assertNoDuplicateKeysInSequence(tester TestT, node *yaml.Node, path string)
 	for i := range node.Content {
 		child := node.Content[i]
 		AssertNoDuplicateMappingKeys(tester, child, fmt.Sprintf(seqIndexFormat, path, i))
-	}
-}
-
-// AssertNoYamlAliases fails the test if a YAML tree contains anchors or aliases.
-func AssertNoYamlAliases(tester TestT, node *yaml.Node, path string) {
-	tester.Helper()
-
-	if node == nil {
-		return
-	}
-
-	if node.Kind == yaml.AliasNode {
-		tester.Fatalf("YAML aliases/anchors are not allowed for clean Taskfile config at %s", path)
-	}
-
-	for i := range node.Content {
-		child := node.Content[i]
-		AssertNoYamlAliases(tester, child, fmt.Sprintf(seqIndexFormat, path, i))
-	}
-}
-
-// AssertNoPlaceholderText fails the test if value contains common placeholder text.
-func AssertNoPlaceholderText(tester TestT, taskName, value string) {
-	tester.Helper()
-
-	upper := strings.ToUpper(value)
-
-	for i := range []string{
-		placeholderTODO, placeholderFIXME, placeholderChangeme, placeholderCopyright, placeholderLoremIpsum,
-	} {
-		placeholder := []string{
-			placeholderTODO, placeholderFIXME, placeholderChangeme, placeholderCopyright, placeholderLoremIpsum,
-		}[i]
-
-		if strings.Contains(upper, placeholder) {
-			tester.Fatalf("task %q contains placeholder text %q", taskName, placeholder)
-		}
-	}
-}
-
-// ValidateJSON returns an error if s is not valid JSON.
-func ValidateJSON(s string) error {
-	var payload any
-
-	err := json.Unmarshal([]byte(s), &payload)
-	if err != nil {
-		return fmt.Errorf("validate JSON: %w", err)
-	}
-
-	return nil
-}
-
-// DangerousCommandPatterns returns regexps that match unsafe shell command patterns.
-func DangerousCommandPatterns() []*regexp.Regexp {
-	return []*regexp.Regexp{
-		regexp.MustCompile(`(?m)\brm\s+-[a-zA-Z]*r[a-zA-Z]*f[a-zA-Z]*\s+/(?:\s|$)`),
-		regexp.MustCompile(`(?m)\bsudo\s+rm\s+-[a-zA-Z]*r[a-zA-Z]*f`),
-		regexp.MustCompile(`(?m)\bchmod\s+-R\s+777\s+/`),
-		regexp.MustCompile(`(?m)\bcurl\b.*\s-k(?:\s|$)`),
-		regexp.MustCompile(`(?m)\bcurl\b.*--insecure`),
 	}
 }
 

@@ -2,7 +2,4 @@
 schema: taskotter.dev/taskfile-metadata/v1
 module: pulumi
 taskfile: Taskfile.yml
-exported_tasks:
-  - login
-  - new
-  - up
+exported_tasks: [login, new, up]

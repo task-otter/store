@@ -128,47 +128,6 @@ const (
 	constTypescriptTestUint32BitSize        = 32
 )
 
-func publicTasksBuildAndConfig() []publicTaskSpec {
-	return []publicTaskSpec{
-		{name: "build", requiresSummary: true, requiresPrompt: false},
-		{name: "build:clean", requiresSummary: true, requiresPrompt: false},
-		{name: "build:watch", requiresSummary: true, requiresPrompt: false},
-		{name: "ci", requiresSummary: true, requiresPrompt: false},
-		{name: "clean", requiresPrompt: true, requiresSummary: true},
-		{name: "clean:all", requiresPrompt: true, requiresSummary: true},
-		{name: "config:diagnostics", requiresSummary: true, requiresPrompt: false},
-		{name: "config:files", requiresSummary: true, requiresPrompt: false},
-		{name: "config:init", requiresSummary: true, requiresPrompt: false},
-		{name: "config:show", requiresSummary: true, requiresPrompt: false},
-		{name: "config:trace", requiresSummary: true, requiresPrompt: false},
-	}
-}
-
-func publicTasksRunAndTypecheck() []publicTaskSpec {
-	return []publicTaskSpec{
-		{name: "dev", requiresSummary: true, requiresPrompt: false},
-		{name: "emit:dts", requiresSummary: true, requiresPrompt: false},
-		{name: "install", requiresSummary: true, requiresPrompt: false},
-		{name: "install:undo", requiresPrompt: true, requiresSummary: true},
-		{name: "run", requiresSummary: true, requiresPrompt: false},
-		{name: "start", requiresSummary: true, requiresPrompt: false},
-		{name: "tsserver:info", requiresSummary: true, requiresPrompt: false},
-		{name: "typecheck", requiresSummary: true, requiresPrompt: false},
-		{
-			name:            constTypescriptTestTypecheckFiles,
-			requiresSummary: true,
-			requiresPrompt:  false,
-		},
-		{name: "typecheck:watch", requiresSummary: true, requiresPrompt: false},
-		{name: "upgrade", requiresSummary: true, requiresPrompt: false},
-		{name: constTypescriptTestVersion, requiresSummary: true, requiresPrompt: false},
-	}
-}
-
-func publicTasks() []publicTaskSpec {
-	return append(publicTasksBuildAndConfig(), publicTasksRunAndTypecheck()...)
-}
-
 // TestTaskfileAndReadmePublicApi
 func TestTaskfileAndReadmePublicApi(t *testing.T) {
 	t.Parallel()
@@ -203,76 +162,6 @@ func TestTaskfileYamlIsCleanAndValid(t *testing.T) {
 
 	assertTaskfileVersion(t, root)
 	assertNonEmptyTasksMap(t, root)
-}
-
-func assertLFLineEndings(t *testing.T, content string) {
-	t.Helper()
-
-	if strings.Contains(content, constTypescriptTestCRLF) {
-		t.Fatal("Taskfile must use LF line endings")
-	}
-}
-
-func assertNoTrailingWhitespace(t *testing.T, content string) {
-	t.Helper()
-
-	trimmedAll := strings.TrimRight(content, " \t\r\n")
-	trimmedLF := strings.TrimRight(content, constTypescriptTestCRLF)
-
-	if trimmedAll != trimmedLF {
-		t.Fatal("Taskfile has trailing whitespace")
-	}
-}
-
-func parseTaskfileYAML(t *testing.T, content string) *yaml.Node {
-	t.Helper()
-
-	var doc yaml.Node
-
-	err := yaml.Unmarshal([]byte(content), &doc)
-	if err != nil {
-		t.Fatalf(constTypescriptTestParseTaskfile, err)
-	}
-
-	return &doc
-}
-
-func assertTaskfileVersion(t *testing.T, root *yaml.Node) {
-	t.Helper()
-
-	version := scalarField(root, constTypescriptTestVersion)
-
-	if version != "3" && !strings.HasPrefix(version, "3.") {
-		t.Fatalf("Taskfile version must be 3 or 3.x, got %q", version)
-	}
-}
-
-func assertNonEmptyTasksMap(t *testing.T, root *yaml.Node) {
-	t.Helper()
-
-	tasks := mappingField(root, constTypescriptTestTasks)
-
-	if tasks == nil || len(tasks.Content) == constTypescriptTestZero {
-		t.Fatal("Taskfile must contain a non-empty tasks map")
-	}
-}
-
-func taskCliListArgVariants() [][]string {
-	return [][]string{
-		{constTypescriptTestFlagList},
-		{constTypescriptTestListAll},
-		{constTypescriptTestListAll, constTypescriptTestFlagSort, constTypescriptTestSortAlpha},
-		{constTypescriptTestListAll, constTypescriptTestJSON},
-	}
-}
-
-func assertTaskCliListSucceeds(t *testing.T, args []string) {
-	t.Helper()
-
-	result := runTask(t, isolatedEnv(t), args...)
-	assertExitCode(t, &result, constTypescriptTestZero)
-	assertNotContains(t, strings.ToLower(result.output), "taskfile does not exist")
-	assertNotContains(t, strings.ToLower(result.output), "unknown")
 }
 
 // TestTaskCliCanLoadTaskfile
@@ -326,49 +215,6 @@ func TestPublicTasksHaveMetadataAndCommands(t *testing.T) {
 	}
 }
 
-func assertPublicTaskMetadata(t *testing.T, spec *publicTaskSpec, task *taskfile) {
-	t.Helper()
-
-	if task.node.Kind != yaml.MappingNode {
-		t.Fatalf("public task %q must use mapping syntax", spec.name)
-	}
-
-	assertTaskDescription(t, spec, task)
-	assertTaskSummary(t, spec, task)
-	assertTaskHasCommands(t, spec, task)
-}
-
-func assertTaskDescription(t *testing.T, spec *publicTaskSpec, task *taskfile) {
-	t.Helper()
-
-	desc := nodeText(mappingValue(task.node, constTypescriptTestDesc))
-
-	if len(strings.TrimSpace(desc)) < constTypescriptTestMinDescLen {
-		t.Fatalf("public task %q desc is missing or too short: %q", spec.name, desc)
-	}
-}
-
-func assertTaskSummary(t *testing.T, spec *publicTaskSpec, task *taskfile) {
-	t.Helper()
-
-	summary := nodeText(mappingValue(task.node, "summary"))
-
-	if spec.requiresSummary && len(strings.TrimSpace(summary)) < constTypescriptTestMinSummaryLen {
-		t.Fatalf("public task %q summary is missing or too short:\n%s", spec.name, summary)
-	}
-}
-
-func assertTaskHasCommands(t *testing.T, spec *publicTaskSpec, task *taskfile) {
-	t.Helper()
-
-	missingCmdsAndDeps := isEmptyNode(mappingValue(task.node, "cmds")) &&
-		isEmptyNode(mappingValue(task.node, "deps"))
-
-	if missingCmdsAndDeps {
-		t.Fatalf("public task %q must have cmds or deps", spec.name)
-	}
-}
-
 // TestDestructivePublicTasksHavePrompt
 func TestDestructivePublicTasksHavePrompt(t *testing.T) {
 	t.Parallel()
@@ -387,36 +233,6 @@ func TestDestructivePublicTasksHavePrompt(t *testing.T) {
 			assertDestructivePrompt(t, &spec, mustTask(t, taskfile, spec.name))
 		})
 	}
-}
-
-func assertDestructivePrompt(t *testing.T, spec *publicTaskSpec, task *taskfile) {
-	t.Helper()
-
-	prompt := strings.ToLower(nodeText(mappingValue(task.node, "prompt")))
-
-	if promptMentionsConfirmation(prompt) {
-		return
-	}
-
-	t.Fatalf("destructive task %q needs an explicit prompt:\n%s", spec.name, prompt)
-}
-
-func promptMentionsConfirmation(prompt string) bool {
-	keywords := []string{
-		constTypescriptTestActionDelete,
-		constTypescriptTestActionRemove,
-		constTypescriptTestActionContinue,
-	}
-
-	for i := range keywords {
-		keyword := keywords[i]
-
-		if strings.Contains(prompt, keyword) {
-			return true
-		}
-	}
-
-	return false
 }
 
 // TestTaskSummariesWork
@@ -493,6 +309,205 @@ func TestCommandsDoNotContainDangerousPatterns(t *testing.T) {
 	}
 }
 
+// TestNoPlaceholderTextInTaskfileOrReadme
+func TestNoPlaceholderTextInTaskfileOrReadme(t *testing.T) {
+	t.Parallel()
+
+	files := map[string]string{
+		constTypescriptTestTaskfileYml: read(t),
+		constTypescriptTestReadmeMd:    readTool(t, constTypescriptTestReadmeMd),
+	}
+
+	for name := range files {
+		content := files[name]
+		assertNoPlaceholders(t, name, content)
+	}
+}
+
+func publicTasksBuildAndConfig() []publicTaskSpec {
+	return []publicTaskSpec{
+		{name: "build", requiresSummary: true, requiresPrompt: false},
+		{name: "build:clean", requiresSummary: true, requiresPrompt: false},
+		{name: "build:watch", requiresSummary: true, requiresPrompt: false},
+		{name: "ci", requiresSummary: true, requiresPrompt: false},
+		{name: "clean", requiresPrompt: true, requiresSummary: true},
+		{name: "clean:all", requiresPrompt: true, requiresSummary: true},
+		{name: "config:diagnostics", requiresSummary: true, requiresPrompt: false},
+		{name: "config:files", requiresSummary: true, requiresPrompt: false},
+		{name: "config:init", requiresSummary: true, requiresPrompt: false},
+		{name: "config:show", requiresSummary: true, requiresPrompt: false},
+		{name: "config:trace", requiresSummary: true, requiresPrompt: false},
+	}
+}
+
+func publicTasksRunAndTypecheck() []publicTaskSpec {
+	return []publicTaskSpec{
+		{name: "dev", requiresSummary: true, requiresPrompt: false},
+		{name: "emit:dts", requiresSummary: true, requiresPrompt: false},
+		{name: "install", requiresSummary: true, requiresPrompt: false},
+		{name: "install:undo", requiresPrompt: true, requiresSummary: true},
+		{name: "run", requiresSummary: true, requiresPrompt: false},
+		{name: "start", requiresSummary: true, requiresPrompt: false},
+		{name: "tsserver:info", requiresSummary: true, requiresPrompt: false},
+		{name: "typecheck", requiresSummary: true, requiresPrompt: false},
+		{
+			name:            constTypescriptTestTypecheckFiles,
+			requiresSummary: true,
+			requiresPrompt:  false,
+		},
+		{name: "typecheck:watch", requiresSummary: true, requiresPrompt: false},
+		{name: "upgrade", requiresSummary: true, requiresPrompt: false},
+		{name: constTypescriptTestVersion, requiresSummary: true, requiresPrompt: false},
+	}
+}
+
+func publicTasks() []publicTaskSpec {
+	return append(publicTasksBuildAndConfig(), publicTasksRunAndTypecheck()...)
+}
+
+func assertLFLineEndings(t *testing.T, content string) {
+	t.Helper()
+
+	if strings.Contains(content, constTypescriptTestCRLF) {
+		t.Fatal("Taskfile must use LF line endings")
+	}
+}
+
+func assertNoTrailingWhitespace(t *testing.T, content string) {
+	t.Helper()
+
+	trimmedAll := strings.TrimRight(content, " \t\r\n")
+	trimmedLF := strings.TrimRight(content, constTypescriptTestCRLF)
+
+	if trimmedAll != trimmedLF {
+		t.Fatal("Taskfile has trailing whitespace")
+	}
+}
+
+func parseTaskfileYAML(t *testing.T, content string) *yaml.Node {
+	t.Helper()
+
+	var doc yaml.Node
+
+	err := yaml.Unmarshal([]byte(content), &doc)
+	if err != nil {
+		t.Fatalf(constTypescriptTestParseTaskfile, err)
+	}
+
+	return &doc
+}
+
+func assertTaskfileVersion(t *testing.T, root *yaml.Node) {
+	t.Helper()
+
+	version := scalarField(root, constTypescriptTestVersion)
+
+	if version != "3" && !strings.HasPrefix(version, "3.") {
+		t.Fatalf("Taskfile version must be 3 or 3.x, got %q", version)
+	}
+}
+
+func assertNonEmptyTasksMap(t *testing.T, root *yaml.Node) {
+	t.Helper()
+
+	tasks := mappingField(root, constTypescriptTestTasks)
+
+	if tasks == nil || len(tasks.Content) == constTypescriptTestZero {
+		t.Fatal("Taskfile must contain a non-empty tasks map")
+	}
+}
+
+func taskCliListArgVariants() [][]string {
+	return [][]string{
+		{constTypescriptTestFlagList},
+		{constTypescriptTestListAll},
+		{constTypescriptTestListAll, constTypescriptTestFlagSort, constTypescriptTestSortAlpha},
+		{constTypescriptTestListAll, constTypescriptTestJSON},
+	}
+}
+
+func assertTaskCliListSucceeds(t *testing.T, args []string) {
+	t.Helper()
+
+	result := runTask(t, isolatedEnv(t), args...)
+	assertExitCode(t, &result, constTypescriptTestZero)
+	assertNotContains(t, strings.ToLower(result.output), "taskfile does not exist")
+	assertNotContains(t, strings.ToLower(result.output), "unknown")
+}
+
+func assertPublicTaskMetadata(t *testing.T, spec *publicTaskSpec, task *taskfile) {
+	t.Helper()
+
+	if task.node.Kind != yaml.MappingNode {
+		t.Fatalf("public task %q must use mapping syntax", spec.name)
+	}
+
+	assertTaskDescription(t, spec, task)
+	assertTaskSummary(t, spec, task)
+	assertTaskHasCommands(t, spec, task)
+}
+
+func assertTaskDescription(t *testing.T, spec *publicTaskSpec, task *taskfile) {
+	t.Helper()
+
+	desc := nodeText(mappingValue(task.node, constTypescriptTestDesc))
+
+	if len(strings.TrimSpace(desc)) < constTypescriptTestMinDescLen {
+		t.Fatalf("public task %q desc is missing or too short: %q", spec.name, desc)
+	}
+}
+
+func assertTaskSummary(t *testing.T, spec *publicTaskSpec, task *taskfile) {
+	t.Helper()
+
+	summary := nodeText(mappingValue(task.node, "summary"))
+
+	if spec.requiresSummary && len(strings.TrimSpace(summary)) < constTypescriptTestMinSummaryLen {
+		t.Fatalf("public task %q summary is missing or too short:\n%s", spec.name, summary)
+	}
+}
+
+func assertTaskHasCommands(t *testing.T, spec *publicTaskSpec, task *taskfile) {
+	t.Helper()
+
+	missingCmdsAndDeps := isEmptyNode(mappingValue(task.node, "cmds")) &&
+		isEmptyNode(mappingValue(task.node, "deps"))
+
+	if missingCmdsAndDeps {
+		t.Fatalf("public task %q must have cmds or deps", spec.name)
+	}
+}
+
+func assertDestructivePrompt(t *testing.T, spec *publicTaskSpec, task *taskfile) {
+	t.Helper()
+
+	prompt := strings.ToLower(nodeText(mappingValue(task.node, "prompt")))
+
+	if promptMentionsConfirmation(prompt) {
+		return
+	}
+
+	t.Fatalf("destructive task %q needs an explicit prompt:\n%s", spec.name, prompt)
+}
+
+func promptMentionsConfirmation(prompt string) bool {
+	keywords := []string{
+		constTypescriptTestActionDelete,
+		constTypescriptTestActionRemove,
+		constTypescriptTestActionContinue,
+	}
+
+	for i := range keywords {
+		keyword := keywords[i]
+
+		if strings.Contains(prompt, keyword) {
+			return true
+		}
+	}
+
+	return false
+}
+
 func dangerousCommandPatterns() []*regexp.Regexp {
 	return []*regexp.Regexp{
 		regexp.MustCompile(`(?m)\brm\s+-[a-zA-Z]*r[a-zA-Z]*f[a-zA-Z]*\s+/(?:\s|$)`),
@@ -517,21 +532,6 @@ func assertCommandSafe(t *testing.T, cmd *dangerousCommand, patterns []*regexp.R
 				cmd.command,
 			)
 		}
-	}
-}
-
-// TestNoPlaceholderTextInTaskfileOrReadme
-func TestNoPlaceholderTextInTaskfileOrReadme(t *testing.T) {
-	t.Parallel()
-
-	files := map[string]string{
-		constTypescriptTestTaskfileYml: read(t),
-		constTypescriptTestReadmeMd:    readTool(t, constTypescriptTestReadmeMd),
-	}
-
-	for name := range files {
-		content := files[name]
-		assertNoPlaceholders(t, name, content)
 	}
 }
 

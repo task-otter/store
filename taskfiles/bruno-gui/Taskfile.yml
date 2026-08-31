@@ -57,8 +57,11 @@ tasks:
       - cmd: >-
           powershell -NoProfile -ExecutionPolicy Bypass -Command
           "Start-Process bruno{{if .RESOLVED_COLLECTION}} -ArgumentList '{{.RESOLVED_COLLECTION}}
-          {{default .BRUNO_GUI_EXTRA_ARGS .BRUNO_GUI_EXTRA_ARGS_OVERRIDE}}{{if .CLI_ARGS}} {{.CLI_ARGS}}{{end}}'{{else if or .BRUNO_GUI_EXTRA_ARGS .BRUNO_GUI_EXTRA_ARGS_OVERRIDE .CLI_ARGS}}
-          -ArgumentList '{{default .BRUNO_GUI_EXTRA_ARGS .BRUNO_GUI_EXTRA_ARGS_OVERRIDE}}{{if .CLI_ARGS}} {{.CLI_ARGS}}{{end}}'{{end}}"
+          {{default .BRUNO_GUI_EXTRA_ARGS .BRUNO_GUI_EXTRA_ARGS_OVERRIDE}}{{if .CLI_ARGS}} {{.CLI_ARGS}}{{end}}'
+          {{- else if or .BRUNO_GUI_EXTRA_ARGS .BRUNO_GUI_EXTRA_ARGS_OVERRIDE
+          .CLI_ARGS}}
+          -ArgumentList '{{default .BRUNO_GUI_EXTRA_ARGS .BRUNO_GUI_EXTRA_ARGS_OVERRIDE}}
+          {{- if .CLI_ARGS}} {{.CLI_ARGS}}{{end}}'{{end}}"
         platforms: [windows]
 
   help:

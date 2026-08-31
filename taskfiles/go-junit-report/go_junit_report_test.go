@@ -1,7 +1,7 @@
 // Taskotter 2026.
 // SPDX-License-Identifier: Apache-2.0.
 
-package go_junit_report_test
+package gojunitreport_test
 
 import (
 	"fmt"
@@ -27,30 +27,17 @@ type (
 )
 
 const (
-	constGoJunitReportTest   = "test"
-	goCoverProfileVar        = "GO_COVER_PROFILE"
-	goJunitReportModule      = "go-junit-report"
-	goJunitReportNixVar      = "GO_JUNIT_REPORT_NIX_INSTALLABLE"
-	goJunitReportVar         = "GO_JUNIT_REPORT"
-	fmtPercentV              = "%v"
-	zeroLen                  = 0
+	constGoJunitReportTest = "test"
+	verifyTask             = "verify"
+	whichTask              = "which"
+	ensureTask             = "_ensure"
+	goCoverProfileVar      = "GO_COVER_PROFILE"
+	goJunitReportModule    = "go-junit-report"
+	goJunitReportNixVar    = "GO_JUNIT_REPORT_NIX_INSTALLABLE"
+	goJunitReportVar       = "GO_JUNIT_REPORT"
+	fmtPercentV            = "%v"
+	zeroLen                = 0
 )
-
-func publicTasks() []string {
-	return []string{
-		constGoJunitReportTest,
-		"verify",
-		"which",
-	}
-}
-
-func publicVars() []string {
-	return []string{
-		goCoverProfileVar,
-		goJunitReportVar,
-		goJunitReportNixVar,
-	}
-}
 
 // TestTaskfileModuleContract validates the module contract.
 func TestTaskfileModuleContract(t *testing.T) {
@@ -61,19 +48,6 @@ func TestTaskfileModuleContract(t *testing.T) {
 		goJunitReportModule,
 		&tasktest.ModuleExpectations{Tasks: publicTasks(), Vars: publicVars()},
 	)
-}
-
-func goJunitReportTestTokens() []string {
-	return []string{
-		"go test -v",
-		"-covermode atomic",
-		"-coverprofile",
-		"./...",
-		"go-junit-report",
-		"-set-exit-code",
-		"-iocopy",
-		"-out",
-	}
 }
 
 // TestTestingTaskCommands validates test task command tokens and vars.
@@ -91,6 +65,48 @@ func TestTestingTaskCommands(t *testing.T) {
 		},
 	)
 	assertGoJunitReportTestVarsContainTokens(t, taskfile)
+}
+
+// TestOperationalTaskDependencies validates public task dependencies.
+func TestOperationalTaskDependencies(t *testing.T) {
+	t.Parallel()
+
+	taskfile := tasktest.LoadTaskfile(t, goJunitReportModule)
+
+	assertDependencyMap(t, taskfile, map[string][]string{
+		constGoJunitReportTest: {ensureTask},
+		whichTask:              {ensureTask},
+		verifyTask:             {ensureTask},
+	})
+}
+
+func publicTasks() []string {
+	return []string{
+		constGoJunitReportTest,
+		verifyTask,
+		whichTask,
+	}
+}
+
+func publicVars() []string {
+	return []string{
+		goCoverProfileVar,
+		goJunitReportVar,
+		goJunitReportNixVar,
+	}
+}
+
+func goJunitReportTestTokens() []string {
+	return []string{
+		"go test -v",
+		"-covermode atomic",
+		"-coverprofile",
+		"./...",
+		"go-junit-report",
+		"-set-exit-code",
+		"-iocopy",
+		"-out",
+	}
 }
 
 func assertTaskCmdsContainTokens(t *testing.T, check *taskCmdsTokenCheck) {
@@ -132,19 +148,6 @@ func assertGoJunitReportTestVarsContainTokens(t *testing.T, taskfile *tasktest.T
 			t.Fatalf("go-junit-report test vars missing %q: %s", tokens[i], testVars)
 		}
 	}
-}
-
-// TestOperationalTaskDependencies validates public task dependencies.
-func TestOperationalTaskDependencies(t *testing.T) {
-	t.Parallel()
-
-	taskfile := tasktest.LoadTaskfile(t, goJunitReportModule)
-
-	assertDependencyMap(t, taskfile, map[string][]string{
-		constGoJunitReportTest: {"_ensure"},
-		"which":                {"_ensure"},
-		"verify":               {"_ensure"},
-	})
 }
 
 func assertDependencyMap(t *testing.T, taskfile *tasktest.Taskfile, deps map[string][]string) {

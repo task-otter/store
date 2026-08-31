@@ -2,8 +2,4 @@
 schema: taskotter.dev/taskfile-metadata/v1
 module: djlint
 taskfile: Taskfile.yml
-exported_tasks:
-  - ci
-  - ci:fix
-  - fmt:check
-  - lint
+exported_tasks: [ci, ci:fix, fmt:check, lint]

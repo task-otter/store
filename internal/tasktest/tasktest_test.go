@@ -98,6 +98,52 @@ func (tester *fakeTest) reportFatal(message string) {
 	runtime.Goexit()
 }
 
+// TestRepositoryAndTaskfilePaths verifies repo discovery from nested module paths.
+// TestRepositoryAndTaskfilePaths
+func TestRepositoryAndTaskfilePaths(t *testing.T) {
+	fixture := makeRepo(t)
+	assertRepositoryAndTaskfilePaths(t, &fixture)
+	t.Parallel()
+}
+
+// TestRepoRootMissingGoMod verifies repo discovery fails outside a Go module.
+// TestRepoRootMissingGoMod
+func TestRepoRootMissingGoMod(t *testing.T) {
+	inDir(t, t.TempDir(), func() {
+		expectFatal(
+			t,
+			"could not find repository root",
+			func(fakeTester *fakeTest) { tasktest.RepoRoot(fakeTester) },
+		)
+	})
+
+	t.Parallel()
+}
+
+// TestLoadTaskfile verifies valid and invalid Taskfile loading behavior.
+// TestLoadTaskfile
+func TestLoadTaskfile(t *testing.T) {
+	t.Parallel()
+	assertValidLoadTaskfile(t)
+	runCases(t, loadTaskfileCases(), assertInvalidLoadTaskfile)
+}
+
+// TestReadmeValidation verifies README validation for Taskfile modules.
+// TestReadmeValidation
+func TestReadmeValidation(t *testing.T) {
+	t.Parallel()
+	assertValidModule(t)
+	runCases(t, readmeValidationCases(), assertInvalidReadme)
+}
+
+// TestTaskfileValidation verifies Taskfile content validation for modules.
+// TestTaskfileValidation
+func TestTaskfileValidation(t *testing.T) {
+	t.Parallel()
+	assertValidModule(t)
+	runCases(t, taskfileValidationCases(), assertInvalidTaskfile)
+}
+
 func expectFatal(t *testing.T, want string, fatalFunc func(*fakeTest)) {
 	t.Helper()
 
@@ -264,14 +310,6 @@ func makeRepo(t *testing.T) repoFixture {
 	return repoFixture{root: root, module: module}
 }
 
-// TestRepositoryAndTaskfilePaths verifies repo discovery from nested module paths.
-// TestRepositoryAndTaskfilePaths
-func TestRepositoryAndTaskfilePaths(t *testing.T) {
-	fixture := makeRepo(t)
-	assertRepositoryAndTaskfilePaths(t, &fixture)
-	t.Parallel()
-}
-
 func assertRepositoryAndTaskfilePaths(t *testing.T, fixture *repoFixture) {
 	t.Helper()
 
@@ -295,18 +333,8 @@ func assertRepositoryAndTaskfilePaths(t *testing.T, fixture *repoFixture) {
 	})
 }
 
-// TestRepoRootMissingGoMod verifies repo discovery fails outside a Go module.
-// TestRepoRootMissingGoMod
-func TestRepoRootMissingGoMod(t *testing.T) {
-	inDir(t, t.TempDir(), func() {
-		expectFatal(
-			t,
-			"could not find repository root",
-			func(fakeTester *fakeTest) { tasktest.RepoRoot(fakeTester) },
-		)
-	})
-
-	t.Parallel()
+func (testCase *loadTaskfileCase) testName() string {
+	return testCase.name
 }
 
 func samePath(t *testing.T, left, right string) bool {
@@ -316,14 +344,6 @@ func samePath(t *testing.T, left, right string) bool {
 	rightInfo, rightErr := os.Stat(right)
 
 	return leftErr == nil && rightErr == nil && os.SameFile(leftInfo, rightInfo)
-}
-
-// TestLoadTaskfile verifies valid and invalid Taskfile loading behavior.
-// TestLoadTaskfile
-func TestLoadTaskfile(t *testing.T) {
-	t.Parallel()
-	assertValidLoadTaskfile(t)
-	runCases(t, loadTaskfileCases(), assertInvalidLoadTaskfile)
 }
 
 func runCases[caseT namedTestCase](t *testing.T, cases []caseT, assert caseAssert[caseT]) {
@@ -336,10 +356,6 @@ func runCases[caseT namedTestCase](t *testing.T, cases []caseT, assert caseAsser
 			assert(t, testCase)
 		})
 	}
-}
-
-func (testCase *loadTaskfileCase) testName() string {
-	return testCase.name
 }
 
 func assertValidLoadTaskfile(t *testing.T) {
@@ -416,14 +432,6 @@ func invalidLoadTaskfileFormattingCases() []*loadTaskfileCase {
 	}
 }
 
-// TestReadmeValidation verifies README validation for Taskfile modules.
-// TestReadmeValidation
-func TestReadmeValidation(t *testing.T) {
-	t.Parallel()
-	assertValidModule(t)
-	runCases(t, readmeValidationCases(), assertInvalidReadme)
-}
-
 func assertValidModule(t *testing.T) {
 	t.Helper()
 
@@ -462,6 +470,10 @@ func prepareReadmeValidationFixture(t *testing.T, module string, testCase *readm
 	writeFile(t, path, *testCase.content)
 }
 
+func (testCase *readmeValidationCase) testName() string {
+	return testCase.name
+}
+
 func readmeValidationCases() []*readmeValidationCase {
 	return []*readmeValidationCase{
 		{name: missingModule, content: nil, want: "must have README.md"},
@@ -473,10 +485,6 @@ func readmeValidationCases() []*readmeValidationCase {
 			want:    "does not mention public task",
 		},
 	}
-}
-
-func (testCase *readmeValidationCase) testName() string {
-	return testCase.name
 }
 
 func removeFile(t *testing.T, path string) {
@@ -504,14 +512,6 @@ func expectModuleFatal(t *testing.T, want string, expected *tasktest.ModuleExpec
 	expectFatal(t, want, func(fakeTester *fakeTest) {
 		tasktest.AssertModule(fakeTester, fixtureModule, expected)
 	})
-}
-
-// TestTaskfileValidation verifies Taskfile content validation for modules.
-// TestTaskfileValidation
-func TestTaskfileValidation(t *testing.T) {
-	t.Parallel()
-	assertValidModule(t)
-	runCases(t, taskfileValidationCases(), assertInvalidTaskfile)
 }
 
 func assertInvalidTaskfile(t *testing.T, testCase *taskfileValidationCase) {

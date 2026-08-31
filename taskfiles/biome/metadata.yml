@@ -17,8 +17,4 @@ exported_tasks:
   - lint:fix
   - upgrade
   - version
-variants:
-  - bun
-  - node/npm
-  - node/pnpm
-  - node/yarn
+variants: [bun, node/npm, node/pnpm, node/yarn]

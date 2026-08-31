@@ -35,28 +35,14 @@ const (
 	constGoTestTest = "test"
 	benchTask       = "bench"
 	fuzzTask        = "fuzz"
+	verifyTask      = "verify"
+	whichTask       = "which"
+	ensureTask      = "_ensure"
 	goModuleName    = "go"
 	goTestCmd       = "go test"
 	fmtPercentV     = "%v"
 	zeroLen         = 0
 )
-
-func publicTasks() []string {
-	return []string{
-		benchTask,
-		fuzzTask,
-		constGoTestTest,
-		"verify",
-		"which",
-	}
-}
-
-func publicVars() []string {
-	return []string{
-		"GO_FUZZTIME",
-		"GO_NIX_INSTALLABLE",
-	}
-}
 
 // TestTaskfileModuleContract
 func TestTaskfileModuleContract(t *testing.T) {
@@ -67,6 +53,50 @@ func TestTaskfileModuleContract(t *testing.T) {
 		goModuleName,
 		&tasktest.ModuleExpectations{Tasks: publicTasks(), Vars: publicVars()},
 	)
+}
+
+// TestTestingTaskCommands
+func TestTestingTaskCommands(t *testing.T) {
+	t.Parallel()
+
+	taskfile := tasktest.LoadTaskfile(t, goModuleName)
+	tests := taskCommandCases()
+
+	for i := range tests {
+		runTaskCommandCase(t, taskfile, &tests[i])
+	}
+}
+
+// TestOperationalTaskDependencies
+func TestOperationalTaskDependencies(t *testing.T) {
+	t.Parallel()
+
+	taskfile := tasktest.LoadTaskfile(t, goModuleName)
+
+	assertDependencyMap(t, taskfile, map[string][]string{
+		constGoTestTest: {ensureTask},
+		benchTask:       {ensureTask},
+		fuzzTask:        {ensureTask},
+		whichTask:       {ensureTask},
+		verifyTask:      {ensureTask},
+	})
+}
+
+func publicTasks() []string {
+	return []string{
+		benchTask,
+		fuzzTask,
+		constGoTestTest,
+		verifyTask,
+		whichTask,
+	}
+}
+
+func publicVars() []string {
+	return []string{
+		"GO_FUZZTIME",
+		"GO_NIX_INSTALLABLE",
+	}
 }
 
 func goTestTaskTokens() []string {
@@ -100,18 +130,6 @@ func runTaskCommandCase(t *testing.T, taskfile *tasktest.Taskfile, testCase *tas
 	})
 }
 
-// TestTestingTaskCommands
-func TestTestingTaskCommands(t *testing.T) {
-	t.Parallel()
-
-	taskfile := tasktest.LoadTaskfile(t, goModuleName)
-	tests := taskCommandCases()
-
-	for i := range tests {
-		runTaskCommandCase(t, taskfile, &tests[i])
-	}
-}
-
 func assertTaskCmdsContainTokens(t *testing.T, check *taskCmdsTokenCheck) {
 	t.Helper()
 
@@ -130,21 +148,6 @@ func assertTaskCmdsContainTokens(t *testing.T, check *taskCmdsTokenCheck) {
 			t.Fatalf("go task %q cmds missing %q: %s", check.taskName, token, cmds)
 		}
 	}
-}
-
-// TestOperationalTaskDependencies
-func TestOperationalTaskDependencies(t *testing.T) {
-	t.Parallel()
-
-	taskfile := tasktest.LoadTaskfile(t, goModuleName)
-
-	assertDependencyMap(t, taskfile, map[string][]string{
-		constGoTestTest: {"_ensure"},
-		benchTask:       {"_ensure"},
-		fuzzTask:        {"_ensure"},
-		"which":         {"_ensure"},
-		"verify":        {"_ensure"},
-	})
 }
 
 func assertDependencyMap(t *testing.T, taskfile *tasktest.Taskfile, deps map[string][]string) {

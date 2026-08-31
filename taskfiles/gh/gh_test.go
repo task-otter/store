@@ -10,6 +10,17 @@ import (
 	"github.com/task-otter/store/internal/tasktest"
 )
 
+// TestModule
+func TestModule(t *testing.T) {
+	t.Parallel()
+
+	tasktest.AssertModule(
+		t,
+		"gh",
+		&tasktest.ModuleExpectations{Tasks: expectedPublicTasks(), Vars: expectedVars()},
+	)
+}
+
 // expectedPublicTasks is the canonical list of public gh Taskfile tasks.
 // It must stay in sync with the tasks: block in Taskfile.yml.
 func expectedPublicTasks() []string {
@@ -164,15 +175,4 @@ func expectedVars() []string {
 		"GH_NIX_INSTALLABLE",
 		"GH_VISIBILITY",
 	}
-}
-
-// TestModule
-func TestModule(t *testing.T) {
-	t.Parallel()
-
-	tasktest.AssertModule(
-		t,
-		"gh",
-		&tasktest.ModuleExpectations{Tasks: expectedPublicTasks(), Vars: expectedVars()},
-	)
 }
