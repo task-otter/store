@@ -109,7 +109,6 @@ tasks:
       - task: _windows:unsupported
 
   features:enable:
-    run: once
     desc: Enable Nix experimental features in nix.conf
     summary: |
       Write experimental-features to nix.conf (default ~/.config/nix/nix.conf,
@@ -135,7 +134,6 @@ tasks:
       - task: _windows:unsupported
 
   install:shell:
-    run: once
     dir: "{{.USER_WORKING_DIR}}"
     interactive: true
     desc: Run a temporary Nix shell with installables (NIX_INSTALLABLE)

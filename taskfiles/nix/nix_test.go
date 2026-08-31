@@ -9,13 +9,36 @@ import (
 	"github.com/task-otter/store/internal/tasktest"
 )
 
+const (
+	nixModuleName      = "nix"
+	installProfileTask = "install:profile"
+)
+
+// TestInstallProfileNotRunOnce
+func TestInstallProfileNotRunOnce(t *testing.T) {
+	t.Parallel()
+
+	taskfile := tasktest.LoadTaskfile(t, nixModuleName)
+	task, exists := taskfile.Tasks[installProfileTask]
+
+	if !exists {
+		t.Fatal("install:profile task is missing")
+	}
+
+	// run: once would skip the second module's NIX_INSTALLABLE in one
+	// `task ci` invocation, leaving that CLI off PATH.
+	if task.Run == "once" {
+		t.Fatal("install:profile must not use run: once")
+	}
+}
+
 // TestTaskfileModuleContract
 func TestTaskfileModuleContract(t *testing.T) {
 	t.Parallel()
 
 	tasktest.AssertModule(
 		t,
-		"nix",
+		nixModuleName,
 		&tasktest.ModuleExpectations{Tasks: publicTasks(), Vars: publicVars()},
 	)
 }
@@ -25,7 +48,7 @@ func publicTasks() []string {
 		"features:enable",
 		"features:show",
 		"install",
-		"install:profile",
+		installProfileTask,
 		"install:shell",
 		"install:undo",
 		"uninstall",
@@ -47,23 +70,5 @@ func publicVars() []string {
 		"NIX_LOAD",
 		"NIX_NEEDED_FEATURES",
 		"NIX_VERSION",
-	}
-}
-
-// TestInstallProfileNotRunOnce
-func TestInstallProfileNotRunOnce(t *testing.T) {
-	t.Parallel()
-
-	taskfile := tasktest.LoadTaskfile(t, "nix")
-	task, exists := taskfile.Tasks["install:profile"]
-
-	if !exists {
-		t.Fatal("install:profile task is missing")
-	}
-
-	// run: once would skip the second module's NIX_INSTALLABLE in one
-	// `task ci` invocation, leaving that CLI off PATH.
-	if task.Run == "once" {
-		t.Fatal("install:profile must not use run: once")
 	}
 }
