@@ -49,3 +49,21 @@ func publicVars() []string {
 		"NIX_VERSION",
 	}
 }
+
+// TestInstallProfileNotRunOnce
+func TestInstallProfileNotRunOnce(t *testing.T) {
+	t.Parallel()
+
+	taskfile := tasktest.LoadTaskfile(t, "nix")
+	task, exists := taskfile.Tasks["install:profile"]
+
+	if !exists {
+		t.Fatal("install:profile task is missing")
+	}
+
+	// run: once would skip the second module's NIX_INSTALLABLE in one
+	// `task ci` invocation, leaving that CLI off PATH.
+	if task.Run == "once" {
+		t.Fatal("install:profile must not use run: once")
+	}
+}

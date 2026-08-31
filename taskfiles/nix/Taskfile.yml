@@ -164,7 +164,6 @@ tasks:
       - task: _windows:unsupported
 
   install:profile:
-    run: once
     dir: "{{.USER_WORKING_DIR}}"
     desc: Add installables to the user Nix profile (NIX_INSTALLABLE)
     summary: |
@@ -173,6 +172,8 @@ tasks:
       Requires NIX_INSTALLABLE (for example nixpkgs#hello, or hello which
       is expanded to nixpkgs#hello). Pass NIX_EXTRA_ARGS for extra nix flags.
       Auto-installs Nix and enables nix-command and flakes if they are missing.
+      Must not use run: once: each caller passes a different NIX_INSTALLABLE,
+      and skipping the second call leaves that package off PATH.
     deps:
       - task: _features:needed
     requires:
@@ -240,8 +241,24 @@ tasks:
         esac
         extra="{{if .NIX_EXTRA_ARGS_OVERRIDE}}{{.NIX_EXTRA_ARGS_OVERRIDE}}{{else}}{{.NIX_EXTRA_ARGS}}{{end}}"
         trailing="{{.NIX_TRAILING}}"
-        bash -lc '{{.NIX_LOAD}};
-        nix --extra-experimental-features "{{.NIX_NEEDED_FEATURES}}" {{.NIX_SUBCMD}} '"$i"' '"$extra"' '"$trailing"
+        if [ "{{.NIX_SUBCMD}}" = "profile add" ]; then
+          bash -lc '{{.NIX_LOAD}};
+          for pkg in '"$i"'; do
+            out=$(nix --extra-experimental-features "{{.NIX_NEEDED_FEATURES}}" \
+              profile add "$pkg" '"$extra"' 2>&1) && status=0 || status=$?
+            printf "%s\n" "$out"
+            if [ "$status" -eq 0 ]; then
+              continue
+            fi
+            if printf "%s" "$out" | grep -qi already; then
+              continue
+            fi
+            exit "$status"
+          done'
+        else
+          bash -lc '{{.NIX_LOAD}};
+          nix --extra-experimental-features "{{.NIX_NEEDED_FEATURES}}" {{.NIX_SUBCMD}} '"$i"' '"$extra"' '"$trailing"
+        fi
 
   _install:unix:
     run: once

@@ -31,8 +31,9 @@ tasks:
     internal: true
     status:
       - >-
-        test -n "{{.GO_GLOBAL_BIN}}"
-        || command -v golangci-lint >/dev/null 2>&1
+        bash -lc '{{.NIX_LOAD}};
+        {{if .GO_GLOBAL_BIN}}export PATH="{{.GO_GLOBAL_BIN}}:$PATH";
+        {{end}}command -v golangci-lint >/dev/null 2>&1'
     cmds:
       - task: nix:install:profile
         vars:
@@ -134,7 +135,7 @@ tasks:
         {{- else}}{{.GOLANGCI_LINT_LINT_SKIP_PATTERN}}{{end}}
     cmds:
       - cmd: |
-          {{.NIX_LOAD}}
+          bash -lc '{{.NIX_LOAD}}; exec bash -s' <<'GCL_SKIP_EOF'
           {{if .GO_GLOBAL_BIN}}export PATH="{{.GO_GLOBAL_BIN}}:$PATH"{{end}}
           pattern="$GO_SKIP_PATTERN"
           source_config="$(golangci-lint config path 2>/dev/null || true)"
@@ -346,6 +347,7 @@ tasks:
               }
             }
           ' "$source_config" >"$output"
+          GCL_SKIP_EOF
         platforms: [linux, darwin]
       - cmd: |
           powershell -NoProfile -ExecutionPolicy Bypass -Command - <<'POWERSHELL'
@@ -612,7 +614,7 @@ tasks:
       CUSTOM_GCL_BINARY: "{{joinPath .CUSTOM_GCL_DESTINATION .CUSTOM_GCL_BINARY_NAME}}"
     cmds:
       - cmd: |
-          {{.NIX_LOAD}}
+          bash -lc '{{.NIX_LOAD}}; exec bash -s' <<'GCL_LINT_EOF'
           {{if .GO_GLOBAL_BIN}}export PATH="{{.GO_GLOBAL_BIN}}:$PATH"{{end}}
           lint_binary="golangci-lint"
           if [ "{{.CUSTOM_GCL_ENABLED}}" = "true" ]; then
@@ -650,6 +652,7 @@ tasks:
             {{.GO_LINT_ARGS}} \
             --config "$overlay_config" || lint_status=$?
           exit "$lint_status"
+          GCL_LINT_EOF
         platforms: [linux, darwin]
       - cmd: >-
           powershell -NoProfile -ExecutionPolicy Bypass -Command "$ErrorActionPreference='Stop'; $lintBinary =
@@ -694,12 +697,11 @@ tasks:
     dir: "{{.USER_WORKING_DIR}}"
     cmds:
       - cmd: |
-          {{.NIX_LOAD}}
-          {{if .GO_GLOBAL_BIN}}export PATH="{{.GO_GLOBAL_BIN}}:$PATH"{{end}}
-          golangci-lint fmt \
+          bash -lc '{{.NIX_LOAD}};
+          {{if .GO_GLOBAL_BIN}}export PATH="{{.GO_GLOBAL_BIN}}:$PATH"; {{end}}golangci-lint fmt \
             {{.GO_FMT_DIFF}} \
             {{.GOLANGCI_LINT_FMT_FORMATTER_FLAGS}} \
-            {{.GO_FMT_TARGETS}}
+            {{.GO_FMT_TARGETS}}'
         platforms: [linux, darwin]
       - cmd: >-
           powershell -NoProfile -ExecutionPolicy Bypass -Command "$ErrorActionPreference='Stop';
