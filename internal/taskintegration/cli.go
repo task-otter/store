@@ -87,7 +87,7 @@ func listTaskNames(t *testing.T, module *Module) []string {
 	return parseListedNames(t, module, &result)
 }
 
-func parseListedNames(t *testing.T, module *Module, result *Result) []string {
+func parseListedNames(t suiteT, module *Module, result *Result) []string {
 	t.Helper()
 
 	listing := new(taskListing)
@@ -118,7 +118,7 @@ func listedNames(listing *taskListing) []string {
 	return names
 }
 
-func requireSuccess(t *testing.T, module *Module, result *Result) {
+func requireSuccess(t suiteT, module *Module, result *Result) {
 	t.Helper()
 
 	if !result.Failed {

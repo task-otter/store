@@ -95,9 +95,15 @@ func moduleDir(t *testing.T, module string) string {
 func currentModule(t *testing.T) string {
 	t.Helper()
 
-	root := filepath.Join(tasktest.RepoRoot(t), taskfilesDirName)
+	return modulePathFrom(t, tasktest.RepoRoot(t), tasktestutil.ModuleRoot(t))
+}
 
-	module, err := filepath.Rel(root, tasktestutil.ModuleRoot(t))
+func modulePathFrom(t suiteT, repoRoot, moduleRoot string) string {
+	t.Helper()
+
+	root := filepath.Join(repoRoot, taskfilesDirName)
+
+	module, err := filepath.Rel(root, moduleRoot)
 	if err != nil {
 		t.Fatalf("resolve the module folder under %s: %v", taskfilesDirName, err)
 	}

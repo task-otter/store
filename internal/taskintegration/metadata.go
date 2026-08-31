@@ -38,7 +38,7 @@ func loadMetadata(t *testing.T, dir string) *moduleMetadata {
 	return parseMetadata(t, path, tasktestutil.ReadFile(t, path))
 }
 
-func parseMetadata(t *testing.T, path, content string) *moduleMetadata {
+func parseMetadata(t suiteT, path, content string) *moduleMetadata {
 	t.Helper()
 
 	metadata := new(moduleMetadata)

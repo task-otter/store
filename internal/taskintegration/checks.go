@@ -18,6 +18,12 @@ type (
 		reason string
 		names  []string
 	}
+
+	summaryCheck struct {
+		module *Module
+		result *Result
+		name   string
+	}
 )
 
 const (
@@ -45,7 +51,7 @@ func assertMetadataTasksAreReachable(t *testing.T, module *Module) {
 	t.Helper()
 
 	sweepTasks(t, &taskSweep{
-		assert: requireReachable,
+		assert: requireReachableTask,
 		module: module,
 		names:  module.Exported,
 		reason: module.Name + " has no " + metadataName,
@@ -115,6 +121,12 @@ func assertUnknownTaskIsRejected(t *testing.T, module *Module) {
 
 	result := runTask(t, module, unknownTaskName)
 
+	requireUnknownRejected(t, module, &result)
+}
+
+func requireUnknownRejected(t suiteT, module *Module, result *Result) {
+	t.Helper()
+
 	if result.Failed {
 		return
 	}
@@ -139,7 +151,7 @@ func sweepTasks(t *testing.T, sweep *taskSweep) {
 	}
 }
 
-func requireListed(t *testing.T, module *Module, name string) {
+func requireListed(t suiteT, module *Module, name string) {
 	t.Helper()
 
 	if slices.Contains(module.Listed, name) {
@@ -155,7 +167,7 @@ func requireListed(t *testing.T, module *Module, name string) {
 	)
 }
 
-func requireDeclaredOrIncluded(t *testing.T, module *Module, name string) {
+func requireDeclaredOrIncluded(t suiteT, module *Module, name string) {
 	t.Helper()
 
 	skippable := name == defaultTaskName ||
@@ -184,7 +196,13 @@ func isIncluded(includes []string, name string) bool {
 	return false
 }
 
-func requireReachable(t *testing.T, module *Module, exported string) {
+func requireReachableTask(t *testing.T, module *Module, exported string) {
+	t.Helper()
+
+	requireReachable(t, module, exported)
+}
+
+func requireReachable(t suiteT, module *Module, exported string) {
 	t.Helper()
 
 	if isReachable(module.Listed, exported) {
@@ -222,7 +240,7 @@ func assertVariantExposesTasks(t *testing.T, module *Module, variant string) {
 	}
 }
 
-func requireVariantTask(t *testing.T, module *Module, name string) {
+func requireVariantTask(t suiteT, module *Module, name string) {
 	t.Helper()
 
 	if slices.Contains(module.Listed, name) {
@@ -238,17 +256,22 @@ func assertSummaryRenders(t *testing.T, module *Module, name string) {
 	result := runTask(t, module, summaryFlag, name)
 
 	requireSuccess(t, module, &result)
+	requireSummaryNamesTask(t, &summaryCheck{module: module, result: &result, name: name})
+}
 
-	if strings.Contains(result.Stdout, name) {
+func requireSummaryNamesTask(t suiteT, check *summaryCheck) {
+	t.Helper()
+
+	if strings.Contains(check.result.Stdout, check.name) {
 		return
 	}
 
 	t.Fatalf(
 		"%s: task %s %s does not name the task:\n%s",
-		module.Name,
+		check.module.Name,
 		summaryFlag,
-		name,
-		result.Stdout,
+		check.name,
+		check.result.Stdout,
 	)
 }
 
@@ -260,7 +283,7 @@ func assertDryRunSucceeds(t *testing.T, module *Module, name string) {
 	requireSuccess(t, module, &result)
 }
 
-func requireOutput(t *testing.T, module *Module, result *Result) {
+func requireOutput(t suiteT, module *Module, result *Result) {
 	t.Helper()
 
 	if strings.TrimSpace(result.Combined()) != emptyString {

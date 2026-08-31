@@ -30,7 +30,10 @@ type (
 		fatal    *fatalCall
 		tempDirs []string
 		nextDir  int
+		stay     stayAfterFatal
 	}
+
+	stayAfterFatal bool
 
 	fatalResult struct {
 		fatal *fatalCall
@@ -70,61 +73,80 @@ type (
 )
 
 const (
-	publicTasksHeading    = "## Public Tasks"
-	alphaName             = "alpha"
-	zetaName              = "zeta"
-	defaultTaskName       = "default"
-	expectedFatalCall     = "expected fatal call"
-	dirModeAll            = 0o700
-	fileModeAll           = 0o600
-	taskBinaryName        = "task"
-	taskfileYML           = "Taskfile.yml"
-	taskfileYAML          = "Taskfile.yaml"
-	taskDescriptionTable  = "| Task | Description |"
-	tableDividerRow       = "| --- | --- |"
-	variablesHeading      = "## Variables"
-	descField             = "desc"
-	missingName           = "missing"
-	anythingField         = "anything"
-	descriptionValue      = "description"
-	twoAlias              = "two"
-	oneAlias              = "one"
-	xValue                = "x"
-	alphaBetaText         = "alpha beta"
-	spaceText             = " "
-	taskfileNotFoundMsg   = "could not find Taskfile"
-	rootName              = "root"
-	pathEnvVar            = "PATH"
-	bArg                  = "B=2"
-	simpleOutput          = "simple"
-	bashrcName            = ".bashrc"
-	trueValue             = "true"
-	envKeyA               = "A"
-	envValueNew           = "new"
-	envKeyB               = "B"
-	envValueGeneric       = "value"
-	internalTaskName      = "internal"
-	scalarName            = "scalar"
-	stubName              = "stub"
-	okName                = "ok"
-	betaName              = "beta"
-	emptySentinelMsg      = "empty sentinel"
-	entryName             = "entry"
-	groupBeginTemplate    = "::group::{{.TASK}}"
-	groupEndMarker        = "::endgroup::"
-	groupFieldName        = "group"
-	includeGroupConfig    = "include group config"
-	badValue              = "bad"
-	sameKeyName           = "same"
-	newline               = "\n"
-	zeroValue             = 0
-	oneValue              = 1
-	expectedTaskCount     = 5
-	exitCodeSeven         = 7
-	execStubMode          = 0o500
-	emptyStr              = ""
-	twoCount              = 2
-	validTaskfileTemplate = `version: "3.5"
+	publicTasksHeading                   = "## Public Tasks"
+	alphaName                            = "alpha"
+	zetaName                             = "zeta"
+	defaultTaskName                      = "default"
+	expectedFatalCall                    = "expected fatal call"
+	dirModeAll                           = 0o700
+	fileModeAll                          = 0o600
+	taskBinaryName                       = "task"
+	taskfileYML                          = "Taskfile.yml"
+	taskfileYAML                         = "Taskfile.yaml"
+	taskDescriptionTable                 = "| Task | Description |"
+	tableDividerRow                      = "| --- | --- |"
+	variablesHeading                     = "## Variables"
+	descField                            = "desc"
+	missingName                          = "missing"
+	anythingField                        = "anything"
+	descriptionValue                     = "description"
+	twoAlias                             = "two"
+	oneAlias                             = "one"
+	xValue                               = "x"
+	alphaBetaText                        = "alpha beta"
+	spaceText                            = " "
+	taskfileNotFoundMsg                  = "could not find Taskfile"
+	rootName                             = "root"
+	pathEnvVar                           = "PATH"
+	bArg                                 = "B=2"
+	simpleOutput                         = "simple"
+	bashrcName                           = ".bashrc"
+	trueValue                            = "true"
+	envKeyA                              = "A"
+	envValueNew                          = "new"
+	envKeyB                              = "B"
+	envValueGeneric                      = "value"
+	internalTaskName                     = "internal"
+	scalarName                           = "scalar"
+	stubName                             = "stub"
+	okName                               = "ok"
+	betaName                             = "beta"
+	emptySentinelMsg                     = "empty sentinel"
+	entryName                            = "entry"
+	groupBeginTemplate                   = "::group::{{.TASK}}"
+	groupEndMarker                       = "::endgroup::"
+	groupFieldName                       = "group"
+	includeGroupConfig                   = "include group config"
+	badValue                             = "bad"
+	sameKeyName                          = "same"
+	newline                              = "\n"
+	zeroValue                            = 0
+	oneValue                             = 1
+	expectedTaskCount                    = 5
+	exitCodeSeven                        = 7
+	execStubMode                         = 0o500
+	emptyStr                             = ""
+	twoCount                             = 2
+	stayAlive             stayAfterFatal = true
+	readmeFileName                       = "README.md"
+	dirExistsMsg                         = "but it does"
+	noOutputConfigMsg                    = "no output config"
+	taskfilesDirName                     = "taskfiles"
+	childEntryName                       = "child"
+	confirmPromptText                    = "please confirm"
+	vaguePromptText                      = "maybe later"
+	extraArgName                         = "extra"
+	legacyTimeoutMsg                     = "legacy timeout call requires env and timeout"
+	timeoutCountMsg                      = "exactly one timeout"
+	taskfileTypeMsg                      = "LoadedTaskfile"
+	resultTypeMsg                        = "CommandResult"
+	stubPartsMsg                         = "name and body"
+	positionalArgsMsg                    = "positional arguments"
+	nonEmptyPromptMsg                    = "non-empty prompt"
+	explicitPromptMsg                    = "not look explicit"
+	readmeMissingMsg                     = "could not find README.md"
+	durationTypeMsg                      = "time.Duration"
+	validTaskfileTemplate                = `version: "3.5"
 output:
   group:
     begin: "%s"
@@ -168,13 +190,17 @@ var errSentinel = errors.New("sentinel")
 func (fake *fakeTest) Fatal(args ...any) {
 	fake.fatal = &fatalCall{message: fmt.Sprint(args...)}
 
-	runtime.Goexit()
+	if !fake.stay {
+		runtime.Goexit()
+	}
 }
 
 func (fake *fakeTest) Fatalf(format string, args ...any) {
 	fake.fatal = &fatalCall{message: fmt.Sprintf(format, args...)}
 
-	runtime.Goexit()
+	if !fake.stay {
+		runtime.Goexit()
+	}
 }
 
 func (*fakeTest) Helper() {}
@@ -371,6 +397,7 @@ func TestGithubGroupAssertion(t *testing.T) {
 
 	assertGithubGroupAssertionShapeFailures(t)
 	assertGithubGroupAssertionValueFailures(t, falseValue)
+	assertGithubGroupPostFatalReturn(t)
 }
 
 // TestTextFileAssertion validates the behavior covered by this test case.
@@ -411,11 +438,36 @@ func TestPlaceholderJsonAndDangerousPatterns(t *testing.T) {
 	assertDangerousCommandPatterns(t)
 }
 
+// TestAssertDestructivePrompt validates the behavior covered by this test case.
+func TestAssertDestructivePrompt(t *testing.T) {
+	t.Parallel()
+
+	tasktestutil.AssertDestructivePrompt(t, alphaName, yamlScalar(confirmPromptText))
+	assertDestructivePromptFailures(t)
+}
+
+// TestModuleReadmeSearch validates the behavior covered by this test case.
+func TestModuleReadmeSearch(t *testing.T) {
+	assertAncestorModuleReadme(t)
+	assertMissingModuleReadme(t)
+	assertTaskfilesReadmeBoundary(t)
+
+	t.Parallel()
+}
+
+// TestRunNormalizationFatals validates the behavior covered by this test case.
+func TestRunNormalizationFatals(t *testing.T) {
+	t.Parallel()
+
+	assertLegacyRunFatals(t)
+	assertTimeoutRunFatals(t)
+}
+
 func expectFatal(t *testing.T, want string, fatalFunc func(*fakeTest)) {
 	t.Helper()
 
 	result := runFatalFunc(
-		&fakeTest{fatal: nil, tempDirs: nil, nextDir: zeroValue},
+		&fakeTest{fatal: nil, tempDirs: nil, nextDir: zeroValue, stay: false},
 		func(fake *fakeTest) {
 			fatalFunc(fake)
 		},
@@ -799,6 +851,11 @@ func assertModuleDiscoveryFatals(t *testing.T, taskfile *tasktestutil.LoadedTask
 		"is missing",
 		func(fakeTester *fakeTest) { tasktestutil.MustTask(fakeTester, taskfile, missingName) },
 	)
+	expectFatal(
+		t,
+		taskfileTypeMsg,
+		func(fakeTester *fakeTest) { tasktestutil.MustTask(fakeTester, zeroValue, alphaName) },
+	)
 	inDir(t, t.TempDir(), func() {
 		expectFatal(
 			t,
@@ -823,20 +880,31 @@ func assertDiscoverAndLoad(t *testing.T, root, nested string) tasktestutil.Loade
 func discoverAndLoadModule(t *testing.T, root string) tasktestutil.LoadedTaskfile {
 	t.Helper()
 
-	assertModuleRootMatches(t, root)
-	assertModuleTaskfilePathMatches(t, root, taskfileYML)
+	assertModuleDiscoveryPaths(t, root)
 
 	taskfile := tasktestutil.LoadTaskfile(t)
 	assertLoadedTaskfile(t, root, &taskfile)
+	renameModuleTaskfileToYAML(t, root)
+	assertModuleTaskfilePathMatches(t, root, taskfileYAML)
+
+	return taskfile
+}
+
+func assertModuleDiscoveryPaths(t *testing.T, root string) {
+	t.Helper()
+
+	assertModuleRootMatches(t, root)
+	assertModuleTaskfilePathMatches(t, root, taskfileYML)
+	assertModuleReadmePathMatches(t, root)
+}
+
+func renameModuleTaskfileToYAML(t *testing.T, root string) {
+	t.Helper()
 
 	err := os.Rename(filepath.Join(root, taskfileYML), filepath.Join(root, taskfileYAML))
 	if err != nil {
 		t.Fatal(err)
 	}
-
-	assertModuleTaskfilePathMatches(t, root, taskfileYAML)
-
-	return taskfile
 }
 
 func assertModuleRootMatches(t *testing.T, root string) {
@@ -862,11 +930,21 @@ func assertLoadedTaskfile(t *testing.T, root string, taskfile *tasktestutil.Load
 		t.Fatalf("unexpected ttu.LoadedTaskfile: %#v", taskfile)
 	}
 
+	assertMustTaskNames(t, taskfile)
+}
+
+func assertMustTaskNames(t *testing.T, taskfile *tasktestutil.LoadedTaskfile) {
+	t.Helper()
+
 	if tasktestutil.MustTask(t, taskfile, alphaName).Name != alphaName {
 		t.Fatal("ttu.MustTask returned wrong task")
 	}
 
-	got := tasktestutil.PublicTaskNamesFromTaskfile(t, taskfile)
+	if tasktestutil.MustTask(t, *taskfile, alphaName).Name != alphaName {
+		t.Fatal("ttu.MustTask value returned wrong task")
+	}
+
+	got := tasktestutil.PublicTaskNamesFromTaskfile(t, *taskfile)
 	want := []string{alphaName}
 
 	if !slices.Equal(got, want) {
@@ -994,6 +1072,8 @@ func assertSimpleTaskRunnerResult(t *testing.T, root string) {
 	if result.Stdout != simpleOutput || result.Err != nil {
 		t.Fatalf("simple task result: %#v", result)
 	}
+
+	assertLegacyTimeoutRunnerResult(t, root)
 }
 
 func assertIsolatedEnvValues(t *testing.T, env []string, home string) {
@@ -1040,6 +1120,18 @@ func assertSetEnvHelpers(t *testing.T) {
 func assertIsolatedEnvFailure(t *testing.T) {
 	t.Helper()
 
+	fakeTester := isolatedEnvFailureFake(t)
+
+	expectFatalOn(t, &fatalExpectation{
+		want:      "failed to create fake shell profile",
+		fake:      fakeTester,
+		fatalFunc: func() { tasktestutil.IsolatedEnv(fakeTester) },
+	})
+}
+
+func isolatedEnvFailureFake(t *testing.T) *fakeTest {
+	t.Helper()
+
 	homeFailure := t.TempDir()
 
 	err := os.Mkdir(filepath.Join(homeFailure, bashrcName), dirModeAll)
@@ -1047,22 +1139,16 @@ func assertIsolatedEnvFailure(t *testing.T) {
 		t.Fatal(err)
 	}
 
-	fakeTester := &fakeTest{fatal: nil, tempDirs: []string{homeFailure}, nextDir: zeroValue}
-
-	expectFatalOn(
-		t,
-		&fatalExpectation{
-			want:      "failed to create fake shell profile",
-			fake:      fakeTester,
-			fatalFunc: func() { tasktestutil.IsolatedEnv(fakeTester) },
-		},
-	)
+	return &fakeTest{
+		fatal: nil, tempDirs: []string{homeFailure}, nextDir: zeroValue, stay: false,
+	}
 }
 
 func assertCollectionHelpers(t *testing.T) {
 	t.Helper()
 
 	assertExpectedPublicTaskNames(t)
+	assertPublicTaskSpecOptions(t)
 	assertTaskArgsHelpers(t)
 	assertFormatListHelpers(t)
 }
@@ -1186,9 +1272,7 @@ func assertFileHelperReads(t *testing.T, dir string) {
 func assertFileHelperFailures(t *testing.T, dir string) {
 	t.Helper()
 
-	expectFatal(t, "write broken stub", func(fakeTester *fakeTest) {
-		tasktestutil.WriteStub(fakeTester, filepath.Join(dir, missingName), "broken", "body")
-	})
+	assertWriteStubFatals(t, dir)
 	expectFatal(
 		t,
 		"read",
@@ -1196,6 +1280,20 @@ func assertFileHelperFailures(t *testing.T, dir string) {
 			tasktestutil.MustRead(fakeTester, filepath.Join(dir, missingName))
 		},
 	)
+}
+
+func assertWriteStubFatals(t *testing.T, dir string) {
+	t.Helper()
+
+	expectFatal(t, "write broken stub", func(fakeTester *fakeTest) {
+		tasktestutil.WriteStub(fakeTester, filepath.Join(dir, missingName), "broken", "body")
+	})
+	expectFatal(t, stubPartsMsg, func(fakeTester *fakeTest) {
+		tasktestutil.WriteStub(fakeTester, dir)
+	})
+	expectFatal(t, "stub dir must be string", func(fakeTester *fakeTest) {
+		tasktestutil.WriteStub(fakeTester, zeroValue, stubName, stubName)
+	})
 }
 
 func assertCollectCommandStringsMatch(t *testing.T) {
@@ -1224,7 +1322,8 @@ func assertCollectCommandStrings(t *testing.T) {
 	assertCollectCommandStringsMatch(t)
 
 	emptyExtraction := tasktestutil.CollectCommandStrings(nil) != nil ||
-		len(tasktestutil.CollectCommandStrings(yamlScalar(spaceText))) != zeroValue
+		len(tasktestutil.CollectCommandStrings(yamlScalar(spaceText))) != zeroValue ||
+		tasktestutil.CollectCommandStrings(yamlAlias()) != nil
 
 	if emptyExtraction {
 		t.Fatal("empty command extraction mismatch")
@@ -1250,13 +1349,11 @@ func assertReferencedLocalShellScripts(t *testing.T) {
 func assertExitCodeSuccesses(t *testing.T) {
 	t.Helper()
 
-	tasktestutil.AssertExitCode(
-		t,
-		tasktestutil.CommandResult{
-			Args: []string{okName}, Stdout: emptyStr, Stderr: emptyStr, Err: nil,
-		},
-		zeroValue,
-	)
+	okResult := tasktestutil.CommandResult{
+		Args: []string{okName}, Stdout: emptyStr, Stderr: emptyStr, Err: nil,
+	}
+	tasktestutil.AssertExitCode(t, okResult, zeroValue)
+	tasktestutil.AssertExitCode(t, &okResult, zeroValue)
 
 	err := exec.CommandContext(t.Context(), "sh", "-c", "exit 7").Run()
 	tasktestutil.AssertExitCode(t, tasktestutil.CommandResult{
@@ -1282,6 +1379,9 @@ func assertExitCodeFailures(t *testing.T) {
 			},
 			twoCount,
 		)
+	})
+	expectFatal(t, resultTypeMsg, func(fakeTester *fakeTest) {
+		tasktestutil.AssertExitCode(fakeTester, zeroValue, zeroValue)
 	})
 }
 
@@ -1331,7 +1431,12 @@ func filesystemFailureCases(fixture *filesystemAssertionFixture) []filesystemFai
 		{assert: tasktestutil.AssertFileExists, path: fixture.dir, want: "found directory"},
 		{assert: tasktestutil.AssertDirExists, path: fixture.missing, want: "expected directory"},
 		{assert: tasktestutil.AssertDirExists, path: fixture.file, want: "found file"},
-		{assert: tasktestutil.AssertDirNotExists, path: fixture.dir, want: "but it does"},
+		{assert: tasktestutil.AssertDirNotExists, path: fixture.dir, want: dirExistsMsg},
+		{
+			assert: tasktestutil.AssertDirNotExists,
+			path:   filepath.Join(fixture.file, childEntryName),
+			want:   dirExistsMsg,
+		},
 		{
 			assert: tasktestutil.AssertDirHasEntries,
 			path:   fixture.missing,
@@ -1444,7 +1549,7 @@ func requireGroupErrorOnly(t *testing.T, parts []any) *string {
 func assertGithubGroupAssertionShapeFailures(t *testing.T) {
 	t.Helper()
 
-	expectFatal(t, "no output config", func(fakeTester *fakeTest) {
+	expectFatal(t, noOutputConfigMsg, func(fakeTester *fakeTest) {
 		tasktestutil.AssertGithubGroupOutput(fakeTester, alphaName, nil)
 	})
 	expectFatal(t, "advanced object format", func(fakeTester *fakeTest) {
@@ -1614,4 +1719,214 @@ func assertDangerousCommandPatterns(t *testing.T) {
 			t.Fatalf("pattern %d did not match %q", index, unsafe[index])
 		}
 	}
+}
+
+func assertPublicTaskSpecOptions(t *testing.T) {
+	t.Helper()
+
+	spec := tasktestutil.NewPublicTaskSpec(alphaName, publicTaskSpecOptions()...)
+
+	if publicTaskSpecMismatch(&spec) {
+		t.Fatalf("public task spec mismatch: %#v", spec)
+	}
+}
+
+func publicTaskSpecOptions() []tasktestutil.PublicTaskSpecOption {
+	return []tasktestutil.PublicTaskSpecOption{
+		tasktestutil.WithArgs(map[string]string{envKeyA: "1"}),
+		tasktestutil.WithDryRunArgs(),
+		tasktestutil.WithDryRunNoArgs(),
+		tasktestutil.WithExpectedDefaultTokens(okName),
+		tasktestutil.WithGroupOutput(),
+		tasktestutil.WithPrompt(),
+		tasktestutil.WithSummary(),
+	}
+}
+
+func publicTaskSpecMismatch(spec *tasktestutil.PublicTaskSpec) bool {
+	return publicTaskSpecDryRunMismatch(spec) || publicTaskSpecRequireMismatch(spec) ||
+		publicTaskSpecValueMismatch(spec)
+}
+
+func publicTaskSpecDryRunMismatch(spec *tasktestutil.PublicTaskSpec) bool {
+	return !spec.MustDryRunWithArgs || !spec.MustDryRunWithoutArgs
+}
+
+func publicTaskSpecRequireMismatch(spec *tasktestutil.PublicTaskSpec) bool {
+	return !spec.RequiresGroupOutput || !spec.RequiresPrompt || !spec.RequiresSummary
+}
+
+func publicTaskSpecValueMismatch(spec *tasktestutil.PublicTaskSpec) bool {
+	return spec.Name != alphaName || spec.Args[envKeyA] != "1" ||
+		len(spec.ExpectedDefaultTokens) != oneValue ||
+		spec.ExpectedDefaultTokens[zeroValue] != okName
+}
+
+func assertModuleReadmePathMatches(t *testing.T, root string) {
+	t.Helper()
+
+	want := filepath.Join(root, readmeFileName)
+
+	if got := tasktestutil.ModuleReadmePath(t); !samePath(t, got, want) {
+		t.Fatalf("ttu.ModuleReadmePath = %s", got)
+	}
+}
+
+func assertLegacyTimeoutRunnerResult(t *testing.T, root string) {
+	t.Helper()
+
+	result := tasktestutil.RunTaskTimeout(t, root, os.Environ(), 30*time.Second, alphaName)
+
+	if result.Stdout != simpleOutput || result.Err != nil {
+		t.Fatalf("legacy timeout result: %#v", result)
+	}
+}
+
+func assertGithubGroupPostFatalReturn(t *testing.T) {
+	t.Helper()
+
+	expectFatalStay(t, noOutputConfigMsg, func(fakeTester *fakeTest) {
+		tasktestutil.AssertGithubGroupOutput(fakeTester, alphaName, nil)
+	})
+}
+
+func expectFatalStay(t *testing.T, want string, fatalFunc func(*fakeTest)) {
+	t.Helper()
+
+	fake := &fakeTest{fatal: nil, tempDirs: nil, nextDir: zeroValue, stay: stayAlive}
+
+	fatalFunc(fake)
+	assertFatalResult(t, want, fatalResult{fatal: fake.fatal, done: true})
+}
+
+func assertDestructivePromptFailures(t *testing.T) {
+	t.Helper()
+
+	expectFatal(t, nonEmptyPromptMsg, func(fakeTester *fakeTest) {
+		tasktestutil.AssertDestructivePrompt(fakeTester, alphaName, nil)
+	})
+	expectFatal(t, explicitPromptMsg, func(fakeTester *fakeTest) {
+		tasktestutil.AssertDestructivePrompt(fakeTester, alphaName, yamlScalar(vaguePromptText))
+	})
+}
+
+func assertAncestorModuleReadme(t *testing.T) {
+	t.Helper()
+
+	family, variant := makeFamilyVariantModule(t)
+	writeFile(t, filepath.Join(family, readmeFileName), "# Family\n")
+
+	inDir(t, variant, func() {
+		assertModuleReadmePathMatches(t, family)
+	})
+}
+
+func assertMissingModuleReadme(t *testing.T) {
+	t.Helper()
+
+	root := t.TempDir()
+	writeFile(t, filepath.Join(root, taskfileYML), validTaskfile())
+
+	inDir(t, root, func() {
+		expectFatalStay(t, readmeMissingMsg, func(fakeTester *fakeTest) {
+			assertEmptyModuleReadmePath(t, fakeTester)
+		})
+	})
+}
+
+func assertTaskfilesReadmeBoundary(t *testing.T) {
+	t.Helper()
+
+	root, module := makeTaskfilesModule(t)
+	writeFile(t, filepath.Join(root, readmeFileName), "# Root\n")
+
+	inDir(t, module, func() {
+		expectFatal(t, readmeMissingMsg, func(fakeTester *fakeTest) {
+			tasktestutil.ModuleReadmePath(fakeTester)
+		})
+	})
+}
+
+func assertEmptyModuleReadmePath(t *testing.T, fakeTester *fakeTest) {
+	t.Helper()
+
+	if got := tasktestutil.ModuleReadmePath(fakeTester); got != emptyStr {
+		t.Fatalf("ModuleReadmePath = %q", got)
+	}
+}
+
+func makeFamilyVariantModule(t *testing.T) (family, variant string) {
+	t.Helper()
+
+	family = filepath.Join(t.TempDir(), taskfilesDirName, "family")
+	variant = filepath.Join(family, "variant")
+	writeFile(t, filepath.Join(variant, taskfileYML), validTaskfile())
+
+	return family, variant
+}
+
+func makeTaskfilesModule(t *testing.T) (root, module string) {
+	t.Helper()
+
+	root = t.TempDir()
+	module = filepath.Join(root, taskfilesDirName, "module")
+	writeFile(t, filepath.Join(module, taskfileYML), validTaskfile())
+
+	return root, module
+}
+
+func assertLegacyRunFatals(t *testing.T) {
+	t.Helper()
+
+	root := t.TempDir()
+	env := []string{}
+
+	expectFatal(t, positionalArgsMsg, func(fakeTester *fakeTest) {
+		tasktestutil.RunTask(fakeTester, tasktestutil.TaskRun{
+			Root: root, Env: env, Args: nil,
+		}, extraArgName)
+	})
+	assertLegacyRunValueFatals(t, root, env)
+}
+
+func assertLegacyRunValueFatals(t *testing.T, root string, env []string) {
+	t.Helper()
+
+	expectFatal(t, "must be string or TaskRun", func(fakeTester *fakeTest) {
+		tasktestutil.RunTask(fakeTester, zeroValue, env)
+	})
+	expectFatal(t, "environment is required", func(fakeTester *fakeTest) {
+		tasktestutil.RunTask(fakeTester, root)
+	})
+	expectFatal(t, "environment must be []string", func(fakeTester *fakeTest) {
+		tasktestutil.RunTask(fakeTester, root, zeroValue)
+	})
+	expectFatal(t, "argument must be string", func(fakeTester *fakeTest) {
+		tasktestutil.RunTask(fakeTester, root, env, zeroValue)
+	})
+}
+
+func assertTimeoutRunFatals(t *testing.T) {
+	t.Helper()
+
+	run := tasktestutil.TaskRun{Root: t.TempDir(), Env: nil, Args: nil}
+
+	expectFatal(t, timeoutCountMsg, func(fakeTester *fakeTest) {
+		tasktestutil.RunTaskTimeout(fakeTester, run)
+	})
+	expectFatal(t, durationTypeMsg, func(fakeTester *fakeTest) {
+		tasktestutil.RunTaskTimeout(fakeTester, run, extraArgName)
+	})
+	assertLegacyTimeoutFatals(t, run.Root)
+}
+
+func assertLegacyTimeoutFatals(t *testing.T, root string) {
+	t.Helper()
+
+	expectFatal(t, legacyTimeoutMsg, func(fakeTester *fakeTest) {
+		tasktestutil.RunTaskTimeout(fakeTester, root)
+	})
+	expectFatal(t, durationTypeMsg, func(fakeTester *fakeTest) {
+		tasktestutil.RunTaskTimeout(fakeTester, root, []string{}, extraArgName)
+	})
 }

@@ -55,6 +55,9 @@ type (
 		Fatalf(format string, args ...any)
 		TempDir() string
 	}
+
+	workingDirFunc func() (string, error)
+	fileChmodFunc  func(string, os.FileMode) error
 )
 
 const (
@@ -187,18 +190,7 @@ func MustTask(tester TestT, taskfile any, name string) TaskNode {
 func ModuleRoot(tester TestT) string {
 	tester.Helper()
 
-	workingDirectory, err := workingDir()
-	if err != nil {
-		tester.Fatalf("failed to get working directory: %v", err)
-	}
-
-	root, ok := findAncestorWithTaskfile(workingDirectory)
-
-	if !ok {
-		tester.Fatal(errTaskfileNotFound)
-	}
-
-	return root
+	return moduleRootFrom(tester, os.Getwd)
 }
 
 // ModuleTaskfilePath returns the path of the Taskfile.yml found by ModuleRoot.
@@ -446,18 +438,7 @@ func WriteStub(tester TestT, dirOrStub any, parts ...string) {
 	tester.Helper()
 
 	normalizedStub := normalizeStub(tester, dirOrStub, parts)
-
-	path := filepath.Join(normalizedStub.Dir, normalizedStub.Name)
-
-	err := os.WriteFile(path, []byte(normalizedStub.Body), privateFileMode)
-	if err != nil {
-		tester.Fatalf("write %s stub: %v", normalizedStub.Name, err)
-	}
-
-	err = os.Chmod(path, stubExecutableMode)
-	if err != nil {
-		tester.Fatalf("mark %s stub executable: %v", normalizedStub.Name, err)
-	}
+	writeStubFile(tester, &normalizedStub, os.Chmod)
 }
 
 // SimplePublicTaskNames extracts public task names from a decoded tasks map.
@@ -854,13 +835,46 @@ func DangerousCommandPatterns() []*regexp.Regexp {
 	}
 }
 
-func workingDir() (string, error) {
-	workingDirectory, err := os.Getwd()
+func moduleRootFrom(tester TestT, getwd workingDirFunc) string {
+	tester.Helper()
+
+	workingDirectory, err := workingDirFrom(getwd)
+	if err != nil {
+		tester.Fatalf("failed to get working directory: %v", err)
+	}
+
+	root, ok := findAncestorWithTaskfile(workingDirectory)
+
+	if !ok {
+		tester.Fatal(errTaskfileNotFound)
+	}
+
+	return root
+}
+
+func workingDirFrom(getwd workingDirFunc) (string, error) {
+	workingDirectory, err := getwd()
 	if err != nil {
 		return emptyString, fmt.Errorf("get working directory: %w", err)
 	}
 
 	return workingDirectory, nil
+}
+
+func writeStubFile(tester TestT, normalizedStub *stub, chmod fileChmodFunc) {
+	tester.Helper()
+
+	path := filepath.Join(normalizedStub.Dir, normalizedStub.Name)
+
+	err := os.WriteFile(path, []byte(normalizedStub.Body), privateFileMode)
+	if err != nil {
+		tester.Fatalf("write %s stub: %v", normalizedStub.Name, err)
+	}
+
+	err = chmod(path, stubExecutableMode)
+	if err != nil {
+		tester.Fatalf("mark %s stub executable: %v", normalizedStub.Name, err)
+	}
 }
 
 func normalizeLoadedTaskfile(tester TestT, taskfile any) *LoadedTaskfile {

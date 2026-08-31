@@ -36,6 +36,13 @@ type (
 		assert func(t *testing.T, module *Module)
 		name   string
 	}
+
+	suiteT interface {
+		Helper()
+		Fatalf(format string, args ...any)
+		Skip(args ...any)
+		Skipf(format string, args ...any)
+	}
 )
 
 // Run executes the default integration suite against the named Taskfile folder.

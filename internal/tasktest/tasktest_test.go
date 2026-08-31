@@ -71,6 +71,14 @@ const (
 	fileMode           = 0o600
 	chdirLockRetry     = time.Millisecond
 	expectedTaskCount  = 3
+	nestedModule       = "fixture/nested"
+	pathEnvVar         = "PATH"
+	taskBinaryName     = "task"
+	invalidJSONOutput  = "not-json"
+	cliLoadFailedMsg   = "task --list-all --json failed"
+	invalidJSONFatal   = "produced invalid JSON"
+	execStubMode       = 0o500
+	nestedDirName      = "nested"
 )
 
 func (tester *fakeTest) Fatal(args ...any) { tester.reportFatal(fmt.Sprint(args...)) }
@@ -142,6 +150,32 @@ func TestTaskfileValidation(t *testing.T) {
 	t.Parallel()
 	assertValidModule(t)
 	runCases(t, taskfileValidationCases(), assertInvalidTaskfile)
+}
+
+// TestAssertTaskCliCanLoad verifies the task CLI can parse a valid module.
+func TestAssertTaskCliCanLoad(t *testing.T) {
+	t.Parallel()
+	assertTaskCliCanLoadSuccess(t)
+}
+
+// TestAssertTaskCliCanLoadFailure verifies a CLI parse failure is fatal.
+func TestAssertTaskCliCanLoadFailure(t *testing.T) {
+	t.Parallel()
+	assertTaskCliLoadFatal(t, rejectedTaskfile(), cliLoadFailedMsg)
+}
+
+// TestAssertTaskCliCanLoadInvalidJSON verifies invalid CLI JSON is fatal.
+//
+//nolint:paralleltest // t.Setenv changes process PATH
+func TestAssertTaskCliCanLoadInvalidJSON(t *testing.T) {
+	installTaskStub(t, invalidJSONOutput)
+	assertTaskCliLoadFatal(t, validTaskfile(), invalidJSONFatal)
+}
+
+// TestAssertModuleNestedReadme verifies README lookup for nested modules.
+func TestAssertModuleNestedReadme(t *testing.T) {
+	t.Parallel()
+	assertNestedReadmeModule(t)
 }
 
 func expectFatal(t *testing.T, want string, fatalFunc func(*fakeTest)) {
@@ -609,4 +643,71 @@ func taskfileValidationCommandCases() []*taskfileValidationCase {
 			want:    "vars missing",
 		},
 	}
+}
+
+func assertTaskCliCanLoadSuccess(t *testing.T) {
+	t.Helper()
+
+	fixture := makeRepo(t)
+
+	inDir(t, fixture.module, func() {
+		tasktest.AssertTaskCliCanLoad(t, fixtureModule)
+	})
+}
+
+func assertTaskCliLoadFatal(t *testing.T, taskfile, want string) {
+	t.Helper()
+
+	fixture := makeRepo(t)
+	writeFile(t, filepath.Join(fixture.module, taskfileName), taskfile)
+	inDir(t, fixture.module, func() {
+		expectFatal(t, want, func(fakeTester *fakeTest) {
+			tasktest.AssertTaskCliCanLoad(fakeTester, fixtureModule)
+		})
+	})
+}
+
+func rejectedTaskfile() string {
+	return `version: "3"
+includes:
+  missing: ./does-not-exist.yml
+tasks:
+  default:
+    desc: Show available tasks
+    cmds: [echo default]
+`
+}
+
+func installTaskStub(t *testing.T, output string) {
+	t.Helper()
+
+	bin := t.TempDir()
+	writeExecutableFile(t, filepath.Join(bin, taskBinaryName), taskStubScript(output))
+	t.Setenv(pathEnvVar, bin+string(os.PathListSeparator)+os.Getenv(pathEnvVar))
+}
+
+func taskStubScript(output string) string {
+	return "#!/bin/sh\nprintf '" + output + "'\n"
+}
+
+func writeExecutableFile(t *testing.T, path, content string) {
+	t.Helper()
+
+	writeFile(t, path, content)
+
+	err := syscall.Chmod(path, execStubMode)
+	if err != nil {
+		t.Fatal(err)
+	}
+}
+
+func assertNestedReadmeModule(t *testing.T) {
+	t.Helper()
+
+	fixture := makeRepo(t)
+	writeFile(t, filepath.Join(fixture.module, nestedDirName, taskfileName), validTaskfile())
+	inDir(t, fixture.module, func() {
+		expected := moduleExpectations([]string{buildTask}, []string{fooVar})
+		tasktest.AssertModule(t, nestedModule, expected)
+	})
 }

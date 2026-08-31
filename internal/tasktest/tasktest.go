@@ -88,6 +88,8 @@ type (
 	taskCommandSettings struct {
 		timeout time.Duration
 	}
+
+	workingDirectoryFunc func() (string, error)
 )
 
 const (
@@ -132,21 +134,7 @@ func LoadTaskfile(tester TestingT, module string) *Taskfile {
 func RepoRoot(tester TestingT) string {
 	tester.Helper()
 
-	workingDirectory, err := workingDir()
-	if err != nil {
-		tester.Fatalf("get working directory: %v", err)
-	}
-
-	return findRepoRoot(tester, workingDirectory)
-}
-
-func workingDir() (string, error) {
-	workingDirectory, err := os.Getwd()
-	if err != nil {
-		return "", fmt.Errorf("get working directory: %w", err)
-	}
-
-	return workingDirectory, nil
+	return findRepoRootFrom(tester, os.Getwd)
 }
 
 func currentTaskCommandSettings() taskCommandSettings {
@@ -202,10 +190,25 @@ func findRepoRoot(tester TestingT, directory string) string {
 	}
 }
 
+func findRepoRootFrom(tester TestingT, workingDir workingDirectoryFunc) string {
+	tester.Helper()
+
+	workingDirectory, err := workingDir()
+	if err != nil {
+		tester.Fatalf("get working directory: %v", err)
+	}
+
+	return findRepoRoot(tester, workingDirectory)
+}
+
 func pathExists(path string) bool {
 	info, err := os.Stat(path)
 
-	return err == nil && info != nil
+	if info == nil {
+		return false
+	}
+
+	return err == nil
 }
 
 func assertReadme(tester TestingT, module string, expectedTasks []string) {
