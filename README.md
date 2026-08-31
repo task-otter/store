@@ -116,17 +116,6 @@ task yarn:run SCRIPT=build
 
 Node.js is installed via `nodejs:_ensure` (Nix profile).
 
-### Skip patterns
-
-Where a module documents `<TOOL>_LINT_SKIP_PATTERN` and/or
-`<TOOL>_FMT_SKIP_PATTERN`, those vars default to empty. Not every linter
-exposes them — skip is owned by native `--exclude` on the modules that
-document it.
-
-Patterns match forward-slash paths relative to the task working directory:
-`*` stays in one path segment, `**` crosses directories, `?` matches one
-character. Example: `**/generated/**`.
-
 ## Dependencies
 
 Modules compose via Taskfile `includes:`. Arrows mean "depends on":
@@ -147,14 +136,14 @@ sync with [`.deps.yml`](.deps.yml).
 go test ./...
 ```
 
-Two test layers on every Taskfile folder:
+Two test layers on every Taskfile folder, both in `<module>_test.go`:
 
-| Layer | File | Checks |
+| Layer | Test | Checks |
 | --- | --- | --- |
-| Contract | `<module>_test.go` | What the module *declares* (`Taskfile.yml`, `metadata.yml`, `README.md`) |
-| Integration | `integration_test.go` | What the module *does* — real `task` CLI, isolated `HOME`, nothing installed |
+| Contract | `TestTaskfileModuleContract` | What the module *declares* (`Taskfile.yml`, `metadata.yml`, `README.md`) |
+| Integration | `TestModuleIntegration` | What the module *does* — real `task` CLI, isolated `HOME`, nothing installed |
 
-The integration file is one call into
+The integration test is one call into
 [`internal/taskintegration`](internal/taskintegration):
 
 ```go
@@ -165,7 +154,7 @@ func TestModuleIntegration(t *testing.T) {
 ```
 
 `TestEveryTaskfileFolderHasAnIntegrationTest` fails if a folder ships without
-one. Details: [ADR 0003](doc/adr/0003-run-every-taskfile-folder-through-the-task-cli-in-tests.md).
+that call. Details: [ADR 0003](doc/adr/0003-run-every-taskfile-folder-through-the-task-cli-in-tests.md).
 
 Contract tests also enforce:
 

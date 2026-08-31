@@ -51,10 +51,6 @@ alias for the project path when used from aggregate tasks.
 `DEPCHECK_IGNORE_PACKAGES` is a comma-separated list for the `ignores` task. `DEPCHECK_EXTRA_ARGS`
 and arguments after `--` are appended to the command.
 
-- `DEPCHECK_LINT_SKIP_PATTERN` (default empty): forward-slash path glob for files skipped by lint checks and fixes.
-
-Skip patterns support `*` within one path segment, `**` across directories, and `?` for one character. Paths are matched relative to the task working directory; for example, `**/generated/**`.
-
 ## Examples
 
 ```bash

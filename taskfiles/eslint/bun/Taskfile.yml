@@ -14,7 +14,6 @@ includes:
     taskfile: ../../bun/Taskfile.yml
 
 vars:
-  ESLINT_LINT_SKIP_PATTERN: ""
   ESLINT_TARGETS: ""
   ESLINT_DEFAULT_TARGETS: "src/**/*.{js,jsx,ts,tsx}"
   ESLINT_CONFIG: ""
@@ -129,7 +128,6 @@ tasks:
     vars:
       RESOLVED_CONFIG: '{{default .ESLINT_CONFIG .ESLINT_CONFIG_OVERRIDE}}'
       RESOLVED_CACHE: '{{or .ESLINT_CACHE_OVERRIDE .ESLINT_CACHE .ESLINT_DEFAULT_CACHE}}'
-      RESOLVED_SKIP: '{{default .ESLINT_LINT_SKIP_PATTERN .ESLINT_LINT_SKIP_PATTERN_OVERRIDE}}'
       RESOLVED_TARGETS: '{{or .ESLINT_TARGETS_OVERRIDE .ESLINT_TARGETS .ESLINT_DEFAULT_TARGETS}}'
       RESOLVED_EXTRA_ARGS: '{{default .ESLINT_EXTRA_ARGS .ESLINT_EXTRA_ARGS_OVERRIDE}}'
     cmds:
@@ -140,7 +138,6 @@ tasks:
             {{if .RESOLVED_CONFIG}}--config "{{.RESOLVED_CONFIG}}" {{end}}
             {{- if eq .RESOLVED_CACHE "true"}}--cache --cache-location .cache/eslint/ {{end}}
             {{- if .MODE_ARGS}}{{.MODE_ARGS}} {{end}}
-            {{- if .RESOLVED_SKIP}}--ignore-pattern "{{.RESOLVED_SKIP}}" {{end}}
             {{- .RESOLVED_TARGETS}}
             {{.RESOLVED_EXTRA_ARGS}}{{if .CLI_ARGS}} {{.CLI_ARGS}}{{end}}
       - task: _bun:windows
@@ -150,7 +147,6 @@ tasks:
             {{if .RESOLVED_CONFIG}}--config "{{.RESOLVED_CONFIG}}" {{end}}
             {{- if eq .RESOLVED_CACHE "true"}}--cache --cache-location .cache/eslint/ {{end}}
             {{- if .MODE_ARGS}}{{.MODE_ARGS}} {{end}}
-            {{- if .RESOLVED_SKIP}}--ignore-pattern "{{.RESOLVED_SKIP}}" {{end}}
             {{- .RESOLVED_TARGETS}}
             {{.RESOLVED_EXTRA_ARGS}}{{if .CLI_ARGS}} {{.CLI_ARGS}}{{end}}
 

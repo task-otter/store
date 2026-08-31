@@ -52,9 +52,6 @@ project root (where `package.json` lives).
 | `HTMLHINT_TARGETS` | `**/*.html` | Glob of HTML files to lint |
 | `HTMLHINT_CONFIG` | `""` | Path to a custom HTMLHint configuration file |
 | `HTMLHINT_EXTRA_ARGS` | `""` | Extra flags forwarded to htmlhint |
-| `HTMLHINT_LINT_SKIP_PATTERN` | _(empty)_ | Forward-slash path glob for files skipped by lint checks and fixes |
-
-Skip patterns support `*` within one path segment, `**` across directories, and `?` for one character. Paths are matched relative to the task working directory; for example, `**/generated/**`.
 
 ## Notes
 

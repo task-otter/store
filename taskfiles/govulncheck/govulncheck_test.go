@@ -7,6 +7,7 @@ import (
 	"slices"
 	"testing"
 
+	"github.com/task-otter/store/internal/taskintegration"
 	"github.com/task-otter/store/internal/tasktest"
 )
 
@@ -27,6 +28,13 @@ const (
 	emptyString = ""
 	zeroLen     = 0
 )
+
+// TestModuleIntegration runs the shared task CLI integration suite for this module.
+func TestModuleIntegration(t *testing.T) {
+	t.Parallel()
+
+	taskintegration.RunHere(t)
+}
 
 // TestTaskfileModuleContract validates the behavior covered by this test case.
 func TestTaskfileModuleContract(t *testing.T) {

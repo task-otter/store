@@ -51,10 +51,6 @@ task rumdl:fmt
 | `RUMDL_NIX_INSTALLABLE` | `nixpkgs#rumdl` | Flake installable passed to `nix:install:profile` |
 | `RUMDL_TARGETS` | `.` | File or directory rumdl operates on |
 | `RUMDL_EXTRA_ARGS` | `""` | Extra flags forwarded to rumdl |
-| `RUMDL_LINT_SKIP_PATTERN` | _(empty)_ | Forward-slash path glob for files skipped by lint checks and fixes |
-| `RUMDL_FMT_SKIP_PATTERN` | _(empty)_ | Forward-slash path glob for files skipped by formatting checks and fixes |
-
-Skip patterns support `*` within one path segment, `**` across directories, and `?` for one character. Paths are matched relative to the task working directory; for example, `**/generated/**`.
 
 Pin a revision by overriding the installable, for example
 `RUMDL_NIX_INSTALLABLE=github:NixOS/nixpkgs/<rev>#rumdl`.

@@ -12,6 +12,7 @@ import (
 	"testing"
 	"time"
 
+	"github.com/task-otter/store/internal/taskintegration"
 	"github.com/task-otter/store/internal/tasktestutil"
 	yaml "go.yaml.in/yaml/v3"
 )
@@ -67,6 +68,13 @@ const (
 	constNpmTestMinSummaryLen      = 25
 	constNpmTestVersionOutputEmpty = "version output is empty"
 )
+
+// TestModuleIntegration runs the shared task CLI integration suite for this module.
+func TestModuleIntegration(t *testing.T) {
+	t.Parallel()
+
+	taskintegration.RunHere(t)
+}
 
 // TestTaskBinaryIsAvailable
 func TestTaskBinaryIsAvailable(t *testing.T) {

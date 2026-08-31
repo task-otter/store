@@ -10,7 +10,6 @@ includes:
   nix:
     taskfile: ../nix/Taskfile.yml
 vars:
-  YAMLFIX_FMT_SKIP_PATTERN: ""
   YAMLFIX_NIX_INSTALLABLE: nixpkgs#yamlfix
   YAMLFIX_TARGETS: "."
   YAMLFIX_EXTRA_ARGS: ""
@@ -42,6 +41,4 @@ tasks:
         .YAMLFIX_TARGETS}}{{.YAMLFIX_TARGETS}}{{else}}.{{end}}"; [ -d "$_t" ] || _t="."; find "$_t" \( -name "*.yml"
         -o -name "*.yaml"
         \) ! -name "Taskfile.yml" ! -name "Taskfile.yaml" -print0 | xargs -0 yamlfix {{if
-        .YAMLFIX_FMT_SKIP_PATTERN_OVERRIDE}}--exclude "{{.YAMLFIX_FMT_SKIP_PATTERN_OVERRIDE}}" {{else if
-        .YAMLFIX_FMT_SKIP_PATTERN}}--exclude "{{.YAMLFIX_FMT_SKIP_PATTERN}}" {{end}} {{if
         .YAMLFIX_EXTRA_ARGS_OVERRIDE}}{{.YAMLFIX_EXTRA_ARGS_OVERRIDE}}{{else}}{{.YAMLFIX_EXTRA_ARGS}}{{end}}'

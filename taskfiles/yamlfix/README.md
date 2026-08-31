@@ -49,9 +49,6 @@ task yamlfix:ci:fix
 | `YAMLFIX_NIX_INSTALLABLE` | `nixpkgs#yamlfix` | Flake installable passed to `nix:install:profile` |
 | `YAMLFIX_TARGETS` | `.` | Files or directories to format |
 | `YAMLFIX_EXTRA_ARGS` | _(empty)_ | Extra flags forwarded to `yamlfix` |
-| `YAMLFIX_FMT_SKIP_PATTERN` | _(empty)_ | Forward-slash path glob passed to yamlfix `--exclude` |
-
-Skip patterns support `*` within one path segment, `**` across directories, and `?` for one character. Paths are matched relative to the task working directory; for example, `**/generated/**`.
 
 Pin a revision by overriding the installable, for example
 `YAMLFIX_NIX_INSTALLABLE=github:NixOS/nixpkgs/<rev>#yamlfix`.

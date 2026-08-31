@@ -71,12 +71,34 @@ type (
 const (
 	metadataSchema = "taskotter.dev/taskfile-metadata/v1"
 
+	depcheckFamily   = "depcheck"
+	eslintFamily     = "eslint"
+	htmlhintFamily   = "htmlhint"
+	biomeFamily      = "biome"
+	knipFamily       = "knip"
+	prettierFamily   = "prettier"
+	spectralFamily   = "spectral"
+	stylelintFamily  = "stylelint"
 	typescriptFamily = "typescript"
 
 	walkTaskfilesErrFormat = "walk taskfiles: %v"
 	noModulesDiscoveredMsg = "no modules discovered"
 	pathSeparator          = "/"
 	parseMetadataErrFormat = "parse metadata.yml: %v"
+
+	skipTaskfileYML  = "Taskfile.yml"
+	taskfilesDirName = "taskfiles"
+	internalDirName  = "internal"
+
+	crlfSeparator    = "\r\n"
+	windowsSeparator = "\n"
+
+	constZero = 0
+	constOne  = 1
+	constTwo  = 2
+
+	underscoreChar = "_"
+	hyphenChar     = "-"
 )
 
 // TestModuleMetadataListsEveryExportedTask verifies each module's metadata.yml

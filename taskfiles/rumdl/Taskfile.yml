@@ -14,8 +14,6 @@ includes:
     taskfile: ../nix/Taskfile.yml
 
 vars:
-  RUMDL_LINT_SKIP_PATTERN: ""
-  RUMDL_FMT_SKIP_PATTERN: ""
   RUMDL_TARGETS: "."
   RUMDL_EXTRA_ARGS: ""
   RUMDL_NIX_INSTALLABLE: nixpkgs#rumdl
@@ -29,8 +27,7 @@ tasks:
       - task --list
 
   # Shared implementation of lint / lint:fix / fmt. Each override is resolved exactly
-  # once here; callers supply the subcommand, the skip pattern to honor, and any
-  # trailing shell reporting.
+  # once here; callers supply the subcommand and any trailing shell reporting.
   _run:
     internal: true
     run: when_changed
@@ -42,16 +39,15 @@ tasks:
     vars:
       PATHS: '{{or .RUMDL_TARGETS_OVERRIDE .RUMDL_TARGETS "."}}'
       EXTRA: '{{default .RUMDL_EXTRA_ARGS .RUMDL_EXTRA_ARGS_OVERRIDE}}'
-      FLAGS: '{{if .SKIP}}--exclude "{{.SKIP}}" {{end}}'
     cmds:
       - cmd: >-
           bash -lc '{{.NIX_LOAD}};
           rumdl {{.SUBCMD}}
-          {{.FLAGS}}{{.PATHS}}{{if .EXTRA}} {{.EXTRA}}{{end}}{{.TAIL}}'
+          {{.PATHS}}{{if .EXTRA}} {{.EXTRA}}{{end}}{{.TAIL}}'
         platforms: [linux, darwin]
       - cmd: >-
           rumdl {{.SUBCMD}}
-          {{.FLAGS}}{{.PATHS}}{{if .EXTRA}} {{.EXTRA}}{{end}}
+          {{.PATHS}}{{if .EXTRA}} {{.EXTRA}}{{end}}
         platforms: [windows]
 
   ci:
@@ -64,7 +60,6 @@ tasks:
       - task: _run
         vars:
           SUBCMD: check
-          SKIP: '{{default .RUMDL_LINT_SKIP_PATTERN .RUMDL_LINT_SKIP_PATTERN_OVERRIDE}}'
           TAIL: ' && echo "✅ rumdl passed" || { echo "❌ rumdl failed"; exit 1; }'
 
   lint:fix:
@@ -79,7 +74,6 @@ tasks:
       - task: _run
         vars:
           SUBCMD: check --fix
-          SKIP: '{{default .RUMDL_LINT_SKIP_PATTERN .RUMDL_LINT_SKIP_PATTERN_OVERRIDE}}'
 
   ci:fix:
     run: once
@@ -103,4 +97,3 @@ tasks:
       - task: _run
         vars:
           SUBCMD: fmt
-          SKIP: '{{default .RUMDL_FMT_SKIP_PATTERN .RUMDL_FMT_SKIP_PATTERN_OVERRIDE}}'

@@ -17,6 +17,7 @@ import (
 	"strings"
 	"testing"
 
+	"github.com/task-otter/store/internal/taskintegration"
 	yaml "go.yaml.in/yaml/v3"
 )
 
@@ -127,6 +128,13 @@ const (
 	constTypescriptTestDecimalBase          = 10
 	constTypescriptTestUint32BitSize        = 32
 )
+
+// TestModuleIntegration runs the shared task CLI integration suite for this module.
+func TestModuleIntegration(t *testing.T) {
+	t.Parallel()
+
+	taskintegration.RunHere(t)
+}
 
 // TestTaskfileAndReadmePublicApi
 func TestTaskfileAndReadmePublicApi(t *testing.T) {

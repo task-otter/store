@@ -18,7 +18,6 @@ vars:
   ANSIBLE_LINT_CONFIG: "ansible/ansible.cfg"
   ANSIBLE_LINT_TARGETS: "."
   ANSIBLE_LINT_EXTRA_ARGS: ""
-  ANSIBLE_LINT_LINT_SKIP_PATTERN: ""
 
 tasks:
   default:
@@ -93,12 +92,6 @@ tasks:
         bash -lc '{{.NIX_LOAD}}; export ANSIBLE_CONFIG="{{.ANSIBLE_LINT_CONFIG}}";
         targets="{{if .ANSIBLE_LINT_TARGETS_OVERRIDE}}{{.ANSIBLE_LINT_TARGETS_OVERRIDE}}{{else if
         .ANSIBLE_LINT_TARGETS}}{{.ANSIBLE_LINT_TARGETS}}{{else}}.{{end}}"
-        skip="{{if .ANSIBLE_LINT_LINT_SKIP_PATTERN_OVERRIDE}}{{.ANSIBLE_LINT_LINT_SKIP_PATTERN_OVERRIDE}}
-        {{- else}}{{.ANSIBLE_LINT_LINT_SKIP_PATTERN}}{{end}}"
-        skip_args=""
-        if [ -n "$skip" ]; then
-          skip_args="--exclude $skip"
-        fi
-        ansible-lint {{.ANSIBLE_LINT_FIX_FLAG}} $skip_args $targets \
+        ansible-lint {{.ANSIBLE_LINT_FIX_FLAG}} $targets \
           {{if .ANSIBLE_LINT_EXTRA_ARGS_OVERRIDE}}{{.ANSIBLE_LINT_EXTRA_ARGS_OVERRIDE}}
           {{- else}}{{.ANSIBLE_LINT_EXTRA_ARGS}}{{end}}'

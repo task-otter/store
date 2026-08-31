@@ -14,8 +14,6 @@ includes:
     taskfile: ../nix/Taskfile.yml
 
 vars:
-  DJLINT_LINT_SKIP_PATTERN: ""
-  DJLINT_FMT_SKIP_PATTERN: ""
   DJLINT_NIX_INSTALLABLE: nixpkgs#djlint
   DJLINT_TARGETS: "."
   DJLINT_EXTRA_ARGS: ""
@@ -46,7 +44,6 @@ tasks:
       - task: _run
         vars:
           MODE: "--reformat"
-          SKIP: '{{default .DJLINT_FMT_SKIP_PATTERN .DJLINT_FMT_SKIP_PATTERN_OVERRIDE}}'
 
   lint:
     run: once
@@ -59,7 +56,6 @@ tasks:
       - task: _run
         vars:
           MODE: "--lint"
-          SKIP: '{{default .DJLINT_LINT_SKIP_PATTERN .DJLINT_LINT_SKIP_PATTERN_OVERRIDE}}'
           TAIL: ' && echo "✅ djlint passed" || { echo "❌ djlint failed"; exit 1; }'
 
   fmt:check:
@@ -74,11 +70,9 @@ tasks:
       - task: _run
         vars:
           MODE: "--check"
-          SKIP: '{{default .DJLINT_FMT_SKIP_PATTERN .DJLINT_FMT_SKIP_PATTERN_OVERRIDE}}'
           TAIL: ' && echo "✅ djlint formatting check passed" || { echo "❌ djlint formatting check failed"; exit 1; }'
 
-  # Shared implementation of lint / ci:fix / fmt:check. Note that the Windows
-  # branch deliberately omits the skip pattern, matching the original.
+  # Shared implementation of lint / ci:fix / fmt:check.
   _run:
     internal: true
     run: when_changed
@@ -90,12 +84,11 @@ tasks:
     vars:
       PATHS: '{{or .DJLINT_TARGETS_OVERRIDE .DJLINT_TARGETS "."}}'
       EXTRA: '{{default .DJLINT_EXTRA_ARGS .DJLINT_EXTRA_ARGS_OVERRIDE}}'
-      FLAGS: '{{if .SKIP}}--extend-exclude "{{.SKIP}}" {{end}}'
     cmds:
       - cmd: >-
           bash -lc '{{.NIX_LOAD}};
           djlint
-          {{.FLAGS}}{{.PATHS}} {{.MODE}}{{if .EXTRA}} {{.EXTRA}}{{end}}{{.TAIL}}'
+          {{.PATHS}} {{.MODE}}{{if .EXTRA}} {{.EXTRA}}{{end}}{{.TAIL}}'
         platforms: [linux, darwin]
       - cmd: >-
           djlint

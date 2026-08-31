@@ -14,7 +14,6 @@ includes:
     taskfile: ../../../yarn/Taskfile.yml
 
 vars:
-  SPECTRAL_LINT_SKIP_PATTERN: ""
   SPECTRAL_TARGETS: ""
   SPECTRAL_RULESET: ""
   SPECTRAL_EXTRA_ARGS: ""
@@ -99,7 +98,6 @@ tasks:
       - task: install
     vars:
       RESOLVED_TARGETS: '{{default .SPECTRAL_TARGETS .SPECTRAL_TARGETS_OVERRIDE}}'
-      RESOLVED_SKIP: '{{default .SPECTRAL_LINT_SKIP_PATTERN .SPECTRAL_LINT_SKIP_PATTERN_OVERRIDE}}'
       RESOLVED_RULESET: '{{default .SPECTRAL_RULESET .SPECTRAL_RULESET_OVERRIDE}}'
     cmds:
       - task: yarn:exec
@@ -107,7 +105,6 @@ tasks:
           BINARY: spectral
           ARGS: >-
             lint {{.RESOLVED_TARGETS}}
-            {{- if .RESOLVED_SKIP}} "!{{.RESOLVED_SKIP}}"{{end}}
             {{- if .RESOLVED_RULESET}} --ruleset "{{.RESOLVED_RULESET}}"{{end}}
           EXTRA_ARGS: >-
             {{default .SPECTRAL_EXTRA_ARGS .SPECTRAL_EXTRA_ARGS_OVERRIDE}}{{if .CLI_ARGS}} {{.CLI_ARGS}}{{end}}

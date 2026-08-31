@@ -6,8 +6,16 @@ package pnpm_test
 import (
 	"testing"
 
+	"github.com/task-otter/store/internal/taskintegration"
 	"github.com/task-otter/store/internal/tasktest"
 )
+
+// TestModuleIntegration runs the shared task CLI integration suite for this module.
+func TestModuleIntegration(t *testing.T) {
+	t.Parallel()
+
+	taskintegration.RunHere(t)
+}
 
 // TestTaskfileModuleContract
 func TestTaskfileModuleContract(t *testing.T) {
@@ -36,7 +44,6 @@ func publicTasks() []string {
 
 func publicVars() []string {
 	return []string{
-		"ESLINT_LINT_SKIP_PATTERN",
 		"ESLINT_CACHE",
 		"ESLINT_CONFIG",
 		"ESLINT_EXTRA_ARGS",

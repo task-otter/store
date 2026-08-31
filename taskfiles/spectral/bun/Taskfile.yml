@@ -14,7 +14,6 @@ includes:
     taskfile: ../../bun/Taskfile.yml
 
 vars:
-  SPECTRAL_LINT_SKIP_PATTERN: ""
   SPECTRAL_TARGETS: ""
   SPECTRAL_RULESET: ""
   SPECTRAL_EXTRA_ARGS: ""
@@ -111,7 +110,6 @@ tasks:
       - task: install
     vars:
       RESOLVED_TARGETS: '{{default .SPECTRAL_TARGETS .SPECTRAL_TARGETS_OVERRIDE}}'
-      RESOLVED_SKIP: '{{default .SPECTRAL_LINT_SKIP_PATTERN .SPECTRAL_LINT_SKIP_PATTERN_OVERRIDE}}'
       RESOLVED_RULESET: '{{default .SPECTRAL_RULESET .SPECTRAL_RULESET_OVERRIDE}}'
     cmds:
       - task: _bun:unix
@@ -119,7 +117,6 @@ tasks:
           ARGS: >-
             x spectral
             lint {{.RESOLVED_TARGETS}}
-            {{- if .RESOLVED_SKIP}} "!{{.RESOLVED_SKIP}}"{{end}}
             {{- if .RESOLVED_RULESET}} --ruleset "{{.RESOLVED_RULESET}}"{{end}}
             {{default .SPECTRAL_EXTRA_ARGS .SPECTRAL_EXTRA_ARGS_OVERRIDE}}{{if .CLI_ARGS}} {{.CLI_ARGS}}{{end}}
       - task: _bun:windows
@@ -127,7 +124,6 @@ tasks:
           ARGS: >-
             x spectral
             lint {{.RESOLVED_TARGETS}}
-            {{- if .RESOLVED_SKIP}} "!{{.RESOLVED_SKIP}}"{{end}}
             {{- if .RESOLVED_RULESET}} --ruleset "{{.RESOLVED_RULESET}}"{{end}}
             {{default .SPECTRAL_EXTRA_ARGS .SPECTRAL_EXTRA_ARGS_OVERRIDE}}{{if .CLI_ARGS}} {{.CLI_ARGS}}{{end}}
       - echo "✅ spectral passed"

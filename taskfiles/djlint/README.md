@@ -51,10 +51,6 @@ task djlint:fmt:check DJLINT_TARGETS=templates
 | `DJLINT_NIX_INSTALLABLE` | `nixpkgs#djlint` | Flake installable passed to `nix:install:profile` |
 | `DJLINT_TARGETS` | `.` | File or directory djLint operates on |
 | `DJLINT_EXTRA_ARGS` | `""` | Extra flags forwarded to djLint (e.g. `--profile django`) |
-| `DJLINT_LINT_SKIP_PATTERN` | _(empty)_ | Forward-slash path glob for files skipped by lint checks and fixes |
-| `DJLINT_FMT_SKIP_PATTERN` | _(empty)_ | Forward-slash path glob for files skipped by formatting checks and fixes |
-
-Skip patterns support `*` within one path segment, `**` across directories, and `?` for one character. Paths are matched relative to the task working directory; for example, `**/generated/**`.
 
 Pin a revision by overriding the installable, for example
 `DJLINT_NIX_INSTALLABLE=github:NixOS/nixpkgs/<rev>#djlint`.

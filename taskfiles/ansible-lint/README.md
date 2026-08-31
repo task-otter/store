@@ -53,7 +53,6 @@ task ansible-lint:ci:fix ANSIBLE_LINT_TARGETS=playbooks/
 | `ANSIBLE_LINT_CONFIG`            | `ansible/ansible.cfg`  | Value exported as `ANSIBLE_CONFIG` for ansible-lint |
 | `ANSIBLE_LINT_TARGETS`           | `.`                    | Files or directories to lint with `ci` / `ci:fix` |
 | `ANSIBLE_LINT_EXTRA_ARGS`        | _(empty)_              | Extra flags forwarded to ansible-lint |
-| `ANSIBLE_LINT_LINT_SKIP_PATTERN` | _(empty)_              | Path glob passed to ansible-lint `--exclude` |
 
 Pin a revision by overriding the installable, for example
 `ANSIBLE_LINT_NIX_INSTALLABLE=github:NixOS/nixpkgs/<rev>#ansible-lint`.

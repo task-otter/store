@@ -22,13 +22,14 @@ type (
 )
 
 const (
-	integrationTestFileName = "integration_test.go"
-	integrationSuiteCall    = "taskintegration.RunHere(t)"
+	integrationSuiteCall     = "taskintegration.RunHere(t)"
+	moduleTestFileGlob       = "*_test.go"
+	globModuleTestsErrFormat = "glob %s: %v"
 )
 
 // TestEveryTaskfileFolderHasAnIntegrationTest keeps the shared task CLI suite
-// wired to every module. A new Taskfile folder added without an
-// integration_test.go would otherwise ship without ever being run.
+// wired to every module. A new Taskfile folder added without
+// TestModuleIntegration would otherwise ship without ever being run.
 func TestEveryTaskfileFolderHasAnIntegrationTest(t *testing.T) {
 	t.Parallel()
 
@@ -82,15 +83,34 @@ func taskfileFolders(t *testing.T) []string {
 func assertFolderRunsIntegrationSuite(t *testing.T, folder string) {
 	t.Helper()
 
-	path := filepath.Join(folder, integrationTestFileName)
-
-	if !tasktestutil.FileExists(path) {
-		t.Fatalf("%s must contain %s", folder, integrationTestFileName)
-	}
-
-	if strings.Contains(tasktestutil.ReadFile(t, path), integrationSuiteCall) {
+	if moduleTestCallsIntegrationSuite(t, folder) {
 		return
 	}
 
-	t.Fatalf("%s must call %s", path, integrationSuiteCall)
+	t.Fatalf("%s must call %s from a %s file", folder, integrationSuiteCall, moduleTestFileGlob)
+}
+
+func moduleTestCallsIntegrationSuite(t *testing.T, folder string) bool {
+	t.Helper()
+
+	paths := moduleTestFiles(t, folder)
+
+	for i := range paths {
+		if strings.Contains(tasktestutil.ReadFile(t, paths[i]), integrationSuiteCall) {
+			return true
+		}
+	}
+
+	return false
+}
+
+func moduleTestFiles(t *testing.T, folder string) []string {
+	t.Helper()
+
+	paths, err := filepath.Glob(filepath.Join(folder, moduleTestFileGlob))
+	if err != nil {
+		t.Fatalf(globModuleTestsErrFormat, folder, err)
+	}
+
+	return paths
 }

@@ -14,7 +14,6 @@ includes:
     taskfile: ../../../pnpm/Taskfile.yml
 
 vars:
-  DEPCHECK_LINT_SKIP_PATTERN: ""
   DEPCHECK_PROJECT_PATH: ""
   DEPCHECK_DEFAULT_PROJECT_PATH: "."
   DEPCHECK_TARGETS: ""
@@ -79,7 +78,6 @@ tasks:
     internal: true
     run: when_changed
     vars:
-      RESOLVED_SKIP: '{{default .DEPCHECK_LINT_SKIP_PATTERN .DEPCHECK_LINT_SKIP_PATTERN_OVERRIDE}}'
       RESOLVED_PATH: >-
         {{or .DEPCHECK_PROJECT_PATH_OVERRIDE .DEPCHECK_TARGETS_OVERRIDE
         .DEPCHECK_PROJECT_PATH .DEPCHECK_TARGETS .DEPCHECK_DEFAULT_PROJECT_PATH}}
@@ -88,7 +86,6 @@ tasks:
         vars:
           BINARY: depcheck
           ARGS: >-
-            {{if .RESOLVED_SKIP}}--ignore-patterns="{{.RESOLVED_SKIP}}" {{end}}
             {{- .RESOLVED_PATH}}
             {{- if .MODE_ARGS}} {{.MODE_ARGS}}{{end}}
           EXTRA_ARGS: >-

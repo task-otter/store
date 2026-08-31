@@ -7,8 +7,16 @@ import (
 	"slices"
 	"testing"
 
+	"github.com/task-otter/store/internal/taskintegration"
 	"github.com/task-otter/store/internal/tasktest"
 )
+
+// TestModuleIntegration runs the shared task CLI integration suite for this module.
+func TestModuleIntegration(t *testing.T) {
+	t.Parallel()
+
+	taskintegration.RunHere(t)
+}
 
 // TestModule
 func TestModule(t *testing.T) {

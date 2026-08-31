@@ -14,7 +14,6 @@ includes:
     taskfile: ../../../pnpm/Taskfile.yml
 
 vars:
-  HTMLHINT_LINT_SKIP_PATTERN: ""
   HTMLHINT_TARGETS: "**/*.html"
   HTMLHINT_CONFIG: ""
   HTMLHINT_EXTRA_ARGS: ""
@@ -108,7 +107,6 @@ tasks:
       - task: install
     vars:
       RESOLVED_CONFIG: '{{default .HTMLHINT_CONFIG .HTMLHINT_CONFIG_OVERRIDE}}'
-      RESOLVED_SKIP: '{{default .HTMLHINT_LINT_SKIP_PATTERN .HTMLHINT_LINT_SKIP_PATTERN_OVERRIDE}}'
       RESOLVED_TARGETS: '{{or .HTMLHINT_TARGETS_OVERRIDE .HTMLHINT_TARGETS "**/*.html"}}'
     cmds:
       - task: pnpm:exec
@@ -116,7 +114,6 @@ tasks:
           BINARY: htmlhint
           ARGS: >-
             {{if .RESOLVED_CONFIG}}--config "{{.RESOLVED_CONFIG}}" {{end}}
-            {{- if .RESOLVED_SKIP}}--ignore "{{.RESOLVED_SKIP}}" {{end}}
             {{- .RESOLVED_TARGETS}}
           EXTRA_ARGS: >-
             {{default .HTMLHINT_EXTRA_ARGS .HTMLHINT_EXTRA_ARGS_OVERRIDE}}{{if .CLI_ARGS}} {{.CLI_ARGS}}{{end}}

@@ -25,13 +25,14 @@ parses" and "the tool runs", not the tool itself.
 
 ## Decision
 
-Every folder under `taskfiles/` that holds a `Taskfile.yml` also holds an
-`integration_test.go` that runs the real `task` CLI against that folder.
+Every folder under `taskfiles/` that holds a `Taskfile.yml` also holds a
+`TestModuleIntegration` in its `_test.go` that runs the real `task` CLI
+against that folder.
 Shared fragments under `taskfiles/internal/` were excluded while that
 directory existed; it is unused now, and the coverage test still skips it
 if it reappears.
 
-The per-folder file is one delegating call; all logic is shared in
+The per-folder test is one delegating call; all logic is shared in
 `internal/taskintegration`:
 
 ```go
@@ -69,7 +70,7 @@ Enforcement: `TestEveryTaskfileFolderHasAnIntegrationTest` in
 - The full suite still runs in well under a minute, because the summary sweep is
   scoped to the tasks a folder declares; tasks pulled in through an include are
   covered by the test of the folder that declares them.
-- A new module is not done until it has an `integration_test.go`; the coverage
+- A new module is not done until it has `TestModuleIntegration`; the coverage
   test names the missing folder.
 - The suite proves a module's task graph resolves and its documentation-facing
   surface is real. It does not prove the underlying tool installs or runs — that
