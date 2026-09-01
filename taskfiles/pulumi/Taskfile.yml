@@ -46,18 +46,14 @@ tasks:
         vars:
           PULUMI_ARGS: >-
             login
-            {{if .PULUMI_LOGIN_URL_OVERRIDE}}"{{.PULUMI_LOGIN_URL_OVERRIDE}}"
-            {{- else if .PULUMI_LOGIN_URL}}"{{.PULUMI_LOGIN_URL}}"{{end}}
-            {{if .PULUMI_EXTRA_ARGS_OVERRIDE}}{{.PULUMI_EXTRA_ARGS_OVERRIDE}}
-            {{- else}}{{.PULUMI_EXTRA_ARGS}}{{end}}
+            {{if .PULUMI_LOGIN_URL}}"{{.PULUMI_LOGIN_URL}}"{{end}}
+            {{.PULUMI_EXTRA_ARGS}}
       - task: _pulumi:windows
         vars:
           PULUMI_ARGS: >-
             login
-            {{if .PULUMI_LOGIN_URL_OVERRIDE}}"{{.PULUMI_LOGIN_URL_OVERRIDE}}"
-            {{- else if .PULUMI_LOGIN_URL}}"{{.PULUMI_LOGIN_URL}}"{{end}}
-            {{if .PULUMI_EXTRA_ARGS_OVERRIDE}}{{.PULUMI_EXTRA_ARGS_OVERRIDE}}
-            {{- else}}{{.PULUMI_EXTRA_ARGS}}{{end}}
+            {{if .PULUMI_LOGIN_URL}}"{{.PULUMI_LOGIN_URL}}"{{end}}
+            {{.PULUMI_EXTRA_ARGS}}
 
   new:
     run: once
@@ -76,25 +72,21 @@ tasks:
       vars:
         - PULUMI_TEMPLATE
     preconditions:
-      - sh: test -n "{{.PULUMI_TEMPLATE_OVERRIDE}}{{.PULUMI_TEMPLATE}}"
+      - sh: test -n "{{.PULUMI_TEMPLATE}}"
         msg: PULUMI_TEMPLATE is required. Pass PULUMI_TEMPLATE=name when running this task.
     cmds:
       - task: _pulumi:unix
         vars:
           PULUMI_ARGS: >-
             new
-            "{{if .PULUMI_TEMPLATE_OVERRIDE}}{{.PULUMI_TEMPLATE_OVERRIDE}}
-            {{- else}}{{.PULUMI_TEMPLATE}}{{end}}"
-            {{if .PULUMI_EXTRA_ARGS_OVERRIDE}}{{.PULUMI_EXTRA_ARGS_OVERRIDE}}
-            {{- else}}{{.PULUMI_EXTRA_ARGS}}{{end}}
+            "{{.PULUMI_TEMPLATE}}"
+            {{.PULUMI_EXTRA_ARGS}}
       - task: _pulumi:windows
         vars:
           PULUMI_ARGS: >-
             new
-            "{{if .PULUMI_TEMPLATE_OVERRIDE}}{{.PULUMI_TEMPLATE_OVERRIDE}}
-            {{- else}}{{.PULUMI_TEMPLATE}}{{end}}"
-            {{if .PULUMI_EXTRA_ARGS_OVERRIDE}}{{.PULUMI_EXTRA_ARGS_OVERRIDE}}
-            {{- else}}{{.PULUMI_EXTRA_ARGS}}{{end}}
+            "{{.PULUMI_TEMPLATE}}"
+            {{.PULUMI_EXTRA_ARGS}}
 
   up:
     run: once
@@ -114,18 +106,14 @@ tasks:
         vars:
           PULUMI_ARGS: >-
             up
-            {{if .PULUMI_STACK_OVERRIDE}}--stack "{{.PULUMI_STACK_OVERRIDE}}"
-            {{- else if .PULUMI_STACK}}--stack "{{.PULUMI_STACK}}"{{end}}
-            {{if .PULUMI_EXTRA_ARGS_OVERRIDE}}{{.PULUMI_EXTRA_ARGS_OVERRIDE}}
-            {{- else}}{{.PULUMI_EXTRA_ARGS}}{{end}}
+            {{if .PULUMI_STACK}}--stack "{{.PULUMI_STACK}}"{{end}}
+            {{.PULUMI_EXTRA_ARGS}}
       - task: _pulumi:windows
         vars:
           PULUMI_ARGS: >-
             up
-            {{if .PULUMI_STACK_OVERRIDE}}--stack "{{.PULUMI_STACK_OVERRIDE}}"
-            {{- else if .PULUMI_STACK}}--stack "{{.PULUMI_STACK}}"{{end}}
-            {{if .PULUMI_EXTRA_ARGS_OVERRIDE}}{{.PULUMI_EXTRA_ARGS_OVERRIDE}}
-            {{- else}}{{.PULUMI_EXTRA_ARGS}}{{end}}
+            {{if .PULUMI_STACK}}--stack "{{.PULUMI_STACK}}"{{end}}
+            {{.PULUMI_EXTRA_ARGS}}
 
   _pulumi:unix:
     run: once

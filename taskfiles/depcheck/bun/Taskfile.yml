@@ -36,7 +36,7 @@ tasks:
       Install depcheck as a local devDependency. Pass DEPCHECK_VERSION=x.y.z to pin a
       specific release instead of the package manager's default resolution.
     vars:
-      RESOLVED_VERSION: '{{default .DEPCHECK_VERSION .DEPCHECK_VERSION_OVERRIDE}}'
+      RESOLVED_VERSION: '{{.DEPCHECK_VERSION}}'
     status:
       - >-
         node -e "const installed = require('./node_modules/depcheck/package.json');
@@ -47,12 +47,12 @@ tasks:
         vars:
           ARGS: >-
             add -d --silent depcheck{{if .RESOLVED_VERSION}}@{{.RESOLVED_VERSION}}{{end}}
-            {{default .DEPCHECK_EXTRA_ARGS .DEPCHECK_EXTRA_ARGS_OVERRIDE}}{{if .CLI_ARGS}} {{.CLI_ARGS}}{{end}}
+            {{.DEPCHECK_EXTRA_ARGS}}{{if .CLI_ARGS}} {{.CLI_ARGS}}{{end}}
       - task: _bun:windows
         vars:
           ARGS: >-
             add -d --silent depcheck{{if .RESOLVED_VERSION}}@{{.RESOLVED_VERSION}}{{end}}
-            {{default .DEPCHECK_EXTRA_ARGS .DEPCHECK_EXTRA_ARGS_OVERRIDE}}{{if .CLI_ARGS}} {{.CLI_ARGS}}{{end}}
+            {{.DEPCHECK_EXTRA_ARGS}}{{if .CLI_ARGS}} {{.CLI_ARGS}}{{end}}
 
   install:undo:
     run: once
@@ -64,10 +64,10 @@ tasks:
     cmds:
       - task: _bun:unix
         vars:
-          ARGS: remove --silent depcheck {{default .DEPCHECK_EXTRA_ARGS .DEPCHECK_EXTRA_ARGS_OVERRIDE}}
+          ARGS: remove --silent depcheck {{.DEPCHECK_EXTRA_ARGS}}
       - task: _bun:windows
         vars:
-          ARGS: remove --silent depcheck {{default .DEPCHECK_EXTRA_ARGS .DEPCHECK_EXTRA_ARGS_OVERRIDE}}
+          ARGS: remove --silent depcheck {{.DEPCHECK_EXTRA_ARGS}}
 
   upgrade:
     run: once
@@ -76,10 +76,10 @@ tasks:
     cmds:
       - task: _bun:unix
         vars:
-          ARGS: add -d --silent depcheck@latest {{default .DEPCHECK_EXTRA_ARGS .DEPCHECK_EXTRA_ARGS_OVERRIDE}}
+          ARGS: add -d --silent depcheck@latest {{.DEPCHECK_EXTRA_ARGS}}
       - task: _bun:windows
         vars:
-          ARGS: add -d --silent depcheck@latest {{default .DEPCHECK_EXTRA_ARGS .DEPCHECK_EXTRA_ARGS_OVERRIDE}}
+          ARGS: add -d --silent depcheck@latest {{.DEPCHECK_EXTRA_ARGS}}
 
   # Shared implementation of lint / json / ignores / skip-missing. Each override
   # is resolved exactly once here; callers supply only the trailing mode flag.
@@ -88,8 +88,7 @@ tasks:
     run: when_changed
     vars:
       RESOLVED_PATH: >-
-        {{or .DEPCHECK_PROJECT_PATH_OVERRIDE .DEPCHECK_TARGETS_OVERRIDE
-        .DEPCHECK_PROJECT_PATH .DEPCHECK_TARGETS .DEPCHECK_DEFAULT_PROJECT_PATH}}
+        {{or .DEPCHECK_PROJECT_PATH .DEPCHECK_TARGETS .DEPCHECK_DEFAULT_PROJECT_PATH}}
     cmds:
       - task: _bun:unix
         vars:
@@ -97,14 +96,14 @@ tasks:
             x depcheck
             {{- .RESOLVED_PATH}}
             {{- if .MODE_ARGS}} {{.MODE_ARGS}}{{end}}
-            {{default .DEPCHECK_EXTRA_ARGS .DEPCHECK_EXTRA_ARGS_OVERRIDE}}{{if .CLI_ARGS}} {{.CLI_ARGS}}{{end}}
+            {{.DEPCHECK_EXTRA_ARGS}}{{if .CLI_ARGS}} {{.CLI_ARGS}}{{end}}
       - task: _bun:windows
         vars:
           ARGS: >-
             x depcheck
             {{- .RESOLVED_PATH}}
             {{- if .MODE_ARGS}} {{.MODE_ARGS}}{{end}}
-            {{default .DEPCHECK_EXTRA_ARGS .DEPCHECK_EXTRA_ARGS_OVERRIDE}}{{if .CLI_ARGS}} {{.CLI_ARGS}}{{end}}
+            {{.DEPCHECK_EXTRA_ARGS}}{{if .CLI_ARGS}} {{.CLI_ARGS}}{{end}}
 
   json:
     run: once
@@ -123,7 +122,7 @@ tasks:
     cmds:
       - task: _run
         vars:
-          MODE_ARGS: '--ignores="{{default .DEPCHECK_IGNORE_PACKAGES .DEPCHECK_IGNORE_PACKAGES_OVERRIDE}}"'
+          MODE_ARGS: '--ignores="{{.DEPCHECK_IGNORE_PACKAGES}}"'
 
   skip-missing:
     run: once
@@ -162,12 +161,12 @@ tasks:
         vars:
           ARGS: >-
             x depcheck --help
-            {{default .DEPCHECK_EXTRA_ARGS .DEPCHECK_EXTRA_ARGS_OVERRIDE}}{{if .CLI_ARGS}} {{.CLI_ARGS}}{{end}}
+            {{.DEPCHECK_EXTRA_ARGS}}{{if .CLI_ARGS}} {{.CLI_ARGS}}{{end}}
       - task: _bun:windows
         vars:
           ARGS: >-
             x depcheck --help
-            {{default .DEPCHECK_EXTRA_ARGS .DEPCHECK_EXTRA_ARGS_OVERRIDE}}{{if .CLI_ARGS}} {{.CLI_ARGS}}{{end}}
+            {{.DEPCHECK_EXTRA_ARGS}}{{if .CLI_ARGS}} {{.CLI_ARGS}}{{end}}
 
 
   _bun:unix:

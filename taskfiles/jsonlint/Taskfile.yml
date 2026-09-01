@@ -42,15 +42,14 @@ tasks:
     cmds:
       - cmd: >-
           bash -lc '{{.NIX_LOAD}};
-          _t="{{if .JSONLINT_TARGETS_OVERRIDE}}{{.JSONLINT_TARGETS_OVERRIDE}}{{else if
-          .JSONLINT_TARGETS}}{{.JSONLINT_TARGETS}}{{else}}.{{end}}";
+          _t="{{if .JSONLINT_TARGETS}}{{.JSONLINT_TARGETS}}{{else}}.{{end}}";
           _files="$(mktemp)"; trap '"'"'rm -f "$_files"'"'"' EXIT;
           if [ -d "$_t" ]; then
           find "$_t" -name "*.json" -type f -print0 >"$_files";
           else printf "%s\000" "$_t" >"$_files"; fi;
           if [ -s "$_files" ]; then
           xargs -0 jsonlint
-          {{if .JSONLINT_EXTRA_ARGS_OVERRIDE}}{{.JSONLINT_EXTRA_ARGS_OVERRIDE}}{{else}}{{.JSONLINT_EXTRA_ARGS}}{{end}}
+          {{.JSONLINT_EXTRA_ARGS}}
           <"$_files";
           else echo "No matching JSON files found under $_t"; fi
           && echo "✅ jsonlint passed" || { echo "❌ jsonlint failed"; exit 1; }'
@@ -58,8 +57,7 @@ tasks:
       - cmd: >-
           powershell -NoProfile -ExecutionPolicy Bypass -Command
           "$ErrorActionPreference = 'Stop';
-          $t = '{{if .JSONLINT_TARGETS_OVERRIDE}}{{.JSONLINT_TARGETS_OVERRIDE}}{{else if
-          .JSONLINT_TARGETS}}{{.JSONLINT_TARGETS}}{{else}}.{{end}}';
+          $t = '{{if .JSONLINT_TARGETS}}{{.JSONLINT_TARGETS}}{{else}}.{{end}}';
           if (Test-Path -LiteralPath $t -PathType Container) {
           $files = Get-ChildItem -LiteralPath $t -Recurse -Filter *.json -File
           } else {
@@ -67,7 +65,6 @@ tasks:
           $paths = @($files | ForEach-Object FullName);
           if (-not $paths) { Write-Host 'No matching JSON files found'; exit 0 };
           foreach ($path in $paths) {
-          jsonlint {{if .JSONLINT_EXTRA_ARGS_OVERRIDE}}{{.JSONLINT_EXTRA_ARGS_OVERRIDE}}
-          {{- else}}{{.JSONLINT_EXTRA_ARGS}}{{end}} $path;
+          jsonlint {{.JSONLINT_EXTRA_ARGS}} $path;
           if ($LASTEXITCODE -ne 0) { exit $LASTEXITCODE } }"
         platforms: [windows]

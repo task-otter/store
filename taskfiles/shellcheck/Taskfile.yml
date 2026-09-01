@@ -57,10 +57,9 @@ tasks:
           exit
         fi
 
-        extra="{{if .SHELLCHECK_EXTRA_ARGS_OVERRIDE}}{{.SHELLCHECK_EXTRA_ARGS_OVERRIDE}}
-        {{- else}}{{.SHELLCHECK_EXTRA_ARGS}}{{end}}"
-        targets="{{if .SHELLCHECK_TARGETS_OVERRIDE}}{{.SHELLCHECK_TARGETS_OVERRIDE}}{{else}}{{.SHELLCHECK_TARGETS}}
-        {{end}}"
+        extra="{{.SHELLCHECK_EXTRA_ARGS}}"
+        targets="{{.SHELLCHECK_TARGETS}}
+        "
         file_list="$(mktemp)"
         trap '"'"'rm -f "$file_list"'"'"' EXIT
 
@@ -95,10 +94,9 @@ tasks:
         if ('{{.CLI_ARGS}}') {
           shellcheck {{.CLI_ARGS}}; exit $LASTEXITCODE
         };
-        $extra='{{if .SHELLCHECK_EXTRA_ARGS_OVERRIDE}}{{.SHELLCHECK_EXTRA_ARGS_OVERRIDE}}
-        {{else}}{{.SHELLCHECK_EXTRA_ARGS}}{{end}}';
-        $targets='{{if .SHELLCHECK_TARGETS_OVERRIDE}}{{.SHELLCHECK_TARGETS_OVERRIDE}}{{else}}{{.SHELLCHECK_TARGETS}}
-        {{end}}';
+        $extra='{{.SHELLCHECK_EXTRA_ARGS}}';
+        $targets='{{.SHELLCHECK_TARGETS}}
+        ';
         if (-not $targets) {
           $files = Get-ChildItem -Recurse -Filter '*.sh' -File |
             Where-Object { $_.FullName -notmatch '\\\.git\\' };

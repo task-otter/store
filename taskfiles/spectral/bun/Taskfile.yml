@@ -35,7 +35,7 @@ tasks:
       SPECTRAL_VERSION=x.y.z to pin a specific release instead of the package
       manager's default resolution.
     vars:
-      RESOLVED_VERSION: '{{default .SPECTRAL_VERSION .SPECTRAL_VERSION_OVERRIDE}}'
+      RESOLVED_VERSION: '{{.SPECTRAL_VERSION}}'
     status:
       - >-
         node -e "const installed = require('./node_modules/@stoplight/spectral-cli/package.json');
@@ -46,12 +46,12 @@ tasks:
         vars:
           ARGS: >-
             add -d --silent @stoplight/spectral-cli{{if .RESOLVED_VERSION}}@{{.RESOLVED_VERSION}}{{end}}
-            {{default .SPECTRAL_EXTRA_ARGS .SPECTRAL_EXTRA_ARGS_OVERRIDE}}{{if .CLI_ARGS}} {{.CLI_ARGS}}{{end}}
+            {{.SPECTRAL_EXTRA_ARGS}}{{if .CLI_ARGS}} {{.CLI_ARGS}}{{end}}
       - task: _bun:windows
         vars:
           ARGS: >-
             add -d --silent @stoplight/spectral-cli{{if .RESOLVED_VERSION}}@{{.RESOLVED_VERSION}}{{end}}
-            {{default .SPECTRAL_EXTRA_ARGS .SPECTRAL_EXTRA_ARGS_OVERRIDE}}{{if .CLI_ARGS}} {{.CLI_ARGS}}{{end}}
+            {{.SPECTRAL_EXTRA_ARGS}}{{if .CLI_ARGS}} {{.CLI_ARGS}}{{end}}
 
   install:undo:
     run: once
@@ -63,10 +63,10 @@ tasks:
     cmds:
       - task: _bun:unix
         vars:
-          ARGS: remove --silent @stoplight/spectral-cli {{default .SPECTRAL_EXTRA_ARGS .SPECTRAL_EXTRA_ARGS_OVERRIDE}}
+          ARGS: remove --silent @stoplight/spectral-cli {{.SPECTRAL_EXTRA_ARGS}}
       - task: _bun:windows
         vars:
-          ARGS: remove --silent @stoplight/spectral-cli {{default .SPECTRAL_EXTRA_ARGS .SPECTRAL_EXTRA_ARGS_OVERRIDE}}
+          ARGS: remove --silent @stoplight/spectral-cli {{.SPECTRAL_EXTRA_ARGS}}
 
   upgrade:
     run: once
@@ -77,12 +77,12 @@ tasks:
         vars:
           ARGS: >-
             add -d --silent @stoplight/spectral-cli@latest
-            {{default .SPECTRAL_EXTRA_ARGS .SPECTRAL_EXTRA_ARGS_OVERRIDE}}
+            {{.SPECTRAL_EXTRA_ARGS}}
       - task: _bun:windows
         vars:
           ARGS: >-
             add -d --silent @stoplight/spectral-cli@latest
-            {{default .SPECTRAL_EXTRA_ARGS .SPECTRAL_EXTRA_ARGS_OVERRIDE}}
+            {{.SPECTRAL_EXTRA_ARGS}}
 
   config:init:
     run: once
@@ -109,8 +109,8 @@ tasks:
     deps:
       - task: install
     vars:
-      RESOLVED_TARGETS: '{{default .SPECTRAL_TARGETS .SPECTRAL_TARGETS_OVERRIDE}}'
-      RESOLVED_RULESET: '{{default .SPECTRAL_RULESET .SPECTRAL_RULESET_OVERRIDE}}'
+      RESOLVED_TARGETS: '{{.SPECTRAL_TARGETS}}'
+      RESOLVED_RULESET: '{{.SPECTRAL_RULESET}}'
     cmds:
       - task: _bun:unix
         vars:
@@ -118,14 +118,14 @@ tasks:
             x spectral
             lint {{.RESOLVED_TARGETS}}
             {{- if .RESOLVED_RULESET}} --ruleset "{{.RESOLVED_RULESET}}"{{end}}
-            {{default .SPECTRAL_EXTRA_ARGS .SPECTRAL_EXTRA_ARGS_OVERRIDE}}{{if .CLI_ARGS}} {{.CLI_ARGS}}{{end}}
+            {{.SPECTRAL_EXTRA_ARGS}}{{if .CLI_ARGS}} {{.CLI_ARGS}}{{end}}
       - task: _bun:windows
         vars:
           ARGS: >-
             x spectral
             lint {{.RESOLVED_TARGETS}}
             {{- if .RESOLVED_RULESET}} --ruleset "{{.RESOLVED_RULESET}}"{{end}}
-            {{default .SPECTRAL_EXTRA_ARGS .SPECTRAL_EXTRA_ARGS_OVERRIDE}}{{if .CLI_ARGS}} {{.CLI_ARGS}}{{end}}
+            {{.SPECTRAL_EXTRA_ARGS}}{{if .CLI_ARGS}} {{.CLI_ARGS}}{{end}}
       - echo "✅ spectral passed"
 
   help:

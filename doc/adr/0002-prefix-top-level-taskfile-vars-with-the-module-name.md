@@ -30,8 +30,8 @@ Top-level Taskfile vars must satisfy **one** of:
 
 Bare module knobs (`CACHE`, `IMAGE`, `PLAYBOOK`, `EXTRA_ARGS`, `VERSION`, …)
 and go’s former `INSTALL_DIR_UNIX` / `GLOBAL_GO_BIN` names are not allowed;
-rename them to the owned (or foreign) form. Override suffixes keep the owned
-prefix (`EXTRA_ARGS_OVERRIDE` → `{TOOL}_EXTRA_ARGS_OVERRIDE`).
+rename them to the owned (or foreign) form. There is no `_OVERRIDE` suffix: a
+prefixed top-level var is the single public name, overridden directly.
 
 Enforcement: `TestTopLevelVarsPrefix` in `taskfiles/vars_prefix_test.go`.
 
@@ -46,3 +46,9 @@ Enforcement: `TestTopLevelVarsPrefix` in `taskfiles/vars_prefix_test.go`.
   example `GO_GLOBAL_BIN`) without inventing a duplicate owned name.
 - Task-local knobs that are never declared at top-level (for example undeclared
   `EXTRA_ARGS` passed into `npm:add`) stay outside this rule.
+- The parallel `{TOOL}_…_OVERRIDE` escape hatches were removed once every public
+  knob lived at top-level: prefixed vars are already settable from the CLI, the
+  environment, and `includes.vars`, so the second name was redundant. Modules
+  that relied on it — `sqlfluff` (task-local `TARGETS` / `CONFIG` / `DIALECT` /
+  `EXTRA_ARGS`, now hoisted to `SQLFLUFF_*`) and `proto` — were converted.
+  Breaking for callers who set an `_OVERRIDE` name.

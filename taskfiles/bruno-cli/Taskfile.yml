@@ -42,8 +42,8 @@ tasks:
     run: when_changed
     dir: "{{.USER_WORKING_DIR}}"
     vars:
-      RESOLVED_COLLECTION: '{{default .BRUNO_CLI_COLLECTION .BRUNO_CLI_COLLECTION_OVERRIDE}}'
-      RESOLVED_ENV: '{{default .BRUNO_CLI_ENV .BRUNO_CLI_ENV_OVERRIDE}}'
+      RESOLVED_COLLECTION: '{{.BRUNO_CLI_COLLECTION}}'
+      RESOLVED_ENV: '{{.BRUNO_CLI_ENV}}'
     deps:
       - task: _ensure
     cmds:
@@ -51,14 +51,14 @@ tasks:
           bash -lc '{{.NIX_LOAD}}; bru run {{.RESOLVED_COLLECTION}}
           {{- if .RESOLVED_ENV}} --env "{{.RESOLVED_ENV}}"{{end}}
           {{- if .MODE_ARGS}} {{.MODE_ARGS}}{{end}}
-          {{default .BRUNO_CLI_EXTRA_ARGS .BRUNO_CLI_EXTRA_ARGS_OVERRIDE}}{{if .CLI_ARGS}} {{.CLI_ARGS}}{{end}}'
+          {{.BRUNO_CLI_EXTRA_ARGS}}{{if .CLI_ARGS}} {{.CLI_ARGS}}{{end}}'
         platforms: [linux, darwin]
       - cmd: >-
           powershell -NoProfile -ExecutionPolicy Bypass -Command
           "bru run {{.RESOLVED_COLLECTION}}
           {{if .RESOLVED_ENV}}--env '{{.RESOLVED_ENV}}'{{end}}
           {{if .MODE_ARGS}}{{.MODE_ARGS}}{{end}}
-          {{default .BRUNO_CLI_EXTRA_ARGS .BRUNO_CLI_EXTRA_ARGS_OVERRIDE}}{{if .CLI_ARGS}} {{.CLI_ARGS}}{{end}}"
+          {{.BRUNO_CLI_EXTRA_ARGS}}{{if .CLI_ARGS}} {{.CLI_ARGS}}{{end}}"
         platforms: [windows]
 
   run:
@@ -96,10 +96,10 @@ tasks:
     cmds:
       - cmd: >-
           bash -lc '{{.NIX_LOAD}}; bru --help
-          {{default .BRUNO_CLI_EXTRA_ARGS .BRUNO_CLI_EXTRA_ARGS_OVERRIDE}}{{if .CLI_ARGS}} {{.CLI_ARGS}}{{end}}'
+          {{.BRUNO_CLI_EXTRA_ARGS}}{{if .CLI_ARGS}} {{.CLI_ARGS}}{{end}}'
         platforms: [linux, darwin]
       - cmd: >-
           powershell -NoProfile -ExecutionPolicy Bypass -Command
           "bru --help
-          {{default .BRUNO_CLI_EXTRA_ARGS .BRUNO_CLI_EXTRA_ARGS_OVERRIDE}}{{if .CLI_ARGS}} {{.CLI_ARGS}}{{end}}"
+          {{.BRUNO_CLI_EXTRA_ARGS}}{{if .CLI_ARGS}} {{.CLI_ARGS}}{{end}}"
         platforms: [windows]

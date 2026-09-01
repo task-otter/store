@@ -32,7 +32,7 @@ Then run:
 
 ```sh
 task sqlfluff:ci
-task sqlfluff:ci:fix DIALECT_OVERRIDE=postgres
+task sqlfluff:ci:fix SQLFLUFF_DIALECT=postgres
 ```
 
 ## Public Tasks
@@ -49,6 +49,10 @@ task sqlfluff:ci:fix DIALECT_OVERRIDE=postgres
 | Variable              | Default   | Description                                                  |
 | --------------------- | --------- | ------------------------------------------------------------ |
 | `SQLFLUFF_NIX_INSTALLABLE` | `nixpkgs#sqlfluff` | Flake installable passed to `nix:install:profile` |
+| `SQLFLUFF_TARGETS`    | `.`       | Paths to lint, fix, or parse                                 |
+| `SQLFLUFF_CONFIG`     | `""`      | Config file passed via `--config`                            |
+| `SQLFLUFF_DIALECT`    | `""`      | SQL dialect passed via `--dialect`                           |
+| `SQLFLUFF_EXTRA_ARGS` | `""`      | Additional flags appended to the sqlfluff invocation         |
 
 Pin a revision by overriding the installable, for example
 `SQLFLUFF_NIX_INSTALLABLE=github:NixOS/nixpkgs/<rev>#sqlfluff`.
@@ -60,5 +64,5 @@ Pin a revision by overriding the installable, for example
 **`config:init`** writes a `.sqlfluff` file in the current directory and is
 skipped if the file already exists. To regenerate, delete `.sqlfluff` first.
 
-**Dialect:** sqlfluff requires a dialect to lint most SQL. Either set `DIALECT_OVERRIDE`
+**Dialect:** sqlfluff requires a dialect to lint most SQL. Either set `SQLFLUFF_DIALECT`
 on the CLI or declare it in `.sqlfluff` under `[sqlfluff] dialect = <name>`.

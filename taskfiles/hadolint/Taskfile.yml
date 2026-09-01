@@ -43,24 +43,18 @@ tasks:
     cmds:
       - cmd: |
           bash -lc '{{.NIX_LOAD}};
-          dockerfile="{{if .HADOLINT_DOCKERFILE_OVERRIDE}}{{.HADOLINT_DOCKERFILE_OVERRIDE}}
-          {{- else}}{{.HADOLINT_DOCKERFILE}}{{end}}"
+          dockerfile="{{.HADOLINT_DOCKERFILE}}"
           hadolint \
             {{if .CLI_ARGS}}{{.CLI_ARGS}} \
-            {{else}}{{if .HADOLINT_CONFIG_OVERRIDE}}--config "{{.HADOLINT_CONFIG_OVERRIDE}}"
-            {{- else if .HADOLINT_CONFIG}}--config "{{.HADOLINT_CONFIG}}"{{end}} \
-            "$dockerfile" {{if .HADOLINT_EXTRA_ARGS_OVERRIDE}}{{.HADOLINT_EXTRA_ARGS_OVERRIDE}}
-            {{- else}}{{.HADOLINT_EXTRA_ARGS}}{{end}}{{end}} \
+            {{else}}{{if .HADOLINT_CONFIG}}--config "{{.HADOLINT_CONFIG}}"{{end}} \
+            "$dockerfile" {{.HADOLINT_EXTRA_ARGS}}{{end}} \
             && echo "✅ hadolint passed" || { echo "❌ hadolint failed"; exit 1; }'
         platforms: [linux, darwin]
       - cmd: >-
           powershell -NoProfile -ExecutionPolicy Bypass -Command
-          "$dockerfile='{{if .HADOLINT_DOCKERFILE_OVERRIDE}}{{.HADOLINT_DOCKERFILE_OVERRIDE}}
-          {{- else}}{{.HADOLINT_DOCKERFILE}}{{end}}';
+          "$dockerfile='{{.HADOLINT_DOCKERFILE}}';
           hadolint {{if .CLI_ARGS}}{{.CLI_ARGS}}{{else}}
-            {{if .HADOLINT_CONFIG_OVERRIDE}}--config '{{.HADOLINT_CONFIG_OVERRIDE}}'{{else if
-            .HADOLINT_CONFIG}}--config '{{.HADOLINT_CONFIG}}'{{end}}
-            $dockerfile {{if .HADOLINT_EXTRA_ARGS_OVERRIDE}}{{.HADOLINT_EXTRA_ARGS_OVERRIDE}}
-            {{- else}}{{.HADOLINT_EXTRA_ARGS}}{{end}}{{end}};
+            {{if .HADOLINT_CONFIG}}--config '{{.HADOLINT_CONFIG}}'{{end}}
+            $dockerfile {{.HADOLINT_EXTRA_ARGS}}{{end}};
           exit $LASTEXITCODE"
         platforms: [windows]

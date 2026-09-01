@@ -82,8 +82,8 @@ tasks:
         vars:
           NIX_INSTALLABLE: "{{.DJLINT_NIX_INSTALLABLE}}"
     vars:
-      PATHS: '{{or .DJLINT_TARGETS_OVERRIDE .DJLINT_TARGETS "."}}'
-      EXTRA: '{{default .DJLINT_EXTRA_ARGS .DJLINT_EXTRA_ARGS_OVERRIDE}}'
+      PATHS: '{{or .DJLINT_TARGETS "."}}'
+      EXTRA: '{{.DJLINT_EXTRA_ARGS}}'
     cmds:
       - cmd: >-
           bash -lc '{{.NIX_LOAD}};

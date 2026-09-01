@@ -234,8 +234,7 @@ tasks:
       - |
         bash -lc '{{.NIX_LOAD}};
         cargo {{if .RUST_TOOLCHAIN}}+{{.RUST_TOOLCHAIN}} {{end}}{{.CARGO_SUBCMD}} \
-          {{if .CARGO_EXTRA_ARGS_OVERRIDE}}{{.CARGO_EXTRA_ARGS_OVERRIDE}}
-          {{- else}}{{.CARGO_EXTRA_ARGS}}{{end}}'
+          {{.CARGO_EXTRA_ARGS}}'
 
   _cargo:windows:
     run: once
@@ -248,6 +247,5 @@ tasks:
         "$c = (Get-Command cargo -ErrorAction SilentlyContinue).Source;
         if (-not $c) { $c = Join-Path $env:USERPROFILE '.cargo\bin\cargo.exe' };
         & $c {{if .RUST_TOOLCHAIN}}+{{.RUST_TOOLCHAIN}} {{end}}{{.CARGO_SUBCMD}}
-          {{if .CARGO_EXTRA_ARGS_OVERRIDE}}{{.CARGO_EXTRA_ARGS_OVERRIDE}}
-          {{- else}}{{.CARGO_EXTRA_ARGS}}{{end}};
+          {{.CARGO_EXTRA_ARGS}};
         exit $LASTEXITCODE"

@@ -48,10 +48,6 @@ task -t taskfiles/proto/Taskfile.yml gen
 includes:
   proto:
     taskfile: taskfiles/proto/Taskfile.yml
-    vars:
-      PROTO_PATH_OVERRIDE: "{{.PROTO_PATH}}"
-      PROTO_PATTERN_OVERRIDE: "{{.PROTO_PATTERN}}"
-      GO_MODULE_OVERRIDE: "{{.GO_MODULE}}"
 ```
 
 Then run:
@@ -83,6 +79,6 @@ Pin a revision by overriding the installable, for example
 ## Notes
 
 - Install goes through `nix:install:profile` (Nix is installed first if missing). Native Windows is not supported; use WSL2.
-- Included Taskfiles must pass generation settings through
-  `GO_MODULE_OVERRIDE`, `PROTO_PATH_OVERRIDE`, and `PROTO_PATTERN_OVERRIDE`, as
-  shown above.
+- `GO_MODULE`, `PROTO_PATH`, and `PROTO_PATTERN` are declared as top-level vars
+  here, which outrank vars supplied by an inclusion: set them on the command
+  line or from the environment.

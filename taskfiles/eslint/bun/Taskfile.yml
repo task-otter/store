@@ -37,8 +37,8 @@ tasks:
       Install eslint as a local devDependency. Pass ESLINT_VERSION=x.y.z to pin a
       specific release instead of the package manager's default resolution.
     vars:
-      RESOLVED_VERSION: '{{default .ESLINT_VERSION .ESLINT_VERSION_OVERRIDE}}'
-      RESOLVED_EXTRA_ARGS: '{{default .ESLINT_EXTRA_ARGS .ESLINT_EXTRA_ARGS_OVERRIDE}}'
+      RESOLVED_VERSION: '{{.ESLINT_VERSION}}'
+      RESOLVED_EXTRA_ARGS: '{{.ESLINT_EXTRA_ARGS}}'
     status:
       - >-
         node -e "const installed = require('./node_modules/eslint/package.json');
@@ -66,10 +66,10 @@ tasks:
     cmds:
       - task: _bun:unix
         vars:
-          ARGS: remove --silent eslint {{default .ESLINT_EXTRA_ARGS .ESLINT_EXTRA_ARGS_OVERRIDE}}
+          ARGS: remove --silent eslint {{.ESLINT_EXTRA_ARGS}}
       - task: _bun:windows
         vars:
-          ARGS: remove --silent eslint {{default .ESLINT_EXTRA_ARGS .ESLINT_EXTRA_ARGS_OVERRIDE}}
+          ARGS: remove --silent eslint {{.ESLINT_EXTRA_ARGS}}
 
   upgrade:
     run: once
@@ -80,12 +80,12 @@ tasks:
         vars:
           ARGS: >-
             add -d --silent eslint@latest
-            {{default .ESLINT_EXTRA_ARGS .ESLINT_EXTRA_ARGS_OVERRIDE}}
+            {{.ESLINT_EXTRA_ARGS}}
       - task: _bun:windows
         vars:
           ARGS: >-
             add -d --silent eslint@latest
-            {{default .ESLINT_EXTRA_ARGS .ESLINT_EXTRA_ARGS_OVERRIDE}}
+            {{.ESLINT_EXTRA_ARGS}}
 
   config:init:
     run: once
@@ -126,10 +126,10 @@ tasks:
     internal: true
     run: when_changed
     vars:
-      RESOLVED_CONFIG: '{{default .ESLINT_CONFIG .ESLINT_CONFIG_OVERRIDE}}'
-      RESOLVED_CACHE: '{{or .ESLINT_CACHE_OVERRIDE .ESLINT_CACHE .ESLINT_DEFAULT_CACHE}}'
-      RESOLVED_TARGETS: '{{or .ESLINT_TARGETS_OVERRIDE .ESLINT_TARGETS .ESLINT_DEFAULT_TARGETS}}'
-      RESOLVED_EXTRA_ARGS: '{{default .ESLINT_EXTRA_ARGS .ESLINT_EXTRA_ARGS_OVERRIDE}}'
+      RESOLVED_CONFIG: '{{.ESLINT_CONFIG}}'
+      RESOLVED_CACHE: '{{or .ESLINT_CACHE .ESLINT_DEFAULT_CACHE}}'
+      RESOLVED_TARGETS: '{{or .ESLINT_TARGETS .ESLINT_DEFAULT_TARGETS}}'
+      RESOLVED_EXTRA_ARGS: '{{.ESLINT_EXTRA_ARGS}}'
     cmds:
       - task: _bun:unix
         vars:
@@ -193,12 +193,12 @@ tasks:
         vars:
           ARGS: >-
             x eslint --help
-            {{default .ESLINT_EXTRA_ARGS .ESLINT_EXTRA_ARGS_OVERRIDE}}{{if .CLI_ARGS}} {{.CLI_ARGS}}{{end}}
+            {{.ESLINT_EXTRA_ARGS}}{{if .CLI_ARGS}} {{.CLI_ARGS}}{{end}}
       - task: _bun:windows
         vars:
           ARGS: >-
             x eslint --help
-            {{default .ESLINT_EXTRA_ARGS .ESLINT_EXTRA_ARGS_OVERRIDE}}{{if .CLI_ARGS}} {{.CLI_ARGS}}{{end}}
+            {{.ESLINT_EXTRA_ARGS}}{{if .CLI_ARGS}} {{.CLI_ARGS}}{{end}}
 
 
   _bun:unix:

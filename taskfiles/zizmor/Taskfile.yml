@@ -48,19 +48,15 @@ tasks:
           bash -lc '{{.NIX_LOAD}};
           env -u GH_TOKEN zizmor \
             {{if .CLI_ARGS}}{{.CLI_ARGS}} \
-            {{else}}{{if .ZIZMOR_EXTRA_ARGS_OVERRIDE}}{{.ZIZMOR_EXTRA_ARGS_OVERRIDE}}
-            {{- else}}{{.ZIZMOR_EXTRA_ARGS}}{{end}} \
-            {{if .ZIZMOR_TARGETS_OVERRIDE}}{{.ZIZMOR_TARGETS_OVERRIDE}}
-            {{- else}}{{.ZIZMOR_TARGETS}}{{end}}{{end}} \
+            {{else}}{{.ZIZMOR_EXTRA_ARGS}} \
+            {{.ZIZMOR_TARGETS}}{{end}} \
             && echo "✅ zizmor audit passed" || { echo "❌ zizmor audit found issues"; exit 1; }'
         platforms: [linux, darwin]
       - cmd: >-
           powershell -NoProfile -ExecutionPolicy Bypass -Command
           "Remove-Item Env:GH_TOKEN -ErrorAction SilentlyContinue;
           zizmor {{if .CLI_ARGS}}{{.CLI_ARGS}}{{else}}
-            {{if .ZIZMOR_EXTRA_ARGS_OVERRIDE}}{{.ZIZMOR_EXTRA_ARGS_OVERRIDE}}
-            {{- else}}{{.ZIZMOR_EXTRA_ARGS}}{{end}}
-            {{if .ZIZMOR_TARGETS_OVERRIDE}}{{.ZIZMOR_TARGETS_OVERRIDE}}
-            {{- else}}{{.ZIZMOR_TARGETS}}{{end}}{{end}};
+            {{.ZIZMOR_EXTRA_ARGS}}
+            {{.ZIZMOR_TARGETS}}{{end}};
           exit $LASTEXITCODE"
         platforms: [windows]

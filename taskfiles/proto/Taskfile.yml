@@ -31,10 +31,9 @@ tasks:
 
       Set GO_MODULE to the Go module path so protoc strips it from the
       go_package option and writes next to the sources instead of into a
-      nested <module path>/ tree. Callers that include this Taskfile must use
-      GO_MODULE_OVERRIDE (and PROTO_PATH_OVERRIDE / PROTO_PATTERN_OVERRIDE):
-      the vars declared below outrank vars supplied by an inclusion, so the
-      plain names are only settable from the environment.
+      nested <module path>/ tree. GO_MODULE, PROTO_PATH, and PROTO_PATTERN are
+      declared as top-level vars here, which outrank vars supplied by an
+      inclusion: set them on the command line or from the environment.
     deps:
       - task: nix:install:profile
         vars:
@@ -43,19 +42,13 @@ tasks:
       - task: _gen:unix
         vars:
           PROTO_PATH: "{{.PROTO_PATH}}"
-          PROTO_PATH_OVERRIDE: "{{.PROTO_PATH_OVERRIDE}}"
           PROTO_PATTERN: "{{.PROTO_PATTERN}}"
-          PROTO_PATTERN_OVERRIDE: "{{.PROTO_PATTERN_OVERRIDE}}"
           GO_MODULE: "{{.GO_MODULE}}"
-          GO_MODULE_OVERRIDE: "{{.GO_MODULE_OVERRIDE}}"
       - task: _gen:windows
         vars:
           PROTO_PATH: "{{.PROTO_PATH}}"
-          PROTO_PATH_OVERRIDE: "{{.PROTO_PATH_OVERRIDE}}"
           PROTO_PATTERN: "{{.PROTO_PATTERN}}"
-          PROTO_PATTERN_OVERRIDE: "{{.PROTO_PATTERN_OVERRIDE}}"
           GO_MODULE: "{{.GO_MODULE}}"
-          GO_MODULE_OVERRIDE: "{{.GO_MODULE_OVERRIDE}}"
   ungen:
     run: once
     desc: Remove generated protobuf (.pb.go) files from the working tree
@@ -73,9 +66,9 @@ tasks:
     env:
       GO_MODULE: "{{.RESOLVED_GO_MODULE}}"
     vars:
-      RESOLVED_PROTO_PATH: '{{if .PROTO_PATH_OVERRIDE}}{{.PROTO_PATH_OVERRIDE}}{{else}}{{.PROTO_PATH}}{{end}}'
-      RESOLVED_PROTO_PATTERN: '{{default .PROTO_PATTERN .PROTO_PATTERN_OVERRIDE}}'
-      RESOLVED_GO_MODULE: '{{if .GO_MODULE_OVERRIDE}}{{.GO_MODULE_OVERRIDE}}{{else}}{{.GO_MODULE}}{{end}}'
+      RESOLVED_PROTO_PATH: '{{.PROTO_PATH}}'
+      RESOLVED_PROTO_PATTERN: '{{.PROTO_PATTERN}}'
+      RESOLVED_GO_MODULE: '{{.GO_MODULE}}'
     cmds:
       - |
         bash -lc '{{.NIX_LOAD}};
@@ -101,9 +94,9 @@ tasks:
     env:
       GO_MODULE: "{{.RESOLVED_GO_MODULE}}"
     vars:
-      RESOLVED_PROTO_PATH: '{{if .PROTO_PATH_OVERRIDE}}{{.PROTO_PATH_OVERRIDE}}{{else}}{{.PROTO_PATH}}{{end}}'
-      RESOLVED_PROTO_PATTERN: '{{default .PROTO_PATTERN .PROTO_PATTERN_OVERRIDE}}'
-      RESOLVED_GO_MODULE: '{{if .GO_MODULE_OVERRIDE}}{{.GO_MODULE_OVERRIDE}}{{else}}{{.GO_MODULE}}{{end}}'
+      RESOLVED_PROTO_PATH: '{{.PROTO_PATH}}'
+      RESOLVED_PROTO_PATTERN: '{{.PROTO_PATTERN}}'
+      RESOLVED_GO_MODULE: '{{.GO_MODULE}}'
     cmds:
       # Windows PowerShell 5.1's `-Command -` executes redirected stdin one
       # line at a time, which can silently skip the multi-line pipeline below.

@@ -123,11 +123,9 @@ tasks:
     cmds:
       - |
         bash -lc '{{.NIX_LOAD}};
-        targets="{{if .DOTENV_LINTER_TARGETS_OVERRIDE}}{{.DOTENV_LINTER_TARGETS_OVERRIDE}}
-        {{- else}}{{.DOTENV_LINTER_TARGETS}}{{end}}"
+        targets="{{.DOTENV_LINTER_TARGETS}}"
         dotenv-linter {{.DOTENV_LINTER_SUBCOMMAND}} $targets \
-          {{if .DOTENV_LINTER_EXTRA_ARGS_OVERRIDE}}{{.DOTENV_LINTER_EXTRA_ARGS_OVERRIDE}}
-          {{- else}}{{.DOTENV_LINTER_EXTRA_ARGS}}{{end}} {{.CLI_ARGS}}'
+          {{.DOTENV_LINTER_EXTRA_ARGS}} {{.CLI_ARGS}}'
 
   _lint:run:windows:
     run: once
@@ -137,11 +135,9 @@ tasks:
     cmds:
       - >-
         powershell -NoProfile -ExecutionPolicy Bypass -Command
-        "$targets='{{if .DOTENV_LINTER_TARGETS_OVERRIDE}}{{.DOTENV_LINTER_TARGETS_OVERRIDE}}
-        {{- else}}{{.DOTENV_LINTER_TARGETS}}{{end}}';
+        "$targets='{{.DOTENV_LINTER_TARGETS}}';
         dotenv-linter {{.DOTENV_LINTER_SUBCOMMAND}} $targets.Split(' ')
-          {{if .DOTENV_LINTER_EXTRA_ARGS_OVERRIDE}}{{.DOTENV_LINTER_EXTRA_ARGS_OVERRIDE}}
-          {{- else}}{{.DOTENV_LINTER_EXTRA_ARGS}}{{end}} {{.CLI_ARGS}};
+          {{.DOTENV_LINTER_EXTRA_ARGS}} {{.CLI_ARGS}};
         exit $LASTEXITCODE"
 
   _diff:unix:
@@ -152,10 +148,8 @@ tasks:
     cmds:
       - |
         bash -lc '{{.NIX_LOAD}};
-        targets="{{if .DOTENV_LINTER_TARGETS_OVERRIDE}}{{.DOTENV_LINTER_TARGETS_OVERRIDE}}
-        {{- else}}{{.DOTENV_LINTER_TARGETS}}{{end}}"
-        options="{{if .DOTENV_LINTER_EXTRA_ARGS_OVERRIDE}}{{.DOTENV_LINTER_EXTRA_ARGS_OVERRIDE}}
-        {{- else}}{{.DOTENV_LINTER_EXTRA_ARGS}}{{end}}"
+        targets="{{.DOTENV_LINTER_TARGETS}}"
+        options="{{.DOTENV_LINTER_EXTRA_ARGS}}"
         if [ -n "{{.CLI_ARGS}}" ]; then
           targets=""
           options=""
@@ -176,10 +170,8 @@ tasks:
     cmds:
       - >-
         powershell -NoProfile -ExecutionPolicy Bypass -Command
-        "$targets='{{if .DOTENV_LINTER_TARGETS_OVERRIDE}}{{.DOTENV_LINTER_TARGETS_OVERRIDE}}
-        {{- else}}{{.DOTENV_LINTER_TARGETS}}{{end}}'.Split(' ', [System.StringSplitOptions]::RemoveEmptyEntries);
-        $options='{{if .DOTENV_LINTER_EXTRA_ARGS_OVERRIDE}}{{.DOTENV_LINTER_EXTRA_ARGS_OVERRIDE}}
-        {{- else}}{{.DOTENV_LINTER_EXTRA_ARGS}}{{end}}'.Split(' ', [System.StringSplitOptions]::RemoveEmptyEntries);
+        "$targets='{{.DOTENV_LINTER_TARGETS}}'.Split(' ', [System.StringSplitOptions]::RemoveEmptyEntries);
+        $options='{{.DOTENV_LINTER_EXTRA_ARGS}}'.Split(' ', [System.StringSplitOptions]::RemoveEmptyEntries);
         if ('{{.CLI_ARGS}}') {
           $arguments='{{.CLI_ARGS}}'.Split(' ', [System.StringSplitOptions]::RemoveEmptyEntries);
           $targets=@($arguments | Where-Object { -not $_.StartsWith('-') });

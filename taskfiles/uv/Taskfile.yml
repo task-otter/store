@@ -52,21 +52,19 @@ tasks:
       vars:
         - PYTHON_VERSION
     preconditions:
-      - sh: test -n "{{.PYTHON_VERSION_OVERRIDE}}{{.PYTHON_VERSION}}"
+      - sh: test -n "{{.PYTHON_VERSION}}"
         msg: PYTHON_VERSION is required. Pass PYTHON_VERSION=3.12 when running this task.
     cmds:
       - task: _uv:unix
         vars:
           UV_ARGS: >-
             python install
-            {{if .PYTHON_VERSION_OVERRIDE}}{{.PYTHON_VERSION_OVERRIDE}}
-            {{- else}}{{.PYTHON_VERSION}}{{end}}
+            {{.PYTHON_VERSION}}
       - task: _uv:windows
         vars:
           UV_ARGS: >-
             python install
-            {{if .PYTHON_VERSION_OVERRIDE}}{{.PYTHON_VERSION_OVERRIDE}}
-            {{- else}}{{.PYTHON_VERSION}}{{end}}
+            {{.PYTHON_VERSION}}
 
   venv:
     run: once
@@ -114,21 +112,21 @@ tasks:
       vars:
         - UV_FILE
     preconditions:
-      - sh: test -n "{{.UV_FILE_OVERRIDE}}{{.UV_FILE}}"
+      - sh: test -n "{{.UV_FILE}}"
         msg: UV_FILE is required. Pass UV_FILE=path/to/script.py when running this task.
     cmds:
       - task: _uv:unix
         vars:
           UV_ARGS: >-
-            run "{{if .UV_FILE_OVERRIDE}}{{.UV_FILE_OVERRIDE}}{{else}}{{.UV_FILE}}{{end}}"
+            run "{{.UV_FILE}}"
             {{.UV_ARGS}}
-            {{if .UV_EXTRA_ARGS_OVERRIDE}}{{.UV_EXTRA_ARGS_OVERRIDE}}{{else}}{{.UV_EXTRA_ARGS}}{{end}}
+            {{.UV_EXTRA_ARGS}}
       - task: _uv:windows
         vars:
           UV_ARGS: >-
-            run "{{if .UV_FILE_OVERRIDE}}{{.UV_FILE_OVERRIDE}}{{else}}{{.UV_FILE}}{{end}}"
+            run "{{.UV_FILE}}"
             {{.UV_ARGS}}
-            {{if .UV_EXTRA_ARGS_OVERRIDE}}{{.UV_EXTRA_ARGS_OVERRIDE}}{{else}}{{.UV_EXTRA_ARGS}}{{end}}
+            {{.UV_EXTRA_ARGS}}
 
   tool:install:
     run: once
@@ -144,21 +142,21 @@ tasks:
       vars:
         - UV_TOOL
     preconditions:
-      - sh: test -n "{{.UV_TOOL_OVERRIDE}}{{.UV_TOOL}}"
+      - sh: test -n "{{.UV_TOOL}}"
         msg: TOOL is required. Pass UV_TOOL=name when running this task.
     cmds:
       - task: _uv:unix
         vars:
           UV_ARGS: >-
             tool install
-            "{{if .UV_TOOL_OVERRIDE}}{{.UV_TOOL_OVERRIDE}}{{else}}{{.UV_TOOL}}{{end}}"
-            {{if .UV_EXTRA_ARGS_OVERRIDE}}{{.UV_EXTRA_ARGS_OVERRIDE}}{{else}}{{.UV_EXTRA_ARGS}}{{end}}
+            "{{.UV_TOOL}}"
+            {{.UV_EXTRA_ARGS}}
       - task: _uv:windows
         vars:
           UV_ARGS: >-
             tool install
-            "{{if .UV_TOOL_OVERRIDE}}{{.UV_TOOL_OVERRIDE}}{{else}}{{.UV_TOOL}}{{end}}"
-            {{if .UV_EXTRA_ARGS_OVERRIDE}}{{.UV_EXTRA_ARGS_OVERRIDE}}{{else}}{{.UV_EXTRA_ARGS}}{{end}}
+            "{{.UV_TOOL}}"
+            {{.UV_EXTRA_ARGS}}
 
   tool:upgrade:
     run: once
@@ -173,21 +171,21 @@ tasks:
       vars:
         - UV_TOOL
     preconditions:
-      - sh: test -n "{{.UV_TOOL_OVERRIDE}}{{.UV_TOOL}}"
+      - sh: test -n "{{.UV_TOOL}}"
         msg: TOOL is required. Pass UV_TOOL=name when running this task.
     cmds:
       - task: _uv:unix
         vars:
           UV_ARGS: >-
             tool upgrade
-            "{{if .UV_TOOL_OVERRIDE}}{{.UV_TOOL_OVERRIDE}}{{else}}{{.UV_TOOL}}{{end}}"
-            {{if .UV_EXTRA_ARGS_OVERRIDE}}{{.UV_EXTRA_ARGS_OVERRIDE}}{{else}}{{.UV_EXTRA_ARGS}}{{end}}
+            "{{.UV_TOOL}}"
+            {{.UV_EXTRA_ARGS}}
       - task: _uv:windows
         vars:
           UV_ARGS: >-
             tool upgrade
-            "{{if .UV_TOOL_OVERRIDE}}{{.UV_TOOL_OVERRIDE}}{{else}}{{.UV_TOOL}}{{end}}"
-            {{if .UV_EXTRA_ARGS_OVERRIDE}}{{.UV_EXTRA_ARGS_OVERRIDE}}{{else}}{{.UV_EXTRA_ARGS}}{{end}}
+            "{{.UV_TOOL}}"
+            {{.UV_EXTRA_ARGS}}
 
   _uv:unix:
     run: once

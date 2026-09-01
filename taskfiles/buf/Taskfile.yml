@@ -46,14 +46,12 @@ tasks:
         vars:
           BUF_SUBCOMMAND: "lint"
           BUF_CONFIG_FLAG: >-
-            {{if .BUF_CONFIG_OVERRIDE}}--config "{{.BUF_CONFIG_OVERRIDE}}"
-            {{else if .BUF_CONFIG}}--config "{{.BUF_CONFIG}}"{{end}}
+            {{if .BUF_CONFIG}}--config "{{.BUF_CONFIG}}"{{end}}
       - task: _buf:windows
         vars:
           BUF_SUBCOMMAND: "lint"
           BUF_CONFIG_FLAG: >-
-            {{if .BUF_CONFIG_OVERRIDE}}--config "{{.BUF_CONFIG_OVERRIDE}}"
-            {{else if .BUF_CONFIG}}--config "{{.BUF_CONFIG}}"{{end}}
+            {{if .BUF_CONFIG}}--config "{{.BUF_CONFIG}}"{{end}}
       - echo "✅ buf lint passed"
 
   ci:
@@ -114,12 +112,10 @@ tasks:
     cmds:
       - |
         {{.NIX_LOAD}}
-        input='{{if .BUF_INPUT_OVERRIDE}}{{.BUF_INPUT_OVERRIDE}}
-        {{- else}}{{.BUF_INPUT}}{{end}}'
+        input='{{.BUF_INPUT}}'
         buf {{.BUF_SUBCOMMAND}} {{.BUF_CONFIG_FLAG}} \
           {{if .CLI_ARGS}}{{.CLI_ARGS}}{{else}}"$input" \
-          {{if .BUF_EXTRA_ARGS_OVERRIDE}}{{.BUF_EXTRA_ARGS_OVERRIDE}}
-          {{- else}}{{.BUF_EXTRA_ARGS}}{{end}}{{end}}
+          {{.BUF_EXTRA_ARGS}}{{end}}
 
   _buf:windows:
     run: once
@@ -128,12 +124,10 @@ tasks:
     cmds:
       - >-
         powershell -NoProfile -ExecutionPolicy Bypass -Command
-        "$inputPath='{{if .BUF_INPUT_OVERRIDE}}{{.BUF_INPUT_OVERRIDE}}
-        {{- else}}{{.BUF_INPUT}}{{end}}';
+        "$inputPath='{{.BUF_INPUT}}';
         buf {{.BUF_SUBCOMMAND}} {{.BUF_CONFIG_FLAG}}
           {{if .CLI_ARGS}}{{.CLI_ARGS}}{{else}}$inputPath
-          {{if .BUF_EXTRA_ARGS_OVERRIDE}}{{.BUF_EXTRA_ARGS_OVERRIDE}}
-          {{- else}}{{.BUF_EXTRA_ARGS}}{{end}}{{end}};
+          {{.BUF_EXTRA_ARGS}}{{end}};
         exit $LASTEXITCODE"
 
   breaking:
@@ -156,13 +150,13 @@ tasks:
           BUF_SUBCOMMAND: "breaking"
           BUF_CONFIG_FLAG: >-
             {{if not .CLI_ARGS}}--against
-            "{{if .BUF_AGAINST_OVERRIDE}}{{.BUF_AGAINST_OVERRIDE}}{{else}}{{.BUF_AGAINST}}{{end}}"{{end}}
+            "{{.BUF_AGAINST}}"{{end}}
       - task: _buf:windows
         vars:
           BUF_SUBCOMMAND: "breaking"
           BUF_CONFIG_FLAG: >-
             {{if not .CLI_ARGS}}--against
-            "{{if .BUF_AGAINST_OVERRIDE}}{{.BUF_AGAINST_OVERRIDE}}{{else}}{{.BUF_AGAINST}}{{end}}"{{end}}
+            "{{.BUF_AGAINST}}"{{end}}
       - echo "✅ buf breaking check passed"
 
   generate:
@@ -182,17 +176,15 @@ tasks:
           buf generate
           {{if .CLI_ARGS}}{{.CLI_ARGS}}
           {{else}}
-          "{{if .BUF_INPUT_OVERRIDE}}{{.BUF_INPUT_OVERRIDE}}{{else}}{{.BUF_INPUT}}{{end}}"
-          {{if .BUF_EXTRA_ARGS_OVERRIDE}}{{.BUF_EXTRA_ARGS_OVERRIDE}}
-          {{else}}{{.BUF_EXTRA_ARGS}}{{end}}{{end}}
+          "{{.BUF_INPUT}}"
+          {{.BUF_EXTRA_ARGS}}{{end}}
           && echo "✅ buf generate passed" || { echo "❌ buf generate failed"; exit 1; }'
         platforms: [linux, darwin]
       - cmd: >-
           buf generate
           {{if .CLI_ARGS}}{{.CLI_ARGS}}
           {{else}}
-          "{{if .BUF_INPUT_OVERRIDE}}{{.BUF_INPUT_OVERRIDE}}{{else}}{{.BUF_INPUT}}{{end}}"
-          {{if .BUF_EXTRA_ARGS_OVERRIDE}}{{.BUF_EXTRA_ARGS_OVERRIDE}}
-          {{else}}{{.BUF_EXTRA_ARGS}}{{end}}{{end}}
+          "{{.BUF_INPUT}}"
+          {{.BUF_EXTRA_ARGS}}{{end}}
           && echo "✅ buf generate passed" || { echo "❌ buf generate failed"; exit 1; }
         platforms: [windows]

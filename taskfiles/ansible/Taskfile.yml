@@ -46,7 +46,7 @@ tasks:
       vars:
         - ANSIBLE_PLAYBOOK
     preconditions:
-      - sh: test -n "{{.ANSIBLE_PLAYBOOK_OVERRIDE}}{{.ANSIBLE_PLAYBOOK}}"
+      - sh: test -n "{{.ANSIBLE_PLAYBOOK}}"
         msg: PLAYBOOK is required. Pass ANSIBLE_PLAYBOOK=path/to/playbook.yml when running this task.
     cmds:
       - task: _syntax:check:unix
@@ -66,7 +66,7 @@ tasks:
       vars:
         - ANSIBLE_PLAYBOOK
     preconditions:
-      - sh: test -n "{{.ANSIBLE_PLAYBOOK_OVERRIDE}}{{.ANSIBLE_PLAYBOOK}}"
+      - sh: test -n "{{.ANSIBLE_PLAYBOOK}}"
         msg: PLAYBOOK is required. Pass ANSIBLE_PLAYBOOK=path/to/playbook.yml when running this task.
     cmds:
       - task: _run:unix
@@ -86,7 +86,7 @@ tasks:
       vars:
         - ANSIBLE_INVENTORY
     preconditions:
-      - sh: test -n "{{.ANSIBLE_INVENTORY_OVERRIDE}}{{.ANSIBLE_INVENTORY}}"
+      - sh: test -n "{{.ANSIBLE_INVENTORY}}"
         msg: INVENTORY is required. Pass ANSIBLE_INVENTORY=path/to/inventory when running this task.
     cmds:
       - task: _ping:unix
@@ -106,7 +106,7 @@ tasks:
       vars:
         - ANSIBLE_INVENTORY
     preconditions:
-      - sh: test -n "{{.ANSIBLE_INVENTORY_OVERRIDE}}{{.ANSIBLE_INVENTORY}}"
+      - sh: test -n "{{.ANSIBLE_INVENTORY}}"
         msg: INVENTORY is required. Pass ANSIBLE_INVENTORY=path/to/inventory when running this task.
     cmds:
       - task: _list:hosts:unix
@@ -180,12 +180,10 @@ tasks:
     cmds:
       - |
         bash -lc '{{.NIX_LOAD}}; export ANSIBLE_CONFIG="{{.ANSIBLE_CONFIG}}";
-        playbook="{{if .ANSIBLE_PLAYBOOK_OVERRIDE}}{{.ANSIBLE_PLAYBOOK_OVERRIDE}}{{else}}{{.ANSIBLE_PLAYBOOK}}{{end}}"
+        playbook="{{.ANSIBLE_PLAYBOOK}}"
         ansible-playbook --syntax-check "$playbook" \
-          {{if .ANSIBLE_INVENTORY_OVERRIDE}}-i "{{.ANSIBLE_INVENTORY_OVERRIDE}}"
-          {{- else if .ANSIBLE_INVENTORY}}-i "{{.ANSIBLE_INVENTORY}}"{{end}} \
-          {{if .ANSIBLE_EXTRA_ARGS_OVERRIDE}}{{.ANSIBLE_EXTRA_ARGS_OVERRIDE}}
-          {{- else}}{{.ANSIBLE_EXTRA_ARGS}}{{end}} {{.CLI_ARGS}}'
+          {{if .ANSIBLE_INVENTORY}}-i "{{.ANSIBLE_INVENTORY}}"{{end}} \
+          {{.ANSIBLE_EXTRA_ARGS}} {{.CLI_ARGS}}'
 
   _run:unix:
     run: once
@@ -196,10 +194,9 @@ tasks:
       - >-
         bash -lc '{{.NIX_LOAD}}; export ANSIBLE_CONFIG="{{.ANSIBLE_CONFIG}}";
         ansible-playbook
-        "{{if .ANSIBLE_PLAYBOOK_OVERRIDE}}{{.ANSIBLE_PLAYBOOK_OVERRIDE}}{{else}}{{.ANSIBLE_PLAYBOOK}}{{end}}"
-        {{if .ANSIBLE_INVENTORY_OVERRIDE}}-i "{{.ANSIBLE_INVENTORY_OVERRIDE}}"
-        {{else if .ANSIBLE_INVENTORY}}-i "{{.ANSIBLE_INVENTORY}}" {{end}}
-        {{if .ANSIBLE_EXTRA_ARGS_OVERRIDE}}{{.ANSIBLE_EXTRA_ARGS_OVERRIDE}}{{else}}{{.ANSIBLE_EXTRA_ARGS}}{{end}}'
+        "{{.ANSIBLE_PLAYBOOK}}"
+        {{if .ANSIBLE_INVENTORY}}-i "{{.ANSIBLE_INVENTORY}}" {{end}}
+        {{.ANSIBLE_EXTRA_ARGS}}'
 
   _ping:unix:
     run: once
@@ -210,9 +207,8 @@ tasks:
       - >-
         bash -lc '{{.NIX_LOAD}}; export ANSIBLE_CONFIG="{{.ANSIBLE_CONFIG}}";
         ansible "{{.ANSIBLE_PATTERN}}" -m ping
-        {{if .ANSIBLE_INVENTORY_OVERRIDE}}-i "{{.ANSIBLE_INVENTORY_OVERRIDE}}"
-        {{else if .ANSIBLE_INVENTORY}}-i "{{.ANSIBLE_INVENTORY}}" {{end}}
-        {{if .ANSIBLE_EXTRA_ARGS_OVERRIDE}}{{.ANSIBLE_EXTRA_ARGS_OVERRIDE}}{{else}}{{.ANSIBLE_EXTRA_ARGS}}{{end}}'
+        {{if .ANSIBLE_INVENTORY}}-i "{{.ANSIBLE_INVENTORY}}" {{end}}
+        {{.ANSIBLE_EXTRA_ARGS}}'
 
   _list:hosts:unix:
     run: once
@@ -223,9 +219,8 @@ tasks:
       - >-
         bash -lc '{{.NIX_LOAD}}; export ANSIBLE_CONFIG="{{.ANSIBLE_CONFIG}}";
         ansible "{{.ANSIBLE_PATTERN}}" --list-hosts
-        {{if .ANSIBLE_INVENTORY_OVERRIDE}}-i "{{.ANSIBLE_INVENTORY_OVERRIDE}}"
-        {{else if .ANSIBLE_INVENTORY}}-i "{{.ANSIBLE_INVENTORY}}" {{end}}
-        {{if .ANSIBLE_EXTRA_ARGS_OVERRIDE}}{{.ANSIBLE_EXTRA_ARGS_OVERRIDE}}{{else}}{{.ANSIBLE_EXTRA_ARGS}}{{end}}'
+        {{if .ANSIBLE_INVENTORY}}-i "{{.ANSIBLE_INVENTORY}}" {{end}}
+        {{.ANSIBLE_EXTRA_ARGS}}'
 
   _galaxy:install:unix:
     run: once
@@ -236,7 +231,7 @@ tasks:
       - >-
         bash -lc '{{.NIX_LOAD}}; export ANSIBLE_CONFIG="{{.ANSIBLE_CONFIG}}";
         ansible-galaxy install -r "{{.ANSIBLE_REQUIREMENTS}}"
-        {{if .ANSIBLE_EXTRA_ARGS_OVERRIDE}}{{.ANSIBLE_EXTRA_ARGS_OVERRIDE}}{{else}}{{.ANSIBLE_EXTRA_ARGS}}{{end}}'
+        {{.ANSIBLE_EXTRA_ARGS}}'
 
   _vault:unix:
     run: once

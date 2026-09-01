@@ -66,10 +66,8 @@ tasks:
       - |
         bash -lc '{{.NIX_LOAD}};
         shfmt -w \
-          {{if .SHFMT_EXTRA_ARGS_OVERRIDE}}{{.SHFMT_EXTRA_ARGS_OVERRIDE}}
-          {{- else}}{{.SHFMT_EXTRA_ARGS}}{{end}} \
-          "{{if .SHFMT_TARGETS_OVERRIDE}}{{.SHFMT_TARGETS_OVERRIDE}}
-          {{- else}}{{.SHFMT_TARGETS}}{{end}}"'
+          {{.SHFMT_EXTRA_ARGS}} \
+          "{{.SHFMT_TARGETS}}"'
 
   _fmt:windows:
     run: once
@@ -78,11 +76,9 @@ tasks:
     cmds:
       - >-
         powershell -NoProfile -ExecutionPolicy Bypass -Command
-        "$target='{{if .SHFMT_TARGETS_OVERRIDE}}{{.SHFMT_TARGETS_OVERRIDE}}
-        {{- else}}{{.SHFMT_TARGETS}}{{end}}';
+        "$target='{{.SHFMT_TARGETS}}';
         shfmt -w
-          {{if .SHFMT_EXTRA_ARGS_OVERRIDE}}{{.SHFMT_EXTRA_ARGS_OVERRIDE}}
-          {{- else}}{{.SHFMT_EXTRA_ARGS}}{{end}} $target;
+          {{.SHFMT_EXTRA_ARGS}} $target;
         exit $LASTEXITCODE"
 
   _fmt:check:unix:
@@ -93,10 +89,8 @@ tasks:
       - |
         bash -lc '{{.NIX_LOAD}};
         shfmt -d \
-          {{if .SHFMT_EXTRA_ARGS_OVERRIDE}}{{.SHFMT_EXTRA_ARGS_OVERRIDE}}
-          {{- else}}{{.SHFMT_EXTRA_ARGS}}{{end}} \
-          "{{if .SHFMT_TARGETS_OVERRIDE}}{{.SHFMT_TARGETS_OVERRIDE}}
-          {{- else}}{{.SHFMT_TARGETS}}{{end}}"'
+          {{.SHFMT_EXTRA_ARGS}} \
+          "{{.SHFMT_TARGETS}}"'
 
   _fmt:check:windows:
     run: once
@@ -105,9 +99,7 @@ tasks:
     cmds:
       - >-
         powershell -NoProfile -ExecutionPolicy Bypass -Command
-        "$target='{{if .SHFMT_TARGETS_OVERRIDE}}{{.SHFMT_TARGETS_OVERRIDE}}
-        {{- else}}{{.SHFMT_TARGETS}}{{end}}';
+        "$target='{{.SHFMT_TARGETS}}';
         shfmt -d
-          {{if .SHFMT_EXTRA_ARGS_OVERRIDE}}{{.SHFMT_EXTRA_ARGS_OVERRIDE}}
-          {{- else}}{{.SHFMT_EXTRA_ARGS}}{{end}} $target;
+          {{.SHFMT_EXTRA_ARGS}} $target;
         exit $LASTEXITCODE"

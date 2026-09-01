@@ -46,21 +46,20 @@ tasks:
       returns immediately. Auto-installs bruno if missing.
     dir: "{{.USER_WORKING_DIR}}"
     vars:
-      RESOLVED_COLLECTION: '{{default .BRUNO_GUI_COLLECTION .BRUNO_GUI_COLLECTION_OVERRIDE}}'
+      RESOLVED_COLLECTION: '{{.BRUNO_GUI_COLLECTION}}'
     deps:
       - task: _ensure
     cmds:
       - cmd: >-
           bash -lc '{{.NIX_LOAD}}; bruno{{if .RESOLVED_COLLECTION}} {{.RESOLVED_COLLECTION}}{{end}}
-          {{default .BRUNO_GUI_EXTRA_ARGS .BRUNO_GUI_EXTRA_ARGS_OVERRIDE}}{{if .CLI_ARGS}} {{.CLI_ARGS}}{{end}} &'
+          {{.BRUNO_GUI_EXTRA_ARGS}}{{if .CLI_ARGS}} {{.CLI_ARGS}}{{end}} &'
         platforms: [linux, darwin]
       - cmd: >-
           powershell -NoProfile -ExecutionPolicy Bypass -Command
           "Start-Process bruno{{if .RESOLVED_COLLECTION}} -ArgumentList '{{.RESOLVED_COLLECTION}}
-          {{default .BRUNO_GUI_EXTRA_ARGS .BRUNO_GUI_EXTRA_ARGS_OVERRIDE}}{{if .CLI_ARGS}} {{.CLI_ARGS}}{{end}}'
-          {{- else if or .BRUNO_GUI_EXTRA_ARGS .BRUNO_GUI_EXTRA_ARGS_OVERRIDE
-          .CLI_ARGS}}
-          -ArgumentList '{{default .BRUNO_GUI_EXTRA_ARGS .BRUNO_GUI_EXTRA_ARGS_OVERRIDE}}
+          {{.BRUNO_GUI_EXTRA_ARGS}}{{if .CLI_ARGS}} {{.CLI_ARGS}}{{end}}'
+          {{- else if or .BRUNO_GUI_EXTRA_ARGS .CLI_ARGS}}
+          -ArgumentList '{{.BRUNO_GUI_EXTRA_ARGS}}
           {{- if .CLI_ARGS}} {{.CLI_ARGS}}{{end}}'{{end}}"
         platforms: [windows]
 
@@ -73,10 +72,10 @@ tasks:
     cmds:
       - cmd: >-
           bash -lc '{{.NIX_LOAD}}; bruno --help
-          {{default .BRUNO_GUI_EXTRA_ARGS .BRUNO_GUI_EXTRA_ARGS_OVERRIDE}}{{if .CLI_ARGS}} {{.CLI_ARGS}}{{end}}'
+          {{.BRUNO_GUI_EXTRA_ARGS}}{{if .CLI_ARGS}} {{.CLI_ARGS}}{{end}}'
         platforms: [linux, darwin]
       - cmd: >-
           powershell -NoProfile -ExecutionPolicy Bypass -Command
           "bruno --help
-          {{default .BRUNO_GUI_EXTRA_ARGS .BRUNO_GUI_EXTRA_ARGS_OVERRIDE}}{{if .CLI_ARGS}} {{.CLI_ARGS}}{{end}}"
+          {{.BRUNO_GUI_EXTRA_ARGS}}{{if .CLI_ARGS}} {{.CLI_ARGS}}{{end}}"
         platforms: [windows]

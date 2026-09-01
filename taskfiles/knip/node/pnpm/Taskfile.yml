@@ -38,12 +38,12 @@ tasks:
         const requested = '{{.RESOLVED_VERSION}}';
         process.exit(!requested || installed.version === requested ? 0 : 1)"
     vars:
-      RESOLVED_VERSION: '{{default .KNIP_VERSION .KNIP_VERSION_OVERRIDE}}'
+      RESOLVED_VERSION: '{{.KNIP_VERSION}}'
     cmds:
       - task: pnpm:add
         vars:
           PACKAGES: 'knip{{if .RESOLVED_VERSION}}@{{.RESOLVED_VERSION}}{{end}}'
-          EXTRA_ARGS: '{{default .KNIP_EXTRA_ARGS .KNIP_EXTRA_ARGS_OVERRIDE}}{{if .CLI_ARGS}} {{.CLI_ARGS}}{{end}}'
+          EXTRA_ARGS: '{{.KNIP_EXTRA_ARGS}}{{if .CLI_ARGS}} {{.CLI_ARGS}}{{end}}'
 
   install:undo:
     run: once
@@ -56,7 +56,7 @@ tasks:
       - task: pnpm:remove
         vars:
           PACKAGES: knip
-          EXTRA_ARGS: '{{default .KNIP_EXTRA_ARGS .KNIP_EXTRA_ARGS_OVERRIDE}}'
+          EXTRA_ARGS: '{{.KNIP_EXTRA_ARGS}}'
 
   upgrade:
     run: once
@@ -66,7 +66,7 @@ tasks:
       - task: pnpm:add
         vars:
           PACKAGES: knip@latest
-          EXTRA_ARGS: '{{default .KNIP_EXTRA_ARGS .KNIP_EXTRA_ARGS_OVERRIDE}}'
+          EXTRA_ARGS: '{{.KNIP_EXTRA_ARGS}}'
 
   config:init:
     run: once
@@ -90,7 +90,7 @@ tasks:
     internal: true
     run: when_changed
     vars:
-      RESOLVED_CONFIG: '{{default .KNIP_CONFIG .KNIP_CONFIG_OVERRIDE}}'
+      RESOLVED_CONFIG: '{{.KNIP_CONFIG}}'
     cmds:
       - task: pnpm:exec
         vars:
@@ -98,7 +98,7 @@ tasks:
           ARGS: >-
             {{if .MODE}}{{.MODE}} {{end}}
             {{- if .RESOLVED_CONFIG}}--config "{{.RESOLVED_CONFIG}}"{{end}}
-          EXTRA_ARGS: '{{default .KNIP_EXTRA_ARGS .KNIP_EXTRA_ARGS_OVERRIDE}}{{if .CLI_ARGS}} {{.CLI_ARGS}}{{end}}'
+          EXTRA_ARGS: '{{.KNIP_EXTRA_ARGS}}{{if .CLI_ARGS}} {{.CLI_ARGS}}{{end}}'
 
   production:
     run: once
@@ -170,7 +170,7 @@ tasks:
     cmds:
       - task: pnpm:exec
         vars:
-          PM: '{{default .PM .PM_OVERRIDE}}'
+          PM: '{{.PM}}'
           BINARY: knip
           ARGS: "--version"
 
@@ -182,4 +182,4 @@ tasks:
         vars:
           BINARY: knip
           ARGS: "--help"
-          EXTRA_ARGS: '{{default .KNIP_EXTRA_ARGS .KNIP_EXTRA_ARGS_OVERRIDE}}{{if .CLI_ARGS}} {{.CLI_ARGS}}{{end}}'
+          EXTRA_ARGS: '{{.KNIP_EXTRA_ARGS}}{{if .CLI_ARGS}} {{.CLI_ARGS}}{{end}}'

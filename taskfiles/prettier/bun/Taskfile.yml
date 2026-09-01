@@ -37,8 +37,8 @@ tasks:
       Install prettier as a local devDependency. Pass PRETTIER_VERSION=x.y.z to pin a
       specific release instead of the package manager's default resolution.
     vars:
-      RESOLVED_VERSION: '{{default .PRETTIER_VERSION .PRETTIER_VERSION_OVERRIDE}}'
-      RESOLVED_EXTRA_ARGS: '{{default .PRETTIER_EXTRA_ARGS .PRETTIER_EXTRA_ARGS_OVERRIDE}}'
+      RESOLVED_VERSION: '{{.PRETTIER_VERSION}}'
+      RESOLVED_EXTRA_ARGS: '{{.PRETTIER_EXTRA_ARGS}}'
     status:
       - >-
         node -e "const installed = require('./node_modules/prettier/package.json');
@@ -66,10 +66,10 @@ tasks:
     cmds:
       - task: _bun:unix
         vars:
-          ARGS: remove --silent prettier {{default .PRETTIER_EXTRA_ARGS .PRETTIER_EXTRA_ARGS_OVERRIDE}}
+          ARGS: remove --silent prettier {{.PRETTIER_EXTRA_ARGS}}
       - task: _bun:windows
         vars:
-          ARGS: remove --silent prettier {{default .PRETTIER_EXTRA_ARGS .PRETTIER_EXTRA_ARGS_OVERRIDE}}
+          ARGS: remove --silent prettier {{.PRETTIER_EXTRA_ARGS}}
 
   upgrade:
     run: once
@@ -78,17 +78,17 @@ tasks:
     cmds:
       - task: _bun:unix
         vars:
-          ARGS: add -d --silent prettier@latest {{default .PRETTIER_EXTRA_ARGS .PRETTIER_EXTRA_ARGS_OVERRIDE}}
+          ARGS: add -d --silent prettier@latest {{.PRETTIER_EXTRA_ARGS}}
       - task: _bun:windows
         vars:
-          ARGS: add -d --silent prettier@latest {{default .PRETTIER_EXTRA_ARGS .PRETTIER_EXTRA_ARGS_OVERRIDE}}
+          ARGS: add -d --silent prettier@latest {{.PRETTIER_EXTRA_ARGS}}
 
   config:init:
     run: once
     dir: "{{.USER_WORKING_DIR}}"
     desc: Create a starter Prettier config when none exists
     vars:
-      PRETTIER_CONFIG_PATH: '{{or .PRETTIER_CONFIG_OVERRIDE .PRETTIER_CONFIG ".prettierrc.json"}}'
+      PRETTIER_CONFIG_PATH: '{{or .PRETTIER_CONFIG ".prettierrc.json"}}'
     status:
       - test -f "{{.PRETTIER_CONFIG_PATH}}"
     cmds:
@@ -104,10 +104,10 @@ tasks:
     internal: true
     run: when_changed
     vars:
-      RESOLVED_TARGETS: '{{or .PRETTIER_TARGETS_OVERRIDE .PRETTIER_TARGETS .PRETTIER_DEFAULT_TARGETS}}'
-      RESOLVED_CONFIG: '{{default .PRETTIER_CONFIG .PRETTIER_CONFIG_OVERRIDE}}'
-      RESOLVED_IGNORE_PATH: '{{or .PRETTIER_IGNORE_PATH_OVERRIDE .PRETTIER_IGNORE_PATH .PRETTIER_DEFAULT_IGNORE_PATH}}'
-      RESOLVED_EXTRA_ARGS: '{{default .PRETTIER_EXTRA_ARGS .PRETTIER_EXTRA_ARGS_OVERRIDE}}'
+      RESOLVED_TARGETS: '{{or .PRETTIER_TARGETS .PRETTIER_DEFAULT_TARGETS}}'
+      RESOLVED_CONFIG: '{{.PRETTIER_CONFIG}}'
+      RESOLVED_IGNORE_PATH: '{{or .PRETTIER_IGNORE_PATH .PRETTIER_DEFAULT_IGNORE_PATH}}'
+      RESOLVED_EXTRA_ARGS: '{{.PRETTIER_EXTRA_ARGS}}'
     cmds:
       - task: _exec:ignore
         vars:
@@ -156,12 +156,12 @@ tasks:
         vars:
           ARGS: >-
             x prettier --help
-            {{default .PRETTIER_EXTRA_ARGS .PRETTIER_EXTRA_ARGS_OVERRIDE}}{{if .CLI_ARGS}} {{.CLI_ARGS}}{{end}}
+            {{.PRETTIER_EXTRA_ARGS}}{{if .CLI_ARGS}} {{.CLI_ARGS}}{{end}}
       - task: _bun:windows
         vars:
           ARGS: >-
             x prettier --help
-            {{default .PRETTIER_EXTRA_ARGS .PRETTIER_EXTRA_ARGS_OVERRIDE}}{{if .CLI_ARGS}} {{.CLI_ARGS}}{{end}}
+            {{.PRETTIER_EXTRA_ARGS}}{{if .CLI_ARGS}} {{.CLI_ARGS}}{{end}}
 
   _exec:ignore:
     run: once

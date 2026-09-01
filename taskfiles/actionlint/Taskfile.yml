@@ -53,19 +53,15 @@ tasks:
           bash -lc '{{.NIX_LOAD}}; exec bash -s' <<'ACTIONLINT_EOF'
           actionlint \
             {{if .CLI_ARGS}}{{.CLI_ARGS}} \
-            {{else}}{{if .ACTIONLINT_EXTRA_ARGS_OVERRIDE}}{{.ACTIONLINT_EXTRA_ARGS_OVERRIDE}}
-            {{- else}}{{.ACTIONLINT_EXTRA_ARGS}}{{end}} \
-            {{if .ACTIONLINT_TARGETS_OVERRIDE}}{{.ACTIONLINT_TARGETS_OVERRIDE}}
-            {{- else}}{{.ACTIONLINT_TARGETS}}{{end}}{{end}} \
+            {{else}}{{.ACTIONLINT_EXTRA_ARGS}} \
+            {{.ACTIONLINT_TARGETS}}{{end}} \
             && echo "✅ actionlint passed" || { echo "❌ actionlint failed"; exit 1; }
           ACTIONLINT_EOF
         platforms: [linux, darwin]
       - cmd: >-
           powershell -NoProfile -ExecutionPolicy Bypass -Command
           "actionlint {{if .CLI_ARGS}}{{.CLI_ARGS}}{{else}}
-            {{if .ACTIONLINT_EXTRA_ARGS_OVERRIDE}}{{.ACTIONLINT_EXTRA_ARGS_OVERRIDE}}
-            {{- else}}{{.ACTIONLINT_EXTRA_ARGS}}{{end}}
-            {{if .ACTIONLINT_TARGETS_OVERRIDE}}{{.ACTIONLINT_TARGETS_OVERRIDE}}
-            {{- else}}{{.ACTIONLINT_TARGETS}}{{end}}{{end}};
+            {{.ACTIONLINT_EXTRA_ARGS}}
+            {{.ACTIONLINT_TARGETS}}{{end}};
           exit $LASTEXITCODE"
         platforms: [windows]

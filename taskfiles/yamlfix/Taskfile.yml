@@ -32,13 +32,9 @@ tasks:
       - task: nix:install:profile
         vars:
           NIX_INSTALLABLE: "{{.YAMLFIX_NIX_INSTALLABLE}}"
-    vars:
-      YAMLFIX_TARGETS: "."
-      YAMLFIX_EXTRA_ARGS: ""
     cmds:
       - >-
-        bash -lc '{{.NIX_LOAD}}; _t="{{if .YAMLFIX_TARGETS_OVERRIDE}}{{.YAMLFIX_TARGETS_OVERRIDE}}{{else if
-        .YAMLFIX_TARGETS}}{{.YAMLFIX_TARGETS}}{{else}}.{{end}}"; [ -d "$_t" ] || _t="."; find "$_t" \( -name "*.yml"
-        -o -name "*.yaml"
-        \) ! -name "Taskfile.yml" ! -name "Taskfile.yaml" -print0 | xargs -0 yamlfix {{if
-        .YAMLFIX_EXTRA_ARGS_OVERRIDE}}{{.YAMLFIX_EXTRA_ARGS_OVERRIDE}}{{else}}{{.YAMLFIX_EXTRA_ARGS}}{{end}}'
+        bash -lc '{{.NIX_LOAD}};
+        _t="{{if .YAMLFIX_TARGETS}}{{.YAMLFIX_TARGETS}}{{else}}.{{end}}";
+        [ -d "$_t" ] || _t="."; find "$_t" \( -name "*.yml" -o -name "*.yaml"
+        \) ! -name "Taskfile.yml" ! -name "Taskfile.yaml" -print0 | xargs -0 yamlfix {{.YAMLFIX_EXTRA_ARGS}}'

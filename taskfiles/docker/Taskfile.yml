@@ -174,15 +174,15 @@ tasks:
       vars:
         - DOCKER_IMAGE
     preconditions:
-      - sh: test -n "{{.DOCKER_IMAGE_OVERRIDE}}{{.DOCKER_IMAGE}}"
+      - sh: test -n "{{.DOCKER_IMAGE}}"
         msg: IMAGE is required. Pass DOCKER_IMAGE=name:tag when running this task.
     cmds:
       - >-
         docker build
-        -f "{{if .DOCKER_FILE_OVERRIDE}}{{.DOCKER_FILE_OVERRIDE}}{{else}}{{.DOCKER_FILE}}{{end}}"
-        -t "{{if .DOCKER_IMAGE_OVERRIDE}}{{.DOCKER_IMAGE_OVERRIDE}}{{else}}{{.DOCKER_IMAGE}}{{end}}"
-        "{{if .DOCKER_CONTEXT_OVERRIDE}}{{.DOCKER_CONTEXT_OVERRIDE}}{{else}}{{.DOCKER_CONTEXT}}{{end}}"
-        {{if .DOCKER_EXTRA_ARGS_OVERRIDE}}{{.DOCKER_EXTRA_ARGS_OVERRIDE}}{{else}}{{.DOCKER_EXTRA_ARGS}}{{end}}
+        -f "{{.DOCKER_FILE}}"
+        -t "{{.DOCKER_IMAGE}}"
+        "{{.DOCKER_CONTEXT}}"
+        {{.DOCKER_EXTRA_ARGS}}
 
   pull:
     run: once
@@ -196,13 +196,13 @@ tasks:
       vars:
         - DOCKER_IMAGE
     preconditions:
-      - sh: test -n "{{.DOCKER_IMAGE_OVERRIDE}}{{.DOCKER_IMAGE}}"
+      - sh: test -n "{{.DOCKER_IMAGE}}"
         msg: IMAGE is required. Pass DOCKER_IMAGE=name:tag when running this task.
     cmds:
       - >-
         docker pull
-        "{{if .DOCKER_IMAGE_OVERRIDE}}{{.DOCKER_IMAGE_OVERRIDE}}{{else}}{{.DOCKER_IMAGE}}{{end}}"
-        {{if .DOCKER_EXTRA_ARGS_OVERRIDE}}{{.DOCKER_EXTRA_ARGS_OVERRIDE}}{{else}}{{.DOCKER_EXTRA_ARGS}}{{end}}
+        "{{.DOCKER_IMAGE}}"
+        {{.DOCKER_EXTRA_ARGS}}
 
   _install:macos:
     run: once

@@ -29,9 +29,6 @@ task nix:install:profile NIX_INSTALLABLE=nixpkgs#zizmor
 includes:
   zizmor:
     taskfile: taskfiles/zizmor/Taskfile.yml
-    vars:
-      ZIZMOR_TARGETS_OVERRIDE: "{{.ZIZMOR_TARGETS}}"
-      ZIZMOR_EXTRA_ARGS_OVERRIDE: "{{.ZIZMOR_EXTRA_ARGS}}"
 ```
 
 Then run:

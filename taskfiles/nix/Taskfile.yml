@@ -150,7 +150,7 @@ tasks:
       vars:
         - NIX_INSTALLABLE
     preconditions:
-      - sh: test -n "{{.NIX_INSTALLABLE_OVERRIDE}}{{.NIX_INSTALLABLE}}"
+      - sh: test -n "{{.NIX_INSTALLABLE}}"
         msg: NIX_INSTALLABLE is required. Pass NIX_INSTALLABLE=nixpkgs#hello (or hello).
     cmds:
       - task: _nix:pkg:unix
@@ -178,7 +178,7 @@ tasks:
       vars:
         - NIX_INSTALLABLE
     preconditions:
-      - sh: test -n "{{.NIX_INSTALLABLE_OVERRIDE}}{{.NIX_INSTALLABLE}}"
+      - sh: test -n "{{.NIX_INSTALLABLE}}"
         msg: NIX_INSTALLABLE is required. Pass NIX_INSTALLABLE=nixpkgs#hello (or hello).
     cmds:
       - task: _nix:pkg:unix
@@ -228,16 +228,16 @@ tasks:
     vars:
       NIX_TRAILING: ""
     preconditions:
-      - sh: test -n "{{.NIX_INSTALLABLE_OVERRIDE}}{{.NIX_INSTALLABLE}}"
+      - sh: test -n "{{.NIX_INSTALLABLE}}"
         msg: NIX_INSTALLABLE is required. Pass NIX_INSTALLABLE=nixpkgs#hello (or hello).
     cmds:
       - |
-        i="{{if .NIX_INSTALLABLE_OVERRIDE}}{{.NIX_INSTALLABLE_OVERRIDE}}{{else}}{{.NIX_INSTALLABLE}}{{end}}"
+        i="{{.NIX_INSTALLABLE}}"
         case "$i" in
           *'#'*|.*|/*) ;;
           *) i="nixpkgs#$i" ;;
         esac
-        extra="{{if .NIX_EXTRA_ARGS_OVERRIDE}}{{.NIX_EXTRA_ARGS_OVERRIDE}}{{else}}{{.NIX_EXTRA_ARGS}}{{end}}"
+        extra="{{.NIX_EXTRA_ARGS}}"
         trailing="{{.NIX_TRAILING}}"
         if [ "{{.NIX_SUBCMD}}" = "profile add" ]; then
           bash -lc '{{.NIX_LOAD}};

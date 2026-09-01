@@ -38,18 +38,18 @@ tasks:
         const requested = '{{.RESOLVED_VERSION}}';
         process.exit(!requested || installed.version === requested ? 0 : 1)"
     vars:
-      RESOLVED_VERSION: '{{default .KNIP_VERSION .KNIP_VERSION_OVERRIDE}}'
+      RESOLVED_VERSION: '{{.KNIP_VERSION}}'
     cmds:
       - task: _bun:unix
         vars:
           ARGS: >-
             add -d --silent knip{{if .RESOLVED_VERSION}}@{{.RESOLVED_VERSION}}{{end}}
-            {{default .KNIP_EXTRA_ARGS .KNIP_EXTRA_ARGS_OVERRIDE}}{{if .CLI_ARGS}} {{.CLI_ARGS}}{{end}}
+            {{.KNIP_EXTRA_ARGS}}{{if .CLI_ARGS}} {{.CLI_ARGS}}{{end}}
       - task: _bun:windows
         vars:
           ARGS: >-
             add -d --silent knip{{if .RESOLVED_VERSION}}@{{.RESOLVED_VERSION}}{{end}}
-            {{default .KNIP_EXTRA_ARGS .KNIP_EXTRA_ARGS_OVERRIDE}}{{if .CLI_ARGS}} {{.CLI_ARGS}}{{end}}
+            {{.KNIP_EXTRA_ARGS}}{{if .CLI_ARGS}} {{.CLI_ARGS}}{{end}}
 
   install:undo:
     run: once
@@ -61,10 +61,10 @@ tasks:
     cmds:
       - task: _bun:unix
         vars:
-          ARGS: remove --silent knip {{default .KNIP_EXTRA_ARGS .KNIP_EXTRA_ARGS_OVERRIDE}}
+          ARGS: remove --silent knip {{.KNIP_EXTRA_ARGS}}
       - task: _bun:windows
         vars:
-          ARGS: remove --silent knip {{default .KNIP_EXTRA_ARGS .KNIP_EXTRA_ARGS_OVERRIDE}}
+          ARGS: remove --silent knip {{.KNIP_EXTRA_ARGS}}
 
   upgrade:
     run: once
@@ -75,12 +75,12 @@ tasks:
         vars:
           ARGS: >-
             add -d --silent knip@latest
-            {{default .KNIP_EXTRA_ARGS .KNIP_EXTRA_ARGS_OVERRIDE}}
+            {{.KNIP_EXTRA_ARGS}}
       - task: _bun:windows
         vars:
           ARGS: >-
             add -d --silent knip@latest
-            {{default .KNIP_EXTRA_ARGS .KNIP_EXTRA_ARGS_OVERRIDE}}
+            {{.KNIP_EXTRA_ARGS}}
 
   config:init:
     run: once
@@ -104,7 +104,7 @@ tasks:
     internal: true
     run: when_changed
     vars:
-      RESOLVED_CONFIG: '{{default .KNIP_CONFIG .KNIP_CONFIG_OVERRIDE}}'
+      RESOLVED_CONFIG: '{{.KNIP_CONFIG}}'
     cmds:
       - task: _bun:unix
         vars:
@@ -112,14 +112,14 @@ tasks:
             x knip
             {{if .MODE}}{{.MODE}} {{end}}
             {{- if .RESOLVED_CONFIG}}--config "{{.RESOLVED_CONFIG}}"{{end}}
-            {{default .KNIP_EXTRA_ARGS .KNIP_EXTRA_ARGS_OVERRIDE}}{{if .CLI_ARGS}} {{.CLI_ARGS}}{{end}}
+            {{.KNIP_EXTRA_ARGS}}{{if .CLI_ARGS}} {{.CLI_ARGS}}{{end}}
       - task: _bun:windows
         vars:
           ARGS: >-
             x knip
             {{if .MODE}}{{.MODE}} {{end}}
             {{- if .RESOLVED_CONFIG}}--config "{{.RESOLVED_CONFIG}}"{{end}}
-            {{default .KNIP_EXTRA_ARGS .KNIP_EXTRA_ARGS_OVERRIDE}}{{if .CLI_ARGS}} {{.CLI_ARGS}}{{end}}
+            {{.KNIP_EXTRA_ARGS}}{{if .CLI_ARGS}} {{.CLI_ARGS}}{{end}}
 
   production:
     run: once
@@ -204,12 +204,12 @@ tasks:
         vars:
           ARGS: >-
             x knip --help
-            {{default .KNIP_EXTRA_ARGS .KNIP_EXTRA_ARGS_OVERRIDE}}{{if .CLI_ARGS}} {{.CLI_ARGS}}{{end}}
+            {{.KNIP_EXTRA_ARGS}}{{if .CLI_ARGS}} {{.CLI_ARGS}}{{end}}
       - task: _bun:windows
         vars:
           ARGS: >-
             x knip --help
-            {{default .KNIP_EXTRA_ARGS .KNIP_EXTRA_ARGS_OVERRIDE}}{{if .CLI_ARGS}} {{.CLI_ARGS}}{{end}}
+            {{.KNIP_EXTRA_ARGS}}{{if .CLI_ARGS}} {{.CLI_ARGS}}{{end}}
 
   _bun:unix:
     run: when_changed

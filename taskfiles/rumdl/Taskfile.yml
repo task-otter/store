@@ -37,8 +37,8 @@ tasks:
         vars:
           NIX_INSTALLABLE: "{{.RUMDL_NIX_INSTALLABLE}}"
     vars:
-      PATHS: '{{or .RUMDL_TARGETS_OVERRIDE .RUMDL_TARGETS "."}}'
-      EXTRA: '{{default .RUMDL_EXTRA_ARGS .RUMDL_EXTRA_ARGS_OVERRIDE}}'
+      PATHS: '{{or .RUMDL_TARGETS "."}}'
+      EXTRA: '{{.RUMDL_EXTRA_ARGS}}'
     cmds:
       - cmd: >-
           bash -lc '{{.NIX_LOAD}};

@@ -36,7 +36,7 @@ tasks:
       Install depcheck as a local devDependency. Pass DEPCHECK_VERSION=x.y.z to pin a
       specific release instead of the package manager's default resolution.
     vars:
-      RESOLVED_VERSION: '{{default .DEPCHECK_VERSION .DEPCHECK_VERSION_OVERRIDE}}'
+      RESOLVED_VERSION: '{{.DEPCHECK_VERSION}}'
     status:
       - >-
         node -e "const installed = require('./node_modules/depcheck/package.json');
@@ -47,7 +47,7 @@ tasks:
         vars:
           PACKAGES: 'depcheck{{if .RESOLVED_VERSION}}@{{.RESOLVED_VERSION}}{{end}}'
           EXTRA_ARGS: >-
-            {{default .DEPCHECK_EXTRA_ARGS .DEPCHECK_EXTRA_ARGS_OVERRIDE}}{{if .CLI_ARGS}} {{.CLI_ARGS}}{{end}}
+            {{.DEPCHECK_EXTRA_ARGS}}{{if .CLI_ARGS}} {{.CLI_ARGS}}{{end}}
 
   install:undo:
     run: once
@@ -60,7 +60,7 @@ tasks:
       - task: yarn:remove
         vars:
           PACKAGES: depcheck
-          EXTRA_ARGS: '{{default .DEPCHECK_EXTRA_ARGS .DEPCHECK_EXTRA_ARGS_OVERRIDE}}'
+          EXTRA_ARGS: '{{.DEPCHECK_EXTRA_ARGS}}'
 
   upgrade:
     run: once
@@ -70,7 +70,7 @@ tasks:
       - task: yarn:add
         vars:
           PACKAGES: depcheck@latest
-          EXTRA_ARGS: '{{default .DEPCHECK_EXTRA_ARGS .DEPCHECK_EXTRA_ARGS_OVERRIDE}}'
+          EXTRA_ARGS: '{{.DEPCHECK_EXTRA_ARGS}}'
 
   # Shared implementation of lint / json / ignores / skip-missing. Each override
   # is resolved exactly once here; callers supply only the trailing mode flag.
@@ -79,8 +79,7 @@ tasks:
     run: when_changed
     vars:
       RESOLVED_PATH: >-
-        {{or .DEPCHECK_PROJECT_PATH_OVERRIDE .DEPCHECK_TARGETS_OVERRIDE
-        .DEPCHECK_PROJECT_PATH .DEPCHECK_TARGETS .DEPCHECK_DEFAULT_PROJECT_PATH}}
+        {{or .DEPCHECK_PROJECT_PATH .DEPCHECK_TARGETS .DEPCHECK_DEFAULT_PROJECT_PATH}}
     cmds:
       - task: yarn:exec
         vars:
@@ -89,7 +88,7 @@ tasks:
             {{- .RESOLVED_PATH}}
             {{- if .MODE_ARGS}} {{.MODE_ARGS}}{{end}}
           EXTRA_ARGS: >-
-            {{default .DEPCHECK_EXTRA_ARGS .DEPCHECK_EXTRA_ARGS_OVERRIDE}}{{if .CLI_ARGS}} {{.CLI_ARGS}}{{end}}
+            {{.DEPCHECK_EXTRA_ARGS}}{{if .CLI_ARGS}} {{.CLI_ARGS}}{{end}}
 
   json:
     run: once
@@ -108,7 +107,7 @@ tasks:
     cmds:
       - task: _run
         vars:
-          MODE_ARGS: '--ignores="{{default .DEPCHECK_IGNORE_PACKAGES .DEPCHECK_IGNORE_PACKAGES_OVERRIDE}}"'
+          MODE_ARGS: '--ignores="{{.DEPCHECK_IGNORE_PACKAGES}}"'
 
   skip-missing:
     run: once
@@ -146,4 +145,4 @@ tasks:
           BINARY: depcheck
           ARGS: "--help"
           EXTRA_ARGS: >-
-            {{default .DEPCHECK_EXTRA_ARGS .DEPCHECK_EXTRA_ARGS_OVERRIDE}}{{if .CLI_ARGS}} {{.CLI_ARGS}}{{end}}
+            {{.DEPCHECK_EXTRA_ARGS}}{{if .CLI_ARGS}} {{.CLI_ARGS}}{{end}}

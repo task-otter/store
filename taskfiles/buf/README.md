@@ -47,11 +47,6 @@ task -t taskfiles/buf/Taskfile.yml lint -- api/v1 --error-format json
 includes:
   buf:
     taskfile: taskfiles/buf/Taskfile.yml
-    vars:
-      BUF_CONFIG_OVERRIDE: "{{.BUF_CONFIG}}"
-      BUF_INPUT_OVERRIDE: "{{.BUF_INPUT}}"
-      BUF_AGAINST_OVERRIDE: "{{.BUF_AGAINST}}"
-      BUF_EXTRA_ARGS_OVERRIDE: "{{.BUF_EXTRA_ARGS}}"
 ```
 
 Then run:

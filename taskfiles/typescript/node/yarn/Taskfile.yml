@@ -77,7 +77,7 @@ tasks:
         yarn.lock            → yarn add -D
         (fallback)           → npm install -D
     vars:
-      RESOLVED_VERSION: '{{default .TYPESCRIPT_VERSION .TYPESCRIPT_VERSION_OVERRIDE}}'
+      RESOLVED_VERSION: '{{.TYPESCRIPT_VERSION}}'
     status:
       - >-
         node -e "const installed = require('./node_modules/typescript/package.json');

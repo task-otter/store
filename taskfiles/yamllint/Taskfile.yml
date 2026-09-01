@@ -33,18 +33,11 @@ tasks:
       - task: nix:install:profile
         vars:
           NIX_INSTALLABLE: "{{.YAMLLINT_NIX_INSTALLABLE}}"
-    vars:
-      YAMLLINT_TARGETS: "."
-      YAMLLINT_CONFIG: ""
-      YAMLLINT_EXTRA_ARGS: ""
     cmds:
       - >-
-        bash -lc '{{.NIX_LOAD}}; yamllint --strict {{if
-        .YAMLLINT_CONFIG_OVERRIDE}}-c "{{.YAMLLINT_CONFIG_OVERRIDE}}" {{else if .YAMLLINT_CONFIG}}-c
-        "{{.YAMLLINT_CONFIG}}" {{end}} {{if
-        .YAMLLINT_TARGETS_OVERRIDE}}{{.YAMLLINT_TARGETS_OVERRIDE}}{{else if .YAMLLINT_TARGETS}}{{.YAMLLINT_TARGETS}}
-        {{else}}.{{end}} {{if
-        .YAMLLINT_EXTRA_ARGS_OVERRIDE}}{{.YAMLLINT_EXTRA_ARGS_OVERRIDE}} {{- else}}{{.YAMLLINT_EXTRA_ARGS}}{{end}}
+        bash -lc '{{.NIX_LOAD}}; yamllint --strict {{if .YAMLLINT_CONFIG}}-c
+        "{{.YAMLLINT_CONFIG}}" {{end}} {{if .YAMLLINT_TARGETS}}{{.YAMLLINT_TARGETS}}
+        {{else}}.{{end}} {{.YAMLLINT_EXTRA_ARGS}}
         && echo "✅ yamllint passed" || { echo "❌ yamllint failed"; exit 1; }'
   config:init:
     run: once

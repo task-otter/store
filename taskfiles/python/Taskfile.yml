@@ -89,7 +89,7 @@ tasks:
       vars:
         - PYTHON_FILE
     preconditions:
-      - sh: test -n "{{.PYTHON_FILE_OVERRIDE}}{{.PYTHON_FILE}}"
+      - sh: test -n "{{.PYTHON_FILE}}"
         msg: PYTHON_FILE is required. Pass PYTHON_FILE=path/to/script.py when running this task.
     cmds:
       - task: _run:unix
@@ -154,9 +154,9 @@ tasks:
     cmds:
       - >-
         bash -lc '{{.NIX_LOAD}};
-        python3 "{{if .PYTHON_FILE_OVERRIDE}}{{.PYTHON_FILE_OVERRIDE}}{{else}}{{.PYTHON_FILE}}{{end}}"
+        python3 "{{.PYTHON_FILE}}"
         {{.PYTHON_ARGS}}
-        {{if .PYTHON_EXTRA_ARGS_OVERRIDE}}{{.PYTHON_EXTRA_ARGS_OVERRIDE}}{{else}}{{.PYTHON_EXTRA_ARGS}}{{end}}'
+        {{.PYTHON_EXTRA_ARGS}}'
 
   _run:windows:
     run: once
@@ -164,6 +164,6 @@ tasks:
     platforms: [windows]
     cmds:
       - >-
-        python "{{if .PYTHON_FILE_OVERRIDE}}{{.PYTHON_FILE_OVERRIDE}}{{else}}{{.PYTHON_FILE}}{{end}}"
+        python "{{.PYTHON_FILE}}"
         {{.PYTHON_ARGS}}
-        {{if .PYTHON_EXTRA_ARGS_OVERRIDE}}{{.PYTHON_EXTRA_ARGS_OVERRIDE}}{{else}}{{.PYTHON_EXTRA_ARGS}}{{end}}
+        {{.PYTHON_EXTRA_ARGS}}

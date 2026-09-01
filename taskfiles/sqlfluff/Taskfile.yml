@@ -15,6 +15,10 @@ includes:
 
 vars:
   SQLFLUFF_NIX_INSTALLABLE: nixpkgs#sqlfluff
+  SQLFLUFF_TARGETS: "."
+  SQLFLUFF_CONFIG: ""
+  SQLFLUFF_DIALECT: ""
+  SQLFLUFF_EXTRA_ARGS: ""
 
 tasks:
   default:
@@ -26,99 +30,76 @@ tasks:
 
   ci:
     run: once
-    desc: Lint SQL files with sqlfluff (TARGETS=path)
+    desc: Lint SQL files with sqlfluff (SQLFLUFF_TARGETS=path)
     summary: |
-      Run sqlfluff lint against TARGETS (default .). Pass CONFIG to use a
-      custom config file via --config, DIALECT to override the SQL dialect,
-      and EXTRA_ARGS for additional flags. Auto-installs sqlfluff if missing.
+      Run sqlfluff lint against SQLFLUFF_TARGETS (default .). Pass
+      SQLFLUFF_CONFIG to use a custom config file via --config,
+      SQLFLUFF_DIALECT to set the SQL dialect, and SQLFLUFF_EXTRA_ARGS for
+      additional flags. Auto-installs sqlfluff if missing.
     deps:
       - task: nix:install:profile
         vars:
           NIX_INSTALLABLE: "{{.SQLFLUFF_NIX_INSTALLABLE}}"
     dir: "{{.USER_WORKING_DIR}}"
-    vars:
-      TARGETS: "."
-      CONFIG: ""
-      DIALECT: ""
-      EXTRA_ARGS: ""
     cmds:
       - >-
         bash -lc '{{.NIX_LOAD}};
         sqlfluff lint
         {{if .CLI_ARGS}}{{.CLI_ARGS}}
         {{else}}
-        {{if .DIALECT_OVERRIDE}}--dialect {{.DIALECT_OVERRIDE}}
-        {{else if .DIALECT}}--dialect {{.DIALECT}} {{end}}
-        {{if .TARGETS_OVERRIDE}}{{.TARGETS_OVERRIDE}}{{else}}{{.TARGETS}}{{end}}
-        {{if .EXTRA_ARGS_OVERRIDE}}{{.EXTRA_ARGS_OVERRIDE}}
-        {{- else}}{{.EXTRA_ARGS}}{{end}}{{end}}
-        {{if .CONFIG_OVERRIDE}}--config "{{.CONFIG_OVERRIDE}}"
-        {{else if .CONFIG}}--config "{{.CONFIG}}"{{end}}
+        {{if .SQLFLUFF_DIALECT}}--dialect {{.SQLFLUFF_DIALECT}} {{end}}
+        {{.SQLFLUFF_TARGETS}}
+        {{.SQLFLUFF_EXTRA_ARGS}}{{end}}
+        {{if .SQLFLUFF_CONFIG}}--config "{{.SQLFLUFF_CONFIG}}"{{end}}
         && echo "✅ sqlfluff passed" || { echo "❌ sqlfluff failed"; exit 1; }'
 
   ci:fix:
     run: once
-    desc: Auto-fix SQL files with sqlfluff (TARGETS=path)
+    desc: Auto-fix SQL files with sqlfluff (SQLFLUFF_TARGETS=path)
     summary: |
-      Run sqlfluff fix against TARGETS (default .) to automatically fix
-      lint violations. Pass CONFIG, DIALECT, and EXTRA_ARGS as needed.
-      Auto-installs sqlfluff if missing.
+      Run sqlfluff fix against SQLFLUFF_TARGETS (default .) to automatically
+      fix lint violations. Pass SQLFLUFF_CONFIG, SQLFLUFF_DIALECT, and
+      SQLFLUFF_EXTRA_ARGS as needed. Auto-installs sqlfluff if missing.
     deps:
       - task: nix:install:profile
         vars:
           NIX_INSTALLABLE: "{{.SQLFLUFF_NIX_INSTALLABLE}}"
     dir: "{{.USER_WORKING_DIR}}"
-    vars:
-      TARGETS: "."
-      CONFIG: ""
-      DIALECT: ""
-      EXTRA_ARGS: ""
     cmds:
       - >-
         bash -lc '{{.NIX_LOAD}};
         sqlfluff fix
         {{if .CLI_ARGS}}{{.CLI_ARGS}}
         {{else}}
-        {{if .DIALECT_OVERRIDE}}--dialect {{.DIALECT_OVERRIDE}}
-        {{else if .DIALECT}}--dialect {{.DIALECT}} {{end}}
-        {{if .TARGETS_OVERRIDE}}{{.TARGETS_OVERRIDE}}{{else}}{{.TARGETS}}{{end}}
-        {{if .EXTRA_ARGS_OVERRIDE}}{{.EXTRA_ARGS_OVERRIDE}}
-        {{- else}}{{.EXTRA_ARGS}}{{end}}{{end}}
-        {{if .CONFIG_OVERRIDE}}--config "{{.CONFIG_OVERRIDE}}"
-        {{else if .CONFIG}}--config "{{.CONFIG}}"{{end}}
+        {{if .SQLFLUFF_DIALECT}}--dialect {{.SQLFLUFF_DIALECT}} {{end}}
+        {{.SQLFLUFF_TARGETS}}
+        {{.SQLFLUFF_EXTRA_ARGS}}{{end}}
+        {{if .SQLFLUFF_CONFIG}}--config "{{.SQLFLUFF_CONFIG}}"{{end}}
         && echo "✅ sqlfluff fixes applied"'
 
   parse:
     run: once
-    desc: Parse SQL files and print the parse tree (TARGETS=path)
+    desc: Parse SQL files and print the parse tree (SQLFLUFF_TARGETS=path)
     summary: |
-      Run sqlfluff parse against TARGETS (default .) and print the parse
-      tree. Useful for debugging dialect issues or understanding how sqlfluff
-      interprets a query. Pass CONFIG, DIALECT, and EXTRA_ARGS as needed.
-      Auto-installs sqlfluff if missing.
+      Run sqlfluff parse against SQLFLUFF_TARGETS (default .) and print the
+      parse tree. Useful for debugging dialect issues or understanding how
+      sqlfluff interprets a query. Pass SQLFLUFF_CONFIG, SQLFLUFF_DIALECT, and
+      SQLFLUFF_EXTRA_ARGS as needed. Auto-installs sqlfluff if missing.
     deps:
       - task: nix:install:profile
         vars:
           NIX_INSTALLABLE: "{{.SQLFLUFF_NIX_INSTALLABLE}}"
     dir: "{{.USER_WORKING_DIR}}"
-    vars:
-      TARGETS: "."
-      CONFIG: ""
-      DIALECT: ""
-      EXTRA_ARGS: ""
     cmds:
       - >-
         bash -lc '{{.NIX_LOAD}};
         sqlfluff parse
         {{if .CLI_ARGS}}{{.CLI_ARGS}}
         {{else}}
-        {{if .DIALECT_OVERRIDE}}--dialect {{.DIALECT_OVERRIDE}}
-        {{else if .DIALECT}}--dialect {{.DIALECT}} {{end}}
-        {{if .TARGETS_OVERRIDE}}{{.TARGETS_OVERRIDE}}{{else}}{{.TARGETS}}{{end}}
-        {{if .EXTRA_ARGS_OVERRIDE}}{{.EXTRA_ARGS_OVERRIDE}}
-        {{- else}}{{.EXTRA_ARGS}}{{end}}{{end}}
-        {{if .CONFIG_OVERRIDE}}--config "{{.CONFIG_OVERRIDE}}"
-        {{else if .CONFIG}}--config "{{.CONFIG}}"{{end}}'
+        {{if .SQLFLUFF_DIALECT}}--dialect {{.SQLFLUFF_DIALECT}} {{end}}
+        {{.SQLFLUFF_TARGETS}}
+        {{.SQLFLUFF_EXTRA_ARGS}}{{end}}
+        {{if .SQLFLUFF_CONFIG}}--config "{{.SQLFLUFF_CONFIG}}"{{end}}'
 
   config:init:
     run: once

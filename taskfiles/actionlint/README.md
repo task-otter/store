@@ -28,9 +28,6 @@ task nix:install:profile NIX_INSTALLABLE=nixpkgs#actionlint
 includes:
   actionlint:
     taskfile: taskfiles/actionlint/Taskfile.yml
-    vars:
-      ACTIONLINT_TARGETS_OVERRIDE: "{{.ACTIONLINT_TARGETS}}"
-      ACTIONLINT_EXTRA_ARGS_OVERRIDE: "{{.ACTIONLINT_EXTRA_ARGS}}"
 ```
 
 Then run:

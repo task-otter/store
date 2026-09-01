@@ -27,9 +27,6 @@ task nix:install:profile NIX_INSTALLABLE=nixpkgs#shfmt
 includes:
   shfmt:
     taskfile: taskfiles/shfmt/Taskfile.yml
-    vars:
-      SHFMT_TARGETS_OVERRIDE: "{{.SHFMT_TARGETS}}"
-      SHFMT_EXTRA_ARGS_OVERRIDE: "{{.SHFMT_EXTRA_ARGS}}"
 ```
 
 Then run:

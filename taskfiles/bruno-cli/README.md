@@ -29,10 +29,6 @@ task nix:install:profile NIX_INSTALLABLE=nixpkgs#bruno-cli
 includes:
   bruno-cli:
     taskfile: taskfiles/bruno-cli/Taskfile.yml
-    vars:
-      BRUNO_CLI_COLLECTION_OVERRIDE: "{{.BRUNO_CLI_COLLECTION}}"
-      BRUNO_CLI_ENV_OVERRIDE: "{{.BRUNO_CLI_ENV}}"
-      BRUNO_CLI_EXTRA_ARGS_OVERRIDE: "{{.BRUNO_CLI_EXTRA_ARGS}}"
 ```
 
 Then run:

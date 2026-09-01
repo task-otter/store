@@ -17,7 +17,7 @@ includes:
 
 vars:
   VAULT_ADDR: "http://127.0.0.1:8200"
-  VAULT_ADDR_TARGET: "{{if .VAULT_ADDR_OVERRIDE}}{{.VAULT_ADDR_OVERRIDE}}{{else}}{{.VAULT_ADDR}}{{end}}"
+  VAULT_ADDR_TARGET: "{{.VAULT_ADDR}}"
   VAULT_KEYS_FILE: .vault-init-keys.json
   VAULT_SHARES: 5
   VAULT_THRESHOLD: 3
@@ -121,10 +121,10 @@ tasks:
       Auto-installs the CLI if missing.
     set: [errexit, nounset, pipefail]
     preconditions:
-      - sh: test ! -e "{{if .VAULT_KEYS_FILE_OVERRIDE}}{{.VAULT_KEYS_FILE_OVERRIDE}}{{else}}{{.VAULT_KEYS_FILE}}{{end}}"
+      - sh: test ! -e "{{.VAULT_KEYS_FILE}}"
         msg: >-
           KEYS_FILE already exists:
-          {{if .VAULT_KEYS_FILE_OVERRIDE}}{{.VAULT_KEYS_FILE_OVERRIDE}}{{else}}{{.VAULT_KEYS_FILE}}{{end}}.
+          {{.VAULT_KEYS_FILE}}.
           Move or remove it before running init again.
     cmds:
       - task: nix:install:profile
@@ -132,7 +132,7 @@ tasks:
           NIX_INSTALLABLE: "{{.VAULT_NIX_INSTALLABLE}}"
       - |
         {{.NIX_LOAD}}
-        KF="{{if .VAULT_KEYS_FILE_OVERRIDE}}{{.VAULT_KEYS_FILE_OVERRIDE}}{{else}}{{.VAULT_KEYS_FILE}}{{end}}"
+        KF="{{.VAULT_KEYS_FILE}}"
         TMP="${KF}.tmp.$$"
         trap 'rm -f "$TMP"' EXIT
         if [ -e "$KF" ]; then
@@ -141,9 +141,8 @@ tasks:
         fi
         vault operator init \
           -address="{{.VAULT_ADDR_TARGET}}" \
-          -key-shares={{if .VAULT_SHARES_OVERRIDE}}{{.VAULT_SHARES_OVERRIDE}}{{else}}{{.VAULT_SHARES}}{{end}} \
-          -key-threshold={{if .VAULT_THRESHOLD_OVERRIDE}}{{.VAULT_THRESHOLD_OVERRIDE}}
-          {{- else}}{{.VAULT_THRESHOLD}}{{end}} \
+          -key-shares={{.VAULT_SHARES}} \
+          -key-threshold={{.VAULT_THRESHOLD}} \
           -format=json > "$TMP"
         chmod 600 "$TMP"
         mv "$TMP" "$KF"
@@ -160,10 +159,10 @@ tasks:
       Auto-installs the CLI if missing.
     set: [errexit, nounset, pipefail]
     preconditions:
-      - sh: test -f "{{if .VAULT_KEYS_FILE_OVERRIDE}}{{.VAULT_KEYS_FILE_OVERRIDE}}{{else}}{{.VAULT_KEYS_FILE}}{{end}}"
+      - sh: test -f "{{.VAULT_KEYS_FILE}}"
         msg: >-
           KEYS_FILE not found. Run task init first to generate
-          {{if .VAULT_KEYS_FILE_OVERRIDE}}{{.VAULT_KEYS_FILE_OVERRIDE}}{{else}}{{.VAULT_KEYS_FILE}}{{end}}.
+          {{.VAULT_KEYS_FILE}}.
     cmds:
       - task: jq:nix:install:profile
         vars:
@@ -173,10 +172,8 @@ tasks:
           NIX_INSTALLABLE: "{{.VAULT_NIX_INSTALLABLE}}"
       - |
         {{.NIX_LOAD}}
-        VAULT_KEYS_FILE="{{if .VAULT_KEYS_FILE_OVERRIDE}}{{.VAULT_KEYS_FILE_OVERRIDE}}
-        {{- else}}{{.VAULT_KEYS_FILE}}{{end}}"
-        VAULT_THRESHOLD="{{if .VAULT_THRESHOLD_OVERRIDE}}{{.VAULT_THRESHOLD_OVERRIDE}}
-        {{- else}}{{.VAULT_THRESHOLD}}{{end}}"
+        VAULT_KEYS_FILE="{{.VAULT_KEYS_FILE}}"
+        VAULT_THRESHOLD="{{.VAULT_THRESHOLD}}"
         for key in $(jq -r ".unseal_keys_b64[0:${THRESHOLD}][]" "$KEYS_FILE"); do
           vault operator unseal -address="{{.VAULT_ADDR_TARGET}}" "$key"
         done
@@ -209,10 +206,10 @@ tasks:
       Auto-installs the CLI if missing.
     set: [errexit, nounset, pipefail]
     preconditions:
-      - sh: test -f "{{if .VAULT_KEYS_FILE_OVERRIDE}}{{.VAULT_KEYS_FILE_OVERRIDE}}{{else}}{{.VAULT_KEYS_FILE}}{{end}}"
+      - sh: test -f "{{.VAULT_KEYS_FILE}}"
         msg: >-
           KEYS_FILE not found. Run task init first to generate
-          {{if .VAULT_KEYS_FILE_OVERRIDE}}{{.VAULT_KEYS_FILE_OVERRIDE}}{{else}}{{.VAULT_KEYS_FILE}}{{end}}.
+          {{.VAULT_KEYS_FILE}}.
     cmds:
       - task: jq:nix:install:profile
         vars:
@@ -222,7 +219,7 @@ tasks:
           NIX_INSTALLABLE: "{{.VAULT_NIX_INSTALLABLE}}"
       - |
         {{.NIX_LOAD}}
-        KF="{{if .VAULT_KEYS_FILE_OVERRIDE}}{{.VAULT_KEYS_FILE_OVERRIDE}}{{else}}{{.VAULT_KEYS_FILE}}{{end}}"
+        KF="{{.VAULT_KEYS_FILE}}"
         jq -r '.root_token' "$KF" \
           | vault login -address="{{.VAULT_ADDR_TARGET}}" -method=token -no-print -
 
@@ -239,8 +236,7 @@ tasks:
     set: [errexit, nounset, pipefail]
     env:
       VAULT_LOGIN_ROOT_TOKEN: >-
-        {{if .VAULT_ROOT_TOKEN_OVERRIDE}}{{.VAULT_ROOT_TOKEN_OVERRIDE}}
-        {{- else}}{{.VAULT_ROOT_TOKEN}}{{end}}
+        {{.VAULT_ROOT_TOKEN}}
     preconditions:
       - sh: test -n "$VAULT_LOGIN_ROOT_TOKEN"
         msg: ROOT_TOKEN must be set. Pass VAULT_ROOT_TOKEN=<token> on the command line.
@@ -265,13 +261,11 @@ tasks:
       Auto-installs the CLI if missing.
     set: [errexit, nounset, pipefail]
     env:
-      VAULT_LOGIN_ROLE_ID: "{{if .VAULT_ROLE_ID_OVERRIDE}}{{.VAULT_ROLE_ID_OVERRIDE}}{{else}}{{.VAULT_ROLE_ID}}{{end}}"
+      VAULT_LOGIN_ROLE_ID: "{{.VAULT_ROLE_ID}}"
       VAULT_LOGIN_SECRET_ID: >-
-        {{if .VAULT_SECRET_ID_OVERRIDE}}{{.VAULT_SECRET_ID_OVERRIDE}}
-        {{- else}}{{.VAULT_SECRET_ID}}{{end}}
+        {{.VAULT_SECRET_ID}}
       VAULT_LOGIN_APPROLE_MOUNT: >-
-        {{if .VAULT_APPROLE_MOUNT_OVERRIDE}}{{.VAULT_APPROLE_MOUNT_OVERRIDE}}
-        {{- else}}{{.VAULT_APPROLE_MOUNT}}{{end}}
+        {{.VAULT_APPROLE_MOUNT}}
     preconditions:
       - sh: test -n "$VAULT_LOGIN_ROLE_ID"
         msg: ROLE_ID must be set. Pass VAULT_ROLE_ID=<role-id> on the command line.
@@ -307,13 +301,11 @@ tasks:
       Auto-installs the CLI if missing.
     set: [errexit, nounset, pipefail]
     env:
-      VAULT_LOGIN_ROLE_ID: "{{if .VAULT_ROLE_ID_OVERRIDE}}{{.VAULT_ROLE_ID_OVERRIDE}}{{else}}{{.VAULT_ROLE_ID}}{{end}}"
+      VAULT_LOGIN_ROLE_ID: "{{.VAULT_ROLE_ID}}"
       VAULT_LOGIN_SECRET_ID: >-
-        {{if .VAULT_SECRET_ID_OVERRIDE}}{{.VAULT_SECRET_ID_OVERRIDE}}
-        {{- else}}{{.VAULT_SECRET_ID}}{{end}}
+        {{.VAULT_SECRET_ID}}
       VAULT_LOGIN_APPROLE_MOUNT: >-
-        {{if .VAULT_APPROLE_MOUNT_OVERRIDE}}{{.VAULT_APPROLE_MOUNT_OVERRIDE}}
-        {{- else}}{{.VAULT_APPROLE_MOUNT}}{{end}}
+        {{.VAULT_APPROLE_MOUNT}}
     preconditions:
       - sh: test -n "$VAULT_LOGIN_ROLE_ID"
         msg: ROLE_ID must be set. Pass VAULT_ROLE_ID=<role-id> on the command line.
@@ -353,9 +345,9 @@ tasks:
       SECRET_PATH: ""
       SECRET_VERSION: ""
     env:
-      KV_GET_MOUNT: "{{if .KV_MOUNT_OVERRIDE}}{{.KV_MOUNT_OVERRIDE}}{{else}}{{.KV_MOUNT}}{{end}}"
-      KV_GET_PATH: "{{if .SECRET_PATH_OVERRIDE}}{{.SECRET_PATH_OVERRIDE}}{{else}}{{.SECRET_PATH}}{{end}}"
-      KV_GET_VERSION: "{{if .SECRET_VERSION_OVERRIDE}}{{.SECRET_VERSION_OVERRIDE}}{{else}}{{.SECRET_VERSION}}{{end}}"
+      KV_GET_MOUNT: "{{.KV_MOUNT}}"
+      KV_GET_PATH: "{{.SECRET_PATH}}"
+      KV_GET_VERSION: "{{.SECRET_VERSION}}"
       VAULT_ADDR: "{{.VAULT_ADDR_TARGET}}"
     preconditions:
       - sh: test -n "$KV_GET_MOUNT"
@@ -413,21 +405,19 @@ tasks:
         vars:
           NIX_INSTALLABLE: "{{.JQ_NIX_INSTALLABLE}}"
     preconditions:
-      - sh: test -f "{{if .VAULT_KEYS_FILE_OVERRIDE}}{{.VAULT_KEYS_FILE_OVERRIDE}}{{else}}{{.VAULT_KEYS_FILE}}{{end}}"
+      - sh: test -f "{{.VAULT_KEYS_FILE}}"
         msg: >-
           KEYS_FILE not found. Run task init first to generate
-          {{if .VAULT_KEYS_FILE_OVERRIDE}}{{.VAULT_KEYS_FILE_OVERRIDE}}{{else}}{{.VAULT_KEYS_FILE}}{{end}}.
+          {{.VAULT_KEYS_FILE}}.
     cmds:
       - cmd: >-
           {{.NIX_LOAD}};
           jq -r '.root_token'
-          "{{if .VAULT_KEYS_FILE_OVERRIDE}}{{.VAULT_KEYS_FILE_OVERRIDE}}
-          {{- else}}{{.VAULT_KEYS_FILE}}{{end}}"
+          "{{.VAULT_KEYS_FILE}}"
         platforms: [linux, darwin]
       - cmd: >-
           jq -r '.root_token'
-          "{{if .VAULT_KEYS_FILE_OVERRIDE}}{{.VAULT_KEYS_FILE_OVERRIDE}}
-          {{- else}}{{.VAULT_KEYS_FILE}}{{end}}"
+          "{{.VAULT_KEYS_FILE}}"
         platforms: [windows]
 
   peers:
@@ -458,11 +448,8 @@ tasks:
       Auto-installs the CLI if missing.
     vars:
       FILE_TARGET: >-
-        {{if .VAULT_FILE_OVERRIDE}}{{.VAULT_FILE_OVERRIDE -}}
-        {{- else if .VAULT_FILE_OVERRIDE}}{{.VAULT_FILE_OVERRIDE -}}
-        {{- else if .VAULT_FILE}}{{.VAULT_FILE -}}
-        {{- else if .VAULT_SNAPSHOT_FILE_OVERRIDE}}{{.VAULT_SNAPSHOT_FILE_OVERRIDE -}}
-        {{- else}}{{.VAULT_SNAPSHOT_FILE}}{{end}}
+        {{if .VAULT_FILE}}{{.VAULT_FILE -}}
+        {{else}}{{.VAULT_SNAPSHOT_FILE}}{{end}}
     deps:
       - task: nix:install:profile
         vars:
@@ -487,11 +474,8 @@ tasks:
       Auto-installs the CLI if missing.
     vars:
       FILE_TARGET: >-
-        {{if .VAULT_FILE_OVERRIDE}}{{.VAULT_FILE_OVERRIDE -}}
-        {{- else if .VAULT_FILE_OVERRIDE}}{{.VAULT_FILE_OVERRIDE -}}
-        {{- else if .VAULT_FILE}}{{.VAULT_FILE -}}
-        {{- else if .VAULT_SNAPSHOT_FILE_OVERRIDE}}{{.VAULT_SNAPSHOT_FILE_OVERRIDE -}}
-        {{- else}}{{.VAULT_SNAPSHOT_FILE}}{{end}}
+        {{if .VAULT_FILE}}{{.VAULT_FILE -}}
+        {{else}}{{.VAULT_SNAPSHOT_FILE}}{{end}}
     prompt:
       - This will overwrite the current Vault state with the snapshot.
       - Continue?

@@ -102,10 +102,8 @@ tasks:
       - |
         bash -lc '{{.NIX_LOAD}};
         protolint lint {{.PROTOLINT_FIX_FLAG}} \
-          {{if .PROTOLINT_EXTRA_ARGS_OVERRIDE}}{{.PROTOLINT_EXTRA_ARGS_OVERRIDE}}
-          {{- else}}{{.PROTOLINT_EXTRA_ARGS}}{{end}} \
-          "{{if .PROTOLINT_TARGETS_OVERRIDE}}{{.PROTOLINT_TARGETS_OVERRIDE}}
-          {{- else}}{{.PROTOLINT_TARGETS}}{{end}}"'
+          {{.PROTOLINT_EXTRA_ARGS}} \
+          "{{.PROTOLINT_TARGETS}}"'
 
   _lint:run:windows:
     run: once
@@ -114,9 +112,7 @@ tasks:
     cmds:
       - >-
         powershell -NoProfile -ExecutionPolicy Bypass -Command
-        "$target='{{if .PROTOLINT_TARGETS_OVERRIDE}}{{.PROTOLINT_TARGETS_OVERRIDE}}
-        {{- else}}{{.PROTOLINT_TARGETS}}{{end}}';
+        "$target='{{.PROTOLINT_TARGETS}}';
         protolint lint {{.PROTOLINT_FIX_FLAG}}
-          {{if .PROTOLINT_EXTRA_ARGS_OVERRIDE}}{{.PROTOLINT_EXTRA_ARGS_OVERRIDE}}
-          {{- else}}{{.PROTOLINT_EXTRA_ARGS}}{{end}} $target;
+          {{.PROTOLINT_EXTRA_ARGS}} $target;
         exit $LASTEXITCODE"

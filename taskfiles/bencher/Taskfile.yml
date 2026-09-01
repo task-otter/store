@@ -42,13 +42,11 @@ tasks:
       - cmd: >-
           bash -lc '{{.NIX_LOAD}};
           bencher run
-          {{if .CLI_ARGS}}{{.CLI_ARGS}}{{else}}{{if .BENCHER_EXTRA_ARGS_OVERRIDE}}{{.BENCHER_EXTRA_ARGS_OVERRIDE}}
-          {{- else}}{{.BENCHER_EXTRA_ARGS}}{{end}}{{end}}'
+          {{if .CLI_ARGS}}{{.CLI_ARGS}}{{else}}{{.BENCHER_EXTRA_ARGS}}{{end}}'
         platforms: [linux, darwin]
       - cmd: >-
           bencher run
-          {{if .CLI_ARGS}}{{.CLI_ARGS}}{{else}}{{if .BENCHER_EXTRA_ARGS_OVERRIDE}}{{.BENCHER_EXTRA_ARGS_OVERRIDE}}
-          {{- else}}{{.BENCHER_EXTRA_ARGS}}{{end}}{{end}}
+          {{if .CLI_ARGS}}{{.CLI_ARGS}}{{else}}{{.BENCHER_EXTRA_ARGS}}{{end}}
         platforms: [windows]
 
   exec:
@@ -67,11 +65,9 @@ tasks:
       - cmd: >-
           bash -lc '{{.NIX_LOAD}};
           bencher
-          {{if .CLI_ARGS}}{{.CLI_ARGS}}{{else}}{{if .BENCHER_EXTRA_ARGS_OVERRIDE}}{{.BENCHER_EXTRA_ARGS_OVERRIDE}}
-          {{- else}}{{.BENCHER_EXTRA_ARGS}}{{end}}{{end}}'
+          {{if .CLI_ARGS}}{{.CLI_ARGS}}{{else}}{{.BENCHER_EXTRA_ARGS}}{{end}}'
         platforms: [linux, darwin]
       - cmd: >-
           bencher
-          {{if .CLI_ARGS}}{{.CLI_ARGS}}{{else}}{{if .BENCHER_EXTRA_ARGS_OVERRIDE}}{{.BENCHER_EXTRA_ARGS_OVERRIDE}}
-          {{- else}}{{.BENCHER_EXTRA_ARGS}}{{end}}{{end}}
+          {{if .CLI_ARGS}}{{.CLI_ARGS}}{{else}}{{.BENCHER_EXTRA_ARGS}}{{end}}
         platforms: [windows]

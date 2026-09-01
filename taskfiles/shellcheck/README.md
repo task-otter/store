@@ -28,9 +28,6 @@ task nix:install:profile NIX_INSTALLABLE=nixpkgs#shellcheck
 includes:
   shellcheck:
     taskfile: taskfiles/shellcheck/Taskfile.yml
-    vars:
-      SHELLCHECK_TARGETS_OVERRIDE: "{{.SHELLCHECK_TARGETS}}"
-      SHELLCHECK_EXTRA_ARGS_OVERRIDE: "{{.SHELLCHECK_EXTRA_ARGS}}"
 ```
 
 Then run:

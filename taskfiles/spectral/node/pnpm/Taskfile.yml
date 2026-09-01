@@ -35,7 +35,7 @@ tasks:
       SPECTRAL_VERSION=x.y.z to pin a specific release instead of the package
       manager's default resolution.
     vars:
-      RESOLVED_VERSION: '{{default .SPECTRAL_VERSION .SPECTRAL_VERSION_OVERRIDE}}'
+      RESOLVED_VERSION: '{{.SPECTRAL_VERSION}}'
     status:
       - >-
         node -e "const installed = require('./node_modules/@stoplight/spectral-cli/package.json');
@@ -47,7 +47,7 @@ tasks:
           PACKAGES: >-
             @stoplight/spectral-cli{{if .RESOLVED_VERSION}}@{{.RESOLVED_VERSION}}{{end}}
           EXTRA_ARGS: >-
-            {{default .SPECTRAL_EXTRA_ARGS .SPECTRAL_EXTRA_ARGS_OVERRIDE}}{{if .CLI_ARGS}} {{.CLI_ARGS}}{{end}}
+            {{.SPECTRAL_EXTRA_ARGS}}{{if .CLI_ARGS}} {{.CLI_ARGS}}{{end}}
 
   install:undo:
     run: once
@@ -60,7 +60,7 @@ tasks:
       - task: pnpm:remove
         vars:
           PACKAGES: "@stoplight/spectral-cli"
-          EXTRA_ARGS: '{{default .SPECTRAL_EXTRA_ARGS .SPECTRAL_EXTRA_ARGS_OVERRIDE}}'
+          EXTRA_ARGS: '{{.SPECTRAL_EXTRA_ARGS}}'
 
   upgrade:
     run: once
@@ -70,7 +70,7 @@ tasks:
       - task: pnpm:add
         vars:
           PACKAGES: "@stoplight/spectral-cli@latest"
-          EXTRA_ARGS: '{{default .SPECTRAL_EXTRA_ARGS .SPECTRAL_EXTRA_ARGS_OVERRIDE}}'
+          EXTRA_ARGS: '{{.SPECTRAL_EXTRA_ARGS}}'
 
   config:init:
     run: once
@@ -97,8 +97,8 @@ tasks:
     deps:
       - task: install
     vars:
-      RESOLVED_TARGETS: '{{default .SPECTRAL_TARGETS .SPECTRAL_TARGETS_OVERRIDE}}'
-      RESOLVED_RULESET: '{{default .SPECTRAL_RULESET .SPECTRAL_RULESET_OVERRIDE}}'
+      RESOLVED_TARGETS: '{{.SPECTRAL_TARGETS}}'
+      RESOLVED_RULESET: '{{.SPECTRAL_RULESET}}'
     cmds:
       - task: pnpm:exec
         vars:
@@ -107,7 +107,7 @@ tasks:
             lint {{.RESOLVED_TARGETS}}
             {{- if .RESOLVED_RULESET}} --ruleset "{{.RESOLVED_RULESET}}"{{end}}
           EXTRA_ARGS: >-
-            {{default .SPECTRAL_EXTRA_ARGS .SPECTRAL_EXTRA_ARGS_OVERRIDE}}{{if .CLI_ARGS}} {{.CLI_ARGS}}{{end}}
+            {{.SPECTRAL_EXTRA_ARGS}}{{if .CLI_ARGS}} {{.CLI_ARGS}}{{end}}
       - echo "✅ spectral passed"
 
   help:

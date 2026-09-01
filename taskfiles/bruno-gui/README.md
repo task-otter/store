@@ -28,9 +28,6 @@ task nix:install:profile NIX_INSTALLABLE=nixpkgs#bruno
 includes:
   bruno-gui:
     taskfile: taskfiles/bruno-gui/Taskfile.yml
-    vars:
-      BRUNO_GUI_COLLECTION_OVERRIDE: "{{.BRUNO_GUI_COLLECTION}}"
-      BRUNO_GUI_EXTRA_ARGS_OVERRIDE: "{{.BRUNO_GUI_EXTRA_ARGS}}"
 ```
 
 Then run:

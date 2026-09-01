@@ -41,18 +41,18 @@ tasks:
         const requested = '{{.RESOLVED_VERSION}}';
         process.exit(!requested || installed.version === requested ? 0 : 1)"
     vars:
-      RESOLVED_VERSION: '{{default .BIOME_VERSION .BIOME_VERSION_OVERRIDE}}'
+      RESOLVED_VERSION: '{{.BIOME_VERSION}}'
     cmds:
       - task: _bun:unix
         vars:
           ARGS: >-
             add -d --silent @biomejs/biome{{if .RESOLVED_VERSION}}@{{.RESOLVED_VERSION}}{{end}}
-            {{default .BIOME_EXTRA_ARGS .BIOME_EXTRA_ARGS_OVERRIDE}}{{if .CLI_ARGS}} {{.CLI_ARGS}}{{end}}
+            {{.BIOME_EXTRA_ARGS}}{{if .CLI_ARGS}} {{.CLI_ARGS}}{{end}}
       - task: _bun:windows
         vars:
           ARGS: >-
             add -d --silent @biomejs/biome{{if .RESOLVED_VERSION}}@{{.RESOLVED_VERSION}}{{end}}
-            {{default .BIOME_EXTRA_ARGS .BIOME_EXTRA_ARGS_OVERRIDE}}{{if .CLI_ARGS}} {{.CLI_ARGS}}{{end}}
+            {{.BIOME_EXTRA_ARGS}}{{if .CLI_ARGS}} {{.CLI_ARGS}}{{end}}
 
   install:undo:
     run: once
@@ -64,10 +64,10 @@ tasks:
     cmds:
       - task: _bun:unix
         vars:
-          ARGS: remove --silent @biomejs/biome {{default .BIOME_EXTRA_ARGS .BIOME_EXTRA_ARGS_OVERRIDE}}
+          ARGS: remove --silent @biomejs/biome {{.BIOME_EXTRA_ARGS}}
       - task: _bun:windows
         vars:
-          ARGS: remove --silent @biomejs/biome {{default .BIOME_EXTRA_ARGS .BIOME_EXTRA_ARGS_OVERRIDE}}
+          ARGS: remove --silent @biomejs/biome {{.BIOME_EXTRA_ARGS}}
 
   upgrade:
     run: once
@@ -78,12 +78,12 @@ tasks:
         vars:
           ARGS: >-
             add -d --silent @biomejs/biome@latest
-            {{default .BIOME_EXTRA_ARGS .BIOME_EXTRA_ARGS_OVERRIDE}}
+            {{.BIOME_EXTRA_ARGS}}
       - task: _bun:windows
         vars:
           ARGS: >-
             add -d --silent @biomejs/biome@latest
-            {{default .BIOME_EXTRA_ARGS .BIOME_EXTRA_ARGS_OVERRIDE}}
+            {{.BIOME_EXTRA_ARGS}}
 
   config:init:
     run: once
@@ -99,20 +99,20 @@ tasks:
         vars:
           ARGS: >-
             x biome init
-            {{default .BIOME_EXTRA_ARGS .BIOME_EXTRA_ARGS_OVERRIDE}}{{if .CLI_ARGS}} {{.CLI_ARGS}}{{end}}
+            {{.BIOME_EXTRA_ARGS}}{{if .CLI_ARGS}} {{.CLI_ARGS}}{{end}}
       - task: _bun:windows
         vars:
           ARGS: >-
             x biome init
-            {{default .BIOME_EXTRA_ARGS .BIOME_EXTRA_ARGS_OVERRIDE}}{{if .CLI_ARGS}} {{.CLI_ARGS}}{{end}}
+            {{.BIOME_EXTRA_ARGS}}{{if .CLI_ARGS}} {{.CLI_ARGS}}{{end}}
 
   # Shared implementation of lint / lint:fix / fmt / fmt:check / ci.
   _run:
     internal: true
     run: when_changed
     vars:
-      RESOLVED_CONFIG: '{{default .BIOME_CONFIG .BIOME_CONFIG_OVERRIDE}}'
-      RESOLVED_TARGETS: '{{or .BIOME_TARGETS_OVERRIDE .BIOME_TARGETS .BIOME_DEFAULT_TARGETS}}'
+      RESOLVED_CONFIG: '{{.BIOME_CONFIG}}'
+      RESOLVED_TARGETS: '{{or .BIOME_TARGETS .BIOME_DEFAULT_TARGETS}}'
     cmds:
       - task: _bun:unix
         vars:
@@ -121,7 +121,7 @@ tasks:
             {{.SUBCMD}}
             {{- if .RESOLVED_CONFIG}} --config-path "{{.RESOLVED_CONFIG}}"{{end}}
             {{- if .RESOLVED_TARGETS}} {{.RESOLVED_TARGETS}}{{end}}
-            {{default .BIOME_EXTRA_ARGS .BIOME_EXTRA_ARGS_OVERRIDE}}{{if .CLI_ARGS}} {{.CLI_ARGS}}{{end}}
+            {{.BIOME_EXTRA_ARGS}}{{if .CLI_ARGS}} {{.CLI_ARGS}}{{end}}
       - task: _bun:windows
         vars:
           ARGS: >-
@@ -129,7 +129,7 @@ tasks:
             {{.SUBCMD}}
             {{- if .RESOLVED_CONFIG}} --config-path "{{.RESOLVED_CONFIG}}"{{end}}
             {{- if .RESOLVED_TARGETS}} {{.RESOLVED_TARGETS}}{{end}}
-            {{default .BIOME_EXTRA_ARGS .BIOME_EXTRA_ARGS_OVERRIDE}}{{if .CLI_ARGS}} {{.CLI_ARGS}}{{end}}
+            {{.BIOME_EXTRA_ARGS}}{{if .CLI_ARGS}} {{.CLI_ARGS}}{{end}}
 
   lint:
     run: once
@@ -209,12 +209,12 @@ tasks:
         vars:
           ARGS: >-
             x biome --help
-            {{default .BIOME_EXTRA_ARGS .BIOME_EXTRA_ARGS_OVERRIDE}}{{if .CLI_ARGS}} {{.CLI_ARGS}}{{end}}
+            {{.BIOME_EXTRA_ARGS}}{{if .CLI_ARGS}} {{.CLI_ARGS}}{{end}}
       - task: _bun:windows
         vars:
           ARGS: >-
             x biome --help
-            {{default .BIOME_EXTRA_ARGS .BIOME_EXTRA_ARGS_OVERRIDE}}{{if .CLI_ARGS}} {{.CLI_ARGS}}{{end}}
+            {{.BIOME_EXTRA_ARGS}}{{if .CLI_ARGS}} {{.CLI_ARGS}}{{end}}
 
   _bun:unix:
     run: when_changed

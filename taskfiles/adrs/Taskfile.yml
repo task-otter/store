@@ -41,13 +41,11 @@ tasks:
       - cmd: >-
           bash -lc '{{.NIX_LOAD}};
           adrs init
-          {{if .CLI_ARGS}}{{.CLI_ARGS}}{{else}}{{if .ADRS_EXTRA_ARGS_OVERRIDE}}{{.ADRS_EXTRA_ARGS_OVERRIDE}}
-          {{- else}}{{.ADRS_EXTRA_ARGS}}{{end}}{{end}}'
+          {{if .CLI_ARGS}}{{.CLI_ARGS}}{{else}}{{.ADRS_EXTRA_ARGS}}{{end}}'
         platforms: [linux, darwin]
       - cmd: >-
           powershell -NoProfile -ExecutionPolicy Bypass -Command
-          "adrs init {{if .CLI_ARGS}}{{.CLI_ARGS}}{{else}}{{if .ADRS_EXTRA_ARGS_OVERRIDE}}{{.ADRS_EXTRA_ARGS_OVERRIDE}}
-          {{- else}}{{.ADRS_EXTRA_ARGS}}{{end}}{{end}}"
+          "adrs init {{if .CLI_ARGS}}{{.CLI_ARGS}}{{else}}{{.ADRS_EXTRA_ARGS}}{{end}}"
         platforms: [windows]
 
   new:
@@ -65,13 +63,11 @@ tasks:
       - cmd: >-
           bash -lc '{{.NIX_LOAD}};
           adrs new
-          {{if .CLI_ARGS}}{{.CLI_ARGS}}{{else}}{{if .ADRS_EXTRA_ARGS_OVERRIDE}}{{.ADRS_EXTRA_ARGS_OVERRIDE}}
-          {{- else}}{{.ADRS_EXTRA_ARGS}}{{end}}{{end}}'
+          {{if .CLI_ARGS}}{{.CLI_ARGS}}{{else}}{{.ADRS_EXTRA_ARGS}}{{end}}'
         platforms: [linux, darwin]
       - cmd: >-
           powershell -NoProfile -ExecutionPolicy Bypass -Command
-          "adrs new {{if .CLI_ARGS}}{{.CLI_ARGS}}{{else}}{{if .ADRS_EXTRA_ARGS_OVERRIDE}}{{.ADRS_EXTRA_ARGS_OVERRIDE}}
-          {{- else}}{{.ADRS_EXTRA_ARGS}}{{end}}{{end}}"
+          "adrs new {{if .CLI_ARGS}}{{.CLI_ARGS}}{{else}}{{.ADRS_EXTRA_ARGS}}{{end}}"
         platforms: [windows]
 
   list:
@@ -90,13 +86,11 @@ tasks:
       - cmd: >-
           bash -lc '{{.NIX_LOAD}};
           adrs list
-          {{if .CLI_ARGS}}{{.CLI_ARGS}}{{else}}{{if .ADRS_EXTRA_ARGS_OVERRIDE}}{{.ADRS_EXTRA_ARGS_OVERRIDE}}
-          {{- else}}{{.ADRS_EXTRA_ARGS}}{{end}}{{end}}'
+          {{if .CLI_ARGS}}{{.CLI_ARGS}}{{else}}{{.ADRS_EXTRA_ARGS}}{{end}}'
         platforms: [linux, darwin]
       - cmd: >-
           powershell -NoProfile -ExecutionPolicy Bypass -Command
-          "adrs list {{if .CLI_ARGS}}{{.CLI_ARGS}}{{else}}{{if .ADRS_EXTRA_ARGS_OVERRIDE}}{{.ADRS_EXTRA_ARGS_OVERRIDE}}
-          {{- else}}{{.ADRS_EXTRA_ARGS}}{{end}}{{end}}"
+          "adrs list {{if .CLI_ARGS}}{{.CLI_ARGS}}{{else}}{{.ADRS_EXTRA_ARGS}}{{end}}"
         platforms: [windows]
 
   generate:
@@ -115,14 +109,11 @@ tasks:
       - cmd: >-
           bash -lc '{{.NIX_LOAD}};
           adrs generate
-          {{if .CLI_ARGS}}{{.CLI_ARGS}}{{else}}{{if .ADRS_EXTRA_ARGS_OVERRIDE}}{{.ADRS_EXTRA_ARGS_OVERRIDE}}
-          {{- else}}{{.ADRS_EXTRA_ARGS}}{{end}}{{end}}'
+          {{if .CLI_ARGS}}{{.CLI_ARGS}}{{else}}{{.ADRS_EXTRA_ARGS}}{{end}}'
         platforms: [linux, darwin]
       - cmd: >-
           powershell -NoProfile -ExecutionPolicy Bypass -Command
-          "adrs generate {{if .CLI_ARGS}}{{.CLI_ARGS}}{{else}}{{if
-          .ADRS_EXTRA_ARGS_OVERRIDE}}{{.ADRS_EXTRA_ARGS_OVERRIDE}}
-          {{- else}}{{.ADRS_EXTRA_ARGS}}{{end}}{{end}}"
+          "adrs generate {{if .CLI_ARGS}}{{.CLI_ARGS}}{{else}}{{.ADRS_EXTRA_ARGS}}{{end}}"
         platforms: [windows]
 
   exec:
@@ -140,11 +131,9 @@ tasks:
       - cmd: >-
           bash -lc '{{.NIX_LOAD}};
           adrs
-          {{if .CLI_ARGS}}{{.CLI_ARGS}}{{else}}{{if .ADRS_EXTRA_ARGS_OVERRIDE}}{{.ADRS_EXTRA_ARGS_OVERRIDE}}
-          {{- else}}{{.ADRS_EXTRA_ARGS}}{{end}}{{end}}'
+          {{if .CLI_ARGS}}{{.CLI_ARGS}}{{else}}{{.ADRS_EXTRA_ARGS}}{{end}}'
         platforms: [linux, darwin]
       - cmd: >-
           powershell -NoProfile -ExecutionPolicy Bypass -Command
-          "adrs {{if .CLI_ARGS}}{{.CLI_ARGS}}{{else}}{{if .ADRS_EXTRA_ARGS_OVERRIDE}}{{.ADRS_EXTRA_ARGS_OVERRIDE}}
-          {{- else}}{{.ADRS_EXTRA_ARGS}}{{end}}{{end}}"
+          "adrs {{if .CLI_ARGS}}{{.CLI_ARGS}}{{else}}{{.ADRS_EXTRA_ARGS}}{{end}}"
         platforms: [windows]

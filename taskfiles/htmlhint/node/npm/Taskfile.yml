@@ -34,7 +34,7 @@ tasks:
       Install htmlhint as a local devDependency. Pass HTMLHINT_VERSION=x.y.z to pin a
       specific release instead of the package manager's default resolution.
     vars:
-      RESOLVED_VERSION: '{{default .HTMLHINT_VERSION .HTMLHINT_VERSION_OVERRIDE}}'
+      RESOLVED_VERSION: '{{.HTMLHINT_VERSION}}'
     status:
       - >-
         node -e "const installed = require('./node_modules/htmlhint/package.json');
@@ -46,7 +46,7 @@ tasks:
           PACKAGES: >-
             htmlhint{{if .RESOLVED_VERSION}}@{{.RESOLVED_VERSION}}{{end}}
           EXTRA_ARGS: >-
-            {{default .HTMLHINT_EXTRA_ARGS .HTMLHINT_EXTRA_ARGS_OVERRIDE}}{{if .CLI_ARGS}} {{.CLI_ARGS}}{{end}}
+            {{.HTMLHINT_EXTRA_ARGS}}{{if .CLI_ARGS}} {{.CLI_ARGS}}{{end}}
 
   install:undo:
     run: once
@@ -59,7 +59,7 @@ tasks:
       - task: npm:remove
         vars:
           PACKAGES: htmlhint
-          EXTRA_ARGS: '{{default .HTMLHINT_EXTRA_ARGS .HTMLHINT_EXTRA_ARGS_OVERRIDE}}'
+          EXTRA_ARGS: '{{.HTMLHINT_EXTRA_ARGS}}'
 
   upgrade:
     run: once
@@ -69,7 +69,7 @@ tasks:
       - task: npm:add
         vars:
           PACKAGES: htmlhint@latest
-          EXTRA_ARGS: '{{default .HTMLHINT_EXTRA_ARGS .HTMLHINT_EXTRA_ARGS_OVERRIDE}}'
+          EXTRA_ARGS: '{{.HTMLHINT_EXTRA_ARGS}}'
 
   config:init:
     run: once
@@ -106,8 +106,8 @@ tasks:
     deps:
       - task: install
     vars:
-      RESOLVED_CONFIG: '{{default .HTMLHINT_CONFIG .HTMLHINT_CONFIG_OVERRIDE}}'
-      RESOLVED_TARGETS: '{{or .HTMLHINT_TARGETS_OVERRIDE .HTMLHINT_TARGETS "**/*.html"}}'
+      RESOLVED_CONFIG: '{{.HTMLHINT_CONFIG}}'
+      RESOLVED_TARGETS: '{{or .HTMLHINT_TARGETS "**/*.html"}}'
     cmds:
       - task: npm:exec
         vars:
@@ -116,7 +116,7 @@ tasks:
             {{if .RESOLVED_CONFIG}}--config "{{.RESOLVED_CONFIG}}" {{end}}
             {{- .RESOLVED_TARGETS}}
           EXTRA_ARGS: >-
-            {{default .HTMLHINT_EXTRA_ARGS .HTMLHINT_EXTRA_ARGS_OVERRIDE}}{{if .CLI_ARGS}} {{.CLI_ARGS}}{{end}}
+            {{.HTMLHINT_EXTRA_ARGS}}{{if .CLI_ARGS}} {{.CLI_ARGS}}{{end}}
       - echo "✅ htmlhint passed"
 
   help:
