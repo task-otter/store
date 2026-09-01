@@ -43,6 +43,8 @@ task bruno-gui:open BRUNO_GUI_COLLECTION=./api
 |---|---|
 | `open` | Launch the Bruno desktop app (returns immediately on Unix) |
 | `help` | Show Bruno desktop app help |
+| `install` | Install the Bruno desktop app via the Nix profile |
+| `version` | Show the active Bruno desktop app version |
 
 ## Variables
 

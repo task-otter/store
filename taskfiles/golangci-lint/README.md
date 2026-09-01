@@ -93,6 +93,8 @@ task golangci-lint:fmt -- ./internal/...
 | `ci:fix`      | Run `fmt` then `lint:fix` for CI |
 | `fmt`         | Format Go files with golangci-lint formatters            |
 | `fmt:check`   | Check Go formatting with golangci-lint formatters         |
+| `install` | Install golangci-lint via the Nix profile |
+| `version` | Show the active golangci-lint version |
 
 ## Variables
 

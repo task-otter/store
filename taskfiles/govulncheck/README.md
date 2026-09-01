@@ -54,6 +54,8 @@ task govulncheck:ci -- -test ./...
 | Task | Description |
 | ---- | ----------- |
 | `ci` | Scan Go packages for known vulnerabilities |
+| `install` | Install govulncheck via the Nix profile |
+| `version` | Show the active govulncheck version |
 
 ## Variables
 

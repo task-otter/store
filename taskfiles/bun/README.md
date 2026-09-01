@@ -4,7 +4,7 @@
 
 Bun is an all-in-one JavaScript runtime and toolkit — a single binary that replaces Node.js, npm, a bundler, and a test runner. It is written in Zig and designed to be significantly faster than Node.js for startup, module resolution, and package installation.
 
-This module does not ship an installer. Install Bun through the store's Nix profile task. Tool Taskfiles that need the Bun CLI should depend on `bun:_ensure` and invoke `bun` directly (for example `bun add -d`, `bun remove`, `bun x`).
+This module does not ship an installer. Install Bun through the store's Nix profile task. Tool Taskfiles that need the Bun CLI should depend on `bun:install` and invoke `bun` directly (for example `bun add -d`, `bun remove`, `bun x`).
 
 ## Usage
 
@@ -38,7 +38,12 @@ Override `BUN_NIX_INSTALLABLE` to pin a flake (for example
 
 ## Public Tasks
 
-This module has no public tasks. Install Bun with `nix:install:profile`. Dependents auto-install via `bun:_ensure`.
+| Task | Description |
+|---|---|
+| `install` | Install Bun via the Nix profile |
+| `version` | Show the active Bun version |
+
+Dependents auto-install Bun via `bun:install`.
 
 ## Variables
 

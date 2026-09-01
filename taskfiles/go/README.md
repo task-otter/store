@@ -81,6 +81,8 @@ Pin a revision by overriding the installable, for example
 | `test`   | Run Go unit tests                    |
 | `bench`  | Run Go benchmarks                    |
 | `fuzz`   | Run a Go fuzz target                 |
+| `install` | Install Go via the Nix profile |
+| `version` | Show the active Go version |
 
 ## Variables
 

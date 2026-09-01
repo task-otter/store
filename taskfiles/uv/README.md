@@ -43,6 +43,8 @@ Pin a revision by overriding the installable, for example
 | `run`            | Run a script or command via uv                     | `UV_FILE`, `UV_ARGS`, `UV_EXTRA_ARGS` |
 | `tool:install`   | Install a Python tool into an isolated environment | `UV_TOOL`, `UV_EXTRA_ARGS`        |
 | `tool:upgrade`   | Upgrade an installed uv tool                       | `UV_TOOL`, `UV_EXTRA_ARGS`        |
+| `install`        | Install uv via the Nix profile                     | `UV_NIX_INSTALLABLE`              |
+| `version`        | Show the active uv version                         | —                                 |
 
 ## Variables
 

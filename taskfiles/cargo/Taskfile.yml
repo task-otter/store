@@ -2,6 +2,7 @@
 version: "3.5"
 
 output:
+
   group:
     begin: "::group::{{.TASK}}"
     end: "::endgroup::"
@@ -10,12 +11,16 @@ output:
 silent: true
 
 includes:
+
   nix:
     taskfile: ../nix/Taskfile.yml
 
 vars:
+
   CARGO_NIX_INSTALLABLE: nixpkgs#cargo
+
   RUST_TOOLCHAIN: ""
+
   CARGO_EXTRA_ARGS: ""
 
 tasks:
@@ -26,15 +31,31 @@ tasks:
     cmds:
       - task --list
 
-  _ensure:
+  install:
     run: once
-    internal: true
+    desc: Install Cargo via the Nix profile
+    summary: |
+      Install Cargo into the user Nix profile when it is not already
+      available on PATH. Override the CARGO_NIX_INSTALLABLE
+      variable to pin a different package or version.
     status:
       - command -v cargo >/dev/null 2>&1
     cmds:
       - task: nix:install:profile
         vars:
           NIX_INSTALLABLE: "{{.CARGO_NIX_INSTALLABLE}}"
+
+  version:
+    run: once
+    desc: Show the active Cargo version
+    summary: |
+      Print the version reported by the cargo binary resolved from PATH.
+      Auto-installs Cargo if missing.
+    deps:
+      - task: install
+    cmds:
+      - task: _version:unix
+      - task: _version:windows
 
   build:
     run: once
@@ -44,7 +65,7 @@ tasks:
       CARGO_EXTRA_ARGS for cargo flags such as --release or -p <crate>. Auto-installs
       the Rust toolchain if needed.
     deps:
-      - task: _ensure
+      - task: install
     cmds:
       - task: _cargo:unix
         vars:
@@ -61,7 +82,7 @@ tasks:
       producing binaries. Pass CARGO_EXTRA_ARGS for cargo flags. Auto-installs the
       Rust toolchain if needed.
     deps:
-      - task: _ensure
+      - task: install
     cmds:
       - task: _cargo:unix
         vars:
@@ -78,7 +99,7 @@ tasks:
       CARGO_EXTRA_ARGS for cargo flags or test filters. Auto-installs the Rust
       toolchain if needed.
     deps:
-      - task: _ensure
+      - task: install
     cmds:
       - task: _cargo:unix
         vars:
@@ -111,7 +132,7 @@ tasks:
       Reformat Rust code in the current crate with `cargo fmt`. Pass CARGO_EXTRA_ARGS
       for rustfmt options. Auto-installs the Rust toolchain if needed.
     deps:
-      - task: _ensure
+      - task: install
     cmds:
       - task: _cargo:unix
         vars:
@@ -128,7 +149,7 @@ tasks:
       `cargo fmt --check` without modifying files. Pass CARGO_EXTRA_ARGS for rustfmt
       options. Auto-installs the Rust toolchain if needed.
     deps:
-      - task: _ensure
+      - task: install
     cmds:
       - task: _cargo:unix
         vars:
@@ -145,7 +166,7 @@ tasks:
       clippy flags such as -- -D warnings. Auto-installs the Rust toolchain if
       needed.
     deps:
-      - task: _ensure
+      - task: install
     cmds:
       - task: _cargo:unix
         vars:
@@ -162,7 +183,7 @@ tasks:
       `cargo clippy --fix`. Pass CARGO_EXTRA_ARGS for cargo or clippy flags such as
       --allow-dirty. Auto-installs the Rust toolchain if needed.
     deps:
-      - task: _ensure
+      - task: install
     cmds:
       - task: _cargo:unix
         vars:
@@ -176,7 +197,7 @@ tasks:
     desc: Show the path to the cargo binary
     summary: Print the cargo binary resolved from PATH. Auto-installs the Rust toolchain if missing.
     deps:
-      - task: _ensure
+      - task: install
     cmds:
       - task: _which:unix
       - task: _which:windows
@@ -188,7 +209,7 @@ tasks:
       Print the active cargo and rustc versions for quick installation
       diagnostics. Auto-installs the Rust toolchain if missing.
     deps:
-      - task: _ensure
+      - task: install
     cmds:
       - task: _verify:unix
       - task: _verify:windows
@@ -249,3 +270,26 @@ tasks:
         & $c {{if .RUST_TOOLCHAIN}}+{{.RUST_TOOLCHAIN}} {{end}}{{.CARGO_SUBCMD}}
           {{.CARGO_EXTRA_ARGS}};
         exit $LASTEXITCODE"
+
+  _version:unix:
+    run: once
+    internal: true
+    desc: Show Cargo version on macOS or Linux
+    summary: Print the cargo version on macOS or Linux.
+    platforms: [linux, darwin]
+    cmds:
+      - bash -lc '{{.NIX_LOAD}}; cargo --version'
+
+  _version:windows:
+    run: once
+    internal: true
+    desc: Show Cargo version on Windows
+    summary: Print the cargo version on Windows.
+    platforms: [windows]
+    preconditions:
+      - sh: >-
+          powershell -NoProfile -ExecutionPolicy Bypass -Command "if (Get-Command cargo -ErrorAction SilentlyContinue) {
+          exit 0 } else { exit 1 }"
+        msg: Cargo is not installed or not available in PATH.
+    cmds:
+      - cargo --version

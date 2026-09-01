@@ -58,7 +58,7 @@ project root (where `package.json` lives).
 - Requires a package-manager stack: run `task htmlhint:node:npm:install` (or
   `htmlhint:bun:install` / `htmlhint:node:yarn:install`) and it auto-installs
   HTMLHint on first use. Node.js is provisioned through the `nodejs` module
-  (`nodejs:_ensure`) on first run for node leaves; bun leaves use `bun:_ensure`.
+  (`nodejs:install`) on first run for node leaves; bun leaves use `bun:install`.
 - The install `status:` guard keeps repeat runs idempotent — changing `HTMLHINT_VERSION`
   triggers a reinstall.
 - HTMLHint is lint-only; it has no autofix mode.

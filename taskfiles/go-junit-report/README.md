@@ -63,6 +63,8 @@ Pin a revision by overriding the installable, for example
 | `which`  | Show the path to the go-junit-report binary                |
 | `verify` | Print go-junit-report version                              |
 | `test`   | Run Go unit tests and write JUnit XML and coverage reports |
+| `install` | Install go-junit-report via the Nix profile |
+| `version` | Show the active go-junit-report version |
 
 ## Variables
 

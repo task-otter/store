@@ -1,6 +1,7 @@
 ---
 version: "3.5"
 output:
+
   group:
     begin: "::group::{{.TASK}}"
     end: "::endgroup::"
@@ -8,11 +9,14 @@ output:
 silent: true
 
 includes:
+
   nix:
     taskfile: ../nix/Taskfile.yml
 
 vars:
+
   GO_NIX_INSTALLABLE: nixpkgs#go
+
   GO_FUZZTIME: ""
 
 tasks:
@@ -23,20 +27,36 @@ tasks:
     cmds:
       - task --list
 
-  _ensure:
+  install:
     run: once
-    internal: true
+    desc: Install Go via the Nix profile
+    summary: |
+      Install Go into the user Nix profile when it is not already
+      available on PATH. Override the GO_NIX_INSTALLABLE
+      variable to pin a different package or version.
     cmds:
       - task: nix:install:profile
         vars:
           NIX_INSTALLABLE: "{{.GO_NIX_INSTALLABLE}}"
+
+  version:
+    run: once
+    desc: Show the active Go version
+    summary: |
+      Print the version reported by the go binary resolved from PATH.
+      Auto-installs Go if missing.
+    deps:
+      - task: install
+    cmds:
+      - task: _version:unix
+      - task: _version:windows
 
   which:
     run: once
     desc: Show the path to the Go binary
     summary: Print the Go binary resolved from PATH. Auto-installs Go if missing.
     deps:
-      - task: _ensure
+      - task: install
     cmds:
       - task: _which:unix
       - task: _which:windows
@@ -49,7 +69,7 @@ tasks:
       resolved GOROOT and GOPATH values for quick installation diagnostics.
       Auto-installs Go if missing.
     deps:
-      - task: _ensure
+      - task: install
     cmds:
       - task: _verify:unix
       - task: _verify:windows
@@ -63,7 +83,7 @@ tasks:
       after -- to override the default ./... target or add flags. For JUnit XML
       and coverage reports, use the go-junit-report Taskfile.
     deps:
-      - task: _ensure
+      - task: install
     cmds:
       - cmd: >-
           bash -lc '{{.NIX_LOAD}}; go test -v
@@ -82,7 +102,7 @@ tasks:
       the default ./... target or the -bench pattern, for example:
       `task go:bench -- -bench BenchmarkName ./internal/parser`.
     deps:
-      - task: _ensure
+      - task: install
     cmds:
       - cmd: >-
           bash -lc '{{.NIX_LOAD}}; go test -run "^$" -bench . -benchmem
@@ -101,7 +121,7 @@ tasks:
       and package after --, for example:
       `task go:fuzz -- -fuzz FuzzName ./internal/parser`.
     deps:
-      - task: _ensure
+      - task: install
     vars:
       GO_FUZZ_TIME: '{{if .GO_FUZZTIME}}{{.GO_FUZZTIME}}{{else}}30s{{end}}'
     cmds:
@@ -158,3 +178,26 @@ tasks:
     cmds:
       - go version
       - go env GOROOT GOPATH
+
+  _version:unix:
+    run: once
+    internal: true
+    desc: Show Go version on macOS or Linux
+    summary: Print the go version on macOS or Linux.
+    platforms: [linux, darwin]
+    cmds:
+      - bash -lc '{{.NIX_LOAD}}; go version'
+
+  _version:windows:
+    run: once
+    internal: true
+    desc: Show Go version on Windows
+    summary: Print the go version on Windows.
+    platforms: [windows]
+    preconditions:
+      - sh: >-
+          powershell -NoProfile -ExecutionPolicy Bypass -Command "if (Get-Command go -ErrorAction SilentlyContinue) {
+          exit 0 } else { exit 1 }"
+        msg: Go is not installed or not available in PATH.
+    cmds:
+      - go version

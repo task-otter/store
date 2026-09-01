@@ -62,7 +62,8 @@ const (
 	constUpdatedPluginVersion       = "v1.0.1"
 	constGolangciLintNixInstallable = "GOLANGCI_LINT_NIX_INSTALLABLE"
 	constEmptyValue                 = ""
-	constEnsureTask                 = "_ensure"
+	constInstallTask                = "install"
+	constVersionTask                = "version"
 	constTaskBaseArgCount           = 4
 	constSecureFileMode             = 0o600
 	constPrivateDirectoryMode       = 0o750
@@ -156,6 +157,8 @@ func publicTasks() []string {
 		constGolangciLintFmtCheck,
 		constGolangciLintLint,
 		constGolangciLintLintFix,
+		constInstallTask,
+		constVersionTask,
 	}
 }
 
@@ -475,10 +478,11 @@ func writeExecutable(t *testing.T, path, content string) {
 
 func developmentToolDependencies() map[string][]string {
 	return map[string][]string{
-		constGolangciLintFmt:      {constEnsureTask},
-		constGolangciLintFmtCheck: {constEnsureTask},
-		constGolangciLintLint:     {constEnsureTask},
-		constGolangciLintLintFix:  {constEnsureTask},
+		constGolangciLintFmt:      {constInstallTask},
+		constGolangciLintFmtCheck: {constInstallTask},
+		constGolangciLintLint:     {constInstallTask},
+		constGolangciLintLintFix:  {constInstallTask},
+		constVersionTask:          {constInstallTask},
 	}
 }
 

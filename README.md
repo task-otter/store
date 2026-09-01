@@ -114,7 +114,7 @@ task pnpm:install:clean
 task yarn:run SCRIPT=build
 ```
 
-Node.js is installed via `nodejs:_ensure` (Nix profile).
+Node.js is installed via `nodejs:install` (Nix profile).
 
 ## Dependencies
 

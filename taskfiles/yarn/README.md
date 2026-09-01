@@ -2,7 +2,7 @@
 
 ## What is this Taskfile?
 
-This Taskfile wraps common Yarn operations — installing dependencies, running scripts, auditing, and cleaning — behind consistent, cross-platform task commands. Node.js is provided via the [`nodejs`](../nodejs/) module (Nix profile); Yarn is installed from nixpkgs through this module's `_ensure` task.
+This Taskfile wraps common Yarn operations — installing dependencies, running scripts, auditing, and cleaning — behind consistent, cross-platform task commands. Node.js is provided via the [`nodejs`](../nodejs/) module (Nix profile); Yarn is installed from nixpkgs through this module's `install:tool` task.
 
 ## Usage
 
@@ -20,7 +20,7 @@ task yarn:install:clean
 task yarn:run SCRIPT=build
 ```
 
-Override the Node.js version by setting `NODEJS_NIX_INSTALLABLE` on the nodejs module before dependents run `nodejs:_ensure`.
+Override the Node.js version by setting `NODEJS_NIX_INSTALLABLE` on the nodejs module before dependents run `nodejs:install`.
 
 ## Public Tasks
 
@@ -48,9 +48,11 @@ Override the Node.js version by setting `NODEJS_NIX_INSTALLABLE` on the nodejs m
 | `audit:report`    | —                                          | Run audit reporting without failing.                                      |
 | `audit:json`      | —                                          | Output audit results as JSON.                                             |
 | `cache:clean`     | —                                          | Clear the Yarn cache.                                                     |
+| `install:tool`    | —                                          | Install the Yarn binary via the Nix profile.                              |
+| `version:tool`    | —                                          | Show the version of the Yarn binary itself.                               |
 
 ## Runtime
 
-Project commands depend on `nodejs:_ensure` and run `yarn` with `NIX_LOAD` so the Nix profile tools are on PATH. Must be run from a directory containing `package.json`.
+Project commands depend on `nodejs:install` and run `yarn` with `NIX_LOAD` so the Nix profile tools are on PATH. Must be run from a directory containing `package.json`.
 
 Native Windows auto-install requires WSL2 (same as other Nix profile modules).

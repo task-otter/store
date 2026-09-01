@@ -85,6 +85,8 @@ task cargo:build RUST_TOOLCHAIN=1.79.0 CARGO_EXTRA_ARGS=--release
 | `ci:fix` | Run `fmt` then `lint:fix` for CI |
 | `which` | Show the path to the cargo binary |
 | `verify` | Print cargo and rustc versions |
+| `install` | Install Cargo via the Nix profile |
+| `version` | Show the active Cargo version |
 
 ## Variables
 

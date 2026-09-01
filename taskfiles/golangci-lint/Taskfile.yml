@@ -1,18 +1,24 @@
 ---
 version: "3.5"
 output:
+
   group:
     begin: "::group::{{.TASK}}"
     end: "::endgroup::"
     error_only: false
 silent: true
 includes:
+
   nix:
     taskfile: ../nix/Taskfile.yml
 vars:
+
   GOLANGCI_LINT_NIX_INSTALLABLE: nixpkgs#go nixpkgs#golangci-lint
+
   # Formatter selection shared by every golangci-lint fmt invocation on Unix and
+
   # Windows. Kept in one place so the two call sites cannot drift apart.
+
   GOLANGCI_LINT_FMT_FORMATTER_FLAGS: >-
     -E gci -E gofmt -E gofumpt -E goimports -E golines -E swaggo
 tasks:
@@ -22,9 +28,14 @@ tasks:
     summary: Display the list of available golangci-lint-related tasks defined in this Taskfile.
     cmds:
       - task --list
-  _ensure:
+
+  install:
     run: once
-    internal: true
+    desc: Install golangci-lint via the Nix profile
+    summary: |
+      Install golangci-lint into the user Nix profile when it is not already
+      available on PATH. Override the GOLANGCI_LINT_NIX_INSTALLABLE
+      variable to pin a different package or version.
     status:
       - >-
         bash -lc '{{.NIX_LOAD}};
@@ -34,6 +45,19 @@ tasks:
       - task: nix:install:profile
         vars:
           NIX_INSTALLABLE: "{{.GOLANGCI_LINT_NIX_INSTALLABLE}}"
+
+  version:
+    run: once
+    desc: Show the active golangci-lint version
+    summary: |
+      Print the version reported by the golangci-lint binary resolved from PATH.
+      Auto-installs golangci-lint if missing.
+    deps:
+      - task: install
+    cmds:
+      - task: _version:unix
+      - task: _version:windows
+
   lint:
     run: once
     desc: Lint Go packages with golangci-lint
@@ -43,12 +67,13 @@ tasks:
       Auto-installs golangci-lint if missing. When .custom-gcl.yml exists in the
       working directory, builds or reuses its custom binary instead.
     deps:
-      - task: _ensure
+      - task: install
     cmds:
       - task: _lint
         vars:
           GO_LINT_FIX: ""
           GO_LINT_ARGS: "{{if .CLI_ARGS}}{{.CLI_ARGS}}{{else}}./...{{end}}"
+
   lint:fix:
     run: once
     desc: Auto-fix Go lint issues with golangci-lint
@@ -59,7 +84,7 @@ tasks:
       .custom-gcl.yml exists in the working directory, builds or reuses its
       custom binary instead.
     deps:
-      - task: _ensure
+      - task: install
     cmds:
       - task: _lint
         vars:
@@ -91,12 +116,13 @@ tasks:
       golines, and swaggo formatters. Pass CLI arguments after -- to override
       the default target. Auto-installs golangci-lint if missing.
     deps:
-      - task: _ensure
+      - task: install
     cmds:
       - task: _fmt
         vars:
           GO_FMT_DIFF: ""
           GO_FMT_TARGETS: "{{if .CLI_ARGS}}{{.CLI_ARGS}}{{else}}.{{end}}"
+
   fmt:check:
     run: once
     desc: Check Go formatting with golangci-lint formatters
@@ -106,7 +132,7 @@ tasks:
       files. Pass CLI arguments after -- to override the default target.
       Auto-installs golangci-lint if missing.
     deps:
-      - task: _ensure
+      - task: install
     cmds:
       - task: _fmt
         vars:
@@ -136,6 +162,7 @@ tasks:
       - >-
         bash -lc '{{.NIX_LOAD}};
         {{if .GO_GLOBAL_BIN}}export PATH="{{.GO_GLOBAL_BIN}}:$PATH"; {{end}}golangci-lint custom -v'
+
   _lint:
     run: once
     internal: true
@@ -180,6 +207,7 @@ tasks:
             {{.GO_LINT_FIX}}
             {{.GO_LINT_ARGS}}; exit $LASTEXITCODE"
         platforms: [windows]
+
   _fmt:
     run: once
     internal: true
@@ -200,3 +228,29 @@ tasks:
               {{.GO_FMT_TARGETS}};
             exit $LASTEXITCODE"
         platforms: [windows]
+
+  _version:unix:
+    run: once
+    internal: true
+    desc: Show golangci-lint version on macOS or Linux
+    summary: Print the golangci-lint version on macOS or Linux.
+    platforms: [linux, darwin]
+    cmds:
+      - cmd: >-
+          bash -lc '{{.NIX_LOAD}}; {{if .GO_GLOBAL_BIN}}export PATH="{{.GO_GLOBAL_BIN}}:$PATH"; {{end}}
+          golangci-lint --version'
+
+  _version:windows:
+    run: once
+    internal: true
+    desc: Show golangci-lint version on Windows
+    summary: Print the golangci-lint version on Windows.
+    platforms: [windows]
+    preconditions:
+      - sh: >-
+          powershell -NoProfile -ExecutionPolicy Bypass -Command
+          "if (Get-Command golangci-lint -ErrorAction SilentlyContinue) {
+          exit 0 } else { exit 1 }"
+        msg: golangci-lint is not installed or not available in PATH.
+    cmds:
+      - golangci-lint --version

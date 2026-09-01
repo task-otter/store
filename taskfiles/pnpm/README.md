@@ -2,7 +2,7 @@
 
 ## What is this Taskfile?
 
-This Taskfile wraps common `pnpm` operations — installing dependencies, running scripts, auditing, and cleaning — behind consistent, cross-platform task commands. Node.js is provided via the [`nodejs`](../nodejs/) module (Nix profile); pnpm is installed from nixpkgs through this module's `_ensure` task.
+This Taskfile wraps common `pnpm` operations — installing dependencies, running scripts, auditing, and cleaning — behind consistent, cross-platform task commands. Node.js is provided via the [`nodejs`](../nodejs/) module (Nix profile); pnpm is installed from nixpkgs through this module's `install:tool` task.
 
 ## Usage
 
@@ -20,7 +20,7 @@ task pnpm:install:clean
 task pnpm:run SCRIPT=build
 ```
 
-Override the Node.js version by setting `NODEJS_NIX_INSTALLABLE` on the nodejs module before dependents run `nodejs:_ensure`.
+Override the Node.js version by setting `NODEJS_NIX_INSTALLABLE` on the nodejs module before dependents run `nodejs:install`.
 
 ## Public Tasks
 
@@ -51,9 +51,11 @@ Override the Node.js version by setting `NODEJS_NIX_INSTALLABLE` on the nodejs m
 | `audit:json`      | —                                          | Output audit results as JSON.                                             |
 | `update`          | —                                          | Update packages within declared ranges.                                   |
 | `store:prune`     | —                                          | Remove unreferenced packages from the pnpm store.                         |
+| `install:tool`    | —                                          | Install the pnpm binary via the Nix profile.                              |
+| `version:tool`    | —                                          | Show the version of the pnpm binary itself.                               |
 
 ## Runtime
 
-Project commands depend on `nodejs:_ensure` and run `pnpm` with `NIX_LOAD` so the Nix profile tools are on PATH. Must be run from a directory containing `package.json`.
+Project commands depend on `nodejs:install` and run `pnpm` with `NIX_LOAD` so the Nix profile tools are on PATH. Must be run from a directory containing `package.json`.
 
 Native Windows auto-install requires WSL2 (same as other Nix profile modules).

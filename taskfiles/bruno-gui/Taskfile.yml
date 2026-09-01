@@ -2,6 +2,7 @@
 version: "3.5"
 
 output:
+
   group:
     begin: "::group::{{.TASK}}"
     end: "::endgroup::"
@@ -10,12 +11,16 @@ output:
 silent: true
 
 includes:
+
   nix:
     taskfile: ../nix/Taskfile.yml
 
 vars:
+
   BRUNO_GUI_NIX_INSTALLABLE: nixpkgs#bruno
+
   BRUNO_GUI_COLLECTION: ""
+
   BRUNO_GUI_EXTRA_ARGS: ""
 
 tasks:
@@ -26,15 +31,31 @@ tasks:
     cmds:
       - task --list
 
-  _ensure:
+  install:
     run: once
-    internal: true
+    desc: Install the Bruno desktop app via the Nix profile
+    summary: |
+      Install the Bruno desktop app into the user Nix profile when it is not already
+      available on PATH. Override the BRUNO_GUI_NIX_INSTALLABLE
+      variable to pin a different package or version.
     status:
       - command -v bruno >/dev/null 2>&1
     cmds:
       - task: nix:install:profile
         vars:
           NIX_INSTALLABLE: "{{.BRUNO_GUI_NIX_INSTALLABLE}}"
+
+  version:
+    run: once
+    desc: Show the active the Bruno desktop app version
+    summary: |
+      Print the version reported by the bruno binary resolved from PATH.
+      Auto-installs the Bruno desktop app if missing.
+    deps:
+      - task: install
+    cmds:
+      - task: _version:unix
+      - task: _version:windows
 
   open:
     run: once
@@ -48,7 +69,7 @@ tasks:
     vars:
       RESOLVED_COLLECTION: '{{.BRUNO_GUI_COLLECTION}}'
     deps:
-      - task: _ensure
+      - task: install
     cmds:
       - cmd: >-
           bash -lc '{{.NIX_LOAD}}; bruno{{if .RESOLVED_COLLECTION}} {{.RESOLVED_COLLECTION}}{{end}}
@@ -68,7 +89,7 @@ tasks:
     desc: Show Bruno desktop app help
     summary: Display the built-in bruno help output. Auto-installs bruno if missing.
     deps:
-      - task: _ensure
+      - task: install
     cmds:
       - cmd: >-
           bash -lc '{{.NIX_LOAD}}; bruno --help
@@ -79,3 +100,26 @@ tasks:
           "bruno --help
           {{.BRUNO_GUI_EXTRA_ARGS}}{{if .CLI_ARGS}} {{.CLI_ARGS}}{{end}}"
         platforms: [windows]
+
+  _version:unix:
+    run: once
+    internal: true
+    desc: Show the Bruno desktop app version on macOS or Linux
+    summary: Print the bruno version on macOS or Linux.
+    platforms: [linux, darwin]
+    cmds:
+      - bash -lc '{{.NIX_LOAD}}; bruno --version'
+
+  _version:windows:
+    run: once
+    internal: true
+    desc: Show the Bruno desktop app version on Windows
+    summary: Print the bruno version on Windows.
+    platforms: [windows]
+    preconditions:
+      - sh: >-
+          powershell -NoProfile -ExecutionPolicy Bypass -Command "if (Get-Command bruno -ErrorAction SilentlyContinue) {
+          exit 0 } else { exit 1 }"
+        msg: the Bruno desktop app is not installed or not available in PATH.
+    cmds:
+      - bruno --version

@@ -54,7 +54,8 @@ func TestDevelopmentToolDependencies(t *testing.T) {
 	taskfile := tasktest.LoadTaskfile(t, constGovulncheckModule)
 
 	dependencies := map[string][]string{
-		constGovulncheckLint: {"_ensure"},
+		constGovulncheckLint: {"install"},
+		"version":            {"install"},
 	}
 
 	for taskName := range dependencies {
@@ -69,6 +70,8 @@ func TestDevelopmentToolDependencies(t *testing.T) {
 func publicTasks() []string {
 	return []string{
 		constGovulncheckLint,
+		"install",
+		"version",
 	}
 }
 

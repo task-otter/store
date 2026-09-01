@@ -4,7 +4,7 @@
 
 Installs Node.js via the Nix user profile (`nixpkgs#nodejs` by default).
 Package managers (`npm`, `yarn`, `pnpm`) and JS tool Taskfiles depend on
-`nodejs:_ensure` before running Node-backed commands.
+`nodejs:install` before running Node-backed commands.
 
 ## Usage
 
@@ -12,11 +12,16 @@ Package managers (`npm`, `yarn`, `pnpm`) and JS tool Taskfiles depend on
 task nix:install:profile NIX_INSTALLABLE=nixpkgs#nodejs
 ```
 
-Or include this module and depend on `nodejs:_ensure`.
+Or include this module and depend on `nodejs:install`.
 
 ## Public Tasks
 
-This module has no public tasks. Dependents auto-install via `nodejs:_ensure`.
+| Task | Description |
+|---|---|
+| `install` | Install Node.js via the Nix profile |
+| `version` | Show the active Node.js version |
+
+Dependents auto-install Node.js via `nodejs:install`.
 
 ## Variables
 

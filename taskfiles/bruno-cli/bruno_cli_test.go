@@ -32,7 +32,9 @@ func publicTasks() []string {
 	return []string{
 		"ci",
 		"help",
+		"install",
 		"run",
+		"version",
 	}
 }
 

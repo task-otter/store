@@ -20,7 +20,7 @@ task npm:install:clean
 task npm:run SCRIPT=build
 ```
 
-Override the Node.js version by setting `NODEJS_NIX_INSTALLABLE` on the nodejs module before dependents run `nodejs:_ensure`.
+Override the Node.js version by setting `NODEJS_NIX_INSTALLABLE` on the nodejs module before dependents run `nodejs:install`.
 
 ## Public Tasks
 
@@ -55,6 +55,6 @@ Override the Node.js version by setting `NODEJS_NIX_INSTALLABLE` on the nodejs m
 
 ## Runtime
 
-Project commands depend on `nodejs:_ensure` and run `npm` with `NIX_LOAD` so the Nix profile Node.js is on PATH. Must be run from a directory containing `package.json`.
+Project commands depend on `nodejs:install` and run `npm` with `NIX_LOAD` so the Nix profile Node.js is on PATH. Must be run from a directory containing `package.json`.
 
 Native Windows auto-install requires WSL2 (same as other Nix profile modules).

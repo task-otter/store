@@ -1,6 +1,7 @@
 ---
 version: "3.5"
 output:
+
   group:
     begin: "::group::{{.TASK}}"
     end: "::endgroup::"
@@ -8,12 +9,16 @@ output:
 silent: true
 
 includes:
+
   nix:
     taskfile: ../nix/Taskfile.yml
 
 vars:
+
   GO_JUNIT_REPORT_NIX_INSTALLABLE: nixpkgs#go nixpkgs#go-junit-report
+
   GO_JUNIT_REPORT: ""
+
   GO_COVER_PROFILE: ""
 
 tasks:
@@ -24,9 +29,13 @@ tasks:
     cmds:
       - task --list
 
-  _ensure:
+  install:
     run: once
-    internal: true
+    desc: Install go-junit-report via the Nix profile
+    summary: |
+      Install go-junit-report into the user Nix profile when it is not already
+      available on PATH. Override the GO_JUNIT_REPORT_NIX_INSTALLABLE
+      variable to pin a different package or version.
     status:
       - command -v go-junit-report >/dev/null 2>&1
     cmds:
@@ -34,12 +43,24 @@ tasks:
         vars:
           NIX_INSTALLABLE: "{{.GO_JUNIT_REPORT_NIX_INSTALLABLE}}"
 
+  version:
+    run: once
+    desc: Show the active go-junit-report version
+    summary: |
+      Print the version reported by the go-junit-report binary resolved from PATH.
+      Auto-installs go-junit-report if missing.
+    deps:
+      - task: install
+    cmds:
+      - task: _version:unix
+      - task: _version:windows
+
   which:
     run: once
     desc: Show the path to the go-junit-report binary
     summary: Print the go-junit-report binary resolved from PATH. Auto-installs if missing.
     deps:
-      - task: _ensure
+      - task: install
     cmds:
       - task: _which:unix
       - task: _which:windows
@@ -51,7 +72,7 @@ tasks:
       Check that go-junit-report is installed and print the active version for
       quick installation diagnostics. Auto-installs if missing.
     deps:
-      - task: _ensure
+      - task: install
     cmds:
       - task: _verify:unix
       - task: _verify:windows
@@ -67,7 +88,7 @@ tasks:
       (default coverage.out). Pass CLI arguments after -- to override the
       default ./... target or add flags.
     deps:
-      - task: _ensure
+      - task: install
     vars:
       GO_JUNIT_REPORT_OUT: '{{if .GO_JUNIT_REPORT}}{{.GO_JUNIT_REPORT}}{{else}}junit.xml{{end}}'
       GO_COVER_OUT: '{{if .GO_COVER_PROFILE}}{{.GO_COVER_PROFILE}}{{else}}coverage.out{{end}}'
@@ -121,6 +142,30 @@ tasks:
     internal: true
     desc: Verify go-junit-report on Windows
     summary: Print go-junit-report version on Windows.
+    platforms: [windows]
+    preconditions:
+      - sh: >-
+          powershell -NoProfile -ExecutionPolicy Bypass -Command
+          "if (Get-Command go-junit-report -ErrorAction SilentlyContinue) {
+          exit 0 } else { exit 1 }"
+        msg: go-junit-report is not installed or not available in PATH.
+    cmds:
+      - go-junit-report -version
+
+  _version:unix:
+    run: once
+    internal: true
+    desc: Show go-junit-report version on macOS or Linux
+    summary: Print the go-junit-report version on macOS or Linux.
+    platforms: [linux, darwin]
+    cmds:
+      - bash -lc '{{.NIX_LOAD}}; go-junit-report -version'
+
+  _version:windows:
+    run: once
+    internal: true
+    desc: Show go-junit-report version on Windows
+    summary: Print the go-junit-report version on Windows.
     platforms: [windows]
     preconditions:
       - sh: >-

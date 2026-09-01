@@ -36,10 +36,12 @@ func publicTasks() []string {
 		"ci:fix",
 		"fmt",
 		"fmt:check",
+		"install",
 		"lint",
 		"lint:fix",
 		"test",
 		"verify",
+		"version",
 		"which",
 	}
 }

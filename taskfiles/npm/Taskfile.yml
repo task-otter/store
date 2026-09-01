@@ -41,7 +41,7 @@ tasks:
     desc: Install project dependencies with npm install
     summary: |
       Run npm install to install all dependencies listed in package.json.
-      The Node.js runtime is loaded via nodejs:_ensure.
+      The Node.js runtime is loaded via nodejs:install.
       Set NODE_VERSION to pin a specific runtime; omit to use the project version
       file (.node-version or .nvmrc) if present, otherwise the manager default.
       Must be run from the Node.js project root (where package.json lives).
@@ -126,7 +126,7 @@ tasks:
     desc: Upgrade npm to the latest release
     summary: |
       Run npm install -g --silent npm@latest using the Node.js runtime from
-      nodejs:_ensure.
+      nodejs:install.
     cmds:
       - task: _npm:unix
         vars:
@@ -430,7 +430,7 @@ tasks:
     env:
       CI: "1"
     deps:
-      - task: nodejs:_ensure
+      - task: nodejs:install
     preconditions:
       - sh: 'test -f "{{.USER_WORKING_DIR}}/package.json"'
         msg: "package.json not found. Run this task from the project root."
@@ -448,7 +448,7 @@ tasks:
     env:
       CI: "1"
     deps:
-      - task: nodejs:_ensure
+      - task: nodejs:install
     preconditions:
       - sh: >-
           powershell -NoProfile -ExecutionPolicy Bypass -Command
@@ -533,7 +533,7 @@ tasks:
     platforms: [linux, darwin]
     set: [errexit, nounset, pipefail]
     deps:
-      - task: nodejs:_ensure
+      - task: nodejs:install
     cmds:
       - bash -lc '{{.NIX_LOAD}}; node --version; npm --version'
 
@@ -542,7 +542,7 @@ tasks:
     internal: true
     platforms: [windows]
     deps:
-      - task: nodejs:_ensure
+      - task: nodejs:install
     cmds:
       - powershell -NoProfile -ExecutionPolicy Bypass -Command "node --version; npm --version"
 

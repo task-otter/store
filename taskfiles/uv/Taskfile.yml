@@ -2,6 +2,7 @@
 version: "3.5"
 
 output:
+
   group:
     begin: "::group::{{.TASK}}"
     end: "::endgroup::"
@@ -10,17 +11,26 @@ output:
 silent: true
 
 includes:
+
   nix:
     taskfile: ../nix/Taskfile.yml
 
 vars:
+
   UV_NIX_INSTALLABLE: nixpkgs#uv
+
   UV_VENV: ".venv"
+
   UV_REQUIREMENTS: "requirements.txt"
+
   UV_FILE: ""
+
   UV_ARGS: ""
+
   UV_EXTRA_ARGS: ""
+
   PYTHON_VERSION: ""
+
   UV_TOOL: ""
 
 tasks:
@@ -31,13 +41,29 @@ tasks:
     cmds:
       - task --list
 
-  _ensure:
+  install:
     run: once
-    internal: true
+    desc: Install uv via the Nix profile
+    summary: |
+      Install uv into the user Nix profile when it is not already
+      available on PATH. Override the UV_NIX_INSTALLABLE
+      variable to pin a different package or version.
     cmds:
       - task: nix:install:profile
         vars:
           NIX_INSTALLABLE: "{{.UV_NIX_INSTALLABLE}}"
+
+  version:
+    run: once
+    desc: Show the active uv version
+    summary: |
+      Print the version reported by the uv binary resolved from PATH.
+      Auto-installs uv if missing.
+    deps:
+      - task: install
+    cmds:
+      - task: _version:unix
+      - task: _version:windows
 
   python:install:
     run: once
@@ -47,7 +73,7 @@ tasks:
       Pass PYTHON_VERSION to select the version, e.g. PYTHON_VERSION=3.12.
       Auto-installs uv if missing.
     deps:
-      - task: _ensure
+      - task: install
     requires:
       vars:
         - PYTHON_VERSION
@@ -73,7 +99,7 @@ tasks:
       Create a virtual environment at UV_VENV (default .venv) using uv venv.
       Auto-installs uv if missing.
     deps:
-      - task: _ensure
+      - task: install
     cmds:
       - task: _uv:unix
         vars:
@@ -90,7 +116,7 @@ tasks:
       Pass UV_EXTRA_ARGS for additional flags such as --upgrade or --no-cache.
       Auto-installs uv if missing.
     deps:
-      - task: _ensure
+      - task: install
     cmds:
       - task: _uv:unix
         vars:
@@ -107,7 +133,7 @@ tasks:
       Pass UV_ARGS for positional arguments and UV_EXTRA_ARGS for uv flags.
       Auto-installs uv if missing.
     deps:
-      - task: _ensure
+      - task: install
     requires:
       vars:
         - UV_FILE
@@ -137,7 +163,7 @@ tasks:
       Pass UV_EXTRA_ARGS for additional flags such as --upgrade.
       Auto-installs uv if missing.
     deps:
-      - task: _ensure
+      - task: install
     requires:
       vars:
         - UV_TOOL
@@ -166,7 +192,7 @@ tasks:
       latest release. Pass UV_EXTRA_ARGS for additional flags.
       Auto-installs uv if missing.
     deps:
-      - task: _ensure
+      - task: install
     requires:
       vars:
         - UV_TOOL
@@ -205,3 +231,26 @@ tasks:
       vars: [UV_ARGS]
     cmds:
       - uv {{.UV_ARGS}}
+
+  _version:unix:
+    run: once
+    internal: true
+    desc: Show uv version on macOS or Linux
+    summary: Print the uv version on macOS or Linux.
+    platforms: [linux, darwin]
+    cmds:
+      - bash -lc '{{.NIX_LOAD}}; uv --version'
+
+  _version:windows:
+    run: once
+    internal: true
+    desc: Show uv version on Windows
+    summary: Print the uv version on Windows.
+    platforms: [windows]
+    preconditions:
+      - sh: >-
+          powershell -NoProfile -ExecutionPolicy Bypass -Command "if (Get-Command uv -ErrorAction SilentlyContinue) {
+          exit 0 } else { exit 1 }"
+        msg: uv is not installed or not available in PATH.
+    cmds:
+      - uv --version

@@ -2,6 +2,7 @@
 version: "3.5"
 
 output:
+
   group:
     begin: "::group::{{.TASK}}"
     end: "::endgroup::"
@@ -10,12 +11,16 @@ output:
 silent: true
 
 includes:
+
   nix:
     taskfile: ../nix/Taskfile.yml
 
 vars:
+
   ACTIONLINT_NIX_INSTALLABLE: nixpkgs#actionlint
+
   ACTIONLINT_EXTRA_ARGS: ""
+
   ACTIONLINT_TARGETS: ""
 
 tasks:
@@ -26,15 +31,31 @@ tasks:
     cmds:
       - task --list
 
-  _ensure:
+  install:
     run: once
-    internal: true
+    desc: Install actionlint via the Nix profile
+    summary: |
+      Install actionlint into the user Nix profile when it is not already
+      available on PATH. Override the ACTIONLINT_NIX_INSTALLABLE
+      variable to pin a different package or version.
     status:
       - command -v actionlint >/dev/null 2>&1
     cmds:
       - task: nix:install:profile
         vars:
           NIX_INSTALLABLE: "{{.ACTIONLINT_NIX_INSTALLABLE}}"
+
+  version:
+    run: once
+    desc: Show the active actionlint version
+    summary: |
+      Print the version reported by the actionlint binary resolved from PATH.
+      Auto-installs actionlint if missing.
+    deps:
+      - task: install
+    cmds:
+      - task: _version:unix
+      - task: _version:windows
 
   ci:
     run: once
@@ -47,7 +68,7 @@ tasks:
       -- to override targets and options. Auto-installs actionlint if missing.
     dir: "{{.USER_WORKING_DIR}}"
     deps:
-      - task: _ensure
+      - task: install
     cmds:
       - cmd: |
           bash -lc '{{.NIX_LOAD}}; exec bash -s' <<'ACTIONLINT_EOF'
@@ -65,3 +86,27 @@ tasks:
             {{.ACTIONLINT_TARGETS}}{{end}};
           exit $LASTEXITCODE"
         platforms: [windows]
+
+  _version:unix:
+    run: once
+    internal: true
+    desc: Show actionlint version on macOS or Linux
+    summary: Print the actionlint version on macOS or Linux.
+    platforms: [linux, darwin]
+    cmds:
+      - bash -lc '{{.NIX_LOAD}}; actionlint -version'
+
+  _version:windows:
+    run: once
+    internal: true
+    desc: Show actionlint version on Windows
+    summary: Print the actionlint version on Windows.
+    platforms: [windows]
+    preconditions:
+      - sh: >-
+          powershell -NoProfile -ExecutionPolicy Bypass -Command
+          "if (Get-Command actionlint -ErrorAction SilentlyContinue) {
+          exit 0 } else { exit 1 }"
+        msg: actionlint is not installed or not available in PATH.
+    cmds:
+      - actionlint -version

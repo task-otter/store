@@ -16,6 +16,7 @@ exported_tasks:
   - exec
   - install
   - install:clean
+  - install:tool
   - install:undo
   - lint
   - outdated
@@ -28,3 +29,4 @@ exported_tasks:
   - update
   - upgrade
   - version
+  - version:tool

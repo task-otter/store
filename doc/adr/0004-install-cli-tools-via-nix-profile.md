@@ -86,8 +86,16 @@ CLI itself).
 **Exceptions:** docker keeps `install` / `install:undo` / `upgrade` / `version`.
 
 **Node.js stack:** `nodejs` installs Node.js via `nixpkgs#nodejs`. `npm` depends
-on `nodejs:_ensure`. `yarn` and `pnpm` install their CLIs from nix profile and
-also depend on `nodejs:_ensure` for the runtime.
+on `nodejs:install`. `yarn` and `pnpm` install their CLIs from nix profile and
+also depend on `nodejs:install` for the runtime.
+
+**Task naming:** the per-module installer was originally the private `_ensure`
+task. It is now the public `install` task, and every Nix-backed module also
+exposes a public `version` task (`deps: [install]`) that prints the tool's own
+version. `pnpm` and `yarn` already reserve `install` and `version` for project
+dependencies, so there the Nix installer and its version report are named
+`install:tool` and `version:tool`; folding them into the existing `install`
+would create a dependency cycle through the `_pnpm:*` / `_yarn:*` shims.
 
 Native Windows: `nix:install:profile` already errors via `_windows:unsupported`.
 Runtime Windows commands on CLI modules may remain; auto-install on native

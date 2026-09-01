@@ -2,6 +2,7 @@
 version: "3.5"
 
 output:
+
   group:
     begin: "::group::{{.TASK}}"
     end: "::endgroup::"
@@ -10,13 +11,18 @@ output:
 silent: true
 
 includes:
+
   nix:
     taskfile: ../nix/Taskfile.yml
 
 vars:
+
   BRUNO_CLI_NIX_INSTALLABLE: nixpkgs#bruno-cli
+
   BRUNO_CLI_COLLECTION: "."
+
   BRUNO_CLI_ENV: ""
+
   BRUNO_CLI_EXTRA_ARGS: ""
 
 tasks:
@@ -27,15 +33,31 @@ tasks:
     cmds:
       - task --list
 
-  _ensure:
+  install:
     run: once
-    internal: true
+    desc: Install the Bruno CLI via the Nix profile
+    summary: |
+      Install the Bruno CLI into the user Nix profile when it is not already
+      available on PATH. Override the BRUNO_CLI_NIX_INSTALLABLE
+      variable to pin a different package or version.
     status:
       - command -v bru >/dev/null 2>&1
     cmds:
       - task: nix:install:profile
         vars:
           NIX_INSTALLABLE: "{{.BRUNO_CLI_NIX_INSTALLABLE}}"
+
+  version:
+    run: once
+    desc: Show the active the Bruno CLI version
+    summary: |
+      Print the version reported by the bru binary resolved from PATH.
+      Auto-installs the Bruno CLI if missing.
+    deps:
+      - task: install
+    cmds:
+      - task: _version:unix
+      - task: _version:windows
 
   _run:
     internal: true
@@ -45,7 +67,7 @@ tasks:
       RESOLVED_COLLECTION: '{{.BRUNO_CLI_COLLECTION}}'
       RESOLVED_ENV: '{{.BRUNO_CLI_ENV}}'
     deps:
-      - task: _ensure
+      - task: install
     cmds:
       - cmd: >-
           bash -lc '{{.NIX_LOAD}}; bru run {{.RESOLVED_COLLECTION}}
@@ -92,7 +114,7 @@ tasks:
     desc: Show Bruno CLI help
     summary: Display the built-in bru help output. Auto-installs bru if missing.
     deps:
-      - task: _ensure
+      - task: install
     cmds:
       - cmd: >-
           bash -lc '{{.NIX_LOAD}}; bru --help
@@ -103,3 +125,26 @@ tasks:
           "bru --help
           {{.BRUNO_CLI_EXTRA_ARGS}}{{if .CLI_ARGS}} {{.CLI_ARGS}}{{end}}"
         platforms: [windows]
+
+  _version:unix:
+    run: once
+    internal: true
+    desc: Show the Bruno CLI version on macOS or Linux
+    summary: Print the bru version on macOS or Linux.
+    platforms: [linux, darwin]
+    cmds:
+      - bash -lc '{{.NIX_LOAD}}; bru --version'
+
+  _version:windows:
+    run: once
+    internal: true
+    desc: Show the Bruno CLI version on Windows
+    summary: Print the bru version on Windows.
+    platforms: [windows]
+    preconditions:
+      - sh: >-
+          powershell -NoProfile -ExecutionPolicy Bypass -Command "if (Get-Command bru -ErrorAction SilentlyContinue) {
+          exit 0 } else { exit 1 }"
+        msg: the Bruno CLI is not installed or not available in PATH.
+    cmds:
+      - bru --version

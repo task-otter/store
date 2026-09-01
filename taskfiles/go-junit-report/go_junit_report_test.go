@@ -31,7 +31,8 @@ const (
 	constGoJunitReportTest = "test"
 	verifyTask             = "verify"
 	whichTask              = "which"
-	ensureTask             = "_ensure"
+	installTask            = "install"
+	versionTask            = "version"
 	goCoverProfileVar      = "GO_COVER_PROFILE"
 	goJunitReportModule    = "go-junit-report"
 	goJunitReportNixVar    = "GO_JUNIT_REPORT_NIX_INSTALLABLE"
@@ -82,16 +83,19 @@ func TestOperationalTaskDependencies(t *testing.T) {
 	taskfile := tasktest.LoadTaskfile(t, goJunitReportModule)
 
 	assertDependencyMap(t, taskfile, map[string][]string{
-		constGoJunitReportTest: {ensureTask},
-		whichTask:              {ensureTask},
-		verifyTask:             {ensureTask},
+		constGoJunitReportTest: {installTask},
+		whichTask:              {installTask},
+		verifyTask:             {installTask},
+		versionTask:            {installTask},
 	})
 }
 
 func publicTasks() []string {
 	return []string{
+		installTask,
 		constGoJunitReportTest,
 		verifyTask,
+		versionTask,
 		whichTask,
 	}
 }

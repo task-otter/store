@@ -2,6 +2,7 @@
 version: "3.5"
 
 output:
+
   group:
     begin: "::group::{{.TASK}}"
     end: "::endgroup::"
@@ -10,24 +11,43 @@ output:
 silent: true
 
 includes:
+
   nodejs:
     taskfile: ../nodejs/Taskfile.yml
+
   nix:
     taskfile: ../nix/Taskfile.yml
 
 vars:
+
   PNPM_NIX_INSTALLABLE: nixpkgs#pnpm
 
 tasks:
-  _ensure:
+  install:tool:
     run: once
-    internal: true
+    desc: Install pnpm via the Nix profile
+    summary: |
+      Install pnpm into the user Nix profile when it is not already
+      available on PATH. Override the PNPM_NIX_INSTALLABLE
+      variable to pin a different package or version.
     status:
       - bash -lc '{{.NIX_LOAD}}; command -v pnpm >/dev/null 2>&1'
     cmds:
       - task: nix:install:profile
         vars:
           NIX_INSTALLABLE: "{{.PNPM_NIX_INSTALLABLE}}"
+
+  version:tool:
+    run: once
+    desc: Show the active pnpm version
+    summary: |
+      Print the version reported by the pnpm binary resolved from PATH.
+      Auto-installs pnpm if missing.
+    deps:
+      - task: install:tool
+    cmds:
+      - task: _version:tool:unix
+      - task: _version:tool:windows
 
   default:
     run: once
@@ -119,7 +139,7 @@ tasks:
     desc: Upgrade pnpm via the Nix profile
     summary: Reinstall pnpm using PNPM_NIX_INSTALLABLE (default nixpkgs#pnpm).
     cmds:
-      - task: _ensure
+      - task: install:tool
 
   exec:
     run: once
@@ -343,8 +363,8 @@ tasks:
     env:
       CI: "1"
     deps:
-      - task: nodejs:_ensure
-      - task: _ensure
+      - task: nodejs:install
+      - task: install:tool
     preconditions:
       - sh: 'test -f "{{.USER_WORKING_DIR}}/package.json"'
         msg: "package.json not found. Run this task from the project root."
@@ -362,8 +382,8 @@ tasks:
     env:
       CI: "1"
     deps:
-      - task: nodejs:_ensure
-      - task: _ensure
+      - task: nodejs:install
+      - task: install:tool
     preconditions:
       - sh: >-
           powershell -NoProfile -ExecutionPolicy Bypass -Command
@@ -434,8 +454,8 @@ tasks:
     platforms: [linux, darwin]
     set: [errexit, nounset, pipefail]
     deps:
-      - task: nodejs:_ensure
-      - task: _ensure
+      - task: nodejs:install
+      - task: install:tool
     cmds:
       - bash -lc '{{.NIX_LOAD}}; node --version; pnpm --version'
 
@@ -444,8 +464,8 @@ tasks:
     internal: true
     platforms: [windows]
     deps:
-      - task: nodejs:_ensure
-      - task: _ensure
+      - task: nodejs:install
+      - task: install:tool
     cmds:
       - powershell -NoProfile -ExecutionPolicy Bypass -Command "node --version; pnpm --version"
 
@@ -488,3 +508,26 @@ tasks:
         powershell -NoProfile -ExecutionPolicy Bypass -Command
         "if (Test-Path 'node_modules') { Remove-Item -Recurse -Force 'node_modules' };
         if (Test-Path 'pnpm-lock.yaml') { Remove-Item -Force 'pnpm-lock.yaml' }"
+
+  _version:tool:unix:
+    run: once
+    internal: true
+    desc: Show pnpm version on macOS or Linux
+    summary: Print the pnpm version on macOS or Linux.
+    platforms: [linux, darwin]
+    cmds:
+      - bash -lc '{{.NIX_LOAD}}; pnpm --version'
+
+  _version:tool:windows:
+    run: once
+    internal: true
+    desc: Show pnpm version on Windows
+    summary: Print the pnpm version on Windows.
+    platforms: [windows]
+    preconditions:
+      - sh: >-
+          powershell -NoProfile -ExecutionPolicy Bypass -Command "if (Get-Command pnpm -ErrorAction SilentlyContinue) {
+          exit 0 } else { exit 1 }"
+        msg: pnpm is not installed or not available in PATH.
+    cmds:
+      - pnpm --version

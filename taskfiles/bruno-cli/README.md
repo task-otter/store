@@ -45,6 +45,8 @@ task bruno-cli:ci BRUNO_CLI_COLLECTION=./api
 | `run` | Run all requests in a Bruno collection |
 | `ci` | Run a collection and stop on the first failure (`--bail`) |
 | `help` | Show Bruno CLI help |
+| `install` | Install the Bruno CLI via the Nix profile |
+| `version` | Show the active Bruno CLI version |
 
 ## Variables
 

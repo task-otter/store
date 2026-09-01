@@ -41,6 +41,8 @@ task actionlint:ci
 | Task | Description |
 |---|---|
 | `ci` | Lint GitHub Actions workflow files with actionlint |
+| `install` | Install actionlint via the Nix profile |
+| `version` | Show the active actionlint version |
 
 ## Variables
 

@@ -38,7 +38,8 @@ const (
 	fuzzTask        = "fuzz"
 	verifyTask      = "verify"
 	whichTask       = "which"
-	ensureTask      = "_ensure"
+	installTask     = "install"
+	versionTask     = "version"
 	goModuleName    = "go"
 	goTestCmd       = "go test"
 	fmtPercentV     = "%v"
@@ -82,11 +83,12 @@ func TestOperationalTaskDependencies(t *testing.T) {
 	taskfile := tasktest.LoadTaskfile(t, goModuleName)
 
 	assertDependencyMap(t, taskfile, map[string][]string{
-		constGoTestTest: {ensureTask},
-		benchTask:       {ensureTask},
-		fuzzTask:        {ensureTask},
-		whichTask:       {ensureTask},
-		verifyTask:      {ensureTask},
+		constGoTestTest: {installTask},
+		benchTask:       {installTask},
+		fuzzTask:        {installTask},
+		whichTask:       {installTask},
+		verifyTask:      {installTask},
+		versionTask:     {installTask},
 	})
 }
 
@@ -94,8 +96,10 @@ func publicTasks() []string {
 	return []string{
 		benchTask,
 		fuzzTask,
+		installTask,
 		constGoTestTest,
 		verifyTask,
+		versionTask,
 		whichTask,
 	}
 }

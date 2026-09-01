@@ -59,7 +59,7 @@ Spectral skips matching files as top-level lint targets, but may still load them
 ## Notes
 
 - Requires a package-manager stack: `ci` auto-installs Spectral on first use;
-  on a fresh machine, run a leaf task such as `task spectral:node:npm:ci` to provision Node.js via `nodejs:_ensure`.
+  on a fresh machine, run a leaf task such as `task spectral:node:npm:ci` to provision Node.js via `nodejs:install`.
 - `ci` needs `SPECTRAL_TARGETS` — Spectral prints its usage message when no document
   is given. Without `SPECTRAL_RULESET`, Spectral discovers `.spectral.yaml` in the
   project automatically; `config:init` scaffolds one extending `spectral:oas`.

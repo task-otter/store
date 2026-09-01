@@ -210,7 +210,7 @@ tasks:
     requires:
       vars: [ARGS]
     deps:
-      - task: bun:_ensure
+      - task: bun:install
     env:
       CI: "1"
     cmds:
@@ -227,7 +227,7 @@ tasks:
     requires:
       vars: [ARGS]
     deps:
-      - task: bun:_ensure
+      - task: bun:install
     env:
       CI: "1"
     cmds:
