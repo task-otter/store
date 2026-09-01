@@ -2,7 +2,7 @@
 
 This document reflects the module dependencies declared in [`.deps.yml`](.deps.yml).
 
-**93 modules** total.
+**94 modules** total.
 
 ## Standalone
 
@@ -110,6 +110,7 @@ Modules with no `includes:` dependencies.
 - `djlint` → `nix`
 - `dotenv-linter` → `nix`
 - `go` → `nix`
+- `go-junit-report` → `nix`
 - `golangci-lint` → `nix`
 - `govulncheck` → `nix`
 - `hadolint` → `nix`
@@ -175,6 +176,7 @@ Who depends on each module:
 - `gh` ← `git`
 - `git` — *(none)*
 - `go` — *(none)*
+- `go-junit-report` — *(none)*
 - `golangci-lint` — *(none)*
 - `govulncheck` — *(none)*
 - `hadolint` — *(none)*
@@ -192,7 +194,7 @@ Who depends on each module:
 - `knip/node/npm` ← `knip/node`
 - `knip/node/pnpm` ← `knip/node`
 - `knip/node/yarn` ← `knip/node`
-- `nix` ← `actionlint`, `adrs`, `ansible`, `ansible-lint`, `bencher`, `bruno-cli`, `bruno-gui`, `buf`, `bun`, `cargo`, `djlint`, `dotenv-linter`, `gh`, `git`, `go`, `golangci-lint`, `govulncheck`, `hadolint`, `jq`, `jsonlint`, `nodejs`, `npm`, `pnpm`, `proto`, `protolint`, `pulumi`, `python`, `rumdl`, `shellcheck`, `shfmt`, `sqlfluff`, `uv`, `vault`, `yamlfix`, `yamllint`, `yarn`, `zizmor`
+- `nix` ← `actionlint`, `adrs`, `ansible`, `ansible-lint`, `bencher`, `bruno-cli`, `bruno-gui`, `buf`, `bun`, `cargo`, `djlint`, `dotenv-linter`, `gh`, `git`, `go`, `go-junit-report`, `golangci-lint`, `govulncheck`, `hadolint`, `jq`, `jsonlint`, `nodejs`, `npm`, `pnpm`, `proto`, `protolint`, `pulumi`, `python`, `rumdl`, `shellcheck`, `shfmt`, `sqlfluff`, `uv`, `vault`, `yamlfix`, `yamllint`, `yarn`, `zizmor`
 - `nodejs` ← `npm`, `pnpm`, `yarn`
 - `npm` ← `biome/node/npm`, `depcheck/node/npm`, `eslint/node/npm`, `htmlhint/node/npm`, `knip/node/npm`, `prettier/node/npm`, `spectral/node/npm`, `stylelint/node/npm`, `typescript/node/npm`
 - `pnpm` ← `biome/node/pnpm`, `depcheck/node/pnpm`, `eslint/node/pnpm`, `htmlhint/node/pnpm`, `knip/node/pnpm`, `prettier/node/pnpm`, `spectral/node/pnpm`, `stylelint/node/pnpm`, `typescript/node/pnpm`
