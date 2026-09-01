@@ -28,6 +28,20 @@ type (
 
 const (
 	unknownTaskName = "taskotter-integration-missing-task"
+
+	// installTaskName and versionTaskName are the public surface ADR 0004
+	// requires of every Nix-backed module.
+	installTaskName = "install"
+	versionTaskName = "version"
+
+	// toolSuffix names the variant pnpm and yarn use, where install and version
+	// already mean project dependencies rather than the CLI itself.
+	toolSuffix = ":tool"
+
+	// nixNamespace is the include a Nix-backed module carries, and
+	// installableSuffix names the installable it owns.
+	nixNamespace      = "nix"
+	installableSuffix = "_NIX_INSTALLABLE"
 )
 
 // assertDeclaredTasksAreListed proves the task CLI and the Taskfile agree in
@@ -84,6 +98,83 @@ func assertTaskSummariesRender(t *testing.T, module *Module) {
 		names:  module.Declared,
 		reason: module.Name + " declares no tasks of its own",
 	})
+}
+
+// assertNixModulesExposeInstall proves a module that installs its tool from the
+// Nix profile publishes the surface ADR 0004 requires: a public install task and
+// a public version task, both advertised in metadata.yml. Modules that own no
+// installable — the nix module itself, docker, and the family roots that only
+// dispatch to variants — are skipped.
+func assertNixModulesExposeInstall(t *testing.T, module *Module) {
+	t.Helper()
+
+	if !isNixBacked(module) {
+		t.Skipf("%s installs no tool from the nix profile", module.Name)
+	}
+
+	requireInstallerTask(t, module, installTaskName)
+	requireInstallerTask(t, module, versionTaskName)
+}
+
+// isNixBacked reports whether the module includes nix and owns an installable,
+// which together mark it as installing its tool through nix:install:profile.
+func isNixBacked(module *Module) bool {
+	return slices.Contains(module.Includes, nixNamespace) && ownsInstallable(module.Vars)
+}
+
+func ownsInstallable(vars []string) bool {
+	for i := range vars {
+		if strings.HasSuffix(vars[i], installableSuffix) {
+			return true
+		}
+	}
+
+	return false
+}
+
+// requireInstallerTask proves the module both declares and exports name, or the
+// ":tool" variant of it that pnpm and yarn use.
+func requireInstallerTask(t suiteT, module *Module, name string) {
+	t.Helper()
+
+	requireInstallerDeclared(t, module, name)
+	requireInstallerExported(t, module, name)
+}
+
+func requireInstallerDeclared(t suiteT, module *Module, name string) {
+	t.Helper()
+
+	if declaresEitherName(module.Declared, name) {
+		return
+	}
+
+	t.Fatalf(
+		"%s: %s installs from the nix profile but declares no public %q task\ndeclared: %v",
+		module.Name,
+		taskfileName,
+		name,
+		module.Declared,
+	)
+}
+
+func requireInstallerExported(t suiteT, module *Module, name string) {
+	t.Helper()
+
+	if declaresEitherName(module.Exported, name) {
+		return
+	}
+
+	t.Fatalf(
+		"%s: %s does not export the %q task\nexported: %v",
+		module.Name,
+		metadataName,
+		name,
+		module.Exported,
+	)
+}
+
+func declaresEitherName(names []string, name string) bool {
+	return slices.Contains(names, name) || slices.Contains(names, name+toolSuffix)
 }
 
 // assertDryRunTasksSucceed runs the tasks a module opted into under `task --dry`,

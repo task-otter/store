@@ -30,10 +30,12 @@ func TestTaskfileModuleContract(t *testing.T) {
 
 func publicTasks() []string {
 	return []string{
+		"install",
 		"pip:install",
 		"run",
 		"venv",
 		"verify",
+		"version",
 	}
 }
 

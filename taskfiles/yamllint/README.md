@@ -17,7 +17,7 @@ task -t taskfiles/yamllint/Taskfile.yml ci
 Install only:
 
 ```sh
-task nix:install:profile NIX_INSTALLABLE=nixpkgs#yamllint
+task -t taskfiles/yamllint/Taskfile.yml install
 ```
 
 ### Included
@@ -39,6 +39,8 @@ task yamllint:ci
 | -------------- | ----------------------------------------------- |
 | `ci`           | Strict lint for CI (fails on warnings)          |
 | `config:init`  | Create a default `.yamllint` configuration file |
+| `install`      | Install yamllint via the Nix profile            |
+| `version`      | Show the active yamllint version                |
 
 ## Variables
 

@@ -36,6 +36,32 @@ tasks:
     cmds:
       - task --list
 
+  install:
+    run: once
+    desc: Install the GitHub CLI via the Nix profile
+    summary: |
+      Install the GitHub CLI into the user Nix profile when it is not already
+      available on PATH. Override the GH_NIX_INSTALLABLE
+      variable to pin a different package or version.
+    status:
+      - command -v gh >/dev/null 2>&1
+    cmds:
+      - task: nix:install:profile
+        vars:
+          NIX_INSTALLABLE: "{{.GH_NIX_INSTALLABLE}}"
+
+  version:
+    run: once
+    desc: Show the active GitHub CLI version
+    summary: |
+      Print the version reported by the gh binary resolved from PATH.
+      Auto-installs the GitHub CLI if missing.
+    deps:
+      - task: install
+    cmds:
+      - task: _version:unix
+      - task: _version:windows
+
   doctor:
     run: once
     desc: Run the GitHub CLI self-diagnostic check
@@ -43,9 +69,7 @@ tasks:
       Run `gh doctor` to check your gh configuration, authentication,
       and network connectivity to GitHub.
     deps:
-      - task: nix:install:profile
-        vars:
-          NIX_INSTALLABLE: "{{.GH_NIX_INSTALLABLE}}"
+      - task: install
     cmds:
       - task: _doctor:unix
       - task: _doctor:windows
@@ -55,9 +79,7 @@ tasks:
     desc: Show the path to the GitHub CLI binary
     summary: Print the filesystem path of the gh binary resolved from PATH.
     deps:
-      - task: nix:install:profile
-        vars:
-          NIX_INSTALLABLE: "{{.GH_NIX_INSTALLABLE}}"
+      - task: install
     cmds:
       - task: _which:unix
       - task: _which:windows
@@ -70,9 +92,7 @@ tasks:
       and report the current authentication status via `gh auth status`.
       Prints a clear message if the user is not yet authenticated.
     deps:
-      - task: nix:install:profile
-        vars:
-          NIX_INSTALLABLE: "{{.GH_NIX_INSTALLABLE}}"
+      - task: install
     cmds:
       - task: _verify:unix
       - task: _verify:windows
@@ -82,9 +102,7 @@ tasks:
     desc: Show the GitHub CLI built-in help
     summary: Display the built-in gh help output via `gh help`.
     deps:
-      - task: nix:install:profile
-        vars:
-          NIX_INSTALLABLE: "{{.GH_NIX_INSTALLABLE}}"
+      - task: install
     cmds:
       - cmd: bash -lc '{{.NIX_LOAD}}; gh help'
         platforms: [linux, darwin]
@@ -99,9 +117,7 @@ tasks:
       Prompts for hostname, protocol, and authentication method.
       This task is interactive and requires a terminal.
     deps:
-      - task: nix:install:profile
-        vars:
-          NIX_INSTALLABLE: "{{.GH_NIX_INSTALLABLE}}"
+      - task: install
     cmds:
       - cmd: bash -lc '{{.NIX_LOAD}}; gh auth login'
         platforms: [linux, darwin]
@@ -115,9 +131,7 @@ tasks:
       Authenticate with GitHub by opening a browser window for OAuth.
       Uses `gh auth login --web`. This task is interactive.
     deps:
-      - task: nix:install:profile
-        vars:
-          NIX_INSTALLABLE: "{{.GH_NIX_INSTALLABLE}}"
+      - task: install
     cmds:
       - cmd: bash -lc '{{.NIX_LOAD}}; gh auth login --web'
         platforms: [linux, darwin]
@@ -131,9 +145,7 @@ tasks:
       Authenticate with GitHub using the SSH git protocol.
       Uses `gh auth login --git-protocol ssh`. This task is interactive.
     deps:
-      - task: nix:install:profile
-        vars:
-          NIX_INSTALLABLE: "{{.GH_NIX_INSTALLABLE}}"
+      - task: install
     cmds:
       - cmd: bash -lc '{{.NIX_LOAD}}; gh auth login --git-protocol ssh'
         platforms: [linux, darwin]
@@ -147,9 +159,7 @@ tasks:
       Display the current GitHub authentication status for all configured
       hosts via `gh auth status`.
     deps:
-      - task: nix:install:profile
-        vars:
-          NIX_INSTALLABLE: "{{.GH_NIX_INSTALLABLE}}"
+      - task: install
     cmds:
       - cmd: bash -lc '{{.NIX_LOAD}}; gh auth status'
         platforms: [linux, darwin]
@@ -163,9 +173,7 @@ tasks:
       Refresh the stored GitHub CLI credentials to extend their validity
       via `gh auth refresh`. This task is interactive.
     deps:
-      - task: nix:install:profile
-        vars:
-          NIX_INSTALLABLE: "{{.GH_NIX_INSTALLABLE}}"
+      - task: install
     cmds:
       - cmd: bash -lc '{{.NIX_LOAD}}; gh auth refresh'
         platforms: [linux, darwin]
@@ -179,9 +187,7 @@ tasks:
       Remove locally stored GitHub credentials via `gh auth logout`.
       You will need to re-authenticate with `task auth:login` afterwards.
     deps:
-      - task: nix:install:profile
-        vars:
-          NIX_INSTALLABLE: "{{.GH_NIX_INSTALLABLE}}"
+      - task: install
     cmds:
       - cmd: bash -lc '{{.NIX_LOAD}}; gh auth logout'
         platforms: [linux, darwin]
@@ -195,9 +201,7 @@ tasks:
       Configure git to delegate GitHub authentication to gh via
       `gh auth setup-git`. This enables seamless HTTPS git operations.
     deps:
-      - task: nix:install:profile
-        vars:
-          NIX_INSTALLABLE: "{{.GH_NIX_INSTALLABLE}}"
+      - task: install
     cmds:
       - cmd: bash -lc '{{.NIX_LOAD}}; gh auth setup-git'
         platforms: [linux, darwin]
@@ -213,9 +217,7 @@ tasks:
       repository in the current working directory.
       Example: OWNER=github REPO=cli
     deps:
-      - task: nix:install:profile
-        vars:
-          NIX_INSTALLABLE: "{{.GH_NIX_INSTALLABLE}}"
+      - task: install
     cmds:
       - cmd: bash -lc '{{.NIX_LOAD}}; gh repo view {{if .OWNER}}{{.OWNER}}/{{end}}{{.REPO}}'
         platforms: [linux, darwin]
@@ -233,9 +235,7 @@ tasks:
       vars:
         - REPO
     deps:
-      - task: nix:install:profile
-        vars:
-          NIX_INSTALLABLE: "{{.GH_NIX_INSTALLABLE}}"
+      - task: install
     cmds:
       - cmd: >-
           bash -lc '{{.NIX_LOAD}};
@@ -267,9 +267,7 @@ tasks:
       vars:
         - REPO
     deps:
-      - task: nix:install:profile
-        vars:
-          NIX_INSTALLABLE: "{{.GH_NIX_INSTALLABLE}}"
+      - task: install
     cmds:
       - task: _repo:clone:unix
       - task: _repo:clone:windows
@@ -284,9 +282,7 @@ tasks:
       Example: OWNER=github REPO=cli
       Private: OWNER=myorg REPO=private-repo GH_PAT_TOKEN=ghp_xxx
     deps:
-      - task: nix:install:profile
-        vars:
-          NIX_INSTALLABLE: "{{.GH_NIX_INSTALLABLE}}"
+      - task: install
     cmds:
       - cmd: bash -lc '{{.NIX_LOAD}}; gh repo fork {{if .OWNER}}{{.OWNER}}/{{end}}{{.REPO}} --clone'
         platforms: [linux, darwin]
@@ -301,9 +297,7 @@ tasks:
       repositories for a specific user or organisation instead.
       Example: OWNER=github
     deps:
-      - task: nix:install:profile
-        vars:
-          NIX_INSTALLABLE: "{{.GH_NIX_INSTALLABLE}}"
+      - task: install
     cmds:
       - cmd: bash -lc '{{.NIX_LOAD}}; gh repo list {{.OWNER}}'
         platforms: [linux, darwin]
@@ -318,9 +312,7 @@ tasks:
       Optionally set BRANCH to sync a specific branch.
       Example: BRANCH=main
     deps:
-      - task: nix:install:profile
-        vars:
-          NIX_INSTALLABLE: "{{.GH_NIX_INSTALLABLE}}"
+      - task: install
     cmds:
       - cmd: bash -lc '{{.NIX_LOAD}}; gh repo sync {{if .BRANCH}}--branch {{.BRANCH}}{{end}}'
         platforms: [linux, darwin]
@@ -338,9 +330,7 @@ tasks:
       vars:
         - REPO
     deps:
-      - task: nix:install:profile
-        vars:
-          NIX_INSTALLABLE: "{{.GH_NIX_INSTALLABLE}}"
+      - task: install
     cmds:
       - cmd: bash -lc '{{.NIX_LOAD}}; gh repo archive {{if .OWNER}}{{.OWNER}}/{{end}}{{.REPO}} --yes'
         platforms: [linux, darwin]
@@ -363,9 +353,7 @@ tasks:
       - All code, issues, pull requests, and history will be permanently lost.
       - This action cannot be undone. Are you sure you want to continue?
     deps:
-      - task: nix:install:profile
-        vars:
-          NIX_INSTALLABLE: "{{.GH_NIX_INSTALLABLE}}"
+      - task: install
     cmds:
       - cmd: bash -lc '{{.NIX_LOAD}}; gh repo delete {{if .OWNER}}{{.OWNER}}/{{end}}{{.REPO}} --yes'
         platforms: [linux, darwin]
@@ -377,9 +365,7 @@ tasks:
     desc: List open pull requests in the current repository
     summary: List open pull requests for the current repository via `gh pr list`.
     deps:
-      - task: nix:install:profile
-        vars:
-          NIX_INSTALLABLE: "{{.GH_NIX_INSTALLABLE}}"
+      - task: install
     cmds:
       - cmd: bash -lc '{{.NIX_LOAD}}; gh pr list'
         platforms: [linux, darwin]
@@ -391,9 +377,7 @@ tasks:
     desc: Show pull request status for the current branch
     summary: Display the status of pull requests related to the current branch via `gh pr status`.
     deps:
-      - task: nix:install:profile
-        vars:
-          NIX_INSTALLABLE: "{{.GH_NIX_INSTALLABLE}}"
+      - task: install
     cmds:
       - cmd: bash -lc '{{.NIX_LOAD}}; gh pr status'
         platforms: [linux, darwin]
@@ -407,9 +391,7 @@ tasks:
       View the pull request for the current branch, or the PR specified by
       PR_NUMBER. Example: PR_NUMBER=42
     deps:
-      - task: nix:install:profile
-        vars:
-          NIX_INSTALLABLE: "{{.GH_NIX_INSTALLABLE}}"
+      - task: install
     cmds:
       - cmd: bash -lc '{{.NIX_LOAD}}; gh pr view {{.PR_NUMBER}}'
         platforms: [linux, darwin]
@@ -424,9 +406,7 @@ tasks:
       BASE (default: main), and HEAD to pre-fill fields.
       Example: PR_TITLE="Add feature" GH_BASE=main
     deps:
-      - task: nix:install:profile
-        vars:
-          NIX_INSTALLABLE: "{{.GH_NIX_INSTALLABLE}}"
+      - task: install
     cmds:
       - cmd: >-
           bash -lc '{{.NIX_LOAD}};
@@ -454,9 +434,7 @@ tasks:
       vars:
         - PR_NUMBER
     deps:
-      - task: nix:install:profile
-        vars:
-          NIX_INSTALLABLE: "{{.GH_NIX_INSTALLABLE}}"
+      - task: install
     cmds:
       - cmd: bash -lc '{{.NIX_LOAD}}; gh pr checkout {{.PR_NUMBER}}'
         platforms: [linux, darwin]
@@ -470,9 +448,7 @@ tasks:
       Show the diff for the current branch's PR, or for PR_NUMBER.
       Example: PR_NUMBER=42
     deps:
-      - task: nix:install:profile
-        vars:
-          NIX_INSTALLABLE: "{{.GH_NIX_INSTALLABLE}}"
+      - task: install
     cmds:
       - cmd: bash -lc '{{.NIX_LOAD}}; gh pr diff {{.PR_NUMBER}}'
         platforms: [linux, darwin]
@@ -486,9 +462,7 @@ tasks:
       Open an interactive review for the current branch's PR, or for PR_NUMBER.
       Example: PR_NUMBER=42
     deps:
-      - task: nix:install:profile
-        vars:
-          NIX_INSTALLABLE: "{{.GH_NIX_INSTALLABLE}}"
+      - task: install
     cmds:
       - cmd: bash -lc '{{.NIX_LOAD}}; gh pr review {{.PR_NUMBER}}'
         platforms: [linux, darwin]
@@ -506,9 +480,7 @@ tasks:
       vars:
         - PR_NUMBER
     deps:
-      - task: nix:install:profile
-        vars:
-          NIX_INSTALLABLE: "{{.GH_NIX_INSTALLABLE}}"
+      - task: install
     cmds:
       - cmd: bash -lc '{{.NIX_LOAD}}; gh pr merge {{.PR_NUMBER}} --{{default "merge" .GH_MERGE_METHOD}}'
         platforms: [linux, darwin]
@@ -525,9 +497,7 @@ tasks:
       vars:
         - PR_NUMBER
     deps:
-      - task: nix:install:profile
-        vars:
-          NIX_INSTALLABLE: "{{.GH_NIX_INSTALLABLE}}"
+      - task: install
     cmds:
       - cmd: bash -lc '{{.NIX_LOAD}}; gh pr close {{.PR_NUMBER}}'
         platforms: [linux, darwin]
@@ -542,9 +512,7 @@ tasks:
       Optionally set PR_NUMBER; otherwise uses the current branch's PR.
       Example: PR_NUMBER=42
     deps:
-      - task: nix:install:profile
-        vars:
-          NIX_INSTALLABLE: "{{.GH_NIX_INSTALLABLE}}"
+      - task: install
     cmds:
       - cmd: bash -lc '{{.NIX_LOAD}}; gh pr ready {{.PR_NUMBER}}'
         platforms: [linux, darwin]
@@ -562,9 +530,7 @@ tasks:
         - PR_NUMBER
         - PR_BODY
     deps:
-      - task: nix:install:profile
-        vars:
-          NIX_INSTALLABLE: "{{.GH_NIX_INSTALLABLE}}"
+      - task: install
     cmds:
       - cmd: bash -lc '{{.NIX_LOAD}}; gh pr comment {{.PR_NUMBER}} --body "{{.PR_BODY}}"'
         platforms: [linux, darwin]
@@ -576,9 +542,7 @@ tasks:
     desc: List open issues in the current repository
     summary: List open issues for the current repository via `gh issue list`.
     deps:
-      - task: nix:install:profile
-        vars:
-          NIX_INSTALLABLE: "{{.GH_NIX_INSTALLABLE}}"
+      - task: install
     cmds:
       - cmd: bash -lc '{{.NIX_LOAD}}; gh issue list'
         platforms: [linux, darwin]
@@ -595,9 +559,7 @@ tasks:
       vars:
         - ISSUE_NUMBER
     deps:
-      - task: nix:install:profile
-        vars:
-          NIX_INSTALLABLE: "{{.GH_NIX_INSTALLABLE}}"
+      - task: install
     cmds:
       - cmd: bash -lc '{{.NIX_LOAD}}; gh issue view {{.ISSUE_NUMBER}}'
         platforms: [linux, darwin]
@@ -611,9 +573,7 @@ tasks:
       Create an issue interactively. Optionally set ISSUE_TITLE and ISSUE_BODY
       to pre-fill fields. Example: ISSUE_TITLE="Bug report" ISSUE_BODY="..."
     deps:
-      - task: nix:install:profile
-        vars:
-          NIX_INSTALLABLE: "{{.GH_NIX_INSTALLABLE}}"
+      - task: install
     cmds:
       - cmd: >-
           bash -lc '{{.NIX_LOAD}};
@@ -639,9 +599,7 @@ tasks:
         - ISSUE_NUMBER
         - ISSUE_BODY
     deps:
-      - task: nix:install:profile
-        vars:
-          NIX_INSTALLABLE: "{{.GH_NIX_INSTALLABLE}}"
+      - task: install
     cmds:
       - cmd: bash -lc '{{.NIX_LOAD}}; gh issue comment {{.ISSUE_NUMBER}} --body "{{.ISSUE_BODY}}"'
         platforms: [linux, darwin]
@@ -658,9 +616,7 @@ tasks:
       vars:
         - ISSUE_NUMBER
     deps:
-      - task: nix:install:profile
-        vars:
-          NIX_INSTALLABLE: "{{.GH_NIX_INSTALLABLE}}"
+      - task: install
     cmds:
       - cmd: bash -lc '{{.NIX_LOAD}}; gh issue close {{.ISSUE_NUMBER}}'
         platforms: [linux, darwin]
@@ -677,9 +633,7 @@ tasks:
       vars:
         - ISSUE_NUMBER
     deps:
-      - task: nix:install:profile
-        vars:
-          NIX_INSTALLABLE: "{{.GH_NIX_INSTALLABLE}}"
+      - task: install
     cmds:
       - cmd: bash -lc '{{.NIX_LOAD}}; gh issue reopen {{.ISSUE_NUMBER}}'
         platforms: [linux, darwin]
@@ -698,9 +652,7 @@ tasks:
         - ISSUE_NUMBER
         - ASSIGNEE
     deps:
-      - task: nix:install:profile
-        vars:
-          NIX_INSTALLABLE: "{{.GH_NIX_INSTALLABLE}}"
+      - task: install
     cmds:
       - cmd: bash -lc '{{.NIX_LOAD}}; gh issue edit {{.ISSUE_NUMBER}} --add-assignee {{.ASSIGNEE}}'
         platforms: [linux, darwin]
@@ -719,9 +671,7 @@ tasks:
         - ISSUE_NUMBER
         - LABEL
     deps:
-      - task: nix:install:profile
-        vars:
-          NIX_INSTALLABLE: "{{.GH_NIX_INSTALLABLE}}"
+      - task: install
     cmds:
       - cmd: bash -lc '{{.NIX_LOAD}}; gh issue edit {{.ISSUE_NUMBER}} --add-label {{.LABEL}}'
         platforms: [linux, darwin]
@@ -733,9 +683,7 @@ tasks:
     desc: List GitHub Actions workflows in the current repository
     summary: List all available workflows via `gh workflow list`.
     deps:
-      - task: nix:install:profile
-        vars:
-          NIX_INSTALLABLE: "{{.GH_NIX_INSTALLABLE}}"
+      - task: install
     cmds:
       - cmd: bash -lc '{{.NIX_LOAD}}; gh workflow list'
         platforms: [linux, darwin]
@@ -752,9 +700,7 @@ tasks:
       vars:
         - WORKFLOW
     deps:
-      - task: nix:install:profile
-        vars:
-          NIX_INSTALLABLE: "{{.GH_NIX_INSTALLABLE}}"
+      - task: install
     cmds:
       - cmd: bash -lc '{{.NIX_LOAD}}; gh workflow view {{.WORKFLOW}}'
         platforms: [linux, darwin]
@@ -772,9 +718,7 @@ tasks:
       vars:
         - WORKFLOW
     deps:
-      - task: nix:install:profile
-        vars:
-          NIX_INSTALLABLE: "{{.GH_NIX_INSTALLABLE}}"
+      - task: install
     cmds:
       - cmd: bash -lc '{{.NIX_LOAD}}; gh workflow run {{.WORKFLOW}} {{if .BRANCH}}--ref {{.BRANCH}}{{end}}'
         platforms: [linux, darwin]
@@ -791,12 +735,8 @@ tasks:
       vars:
         - WORKFLOW
     deps:
-      - task: nix:install:profile
-        vars:
-          NIX_INSTALLABLE: "{{.GH_NIX_INSTALLABLE}}"
-      - task: jq:nix:install:profile
-        vars:
-          NIX_INSTALLABLE: "{{.JQ_NIX_INSTALLABLE}}"
+      - task: install
+      - task: jq:install
     cmds:
       - task: _workflow:watch:unix
       - task: _workflow:watch:windows
@@ -806,9 +746,7 @@ tasks:
     desc: List recent GitHub Actions runs in the current repository
     summary: List recent workflow runs via `gh run list`.
     deps:
-      - task: nix:install:profile
-        vars:
-          NIX_INSTALLABLE: "{{.GH_NIX_INSTALLABLE}}"
+      - task: install
     cmds:
       - cmd: bash -lc '{{.NIX_LOAD}}; gh run list'
         platforms: [linux, darwin]
@@ -825,9 +763,7 @@ tasks:
       vars:
         - RUN_ID
     deps:
-      - task: nix:install:profile
-        vars:
-          NIX_INSTALLABLE: "{{.GH_NIX_INSTALLABLE}}"
+      - task: install
     cmds:
       - cmd: bash -lc '{{.NIX_LOAD}}; gh run view {{.RUN_ID}}'
         platforms: [linux, darwin]
@@ -844,9 +780,7 @@ tasks:
       vars:
         - RUN_ID
     deps:
-      - task: nix:install:profile
-        vars:
-          NIX_INSTALLABLE: "{{.GH_NIX_INSTALLABLE}}"
+      - task: install
     cmds:
       - cmd: bash -lc '{{.NIX_LOAD}}; gh run view {{.RUN_ID}} --log'
         platforms: [linux, darwin]
@@ -863,9 +797,7 @@ tasks:
       vars:
         - RUN_ID
     deps:
-      - task: nix:install:profile
-        vars:
-          NIX_INSTALLABLE: "{{.GH_NIX_INSTALLABLE}}"
+      - task: install
     cmds:
       - cmd: bash -lc '{{.NIX_LOAD}}; gh run rerun {{.RUN_ID}}'
         platforms: [linux, darwin]
@@ -882,9 +814,7 @@ tasks:
       vars:
         - RUN_ID
     deps:
-      - task: nix:install:profile
-        vars:
-          NIX_INSTALLABLE: "{{.GH_NIX_INSTALLABLE}}"
+      - task: install
     cmds:
       - cmd: bash -lc '{{.NIX_LOAD}}; gh run cancel {{.RUN_ID}}'
         platforms: [linux, darwin]
@@ -899,9 +829,7 @@ tasks:
       (requires GH_PAT_TOKEN with repo scope).
       Example: OWNER=hashicorp REPO=terraform GH_PAT_TOKEN=ghp_...
     deps:
-      - task: nix:install:profile
-        vars:
-          NIX_INSTALLABLE: "{{.GH_NIX_INSTALLABLE}}"
+      - task: install
     cmds:
       - cmd: bash -lc '{{.NIX_LOAD}}; gh release list {{if .OWNER}}--repo {{.OWNER}}/{{.REPO}}{{end}}'
         platforms: [linux, darwin]
@@ -916,9 +844,7 @@ tasks:
       release. Set OWNER and REPO to target a repo not owned by you.
       Example: TAG=v1.0.0 OWNER=hashicorp REPO=terraform
     deps:
-      - task: nix:install:profile
-        vars:
-          NIX_INSTALLABLE: "{{.GH_NIX_INSTALLABLE}}"
+      - task: install
     cmds:
       - cmd: bash -lc '{{.NIX_LOAD}}; gh release view {{.TAG}} {{if .OWNER}}--repo {{.OWNER}}/{{.REPO}}{{end}}'
         platforms: [linux, darwin]
@@ -938,9 +864,7 @@ tasks:
       vars:
         - TAG
     deps:
-      - task: nix:install:profile
-        vars:
-          NIX_INSTALLABLE: "{{.GH_NIX_INSTALLABLE}}"
+      - task: install
     cmds:
       - cmd: >-
           bash -lc '{{.NIX_LOAD}};
@@ -969,9 +893,7 @@ tasks:
         - TAG
         - ASSET
     deps:
-      - task: nix:install:profile
-        vars:
-          NIX_INSTALLABLE: "{{.GH_NIX_INSTALLABLE}}"
+      - task: install
     cmds:
       - cmd: >-
           bash -lc '{{.NIX_LOAD}};
@@ -991,9 +913,7 @@ tasks:
       (requires GH_PAT_TOKEN with repo scope for private repos).
       Example: TAG=v1.0.0 OWNER=hashicorp REPO=terraform GH_DOWNLOAD_DIR=./dist
     deps:
-      - task: nix:install:profile
-        vars:
-          NIX_INSTALLABLE: "{{.GH_NIX_INSTALLABLE}}"
+      - task: install
     cmds:
       - cmd: >-
           bash -lc '{{.NIX_LOAD}};
@@ -1016,12 +936,8 @@ tasks:
       (requires GH_PAT_TOKEN with repo scope for private repos).
       Example: OWNER=hashicorp REPO=terraform GH_DOWNLOAD_DIR=./releases
     deps:
-      - task: nix:install:profile
-        vars:
-          NIX_INSTALLABLE: "{{.GH_NIX_INSTALLABLE}}"
-      - task: jq:nix:install:profile
-        vars:
-          NIX_INSTALLABLE: "{{.JQ_NIX_INSTALLABLE}}"
+      - task: install
+      - task: jq:install
     cmds:
       - task: _release:download:all:unix
       - task: _release:download:all:windows
@@ -1077,9 +993,7 @@ tasks:
       - The git tag itself will be preserved, but the release record will be gone.
       - Are you sure you want to continue?
     deps:
-      - task: nix:install:profile
-        vars:
-          NIX_INSTALLABLE: "{{.GH_NIX_INSTALLABLE}}"
+      - task: install
     cmds:
       - cmd: bash -lc '{{.NIX_LOAD}}; gh release delete {{.TAG}} --yes {{if .OWNER}}--repo {{.OWNER}}/{{.REPO}}{{end}}'
         platforms: [linux, darwin]
@@ -1094,9 +1008,7 @@ tasks:
       Optionally set ENVIRONMENT to list secrets for a specific environment.
       Example: ENVIRONMENT=production
     deps:
-      - task: nix:install:profile
-        vars:
-          NIX_INSTALLABLE: "{{.GH_NIX_INSTALLABLE}}"
+      - task: install
     cmds:
       - cmd: bash -lc '{{.NIX_LOAD}}; gh secret list {{if .ENVIRONMENT}}--env {{.ENVIRONMENT}}{{end}}'
         platforms: [linux, darwin]
@@ -1117,9 +1029,7 @@ tasks:
         - SECRET_NAME
         - SECRET_VALUE
     deps:
-      - task: nix:install:profile
-        vars:
-          NIX_INSTALLABLE: "{{.GH_NIX_INSTALLABLE}}"
+      - task: install
     cmds:
       - task: _secret:set:unix
       - task: _secret:set:windows
@@ -1139,9 +1049,7 @@ tasks:
       - Any workflows depending on this secret will break until it is re-created.
       - Are you sure you want to continue?
     deps:
-      - task: nix:install:profile
-        vars:
-          NIX_INSTALLABLE: "{{.GH_NIX_INSTALLABLE}}"
+      - task: install
     cmds:
       - cmd: >-
           bash -lc '{{.NIX_LOAD}};
@@ -1159,9 +1067,7 @@ tasks:
       Optionally set ENVIRONMENT to list variables for a specific environment.
       Example: ENVIRONMENT=staging
     deps:
-      - task: nix:install:profile
-        vars:
-          NIX_INSTALLABLE: "{{.GH_NIX_INSTALLABLE}}"
+      - task: install
     cmds:
       - cmd: bash -lc '{{.NIX_LOAD}}; gh variable list {{if .ENVIRONMENT}}--env {{.ENVIRONMENT}}{{end}}'
         platforms: [linux, darwin]
@@ -1181,9 +1087,7 @@ tasks:
         - VARIABLE_NAME
         - VARIABLE_VALUE
     deps:
-      - task: nix:install:profile
-        vars:
-          NIX_INSTALLABLE: "{{.GH_NIX_INSTALLABLE}}"
+      - task: install
     cmds:
       - cmd: >-
           bash -lc '{{.NIX_LOAD}};
@@ -1211,9 +1115,7 @@ tasks:
       - "This will permanently delete the variable {{.VARIABLE_NAME}}."
       - Are you sure you want to continue?
     deps:
-      - task: nix:install:profile
-        vars:
-          NIX_INSTALLABLE: "{{.GH_NIX_INSTALLABLE}}"
+      - task: install
     cmds:
       - cmd: >-
           bash -lc '{{.NIX_LOAD}};
@@ -1228,9 +1130,7 @@ tasks:
     desc: List gists for the authenticated GitHub user
     summary: List all gists belonging to the authenticated user via `gh gist list`.
     deps:
-      - task: nix:install:profile
-        vars:
-          NIX_INSTALLABLE: "{{.GH_NIX_INSTALLABLE}}"
+      - task: install
     cmds:
       - cmd: bash -lc '{{.NIX_LOAD}}; gh gist list'
         platforms: [linux, darwin]
@@ -1247,9 +1147,7 @@ tasks:
       vars:
         - GIST_ID
     deps:
-      - task: nix:install:profile
-        vars:
-          NIX_INSTALLABLE: "{{.GH_NIX_INSTALLABLE}}"
+      - task: install
     cmds:
       - cmd: bash -lc '{{.NIX_LOAD}}; gh gist view {{.GIST_ID}}'
         platforms: [linux, darwin]
@@ -1267,9 +1165,7 @@ tasks:
       vars:
         - FILE
     deps:
-      - task: nix:install:profile
-        vars:
-          NIX_INSTALLABLE: "{{.GH_NIX_INSTALLABLE}}"
+      - task: install
     cmds:
       - cmd: bash -lc '{{.NIX_LOAD}}; gh gist create {{.FILE}} {{if .DESCRIPTION}}--desc "{{.DESCRIPTION}}"{{end}}'
         platforms: [linux, darwin]
@@ -1289,9 +1185,7 @@ tasks:
       - "This will permanently delete gist {{.GIST_ID}}."
       - This action cannot be undone. Are you sure you want to continue?
     deps:
-      - task: nix:install:profile
-        vars:
-          NIX_INSTALLABLE: "{{.GH_NIX_INSTALLABLE}}"
+      - task: install
     cmds:
       - cmd: bash -lc '{{.NIX_LOAD}}; gh gist delete {{.GIST_ID}}'
         platforms: [linux, darwin]
@@ -1308,9 +1202,7 @@ tasks:
       vars:
         - ENDPOINT
     deps:
-      - task: nix:install:profile
-        vars:
-          NIX_INSTALLABLE: "{{.GH_NIX_INSTALLABLE}}"
+      - task: install
     cmds:
       - cmd: bash -lc '{{.NIX_LOAD}}; gh api {{.ENDPOINT}}'
         platforms: [linux, darwin]
@@ -1328,9 +1220,7 @@ tasks:
       vars:
         - ENDPOINT
     deps:
-      - task: nix:install:profile
-        vars:
-          NIX_INSTALLABLE: "{{.GH_NIX_INSTALLABLE}}"
+      - task: install
     cmds:
       - task: _api:post:unix
       - task: _api:post:windows
@@ -1346,9 +1236,7 @@ tasks:
       vars:
         - ENDPOINT
     deps:
-      - task: nix:install:profile
-        vars:
-          NIX_INSTALLABLE: "{{.GH_NIX_INSTALLABLE}}"
+      - task: install
     cmds:
       - task: _api:patch:unix
       - task: _api:patch:windows
@@ -1367,9 +1255,7 @@ tasks:
       - "This will send a DELETE request to the GitHub API: {{.ENDPOINT}}"
       - This may permanently remove resources. Are you sure you want to continue?
     deps:
-      - task: nix:install:profile
-        vars:
-          NIX_INSTALLABLE: "{{.GH_NIX_INSTALLABLE}}"
+      - task: install
     cmds:
       - cmd: bash -lc '{{.NIX_LOAD}}; gh api --method DELETE {{.ENDPOINT}}'
         platforms: [linux, darwin]
@@ -1381,9 +1267,7 @@ tasks:
     desc: List installed GitHub CLI extensions
     summary: List all locally installed gh extensions via `gh extension list`.
     deps:
-      - task: nix:install:profile
-        vars:
-          NIX_INSTALLABLE: "{{.GH_NIX_INSTALLABLE}}"
+      - task: install
     cmds:
       - cmd: bash -lc '{{.NIX_LOAD}}; gh extension list'
         platforms: [linux, darwin]
@@ -1400,9 +1284,7 @@ tasks:
       vars:
         - EXTENSION
     deps:
-      - task: nix:install:profile
-        vars:
-          NIX_INSTALLABLE: "{{.GH_NIX_INSTALLABLE}}"
+      - task: install
     cmds:
       - cmd: bash -lc '{{.NIX_LOAD}}; gh extension install {{.EXTENSION}}'
         platforms: [linux, darwin]
@@ -1420,9 +1302,7 @@ tasks:
       vars:
         - EXTENSION
     deps:
-      - task: nix:install:profile
-        vars:
-          NIX_INSTALLABLE: "{{.GH_NIX_INSTALLABLE}}"
+      - task: install
     cmds:
       - cmd: bash -lc '{{.NIX_LOAD}}; gh extension upgrade {{.EXTENSION}}'
         platforms: [linux, darwin]
@@ -1439,9 +1319,7 @@ tasks:
       vars:
         - EXTENSION
     deps:
-      - task: nix:install:profile
-        vars:
-          NIX_INSTALLABLE: "{{.GH_NIX_INSTALLABLE}}"
+      - task: install
     cmds:
       - cmd: bash -lc '{{.NIX_LOAD}}; gh extension remove {{.EXTENSION}}'
         platforms: [linux, darwin]
@@ -1453,9 +1331,7 @@ tasks:
     desc: List all GitHub CLI configuration values
     summary: Display all current gh configuration settings via `gh config list`.
     deps:
-      - task: nix:install:profile
-        vars:
-          NIX_INSTALLABLE: "{{.GH_NIX_INSTALLABLE}}"
+      - task: install
     cmds:
       - cmd: bash -lc '{{.NIX_LOAD}}; gh config list'
         platforms: [linux, darwin]
@@ -1472,9 +1348,7 @@ tasks:
       vars:
         - CONFIG_KEY
     deps:
-      - task: nix:install:profile
-        vars:
-          NIX_INSTALLABLE: "{{.GH_NIX_INSTALLABLE}}"
+      - task: install
     cmds:
       - cmd: bash -lc '{{.NIX_LOAD}}; gh config get {{.CONFIG_KEY}}'
         platforms: [linux, darwin]
@@ -1493,9 +1367,7 @@ tasks:
         - CONFIG_KEY
         - CONFIG_VALUE
     deps:
-      - task: nix:install:profile
-        vars:
-          NIX_INSTALLABLE: "{{.GH_NIX_INSTALLABLE}}"
+      - task: install
     cmds:
       - cmd: bash -lc '{{.NIX_LOAD}}; gh config set {{.CONFIG_KEY}} {{.CONFIG_VALUE}}'
         platforms: [linux, darwin]
@@ -1507,9 +1379,7 @@ tasks:
     desc: List SSH keys associated with the GitHub account
     summary: List all SSH keys for the authenticated GitHub user via `gh ssh-key list`.
     deps:
-      - task: nix:install:profile
-        vars:
-          NIX_INSTALLABLE: "{{.GH_NIX_INSTALLABLE}}"
+      - task: install
     cmds:
       - cmd: bash -lc '{{.NIX_LOAD}}; gh ssh-key list'
         platforms: [linux, darwin]
@@ -1527,9 +1397,7 @@ tasks:
       vars:
         - SSH_KEY_FILE
     deps:
-      - task: nix:install:profile
-        vars:
-          NIX_INSTALLABLE: "{{.GH_NIX_INSTALLABLE}}"
+      - task: install
     cmds:
       - cmd: >-
           bash -lc '{{.NIX_LOAD}};
@@ -1553,9 +1421,7 @@ tasks:
       - "This will permanently delete SSH key {{.SSH_KEY_ID}} from your GitHub account."
       - Are you sure you want to continue?
     deps:
-      - task: nix:install:profile
-        vars:
-          NIX_INSTALLABLE: "{{.GH_NIX_INSTALLABLE}}"
+      - task: install
     cmds:
       - cmd: bash -lc '{{.NIX_LOAD}}; gh ssh-key delete {{.SSH_KEY_ID}} --yes'
         platforms: [linux, darwin]
@@ -1567,9 +1433,7 @@ tasks:
     desc: List all GitHub CLI command aliases
     summary: List all configured gh command aliases via `gh alias list`.
     deps:
-      - task: nix:install:profile
-        vars:
-          NIX_INSTALLABLE: "{{.GH_NIX_INSTALLABLE}}"
+      - task: install
     cmds:
       - cmd: bash -lc '{{.NIX_LOAD}}; gh alias list'
         platforms: [linux, darwin]
@@ -1588,9 +1452,7 @@ tasks:
         - ALIAS_NAME
         - ALIAS_COMMAND
     deps:
-      - task: nix:install:profile
-        vars:
-          NIX_INSTALLABLE: "{{.GH_NIX_INSTALLABLE}}"
+      - task: install
     cmds:
       - task: _alias:set:unix
       - task: _alias:set:windows
@@ -1605,9 +1467,7 @@ tasks:
       vars:
         - ALIAS_NAME
     deps:
-      - task: nix:install:profile
-        vars:
-          NIX_INSTALLABLE: "{{.GH_NIX_INSTALLABLE}}"
+      - task: install
     cmds:
       - cmd: bash -lc '{{.NIX_LOAD}}; gh alias delete {{.ALIAS_NAME}}'
         platforms: [linux, darwin]
@@ -1622,9 +1482,7 @@ tasks:
       projects for a specific user or organisation.
       Example: OWNER=myorg
     deps:
-      - task: nix:install:profile
-        vars:
-          NIX_INSTALLABLE: "{{.GH_NIX_INSTALLABLE}}"
+      - task: install
     cmds:
       - cmd: bash -lc '{{.NIX_LOAD}}; gh project list {{if .OWNER}}--owner {{.OWNER}}{{end}}'
         platforms: [linux, darwin]
@@ -1642,9 +1500,7 @@ tasks:
       vars:
         - PROJECT_NUMBER
     deps:
-      - task: nix:install:profile
-        vars:
-          NIX_INSTALLABLE: "{{.GH_NIX_INSTALLABLE}}"
+      - task: install
     cmds:
       - cmd: bash -lc '{{.NIX_LOAD}}; gh project view {{.PROJECT_NUMBER}} {{if .OWNER}}--owner {{.OWNER}}{{end}}'
         platforms: [linux, darwin]
@@ -1662,9 +1518,7 @@ tasks:
       vars:
         - PROJECT_TITLE
     deps:
-      - task: nix:install:profile
-        vars:
-          NIX_INSTALLABLE: "{{.GH_NIX_INSTALLABLE}}"
+      - task: install
     cmds:
       - cmd: >-
           bash -lc '{{.NIX_LOAD}};
@@ -1679,9 +1533,7 @@ tasks:
     desc: Open the current repository in the browser
     summary: Open the current repository's GitHub page in the default web browser.
     deps:
-      - task: nix:install:profile
-        vars:
-          NIX_INSTALLABLE: "{{.GH_NIX_INSTALLABLE}}"
+      - task: install
     cmds:
       - cmd: bash -lc '{{.NIX_LOAD}}; gh repo view --web'
         platforms: [linux, darwin]
@@ -1695,9 +1547,7 @@ tasks:
       Open the current branch of the repository in the default web browser
       via `gh browse`.
     deps:
-      - task: nix:install:profile
-        vars:
-          NIX_INSTALLABLE: "{{.GH_NIX_INSTALLABLE}}"
+      - task: install
     cmds:
       - cmd: bash -lc '{{.NIX_LOAD}}; gh browse'
         platforms: [linux, darwin]
@@ -1714,9 +1564,7 @@ tasks:
       vars:
         - QUERY
     deps:
-      - task: nix:install:profile
-        vars:
-          NIX_INSTALLABLE: "{{.GH_NIX_INSTALLABLE}}"
+      - task: install
     cmds:
       - cmd: bash -lc '{{.NIX_LOAD}}; gh search repos "{{.QUERY}}"'
         platforms: [linux, darwin]
@@ -1733,9 +1581,7 @@ tasks:
       vars:
         - QUERY
     deps:
-      - task: nix:install:profile
-        vars:
-          NIX_INSTALLABLE: "{{.GH_NIX_INSTALLABLE}}"
+      - task: install
     cmds:
       - cmd: bash -lc '{{.NIX_LOAD}}; gh search issues "{{.QUERY}}"'
         platforms: [linux, darwin]
@@ -1752,9 +1598,7 @@ tasks:
       vars:
         - QUERY
     deps:
-      - task: nix:install:profile
-        vars:
-          NIX_INSTALLABLE: "{{.GH_NIX_INSTALLABLE}}"
+      - task: install
     cmds:
       - cmd: bash -lc '{{.NIX_LOAD}}; gh search prs "{{.QUERY}}"'
         platforms: [linux, darwin]
@@ -1922,6 +1766,31 @@ tasks:
     platforms: [windows]
     cmds:
       - gh doctor
+
+  _version:unix:
+    run: once
+    internal: true
+    desc: Show the gh version on macOS or Linux
+    summary: Print the gh version on macOS or Linux.
+    platforms: [linux, darwin]
+    set: [errexit, nounset, pipefail]
+    cmds:
+      - bash -lc '{{.NIX_LOAD}}; gh --version'
+
+  _version:windows:
+    run: once
+    internal: true
+    desc: Show the gh version on Windows
+    summary: Print the gh version on Windows.
+    platforms: [windows]
+    preconditions:
+      - sh: >-
+          powershell -NoProfile -ExecutionPolicy Bypass -Command
+          "if (Get-Command gh -ErrorAction SilentlyContinue) {
+          exit 0 } else { exit 1 }"
+        msg: The GitHub CLI is not installed or not available in PATH.
+    cmds:
+      - gh --version
 
   _which:unix:
     run: once

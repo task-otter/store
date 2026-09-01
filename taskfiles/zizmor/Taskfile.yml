@@ -26,6 +26,32 @@ tasks:
     cmds:
       - task --list
 
+  install:
+    run: once
+    desc: Install zizmor via the Nix profile
+    summary: |
+      Install zizmor into the user Nix profile when it is not already
+      available on PATH. Override the ZIZMOR_NIX_INSTALLABLE
+      variable to pin a different package or version.
+    status:
+      - command -v zizmor >/dev/null 2>&1
+    cmds:
+      - task: nix:install:profile
+        vars:
+          NIX_INSTALLABLE: "{{.ZIZMOR_NIX_INSTALLABLE}}"
+
+  version:
+    run: once
+    desc: Show the active zizmor version
+    summary: |
+      Print the version reported by the zizmor binary resolved from PATH.
+      Auto-installs zizmor if missing.
+    deps:
+      - task: install
+    cmds:
+      - task: _version:unix
+      - task: _version:windows
+
   ci:
     run: once
     desc: Audit GitHub Actions workflows for security issues
@@ -40,9 +66,7 @@ tasks:
       Auto-installs zizmor if missing.
     dir: "{{.USER_WORKING_DIR}}"
     deps:
-      - task: nix:install:profile
-        vars:
-          NIX_INSTALLABLE: "{{.ZIZMOR_NIX_INSTALLABLE}}"
+      - task: install
     cmds:
       - cmd: |
           bash -lc '{{.NIX_LOAD}};
@@ -60,3 +84,27 @@ tasks:
             {{.ZIZMOR_TARGETS}}{{end}};
           exit $LASTEXITCODE"
         platforms: [windows]
+
+  _version:unix:
+    run: once
+    internal: true
+    desc: Show zizmor version on macOS or Linux
+    summary: Print the zizmor version on macOS or Linux.
+    platforms: [linux, darwin]
+    cmds:
+      - bash -lc '{{.NIX_LOAD}}; zizmor --version'
+
+  _version:windows:
+    run: once
+    internal: true
+    desc: Show zizmor version on Windows
+    summary: Print the zizmor version on Windows.
+    platforms: [windows]
+    preconditions:
+      - sh: >-
+          powershell -NoProfile -ExecutionPolicy Bypass -Command
+          "if (Get-Command zizmor -ErrorAction SilentlyContinue) {
+          exit 0 } else { exit 1 }"
+        msg: zizmor is not installed or not available in PATH.
+    cmds:
+      - zizmor --version

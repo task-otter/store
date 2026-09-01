@@ -23,7 +23,7 @@ task -t taskfiles/git/Taskfile.yml pr:create GIT_TITLE="feat: login page" GIT_BA
 Install git only:
 
 ```sh
-task nix:install:profile NIX_INSTALLABLE=nixpkgs#git
+task -t taskfiles/git/Taskfile.yml install
 ```
 
 ### Included (recommended)
@@ -89,6 +89,8 @@ task git:pr:create GIT_TITLE="feat: add feature" GIT_BASE=main
 | `pr:open`        | Open the current pull request in the browser via the GitHub CLI | —                                 |
 | `release:create` | Create a git tag and a GitHub release via the GitHub CLI        | `GIT_TAG`, `GIT_TITLE`, `GIT_NOTES`, `GIT_REMOTE` |
 | `help`           | Show the git built-in help and command list                     | —                                 |
+| `install`        | Install git via the Nix profile                                 | `GIT_NIX_INSTALLABLE`             |
+| `version`        | Show the active git version                                     | —                                 |
 
 ## Variables
 
@@ -180,5 +182,5 @@ Pin a revision by overriding the installable, for example
 ## Notes
 
 - Install goes through `nix:install:profile` (Nix is installed first if missing). Native Windows is not supported; use WSL2.
-- Tasks that call `gh` auto-install the GitHub CLI via `gh:nix:install:profile`.
+- Tasks that call `gh` auto-install the GitHub CLI via `gh:install`.
 

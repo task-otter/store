@@ -18,7 +18,7 @@ task -t taskfiles/vault/Taskfile.yml health
 Install only:
 
 ```sh
-task nix:install:profile NIX_INSTALLABLE=nixpkgs#vault
+task -t taskfiles/vault/Taskfile.yml install
 ```
 
 ### Included
@@ -41,6 +41,8 @@ task vault:snapshot VAULT_FILE=backup.snap
 | Task           | Description                                  | Key variables                    |
 | -------------- | -------------------------------------------- | -------------------------------- |
 | `verify`       | Verify CLI installation and server status    | `VAULT_ADDR`                     |
+| `install`      | Install the Vault CLI via the Nix profile    | `VAULT_NIX_INSTALLABLE`          |
+| `version`      | Show the active Vault CLI version            | —                                |
 | `status`       | Show Vault seal and HA status                | `VAULT_ADDR`                     |
 | `health`       | Query the Vault HTTP health endpoint as JSON | `VAULT_ADDR`                     |
 | `init`         | Initialize Vault and save unseal keys        | `VAULT_KEYS_FILE`, `VAULT_SHARES`, `VAULT_THRESHOLD` |

@@ -18,7 +18,7 @@ task -t taskfiles/sqlfluff/Taskfile.yml ci
 Install only:
 
 ```sh
-task nix:install:profile NIX_INSTALLABLE=nixpkgs#sqlfluff
+task -t taskfiles/sqlfluff/Taskfile.yml install
 ```
 
 ### Included
@@ -43,6 +43,8 @@ task sqlfluff:ci:fix SQLFLUFF_DIALECT=postgres
 | `ci:fix`       | Auto-fix SQL lint violations |
 | `parse`        | Print the sqlfluff parse tree for SQL files     |
 | `config:init`  | Create a default `.sqlfluff` configuration file |
+| `install`      | Install sqlfluff via the Nix profile            |
+| `version`      | Show the active sqlfluff version                |
 
 ## Variables
 

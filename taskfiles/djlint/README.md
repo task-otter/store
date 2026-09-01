@@ -17,7 +17,7 @@ task --taskfile taskfiles/djlint/Taskfile.yml lint DJLINT_TARGETS=templates
 Install only:
 
 ```sh
-task nix:install:profile NIX_INSTALLABLE=nixpkgs#djlint
+task --taskfile taskfiles/djlint/Taskfile.yml install
 ```
 
 ### Included
@@ -43,6 +43,8 @@ task djlint:fmt:check DJLINT_TARGETS=templates
 | `fmt:check` | Report formatting changes without modifying files (djlint --check) |
 | `ci` | Run `fmt:check` then `lint` |
 | `ci:fix` | Format HTML templates in place with djlint --reformat |
+| `install` | Install djLint via the Nix profile |
+| `version` | Show the active djLint version |
 
 ## Variables
 

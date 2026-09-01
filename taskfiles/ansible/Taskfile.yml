@@ -31,6 +31,31 @@ tasks:
     cmds:
       - task --list
 
+  install:
+    run: once
+    desc: Install Ansible via the Nix profile
+    summary: |
+      Install Ansible into the user Nix profile when it is not already
+      available on PATH. Override the ANSIBLE_NIX_INSTALLABLE
+      variable to pin a different package or version.
+    status:
+      - command -v ansible >/dev/null 2>&1
+    cmds:
+      - task: nix:install:profile
+        vars:
+          NIX_INSTALLABLE: "{{.ANSIBLE_NIX_INSTALLABLE}}"
+
+  version:
+    run: once
+    desc: Show the active Ansible version
+    summary: |
+      Print the version reported by the ansible binary resolved from PATH.
+      Auto-installs Ansible if missing. macOS and Linux only.
+    deps:
+      - task: install
+    cmds:
+      - task: _version:unix
+
   syntax:check:
     run: once
     desc: Check Ansible playbook syntax (ANSIBLE_PLAYBOOK=path)
@@ -39,9 +64,7 @@ tasks:
       without executing any tasks. Pass INVENTORY to specify the inventory file.
       Auto-installs if missing.
     deps:
-      - task: nix:install:profile
-        vars:
-          NIX_INSTALLABLE: "{{.ANSIBLE_NIX_INSTALLABLE}}"
+      - task: install
     requires:
       vars:
         - ANSIBLE_PLAYBOOK
@@ -59,9 +82,7 @@ tasks:
       inventory file and ANSIBLE_EXTRA_ARGS for additional flags such as --check,
       --diff, or --tags. Auto-installs if missing.
     deps:
-      - task: nix:install:profile
-        vars:
-          NIX_INSTALLABLE: "{{.ANSIBLE_NIX_INSTALLABLE}}"
+      - task: install
     requires:
       vars:
         - ANSIBLE_PLAYBOOK
@@ -79,9 +100,7 @@ tasks:
       specified INVENTORY. Confirms that Ansible can reach and authenticate
       to the target hosts. Auto-installs if missing.
     deps:
-      - task: nix:install:profile
-        vars:
-          NIX_INSTALLABLE: "{{.ANSIBLE_NIX_INSTALLABLE}}"
+      - task: install
     requires:
       vars:
         - ANSIBLE_INVENTORY
@@ -99,9 +118,7 @@ tasks:
       executing any tasks. Useful for verifying inventory content.
       Auto-installs if missing.
     deps:
-      - task: nix:install:profile
-        vars:
-          NIX_INSTALLABLE: "{{.ANSIBLE_NIX_INSTALLABLE}}"
+      - task: install
     requires:
       vars:
         - ANSIBLE_INVENTORY
@@ -119,9 +136,7 @@ tasks:
       to install all declared roles and collections. Pass ANSIBLE_EXTRA_ARGS for
       additional flags. Auto-installs if missing.
     deps:
-      - task: nix:install:profile
-        vars:
-          NIX_INSTALLABLE: "{{.ANSIBLE_NIX_INSTALLABLE}}"
+      - task: install
     cmds:
       - task: _galaxy:install:unix
 
@@ -133,9 +148,7 @@ tasks:
       password. Pass ANSIBLE_EXTRA_ARGS for additional flags such as --vault-id.
       Auto-installs if missing.
     deps:
-      - task: nix:install:profile
-        vars:
-          NIX_INSTALLABLE: "{{.ANSIBLE_NIX_INSTALLABLE}}"
+      - task: install
     requires:
       vars:
         - ANSIBLE_FILE
@@ -158,9 +171,7 @@ tasks:
       - This will decrypt and overwrite ANSIBLE_FILE with plaintext.
       - Continue?
     deps:
-      - task: nix:install:profile
-        vars:
-          NIX_INSTALLABLE: "{{.ANSIBLE_NIX_INSTALLABLE}}"
+      - task: install
     requires:
       vars:
         - ANSIBLE_FILE
@@ -242,3 +253,13 @@ tasks:
       vars: [ARGS]
     cmds:
       - bash -lc '{{.NIX_LOAD}}; export ANSIBLE_CONFIG="{{.ANSIBLE_CONFIG}}"; ansible-vault {{.ARGS}}'
+
+  _version:unix:
+    run: once
+    internal: true
+    desc: Show Ansible version on macOS or Linux
+    summary: Print the Ansible version on macOS or Linux.
+    platforms: [linux, darwin]
+    set: [errexit, nounset, pipefail]
+    cmds:
+      - bash -lc '{{.NIX_LOAD}}; ansible --version'

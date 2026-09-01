@@ -40,6 +40,9 @@ type (
 		// Includes holds the namespaces the folder's Taskfile includes.
 		Includes []string
 
+		// Vars holds the top-level var names the folder's Taskfile declares.
+		Vars []string
+
 		// DryRun holds the tasks that must survive `task --dry`.
 		DryRun []string
 	}
@@ -80,6 +83,7 @@ func newModuleShell(t *testing.T, spec *Spec) *Module {
 		Exported: metadata.ExportedTasks,
 		Variants: metadata.Variants,
 		Includes: includeNamespaces(taskfile),
+		Vars:     varNames(taskfile),
 		DryRun:   spec.DryRunTasks,
 	}
 }
@@ -131,6 +135,18 @@ func isPublicTask(name string, task *tasktest.Task) bool {
 	}
 
 	return !task.Internal
+}
+
+func varNames(taskfile *tasktest.Taskfile) []string {
+	names := make([]string, zeroLength, len(taskfile.Vars))
+
+	for name := range taskfile.Vars {
+		names = append(names, name)
+	}
+
+	slices.Sort(names)
+
+	return names
 }
 
 func includeNamespaces(taskfile *tasktest.Taskfile) []string {

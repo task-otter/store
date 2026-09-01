@@ -21,6 +21,32 @@ tasks:
     summary: Display the list of available protobuf-related tasks defined in this Taskfile.
     cmds:
       - task --list
+  install:
+    run: once
+    desc: Install protoc and the Go plugins via the Nix profile
+    summary: |
+      Install protoc, protoc-gen-go, and protoc-gen-go-grpc into the user Nix
+      profile when they are not already available on PATH. Override the
+      PROTO_NIX_INSTALLABLE variable to pin different packages or versions.
+    status:
+      - command -v protoc >/dev/null 2>&1
+      - command -v protoc-gen-go >/dev/null 2>&1
+      - command -v protoc-gen-go-grpc >/dev/null 2>&1
+    cmds:
+      - task: nix:install:profile
+        vars:
+          NIX_INSTALLABLE: "{{.PROTO_NIX_INSTALLABLE}}"
+  version:
+    run: once
+    desc: Show the active protoc version
+    summary: |
+      Print the version reported by the protoc binary resolved from PATH.
+      Auto-installs protoc and the Go plugins if missing.
+    deps:
+      - task: install
+    cmds:
+      - task: _version:unix
+      - task: _version:windows
   gen:
     run: once
     desc: Generate Go files from proto definitions
@@ -35,9 +61,7 @@ tasks:
       declared as top-level vars here, which outrank vars supplied by an
       inclusion: set them on the command line or from the environment.
     deps:
-      - task: nix:install:profile
-        vars:
-          NIX_INSTALLABLE: "{{.PROTO_NIX_INSTALLABLE}}"
+      - task: install
     cmds:
       - task: _gen:unix
         vars:
@@ -143,3 +167,25 @@ tasks:
         powershell -NoProfile -ExecutionPolicy Bypass -Command
         "Get-ChildItem -Recurse -Filter *.pb.go | Remove-Item -Force"
       - echo Generated protobuf files removed.
+  _version:unix:
+    run: once
+    internal: true
+    desc: Show protoc version on macOS or Linux
+    summary: Print the protoc version on macOS or Linux.
+    platforms: [linux, darwin]
+    cmds:
+      - bash -lc '{{.NIX_LOAD}}; protoc --version'
+  _version:windows:
+    run: once
+    internal: true
+    desc: Show protoc version on Windows
+    summary: Print the protoc version on Windows.
+    platforms: [windows]
+    preconditions:
+      - sh: >-
+          powershell -NoProfile -ExecutionPolicy Bypass -Command
+          "if (Get-Command protoc -ErrorAction SilentlyContinue) {
+          exit 0 } else { exit 1 }"
+        msg: protoc is not installed or not available in PATH.
+    cmds:
+      - protoc --version

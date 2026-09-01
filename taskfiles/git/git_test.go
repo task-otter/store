@@ -58,6 +58,7 @@ func publicTasksCoreB() []string {
 		"fetch",
 		"help",
 		"init",
+		"install",
 		"log",
 		"log:graph",
 	}
@@ -96,6 +97,7 @@ func publicTasksReleaseAndSyncB() []string {
 		"tag:delete",
 		"tag:list",
 		"tag:push",
+		"version",
 	}
 }
 

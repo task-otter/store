@@ -28,6 +28,32 @@ tasks:
     cmds:
       - task --list
 
+  install:
+    run: once
+    desc: Install Buf via the Nix profile
+    summary: |
+      Install Buf into the user Nix profile when it is not already
+      available on PATH. Override the BUF_NIX_INSTALLABLE
+      variable to pin a different package or version.
+    status:
+      - command -v buf >/dev/null 2>&1
+    cmds:
+      - task: nix:install:profile
+        vars:
+          NIX_INSTALLABLE: "{{.BUF_NIX_INSTALLABLE}}"
+
+  version:
+    run: once
+    desc: Show the active Buf version
+    summary: |
+      Print the version reported by the buf binary resolved from PATH.
+      Auto-installs Buf if missing.
+    deps:
+      - task: install
+    cmds:
+      - task: _version:unix
+      - task: _version:windows
+
   lint:
     run: once
     desc: Lint proto files with Buf (BUF_INPUT=path)
@@ -38,9 +64,7 @@ tasks:
       options. Auto-installs Buf if missing.
     dir: "{{.USER_WORKING_DIR}}"
     deps:
-      - task: nix:install:profile
-        vars:
-          NIX_INSTALLABLE: "{{.BUF_NIX_INSTALLABLE}}"
+      - task: install
     cmds:
       - task: _buf:unix
         vars:
@@ -69,9 +93,7 @@ tasks:
       place. Auto-installs Buf if missing.
     dir: "{{.USER_WORKING_DIR}}"
     deps:
-      - task: nix:install:profile
-        vars:
-          NIX_INSTALLABLE: "{{.BUF_NIX_INSTALLABLE}}"
+      - task: install
     cmds:
       - task: _buf:unix
         vars:
@@ -91,9 +113,7 @@ tasks:
       apply fixes. Auto-installs Buf if missing.
     dir: "{{.USER_WORKING_DIR}}"
     deps:
-      - task: nix:install:profile
-        vars:
-          NIX_INSTALLABLE: "{{.BUF_NIX_INSTALLABLE}}"
+      - task: install
     cmds:
       - task: _buf:unix
         vars:
@@ -140,9 +160,7 @@ tasks:
       arguments after -- to override all variables directly. Auto-installs
       Buf if missing.
     deps:
-      - task: nix:install:profile
-        vars:
-          NIX_INSTALLABLE: "{{.BUF_NIX_INSTALLABLE}}"
+      - task: install
     dir: "{{.USER_WORKING_DIR}}"
     cmds:
       - task: _buf:unix
@@ -167,9 +185,7 @@ tasks:
       buf.gen.yaml in the project root or at the path given by CLI_ARGS.
       Auto-installs Buf if missing.
     deps:
-      - task: nix:install:profile
-        vars:
-          NIX_INSTALLABLE: "{{.BUF_NIX_INSTALLABLE}}"
+      - task: install
     cmds:
       - cmd: >-
           bash -lc '{{.NIX_LOAD}};
@@ -188,3 +204,27 @@ tasks:
           {{.BUF_EXTRA_ARGS}}{{end}}
           && echo "✅ buf generate passed" || { echo "❌ buf generate failed"; exit 1; }
         platforms: [windows]
+
+  _version:unix:
+    run: once
+    internal: true
+    desc: Show Buf version on macOS or Linux
+    summary: Print the Buf version on macOS or Linux.
+    platforms: [linux, darwin]
+    cmds:
+      - bash -lc '{{.NIX_LOAD}}; buf --version'
+
+  _version:windows:
+    run: once
+    internal: true
+    desc: Show Buf version on Windows
+    summary: Print the Buf version on Windows.
+    platforms: [windows]
+    preconditions:
+      - sh: >-
+          powershell -NoProfile -ExecutionPolicy Bypass -Command
+          "if (Get-Command buf -ErrorAction SilentlyContinue) {
+          exit 0 } else { exit 1 }"
+        msg: Buf is not installed or not available in PATH.
+    cmds:
+      - buf --version

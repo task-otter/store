@@ -18,7 +18,7 @@ task --taskfile taskfiles/jsonlint/Taskfile.yml ci JSONLINT_TARGETS=config.json
 Install only:
 
 ```sh
-task nix:install:profile NIX_INSTALLABLE=nixpkgs#python3Packages.demjson3
+task --taskfile taskfiles/jsonlint/Taskfile.yml install
 ```
 
 ### Included
@@ -39,6 +39,8 @@ task jsonlint:ci JSONLINT_TARGETS=data/   # validates every *.json under data/
 | Task | Description |
 |---|---|
 | `ci` | Validate JSON files with jsonlint |
+| `install` | Install jsonlint via the Nix profile |
+| `version` | Show the active jsonlint version |
 
 ## Variables
 

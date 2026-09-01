@@ -18,7 +18,7 @@ task -t taskfiles/shfmt/Taskfile.yml fmt:check SHFMT_TARGETS=scripts SHFMT_EXTRA
 Install only, without formatting:
 
 ```sh
-task nix:install:profile NIX_INSTALLABLE=nixpkgs#shfmt
+task -t taskfiles/shfmt/Taskfile.yml install
 ```
 
 ### Included in your Taskfile
@@ -42,6 +42,8 @@ task shfmt:fmt:check SHFMT_TARGETS=scripts
 |---|---|
 | `ci:fix` | Format shell scripts in place (`SHFMT_TARGETS=path`) |
 | `fmt:check` | Check shell script formatting without modifying files (`SHFMT_TARGETS=path`) |
+| `install` | Install shfmt via the Nix profile |
+| `version` | Show the active shfmt version |
 
 ## Variables
 

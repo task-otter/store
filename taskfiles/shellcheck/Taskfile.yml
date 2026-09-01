@@ -26,6 +26,32 @@ tasks:
     cmds:
       - task --list
 
+  install:
+    run: once
+    desc: Install ShellCheck via the Nix profile
+    summary: |
+      Install ShellCheck into the user Nix profile when it is not already
+      available on PATH. Override the SHELLCHECK_NIX_INSTALLABLE
+      variable to pin a different package or version.
+    status:
+      - command -v shellcheck >/dev/null 2>&1
+    cmds:
+      - task: nix:install:profile
+        vars:
+          NIX_INSTALLABLE: "{{.SHELLCHECK_NIX_INSTALLABLE}}"
+
+  version:
+    run: once
+    desc: Show the active ShellCheck version
+    summary: |
+      Print the version reported by the shellcheck binary resolved from PATH.
+      Auto-installs ShellCheck if missing.
+    deps:
+      - task: install
+    cmds:
+      - task: _version:unix
+      - task: _version:windows
+
   ci:
     run: once
     desc: Lint shell scripts with ShellCheck (SHELLCHECK_TARGETS=glob)
@@ -37,12 +63,34 @@ tasks:
       after -- to override all variables directly. Auto-installs ShellCheck if missing.
     dir: "{{.USER_WORKING_DIR}}"
     deps:
-      - task: nix:install:profile
-        vars:
-          NIX_INSTALLABLE: "{{.SHELLCHECK_NIX_INSTALLABLE}}"
+      - task: install
     cmds:
       - task: _lint:unix
       - task: _lint:windows
+
+  _version:unix:
+    run: once
+    internal: true
+    desc: Show ShellCheck version on macOS or Linux
+    summary: Print the ShellCheck version on macOS or Linux.
+    platforms: [linux, darwin]
+    cmds:
+      - bash -lc '{{.NIX_LOAD}}; shellcheck --version'
+
+  _version:windows:
+    run: once
+    internal: true
+    desc: Show ShellCheck version on Windows
+    summary: Print the ShellCheck version on Windows.
+    platforms: [windows]
+    preconditions:
+      - sh: >-
+          powershell -NoProfile -ExecutionPolicy Bypass -Command
+          "if (Get-Command shellcheck -ErrorAction SilentlyContinue) {
+          exit 0 } else { exit 1 }"
+        msg: ShellCheck is not installed or not available in PATH.
+    cmds:
+      - shellcheck --version
 
   _lint:unix:
     run: once

@@ -17,7 +17,7 @@ task -t taskfiles/hadolint/Taskfile.yml ci HADOLINT_DOCKERFILE=path/to/Dockerfil
 Install only, without linting:
 
 ```sh
-task nix:install:profile NIX_INSTALLABLE=nixpkgs#hadolint
+task -t taskfiles/hadolint/Taskfile.yml install
 ```
 
 Pass hadolint arguments after `--`:
@@ -45,6 +45,8 @@ task hadolint:ci HADOLINT_DOCKERFILE=services/api/Dockerfile
 | Task | Description                     | Key variables                                              |
 | ---- | ------------------------------- | ---------------------------------------------------------- |
 | `ci` | Lint a Dockerfile with hadolint | `HADOLINT_DOCKERFILE`, `HADOLINT_CONFIG`, `HADOLINT_EXTRA_ARGS` |
+| `install` | Install hadolint via the Nix profile | `HADOLINT_NIX_INSTALLABLE` |
+| `version` | Show the active hadolint version | — |
 
 ## Variables
 

@@ -74,6 +74,7 @@ func ghExtensionAndGistTasks() []string {
 		"gist:list",
 		"gist:view",
 		"help",
+		"install",
 	}
 }
 
@@ -163,6 +164,7 @@ func ghSecretAndWorkflowTasks() []string {
 		"variable:list",
 		"variable:set",
 		"verify",
+		"version",
 		"which",
 		"workflow:list",
 		"workflow:run",

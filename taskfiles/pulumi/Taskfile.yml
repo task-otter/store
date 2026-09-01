@@ -29,6 +29,32 @@ tasks:
     cmds:
       - task --list
 
+  install:
+    run: once
+    desc: Install Pulumi via the Nix profile
+    summary: |
+      Install Pulumi into the user Nix profile when it is not already
+      available on PATH. Override the PULUMI_NIX_INSTALLABLE
+      variable to pin a different package or version.
+    status:
+      - command -v pulumi >/dev/null 2>&1
+    cmds:
+      - task: nix:install:profile
+        vars:
+          NIX_INSTALLABLE: "{{.PULUMI_NIX_INSTALLABLE}}"
+
+  version:
+    run: once
+    desc: Show the active Pulumi version
+    summary: |
+      Print the version reported by the pulumi binary resolved from PATH.
+      Auto-installs Pulumi if missing.
+    deps:
+      - task: install
+    cmds:
+      - task: _version:unix
+      - task: _version:windows
+
   login:
     run: once
     dir: "{{.USER_WORKING_DIR}}"
@@ -38,9 +64,7 @@ tasks:
       Pulumi Cloud backend when empty. Pass PULUMI_EXTRA_ARGS for extra flags.
       Auto-installs Pulumi if missing.
     deps:
-      - task: nix:install:profile
-        vars:
-          NIX_INSTALLABLE: "{{.PULUMI_NIX_INSTALLABLE}}"
+      - task: install
     cmds:
       - task: _pulumi:unix
         vars:
@@ -65,9 +89,7 @@ tasks:
       PULUMI_EXTRA_ARGS for extra flags such as --yes or --dir.
       Auto-installs Pulumi if missing.
     deps:
-      - task: nix:install:profile
-        vars:
-          NIX_INSTALLABLE: "{{.PULUMI_NIX_INSTALLABLE}}"
+      - task: install
     requires:
       vars:
         - PULUMI_TEMPLATE
@@ -98,9 +120,7 @@ tasks:
       --yes or --skip-preview.
       Auto-installs Pulumi if missing.
     deps:
-      - task: nix:install:profile
-        vars:
-          NIX_INSTALLABLE: "{{.PULUMI_NIX_INSTALLABLE}}"
+      - task: install
     cmds:
       - task: _pulumi:unix
         vars:
@@ -133,3 +153,28 @@ tasks:
       vars: [PULUMI_ARGS]
     cmds:
       - pulumi {{.PULUMI_ARGS}}
+
+  _version:unix:
+    run: once
+    internal: true
+    desc: Show Pulumi version on macOS or Linux
+    summary: Print the Pulumi version on macOS or Linux.
+    platforms: [linux, darwin]
+    set: [errexit, nounset, pipefail]
+    cmds:
+      - bash -lc '{{.NIX_LOAD}}; pulumi version'
+
+  _version:windows:
+    run: once
+    internal: true
+    desc: Show Pulumi version on Windows
+    summary: Print the Pulumi version on Windows.
+    platforms: [windows]
+    preconditions:
+      - sh: >-
+          powershell -NoProfile -ExecutionPolicy Bypass -Command
+          "if (Get-Command pulumi -ErrorAction SilentlyContinue) {
+          exit 0 } else { exit 1 }"
+        msg: Pulumi is not installed or not available in PATH.
+    cmds:
+      - pulumi version

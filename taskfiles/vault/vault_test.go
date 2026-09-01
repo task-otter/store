@@ -264,6 +264,7 @@ func publicTasksA() []string {
 	return []string{
 		healthTask,
 		initTask,
+		"install",
 		kvGetTask,
 		loginTask,
 		loginTaskApprole,
@@ -283,6 +284,7 @@ func publicTasksB() []string {
 		revokeSelfTask,
 		unsealTask,
 		"verify",
+		"version",
 	}
 }
 

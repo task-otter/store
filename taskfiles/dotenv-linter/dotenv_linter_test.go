@@ -33,6 +33,8 @@ func publicTasks() []string {
 		"ci",
 		"ci:fix",
 		"diff",
+		"install",
+		"version",
 	}
 }
 

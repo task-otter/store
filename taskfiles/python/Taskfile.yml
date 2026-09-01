@@ -29,6 +29,32 @@ tasks:
     cmds:
       - task --list
 
+  install:
+    run: once
+    desc: Install Python via the Nix profile
+    summary: |
+      Install Python into the user Nix profile when it is not already
+      available on PATH. Override the PYTHON_NIX_INSTALLABLE
+      variable to pin a different package or version.
+    status:
+      - command -v python3 >/dev/null 2>&1
+    cmds:
+      - task: nix:install:profile
+        vars:
+          NIX_INSTALLABLE: "{{.PYTHON_NIX_INSTALLABLE}}"
+
+  version:
+    run: once
+    desc: Show the active Python version
+    summary: |
+      Print the version reported by the python3 binary resolved from PATH.
+      Auto-installs Python if missing.
+    deps:
+      - task: install
+    cmds:
+      - task: _version:unix
+      - task: _version:windows
+
   verify:
     run: once
     desc: Verify the Python installation and pip availability
@@ -37,9 +63,7 @@ tasks:
       and reachable. Useful for diagnosing setup issues after install.
       Auto-installs Python if missing.
     deps:
-      - task: nix:install:profile
-        vars:
-          NIX_INSTALLABLE: "{{.PYTHON_NIX_INSTALLABLE}}"
+      - task: install
     cmds:
       - task: _verify:unix
       - task: _verify:windows
@@ -52,9 +76,7 @@ tasks:
       using the python3 -m venv module. Run pip:install afterward to install
       project dependencies into the new environment.
     deps:
-      - task: nix:install:profile
-        vars:
-          NIX_INSTALLABLE: "{{.PYTHON_NIX_INSTALLABLE}}"
+      - task: install
     cmds:
       - task: _venv:unix
       - task: _venv:windows
@@ -67,9 +89,7 @@ tasks:
       Pass PYTHON_EXTRA_ARGS to forward additional flags such as --upgrade or
       --no-cache-dir. Does not require an active virtual environment.
     deps:
-      - task: nix:install:profile
-        vars:
-          NIX_INSTALLABLE: "{{.PYTHON_NIX_INSTALLABLE}}"
+      - task: install
     cmds:
       - task: _pip:install:unix
       - task: _pip:install:windows
@@ -82,9 +102,7 @@ tasks:
       Pass PYTHON_ARGS to forward positional arguments to the script and
       PYTHON_EXTRA_ARGS for interpreter flags such as -u or -m.
     deps:
-      - task: nix:install:profile
-        vars:
-          NIX_INSTALLABLE: "{{.PYTHON_NIX_INSTALLABLE}}"
+      - task: install
     requires:
       vars:
         - PYTHON_FILE
@@ -94,6 +112,31 @@ tasks:
     cmds:
       - task: _run:unix
       - task: _run:windows
+
+  _version:unix:
+    run: once
+    internal: true
+    desc: Show Python version on macOS or Linux
+    summary: Print the Python version on macOS or Linux.
+    platforms: [linux, darwin]
+    set: [errexit, nounset, pipefail]
+    cmds:
+      - bash -lc '{{.NIX_LOAD}}; python3 --version'
+
+  _version:windows:
+    run: once
+    internal: true
+    desc: Show Python version on Windows
+    summary: Print the Python version on Windows.
+    platforms: [windows]
+    preconditions:
+      - sh: >-
+          powershell -NoProfile -ExecutionPolicy Bypass -Command
+          "if (Get-Command python -ErrorAction SilentlyContinue) {
+          exit 0 } else { exit 1 }"
+        msg: Python is not installed or not available in PATH.
+    cmds:
+      - python --version
 
   _verify:unix:
     run: once

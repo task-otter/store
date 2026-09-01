@@ -21,7 +21,7 @@ task -t taskfiles/ansible-lint/Taskfile.yml ci:fix ANSIBLE_LINT_TARGETS=roles/
 Install only:
 
 ```sh
-task nix:install:profile NIX_INSTALLABLE=nixpkgs#ansible-lint
+task -t taskfiles/ansible-lint/Taskfile.yml install
 ```
 
 ### Included
@@ -44,6 +44,8 @@ task ansible-lint:ci:fix ANSIBLE_LINT_TARGETS=playbooks/
 | -------- | -------------------------------------------------------- |
 | `ci`     | Lint Ansible YAML files with ansible-lint                |
 | `ci:fix` | Auto-fix Ansible YAML files with ansible-lint `--fix` |
+| `install` | Install ansible-lint via the Nix profile |
+| `version` | Show the active ansible-lint version |
 
 ## Variables
 

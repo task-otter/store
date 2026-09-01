@@ -29,7 +29,10 @@ func TestTaskfileModuleContract(t *testing.T) {
 }
 
 func publicTasks() []string {
-	return []string{}
+	return []string{
+		"install",
+		"version",
+	}
 }
 
 func publicVars() []string {

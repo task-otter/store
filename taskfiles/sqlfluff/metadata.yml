@@ -2,4 +2,4 @@
 schema: taskotter.dev/taskfile-metadata/v1
 module: sqlfluff
 taskfile: Taskfile.yml
-exported_tasks: [ci, ci:fix, config:init, parse]
+exported_tasks: [ci, ci:fix, config:init, install, parse, version]

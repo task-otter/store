@@ -3,21 +3,16 @@
 ## What is this Taskfile?
 
 A Taskfile module for [jq](https://jqlang.org), the lightweight command-line
-JSON processor. This module does not ship an installer. Install jq through
-the store's Nix profile task.
+JSON processor. The `install` task adds jq to the user Nix profile; `version`
+reports the resolved binary's version.
 
 ## Usage
 
 ### Standalone
 
 ```sh
-task nix:install:profile NIX_INSTALLABLE=nixpkgs#jq
-```
-
-Or, targeting the nix Taskfile directly:
-
-```sh
-task -t taskfiles/nix/Taskfile.yml install:profile NIX_INSTALLABLE=nixpkgs#jq
+task -t taskfiles/jq/Taskfile.yml install
+task -t taskfiles/jq/Taskfile.yml version
 ```
 
 ### Included
@@ -30,15 +25,19 @@ includes:
 Then run:
 
 ```sh
-task jq:nix:install:profile NIX_INSTALLABLE=nixpkgs#jq
+task jq:install
+task jq:version
 ```
 
-Override `JQ_NIX_INSTALLABLE` to pin a flake (for example
-`github:NixOS/nixpkgs/<rev>#jq`) and pass that value as `NIX_INSTALLABLE`.
+Override `JQ_NIX_INSTALLABLE` to pin a flake, for example
+`github:NixOS/nixpkgs/<rev>#jq`.
 
 ## Public Tasks
 
-This module has no public tasks. Install jq with `nix:install:profile`.
+| Task | Description |
+|---|---|
+| `install` | Install jq via the Nix profile |
+| `version` | Show the active jq version |
 
 ## Variables
 
@@ -48,5 +47,6 @@ This module has no public tasks. Install jq with `nix:install:profile`.
 
 ## Notes
 
-`nix:install:profile` auto-installs Nix if it is missing and adds jq to the
-user profile (`~/.nix-profile`). Native Windows is not supported; use WSL2.
+`install` goes through `nix:install:profile`, which auto-installs Nix if it is
+missing and adds jq to the user profile (`~/.nix-profile`). Native Windows is
+not supported; use WSL2.

@@ -4,9 +4,11 @@ module: ansible
 taskfile: Taskfile.yml
 exported_tasks:
   - galaxy:install
+  - install
   - list:hosts
   - ping
   - run
   - syntax:check
   - vault:decrypt
   - vault:encrypt
+  - version

@@ -33,8 +33,10 @@ func publicTasks() []string {
 		"exec",
 		"generate",
 		"init",
+		"install",
 		"list",
 		"new",
+		"version",
 	}
 }
 

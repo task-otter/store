@@ -26,6 +26,32 @@ tasks:
     cmds:
       - task --list
 
+  install:
+    run: once
+    desc: Install protolint via the Nix profile
+    summary: |
+      Install protolint into the user Nix profile when it is not already
+      available on PATH. Override the PROTOLINT_NIX_INSTALLABLE
+      variable to pin a different package or version.
+    status:
+      - command -v protolint >/dev/null 2>&1
+    cmds:
+      - task: nix:install:profile
+        vars:
+          NIX_INSTALLABLE: "{{.PROTOLINT_NIX_INSTALLABLE}}"
+
+  version:
+    run: once
+    desc: Show the active protolint version
+    summary: |
+      Print the version reported by the protolint binary resolved from PATH.
+      Auto-installs protolint if missing.
+    deps:
+      - task: install
+    cmds:
+      - task: _version:unix
+      - task: _version:windows
+
   ci:
     run: once
     desc: Lint protobuf files with protolint (PROTOLINT_TARGETS=path)
@@ -35,9 +61,7 @@ tasks:
       Auto-installs protolint if needed.
     dir: "{{.USER_WORKING_DIR}}"
     deps:
-      - task: nix:install:profile
-        vars:
-          NIX_INSTALLABLE: "{{.PROTOLINT_NIX_INSTALLABLE}}"
+      - task: install
     cmds:
       - task: _lint:unix
       - task: _lint:windows
@@ -51,9 +75,7 @@ tasks:
       Auto-installs protolint if needed.
     dir: "{{.USER_WORKING_DIR}}"
     deps:
-      - task: nix:install:profile
-        vars:
-          NIX_INSTALLABLE: "{{.PROTOLINT_NIX_INSTALLABLE}}"
+      - task: install
     cmds:
       - task: _fix:unix
       - task: _fix:windows
@@ -116,3 +138,27 @@ tasks:
         protolint lint {{.PROTOLINT_FIX_FLAG}}
           {{.PROTOLINT_EXTRA_ARGS}} $target;
         exit $LASTEXITCODE"
+
+  _version:unix:
+    run: once
+    internal: true
+    desc: Show protolint version on macOS or Linux
+    summary: Print the protolint version on macOS or Linux.
+    platforms: [linux, darwin]
+    cmds:
+      - bash -lc '{{.NIX_LOAD}}; protolint version'
+
+  _version:windows:
+    run: once
+    internal: true
+    desc: Show protolint version on Windows
+    summary: Print the protolint version on Windows.
+    platforms: [windows]
+    preconditions:
+      - sh: >-
+          powershell -NoProfile -ExecutionPolicy Bypass -Command
+          "if (Get-Command protolint -ErrorAction SilentlyContinue) {
+          exit 0 } else { exit 1 }"
+        msg: protolint is not installed or not available in PATH.
+    cmds:
+      - protolint version

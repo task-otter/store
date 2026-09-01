@@ -46,6 +46,32 @@ tasks:
     cmds:
       - task --list
 
+  install:
+    run: once
+    desc: Install git via the Nix profile
+    summary: |
+      Install git into the user Nix profile when it is not already
+      available on PATH. Override the GIT_NIX_INSTALLABLE
+      variable to pin a different package or version.
+    status:
+      - command -v git >/dev/null 2>&1
+    cmds:
+      - task: nix:install:profile
+        vars:
+          NIX_INSTALLABLE: "{{.GIT_NIX_INSTALLABLE}}"
+
+  version:
+    run: once
+    desc: Show the active git version
+    summary: |
+      Print the version reported by the git binary resolved from PATH.
+      Auto-installs git if missing.
+    deps:
+      - task: install
+    cmds:
+      - task: _version:unix
+      - task: _version:windows
+
   auth:setup:
     run: once
     desc: Configure git to use the GitHub CLI as a credential helper
@@ -82,9 +108,7 @@ tasks:
       vars:
         - GIT_REPO
     deps:
-      - task: gh:nix:install:profile
-        vars:
-          NIX_INSTALLABLE: "{{.GH_NIX_INSTALLABLE}}"
+      - task: gh:install
     cmds:
       - cmd: >-
           bash -lc '{{.NIX_LOAD}};
@@ -234,9 +258,7 @@ tasks:
       Run `task auth:setup` first to configure git credentials via gh.
       Example: GIT_BRANCH=main
     deps:
-      - task: gh:nix:install:profile
-        vars:
-          NIX_INSTALLABLE: "{{.GH_NIX_INSTALLABLE}}"
+      - task: gh:install
     cmds:
       - cmd: >-
           bash -lc '{{.NIX_LOAD}};
@@ -626,9 +648,7 @@ tasks:
       vars:
         - GIT_TITLE
     deps:
-      - task: gh:nix:install:profile
-        vars:
-          NIX_INSTALLABLE: "{{.GH_NIX_INSTALLABLE}}"
+      - task: gh:install
     cmds:
       - cmd: >-
           bash -lc '{{.NIX_LOAD}};
@@ -658,9 +678,7 @@ tasks:
       Open the pull request for the current branch on GitHub in the browser
       via `gh pr view --web`. Run `task auth:setup` first if needed.
     deps:
-      - task: gh:nix:install:profile
-        vars:
-          NIX_INSTALLABLE: "{{.GH_NIX_INSTALLABLE}}"
+      - task: gh:install
     cmds:
       - cmd: bash -lc '{{.NIX_LOAD}}; gh pr view --web'
         platforms: [linux, darwin]
@@ -679,9 +697,7 @@ tasks:
       vars:
         - GIT_TAG
     deps:
-      - task: gh:nix:install:profile
-        vars:
-          NIX_INSTALLABLE: "{{.GH_NIX_INSTALLABLE}}"
+      - task: gh:install
     cmds:
       - cmd: bash -lc '{{.NIX_LOAD}}; git tag -a {{.GIT_TAG}} -m "{{default .GIT_TAG .GIT_TITLE}}"'
         platforms: [linux, darwin]
@@ -712,3 +728,27 @@ tasks:
         platforms: [linux, darwin]
       - cmd: git help
         platforms: [windows]
+
+  _version:unix:
+    run: once
+    internal: true
+    desc: Show git version on macOS or Linux
+    summary: Print the git version on macOS or Linux.
+    platforms: [linux, darwin]
+    cmds:
+      - bash -lc '{{.NIX_LOAD}}; git --version'
+
+  _version:windows:
+    run: once
+    internal: true
+    desc: Show git version on Windows
+    summary: Print the git version on Windows.
+    platforms: [windows]
+    preconditions:
+      - sh: >-
+          powershell -NoProfile -ExecutionPolicy Bypass -Command
+          "if (Get-Command git -ErrorAction SilentlyContinue) {
+          exit 0 } else { exit 1 }"
+        msg: git is not installed or not available in PATH.
+    cmds:
+      - git --version

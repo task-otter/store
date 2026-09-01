@@ -19,7 +19,7 @@ task -t taskfiles/yamlfix/Taskfile.yml ci:fix YAMLFIX_TARGETS=.
 Install only:
 
 ```sh
-task nix:install:profile NIX_INSTALLABLE=nixpkgs#yamlfix
+task -t taskfiles/yamlfix/Taskfile.yml install
 ```
 
 ### Included in your Taskfile
@@ -41,6 +41,8 @@ task yamlfix:ci:fix
 | Task | Description |
 |---|---|
 | `ci:fix` | Auto-fix YAML files with yamlfix |
+| `install` | Install yamlfix via the Nix profile |
+| `version` | Show the active yamlfix version |
 
 ## Variables
 

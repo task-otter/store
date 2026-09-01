@@ -21,6 +21,30 @@ tasks:
     summary: Display the list of available yamllint-related tasks defined in this Taskfile.
     cmds:
       - task --list
+  install:
+    run: once
+    desc: Install yamllint via the Nix profile
+    summary: |
+      Install yamllint into the user Nix profile when it is not already
+      available on PATH. Override the YAMLLINT_NIX_INSTALLABLE
+      variable to pin a different package or version.
+    status:
+      - command -v yamllint >/dev/null 2>&1
+    cmds:
+      - task: nix:install:profile
+        vars:
+          NIX_INSTALLABLE: "{{.YAMLLINT_NIX_INSTALLABLE}}"
+  version:
+    run: once
+    desc: Show the active yamllint version
+    summary: |
+      Print the version reported by the yamllint binary resolved from PATH.
+      Auto-installs yamllint if missing.
+    deps:
+      - task: install
+    cmds:
+      - task: _version:unix
+      - task: _version:windows
   ci:
     run: once
     dir: "{{.USER_WORKING_DIR}}"
@@ -30,9 +54,7 @@ tasks:
       well as errors, making it suitable for continuous integration pipelines.
       Auto-installs yamllint if missing.
     deps:
-      - task: nix:install:profile
-        vars:
-          NIX_INSTALLABLE: "{{.YAMLLINT_NIX_INSTALLABLE}}"
+      - task: install
     cmds:
       - >-
         bash -lc '{{.NIX_LOAD}}; yamllint --strict {{if .YAMLLINT_CONFIG}}-c
@@ -57,3 +79,25 @@ tasks:
       - "printf '  truthy:\\n' >> .yamllint"
       - "printf \"    allowed-values: ['true', 'false']\\n\" >> .yamllint"
       - echo 'Created .yamllint with default configuration.'
+  _version:unix:
+    run: once
+    internal: true
+    desc: Show yamllint version on macOS or Linux
+    summary: Print the yamllint version on macOS or Linux.
+    platforms: [linux, darwin]
+    cmds:
+      - bash -lc '{{.NIX_LOAD}}; yamllint --version'
+  _version:windows:
+    run: once
+    internal: true
+    desc: Show yamllint version on Windows
+    summary: Print the yamllint version on Windows.
+    platforms: [windows]
+    preconditions:
+      - sh: >-
+          powershell -NoProfile -ExecutionPolicy Bypass -Command
+          "if (Get-Command yamllint -ErrorAction SilentlyContinue) {
+          exit 0 } else { exit 1 }"
+        msg: yamllint is not installed or not available in PATH.
+    cmds:
+      - yamllint --version

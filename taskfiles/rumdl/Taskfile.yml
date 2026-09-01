@@ -26,6 +26,56 @@ tasks:
     cmds:
       - task --list
 
+  install:
+    run: once
+    desc: Install rumdl via the Nix profile
+    summary: |
+      Install rumdl into the user Nix profile when it is not already
+      available on PATH. Override the RUMDL_NIX_INSTALLABLE
+      variable to pin a different package or version.
+    status:
+      - command -v rumdl >/dev/null 2>&1
+    cmds:
+      - task: nix:install:profile
+        vars:
+          NIX_INSTALLABLE: "{{.RUMDL_NIX_INSTALLABLE}}"
+
+  version:
+    run: once
+    desc: Show the active rumdl version
+    summary: |
+      Print the version reported by the rumdl binary resolved from PATH.
+      Auto-installs rumdl if missing.
+    deps:
+      - task: install
+    cmds:
+      - task: _version:unix
+      - task: _version:windows
+
+  _version:unix:
+    run: once
+    internal: true
+    desc: Show rumdl version on macOS or Linux
+    summary: Print the rumdl version on macOS or Linux.
+    platforms: [linux, darwin]
+    cmds:
+      - bash -lc '{{.NIX_LOAD}}; rumdl --version'
+
+  _version:windows:
+    run: once
+    internal: true
+    desc: Show rumdl version on Windows
+    summary: Print the rumdl version on Windows.
+    platforms: [windows]
+    preconditions:
+      - sh: >-
+          powershell -NoProfile -ExecutionPolicy Bypass -Command
+          "if (Get-Command rumdl -ErrorAction SilentlyContinue) {
+          exit 0 } else { exit 1 }"
+        msg: rumdl is not installed or not available in PATH.
+    cmds:
+      - rumdl --version
+
   # Shared implementation of lint / lint:fix / fmt. Each override is resolved exactly
   # once here; callers supply the subcommand and any trailing shell reporting.
   _run:
@@ -33,9 +83,7 @@ tasks:
     run: when_changed
     dir: "{{.USER_WORKING_DIR}}"
     deps:
-      - task: nix:install:profile
-        vars:
-          NIX_INSTALLABLE: "{{.RUMDL_NIX_INSTALLABLE}}"
+      - task: install
     vars:
       PATHS: '{{or .RUMDL_TARGETS "."}}'
       EXTRA: '{{.RUMDL_EXTRA_ARGS}}'

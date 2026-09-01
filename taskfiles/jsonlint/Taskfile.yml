@@ -26,6 +26,32 @@ tasks:
     cmds:
       - task --list
 
+  install:
+    run: once
+    desc: Install jsonlint via the Nix profile
+    summary: |
+      Install the jsonlint CLI (provided by demjson3) into the user Nix profile
+      when it is not already available on PATH. Override the
+      JSONLINT_NIX_INSTALLABLE variable to pin a different package or version.
+    status:
+      - command -v jsonlint >/dev/null 2>&1
+    cmds:
+      - task: nix:install:profile
+        vars:
+          NIX_INSTALLABLE: "{{.JSONLINT_NIX_INSTALLABLE}}"
+
+  version:
+    run: once
+    desc: Show the active jsonlint version
+    summary: |
+      Print the version reported by the jsonlint binary resolved from PATH.
+      Auto-installs jsonlint if missing.
+    deps:
+      - task: install
+    cmds:
+      - task: _version:unix
+      - task: _version:windows
+
   ci:
     run: once
     desc: Validate JSON files with jsonlint (JSONLINT_TARGETS=path)
@@ -36,9 +62,7 @@ tasks:
       Auto-installs jsonlint if missing.
     dir: "{{.USER_WORKING_DIR}}"
     deps:
-      - task: nix:install:profile
-        vars:
-          NIX_INSTALLABLE: "{{.JSONLINT_NIX_INSTALLABLE}}"
+      - task: install
     cmds:
       - cmd: >-
           bash -lc '{{.NIX_LOAD}};
@@ -68,3 +92,27 @@ tasks:
           jsonlint {{.JSONLINT_EXTRA_ARGS}} $path;
           if ($LASTEXITCODE -ne 0) { exit $LASTEXITCODE } }"
         platforms: [windows]
+
+  _version:unix:
+    run: once
+    internal: true
+    desc: Show jsonlint version on macOS or Linux
+    summary: Print the jsonlint version on macOS or Linux.
+    platforms: [linux, darwin]
+    cmds:
+      - bash -lc '{{.NIX_LOAD}}; jsonlint --version'
+
+  _version:windows:
+    run: once
+    internal: true
+    desc: Show jsonlint version on Windows
+    summary: Print the jsonlint version on Windows.
+    platforms: [windows]
+    preconditions:
+      - sh: >-
+          powershell -NoProfile -ExecutionPolicy Bypass -Command
+          "if (Get-Command jsonlint -ErrorAction SilentlyContinue) {
+          exit 0 } else { exit 1 }"
+        msg: jsonlint is not installed or not available in PATH.
+    cmds:
+      - jsonlint --version

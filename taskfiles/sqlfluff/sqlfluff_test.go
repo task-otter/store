@@ -33,7 +33,9 @@ func publicTasks() []string {
 		"ci",
 		"ci:fix",
 		"config:init",
+		"install",
 		"parse",
+		"version",
 	}
 }
 

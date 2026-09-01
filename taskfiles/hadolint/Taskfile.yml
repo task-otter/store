@@ -27,6 +27,32 @@ tasks:
     cmds:
       - task --list
 
+  install:
+    run: once
+    desc: Install hadolint via the Nix profile
+    summary: |
+      Install hadolint into the user Nix profile when it is not already
+      available on PATH. Override the HADOLINT_NIX_INSTALLABLE
+      variable to pin a different package or version.
+    status:
+      - command -v hadolint >/dev/null 2>&1
+    cmds:
+      - task: nix:install:profile
+        vars:
+          NIX_INSTALLABLE: "{{.HADOLINT_NIX_INSTALLABLE}}"
+
+  version:
+    run: once
+    desc: Show the active hadolint version
+    summary: |
+      Print the version reported by the hadolint binary resolved from PATH.
+      Auto-installs hadolint if missing.
+    deps:
+      - task: install
+    cmds:
+      - task: _version:unix
+      - task: _version:windows
+
   ci:
     run: once
     desc: Lint a Dockerfile with hadolint (HADOLINT_DOCKERFILE=path)
@@ -37,9 +63,7 @@ tasks:
       override targets and options. Auto-installs hadolint if missing.
     dir: "{{.USER_WORKING_DIR}}"
     deps:
-      - task: nix:install:profile
-        vars:
-          NIX_INSTALLABLE: "{{.HADOLINT_NIX_INSTALLABLE}}"
+      - task: install
     cmds:
       - cmd: |
           bash -lc '{{.NIX_LOAD}};
@@ -58,3 +82,27 @@ tasks:
             $dockerfile {{.HADOLINT_EXTRA_ARGS}}{{end}};
           exit $LASTEXITCODE"
         platforms: [windows]
+
+  _version:unix:
+    run: once
+    internal: true
+    desc: Show hadolint version on macOS or Linux
+    summary: Print the hadolint version on macOS or Linux.
+    platforms: [linux, darwin]
+    cmds:
+      - bash -lc '{{.NIX_LOAD}}; hadolint --version'
+
+  _version:windows:
+    run: once
+    internal: true
+    desc: Show hadolint version on Windows
+    summary: Print the hadolint version on Windows.
+    platforms: [windows]
+    preconditions:
+      - sh: >-
+          powershell -NoProfile -ExecutionPolicy Bypass -Command
+          "if (Get-Command hadolint -ErrorAction SilentlyContinue) {
+          exit 0 } else { exit 1 }"
+        msg: hadolint is not installed or not available in PATH.
+    cmds:
+      - hadolint --version

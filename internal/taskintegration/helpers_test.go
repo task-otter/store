@@ -17,32 +17,36 @@ type (
 )
 
 const (
-	testModuleName       = "mod"
-	publicTaskName       = "fmt:check"
-	exportedName         = "ci:fix"
-	variantTaskName      = "bun:ci"
-	nixInclude           = "nix"
-	nixTaskName          = "nix:help"
-	orphanTaskName       = "orphan"
-	stdoutText           = "listing"
-	invalidJSON          = "not-json"
-	invalidYAML          = "["
-	invalidJSONWant      = "invalid JSON"
-	parseWant            = "parse"
-	missingListedWant    = "does not list"
-	missingDeclaredWant  = "neither declares nor includes"
-	missingExportedWant  = "does not expose it"
-	missingVariantWant   = "does not expose variant task"
-	nonZeroWant          = "exited non-zero"
-	emptyOutputWant      = "produced no output"
-	unknownSucceededWant = "unexpectedly succeeded"
-	summaryMismatchWant  = "does not name the task"
-	modulePathWant       = "resolve the module folder"
-	absoluteRepoRoot     = "/taskotter-repo"
-	relativeModuleRoot   = "not-under-taskfiles"
-	missingDefaultCase   = "missing_default"
-	once                 = 1
-	emptyContent         = ""
+	testModuleName        = "mod"
+	publicTaskName        = "fmt:check"
+	exportedName          = "ci:fix"
+	variantTaskName       = "bun:ci"
+	nixInclude            = "nix"
+	nixTaskName           = "nix:help"
+	orphanTaskName        = "orphan"
+	stdoutText            = "listing"
+	invalidJSON           = "not-json"
+	invalidYAML           = "["
+	invalidJSONWant       = "invalid JSON"
+	parseWant             = "parse"
+	missingListedWant     = "does not list"
+	missingDeclaredWant   = "neither declares nor includes"
+	missingExportedWant   = "does not expose it"
+	missingVariantWant    = "does not expose variant task"
+	installableVarName    = "ZIZMOR_NIX_INSTALLABLE"
+	toolTaskName          = "install:tool"
+	missingInstallWant    = "declares no public \"install\" task"
+	unexportedInstallWant = "does not export the \"install\" task"
+	nonZeroWant           = "exited non-zero"
+	emptyOutputWant       = "produced no output"
+	unknownSucceededWant  = "unexpectedly succeeded"
+	summaryMismatchWant   = "does not name the task"
+	modulePathWant        = "resolve the module folder"
+	absoluteRepoRoot      = "/taskotter-repo"
+	relativeModuleRoot    = "not-under-taskfiles"
+	missingDefaultCase    = "missing_default"
+	once                  = 1
+	emptyContent          = ""
 )
 
 func (tester *fakeTest) Fatalf(format string, args ...any) {
@@ -177,6 +181,73 @@ func TestRequireUnknownRejectedRejectsSuccess(t *testing.T) {
 	expectFatal(t, unknownSucceededWant, rejectSuccessfulUnknown)
 }
 
+// TestIsNixBackedAcceptsInstallerModule matches a module that includes nix and
+// owns an installable.
+func TestIsNixBackedAcceptsInstallerModule(t *testing.T) {
+	t.Parallel()
+
+	if !isNixBacked(nixBackedModule()) {
+		t.Fatal("isNixBacked() = false for a module with a nix include and an installable")
+	}
+}
+
+// TestIsNixBackedRejectsModuleWithoutInstallable rejects a module that includes
+// nix but installs nothing of its own, such as a family root.
+func TestIsNixBackedRejectsModuleWithoutInstallable(t *testing.T) {
+	t.Parallel()
+
+	module := nixBackedModule()
+
+	module.Vars = nil
+
+	if isNixBacked(module) {
+		t.Fatal("isNixBacked() = true for a module that owns no installable")
+	}
+}
+
+// TestIsNixBackedRejectsModuleWithoutNixInclude rejects docker and the other
+// modules that own an installer outside the nix profile.
+func TestIsNixBackedRejectsModuleWithoutNixInclude(t *testing.T) {
+	t.Parallel()
+
+	module := nixBackedModule()
+
+	module.Includes = nil
+
+	if isNixBacked(module) {
+		t.Fatal("isNixBacked() = true for a module without a nix include")
+	}
+}
+
+// TestRequireInstallerTaskAcceptsToolVariant accepts the install:tool name pnpm
+// and yarn use, where install already means project dependencies.
+func TestRequireInstallerTaskAcceptsToolVariant(t *testing.T) {
+	t.Parallel()
+
+	module := nixBackedModule()
+
+	module.Declared = []string{toolTaskName}
+	module.Exported = []string{toolTaskName}
+
+	requireInstallerTask(t, module, installTaskName)
+}
+
+// TestRequireInstallerTaskRejectsMissingTask fatals when a nix-backed module
+// declares no public install task.
+func TestRequireInstallerTaskRejectsMissingTask(t *testing.T) {
+	t.Parallel()
+
+	expectFatal(t, missingInstallWant, rejectMissingInstallTask)
+}
+
+// TestRequireInstallerTaskRejectsUnexportedTask fatals when install exists but
+// metadata.yml does not advertise it.
+func TestRequireInstallerTaskRejectsUnexportedTask(t *testing.T) {
+	t.Parallel()
+
+	expectFatal(t, unexportedInstallWant, rejectUnexportedInstallTask)
+}
+
 // TestRequireVariantTaskRejectsMissing fatals when a variant task is not listed.
 func TestRequireVariantTaskRejectsMissing(t *testing.T) {
 	t.Parallel()
@@ -273,6 +344,7 @@ func newTestModule() Module {
 		Exported: nil,
 		Variants: nil,
 		Includes: nil,
+		Vars:     nil,
 		DryRun:   nil,
 	}
 }
@@ -317,6 +389,33 @@ func rejectMismatchedSummary(tester *fakeTest) {
 		result: summaryResult(),
 		name:   publicTaskName,
 	})
+}
+
+func nixBackedModule() *Module {
+	module := newTestModule()
+
+	module.Includes = []string{nixInclude}
+	module.Vars = []string{installableVarName}
+	module.Declared = []string{installTaskName, versionTaskName}
+	module.Exported = []string{installTaskName, versionTaskName}
+
+	return &module
+}
+
+func rejectMissingInstallTask(tester *fakeTest) {
+	module := nixBackedModule()
+
+	module.Declared = nil
+
+	requireInstallerTask(tester, module, installTaskName)
+}
+
+func rejectUnexportedInstallTask(tester *fakeTest) {
+	module := nixBackedModule()
+
+	module.Exported = nil
+
+	requireInstallerTask(tester, module, installTaskName)
 }
 
 func rejectMissingVariant(tester *fakeTest) {

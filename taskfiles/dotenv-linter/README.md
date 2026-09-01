@@ -17,7 +17,7 @@ task --taskfile taskfiles/dotenv-linter/Taskfile.yml ci DOTENV_LINTER_TARGETS=.e
 Install only:
 
 ```sh
-task nix:install:profile NIX_INSTALLABLE=nixpkgs#dotenv-linter
+task --taskfile taskfiles/dotenv-linter/Taskfile.yml install
 ```
 
 ### Included
@@ -40,6 +40,8 @@ task dotenv-linter:ci:fix DOTENV_LINTER_TARGETS=.env
 | `ci` | Lint dotenv files with dotenv-linter check |
 | `ci:fix` | Apply automatic fixes with dotenv-linter fix |
 | `diff` | Compare .env files to ensure matching key sets |
+| `install` | Install dotenv-linter via the Nix profile |
+| `version` | Show the active dotenv-linter version |
 
 ## Variables
 

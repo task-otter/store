@@ -25,6 +25,32 @@ tasks:
     cmds:
       - task --list
 
+  install:
+    run: once
+    desc: Install the Bencher CLI via the Nix profile
+    summary: |
+      Install the Bencher CLI into the user Nix profile when it is not already
+      available on PATH. Override the BENCHER_NIX_INSTALLABLE
+      variable to pin a different package or version.
+    status:
+      - command -v bencher >/dev/null 2>&1
+    cmds:
+      - task: nix:install:profile
+        vars:
+          NIX_INSTALLABLE: "{{.BENCHER_NIX_INSTALLABLE}}"
+
+  version:
+    run: once
+    desc: Show the active Bencher CLI version
+    summary: |
+      Print the version reported by the bencher binary resolved from PATH.
+      Auto-installs the CLI if missing.
+    deps:
+      - task: install
+    cmds:
+      - task: _version:unix
+      - task: _version:windows
+
   run:
     run: once
     desc: Track benchmarks with bencher run (BENCHER_EXTRA_ARGS or -- args)
@@ -35,9 +61,7 @@ tasks:
       Auto-installs the CLI if it is missing.
     dir: "{{.USER_WORKING_DIR}}"
     deps:
-      - task: nix:install:profile
-        vars:
-          NIX_INSTALLABLE: "{{.BENCHER_NIX_INSTALLABLE}}"
+      - task: install
     cmds:
       - cmd: >-
           bash -lc '{{.NIX_LOAD}};
@@ -58,9 +82,7 @@ tasks:
       Auto-installs the CLI if it is missing.
     dir: "{{.USER_WORKING_DIR}}"
     deps:
-      - task: nix:install:profile
-        vars:
-          NIX_INSTALLABLE: "{{.BENCHER_NIX_INSTALLABLE}}"
+      - task: install
     cmds:
       - cmd: >-
           bash -lc '{{.NIX_LOAD}};
@@ -71,3 +93,27 @@ tasks:
           bencher
           {{if .CLI_ARGS}}{{.CLI_ARGS}}{{else}}{{.BENCHER_EXTRA_ARGS}}{{end}}
         platforms: [windows]
+
+  _version:unix:
+    run: once
+    internal: true
+    desc: Show Bencher CLI version on macOS or Linux
+    summary: Print the Bencher CLI version on macOS or Linux.
+    platforms: [linux, darwin]
+    cmds:
+      - bash -lc '{{.NIX_LOAD}}; bencher --version'
+
+  _version:windows:
+    run: once
+    internal: true
+    desc: Show Bencher CLI version on Windows
+    summary: Print the Bencher CLI version on Windows.
+    platforms: [windows]
+    preconditions:
+      - sh: >-
+          powershell -NoProfile -ExecutionPolicy Bypass -Command
+          "if (Get-Command bencher -ErrorAction SilentlyContinue) {
+          exit 0 } else { exit 1 }"
+        msg: The Bencher CLI is not installed or not available in PATH.
+    cmds:
+      - bencher --version

@@ -20,7 +20,7 @@ task -t taskfiles/zizmor/Taskfile.yml ci ZIZMOR_EXTRA_ARGS="--gh-token $GITHUB_T
 Install only, without auditing:
 
 ```sh
-task nix:install:profile NIX_INSTALLABLE=nixpkgs#zizmor
+task -t taskfiles/zizmor/Taskfile.yml install
 ```
 
 ### Included in your Taskfile
@@ -35,6 +35,8 @@ Then run:
 
 ```sh
 task zizmor:ci
+task zizmor:install
+task zizmor:version
 ```
 
 ## Public Tasks
@@ -42,6 +44,8 @@ task zizmor:ci
 | Task | Description |
 |---|---|
 | `ci` | Audit GitHub Actions workflows for security issues |
+| `install` | Install zizmor via the Nix profile |
+| `version` | Show the active zizmor version |
 
 ## Variables
 

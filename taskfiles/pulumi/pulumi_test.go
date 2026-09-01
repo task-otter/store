@@ -34,9 +34,11 @@ func TestTaskfileModuleContract(t *testing.T) {
 
 func publicTasks() []string {
 	return []string{
+		"install",
 		"login",
 		"new",
 		"up",
+		"version",
 	}
 }
 

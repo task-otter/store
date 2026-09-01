@@ -18,7 +18,7 @@ task -t taskfiles/bencher/Taskfile.yml exec -- mock
 Install only:
 
 ```sh
-task nix:install:profile NIX_INSTALLABLE=nixpkgs#bencher
+task -t taskfiles/bencher/Taskfile.yml install
 ```
 
 ### Included in your Taskfile
@@ -42,6 +42,8 @@ task bencher:exec -- mock
 |---|---|
 | `run` | Execute a benchmark command and track its results with `bencher run` |
 | `exec` | Run any Bencher CLI subcommand (e.g. `mock`, `project`, `report`) |
+| `install` | Install the Bencher CLI via the Nix profile |
+| `version` | Show the active Bencher CLI version |
 
 ## Variables
 

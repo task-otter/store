@@ -32,6 +32,8 @@ func publicTasks() []string {
 	return []string{
 		"ci",
 		"config:init",
+		"install",
+		"version",
 	}
 }
 

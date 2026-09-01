@@ -10,9 +10,19 @@ import (
 	"github.com/task-otter/store/internal/tasktest"
 )
 
+type (
+	// taskReference is one assertion that a task field calls another task.
+	taskReference struct {
+		entries  any
+		task     string
+		expected string
+	}
+)
+
 const (
 	constProtoModule       = "proto"
 	constProtoTaskGen      = "gen"
+	constProtoTaskInstall  = "install"
 	constNixInstallProfile = "nix:install:profile"
 )
 
@@ -34,31 +44,69 @@ func TestTaskfileModuleContract(t *testing.T) {
 	)
 }
 
-// TestGenInstallsViaNixProfile
-func TestGenInstallsViaNixProfile(t *testing.T) {
+// TestGenDependsOnInstall proves gen auto-installs through the module's public
+// install task, which is the single caller of nix:install:profile.
+func TestGenDependsOnInstall(t *testing.T) {
 	t.Parallel()
 
-	taskfile := tasktest.LoadTaskfile(t, constProtoModule)
+	assertTaskDependsOn(t, constProtoTaskGen, constProtoTaskInstall)
+}
 
-	deps, ok := taskfile.Tasks[constProtoTaskGen].Deps.([]any)
+// TestInstallUsesNixProfile proves the install task installs through the shared
+// nix:install:profile task rather than owning an installer of its own.
+func TestInstallUsesNixProfile(t *testing.T) {
+	t.Parallel()
+
+	assertTaskRuns(t, constProtoTaskInstall, constNixInstallProfile)
+}
+
+func assertTaskDependsOn(t *testing.T, task, expected string) {
+	t.Helper()
+
+	assertTaskReferences(t, &taskReference{
+		task:     task,
+		expected: expected,
+		entries:  loadTask(t, task).Deps,
+	})
+}
+
+func assertTaskRuns(t *testing.T, task, expected string) {
+	t.Helper()
+
+	assertTaskReferences(t, &taskReference{
+		task:     task,
+		expected: expected,
+		entries:  loadTask(t, task).Cmds,
+	})
+}
+
+func loadTask(t *testing.T, task string) *tasktest.Task {
+	t.Helper()
+
+	return tasktest.LoadTaskfile(t, constProtoModule).Tasks[task]
+}
+
+// assertTaskReferences proves the entries of one task field list a call to expected.
+func assertTaskReferences(t *testing.T, reference *taskReference) {
+	t.Helper()
+
+	entries, ok := reference.entries.([]any)
 
 	if !ok {
-		t.Fatalf(
-			"%s deps have type %T, want []any",
-			constProtoTaskGen,
-			taskfile.Tasks[constProtoTaskGen].Deps,
-		)
+		t.Fatalf("%s entries have type %T, want []any", reference.task, reference.entries)
 	}
 
-	if !containsTaskDependency(deps, constNixInstallProfile) {
-		t.Errorf("%s must depend on %s; deps: %v", constProtoTaskGen, constNixInstallProfile, deps)
+	if !containsTaskDependency(entries, reference.expected) {
+		t.Errorf("%s must reference %s; entries: %v", reference.task, reference.expected, entries)
 	}
 }
 
 func publicTasks() []string {
 	return []string{
 		constProtoTaskGen,
+		constProtoTaskInstall,
 		"ungen",
+		"version",
 	}
 }
 

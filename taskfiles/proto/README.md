@@ -19,7 +19,7 @@ task -t taskfiles/proto/Taskfile.yml gen
 Install only, without generating:
 
 ```sh
-task nix:install:profile NIX_INSTALLABLE="nixpkgs#protobuf nixpkgs#protoc-gen-go nixpkgs#protoc-gen-go-grpc"
+task -t taskfiles/proto/Taskfile.yml install
 ```
 
 Generate from a specific proto directory and keep generated files relative to
@@ -63,6 +63,8 @@ task proto:ungen
 |---|---|
 | `gen` | Generate Go files from proto definitions |
 | `ungen` | Remove generated protobuf (.pb.go) files from the working tree |
+| `install` | Install protoc and the Go plugins via the Nix profile |
+| `version` | Show the active protoc version |
 
 ## Variables
 

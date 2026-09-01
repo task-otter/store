@@ -41,6 +41,32 @@ tasks:
     cmds:
       - task --list
 
+  install:
+    run: once
+    desc: Install the Vault CLI via the Nix profile
+    summary: |
+      Install the Vault CLI into the user Nix profile when it is not already
+      available on PATH. Override the VAULT_NIX_INSTALLABLE
+      variable to pin a different package or version.
+    status:
+      - command -v vault >/dev/null 2>&1
+    cmds:
+      - task: nix:install:profile
+        vars:
+          NIX_INSTALLABLE: "{{.VAULT_NIX_INSTALLABLE}}"
+
+  version:
+    run: once
+    desc: Show the active Vault CLI version
+    summary: |
+      Print the version reported by the vault binary resolved from PATH.
+      Auto-installs the Vault CLI if missing.
+    deps:
+      - task: install
+    cmds:
+      - task: _version:unix
+      - task: _version:windows
+
   verify:
     run: once
     desc: Verify the Vault CLI installation and server connectivity
@@ -49,9 +75,7 @@ tasks:
       the binary is installed and the server at VAULT_ADDR is reachable.
       Auto-installs the CLI if missing.
     deps:
-      - task: nix:install:profile
-        vars:
-          NIX_INSTALLABLE: "{{.VAULT_NIX_INSTALLABLE}}"
+      - task: install
     cmds:
       - cmd: bash -lc '{{.NIX_LOAD}}; vault version'
         platforms: [linux, darwin]
@@ -71,9 +95,7 @@ tasks:
       prevents task failure when the server is sealed or unreachable.
       Auto-installs the CLI if missing.
     deps:
-      - task: nix:install:profile
-        vars:
-          NIX_INSTALLABLE: "{{.VAULT_NIX_INSTALLABLE}}"
+      - task: install
     cmds:
       - cmd: bash -lc '{{.NIX_LOAD}}; vault status -address="{{.VAULT_ADDR_TARGET}}" || true'
         platforms: [linux, darwin]
@@ -90,9 +112,7 @@ tasks:
       This task only uses curl and jq — it does not require the Vault CLI.
     set: [errexit, nounset, pipefail]
     deps:
-      - task: jq:nix:install:profile
-        vars:
-          NIX_INSTALLABLE: "{{.JQ_NIX_INSTALLABLE}}"
+      - task: jq:install
     preconditions:
       - sh: command -v curl >/dev/null 2>&1
         msg: curl is required to query the Vault health endpoint.
@@ -127,9 +147,7 @@ tasks:
           {{.VAULT_KEYS_FILE}}.
           Move or remove it before running init again.
     cmds:
-      - task: nix:install:profile
-        vars:
-          NIX_INSTALLABLE: "{{.VAULT_NIX_INSTALLABLE}}"
+      - task: install
       - |
         {{.NIX_LOAD}}
         KF="{{.VAULT_KEYS_FILE}}"
@@ -164,12 +182,8 @@ tasks:
           KEYS_FILE not found. Run task init first to generate
           {{.VAULT_KEYS_FILE}}.
     cmds:
-      - task: jq:nix:install:profile
-        vars:
-          NIX_INSTALLABLE: "{{.JQ_NIX_INSTALLABLE}}"
-      - task: nix:install:profile
-        vars:
-          NIX_INSTALLABLE: "{{.VAULT_NIX_INSTALLABLE}}"
+      - task: jq:install
+      - task: install
       - |
         {{.NIX_LOAD}}
         VAULT_KEYS_FILE="{{.VAULT_KEYS_FILE}}"
@@ -187,9 +201,7 @@ tasks:
       required number of unseal key shares. Requires an authenticated session.
       Auto-installs the CLI if missing.
     deps:
-      - task: nix:install:profile
-        vars:
-          NIX_INSTALLABLE: "{{.VAULT_NIX_INSTALLABLE}}"
+      - task: install
     cmds:
       - cmd: bash -lc '{{.NIX_LOAD}}; vault operator seal -address="{{.VAULT_ADDR_TARGET}}"'
         platforms: [linux, darwin]
@@ -211,12 +223,8 @@ tasks:
           KEYS_FILE not found. Run task init first to generate
           {{.VAULT_KEYS_FILE}}.
     cmds:
-      - task: jq:nix:install:profile
-        vars:
-          NIX_INSTALLABLE: "{{.JQ_NIX_INSTALLABLE}}"
-      - task: nix:install:profile
-        vars:
-          NIX_INSTALLABLE: "{{.VAULT_NIX_INSTALLABLE}}"
+      - task: jq:install
+      - task: install
       - |
         {{.NIX_LOAD}}
         KF="{{.VAULT_KEYS_FILE}}"
@@ -241,9 +249,7 @@ tasks:
       - sh: test -n "$VAULT_LOGIN_ROOT_TOKEN"
         msg: ROOT_TOKEN must be set. Pass VAULT_ROOT_TOKEN=<token> on the command line.
     cmds:
-      - task: nix:install:profile
-        vars:
-          NIX_INSTALLABLE: "{{.VAULT_NIX_INSTALLABLE}}"
+      - task: install
       - |
         {{.NIX_LOAD}}
         printf '%s' "$VAULT_LOGIN_ROOT_TOKEN" \
@@ -272,9 +278,7 @@ tasks:
       - sh: test -n "$VAULT_LOGIN_SECRET_ID"
         msg: SECRET_ID must be set. Pass VAULT_SECRET_ID=<secret-id> on the command line.
     cmds:
-      - task: nix:install:profile
-        vars:
-          NIX_INSTALLABLE: "{{.VAULT_NIX_INSTALLABLE}}"
+      - task: install
       - |
         {{.NIX_LOAD}}
         printf '%s' "$VAULT_LOGIN_SECRET_ID" \
@@ -312,9 +316,7 @@ tasks:
       - sh: test -n "$VAULT_LOGIN_SECRET_ID"
         msg: SECRET_ID must be set. Pass VAULT_SECRET_ID=<secret-id> on the command line.
     cmds:
-      - task: nix:install:profile
-        vars:
-          NIX_INSTALLABLE: "{{.VAULT_NIX_INSTALLABLE}}"
+      - task: install
       - |
         {{.NIX_LOAD}}
         printf '%s' "$VAULT_LOGIN_SECRET_ID" \
@@ -385,9 +387,7 @@ tasks:
       - sh: test -n "${VAULT_TOKEN:-}"
         msg: VAULT_TOKEN environment variable must be set.
     cmds:
-      - task: nix:install:profile
-        vars:
-          NIX_INSTALLABLE: "{{.VAULT_NIX_INSTALLABLE}}"
+      - task: install
       - cmd: bash -lc '{{.NIX_LOAD}}; vault token revoke -address="{{.VAULT_ADDR_TARGET}}" -self'
         platforms: [linux, darwin]
       - cmd: vault token revoke -address="{{.VAULT_ADDR_TARGET}}" -self
@@ -401,9 +401,7 @@ tasks:
       scripting or when you need to pass the root token to another tool.
       KEYS_FILE must exist and contain the JSON produced by the init task.
     deps:
-      - task: jq:nix:install:profile
-        vars:
-          NIX_INSTALLABLE: "{{.JQ_NIX_INSTALLABLE}}"
+      - task: jq:install
     preconditions:
       - sh: test -f "{{.VAULT_KEYS_FILE}}"
         msg: >-
@@ -429,9 +427,7 @@ tasks:
       Requires an authenticated session and an active Vault server.
       Auto-installs the CLI if missing.
     deps:
-      - task: nix:install:profile
-        vars:
-          NIX_INSTALLABLE: "{{.VAULT_NIX_INSTALLABLE}}"
+      - task: install
     cmds:
       - cmd: bash -lc '{{.NIX_LOAD}}; vault operator raft list-peers -address="{{.VAULT_ADDR_TARGET}}"'
         platforms: [linux, darwin]
@@ -451,9 +447,7 @@ tasks:
         {{if .VAULT_FILE}}{{.VAULT_FILE -}}
         {{else}}{{.VAULT_SNAPSHOT_FILE}}{{end}}
     deps:
-      - task: nix:install:profile
-        vars:
-          NIX_INSTALLABLE: "{{.VAULT_NIX_INSTALLABLE}}"
+      - task: install
     cmds:
       - cmd: >-
           bash -lc '{{.NIX_LOAD}};
@@ -486,9 +480,7 @@ tasks:
           Snapshot file not found. Pass VAULT_FILE=path/to/snapshot, or VAULT_FILE=path/to/snapshot from the root
           include.
     cmds:
-      - task: nix:install:profile
-        vars:
-          NIX_INSTALLABLE: "{{.VAULT_NIX_INSTALLABLE}}"
+      - task: install
       - cmd: >-
           bash -lc '{{.NIX_LOAD}};
           vault operator raft snapshot restore -address="{{.VAULT_ADDR_TARGET}}"
@@ -496,3 +488,28 @@ tasks:
         platforms: [linux, darwin]
       - cmd: vault operator raft snapshot restore -address="{{.VAULT_ADDR_TARGET}}" -force "{{.FILE_TARGET}}"
         platforms: [windows]
+
+  _version:unix:
+    run: once
+    internal: true
+    desc: Show Vault CLI version on macOS or Linux
+    summary: Print the Vault CLI version on macOS or Linux.
+    platforms: [linux, darwin]
+    set: [errexit, nounset, pipefail]
+    cmds:
+      - bash -lc '{{.NIX_LOAD}}; vault version'
+
+  _version:windows:
+    run: once
+    internal: true
+    desc: Show Vault CLI version on Windows
+    summary: Print the Vault CLI version on Windows.
+    platforms: [windows]
+    preconditions:
+      - sh: >-
+          powershell -NoProfile -ExecutionPolicy Bypass -Command
+          "if (Get-Command vault -ErrorAction SilentlyContinue) {
+          exit 0 } else { exit 1 }"
+        msg: The Vault CLI is not installed or not available in PATH.
+    cmds:
+      - vault version

@@ -26,6 +26,32 @@ tasks:
     cmds:
       - task --list
 
+  install:
+    run: once
+    desc: Install shfmt via the Nix profile
+    summary: |
+      Install shfmt into the user Nix profile when it is not already
+      available on PATH. Override the SHFMT_NIX_INSTALLABLE
+      variable to pin a different package or version.
+    status:
+      - command -v shfmt >/dev/null 2>&1
+    cmds:
+      - task: nix:install:profile
+        vars:
+          NIX_INSTALLABLE: "{{.SHFMT_NIX_INSTALLABLE}}"
+
+  version:
+    run: once
+    desc: Show the active shfmt version
+    summary: |
+      Print the version reported by the shfmt binary resolved from PATH.
+      Auto-installs shfmt if missing.
+    deps:
+      - task: install
+    cmds:
+      - task: _version:unix
+      - task: _version:windows
+
   ci:fix:
     run: once
     desc: Format shell scripts with shfmt (SHFMT_TARGETS=path)
@@ -35,9 +61,7 @@ tasks:
       if needed.
     dir: "{{.USER_WORKING_DIR}}"
     deps:
-      - task: nix:install:profile
-        vars:
-          NIX_INSTALLABLE: "{{.SHFMT_NIX_INSTALLABLE}}"
+      - task: install
     cmds:
       - task: _fmt:unix
       - task: _fmt:windows
@@ -51,9 +75,7 @@ tasks:
       -ci, -sr, or -ln bash. Auto-installs shfmt if needed.
     dir: "{{.USER_WORKING_DIR}}"
     deps:
-      - task: nix:install:profile
-        vars:
-          NIX_INSTALLABLE: "{{.SHFMT_NIX_INSTALLABLE}}"
+      - task: install
     cmds:
       - task: _fmt:check:unix
       - task: _fmt:check:windows
@@ -103,3 +125,27 @@ tasks:
         shfmt -d
           {{.SHFMT_EXTRA_ARGS}} $target;
         exit $LASTEXITCODE"
+
+  _version:unix:
+    run: once
+    internal: true
+    desc: Show shfmt version on macOS or Linux
+    summary: Print the shfmt version on macOS or Linux.
+    platforms: [linux, darwin]
+    cmds:
+      - bash -lc '{{.NIX_LOAD}}; shfmt --version'
+
+  _version:windows:
+    run: once
+    internal: true
+    desc: Show shfmt version on Windows
+    summary: Print the shfmt version on Windows.
+    platforms: [windows]
+    preconditions:
+      - sh: >-
+          powershell -NoProfile -ExecutionPolicy Bypass -Command
+          "if (Get-Command shfmt -ErrorAction SilentlyContinue) {
+          exit 0 } else { exit 1 }"
+        msg: shfmt is not installed or not available in PATH.
+    cmds:
+      - shfmt --version

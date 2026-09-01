@@ -40,8 +40,16 @@ in the composed graph.
 ## Decision
 
 CLI and system modules install their tool through `nix:install:profile`. They
-do not publish `install`, `install:undo`, `upgrade`, or `version`, and they
-delete the `_install:*` / `_upgrade:*` platform internals.
+publish exactly two installer tasks — `install` and `version` — and they delete
+`install:undo`, `upgrade`, and the `_install:*` / `_upgrade:*` platform
+internals.
+
+`install` is the module's single caller of `nix:install:profile`. It is guarded
+by a `status:` check so an already-present tool is a no-op, which keeps it safe
+as a dependency of every work task. `version` depends on `install` and prints
+the tool's own version. Work tasks auto-install by depending on `install`
+rather than on `nix:install:profile` directly, so the installable is named in
+one place per module.
 
 Each module includes nix and owns a prefixed installable (not
 `{TOOL}_VERSION`):
@@ -55,14 +63,32 @@ vars:
   ACTIONLINT_NIX_INSTALLABLE: nixpkgs#actionlint
 
 tasks:
-  ci:
-    deps:
+  install:
+    desc: Install actionlint via the Nix profile
+    status:
+      - command -v actionlint >/dev/null 2>&1
+    cmds:
       - task: nix:install:profile
         vars:
           NIX_INSTALLABLE: "{{.ACTIONLINT_NIX_INSTALLABLE}}"
+
+  version:
+    desc: Show the active actionlint version
+    deps:
+      - task: install
+    cmds:
+      - bash -lc '{{.NIX_LOAD}}; actionlint -version'
+
+  ci:
+    deps:
+      - task: install
     cmds:
       - bash -lc '{{.NIX_LOAD}}; actionlint ...'
 ```
+
+A module that depends on another module's tool depends on that module's
+`install` task — `git` on `gh:install`, `vault` on `jq:install` — never on a
+namespaced `nix:install:profile`.
 
 `NIX_LOAD` comes from the nix include. Unix commands that invoke the installed
 CLI wrap with `bash -lc '{{.NIX_LOAD}}; …'` so `~/.nix-profile/bin` is on PATH
@@ -72,9 +98,9 @@ without a shell restart. Pinning is an installable override, for example
 `NIX_INSTALLABLE` is passed only as a **task-local** var into
 `nix:install:profile`. Consuming modules never declare it at top-level.
 
-Installer-only leftovers keep `default` and set `exported_tasks: []`. Callers
-install with `task nix:install:profile NIX_INSTALLABLE=nixpkgs#jq` (root
-include) or the same task under a module that includes nix.
+Modules with no work tasks of their own — jq is the only one — are not an
+exception: they keep `default` and export `[install, version]` like everything
+else, so `task jq:install` works the same way as `task actionlint:install`.
 
 The nix module is unchanged: it still installs Nix itself (`nix:install`) and
 exposes `install:profile` / `install:shell`.
@@ -83,19 +109,24 @@ exposes `install:profile` / `install:shell`.
 npm / yarn / pnpm project install (installing *project* dependencies, not the
 CLI itself).
 
-**Exceptions:** docker keeps `install` / `install:undo` / `upgrade` / `version`.
+**Exceptions:** docker keeps `install` / `install:undo` / `upgrade` / `version`,
+because its installer is Docker Desktop rather than a Nix profile add.
 
 **Node.js stack:** `nodejs` installs Node.js via `nixpkgs#nodejs`. `npm` depends
 on `nodejs:install`. `yarn` and `pnpm` install their CLIs from nix profile and
 also depend on `nodejs:install` for the runtime.
 
 **Task naming:** the per-module installer was originally the private `_ensure`
-task. It is now the public `install` task, and every Nix-backed module also
-exposes a public `version` task (`deps: [install]`) that prints the tool's own
-version. `pnpm` and `yarn` already reserve `install` and `version` for project
-dependencies, so there the Nix installer and its version report are named
-`install:tool` and `version:tool`; folding them into the existing `install`
-would create a dependency cycle through the `_pnpm:*` / `_yarn:*` shims.
+task; it is now the public `install` task described above. `pnpm` and `yarn`
+already reserve `install` and `version` for project dependencies, so there the
+Nix installer and its version report are named `install:tool` and
+`version:tool`; folding them into the existing `install` would create a
+dependency cycle through the `_pnpm:*` / `_yarn:*` shims.
+
+**Enforcement:** the shared integration suite
+(`internal/taskintegration`) fails any module that includes nix and owns a
+`{TOOL}_NIX_INSTALLABLE` var but does not declare and export both tasks. The
+check accepts the `:tool` variants, and skips modules that own no installable.
 
 Native Windows: `nix:install:profile` already errors via `_windows:unsupported`.
 Runtime Windows commands on CLI modules may remain; auto-install on native
@@ -104,10 +135,14 @@ Windows will fail. Use WSL2.
 ## Consequences
 
 - One installer path for CLI tools; module Taskfiles shrink to the work the
-  tool does (`ci`, `fmt`, …) plus a nix include and an owned installable.
-- Auto-install remains, but it is a dependency, not a public task. Callers who
-  used `task {tool}:install` switch to `task nix:install:profile
-  NIX_INSTALLABLE=…` or rely on the task that already depended on install.
+  tool does (`ci`, `fmt`, …) plus a nix include, an owned installable, and the
+  two-task installer surface.
+- Auto-install remains, and `task {tool}:install` is the supported way to
+  install without doing any work. The installable is named once per module, in
+  `install`, so a pin override reaches every task that needs the tool.
+- The surface is uniform and machine-checked: every Nix-backed module answers
+  `task {tool}:install` and `task {tool}:version`, and the integration suite
+  fails a module that drifts from that.
 - `{TOOL}_VERSION` is gone on converted modules. Pinning moves to
   `{TOOL}_NIX_INSTALLABLE`, which satisfies ADR 0002.
 - JS and project-manager modules keep their existing install semantics.

@@ -19,7 +19,7 @@ task -t taskfiles/shellcheck/Taskfile.yml ci SHELLCHECK_EXTRA_ARGS="--shell=bash
 Install only, without linting:
 
 ```sh
-task nix:install:profile NIX_INSTALLABLE=nixpkgs#shellcheck
+task -t taskfiles/shellcheck/Taskfile.yml install
 ```
 
 ### Included in your Taskfile
@@ -41,6 +41,8 @@ task shellcheck:ci
 | Task | Description |
 |---|---|
 | `ci` | Lint shell scripts with ShellCheck (SHELLCHECK_TARGETS=glob) |
+| `install` | Install ShellCheck via the Nix profile |
+| `version` | Show the active ShellCheck version |
 
 ## Variables
 

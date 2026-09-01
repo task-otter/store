@@ -2,4 +2,4 @@
 schema: taskotter.dev/taskfile-metadata/v1
 module: bencher
 taskfile: Taskfile.yml
-exported_tasks: [exec, run]
+exported_tasks: [exec, install, run, version]

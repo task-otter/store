@@ -20,7 +20,7 @@ task -t taskfiles/buf/Taskfile.yml fmt:check
 Install only, without linting:
 
 ```sh
-task nix:install:profile NIX_INSTALLABLE=nixpkgs#buf
+task -t taskfiles/buf/Taskfile.yml install
 ```
 
 Lint a specific proto directory:
@@ -67,7 +67,9 @@ task buf:generate BUF_INPUT=api/v1
 | `ci:fix`    | Format proto files in place with Buf                   | `BUF_INPUT`, `BUF_EXTRA_ARGS` |
 | `fmt:check` | Check proto file formatting with Buf                   | `BUF_INPUT`, `BUF_EXTRA_ARGS` |
 | `generate`  | Generate code from proto files with Buf                | `BUF_INPUT`, `BUF_EXTRA_ARGS` |
+| `install`   | Install Buf via the Nix profile                        | `BUF_NIX_INSTALLABLE` |
 | `lint`      | Lint proto files with Buf                              | `BUF_INPUT`, `BUF_CONFIG`, `BUF_EXTRA_ARGS` |
+| `version`   | Show the active Buf version                            | — |
 
 ## Variables
 

@@ -31,12 +31,14 @@ func TestTaskfileModuleContract(t *testing.T) {
 func publicTasks() []string {
 	return []string{
 		"galaxy:install",
+		"install",
 		"list:hosts",
 		"ping",
 		"run",
 		"syntax:check",
 		"vault:decrypt",
 		"vault:encrypt",
+		"version",
 	}
 }
 

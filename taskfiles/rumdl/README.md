@@ -18,7 +18,7 @@ task --taskfile taskfiles/rumdl/Taskfile.yml ci RUMDL_TARGETS=docs
 Install only, without linting:
 
 ```sh
-task nix:install:profile NIX_INSTALLABLE=nixpkgs#rumdl
+task --taskfile taskfiles/rumdl/Taskfile.yml install
 ```
 
 ### Included
@@ -43,6 +43,8 @@ task rumdl:fmt
 | `lint:fix` | Apply automatic fixes with rumdl check --fix | `RUMDL_TARGETS`, `RUMDL_EXTRA_ARGS` |
 | `ci:fix` | Run `fmt` then `lint:fix` for CI | — |
 | `fmt` | Format Markdown files with rumdl fmt | `RUMDL_TARGETS`, `RUMDL_EXTRA_ARGS` |
+| `install` | Install rumdl via the Nix profile | `RUMDL_NIX_INSTALLABLE` |
+| `version` | Show the active rumdl version | — |
 
 ## Variables
 
@@ -61,5 +63,5 @@ Pin a revision by overriding the installable, for example
 - `lint:fix` (rumdl check --fix) exits non-zero when unfixable violations remain,
   which suits pre-commit hooks and CI. `fmt` (rumdl fmt) uses formatter-style
   exit codes and exits zero after formatting, which suits editor integration.
-- Auto-install: every run task depends on `nix:install:profile`, so the tool is
-  installed on first use.
+- Auto-install: every run task depends on the module's `install` task, so the
+  tool is installed on first use.

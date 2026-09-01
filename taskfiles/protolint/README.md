@@ -17,7 +17,7 @@ task --taskfile taskfiles/protolint/Taskfile.yml ci PROTOLINT_TARGETS=api
 Install only, without linting:
 
 ```sh
-task nix:install:profile NIX_INSTALLABLE=nixpkgs#protolint
+task --taskfile taskfiles/protolint/Taskfile.yml install
 ```
 
 ### Included
@@ -39,6 +39,8 @@ task protolint:ci:fix PROTOLINT_TARGETS=api
 |---|---|
 | `ci` | Lint protobuf files with protolint |
 | `ci:fix` | Apply automatic fixes with protolint lint -fix |
+| `install` | Install protolint via the Nix profile |
+| `version` | Show the active protolint version |
 
 ## Variables
 

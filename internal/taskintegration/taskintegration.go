@@ -7,7 +7,8 @@
 // This package runs task against the same folder and checks what it does: the
 // Taskfile loads, the tasks the Taskfile declares are the tasks the CLI
 // exposes, metadata.yml describes the surface the CLI actually reaches, every
-// listed task renders a summary, the default task lists the module, and an
+// Nix-backed module publishes the install and version tasks ADR 0004 requires,
+// every listed task renders a summary, the default task lists the module, and an
 // unknown task is rejected.
 //
 // Every run happens in an isolated HOME so a task can neither read nor write
@@ -86,6 +87,7 @@ func suiteChecks() []suiteCheck {
 		{name: "declared_tasks_are_listed", assert: assertDeclaredTasksAreListed},
 		{name: "metadata_tasks_are_reachable", assert: assertMetadataTasksAreReachable},
 		{name: "metadata_variants_expose_tasks", assert: assertVariantsExposeTasks},
+		{name: "nix_modules_expose_install", assert: assertNixModulesExposeInstall},
 		{name: "task_summaries_render", assert: assertTaskSummariesRender},
 		{name: "default_task_lists_module", assert: assertDefaultTaskListsModule},
 		{name: "unknown_task_is_rejected", assert: assertUnknownTaskIsRejected},

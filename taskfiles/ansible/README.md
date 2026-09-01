@@ -24,7 +24,7 @@ task -t taskfiles/ansible/Taskfile.yml run ANSIBLE_PLAYBOOK=site.yml ANSIBLE_INV
 Install only:
 
 ```sh
-task nix:install:profile NIX_INSTALLABLE=nixpkgs#ansible
+task -t taskfiles/ansible/Taskfile.yml install
 ```
 
 ### Included
@@ -52,6 +52,8 @@ task ansible:run ANSIBLE_PLAYBOOK=site.yml ANSIBLE_INVENTORY=hosts
 | `galaxy:install` | Install roles and collections from a requirements file |
 | `vault:encrypt`  | Encrypt a file with Ansible Vault                      |
 | `vault:decrypt`  | Decrypt a file with Ansible Vault                      |
+| `install`        | Install Ansible via the Nix profile                    |
+| `version`        | Show the active Ansible version                        |
 
 ## Variables
 

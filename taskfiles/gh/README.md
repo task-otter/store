@@ -21,7 +21,7 @@ task -t taskfiles/gh/Taskfile.yml pr:list
 Install only:
 
 ```sh
-task nix:install:profile NIX_INSTALLABLE=nixpkgs#gh
+task -t taskfiles/gh/Taskfile.yml install
 ```
 
 ### Included (recommended)
@@ -43,6 +43,8 @@ task tools:pr:list
 
 | Task                     | Description                                  | Key variables                                    |
 | ------------------------ | -------------------------------------------- | ------------------------------------------------ |
+| `install`                | Install the GitHub CLI via the Nix profile   | `GH_NIX_INSTALLABLE`                             |
+| `version`                | Show the active gh version                   | —                                                |
 | `doctor`                 | Run gh self-diagnostic check                 | —                                                |
 | `which`                  | Show path to the gh binary                   | —                                                |
 | `verify`                 | Verify gh installation and auth status       | —                                                |

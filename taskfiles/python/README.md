@@ -19,7 +19,7 @@ task -t taskfiles/python/Taskfile.yml verify
 Install only:
 
 ```sh
-task nix:install:profile NIX_INSTALLABLE=nixpkgs#python3
+task -t taskfiles/python/Taskfile.yml install
 ```
 
 ### Included
@@ -45,6 +45,8 @@ task python:run PYTHON_FILE=script.py
 | `venv`         | Create a virtual environment                 |
 | `pip:install`  | Install packages from a requirements file    |
 | `run`          | Run a Python script                          |
+| `install`      | Install Python via the Nix profile           |
+| `version`      | Show the active Python version               |
 
 ## Variables
 

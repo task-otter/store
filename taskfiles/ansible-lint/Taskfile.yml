@@ -27,6 +27,31 @@ tasks:
     cmds:
       - task --list
 
+  install:
+    run: once
+    desc: Install ansible-lint via the Nix profile
+    summary: |
+      Install ansible-lint into the user Nix profile when it is not already
+      available on PATH. Override the ANSIBLE_LINT_NIX_INSTALLABLE
+      variable to pin a different package or version.
+    status:
+      - command -v ansible-lint >/dev/null 2>&1
+    cmds:
+      - task: nix:install:profile
+        vars:
+          NIX_INSTALLABLE: "{{.ANSIBLE_LINT_NIX_INSTALLABLE}}"
+
+  version:
+    run: once
+    desc: Show the active ansible-lint version
+    summary: |
+      Print the version reported by the ansible-lint binary resolved from PATH.
+      Auto-installs ansible-lint if missing. macOS and Linux only.
+    deps:
+      - task: install
+    cmds:
+      - task: _version:unix
+
   ci:
     run: once
     desc: Lint Ansible YAML files with ansible-lint (ANSIBLE_LINT_TARGETS=path)
@@ -36,9 +61,7 @@ tasks:
       Auto-installs if missing.
     dir: "{{.USER_WORKING_DIR}}"
     deps:
-      - task: nix:install:profile
-        vars:
-          NIX_INSTALLABLE: "{{.ANSIBLE_LINT_NIX_INSTALLABLE}}"
+      - task: install
     cmds:
       - task: _lint:unix
       - echo "✅ ansible-lint passed"
@@ -52,9 +75,7 @@ tasks:
       Auto-installs if missing.
     dir: "{{.USER_WORKING_DIR}}"
     deps:
-      - task: nix:install:profile
-        vars:
-          NIX_INSTALLABLE: "{{.ANSIBLE_LINT_NIX_INSTALLABLE}}"
+      - task: install
     cmds:
       - task: _lint:fix:unix
       - echo "✅ ansible-lint fixes applied"
@@ -90,3 +111,12 @@ tasks:
         targets="{{if .ANSIBLE_LINT_TARGETS}}{{.ANSIBLE_LINT_TARGETS}}{{else}}.{{end}}"
         ansible-lint {{.ANSIBLE_LINT_FIX_FLAG}} $targets \
           {{.ANSIBLE_LINT_EXTRA_ARGS}}'
+
+  _version:unix:
+    run: once
+    internal: true
+    desc: Show ansible-lint version on macOS or Linux
+    summary: Print the ansible-lint version on macOS or Linux.
+    platforms: [linux, darwin]
+    cmds:
+      - bash -lc '{{.NIX_LOAD}}; ansible-lint --version'

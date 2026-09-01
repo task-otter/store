@@ -28,6 +28,32 @@ tasks:
     cmds:
       - task --list
 
+  install:
+    run: once
+    desc: Install sqlfluff via the Nix profile
+    summary: |
+      Install sqlfluff into the user Nix profile when it is not already
+      available on PATH. Override the SQLFLUFF_NIX_INSTALLABLE
+      variable to pin a different package or version.
+    status:
+      - command -v sqlfluff >/dev/null 2>&1
+    cmds:
+      - task: nix:install:profile
+        vars:
+          NIX_INSTALLABLE: "{{.SQLFLUFF_NIX_INSTALLABLE}}"
+
+  version:
+    run: once
+    desc: Show the active sqlfluff version
+    summary: |
+      Print the version reported by the sqlfluff binary resolved from PATH.
+      Auto-installs sqlfluff if missing.
+    deps:
+      - task: install
+    cmds:
+      - task: _version:unix
+      - task: _version:windows
+
   ci:
     run: once
     desc: Lint SQL files with sqlfluff (SQLFLUFF_TARGETS=path)
@@ -37,9 +63,7 @@ tasks:
       SQLFLUFF_DIALECT to set the SQL dialect, and SQLFLUFF_EXTRA_ARGS for
       additional flags. Auto-installs sqlfluff if missing.
     deps:
-      - task: nix:install:profile
-        vars:
-          NIX_INSTALLABLE: "{{.SQLFLUFF_NIX_INSTALLABLE}}"
+      - task: install
     dir: "{{.USER_WORKING_DIR}}"
     cmds:
       - >-
@@ -61,9 +85,7 @@ tasks:
       fix lint violations. Pass SQLFLUFF_CONFIG, SQLFLUFF_DIALECT, and
       SQLFLUFF_EXTRA_ARGS as needed. Auto-installs sqlfluff if missing.
     deps:
-      - task: nix:install:profile
-        vars:
-          NIX_INSTALLABLE: "{{.SQLFLUFF_NIX_INSTALLABLE}}"
+      - task: install
     dir: "{{.USER_WORKING_DIR}}"
     cmds:
       - >-
@@ -86,9 +108,7 @@ tasks:
       sqlfluff interprets a query. Pass SQLFLUFF_CONFIG, SQLFLUFF_DIALECT, and
       SQLFLUFF_EXTRA_ARGS as needed. Auto-installs sqlfluff if missing.
     deps:
-      - task: nix:install:profile
-        vars:
-          NIX_INSTALLABLE: "{{.SQLFLUFF_NIX_INSTALLABLE}}"
+      - task: install
     dir: "{{.USER_WORKING_DIR}}"
     cmds:
       - >-
@@ -120,3 +140,27 @@ tasks:
       - "printf 'indent_unit = space\\n' >> .sqlfluff"
       - "printf 'tab_space_size = 4\\n' >> .sqlfluff"
       - echo 'Created .sqlfluff with default configuration.'
+
+  _version:unix:
+    run: once
+    internal: true
+    desc: Show sqlfluff version on macOS or Linux
+    summary: Print the sqlfluff version on macOS or Linux.
+    platforms: [linux, darwin]
+    cmds:
+      - bash -lc '{{.NIX_LOAD}}; sqlfluff --version'
+
+  _version:windows:
+    run: once
+    internal: true
+    desc: Show sqlfluff version on Windows
+    summary: Print the sqlfluff version on Windows.
+    platforms: [windows]
+    preconditions:
+      - sh: >-
+          powershell -NoProfile -ExecutionPolicy Bypass -Command
+          "if (Get-Command sqlfluff -ErrorAction SilentlyContinue) {
+          exit 0 } else { exit 1 }"
+        msg: sqlfluff is not installed or not available in PATH.
+    cmds:
+      - sqlfluff --version

@@ -27,7 +27,7 @@ includes:
   go: ./taskfiles/go/Taskfile.yml
 ```
 
-Then run it. Work tasks auto-install the tool through `nix:install:profile`:
+Then run it. Work tasks auto-install the tool through the module's `install` task:
 
 ```sh
 task go:verify
@@ -43,33 +43,36 @@ Per-module docs and public tasks: `taskfiles/<name>/README.md`.
 
 ## How install works
 
-Most CLI modules have no public `install` task. They depend on
+Every Nix-backed module exposes a public `install` task and a public `version`
+task. `install` goes through
 [`nix:install:profile`](taskfiles/nix/README.md), which adds a flake
-installable to `~/.nix-profile`. Pin with `{TOOL}_NIX_INSTALLABLE`:
+installable to `~/.nix-profile`; it is a no-op when the tool is already on
+`PATH`. Work tasks depend on `install`, so they auto-install on first use. Pin
+with `{TOOL}_NIX_INSTALLABLE`:
 
 ```sh
 task go:verify GO_NIX_INSTALLABLE=github:NixOS/nixpkgs/<rev>#go
 ```
 
-Install without running the work task (needs a root `nix` include, or the
-nested `*:nix:` namespace):
-
-```yaml
-includes:
-  nix: ./taskfiles/nix/Taskfile.yml
-```
+Install without running the work task:
 
 ```sh
-task nix:install:profile NIX_INSTALLABLE=nixpkgs#go
+task go:install
+```
+
+Check what is installed:
+
+```sh
+task go:version
 ```
 
 Install surfaces:
 
 | Kind | Modules | Install surface |
 | --- | --- | --- |
-| Nix profile (default) | CLI and system tools | `{TOOL}_NIX_INSTALLABLE` → `nix:install:profile` |
+| Nix profile (default) | CLI and system tools | public `install` / `version`; pin with `{TOOL}_NIX_INSTALLABLE` |
 | Local `devDependency` | JS lint/format families | `{TOOL}_VERSION` on `install` / `upgrade` |
-| Project package managers | [`npm`](taskfiles/npm/README.md), [`pnpm`](taskfiles/pnpm/README.md), [`yarn`](taskfiles/yarn/README.md) | project `install` (`npm install`, …); the CLIs come from Nix |
+| Project package managers | [`npm`](taskfiles/npm/README.md), [`pnpm`](taskfiles/pnpm/README.md), [`yarn`](taskfiles/yarn/README.md) | project `install` (`npm install`, …); the CLIs come from Nix via `install:tool` / `version:tool` |
 | Docker daemon | [`docker`](taskfiles/docker/README.md) | keeps `install` / `upgrade` / `version` (Docker Desktop / get.docker.com) |
 
 See [ADR 0004](doc/adr/0004-install-cli-tools-via-nix-profile.md).
@@ -162,6 +165,9 @@ Contract tests also enforce:
   `metadata.yml`
 - Top-level Taskfile vars use an owned `{TOOL}_` prefix (or a
   foreign/companion prefix) — [ADR 0002](doc/adr/0002-prefix-top-level-taskfile-vars-with-the-module-name.md)
+- Every Nix-backed module (one that includes `nix` and owns a
+  `{TOOL}_NIX_INSTALLABLE`) declares and exports public `install` and `version`
+  tasks — [ADR 0004](doc/adr/0004-install-cli-tools-via-nix-profile.md)
 
 After adding, removing, or renaming an exported task, update `metadata.yml`
 and the module README, then run `go test ./...`.

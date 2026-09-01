@@ -17,7 +17,7 @@ task --taskfile taskfiles/adrs/Taskfile.yml list
 Install only:
 
 ```sh
-task nix:install:profile NIX_INSTALLABLE=nixpkgs#adrs
+task -t taskfiles/adrs/Taskfile.yml install
 ```
 
 ### Included
@@ -47,6 +47,8 @@ Pass arguments and flags with `ADRS_EXTRA_ARGS=...` or after `--`.
 | `list` | List all ADRs |
 | `generate` | Generate ADR docs (`toc`, `graph`, or `book`) |
 | `exec` | Run any adrs subcommand |
+| `install` | Install adrs via the Nix profile |
+| `version` | Show the active adrs version |
 
 ## Variables
 

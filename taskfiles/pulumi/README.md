@@ -17,7 +17,7 @@ task -t taskfiles/pulumi/Taskfile.yml up PULUMI_STACK=dev
 Install only:
 
 ```sh
-task nix:install:profile NIX_INSTALLABLE=nixpkgs#pulumi
+task -t taskfiles/pulumi/Taskfile.yml install
 ```
 
 ### Included
@@ -42,6 +42,8 @@ task pulumi:up PULUMI_STACK=dev PULUMI_EXTRA_ARGS=--yes
 | `login` | Optional `PULUMI_LOGIN_URL`, `PULUMI_EXTRA_ARGS`         | Run `pulumi login`. Empty `PULUMI_LOGIN_URL` uses the default Pulumi Cloud backend.   |
 | `new`   | Required `PULUMI_TEMPLATE`; optional `PULUMI_EXTRA_ARGS` | Scaffold a new Pulumi project from a named template (for example `aws-typescript`). |
 | `up`    | Optional `PULUMI_STACK`, `PULUMI_EXTRA_ARGS`             | Preview and deploy the current Pulumi stack in the caller's working directory.        |
+| `install` | Optional `PULUMI_NIX_INSTALLABLE`                      | Install Pulumi via the Nix profile.                                                  |
+| `version` | —                                                      | Show the active Pulumi version.                                                      |
 
 ## Variables
 
