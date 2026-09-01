@@ -20,8 +20,10 @@ type (
 )
 
 const (
-	constGovulncheckLint   = "ci"
-	constGovulncheckModule = "govulncheck"
+	constGovulncheckLint    = "ci"
+	constGovulncheckModule  = "govulncheck"
+	constGovulncheckInstall = "install"
+	constGovulncheckVersion = "version"
 
 	envVarGovulncheckNixInstallable = "GOVULNCHECK_NIX_INSTALLABLE"
 
@@ -54,8 +56,8 @@ func TestDevelopmentToolDependencies(t *testing.T) {
 	taskfile := tasktest.LoadTaskfile(t, constGovulncheckModule)
 
 	dependencies := map[string][]string{
-		constGovulncheckLint: {"install"},
-		"version":            {"install"},
+		constGovulncheckLint:    {constGovulncheckInstall},
+		constGovulncheckVersion: {constGovulncheckInstall},
 	}
 
 	for taskName := range dependencies {
@@ -70,8 +72,8 @@ func TestDevelopmentToolDependencies(t *testing.T) {
 func publicTasks() []string {
 	return []string{
 		constGovulncheckLint,
-		"install",
-		"version",
+		constGovulncheckInstall,
+		constGovulncheckVersion,
 	}
 }
 
