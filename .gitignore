@@ -9,3 +9,4 @@ junit.xml
 .task
 custom-golangci-lint
 .qodo
+test-result.txt

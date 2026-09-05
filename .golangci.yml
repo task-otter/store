@@ -20,6 +20,8 @@ linters:
           rules:
             - pattern: '**'
               min: 1.0
+          test-result-path: test-result.txt
+          coverage-result-path: coverage.out
       distance:
         type: module
         description: Enforce Go main-sequence distance policy thresholds
