@@ -19,7 +19,10 @@ vars:
 
   # Windows. Kept in one place so the two call sites cannot drift apart.
 
-  GOLANGCI_LINT_FMT_FORMATTER_FLAGS: '{{.GOLANGCI_LINT_FMT_FORMATTER_FLAGS | default "-E gci -E gofmt -E gofumpt -E goimports -E golines -E swaggo"}}'
+  GOLANGCI_LINT_FMT_FORMATTER_FLAGS: >-
+    {{.GOLANGCI_LINT_FMT_FORMATTER_FLAGS | default "-E gci -E gofmt -E gofumpt
+    -E goimports -E golines -E swaggo"}}
+
 tasks:
   default:
     run: once

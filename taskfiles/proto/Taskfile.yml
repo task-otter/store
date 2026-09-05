@@ -10,7 +10,10 @@ includes:
   nix:
     taskfile: ../nix/Taskfile.yml
 vars:
-  PROTO_NIX_INSTALLABLE: '{{.PROTO_NIX_INSTALLABLE | default "nixpkgs#protobuf nixpkgs#protoc-gen-go nixpkgs#protoc-gen-go-grpc"}}'
+  PROTO_NIX_INSTALLABLE: >-
+    {{.PROTO_NIX_INSTALLABLE | default "nixpkgs#protobuf nixpkgs#protoc-gen-go
+    nixpkgs#protoc-gen-go-grpc"}}
+
   PROTO_PATH: '{{.PROTO_PATH | default "."}}'
   PROTO_PATTERN: '{{.PROTO_PATTERN | default "*.proto"}}'
   GO_MODULE: '{{.GO_MODULE | default ""}}'
