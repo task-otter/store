@@ -33,7 +33,7 @@ type (
 	}
 
 	// suiteCheck is one named assertion of the shared integration suite.
-	suiteCheck struct {
+	suiteCheck = struct {
 		assert func(t *testing.T, module *Module)
 		name   string
 	}

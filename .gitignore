@@ -6,3 +6,6 @@ junit.xml
 .gocache
 .golangci-cache
 .cursor
+.task
+custom-golangci-lint
+.qodo

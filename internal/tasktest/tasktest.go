@@ -23,7 +23,7 @@ import (
 
 // Taskfile contains the top-level fields read from a Taskfile.yml.
 type (
-	Taskfile struct {
+	Taskfile = struct {
 		Includes map[string]any   `yaml:"includes"`
 		Vars     map[string]any   `yaml:"vars"`
 		Tasks    map[string]*Task `yaml:"tasks"`
@@ -31,7 +31,7 @@ type (
 	}
 
 	// Task contains the task fields validated by the shared test helpers.
-	Task struct {
+	Task = struct {
 		Preconditions any      `yaml:"preconditions"`
 		Cmds          any      `yaml:"cmds"`
 		Deps          any      `yaml:"deps"`
@@ -53,43 +53,43 @@ type (
 	}
 
 	// ModuleExpectations describes the public surface a module should expose.
-	ModuleExpectations struct {
+	ModuleExpectations = struct {
 		Tasks []string
 		Vars  []string
 	}
 
-	readmeCheck struct {
+	readmeCheck = struct {
 		text          string
 		expectedTasks []string
 	}
 
-	publicTaskCheck struct {
+	publicTaskCheck = struct {
 		taskfile      *Taskfile
 		expectedTasks []string
 		actualTasks   []string
 	}
 
-	taskCheck struct {
+	taskCheck = struct {
 		task *Task
 		name string
 	}
 
-	varCheck struct {
+	varCheck = struct {
 		taskfile     *Taskfile
 		expectedVars []string
 	}
 
-	taskCliLoadFailure struct {
+	taskCliLoadFailure = struct {
 		err    error
 		module string
 		output string
 	}
 
-	taskCommandSettings struct {
+	taskCommandSettings = struct {
 		timeout time.Duration
 	}
 
-	workingDirectoryFunc func() (string, error)
+	workingDirectoryFunc = func() (string, error)
 )
 
 const (

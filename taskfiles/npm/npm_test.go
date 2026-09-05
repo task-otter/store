@@ -86,7 +86,7 @@ func TestTaskBinaryIsAvailable(t *testing.T) {
 		tasktestutil.TaskRun{Root: root, Env: nil, Args: []string{"--version"}},
 	)
 	tasktestutil.AssertExitCode(t, result, constNpmTestExitSuccess)
-	tasktestutil.AssertNotEmpty(t, result.Combined(), "task --version output is empty")
+	tasktestutil.AssertNotEmpty(t, tasktestutil.Combined(&result), "task --version output is empty")
 }
 
 // TestTaskfileYamlIsCleanAndValid
@@ -220,7 +220,7 @@ func TestDestructivePublicTasksHavePrompt(t *testing.T) {
 
 			task := tasktestutil.MustTask(t, taskfile, spec.Name)
 
-			tasktestutil.AssertDestructivePrompt(t, spec.Name, task.Field("prompt"))
+			tasktestutil.AssertDestructivePrompt(t, spec.Name, tasktestutil.Field(task, "prompt"))
 		})
 	}
 }
@@ -331,7 +331,7 @@ func TestVersionTaskExitsSuccessfully(t *testing.T) {
 		},
 	)
 	tasktestutil.AssertExitCode(t, result, constNpmTestExitSuccess)
-	tasktestutil.AssertNotEmpty(t, result.Combined(), constNpmTestVersionOutputEmpty)
+	tasktestutil.AssertNotEmpty(t, tasktestutil.Combined(&result), constNpmTestVersionOutputEmpty)
 }
 
 // TestInstallTaskExitsSuccessfully
@@ -360,7 +360,7 @@ func TestRunTaskExitsSuccessfully(t *testing.T) {
 	t.Parallel()
 
 	result := runStubbedNpmTask(t, constNpmTestRun, "SCRIPT=build")
-	tasktestutil.AssertContains(t, result.Combined(), constNpmTestBuild)
+	tasktestutil.AssertContains(t, tasktestutil.Combined(&result), constNpmTestBuild)
 }
 
 // TestCleanTaskSkipsWhenNodeModulesAbsent
@@ -419,7 +419,7 @@ func TestRunTaskCliArgsWiredInYaml(t *testing.T) {
 	taskfile := tasktestutil.LoadTaskfile(t)
 	task := tasktestutil.MustTask(t, taskfile, "_run:unix")
 
-	cmds := task.Field(constNpmTestCmds)
+	cmds := tasktestutil.Field(task, constNpmTestCmds)
 
 	if cmds == nil {
 		t.Fatal("_run:unix task has no cmds")
@@ -466,8 +466,8 @@ func TestInstallFailsOutsideProjectRoot(t *testing.T) {
 		t.Fatal("expected task install to fail outside a project root but it succeeded")
 	}
 
-	if !strings.Contains(strings.ToLower(result.Combined()), constNpmTestPackageJSON) {
-		t.Fatalf("expected error mentioning package.json, got:\n%s", result.Combined())
+	if !strings.Contains(strings.ToLower(tasktestutil.Combined(&result)), constNpmTestPackageJSON) {
+		t.Fatalf("expected error mentioning package.json, got:\n%s", tasktestutil.Combined(&result))
 	}
 }
 
@@ -529,7 +529,7 @@ func TestRealNpmFlowOnlyWhenExplicitlyEnabled(t *testing.T) {
 		10*time.Minute,
 	)
 	tasktestutil.AssertExitCode(t, result, constNpmTestExitSuccess)
-	tasktestutil.AssertNotEmpty(t, result.Combined(), constNpmTestVersionOutputEmpty)
+	tasktestutil.AssertNotEmpty(t, tasktestutil.Combined(&result), constNpmTestVersionOutputEmpty)
 }
 
 func dryGroupSummaryOptions() []tasktestutil.PublicTaskSpecOption {
@@ -672,21 +672,25 @@ func runTaskCliCanLoadTaskfileCase(t *testing.T, root string, args []string) {
 		tasktestutil.AssertExitCode(t, result, constNpmTestExitSuccess)
 		tasktestutil.AssertNotContains(
 			t,
-			strings.ToLower(result.Combined()),
+			strings.ToLower(tasktestutil.Combined(&result)),
 			"taskfile does not exist",
 		)
-		tasktestutil.AssertNotContains(t, strings.ToLower(result.Combined()), "unknown")
+		tasktestutil.AssertNotContains(
+			t,
+			strings.ToLower(tasktestutil.Combined(&result)),
+			"unknown",
+		)
 	})
 }
 
 func assertTaskIsPublicOrInternal(t *testing.T, name string, task tasktestutil.TaskNode) {
 	t.Helper()
 
-	if strings.HasPrefix(name, "_") || task.BoolField("internal") {
+	if strings.HasPrefix(name, "_") || tasktestutil.BoolField(task, "internal") {
 		return
 	}
 
-	if task.StringField(constNpmTestDesc) == "" {
+	if tasktestutil.StringField(task, constNpmTestDesc) == "" {
 		t.Fatalf(
 			"task %q is not internal and has no desc. Either add desc/summary or mark it internal: true",
 			name,
@@ -739,8 +743,8 @@ func runPublicTaskMetadataCase(t *testing.T, check *publicTaskCase) {
 		task := tasktestutil.MustTask(t, check.taskfile, check.spec.Name)
 		assertTaskUsesMappingSyntax(t, task, check.spec.Name)
 
-		desc := task.StringField(constNpmTestDesc)
-		summary := task.StringField("summary")
+		desc := tasktestutil.StringField(task, constNpmTestDesc)
+		summary := tasktestutil.StringField(task, "summary")
 
 		assertTaskDescMeetsRequirements(t, desc, check.spec.Name)
 		assertTaskSummaryValid(t, check.spec, summary)
@@ -759,10 +763,10 @@ func assertTaskUsesGithubGroupOutput(t *testing.T, check *publicTaskCase) {
 
 	task := tasktestutil.MustTask(t, check.taskfile, check.spec.Name)
 
-	outputNode := task.Field(constNpmTestOutput)
+	outputNode := tasktestutil.Field(task, constNpmTestOutput)
 
 	if outputNode == nil {
-		outputNode = check.taskfile.Root.Field(constNpmTestOutput)
+		outputNode = tasktestutil.Field(check.taskfile.Root, constNpmTestOutput)
 	}
 
 	tasktestutil.AssertGithubGroupOutput(t, check.spec.Name, outputNode)
@@ -788,8 +792,8 @@ func assertTaskHasCommands(t *testing.T, check *publicTaskCase) {
 	t.Helper()
 
 	task := tasktestutil.MustTask(t, check.taskfile, check.spec.Name)
-	missingCmdsAndDeps := tasktestutil.IsEmptyNode(task.Field(constNpmTestCmds)) &&
-		tasktestutil.IsEmptyNode(task.Field("deps"))
+	missingCmdsAndDeps := tasktestutil.IsEmptyNode(tasktestutil.Field(task, constNpmTestCmds)) &&
+		tasktestutil.IsEmptyNode(tasktestutil.Field(task, "deps"))
 
 	if missingCmdsAndDeps {
 		t.Fatalf("public task %q must have cmds or deps", check.spec.Name)
@@ -821,7 +825,7 @@ func runTaskSummaryCase(t *testing.T, root string, spec *tasktestutil.PublicTask
 		result := runTaskSummary(t, root, spec.Name)
 		tasktestutil.AssertExitCode(t, result, constNpmTestExitSuccess)
 
-		out := result.Combined()
+		out := tasktestutil.Combined(&result)
 		tasktestutil.AssertContains(t, out, spec.Name)
 		tasktestutil.AssertNotContains(t, strings.ToLower(out), "task not found")
 		tasktestutil.AssertNotContains(t, strings.ToLower(out), "unknown task")
@@ -904,10 +908,10 @@ func assertResultErrContains(t *testing.T, result *tasktestutil.CommandResult, c
 		t.Fatal(check.noErrMsg)
 	}
 
-	out := strings.ToLower(result.Combined())
+	out := strings.ToLower(tasktestutil.Combined(result))
 
 	if !strings.Contains(out, check.substrA) && !strings.Contains(out, check.substrB) {
-		t.Fatalf(check.msgFmt, result.Combined())
+		t.Fatalf(check.msgFmt, tasktestutil.Combined(result))
 	}
 }
 

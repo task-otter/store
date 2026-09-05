@@ -677,15 +677,16 @@ func assertTaskNodeHelpers(t *testing.T, task tasktestutil.TaskNode) {
 func assertTaskFieldLookup(t *testing.T, task tasktestutil.TaskNode) {
 	t.Helper()
 
-	if task.Field(descField) == nil || task.Field(missingName) != nil {
+	if tasktestutil.Field(task, descField) == nil || tasktestutil.Field(task, missingName) != nil {
 		t.Fatal("ttu.TaskNode.Field lookup failed")
 	}
 
-	if (&tasktestutil.TaskNode{Name: emptyStr, Node: nil}).Field(anythingField) != nil {
+	if tasktestutil.Field(tasktestutil.TaskNode{Name: emptyStr, Node: nil}, anythingField) != nil {
 		t.Fatal("nil ttu.TaskNode returned a field")
 	}
 
-	scalarField := (tasktestutil.TaskNode{Node: yamlScalar(emptyStr), Name: emptyStr}).Field(
+	scalarField := tasktestutil.Field(
+		tasktestutil.TaskNode{Node: yamlScalar(emptyStr), Name: emptyStr},
 		anythingField,
 	)
 
@@ -697,13 +698,17 @@ func assertTaskFieldLookup(t *testing.T, task tasktestutil.TaskNode) {
 func assertTaskScalarFields(t *testing.T, task tasktestutil.TaskNode) {
 	t.Helper()
 
-	got := task.StringField(descField)
+	got := tasktestutil.StringField(task, descField)
 
 	if got != descriptionValue {
 		t.Fatalf("StringField = %q", got)
 	}
 
-	if !task.BoolField("enabled") || task.BoolField(missingName) || task.BoolField(descField) {
+	mismatch := !tasktestutil.BoolField(task, "enabled") ||
+		tasktestutil.BoolField(task, missingName) ||
+		tasktestutil.BoolField(task, descField)
+
+	if mismatch {
 		t.Fatal("BoolField result mismatch")
 	}
 }
@@ -991,8 +996,8 @@ func assertHappyPathRun(t *testing.T, root string) {
 		t.Fatalf("unexpected ttu.RunTask result: %#v", result)
 	}
 
-	if result.Combined() != "stdout:alpha "+bArg+"\nstderr" {
-		t.Fatalf("Combined = %q", result.Combined())
+	if tasktestutil.Combined(&result) != "stdout:alpha "+bArg+"\nstderr" {
+		t.Fatalf("Combined = %q", tasktestutil.Combined(&result))
 	}
 }
 

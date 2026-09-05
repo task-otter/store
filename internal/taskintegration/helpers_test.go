@@ -21,7 +21,6 @@ const (
 	publicTaskName        = "fmt:check"
 	exportedName          = "ci:fix"
 	variantTaskName       = "bun:ci"
-	nixInclude            = "nix"
 	nixTaskName           = "nix:help"
 	orphanTaskName        = "orphan"
 	stdoutText            = "listing"
@@ -79,7 +78,7 @@ func TestAssertDefaultTaskListsModuleSkipsMissingDefault(t *testing.T) {
 func TestIsIncludedAcceptsNamespacedName(t *testing.T) {
 	t.Parallel()
 
-	if !isIncluded([]string{nixInclude}, nixTaskName) {
+	if !isIncluded([]string{nixNamespace}, nixTaskName) {
 		t.Fatalf("isIncluded(%s) = false", nixTaskName)
 	}
 }
@@ -88,7 +87,7 @@ func TestIsIncludedAcceptsNamespacedName(t *testing.T) {
 func TestIsIncludedRejectsLocalName(t *testing.T) {
 	t.Parallel()
 
-	if isIncluded([]string{nixInclude}, publicTaskName) {
+	if isIncluded([]string{nixNamespace}, publicTaskName) {
 		t.Fatalf("isIncluded(%s) = true", publicTaskName)
 	}
 }
@@ -273,7 +272,7 @@ func declaredModule() *Module {
 	module := newTestModule()
 
 	module.Declared = []string{publicTaskName}
-	module.Includes = []string{nixInclude}
+	module.Includes = []string{nixNamespace}
 
 	return &module
 }
@@ -394,7 +393,7 @@ func rejectMismatchedSummary(tester *fakeTest) {
 func nixBackedModule() *Module {
 	module := newTestModule()
 
-	module.Includes = []string{nixInclude}
+	module.Includes = []string{nixNamespace}
 	module.Vars = []string{installableVarName}
 	module.Declared = []string{installTaskName, versionTaskName}
 	module.Exported = []string{installTaskName, versionTaskName}

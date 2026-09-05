@@ -2,4 +2,11 @@
 schema: taskotter.dev/taskfile-metadata/v1
 module: adrs
 taskfile: Taskfile.yml
-exported_tasks: [exec, generate, init, install, list, new, version]
+exported_tasks:
+  - exec
+  - generate
+  - init
+  - install
+  - list
+  - new
+  - version

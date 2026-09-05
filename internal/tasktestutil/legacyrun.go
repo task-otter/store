@@ -8,29 +8,29 @@ import (
 )
 
 type (
-	envPartsMessages struct {
+	envPartsMessages = struct {
 		required  string
 		wrongType string
 	}
 
-	legacyTaskRunMessages struct {
+	legacyTaskRunMessages = struct {
 		env      envPartsMessages
 		rootType string
 	}
 
-	legacyTaskRunArgs struct {
+	legacyTaskRunArgs = struct {
 		run      any
 		messages *legacyTaskRunMessages
 		parts    []any
 	}
 
-	exitCodeMismatch struct {
+	exitCodeMismatch = struct {
 		result   *CommandResult
 		expected int
 		actual   int
 	}
 
-	readmeTableScanner struct {
+	readmeTableScanner = struct {
 		row     *regexp.Regexp
 		names   []string
 		inTable bool

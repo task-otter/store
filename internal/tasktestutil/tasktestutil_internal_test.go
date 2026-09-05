@@ -41,7 +41,6 @@ const (
 	internalReadmeName                   = "README.md"
 	internalTaskfilesName                = "taskfiles"
 	internalExpectedFatal                = "expected fatal call"
-	internalFileMode                     = 0o600
 	internalDirMode                      = 0o700
 )
 
@@ -256,7 +255,7 @@ func writeInternalFile(t *testing.T, path, content string) {
 		t.Fatal(err)
 	}
 
-	err = os.WriteFile(path, []byte(content), internalFileMode)
+	err = os.WriteFile(path, []byte(content), privateFileMode)
 	if err != nil {
 		t.Fatal(err)
 	}

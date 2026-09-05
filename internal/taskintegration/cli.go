@@ -29,11 +29,11 @@ type (
 		Failed bool
 	}
 
-	taskListing struct {
+	taskListing = struct {
 		Tasks []listedTask `json:"tasks"`
 	}
 
-	listedTask struct {
+	listedTask = struct {
 		Name string `json:"name"`
 	}
 )

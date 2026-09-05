@@ -24,7 +24,6 @@ const (
 	once               = 1
 	workingDirErrMsg   = "forced getwd error"
 	timeoutFatalPrefix = "task command timed out"
-	timeoutArg         = "--json"
 	emptyDir           = ""
 	expectedFatalCall  = "expected fatal call"
 )
@@ -60,7 +59,7 @@ func TestAssertTaskCommandDidNotTimeout(t *testing.T) {
 	ctx, cancel := context.WithDeadline(t.Context(), time.Time{})
 	t.Cleanup(cancel)
 	expectSinkFatal(t, timeoutFatalPrefix, func(sink *fatalSink) {
-		assertTaskCommandDidNotTimeout(ctx, sink, []string{timeoutArg})
+		assertTaskCommandDidNotTimeout(ctx, sink, []string{taskJSONFlag})
 	})
 }
 

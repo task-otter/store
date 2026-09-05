@@ -12,14 +12,14 @@ import (
 type (
 	// taskSweep applies one assertion to every task name in a list, or skips
 	// the check when the module has no such tasks.
-	taskSweep struct {
+	taskSweep = struct {
 		assert func(t *testing.T, module *Module, name string)
 		module *Module
 		reason string
 		names  []string
 	}
 
-	summaryCheck struct {
+	summaryCheck = struct {
 		module *Module
 		result *Result
 		name   string

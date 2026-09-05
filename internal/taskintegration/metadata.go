@@ -13,7 +13,7 @@ import (
 
 type (
 	// moduleMetadata is the subset of metadata.yml the integration suite reads.
-	moduleMetadata struct {
+	moduleMetadata = struct {
 		ExportedTasks []string `yaml:"exported_tasks"`
 		Variants      []string `yaml:"variants"`
 	}

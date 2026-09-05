@@ -2,4 +2,11 @@
 schema: taskotter.dev/taskfile-metadata/v1
 module: go
 taskfile: Taskfile.yml
-exported_tasks: [bench, fuzz, install, test, verify, version, which]
+exported_tasks:
+  - bench
+  - fuzz
+  - install
+  - test
+  - verify
+  - version
+  - which

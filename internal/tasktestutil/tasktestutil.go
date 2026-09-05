@@ -26,7 +26,7 @@ import (
 
 type (
 	// PublicTaskSpec describes expectations for a single public task.
-	PublicTaskSpec struct {
+	PublicTaskSpec = struct {
 		Args                  map[string]string
 		Name                  string
 		ExpectedDefaultTokens []string
@@ -38,10 +38,10 @@ type (
 	}
 
 	// PublicTaskSpecOption customizes a PublicTaskSpec built by NewPublicTaskSpec.
-	PublicTaskSpecOption func(*PublicTaskSpec)
+	PublicTaskSpecOption = func(*PublicTaskSpec)
 
 	// CommandResult holds the output of a task invocation.
-	CommandResult struct {
+	CommandResult = struct {
 		Stdout string
 		Stderr string
 		Err    error
@@ -56,8 +56,8 @@ type (
 		TempDir() string
 	}
 
-	workingDirFunc func() (string, error)
-	fileChmodFunc  func(string, os.FileMode) error
+	workingDirFunc = func() (string, error)
+	fileChmodFunc  = func(string, os.FileMode) error
 )
 
 const (
@@ -168,7 +168,7 @@ func WithSummary() PublicTaskSpecOption {
 }
 
 // Combined returns stdout and stderr joined with a newline.
-func (result *CommandResult) Combined() string { return result.Stdout + newline + result.Stderr }
+func Combined(result *CommandResult) string { return result.Stdout + newline + result.Stderr }
 
 // MustTask returns the named task or fails the test if it is missing.
 func MustTask(tester TestT, taskfile any, name string) TaskNode {
@@ -201,8 +201,8 @@ func ModuleTaskfilePath(tester TestT) string {
 }
 
 // BoolField returns true when the mapping field is the string "true" (case-insensitive).
-func (node TaskNode) BoolField(name string) bool {
-	field := node.Field(name)
+func BoolField(node TaskNode, name string) bool {
+	field := Field(node, name)
 
 	if field == nil {
 		return false
@@ -212,7 +212,7 @@ func (node TaskNode) BoolField(name string) bool {
 }
 
 // Field returns the YAML child node for the given mapping key.
-func (node TaskNode) Field(name string) *yaml.Node {
+func Field(node TaskNode, name string) *yaml.Node {
 	if node.Node == nil || node.Node.Kind != yaml.MappingNode {
 		return nil
 	}
@@ -227,7 +227,7 @@ func (node TaskNode) Field(name string) *yaml.Node {
 }
 
 // StringField returns the text value of a scalar mapping field.
-func (node TaskNode) StringField(name string) string { return NodeText(node.Field(name)) }
+func StringField(node TaskNode, name string) string { return NodeText(Field(node, name)) }
 
 // ModuleReadmePath returns the README.md documenting the module. Flat modules
 // keep their own README next to the Taskfile; nested family variants share one
@@ -268,7 +268,7 @@ func LoadTaskfile(tester TestT) LoadedTaskfile {
 
 // HasAlias reports whether the task declares the given alias.
 func HasAlias(task TaskNode, alias string) bool {
-	aliases := task.Field("aliases")
+	aliases := Field(task, "aliases")
 
 	if aliases == nil || aliases.Kind != yaml.SequenceNode {
 		return false
@@ -892,7 +892,7 @@ func normalizeLoadedTaskfile(tester TestT, taskfile any) *LoadedTaskfile {
 	}
 }
 
-func (scanner *readmeTableScanner) consume(trimmed string) bool {
+func consume(scanner *readmeTableScanner, trimmed string) bool {
 	if trimmed == constTasktestutilPublicTasks {
 		scanner.inTable = true
 
@@ -1191,11 +1191,11 @@ func isPublicTaskfileTask(name string, task TaskNode) bool {
 	isDefaultOrPrivate := name == constTasktestutilDefault ||
 		strings.HasPrefix(name, underscorePrefix)
 
-	if isDefaultOrPrivate || task.BoolField("internal") {
+	if isDefaultOrPrivate || BoolField(task, "internal") {
 		return false
 	}
 
-	return task.StringField("desc") != emptyString
+	return StringField(task, "desc") != emptyString
 }
 
 func sortedMapKeys(args map[string]string) []string {
@@ -1264,7 +1264,7 @@ func collectReadmeTaskNames(content string, row *regexp.Regexp) []string {
 	scanner := readmeTableScanner{row: row, names: nil, inTable: false}
 
 	for line := range strings.SplitSeq(content, newline) {
-		if !scanner.consume(strings.TrimSpace(line)) {
+		if !consume(&scanner, strings.TrimSpace(line)) {
 			break
 		}
 	}

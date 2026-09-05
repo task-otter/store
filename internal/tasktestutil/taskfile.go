@@ -9,13 +9,13 @@ import (
 
 type (
 	// TaskNode wraps a YAML node with its task name for error messages.
-	TaskNode struct {
+	TaskNode = struct {
 		Node *yaml.Node
 		Name string
 	}
 
 	// LoadedTaskfile holds the parsed content of a Taskfile.
-	LoadedTaskfile struct {
+	LoadedTaskfile = struct {
 		Root  TaskNode
 		Tasks map[string]TaskNode
 		Path  string

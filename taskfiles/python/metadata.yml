@@ -2,4 +2,10 @@
 schema: taskotter.dev/taskfile-metadata/v1
 module: python
 taskfile: Taskfile.yml
-exported_tasks: [install, pip:install, run, venv, verify, version]
+exported_tasks:
+  - install
+  - pip:install
+  - run
+  - venv
+  - verify
+  - version

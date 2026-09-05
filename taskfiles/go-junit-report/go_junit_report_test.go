@@ -28,17 +28,18 @@ type (
 )
 
 const (
-	constGoJunitReportTest = "test"
-	verifyTask             = "verify"
-	whichTask              = "which"
-	installTask            = "install"
-	versionTask            = "version"
-	goCoverProfileVar      = "GO_COVER_PROFILE"
-	goJunitReportModule    = "go-junit-report"
-	goJunitReportNixVar    = "GO_JUNIT_REPORT_NIX_INSTALLABLE"
-	goJunitReportVar       = "GO_JUNIT_REPORT"
-	fmtPercentV            = "%v"
-	zeroLen                = 0
+	constGoJunitReportReport = "report"
+	verifyTask               = "verify"
+	whichTask                = "which"
+	installTask              = "install"
+	versionTask              = "version"
+	goInstallTask            = "go:install"
+	goJunitReportModule      = "go-junit-report"
+	goJunitReportNixVar      = "GO_JUNIT_REPORT_NIX_INSTALLABLE"
+	goJunitReportInVar       = "GO_JUNIT_REPORT_IN"
+	goJunitReportOutVar      = "GO_JUNIT_REPORT_OUT"
+	fmtPercentV              = "%v"
+	zeroLen                  = 0
 )
 
 // TestModuleIntegration runs the shared task CLI integration suite for this module.
@@ -59,8 +60,8 @@ func TestTaskfileModuleContract(t *testing.T) {
 	)
 }
 
-// TestTestingTaskCommands validates test task command tokens and vars.
-func TestTestingTaskCommands(t *testing.T) {
+// TestReportTaskCommands validates report task command tokens.
+func TestReportTaskCommands(t *testing.T) {
 	t.Parallel()
 
 	taskfile := tasktest.LoadTaskfile(t, goJunitReportModule)
@@ -69,11 +70,10 @@ func TestTestingTaskCommands(t *testing.T) {
 		t,
 		&taskCmdsTokenCheck{
 			taskfile: taskfile,
-			taskName: constGoJunitReportTest,
-			tokens:   goJunitReportTestTokens(),
+			taskName: constGoJunitReportReport,
+			tokens:   goJunitReportReportTokens(),
 		},
 	)
-	assertGoJunitReportTestVarsContainTokens(t, taskfile)
 }
 
 // TestOperationalTaskDependencies validates public task dependencies.
@@ -83,17 +83,17 @@ func TestOperationalTaskDependencies(t *testing.T) {
 	taskfile := tasktest.LoadTaskfile(t, goJunitReportModule)
 
 	assertDependencyMap(t, taskfile, map[string][]string{
-		constGoJunitReportTest: {installTask},
-		whichTask:              {installTask},
-		verifyTask:             {installTask},
-		versionTask:            {installTask},
+		constGoJunitReportReport: {goInstallTask, installTask},
+		whichTask:                {goInstallTask, installTask},
+		verifyTask:               {goInstallTask, installTask},
+		versionTask:              {goInstallTask, installTask},
 	})
 }
 
 func publicTasks() []string {
 	return []string{
 		installTask,
-		constGoJunitReportTest,
+		constGoJunitReportReport,
 		verifyTask,
 		versionTask,
 		whichTask,
@@ -102,22 +102,20 @@ func publicTasks() []string {
 
 func publicVars() []string {
 	return []string{
-		goCoverProfileVar,
-		goJunitReportVar,
+		goJunitReportInVar,
+		goJunitReportOutVar,
 		goJunitReportNixVar,
 	}
 }
 
-func goJunitReportTestTokens() []string {
+func goJunitReportReportTokens() []string {
 	return []string{
-		"go test -v",
-		"-covermode atomic",
-		"-coverprofile",
-		"./...",
 		"go-junit-report",
-		"-set-exit-code",
-		"-iocopy",
+		"-in",
 		"-out",
+		"-set-exit-code",
+		goJunitReportInVar,
+		goJunitReportOutVar,
 	}
 }
 
@@ -137,27 +135,6 @@ func assertTaskCmdsContainTokens(t *testing.T, check *taskCmdsTokenCheck) {
 
 		if !strings.Contains(cmds, token) {
 			t.Fatalf("go-junit-report task %q cmds missing %q: %s", check.taskName, token, cmds)
-		}
-	}
-}
-
-func assertGoJunitReportTestVarsContainTokens(t *testing.T, taskfile *tasktest.Taskfile) {
-	t.Helper()
-
-	testVars := fmt.Sprintf(fmtPercentV, taskfile.Tasks[constGoJunitReportTest].Vars)
-
-	tokens := []string{
-		"GO_JUNIT_REPORT_OUT",
-		goJunitReportVar,
-		"junit.xml",
-		"GO_COVER_OUT",
-		goCoverProfileVar,
-		"coverage.out",
-	}
-
-	for i := range tokens {
-		if !strings.Contains(testVars, tokens[i]) {
-			t.Fatalf("go-junit-report test vars missing %q: %s", tokens[i], testVars)
 		}
 	}
 }

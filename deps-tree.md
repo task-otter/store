@@ -110,7 +110,6 @@ Modules with no `includes:` dependencies.
 - `djlint` → `nix`
 - `dotenv-linter` → `nix`
 - `go` → `nix`
-- `go-junit-report` → `nix`
 - `golangci-lint` → `nix`
 - `govulncheck` → `nix`
 - `hadolint` → `nix`
@@ -132,6 +131,7 @@ Modules with no `includes:` dependencies.
 ### Depth 2
 
 - `gh` → `jq`, `nix`
+- `go-junit-report` → `go`, `nix`
 - `vault` → `jq`, `nix`
 
 ### Depth 3
@@ -175,7 +175,7 @@ Who depends on each module:
 - `eslint/node/yarn` ← `eslint/node`
 - `gh` ← `git`
 - `git` — *(none)*
-- `go` — *(none)*
+- `go` ← `go-junit-report`
 - `go-junit-report` — *(none)*
 - `golangci-lint` — *(none)*
 - `govulncheck` — *(none)*
