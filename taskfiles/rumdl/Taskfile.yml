@@ -14,9 +14,9 @@ includes:
     taskfile: ../nix/Taskfile.yml
 
 vars:
-  RUMDL_TARGETS: "."
-  RUMDL_EXTRA_ARGS: ""
-  RUMDL_NIX_INSTALLABLE: nixpkgs#rumdl
+  RUMDL_TARGETS: '{{.RUMDL_TARGETS | default "."}}'
+  RUMDL_EXTRA_ARGS: '{{.RUMDL_EXTRA_ARGS | default ""}}'
+  RUMDL_NIX_INSTALLABLE: '{{.RUMDL_NIX_INSTALLABLE | default "nixpkgs#rumdl"}}'
 
 tasks:
   default:

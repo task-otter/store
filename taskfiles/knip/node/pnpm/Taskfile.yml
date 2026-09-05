@@ -14,9 +14,9 @@ includes:
     taskfile: ../../../pnpm/Taskfile.yml
 
 vars:
-  KNIP_EXTRA_ARGS: ""
-  KNIP_CONFIG: ""
-  KNIP_VERSION: ""
+  KNIP_EXTRA_ARGS: '{{.KNIP_EXTRA_ARGS | default ""}}'
+  KNIP_CONFIG: '{{.KNIP_CONFIG | default ""}}'
+  KNIP_VERSION: '{{.KNIP_VERSION | default ""}}'
 
 tasks:
   default:

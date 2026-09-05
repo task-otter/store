@@ -17,7 +17,7 @@ includes:
 
 vars:
 
-  NODEJS_NIX_INSTALLABLE: nixpkgs#nodejs
+  NODEJS_NIX_INSTALLABLE: '{{.NODEJS_NIX_INSTALLABLE | default "nixpkgs#nodejs"}}'
 
 tasks:
   default:

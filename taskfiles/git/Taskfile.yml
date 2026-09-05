@@ -16,27 +16,27 @@ includes:
   gh: ../gh/Taskfile.yml
 
 vars:
-  GIT_BASE: "main"
-  GIT_BODY: ""
-  GIT_BRANCH: ""
-  GIT_CLONE_DIR: ""
-  GIT_COMMIT: ""
-  GIT_COMMIT_MSG: ""
-  GIT_EMAIL: ""
-  GIT_EXTRA_ARGS: ""
-  GIT_FILES: "."
-  GIT_MERGE_METHOD: "merge"
-  GIT_MESSAGE: ""
-  GIT_NAME: ""
-  GIT_NOTES: ""
-  GIT_OWNER: ""
-  GIT_REMOTE: "origin"
-  GIT_REPO: ""
-  GIT_STASH_INDEX: "0"
-  GIT_TAG: ""
-  GIT_TITLE: ""
-  GIT_URL: ""
-  GIT_NIX_INSTALLABLE: nixpkgs#git
+  GIT_BASE: '{{.GIT_BASE | default "main"}}'
+  GIT_BODY: '{{.GIT_BODY | default ""}}'
+  GIT_BRANCH: '{{.GIT_BRANCH | default ""}}'
+  GIT_CLONE_DIR: '{{.GIT_CLONE_DIR | default ""}}'
+  GIT_COMMIT: '{{.GIT_COMMIT | default ""}}'
+  GIT_COMMIT_MSG: '{{.GIT_COMMIT_MSG | default ""}}'
+  GIT_EMAIL: '{{.GIT_EMAIL | default ""}}'
+  GIT_EXTRA_ARGS: '{{.GIT_EXTRA_ARGS | default ""}}'
+  GIT_FILES: '{{.GIT_FILES | default "."}}'
+  GIT_MERGE_METHOD: '{{.GIT_MERGE_METHOD | default "merge"}}'
+  GIT_MESSAGE: '{{.GIT_MESSAGE | default ""}}'
+  GIT_NAME: '{{.GIT_NAME | default ""}}'
+  GIT_NOTES: '{{.GIT_NOTES | default ""}}'
+  GIT_OWNER: '{{.GIT_OWNER | default ""}}'
+  GIT_REMOTE: '{{.GIT_REMOTE | default "origin"}}'
+  GIT_REPO: '{{.GIT_REPO | default ""}}'
+  GIT_STASH_INDEX: '{{.GIT_STASH_INDEX | default "0"}}'
+  GIT_TAG: '{{.GIT_TAG | default ""}}'
+  GIT_TITLE: '{{.GIT_TITLE | default ""}}'
+  GIT_URL: '{{.GIT_URL | default ""}}'
+  GIT_NIX_INSTALLABLE: '{{.GIT_NIX_INSTALLABLE | default "nixpkgs#git"}}'
 
 tasks:
   default:

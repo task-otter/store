@@ -14,8 +14,8 @@ includes:
     taskfile: ../nix/Taskfile.yml
 
 vars:
-  BENCHER_NIX_INSTALLABLE: nixpkgs#bencher
-  BENCHER_EXTRA_ARGS: ""
+  BENCHER_NIX_INSTALLABLE: '{{.BENCHER_NIX_INSTALLABLE | default "nixpkgs#bencher"}}'
+  BENCHER_EXTRA_ARGS: '{{.BENCHER_EXTRA_ARGS | default ""}}'
 
 tasks:
   default:

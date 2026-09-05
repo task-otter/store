@@ -14,9 +14,9 @@ includes:
     taskfile: ../nix/Taskfile.yml
 
 vars:
-  SHFMT_EXTRA_ARGS: ""
-  SHFMT_NIX_INSTALLABLE: nixpkgs#shfmt
-  SHFMT_TARGETS: "."
+  SHFMT_EXTRA_ARGS: '{{.SHFMT_EXTRA_ARGS | default ""}}'
+  SHFMT_NIX_INSTALLABLE: '{{.SHFMT_NIX_INSTALLABLE | default "nixpkgs#shfmt"}}'
+  SHFMT_TARGETS: '{{.SHFMT_TARGETS | default "."}}'
 
 tasks:
   default:

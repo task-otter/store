@@ -14,11 +14,11 @@ includes:
     taskfile: ../../../yarn/Taskfile.yml
 
 vars:
-  BIOME_TARGETS: ""
-  BIOME_DEFAULT_TARGETS: "."
-  BIOME_CONFIG: ""
-  BIOME_EXTRA_ARGS: ""
-  BIOME_VERSION: ""
+  BIOME_TARGETS: '{{.BIOME_TARGETS | default ""}}'
+  BIOME_DEFAULT_TARGETS: '{{.BIOME_DEFAULT_TARGETS | default "."}}'
+  BIOME_CONFIG: '{{.BIOME_CONFIG | default ""}}'
+  BIOME_EXTRA_ARGS: '{{.BIOME_EXTRA_ARGS | default ""}}'
+  BIOME_VERSION: '{{.BIOME_VERSION | default ""}}'
 
 tasks:
   default:

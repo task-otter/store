@@ -14,13 +14,13 @@ includes:
     taskfile: ../../../npm/Taskfile.yml
 
 vars:
-  ESLINT_TARGETS: ""
-  ESLINT_DEFAULT_TARGETS: "src/**/*.{js,jsx,ts,tsx}"
-  ESLINT_CONFIG: ""
-  ESLINT_CACHE: ""
-  ESLINT_DEFAULT_CACHE: "true"
-  ESLINT_EXTRA_ARGS: ""
-  ESLINT_VERSION: ""
+  ESLINT_TARGETS: '{{.ESLINT_TARGETS | default ""}}'
+  ESLINT_DEFAULT_TARGETS: '{{.ESLINT_DEFAULT_TARGETS | default "src/**/*.{js,jsx,ts,tsx}"}}'
+  ESLINT_CONFIG: '{{.ESLINT_CONFIG | default ""}}'
+  ESLINT_CACHE: '{{.ESLINT_CACHE | default ""}}'
+  ESLINT_DEFAULT_CACHE: '{{.ESLINT_DEFAULT_CACHE | default "true"}}'
+  ESLINT_EXTRA_ARGS: '{{.ESLINT_EXTRA_ARGS | default ""}}'
+  ESLINT_VERSION: '{{.ESLINT_VERSION | default ""}}'
 
 tasks:
   default:

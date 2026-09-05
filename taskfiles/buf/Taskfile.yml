@@ -14,11 +14,11 @@ includes:
     taskfile: ../nix/Taskfile.yml
 
 vars:
-  BUF_AGAINST: ".git#branch=main"
-  BUF_NIX_INSTALLABLE: nixpkgs#buf
-  BUF_CONFIG: ""
-  BUF_EXTRA_ARGS: ""
-  BUF_INPUT: "."
+  BUF_AGAINST: '{{.BUF_AGAINST | default ".git#branch=main"}}'
+  BUF_NIX_INSTALLABLE: '{{.BUF_NIX_INSTALLABLE | default "nixpkgs#buf"}}'
+  BUF_CONFIG: '{{.BUF_CONFIG | default ""}}'
+  BUF_EXTRA_ARGS: '{{.BUF_EXTRA_ARGS | default ""}}'
+  BUF_INPUT: '{{.BUF_INPUT | default "."}}'
 
 tasks:
   default:

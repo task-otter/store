@@ -10,11 +10,11 @@ output:
 silent: true
 
 vars:
-  DOCKER_IMAGE: ""
-  DOCKER_FILE: "Dockerfile"
-  DOCKER_CONTEXT: "."
-  DOCKER_EXTRA_ARGS: ""
-  DOCKER_VERSION: ""
+  DOCKER_IMAGE: '{{.DOCKER_IMAGE | default ""}}'
+  DOCKER_FILE: '{{.DOCKER_FILE | default "Dockerfile"}}'
+  DOCKER_CONTEXT: '{{.DOCKER_CONTEXT | default "."}}'
+  DOCKER_EXTRA_ARGS: '{{.DOCKER_EXTRA_ARGS | default ""}}'
+  DOCKER_VERSION: '{{.DOCKER_VERSION | default ""}}'
 
 tasks:
   default:

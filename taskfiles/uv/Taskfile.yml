@@ -17,21 +17,21 @@ includes:
 
 vars:
 
-  UV_NIX_INSTALLABLE: nixpkgs#uv
+  UV_NIX_INSTALLABLE: '{{.UV_NIX_INSTALLABLE | default "nixpkgs#uv"}}'
 
-  UV_VENV: ".venv"
+  UV_VENV: '{{.UV_VENV | default ".venv"}}'
 
-  UV_REQUIREMENTS: "requirements.txt"
+  UV_REQUIREMENTS: '{{.UV_REQUIREMENTS | default "requirements.txt"}}'
 
-  UV_FILE: ""
+  UV_FILE: '{{.UV_FILE | default ""}}'
 
-  UV_ARGS: ""
+  UV_ARGS: '{{.UV_ARGS | default ""}}'
 
-  UV_EXTRA_ARGS: ""
+  UV_EXTRA_ARGS: '{{.UV_EXTRA_ARGS | default ""}}'
 
-  PYTHON_VERSION: ""
+  PYTHON_VERSION: '{{.PYTHON_VERSION | default ""}}'
 
-  UV_TOOL: ""
+  UV_TOOL: '{{.UV_TOOL | default ""}}'
 
 tasks:
   default:

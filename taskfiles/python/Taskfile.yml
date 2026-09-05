@@ -14,12 +14,12 @@ includes:
     taskfile: ../nix/Taskfile.yml
 
 vars:
-  PYTHON_NIX_INSTALLABLE: nixpkgs#python3
-  PYTHON_VENV: ".venv"
-  PYTHON_REQUIREMENTS: "requirements.txt"
-  PYTHON_FILE: ""
-  PYTHON_ARGS: ""
-  PYTHON_EXTRA_ARGS: ""
+  PYTHON_NIX_INSTALLABLE: '{{.PYTHON_NIX_INSTALLABLE | default "nixpkgs#python3"}}'
+  PYTHON_VENV: '{{.PYTHON_VENV | default ".venv"}}'
+  PYTHON_REQUIREMENTS: '{{.PYTHON_REQUIREMENTS | default "requirements.txt"}}'
+  PYTHON_FILE: '{{.PYTHON_FILE | default ""}}'
+  PYTHON_ARGS: '{{.PYTHON_ARGS | default ""}}'
+  PYTHON_EXTRA_ARGS: '{{.PYTHON_EXTRA_ARGS | default ""}}'
 
 tasks:
   default:

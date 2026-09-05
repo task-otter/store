@@ -14,9 +14,9 @@ includes:
     taskfile: ../nix/Taskfile.yml
 
 vars:
-  DOTENV_LINTER_NIX_INSTALLABLE: nixpkgs#dotenv-linter
-  DOTENV_LINTER_TARGETS: ".env"
-  DOTENV_LINTER_EXTRA_ARGS: ""
+  DOTENV_LINTER_NIX_INSTALLABLE: '{{.DOTENV_LINTER_NIX_INSTALLABLE | default "nixpkgs#dotenv-linter"}}'
+  DOTENV_LINTER_TARGETS: '{{.DOTENV_LINTER_TARGETS | default ".env"}}'
+  DOTENV_LINTER_EXTRA_ARGS: '{{.DOTENV_LINTER_EXTRA_ARGS | default ""}}'
 
 tasks:
   default:

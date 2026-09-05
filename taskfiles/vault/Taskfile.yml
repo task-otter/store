@@ -16,19 +16,19 @@ includes:
   jq: ../jq/Taskfile.yml
 
 vars:
-  VAULT_ADDR: "http://127.0.0.1:8200"
-  VAULT_ADDR_TARGET: "{{.VAULT_ADDR}}"
-  VAULT_KEYS_FILE: .vault-init-keys.json
-  VAULT_SHARES: 5
-  VAULT_THRESHOLD: 3
-  VAULT_SNAPSHOT_FILE: vault-snapshot.snap
-  VAULT_FILE: ""
-  VAULT_EXTRA_ARGS: ""
-  VAULT_ROOT_TOKEN: ""
-  VAULT_ROLE_ID: ""
-  VAULT_SECRET_ID: ""
-  VAULT_APPROLE_MOUNT: "approle"
-  VAULT_NIX_INSTALLABLE: nixpkgs#vault
+  VAULT_ADDR: '{{.VAULT_ADDR | default "http://127.0.0.1:8200"}}'
+  VAULT_ADDR_TARGET: '{{.VAULT_ADDR_TARGET | default "{{.VAULT_ADDR}}"}}'
+  VAULT_KEYS_FILE: '{{.VAULT_KEYS_FILE | default ".vault-init-keys.json"}}'
+  VAULT_SHARES: '{{.VAULT_SHARES | default "5"}}'
+  VAULT_THRESHOLD: '{{.VAULT_THRESHOLD | default "3"}}'
+  VAULT_SNAPSHOT_FILE: '{{.VAULT_SNAPSHOT_FILE | default "vault-snapshot.snap"}}'
+  VAULT_FILE: '{{.VAULT_FILE | default ""}}'
+  VAULT_EXTRA_ARGS: '{{.VAULT_EXTRA_ARGS | default ""}}'
+  VAULT_ROOT_TOKEN: '{{.VAULT_ROOT_TOKEN | default ""}}'
+  VAULT_ROLE_ID: '{{.VAULT_ROLE_ID | default ""}}'
+  VAULT_SECRET_ID: '{{.VAULT_SECRET_ID | default ""}}'
+  VAULT_APPROLE_MOUNT: '{{.VAULT_APPROLE_MOUNT | default "approle"}}'
+  VAULT_NIX_INSTALLABLE: '{{.VAULT_NIX_INSTALLABLE | default "nixpkgs#vault"}}'
 
 env:
   VAULT_ADDR: "{{.VAULT_ADDR_TARGET}}"

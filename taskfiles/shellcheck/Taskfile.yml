@@ -14,9 +14,9 @@ includes:
     taskfile: ../nix/Taskfile.yml
 
 vars:
-  SHELLCHECK_EXTRA_ARGS: ""
-  SHELLCHECK_TARGETS: ""
-  SHELLCHECK_NIX_INSTALLABLE: nixpkgs#shellcheck
+  SHELLCHECK_EXTRA_ARGS: '{{.SHELLCHECK_EXTRA_ARGS | default ""}}'
+  SHELLCHECK_TARGETS: '{{.SHELLCHECK_TARGETS | default ""}}'
+  SHELLCHECK_NIX_INSTALLABLE: '{{.SHELLCHECK_NIX_INSTALLABLE | default "nixpkgs#shellcheck"}}'
 
 tasks:
   default:

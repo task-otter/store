@@ -17,13 +17,13 @@ includes:
 
 vars:
 
-  BRUNO_CLI_NIX_INSTALLABLE: nixpkgs#bruno-cli
+  BRUNO_CLI_NIX_INSTALLABLE: '{{.BRUNO_CLI_NIX_INSTALLABLE | default "nixpkgs#bruno-cli"}}'
 
-  BRUNO_CLI_COLLECTION: "."
+  BRUNO_CLI_COLLECTION: '{{.BRUNO_CLI_COLLECTION | default "."}}'
 
-  BRUNO_CLI_ENV: ""
+  BRUNO_CLI_ENV: '{{.BRUNO_CLI_ENV | default ""}}'
 
-  BRUNO_CLI_EXTRA_ARGS: ""
+  BRUNO_CLI_EXTRA_ARGS: '{{.BRUNO_CLI_EXTRA_ARGS | default ""}}'
 
 tasks:
   default:

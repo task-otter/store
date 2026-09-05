@@ -14,10 +14,10 @@ includes:
     taskfile: ../../../pnpm/Taskfile.yml
 
 vars:
-  HTMLHINT_TARGETS: "**/*.html"
-  HTMLHINT_CONFIG: ""
-  HTMLHINT_EXTRA_ARGS: ""
-  HTMLHINT_VERSION: ""
+  HTMLHINT_TARGETS: '{{.HTMLHINT_TARGETS | default "**/*.html"}}'
+  HTMLHINT_CONFIG: '{{.HTMLHINT_CONFIG | default ""}}'
+  HTMLHINT_EXTRA_ARGS: '{{.HTMLHINT_EXTRA_ARGS | default ""}}'
+  HTMLHINT_VERSION: '{{.HTMLHINT_VERSION | default ""}}'
 
 tasks:
   default:

@@ -20,7 +20,7 @@ includes:
 
 vars:
 
-  PNPM_NIX_INSTALLABLE: nixpkgs#pnpm
+  PNPM_NIX_INSTALLABLE: '{{.PNPM_NIX_INSTALLABLE | default "nixpkgs#pnpm"}}'
 
 tasks:
   install:tool:

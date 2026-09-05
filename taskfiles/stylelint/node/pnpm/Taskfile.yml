@@ -14,15 +14,15 @@ includes:
     taskfile: ../../../pnpm/Taskfile.yml
 
 vars:
-  STYLELINT_TARGETS: ""
-  STYLELINT_DEFAULT_TARGETS: "**/*.{css,scss,sass,less,vue,svelte,astro}"
-  STYLELINT_CONFIG: ""
-  STYLELINT_CACHE: ""
-  STYLELINT_DEFAULT_CACHE: "true"
-  STYLELINT_ALLOW_EMPTY_INPUT: ""
-  STYLELINT_DEFAULT_ALLOW_EMPTY_INPUT: "true"
-  STYLELINT_EXTRA_ARGS: ""
-  STYLELINT_VERSION: ""
+  STYLELINT_TARGETS: '{{.STYLELINT_TARGETS | default ""}}'
+  STYLELINT_DEFAULT_TARGETS: '{{.STYLELINT_DEFAULT_TARGETS | default "**/*.{css,scss,sass,less,vue,svelte,astro}"}}'
+  STYLELINT_CONFIG: '{{.STYLELINT_CONFIG | default ""}}'
+  STYLELINT_CACHE: '{{.STYLELINT_CACHE | default ""}}'
+  STYLELINT_DEFAULT_CACHE: '{{.STYLELINT_DEFAULT_CACHE | default "true"}}'
+  STYLELINT_ALLOW_EMPTY_INPUT: '{{.STYLELINT_ALLOW_EMPTY_INPUT | default ""}}'
+  STYLELINT_DEFAULT_ALLOW_EMPTY_INPUT: '{{.STYLELINT_DEFAULT_ALLOW_EMPTY_INPUT | default "true"}}'
+  STYLELINT_EXTRA_ARGS: '{{.STYLELINT_EXTRA_ARGS | default ""}}'
+  STYLELINT_VERSION: '{{.STYLELINT_VERSION | default ""}}'
 
 tasks:
   default:

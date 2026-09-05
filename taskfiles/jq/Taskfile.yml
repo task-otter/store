@@ -14,7 +14,7 @@ includes:
     taskfile: ../nix/Taskfile.yml
 
 vars:
-  JQ_NIX_INSTALLABLE: nixpkgs#jq
+  JQ_NIX_INSTALLABLE: '{{.JQ_NIX_INSTALLABLE | default "nixpkgs#jq"}}'
 
 tasks:
   default:

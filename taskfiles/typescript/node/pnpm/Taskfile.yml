@@ -15,14 +15,14 @@ output:
 silent: true
 
 vars:
-  TYPESCRIPT_FILE: src/index.ts
-  TYPESCRIPT_OUTFILE: dist/index.js
-  TYPESCRIPT_OUT_DIR: dist
-  TYPESCRIPT_TSCONFIG: tsconfig.json
-  TYPESCRIPT_TSX_FLAGS: ""
-  TYPESCRIPT_TSC_FLAGS: ""
-  TYPESCRIPT_TRACE_DIR: .tsc-trace
-  TYPESCRIPT_VERSION: ""
+  TYPESCRIPT_FILE: '{{.TYPESCRIPT_FILE | default "src/index.ts"}}'
+  TYPESCRIPT_OUTFILE: '{{.TYPESCRIPT_OUTFILE | default "dist/index.js"}}'
+  TYPESCRIPT_OUT_DIR: '{{.TYPESCRIPT_OUT_DIR | default "dist"}}'
+  TYPESCRIPT_TSCONFIG: '{{.TYPESCRIPT_TSCONFIG | default "tsconfig.json"}}'
+  TYPESCRIPT_TSX_FLAGS: '{{.TYPESCRIPT_TSX_FLAGS | default ""}}'
+  TYPESCRIPT_TSC_FLAGS: '{{.TYPESCRIPT_TSC_FLAGS | default ""}}'
+  TYPESCRIPT_TRACE_DIR: '{{.TYPESCRIPT_TRACE_DIR | default ".tsc-trace"}}'
+  TYPESCRIPT_VERSION: '{{.TYPESCRIPT_VERSION | default ""}}'
 
 tasks:
   default:

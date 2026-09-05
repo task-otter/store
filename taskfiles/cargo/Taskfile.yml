@@ -17,11 +17,11 @@ includes:
 
 vars:
 
-  CARGO_NIX_INSTALLABLE: nixpkgs#cargo
+  CARGO_NIX_INSTALLABLE: '{{.CARGO_NIX_INSTALLABLE | default "nixpkgs#cargo"}}'
 
-  RUST_TOOLCHAIN: ""
+  RUST_TOOLCHAIN: '{{.RUST_TOOLCHAIN | default ""}}'
 
-  CARGO_EXTRA_ARGS: ""
+  CARGO_EXTRA_ARGS: '{{.CARGO_EXTRA_ARGS | default ""}}'
 
 tasks:
   default:

@@ -14,14 +14,14 @@ includes:
     taskfile: ../nix/Taskfile.yml
 
 vars:
-  ANSIBLE_NIX_INSTALLABLE: nixpkgs#ansible
-  ANSIBLE_CONFIG: "ansible/ansible.cfg"
-  ANSIBLE_PLAYBOOK: ""
-  ANSIBLE_INVENTORY: ""
-  ANSIBLE_PATTERN: "all"
-  ANSIBLE_FILE: ""
-  ANSIBLE_REQUIREMENTS: "requirements.yml"
-  ANSIBLE_EXTRA_ARGS: ""
+  ANSIBLE_NIX_INSTALLABLE: '{{.ANSIBLE_NIX_INSTALLABLE | default "nixpkgs#ansible"}}'
+  ANSIBLE_CONFIG: '{{.ANSIBLE_CONFIG | default "ansible/ansible.cfg"}}'
+  ANSIBLE_PLAYBOOK: '{{.ANSIBLE_PLAYBOOK | default ""}}'
+  ANSIBLE_INVENTORY: '{{.ANSIBLE_INVENTORY | default ""}}'
+  ANSIBLE_PATTERN: '{{.ANSIBLE_PATTERN | default "all"}}'
+  ANSIBLE_FILE: '{{.ANSIBLE_FILE | default ""}}'
+  ANSIBLE_REQUIREMENTS: '{{.ANSIBLE_REQUIREMENTS | default "requirements.yml"}}'
+  ANSIBLE_EXTRA_ARGS: '{{.ANSIBLE_EXTRA_ARGS | default ""}}'
 
 tasks:
   default:

@@ -14,9 +14,9 @@ includes:
     taskfile: ../nix/Taskfile.yml
 
 vars:
-  PROTOLINT_EXTRA_ARGS: ""
-  PROTOLINT_NIX_INSTALLABLE: nixpkgs#protolint
-  PROTOLINT_TARGETS: "."
+  PROTOLINT_EXTRA_ARGS: '{{.PROTOLINT_EXTRA_ARGS | default ""}}'
+  PROTOLINT_NIX_INSTALLABLE: '{{.PROTOLINT_NIX_INSTALLABLE | default "nixpkgs#protolint"}}'
+  PROTOLINT_TARGETS: '{{.PROTOLINT_TARGETS | default "."}}'
 
 tasks:
   default:

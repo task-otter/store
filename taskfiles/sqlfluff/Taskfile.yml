@@ -14,11 +14,11 @@ includes:
     taskfile: ../nix/Taskfile.yml
 
 vars:
-  SQLFLUFF_NIX_INSTALLABLE: nixpkgs#sqlfluff
-  SQLFLUFF_TARGETS: "."
-  SQLFLUFF_CONFIG: ""
-  SQLFLUFF_DIALECT: ""
-  SQLFLUFF_EXTRA_ARGS: ""
+  SQLFLUFF_NIX_INSTALLABLE: '{{.SQLFLUFF_NIX_INSTALLABLE | default "nixpkgs#sqlfluff"}}'
+  SQLFLUFF_TARGETS: '{{.SQLFLUFF_TARGETS | default "."}}'
+  SQLFLUFF_CONFIG: '{{.SQLFLUFF_CONFIG | default ""}}'
+  SQLFLUFF_DIALECT: '{{.SQLFLUFF_DIALECT | default ""}}'
+  SQLFLUFF_EXTRA_ARGS: '{{.SQLFLUFF_EXTRA_ARGS | default ""}}'
 
 tasks:
   default:

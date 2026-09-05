@@ -14,10 +14,10 @@ includes:
     taskfile: ../../../npm/Taskfile.yml
 
 vars:
-  SPECTRAL_TARGETS: ""
-  SPECTRAL_RULESET: ""
-  SPECTRAL_EXTRA_ARGS: ""
-  SPECTRAL_VERSION: ""
+  SPECTRAL_TARGETS: '{{.SPECTRAL_TARGETS | default ""}}'
+  SPECTRAL_RULESET: '{{.SPECTRAL_RULESET | default ""}}'
+  SPECTRAL_EXTRA_ARGS: '{{.SPECTRAL_EXTRA_ARGS | default ""}}'
+  SPECTRAL_VERSION: '{{.SPECTRAL_VERSION | default ""}}'
 
 tasks:
   default:

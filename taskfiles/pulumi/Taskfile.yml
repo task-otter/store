@@ -14,12 +14,12 @@ includes:
     taskfile: ../nix/Taskfile.yml
 
 vars:
-  PULUMI_NIX_INSTALLABLE: nixpkgs#pulumi
-  PULUMI_LOGIN_URL: ""
-  PULUMI_TEMPLATE: ""
-  PULUMI_STACK: ""
-  PULUMI_ARGS: ""
-  PULUMI_EXTRA_ARGS: ""
+  PULUMI_NIX_INSTALLABLE: '{{.PULUMI_NIX_INSTALLABLE | default "nixpkgs#pulumi"}}'
+  PULUMI_LOGIN_URL: '{{.PULUMI_LOGIN_URL | default ""}}'
+  PULUMI_TEMPLATE: '{{.PULUMI_TEMPLATE | default ""}}'
+  PULUMI_STACK: '{{.PULUMI_STACK | default ""}}'
+  PULUMI_ARGS: '{{.PULUMI_ARGS | default ""}}'
+  PULUMI_EXTRA_ARGS: '{{.PULUMI_EXTRA_ARGS | default ""}}'
 
 tasks:
   default:

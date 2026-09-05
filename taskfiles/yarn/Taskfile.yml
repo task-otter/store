@@ -20,7 +20,7 @@ includes:
 
 vars:
 
-  YARN_NIX_INSTALLABLE: nixpkgs#yarn
+  YARN_NIX_INSTALLABLE: '{{.YARN_NIX_INSTALLABLE | default "nixpkgs#yarn"}}'
 
 tasks:
   install:tool:

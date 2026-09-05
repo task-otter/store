@@ -14,9 +14,9 @@ includes:
     taskfile: ../nix/Taskfile.yml
 
 vars:
-  DJLINT_NIX_INSTALLABLE: nixpkgs#djlint
-  DJLINT_TARGETS: "."
-  DJLINT_EXTRA_ARGS: ""
+  DJLINT_NIX_INSTALLABLE: '{{.DJLINT_NIX_INSTALLABLE | default "nixpkgs#djlint"}}'
+  DJLINT_TARGETS: '{{.DJLINT_TARGETS | default "."}}'
+  DJLINT_EXTRA_ARGS: '{{.DJLINT_EXTRA_ARGS | default ""}}'
 
 tasks:
   default:

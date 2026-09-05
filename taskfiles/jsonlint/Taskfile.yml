@@ -14,9 +14,9 @@ includes:
     taskfile: ../nix/Taskfile.yml
 
 vars:
-  JSONLINT_NIX_INSTALLABLE: nixpkgs#python3Packages.demjson3
-  JSONLINT_TARGETS: "."
-  JSONLINT_EXTRA_ARGS: ""
+  JSONLINT_NIX_INSTALLABLE: '{{.JSONLINT_NIX_INSTALLABLE | default "nixpkgs#python3Packages.demjson3"}}'
+  JSONLINT_TARGETS: '{{.JSONLINT_TARGETS | default "."}}'
+  JSONLINT_EXTRA_ARGS: '{{.JSONLINT_EXTRA_ARGS | default ""}}'
 
 tasks:
   default:

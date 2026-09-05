@@ -16,14 +16,14 @@ includes:
   jq: ../jq/Taskfile.yml
 
 vars:
-  GH_VISIBILITY: "public"
-  GH_BASE: "main"
-  GH_MERGE_METHOD: "merge"
-  GH_CLONE_DIR: "."
-  GH_DOWNLOAD_DIR: "."
-  GH_DATA: "{}"
-  GH_PAT_TOKEN: ""
-  GH_NIX_INSTALLABLE: nixpkgs#gh
+  GH_VISIBILITY: '{{.GH_VISIBILITY | default "public"}}'
+  GH_BASE: '{{.GH_BASE | default "main"}}'
+  GH_MERGE_METHOD: '{{.GH_MERGE_METHOD | default "merge"}}'
+  GH_CLONE_DIR: '{{.GH_CLONE_DIR | default "."}}'
+  GH_DOWNLOAD_DIR: '{{.GH_DOWNLOAD_DIR | default "."}}'
+  GH_DATA: '{{.GH_DATA | default "{}"}}'
+  GH_PAT_TOKEN: '{{.GH_PAT_TOKEN | default ""}}'
+  GH_NIX_INSTALLABLE: '{{.GH_NIX_INSTALLABLE | default "nixpkgs#gh"}}'
 
 env:
   GH_TOKEN: "{{.GH_PAT_TOKEN}}"

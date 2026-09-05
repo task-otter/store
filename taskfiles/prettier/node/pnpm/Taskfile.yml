@@ -14,13 +14,13 @@ includes:
     taskfile: ../../../pnpm/Taskfile.yml
 
 vars:
-  PRETTIER_TARGETS: ""
-  PRETTIER_DEFAULT_TARGETS: "."
-  PRETTIER_CONFIG: ""
-  PRETTIER_IGNORE_PATH: ""
-  PRETTIER_DEFAULT_IGNORE_PATH: ".prettierignore"
-  PRETTIER_EXTRA_ARGS: ""
-  PRETTIER_VERSION: ""
+  PRETTIER_TARGETS: '{{.PRETTIER_TARGETS | default ""}}'
+  PRETTIER_DEFAULT_TARGETS: '{{.PRETTIER_DEFAULT_TARGETS | default "."}}'
+  PRETTIER_CONFIG: '{{.PRETTIER_CONFIG | default ""}}'
+  PRETTIER_IGNORE_PATH: '{{.PRETTIER_IGNORE_PATH | default ""}}'
+  PRETTIER_DEFAULT_IGNORE_PATH: '{{.PRETTIER_DEFAULT_IGNORE_PATH | default ".prettierignore"}}'
+  PRETTIER_EXTRA_ARGS: '{{.PRETTIER_EXTRA_ARGS | default ""}}'
+  PRETTIER_VERSION: '{{.PRETTIER_VERSION | default ""}}'
 
 tasks:
   default:

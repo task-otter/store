@@ -17,7 +17,7 @@ includes:
 
 vars:
 
-  BUN_NIX_INSTALLABLE: nixpkgs#bun
+  BUN_NIX_INSTALLABLE: '{{.BUN_NIX_INSTALLABLE | default "nixpkgs#bun"}}'
 
 tasks:
   default:

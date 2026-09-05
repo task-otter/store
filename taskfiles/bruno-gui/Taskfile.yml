@@ -17,11 +17,11 @@ includes:
 
 vars:
 
-  BRUNO_GUI_NIX_INSTALLABLE: nixpkgs#bruno
+  BRUNO_GUI_NIX_INSTALLABLE: '{{.BRUNO_GUI_NIX_INSTALLABLE | default "nixpkgs#bruno"}}'
 
-  BRUNO_GUI_COLLECTION: ""
+  BRUNO_GUI_COLLECTION: '{{.BRUNO_GUI_COLLECTION | default ""}}'
 
-  BRUNO_GUI_EXTRA_ARGS: ""
+  BRUNO_GUI_EXTRA_ARGS: '{{.BRUNO_GUI_EXTRA_ARGS | default ""}}'
 
 tasks:
   default:

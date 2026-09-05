@@ -14,10 +14,10 @@ includes:
     taskfile: ../nix/Taskfile.yml
 
 vars:
-  ANSIBLE_LINT_NIX_INSTALLABLE: nixpkgs#ansible-lint
-  ANSIBLE_LINT_CONFIG: "ansible/ansible.cfg"
-  ANSIBLE_LINT_TARGETS: "."
-  ANSIBLE_LINT_EXTRA_ARGS: ""
+  ANSIBLE_LINT_NIX_INSTALLABLE: '{{.ANSIBLE_LINT_NIX_INSTALLABLE | default "nixpkgs#ansible-lint"}}'
+  ANSIBLE_LINT_CONFIG: '{{.ANSIBLE_LINT_CONFIG | default "ansible/ansible.cfg"}}'
+  ANSIBLE_LINT_TARGETS: '{{.ANSIBLE_LINT_TARGETS | default "."}}'
+  ANSIBLE_LINT_EXTRA_ARGS: '{{.ANSIBLE_LINT_EXTRA_ARGS | default ""}}'
 
 tasks:
   default:

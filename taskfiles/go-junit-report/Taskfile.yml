@@ -18,11 +18,11 @@ includes:
 
 vars:
 
-  GO_JUNIT_REPORT_NIX_INSTALLABLE: nixpkgs#go-junit-report
+  GO_JUNIT_REPORT_NIX_INSTALLABLE: '{{.GO_JUNIT_REPORT_NIX_INSTALLABLE | default "nixpkgs#go-junit-report"}}'
 
-  GO_JUNIT_REPORT_IN: ""
+  GO_JUNIT_REPORT_IN: '{{.GO_JUNIT_REPORT_IN | default ""}}'
 
-  GO_JUNIT_REPORT_OUT: ""
+  GO_JUNIT_REPORT_OUT: '{{.GO_JUNIT_REPORT_OUT | default ""}}'
 
 tasks:
   default:
