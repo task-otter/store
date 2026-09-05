@@ -86,9 +86,11 @@ const (
 	pathSeparator          = "/"
 	parseMetadataErrFormat = "parse metadata.yml: %v"
 
-	skipTaskfileYML  = "Taskfile.yml"
-	taskfilesDirName = "taskfiles"
-	internalDirName  = "internal"
+	taskfilesRootModule = "."
+	emptyString         = ""
+	skipTaskfileYML     = "Taskfile.yml"
+	taskfilesDirName    = "taskfiles"
+	internalDirName     = "internal"
 
 	crlfSeparator    = "\r\n"
 	windowsSeparator = "\n"

@@ -28,10 +28,36 @@ type (
 	}
 
 	varsPrefixCollector struct {
+		t          *testing.T
+		allowlists *varsPrefixAllowlists
+		violations []varsPrefixViolation
+	}
+
+	taskfileModuleWalk struct {
 		t            *testing.T
+		onModule     func(string)
 		taskfilesDir string
-		allowlists   *varsPrefixAllowlists
-		violations   []varsPrefixViolation
+		errPrefix    string
+	}
+
+	taskfileModuleWalkParams = struct {
+		t         *testing.T
+		onModule  func(string)
+		dir       string
+		errPrefix string
+	}
+
+	walkedModuleParams = struct {
+		entry        fs.DirEntry
+		walkErr      error
+		taskfilesDir string
+		path         string
+		errPrefix    string
+	}
+
+	moduleNamePair = struct {
+		module string
+		name   string
 	}
 )
 
@@ -44,17 +70,22 @@ const (
 func TestTopLevelVarsPrefix(t *testing.T) {
 	t.Parallel()
 
-	root := tasktest.RepoRoot(t)
-	taskfilesDir := filepath.Join(root, taskfilesDirName)
-	allowlists := buildVarsPrefixAllowlists(t, taskfilesDir)
-	collector := varsPrefixCollector{
-		t:            t,
-		taskfilesDir: taskfilesDir,
-		allowlists:   &allowlists,
-		violations:   nil,
-	}
+	runTopLevelVarsPrefix(t)
+}
 
-	err := filepath.WalkDir(taskfilesDir, collector.collect)
+func runTopLevelVarsPrefix(t *testing.T) {
+	t.Helper()
+
+	taskfilesDir := filepath.Join(tasktest.RepoRoot(t), taskfilesDirName)
+	collector := newVarsPrefixCollector(t, taskfilesDir)
+	walker := newTaskfileModuleWalk(&taskfileModuleWalkParams{
+		t:         t,
+		onModule:  collector.appendModuleViolations,
+		dir:       taskfilesDir,
+		errPrefix: "vars prefix module path",
+	})
+
+	err := filepath.WalkDir(taskfilesDir, walker.collect)
 	if err != nil {
 		t.Fatalf(walkTaskfilesErrFormat, err)
 	}
@@ -62,10 +93,33 @@ func TestTopLevelVarsPrefix(t *testing.T) {
 	collector.failIfViolations()
 }
 
+func newVarsPrefixCollector(t *testing.T, taskfilesDir string) *varsPrefixCollector {
+	t.Helper()
+
+	allowlists := buildVarsPrefixAllowlists(t, taskfilesDir)
+
+	return &varsPrefixCollector{
+		t:          t,
+		allowlists: &allowlists,
+		violations: nil,
+	}
+}
+
+func newTaskfileModuleWalk(params *taskfileModuleWalkParams) *taskfileModuleWalk {
+	params.t.Helper()
+
+	return &taskfileModuleWalk{
+		t:            params.t,
+		onModule:     params.onModule,
+		taskfilesDir: params.dir,
+		errPrefix:    params.errPrefix,
+	}
+}
+
 func (collector *varsPrefixCollector) appendModuleViolations(module string) {
 	collector.t.Helper()
 
-	if module == "." {
+	if module == taskfilesRootModule {
 		return
 	}
 
@@ -79,27 +133,6 @@ func (collector *varsPrefixCollector) appendModuleViolations(module string) {
 	collector.recordVars(module, owned, taskfile.Vars)
 }
 
-func (collector *varsPrefixCollector) collect(path string, entry fs.DirEntry, walkErr error) error {
-	collector.t.Helper()
-
-	if walkErr != nil {
-		return walkErr
-	}
-
-	if entry.IsDir() || entry.Name() != skipTaskfileYML {
-		return nil
-	}
-
-	module, err := modulePathForTaskfile(collector.taskfilesDir, path)
-	if err != nil {
-		return fmt.Errorf("vars prefix module path: %w", err)
-	}
-
-	collector.appendModuleViolations(module)
-
-	return nil
-}
-
 func (collector *varsPrefixCollector) failIfViolations() {
 	collector.t.Helper()
 
@@ -111,7 +144,7 @@ func (collector *varsPrefixCollector) failIfViolations() {
 		"%s: %d top-level var(s) missing owned/foreign/companion prefix:\n%s",
 		varsPrefixTestName,
 		len(collector.violations),
-		strings.Join(collector.violationLines(), windowsSeparator),
+		strings.Join(formatVarsPrefixViolations(collector.violations), windowsSeparator),
 	)
 }
 
@@ -131,21 +164,34 @@ func (collector *varsPrefixCollector) recordVars(module, owned string, vars map[
 	}
 }
 
-func (collector *varsPrefixCollector) violationLines() []string {
-	collector.t.Helper()
+func (walk *taskfileModuleWalk) collect(path string, entry fs.DirEntry, walkErr error) error {
+	walk.t.Helper()
 
-	slices.SortFunc(collector.violations, func(left, right varsPrefixViolation) int {
-		if left.module != right.module {
-			return strings.Compare(left.module, right.module)
-		}
-
-		return strings.Compare(left.name, right.name)
+	module, skip, err := resolveWalkedModule(&walkedModuleParams{
+		entry:        entry,
+		walkErr:      walkErr,
+		taskfilesDir: walk.taskfilesDir,
+		path:         path,
+		errPrefix:    walk.errPrefix,
 	})
+	if err != nil {
+		return fmt.Errorf("walk taskfile module: %w", err)
+	}
 
-	return formatVarsPrefixViolations(collector.violations)
+	if skip {
+		return nil
+	}
+
+	walk.onModule(module)
+
+	return nil
 }
 
 func formatVarsPrefixViolations(violations []varsPrefixViolation) []string {
+	sortByModuleThenName(violations, func(violation varsPrefixViolation) moduleNamePair {
+		return moduleNamePair{module: violation.module, name: violation.name}
+	})
+
 	lines := make([]string, constZero, len(violations))
 
 	for i := range violations {
@@ -204,10 +250,44 @@ func dirEntriesToVarsPrefixes(entries []os.DirEntry) []string {
 func modulePathForTaskfile(taskfilesDir, path string) (string, error) {
 	rel, err := filepath.Rel(taskfilesDir, filepath.Dir(path))
 	if err != nil {
-		return "", fmt.Errorf("taskfile path relative to taskfiles: %w", err)
+		return emptyString, fmt.Errorf("taskfile path relative to taskfiles: %w", err)
 	}
 
 	return filepath.ToSlash(rel), nil
+}
+
+func resolveWalkedModule(params *walkedModuleParams) (module string, skip bool, err error) {
+	if params.walkErr != nil {
+		return emptyString, false, params.walkErr
+	}
+
+	if params.entry.IsDir() || params.entry.Name() != skipTaskfileYML {
+		return emptyString, true, nil
+	}
+
+	module, err = modulePathForTaskfile(params.taskfilesDir, params.path)
+	if err != nil {
+		return emptyString, false, fmt.Errorf("%s: %w", params.errPrefix, err)
+	}
+
+	return module, false, nil
+}
+
+func compareModuleThenName(left, right *moduleNamePair) int {
+	if left.module != right.module {
+		return strings.Compare(left.module, right.module)
+	}
+
+	return strings.Compare(left.name, right.name)
+}
+
+func sortByModuleThenName[itemT any](items []itemT, pair func(itemT) moduleNamePair) {
+	slices.SortFunc(items, func(left, right itemT) int {
+		leftPair := pair(left)
+		rightPair := pair(right)
+
+		return compareModuleThenName(&leftPair, &rightPair)
+	})
 }
 
 func ownedVarsPrefix(module string) string {

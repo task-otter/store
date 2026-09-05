@@ -5,10 +5,8 @@ package taskfiles_test
 
 import (
 	"fmt"
-	"io/fs"
 	"path/filepath"
 	"regexp"
-	"slices"
 	"strconv"
 	"strings"
 	"testing"
@@ -24,15 +22,24 @@ type (
 	}
 
 	varsOverridableCollector struct {
-		t            *testing.T
-		taskfilesDir string
-		violations   []varsOverridableViolation
+		t          *testing.T
+		violations []varsOverridableViolation
+	}
+
+	overridableDefaultVarValueCase struct {
+		value   any
+		name    string
+		varName string
+		want    bool
 	}
 )
 
 const (
 	varsOverridableTestName = "TestTopLevelVarsOverridableDefault"
-	defaultPipeToken        = "| default"
+	defaultPipeMarker       = "| default"
+
+	overridableCaseVarFoo     = "FOO"
+	overridableCaseVarNixLoad = "NIX_LOAD"
 )
 
 // TestTopLevelVarsOverridableDefault requires every top-level Taskfile var to
@@ -41,15 +48,22 @@ const (
 func TestTopLevelVarsOverridableDefault(t *testing.T) {
 	t.Parallel()
 
-	root := tasktest.RepoRoot(t)
-	taskfilesDir := filepath.Join(root, taskfilesDirName)
-	collector := varsOverridableCollector{
-		t:            t,
-		taskfilesDir: taskfilesDir,
-		violations:   nil,
-	}
+	runTopLevelVarsOverridableDefault(t)
+}
 
-	err := filepath.WalkDir(taskfilesDir, collector.collect)
+func runTopLevelVarsOverridableDefault(t *testing.T) {
+	t.Helper()
+
+	taskfilesDir := filepath.Join(tasktest.RepoRoot(t), taskfilesDirName)
+	collector := &varsOverridableCollector{t: t, violations: nil}
+	walker := newTaskfileModuleWalk(&taskfileModuleWalkParams{
+		t:         t,
+		onModule:  collector.appendModuleViolations,
+		dir:       taskfilesDir,
+		errPrefix: "overridable vars module path",
+	})
+
+	err := filepath.WalkDir(taskfilesDir, walker.collect)
 	if err != nil {
 		t.Fatalf(walkTaskfilesErrFormat, err)
 	}
@@ -57,15 +71,67 @@ func TestTopLevelVarsOverridableDefault(t *testing.T) {
 	collector.failIfViolations()
 }
 
+// TestIsOverridableDefaultVarValue covers the template patterns that count as
+// an overridable `| default` form versus bare literals that lock merge.
 func TestIsOverridableDefaultVarValue(t *testing.T) {
 	t.Parallel()
 
-	cases := []struct {
-		name    string
-		varName string
-		value   any
-		want    bool
-	}{
+	runOverridableDefaultVarValueCases(t)
+}
+
+func runOverridableDefaultVarValueCases(t *testing.T) {
+	t.Helper()
+
+	cases := overridableDefaultVarValueCases()
+
+	for i := range cases {
+		assertOverridableDefaultVarValueCase(t, &cases[i])
+	}
+}
+
+func assertOverridableDefaultVarValueCase(t *testing.T, testCase *overridableDefaultVarValueCase) {
+	t.Helper()
+
+	t.Run(testCase.name, func(t *testing.T) {
+		t.Parallel()
+		assertOverridableDefaultGot(t, testCase)
+	})
+}
+
+func assertOverridableDefaultGot(t *testing.T, testCase *overridableDefaultVarValueCase) {
+	t.Helper()
+
+	got := isOverridableDefaultVarValue(testCase.varName, testCase.value)
+
+	if got == testCase.want {
+		return
+	}
+
+	t.Fatalf(
+		"isOverridableDefaultVarValue(%q, %#v) = %v, want %v",
+		testCase.varName,
+		testCase.value,
+		got,
+		testCase.want,
+	)
+}
+
+func overridableDefaultVarValueCases() []overridableDefaultVarValueCase {
+	cases := overridableDefaultAcceptQuotedCases()
+
+	cases = append(cases, overridableDefaultAcceptBacktickCases()...)
+
+	return append(cases, overridableDefaultRejectCases()...)
+}
+
+func overridableDefaultAcceptQuotedCases() []overridableDefaultVarValueCase {
+	cases := overridableDefaultAcceptQuotedEmptyCases()
+
+	return append(cases, overridableDefaultAcceptQuotedExtraCases()...)
+}
+
+func overridableDefaultAcceptQuotedEmptyCases() []overridableDefaultVarValueCase {
+	return []overridableDefaultVarValueCase{
 		{
 			name:    "quoted default empty",
 			varName: "GO_FUZZTIME",
@@ -78,106 +144,101 @@ func TestIsOverridableDefaultVarValue(t *testing.T) {
 			value:   `{{.GIT_BASE | default "main"}}`,
 			want:    true,
 		},
+	}
+}
+
+func overridableDefaultAcceptQuotedExtraCases() []overridableDefaultVarValueCase {
+	return []overridableDefaultVarValueCase{
+		{
+			name:    "extra spaces around pipe",
+			varName: overridableCaseVarFoo,
+			value:   `{{.FOO  |  default "x"}}`,
+			want:    true,
+		},
+	}
+}
+
+func overridableDefaultAcceptBacktickCases() []overridableDefaultVarValueCase {
+	return []overridableDefaultVarValueCase{
 		{
 			name:    "backtick default",
-			varName: "NIX_LOAD",
+			varName: overridableCaseVarNixLoad,
 			value:   "{{.NIX_LOAD | default `echo hi`}}",
 			want:    true,
 		},
 		{
 			name:    "folded multiline",
-			varName: "NIX_LOAD",
+			varName: overridableCaseVarNixLoad,
 			value:   "{{.NIX_LOAD | default `line1\nline2`}}",
 			want:    true,
 		},
-		{
-			name:    "extra spaces around pipe",
-			varName: "FOO",
-			value:   `{{.FOO  |  default "x"}}`,
-			want:    true,
-		},
+	}
+}
+
+func overridableDefaultRejectCases() []overridableDefaultVarValueCase {
+	cases := append(
+		overridableDefaultRejectBareCases(),
+		overridableDefaultRejectTemplateCases()...,
+	)
+
+	return append(cases, overridableDefaultRejectTypeCases()...)
+}
+
+func overridableDefaultRejectBareCases() []overridableDefaultVarValueCase {
+	return []overridableDefaultVarValueCase{
 		{
 			name:    "bare empty string",
-			varName: "FOO",
-			value:   "",
+			varName: overridableCaseVarFoo,
+			value:   emptyString,
 			want:    false,
 		},
 		{
 			name:    "bare literal",
-			varName: "FOO",
+			varName: overridableCaseVarFoo,
 			value:   "nixpkgs#go",
 			want:    false,
 		},
+	}
+}
+
+func overridableDefaultRejectTemplateCases() []overridableDefaultVarValueCase {
+	return []overridableDefaultVarValueCase{
 		{
 			name:    "template without default",
-			varName: "FOO",
+			varName: overridableCaseVarFoo,
 			value:   "{{.FOO}}",
 			want:    false,
 		},
 		{
 			name:    "default for different var",
-			varName: "FOO",
+			varName: overridableCaseVarFoo,
 			value:   `{{.BAR | default ""}}`,
 			want:    false,
 		},
+	}
+}
+
+func overridableDefaultRejectTypeCases() []overridableDefaultVarValueCase {
+	return []overridableDefaultVarValueCase{
 		{
 			name:    "non-string map value",
-			varName: "FOO",
+			varName: overridableCaseVarFoo,
 			value:   map[string]any{"sh": "echo hi"},
 			want:    false,
 		},
 		{
 			name:    "nil value",
-			varName: "FOO",
+			varName: overridableCaseVarFoo,
 			value:   nil,
 			want:    false,
 		},
 	}
-
-	for i := range cases {
-		testCase := cases[i]
-		t.Run(testCase.name, func(t *testing.T) {
-			t.Parallel()
-
-			got := isOverridableDefaultVarValue(testCase.varName, testCase.value)
-			if got != testCase.want {
-				t.Fatalf(
-					"isOverridableDefaultVarValue(%q, %#v) = %v, want %v",
-					testCase.varName,
-					testCase.value,
-					got,
-					testCase.want,
-				)
-			}
-		})
-	}
-}
-
-func (collector *varsOverridableCollector) collect(path string, entry fs.DirEntry, walkErr error) error {
-	collector.t.Helper()
-
-	if walkErr != nil {
-		return walkErr
-	}
-
-	if entry.IsDir() || entry.Name() != skipTaskfileYML {
-		return nil
-	}
-
-	module, err := modulePathForTaskfile(collector.taskfilesDir, path)
-	if err != nil {
-		return fmt.Errorf("overridable vars module path: %w", err)
-	}
-
-	collector.appendModuleViolations(module)
-
-	return nil
 }
 
 func (collector *varsOverridableCollector) appendModuleViolations(module string) {
 	collector.t.Helper()
 
-	if module == "." {
+	if module == taskfilesRootModule {
 		return
 	}
 
@@ -188,22 +249,6 @@ func (collector *varsOverridableCollector) appendModuleViolations(module string)
 	}
 
 	collector.recordVars(module, taskfile.Vars)
-}
-
-func (collector *varsOverridableCollector) recordVars(module string, vars map[string]any) {
-	collector.t.Helper()
-
-	for name, value := range vars {
-		if isOverridableDefaultVarValue(name, value) {
-			continue
-		}
-
-		collector.violations = append(collector.violations, varsOverridableViolation{
-			module: module,
-			name:   name,
-			value:  formatVarValue(value),
-		})
-	}
 }
 
 func (collector *varsOverridableCollector) failIfViolations() {
@@ -217,26 +262,34 @@ func (collector *varsOverridableCollector) failIfViolations() {
 		"%s: %d top-level var(s) missing overridable %s form:\n%s",
 		varsOverridableTestName,
 		len(collector.violations),
-		defaultPipeToken,
-		strings.Join(collector.violationLines(), windowsSeparator),
+		defaultPipeMarker,
+		strings.Join(formatVarsOverridableViolations(collector.violations), windowsSeparator),
 	)
 }
 
-func (collector *varsOverridableCollector) violationLines() []string {
+func (collector *varsOverridableCollector) recordVars(module string, vars map[string]any) {
 	collector.t.Helper()
 
-	slices.SortFunc(collector.violations, func(left, right varsOverridableViolation) int {
-		if left.module != right.module {
-			return strings.Compare(left.module, right.module)
+	for name := range vars {
+		value := vars[name]
+
+		if isOverridableDefaultVarValue(name, value) {
+			continue
 		}
 
-		return strings.Compare(left.name, right.name)
-	})
-
-	return formatVarsOverridableViolations(collector.violations)
+		collector.violations = append(collector.violations, varsOverridableViolation{
+			module: module,
+			name:   name,
+			value:  formatVarValue(value),
+		})
+	}
 }
 
 func formatVarsOverridableViolations(violations []varsOverridableViolation) []string {
+	sortByModuleThenName(violations, func(violation varsOverridableViolation) moduleNamePair {
+		return moduleNamePair{module: violation.module, name: violation.name}
+	})
+
 	lines := make([]string, constZero, len(violations))
 
 	for i := range violations {
@@ -256,6 +309,7 @@ func formatVarsOverridableViolations(violations []varsOverridableViolation) []st
 
 func isOverridableDefaultVarValue(name string, value any) bool {
 	text, ok := value.(string)
+
 	if !ok {
 		return false
 	}
@@ -273,6 +327,7 @@ func formatVarValue(value any) string {
 	}
 
 	text, ok := value.(string)
+
 	if ok {
 		return strconv.Quote(text)
 	}
