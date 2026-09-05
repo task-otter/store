@@ -95,6 +95,23 @@ tasks:
         vars:
           ARGS: "install -D --silent --no-fund --no-audit {{.PACKAGES}} {{.EXTRA_ARGS}}"
 
+  install:global:
+    run: once
+    desc: Install packages globally with npm (PACKAGES=<pkgs>)
+    summary: |
+      Install PACKAGES globally via npm install -g --silent --no-fund --no-audit.
+      The Node.js runtime is loaded via nodejs:install. Must be run from a
+      directory containing package.json (same as other npm project tasks).
+    requires:
+      vars: [PACKAGES]
+    cmds:
+      - task: _npm:unix
+        vars:
+          ARGS: "install -g --silent --no-fund --no-audit {{.PACKAGES}}"
+      - task: _npm:windows
+        vars:
+          ARGS: "install -g --silent --no-fund --no-audit {{.PACKAGES}}"
+
   remove:
     run: once
     desc: Remove local packages with npm (PACKAGES=<pkgs>)

@@ -85,7 +85,8 @@ task cargo:build RUST_TOOLCHAIN=1.79.0 CARGO_EXTRA_ARGS=--release
 | `ci:fix` | Run `fmt` then `lint:fix` for CI |
 | `which` | Show the path to the cargo binary |
 | `verify` | Print cargo and rustc versions |
-| `install` | Install Cargo via the Nix profile |
+| `install` | Install Cargo via Nix (Unix) or WinGet (Windows) |
+| `install:crate` | Install a crate with `cargo install` (`CARGO_CRATE`) |
 | `version` | Show the active Cargo version |
 
 ## Variables
@@ -93,10 +94,13 @@ task cargo:build RUST_TOOLCHAIN=1.79.0 CARGO_EXTRA_ARGS=--release
 | Variable | Default | Description |
 |---|---|---|
 | `CARGO_NIX_INSTALLABLE` | `nixpkgs#cargo` | Flake installable passed to `nix:install:profile` |
+| `CARGO_WINGET_INSTALLABLE` | `Rustlang.Rustup` | WinGet package ID for `winget:install:package` |
 | `RUST_TOOLCHAIN` | empty | Optional toolchain channel or version, such as `nightly` or `1.79.0` |
 | `CARGO_EXTRA_ARGS` | empty | Extra flags appended to Cargo subcommands |
+| `CARGO_CRATE` | empty | Crate name for `install:crate`; required when running that task |
 
 ## Notes
 
-- Install goes through `nix:install:profile` (Nix is installed first if missing). Native Windows is not supported; use WSL2.
+- Install uses Nix on Linux and macOS (`CARGO_NIX_INSTALLABLE`) and WinGet on Windows (`CARGO_WINGET_INSTALLABLE`, default `Rustlang.Rustup`).
+
 - `fmt` and `lint` need `rustfmt` and `clippy` on PATH. Override `CARGO_NIX_INSTALLABLE` to add them, for example `nixpkgs#cargo nixpkgs#clippy nixpkgs#rustfmt`.

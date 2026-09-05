@@ -26,6 +26,7 @@ const (
 	constGovulncheckVersion = "version"
 
 	envVarGovulncheckNixInstallable = "GOVULNCHECK_NIX_INSTALLABLE"
+	envVarGovulncheckGoPkg          = "GOVULNCHECK_GO_PKG"
 
 	emptyString = ""
 	zeroLen     = 0
@@ -79,6 +80,7 @@ func publicTasks() []string {
 
 func publicVars() []string {
 	return []string{
+		envVarGovulncheckGoPkg,
 		envVarGovulncheckNixInstallable,
 	}
 }

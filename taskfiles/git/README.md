@@ -89,7 +89,7 @@ task git:pr:create GIT_TITLE="feat: add feature" GIT_BASE=main
 | `pr:open`        | Open the current pull request in the browser via the GitHub CLI | —                                 |
 | `release:create` | Create a git tag and a GitHub release via the GitHub CLI        | `GIT_TAG`, `GIT_TITLE`, `GIT_NOTES`, `GIT_REMOTE` |
 | `help`           | Show the git built-in help and command list                     | —                                 |
-| `install`        | Install git via the Nix profile                                 | `GIT_NIX_INSTALLABLE`             |
+| `install`        | Install git via Nix (Unix) or WinGet (Windows)                                 | `GIT_NIX_INSTALLABLE`             |
 | `version`        | Show the active git version                                     | —                                 |
 
 ## Variables
@@ -117,6 +117,7 @@ task git:pr:create GIT_TITLE="feat: add feature" GIT_BASE=main
 | `GIT_MESSAGE`      | _(empty)_ | Tag annotation or stash description                   |
 | `GIT_EXTRA_ARGS`       | _(empty)_ | Extra arguments appended to the underlying command    |
 | `GIT_NIX_INSTALLABLE`  | `nixpkgs#git` | Flake installable passed to `nix:install:profile` |
+| `GIT_WINGET_INSTALLABLE` | `Git.Git` | WinGet package ID for `winget:install:package` |
 
 ## Examples
 
@@ -181,6 +182,7 @@ Pin a revision by overriding the installable, for example
 
 ## Notes
 
-- Install goes through `nix:install:profile` (Nix is installed first if missing). Native Windows is not supported; use WSL2.
+- Install uses Nix on Linux and macOS (`GIT_NIX_INSTALLABLE`) and WinGet on Windows (`GIT_WINGET_INSTALLABLE`, default `Git.Git`).
+
 - Tasks that call `gh` auto-install the GitHub CLI via `gh:install`.
 

@@ -53,5 +53,6 @@ func publicVars() []string {
 		"DOCKER_FILE",
 		"DOCKER_IMAGE",
 		"DOCKER_VERSION",
+		"DOCKER_WINGET_INSTALLABLE",
 	}
 }

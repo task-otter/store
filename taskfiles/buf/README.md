@@ -67,7 +67,7 @@ task buf:generate BUF_INPUT=api/v1
 | `ci:fix`    | Format proto files in place with Buf                   | `BUF_INPUT`, `BUF_EXTRA_ARGS` |
 | `fmt:check` | Check proto file formatting with Buf                   | `BUF_INPUT`, `BUF_EXTRA_ARGS` |
 | `generate`  | Generate code from proto files with Buf                | `BUF_INPUT`, `BUF_EXTRA_ARGS` |
-| `install`   | Install Buf via the Nix profile                        | `BUF_NIX_INSTALLABLE` |
+| `install`   | Install Buf via Nix (Unix) or WinGet (Windows)                        | `BUF_NIX_INSTALLABLE` |
 | `lint`      | Lint proto files with Buf                              | `BUF_INPUT`, `BUF_CONFIG`, `BUF_EXTRA_ARGS` |
 | `version`   | Show the active Buf version                            | — |
 
@@ -77,6 +77,7 @@ task buf:generate BUF_INPUT=api/v1
 | ------------- | -------------------- | -------------------------------------------------------- |
 | `BUF_AGAINST`            | `.git#branch=main` | Baseline for `breaking`: a git ref, Buf module, or path |
 | `BUF_NIX_INSTALLABLE`    | `nixpkgs#buf`      | Flake installable passed to `nix:install:profile`       |
+| `BUF_WINGET_INSTALLABLE` | `bufbuild.buf` | WinGet package ID for `winget:install:package` |
 | `BUF_CONFIG`             | empty              | Path to a `buf.yaml` config file passed via `--config`  |
 | `BUF_EXTRA_ARGS`  | empty                | Extra arguments appended when `CLI_ARGS` is not provided |
 | `BUF_INPUT`       | `.`                  | Proto source directory or Buf module passed to buf       |
@@ -86,7 +87,8 @@ Pin a revision by overriding the installable, for example
 
 ## Notes
 
-- Install goes through `nix:install:profile` (Nix is installed first if missing). Native Windows is not supported; use WSL2.
+- Install uses Nix on Linux and macOS (`BUF_NIX_INSTALLABLE`) and WinGet on Windows (`BUF_WINGET_INSTALLABLE`, default `bufbuild.buf`).
+
 - The `generate` task requires a `buf.gen.yaml` file in the working tree. See the
   [buf generate docs](https://buf.build/docs/generate/tutorial) for configuration
   details.

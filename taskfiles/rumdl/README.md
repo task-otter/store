@@ -43,7 +43,7 @@ task rumdl:fmt
 | `lint:fix` | Apply automatic fixes with rumdl check --fix | `RUMDL_TARGETS`, `RUMDL_EXTRA_ARGS` |
 | `ci:fix` | Run `fmt` then `lint:fix` for CI | — |
 | `fmt` | Format Markdown files with rumdl fmt | `RUMDL_TARGETS`, `RUMDL_EXTRA_ARGS` |
-| `install` | Install rumdl via the Nix profile | `RUMDL_NIX_INSTALLABLE` |
+| `install` | Install rumdl via Nix (Unix) or cargo install (Windows) | `RUMDL_NIX_INSTALLABLE`, `RUMDL_CARGO_CRATE` |
 | `version` | Show the active rumdl version | — |
 
 ## Variables
@@ -51,6 +51,7 @@ task rumdl:fmt
 | Variable | Default | Description |
 |---|---|---|
 | `RUMDL_NIX_INSTALLABLE` | `nixpkgs#rumdl` | Flake installable passed to `nix:install:profile` |
+| `RUMDL_CARGO_CRATE` | `rumdl` | Crate name for Windows `cargo:install:crate` |
 | `RUMDL_TARGETS` | `.` | File or directory rumdl operates on |
 | `RUMDL_EXTRA_ARGS` | `""` | Extra flags forwarded to rumdl |
 
@@ -59,7 +60,9 @@ Pin a revision by overriding the installable, for example
 
 ## Notes
 
-- Install goes through `nix:install:profile` (Nix is installed first if missing). Native Windows is not supported; use WSL2.
+- Unix install uses Nix (`RUMDL_NIX_INSTALLABLE`). Windows installs via
+  `cargo:install:crate` (`RUMDL_CARGO_CRATE`).
+
 - `lint:fix` (rumdl check --fix) exits non-zero when unfixable violations remain,
   which suits pre-commit hooks and CI. `fmt` (rumdl fmt) uses formatter-style
   exit codes and exits zero after formatting, which suits editor integration.

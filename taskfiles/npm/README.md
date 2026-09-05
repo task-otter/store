@@ -29,9 +29,10 @@ Override the Node.js version by setting `NODEJS_NIX_INSTALLABLE` on the nodejs m
 | `add`             | Required `PACKAGES`; optional `EXTRA_ARGS` | Add packages as devDependencies with `npm install -D`.                    |
 | `version`         | —                                          | Show the active Node.js and npm versions.                                 |
 | `install`         | —                                          | Run `npm install` to install all dependencies from `package.json`.        |
+| `install:clean`   | —                                          | Run `npm ci` for a clean lockfile-driven install.                         |
+| `install:global`  | Required `PACKAGES`                        | Install packages globally with `npm install -g`.                          |
 | `install:undo`    | —                                          | Explain how to remove npm (bundled with Node.js).                         |
 | `upgrade`         | —                                          | Upgrade npm to the latest release globally.                               |
-| `install:clean`   | —                                          | Run `npm ci` for a clean lockfile-driven install.                         |
 | `ci:fix`          | —                                          | Run `npm run format`.                                                     |
 | `clean`           | —                                          | Remove `node_modules`.                                                    |
 | `clean:all`       | —                                          | Remove `node_modules` and `package-lock.json`.                            |

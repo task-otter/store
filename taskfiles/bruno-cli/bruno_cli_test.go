@@ -44,5 +44,6 @@ func publicVars() []string {
 		"BRUNO_CLI_ENV",
 		"BRUNO_CLI_EXTRA_ARGS",
 		"BRUNO_CLI_NIX_INSTALLABLE",
+		"BRUNO_CLI_NPM_PACKAGE",
 	}
 }

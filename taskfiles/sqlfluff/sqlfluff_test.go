@@ -42,5 +42,6 @@ func publicTasks() []string {
 func publicVars() []string {
 	return []string{
 		"SQLFLUFF_NIX_INSTALLABLE",
+		"SQLFLUFF_UV_TOOL",
 	}
 }

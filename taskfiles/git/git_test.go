@@ -137,5 +137,6 @@ func publicVarsExtra() []string {
 		"GIT_TITLE",
 		"GIT_URL",
 		"GIT_NIX_INSTALLABLE",
+		"GIT_WINGET_INSTALLABLE",
 	}
 }

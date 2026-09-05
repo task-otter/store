@@ -39,7 +39,7 @@ task jsonlint:ci JSONLINT_TARGETS=data/   # validates every *.json under data/
 | Task | Description |
 |---|---|
 | `ci` | Validate JSON files with jsonlint |
-| `install` | Install jsonlint via the Nix profile |
+| `install` | Install jsonlint via Nix (Unix) or uv tool (Windows) |
 | `version` | Show the active jsonlint version |
 
 ## Variables
@@ -47,6 +47,7 @@ task jsonlint:ci JSONLINT_TARGETS=data/   # validates every *.json under data/
 | Variable | Default | Description |
 |---|---|---|
 | `JSONLINT_NIX_INSTALLABLE` | `nixpkgs#python3Packages.demjson3` | Flake installable passed to `nix:install:profile` |
+| `JSONLINT_UV_TOOL` | `demjson3` | uv tool name passed to `uv:tool:install` on Windows (provides `jsonlint`) |
 | `JSONLINT_TARGETS` | `.` | File or directory to validate; directories are scanned recursively for `*.json` |
 | `JSONLINT_EXTRA_ARGS` | `""` | Extra flags forwarded to jsonlint |
 
@@ -55,7 +56,8 @@ Pin a revision by overriding the installable, for example
 
 ## Notes
 
+- Unix install uses Nix (`JSONLINT_NIX_INSTALLABLE`). Windows installs via `uv:tool:install` (`JSONLINT_UV_TOOL`, default `demjson3`).
+
 - The PyPI package named `jsonlint` is an unrelated validation library that
   ships no command-line tool; this Taskfile installs `demjson3`, which
   provides the actual `jsonlint` CLI.
-- Install goes through `nix:install:profile` (Nix is installed first if missing). Native Windows is not supported; use WSL2.

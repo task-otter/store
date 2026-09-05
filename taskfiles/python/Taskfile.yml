@@ -12,9 +12,12 @@ silent: true
 includes:
   nix:
     taskfile: ../nix/Taskfile.yml
+  winget:
+    taskfile: ../winget/Taskfile.yml
 
 vars:
   PYTHON_NIX_INSTALLABLE: '{{.PYTHON_NIX_INSTALLABLE | default "nixpkgs#python3"}}'
+  PYTHON_WINGET_INSTALLABLE: '{{.PYTHON_WINGET_INSTALLABLE | default "Python.Python.3.12"}}'
   PYTHON_VENV: '{{.PYTHON_VENV | default ".venv"}}'
   PYTHON_REQUIREMENTS: '{{.PYTHON_REQUIREMENTS | default "requirements.txt"}}'
   PYTHON_FILE: '{{.PYTHON_FILE | default ""}}'
@@ -31,17 +34,33 @@ tasks:
 
   install:
     run: once
-    desc: Install Python via the Nix profile
+    desc: Install Python via Nix (Unix) or WinGet (Windows)
     summary: |
-      Install Python into the user Nix profile when it is not already
-      available on PATH. Override the PYTHON_NIX_INSTALLABLE
-      variable to pin a different package or version.
+      Install Python on Linux and macOS via the user Nix profile, and on
+      Windows via WinGet, when it is not already on PATH. Override
+      PYTHON_NIX_INSTALLABLE or PYTHON_WINGET_INSTALLABLE to pin a
+      different package or version.
     status:
       - command -v python3 >/dev/null 2>&1
+    cmds:
+      - task: _install:unix
+      - task: _install:windows
+
+  _install:unix:
+    internal: true
+    platforms: [linux, darwin]
     cmds:
       - task: nix:install:profile
         vars:
           NIX_INSTALLABLE: "{{.PYTHON_NIX_INSTALLABLE}}"
+
+  _install:windows:
+    internal: true
+    platforms: [windows]
+    cmds:
+      - task: winget:install:package
+        vars:
+          WINGET_INSTALLABLE: "{{.PYTHON_WINGET_INSTALLABLE}}"
 
   version:
     run: once

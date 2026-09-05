@@ -63,7 +63,7 @@ task proto:ungen
 |---|---|
 | `gen` | Generate Go files from proto definitions |
 | `ungen` | Remove generated protobuf (.pb.go) files from the working tree |
-| `install` | Install protoc and the Go plugins via the Nix profile |
+| `install` | Install protoc and Go plugins via Nix (Unix) or WinGet+go install (Windows) |
 | `version` | Show the active protoc version |
 
 ## Variables
@@ -71,6 +71,9 @@ task proto:ungen
 | Variable | Default | Description |
 |---|---|---|
 | `PROTO_NIX_INSTALLABLE` | `nixpkgs#protobuf nixpkgs#protoc-gen-go nixpkgs#protoc-gen-go-grpc` | Flake installables passed to `nix:install:profile` |
+| `PROTO_WINGET_INSTALLABLE` | `Google.Protobuf` | WinGet package ID for `winget:install:package` |
+| `PROTO_GEN_GO_PKG` | `google.golang.org/protobuf/cmd/protoc-gen-go@latest` | Go module for `protoc-gen-go` via `go:install:pkg` on Windows |
+| `PROTO_GEN_GO_GRPC_PKG` | `google.golang.org/grpc/cmd/protoc-gen-go-grpc@latest` | Go module for `protoc-gen-go-grpc` via `go:install:pkg` on Windows |
 | `GO_MODULE` | `""` | Module path stripped from generated output paths |
 | `PROTO_PATH` | `"."` | Search root and value passed to protoc `--proto_path` |
 | `PROTO_PATTERN` | `"*.proto"` | `find -name` pattern for discovering .proto source files |
@@ -80,7 +83,10 @@ Pin a revision by overriding the installable, for example
 
 ## Notes
 
-- Install goes through `nix:install:profile` (Nix is installed first if missing). Native Windows is not supported; use WSL2.
+- Install uses Nix on Linux and macOS (`PROTO_NIX_INSTALLABLE`). On Windows, WinGet installs protoc (`PROTO_WINGET_INSTALLABLE`), then `go:install:pkg` installs the Go plugins (`PROTO_GEN_GO_PKG`, `PROTO_GEN_GO_GRPC_PKG`).
+
+- Go is provided by the included [`go`](../go/README.md) module on Windows for plugin installs.
+
 - `GO_MODULE`, `PROTO_PATH`, and `PROTO_PATTERN` are declared as top-level vars
   here, which outrank vars supplied by an inclusion: set them on the command
   line or from the environment.

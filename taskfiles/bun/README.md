@@ -4,7 +4,7 @@
 
 Bun is an all-in-one JavaScript runtime and toolkit — a single binary that replaces Node.js, npm, a bundler, and a test runner. It is written in Zig and designed to be significantly faster than Node.js for startup, module resolution, and package installation.
 
-This module does not ship an installer. Install Bun through the store's Nix profile task. Tool Taskfiles that need the Bun CLI should depend on `bun:install` and invoke `bun` directly (for example `bun add -d`, `bun remove`, `bun x`).
+This module installs Bun via Nix on Unix and WinGet on Windows. Tool Taskfiles that need the Bun CLI should depend on `bun:install` and invoke `bun` directly (for example `bun add -d`, `bun remove`, `bun x`).
 
 ## Usage
 
@@ -30,7 +30,7 @@ includes:
 Then run:
 
 ```sh
-task bun:nix:install:profile NIX_INSTALLABLE=nixpkgs#bun
+task bun:install
 ```
 
 Override `BUN_NIX_INSTALLABLE` to pin a flake (for example
@@ -40,7 +40,7 @@ Override `BUN_NIX_INSTALLABLE` to pin a flake (for example
 
 | Task | Description |
 |---|---|
-| `install` | Install Bun via the Nix profile |
+| `install` | Install Bun via Nix (Unix) or WinGet (Windows) |
 | `version` | Show the active Bun version |
 
 Dependents auto-install Bun via `bun:install`.
@@ -50,8 +50,9 @@ Dependents auto-install Bun via `bun:install`.
 | Variable | Default | Description |
 | -------- | ------- | ----------- |
 | `BUN_NIX_INSTALLABLE` | `nixpkgs#bun` | Flake installable for `nix:install:profile` |
+| `BUN_WINGET_INSTALLABLE` | `Oven-sh.Bun` | WinGet package ID for `winget:install:package` |
 
 ## Notes
 
-`nix:install:profile` auto-installs Nix if it is missing and adds Bun to the
-user profile (`~/.nix-profile`). Native Windows is not supported; use WSL2.
+- Install uses Nix on Linux and macOS (`BUN_NIX_INSTALLABLE`) and WinGet on Windows (`BUN_WINGET_INSTALLABLE`, default `Oven-sh.Bun`).
+

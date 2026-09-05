@@ -38,5 +38,6 @@ func publicTasks() []string {
 func publicVars() []string {
 	return []string{
 		"NODEJS_NIX_INSTALLABLE",
+		"NODEJS_WINGET_INSTALLABLE",
 	}
 }

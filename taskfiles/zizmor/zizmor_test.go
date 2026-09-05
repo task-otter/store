@@ -41,5 +41,6 @@ func publicVars() []string {
 		"ZIZMOR_EXTRA_ARGS",
 		"ZIZMOR_TARGETS",
 		"ZIZMOR_NIX_INSTALLABLE",
+		"ZIZMOR_WINGET_INSTALLABLE",
 	}
 }

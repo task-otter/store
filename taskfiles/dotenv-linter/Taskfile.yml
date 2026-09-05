@@ -10,11 +10,14 @@ output:
 silent: true
 
 includes:
+  cargo:
+    taskfile: ../cargo/Taskfile.yml
   nix:
     taskfile: ../nix/Taskfile.yml
 
 vars:
   DOTENV_LINTER_NIX_INSTALLABLE: '{{.DOTENV_LINTER_NIX_INSTALLABLE | default "nixpkgs#dotenv-linter"}}'
+  DOTENV_LINTER_CARGO_CRATE: '{{.DOTENV_LINTER_CARGO_CRATE | default "dotenv-linter"}}'
   DOTENV_LINTER_TARGETS: '{{.DOTENV_LINTER_TARGETS | default ".env"}}'
   DOTENV_LINTER_EXTRA_ARGS: '{{.DOTENV_LINTER_EXTRA_ARGS | default ""}}'
 
@@ -28,17 +31,33 @@ tasks:
 
   install:
     run: once
-    desc: Install dotenv-linter via the Nix profile
+    desc: Install dotenv-linter via Nix (Unix) or cargo install (Windows)
     summary: |
-      Install dotenv-linter into the user Nix profile when it is not already
-      available on PATH. Override the DOTENV_LINTER_NIX_INSTALLABLE
-      variable to pin a different package or version.
+      Install dotenv-linter into the user Nix profile on Linux and macOS when it
+      is not already on PATH. On Windows, install via cargo:install:crate
+      (DOTENV_LINTER_CARGO_CRATE). Override DOTENV_LINTER_NIX_INSTALLABLE or
+      DOTENV_LINTER_CARGO_CRATE to pin a different package or crate.
     status:
       - command -v dotenv-linter >/dev/null 2>&1
+    cmds:
+      - task: _install:unix
+      - task: _install:windows
+
+  _install:unix:
+    internal: true
+    platforms: [linux, darwin]
     cmds:
       - task: nix:install:profile
         vars:
           NIX_INSTALLABLE: "{{.DOTENV_LINTER_NIX_INSTALLABLE}}"
+
+  _install:windows:
+    internal: true
+    platforms: [windows]
+    cmds:
+      - task: cargo:install:crate
+        vars:
+          CARGO_CRATE: "{{.DOTENV_LINTER_CARGO_CRATE}}"
 
   version:
     run: once

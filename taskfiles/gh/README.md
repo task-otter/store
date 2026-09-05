@@ -4,8 +4,7 @@
 
 A production-ready, cross-platform Taskfile for verifying, configuring, and
 operating the [GitHub CLI (`gh`)](https://cli.github.com). Operational tasks
-auto-install gh via `nix:install:profile`. Native Windows auto-install fails;
-use WSL2.
+auto-install gh via Nix on Unix and WinGet on Windows.
 
 Include it in your root `Taskfile.yml` or use it standalone.
 
@@ -43,7 +42,7 @@ task tools:pr:list
 
 | Task                     | Description                                  | Key variables                                    |
 | ------------------------ | -------------------------------------------- | ------------------------------------------------ |
-| `install`                | Install the GitHub CLI via the Nix profile   | `GH_NIX_INSTALLABLE`                             |
+| `install`                | Install the GitHub CLI via Nix (Unix) or WinGet (Windows)   | `GH_NIX_INSTALLABLE`                             |
 | `version`                | Show the active gh version                   | —                                                |
 | `doctor`                 | Run gh self-diagnostic check                 | —                                                |
 | `which`                  | Show path to the gh binary                   | —                                                |
@@ -147,6 +146,7 @@ task tools:pr:list
 | `GH_DOWNLOAD_DIR`   | `.`       | Local directory for `release:download` and `release:download:all` |
 | `GH_DATA`           | `{}`      | JSON body for API POST/PATCH requests                             |
 | `GH_NIX_INSTALLABLE` | `nixpkgs#gh` | Flake installable passed to `nix:install:profile`              |
+| `GH_WINGET_INSTALLABLE` | `GitHub.cli` | WinGet package ID for `winget:install:package` |
 | `OWNER`          | _(empty)_ | GitHub user or organisation name                                  |
 | `REPO`           | _(empty)_ | Repository name                                                   |
 | `DESCRIPTION`    | _(empty)_ | Repository description                                            |
@@ -238,5 +238,6 @@ Pin a revision by overriding the installable, for example
 
 ## Notes
 
-- Install goes through `nix:install:profile` (Nix is installed first if missing). Native Windows is not supported; use WSL2.
+- Install uses Nix on Linux and macOS (`GH_NIX_INSTALLABLE`) and WinGet on Windows (`GH_WINGET_INSTALLABLE`, default `GitHub.cli`).
+
 - Operational tasks auto-install gh if it is not already present in `PATH`.

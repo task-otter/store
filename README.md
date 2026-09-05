@@ -8,12 +8,12 @@ running common dev tools. Clone or submodule this repo, include a module, and
 run it — the CLI is installed automatically.
 
 Each module lives under `taskfiles/<name>/` with a `Taskfile.yml`,
-`metadata.yml`, `README.md`, and Go tests. **94 modules** in total.
+`metadata.yml`, `README.md`, and Go tests. **95 modules** in total.
 
 ## Requirements
 
 - [Task](https://taskfile.dev) 3.5+
-- Linux, macOS, or Windows WSL2 (native Windows cannot auto-install via Nix)
+- Linux, macOS, or Windows (native Windows installs via the [`winget`](taskfiles/winget/README.md) module)
 
 Nix itself is bootstrapped by the [`nix`](taskfiles/nix/README.md) module on
 first use. Keep the `taskfiles/` tree intact so relative `includes:` resolve.
@@ -47,8 +47,10 @@ Every Nix-backed module exposes a public `install` task and a public `version`
 task. `install` goes through
 [`nix:install:profile`](taskfiles/nix/README.md), which adds a flake
 installable to `~/.nix-profile`; it is a no-op when the tool is already on
-`PATH`. Work tasks depend on `install`, so they auto-install on first use. Pin
-with `{TOOL}_NIX_INSTALLABLE`:
+`PATH`. On native Windows, the same modules can go through
+[`winget:install:package`](taskfiles/winget/README.md) with
+`{TOOL}_WINGET_INSTALLABLE`. Work tasks depend on `install`, so they auto-install
+on first use. Pin with `{TOOL}_NIX_INSTALLABLE`:
 
 ```sh
 task go:verify GO_NIX_INSTALLABLE=github:NixOS/nixpkgs/<rev>#go
@@ -71,8 +73,9 @@ Install surfaces:
 | Kind | Modules | Install surface |
 | --- | --- | --- |
 | Nix profile (default) | CLI and system tools | public `install` / `version`; pin with `{TOOL}_NIX_INSTALLABLE` |
+| WinGet (Windows) | CLI and system tools | public `install:package`; pin with `{TOOL}_WINGET_INSTALLABLE` |
 | Local `devDependency` | JS lint/format families | `{TOOL}_VERSION` on `install` / `upgrade` |
-| Project package managers | [`npm`](taskfiles/npm/README.md), [`pnpm`](taskfiles/pnpm/README.md), [`yarn`](taskfiles/yarn/README.md) | project `install` (`npm install`, …); the CLIs come from Nix via `install:tool` / `version:tool` |
+| Project package managers | [`npm`](taskfiles/npm/README.md), [`pnpm`](taskfiles/pnpm/README.md), [`yarn`](taskfiles/yarn/README.md) | project `install` (`npm install`, …); the CLIs come from Nix or WinGet via `install:tool` / `version:tool` |
 | Docker daemon | [`docker`](taskfiles/docker/README.md) | keeps `install` / `upgrade` / `version` (Docker Desktop / get.docker.com) |
 
 See [ADR 0004](doc/adr/0004-install-cli-tools-via-nix-profile.md).
@@ -84,12 +87,12 @@ See [ADR 0004](doc/adr/0004-install-cli-tools-via-nix-profile.md).
 | Node runtimes | [`nodejs`](taskfiles/nodejs/README.md), [`bun`](taskfiles/bun/README.md) |
 | Package managers | [`npm`](taskfiles/npm/README.md), [`pnpm`](taskfiles/pnpm/README.md), [`yarn`](taskfiles/yarn/README.md) |
 | JS lint / format / check | [`biome`](taskfiles/biome/README.md), [`depcheck`](taskfiles/depcheck/README.md), [`eslint`](taskfiles/eslint/README.md), [`htmlhint`](taskfiles/htmlhint/README.md), [`knip`](taskfiles/knip/README.md), [`prettier`](taskfiles/prettier/README.md), [`spectral`](taskfiles/spectral/README.md), [`stylelint`](taskfiles/stylelint/README.md), [`typescript`](taskfiles/typescript/README.md) |
-| Languages & runtimes | [`go`](taskfiles/go/README.md), [`go-junit-report`](taskfiles/go-junit-report/README.md), [`golangci-lint`](taskfiles/golangci-lint/README.md), [`govulncheck`](taskfiles/govulncheck/README.md), [`python`](taskfiles/python/README.md), [`uv`](taskfiles/uv/README.md), [`cargo`](taskfiles/cargo/README.md), [`proto`](taskfiles/proto/README.md), [`pulumi`](taskfiles/pulumi/README.md), [`nix`](taskfiles/nix/README.md) |
+| Languages & runtimes | [`go`](taskfiles/go/README.md), [`go-junit-report`](taskfiles/go-junit-report/README.md), [`golangci-lint`](taskfiles/golangci-lint/README.md), [`govulncheck`](taskfiles/govulncheck/README.md), [`python`](taskfiles/python/README.md), [`uv`](taskfiles/uv/README.md), [`cargo`](taskfiles/cargo/README.md), [`proto`](taskfiles/proto/README.md), [`pulumi`](taskfiles/pulumi/README.md), [`nix`](taskfiles/nix/README.md), [`winget`](taskfiles/winget/README.md) |
 | CI & infra | [`actionlint`](taskfiles/actionlint/README.md), [`adrs`](taskfiles/adrs/README.md), [`ansible`](taskfiles/ansible/README.md), [`ansible-lint`](taskfiles/ansible-lint/README.md), [`bencher`](taskfiles/bencher/README.md), [`bruno-cli`](taskfiles/bruno-cli/README.md), [`buf`](taskfiles/buf/README.md), [`djlint`](taskfiles/djlint/README.md), [`docker`](taskfiles/docker/README.md), [`dotenv-linter`](taskfiles/dotenv-linter/README.md), [`gh`](taskfiles/gh/README.md), [`git`](taskfiles/git/README.md), [`hadolint`](taskfiles/hadolint/README.md), [`jq`](taskfiles/jq/README.md), [`jsonlint`](taskfiles/jsonlint/README.md), [`protolint`](taskfiles/protolint/README.md), [`rumdl`](taskfiles/rumdl/README.md), [`shellcheck`](taskfiles/shellcheck/README.md), [`shfmt`](taskfiles/shfmt/README.md), [`sqlfluff`](taskfiles/sqlfluff/README.md), [`vault`](taskfiles/vault/README.md), [`yamlfix`](taskfiles/yamlfix/README.md), [`yamllint`](taskfiles/yamllint/README.md), [`zizmor`](taskfiles/zizmor/README.md) |
 | Desktop | [`bruno-gui`](taskfiles/bruno-gui/README.md) |
 
 Each JS family is six modules (root, `bun`, `node`, and `node/{npm,pnpm,yarn}`)
-— 54 of the 94. `metadata.yml` lists the tasks a module exports.
+— 54 of the 95. `metadata.yml` lists the tasks a module exports.
 
 ### JS variants
 

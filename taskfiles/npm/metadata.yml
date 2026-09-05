@@ -18,6 +18,7 @@ exported_tasks:
   - exec
   - install
   - install:clean
+  - install:global
   - install:undo
   - lint
   - outdated

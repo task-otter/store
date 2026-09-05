@@ -43,7 +43,7 @@ task djlint:fmt:check DJLINT_TARGETS=templates
 | `fmt:check` | Report formatting changes without modifying files (djlint --check) |
 | `ci` | Run `fmt:check` then `lint` |
 | `ci:fix` | Format HTML templates in place with djlint --reformat |
-| `install` | Install djLint via the Nix profile |
+| `install` | Install djLint via Nix (Unix) or uv tool (Windows) |
 | `version` | Show the active djLint version |
 
 ## Variables
@@ -51,6 +51,7 @@ task djlint:fmt:check DJLINT_TARGETS=templates
 | Variable | Default | Description |
 |---|---|---|
 | `DJLINT_NIX_INSTALLABLE` | `nixpkgs#djlint` | Flake installable passed to `nix:install:profile` |
+| `DJLINT_UV_TOOL` | `djlint` | uv tool name passed to `uv:tool:install` on Windows |
 | `DJLINT_TARGETS` | `.` | File or directory djLint operates on |
 | `DJLINT_EXTRA_ARGS` | `""` | Extra flags forwarded to djLint (e.g. `--profile django`) |
 
@@ -59,9 +60,10 @@ Pin a revision by overriding the installable, for example
 
 ## Notes
 
+- Unix install uses Nix (`DJLINT_NIX_INSTALLABLE`). Windows installs via `uv:tool:install` (`DJLINT_UV_TOOL`).
+
 - `lint` reports template lint rule violations (`--lint`); `fmt:check` is the
   dry-run counterpart of `ci:fix` and reports formatting differences (`--check`).
   They are distinct djLint modes.
 - Pass `DJLINT_EXTRA_ARGS="--profile <name>"` to select the template dialect
   (django, jinja, nunjucks, handlebars, golang, angular).
-- Install goes through `nix:install:profile` (Nix is installed first if missing). Native Windows is not supported; use WSL2.

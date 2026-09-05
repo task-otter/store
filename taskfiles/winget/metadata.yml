@@ -1,13 +1,11 @@
 ---
 schema: taskotter.dev/taskfile-metadata/v1
-module: go
+module: winget
 taskfile: Taskfile.yml
 exported_tasks:
-  - bench
-  - fuzz
   - install
-  - install:pkg
-  - test
-  - verify
+  - install:package
+  - install:undo
+  - uninstall
+  - upgrade
   - version
-  - which

@@ -41,7 +41,7 @@ task vault:snapshot VAULT_FILE=backup.snap
 | Task           | Description                                  | Key variables                    |
 | -------------- | -------------------------------------------- | -------------------------------- |
 | `verify`       | Verify CLI installation and server status    | `VAULT_ADDR`                     |
-| `install`      | Install the Vault CLI via the Nix profile    | `VAULT_NIX_INSTALLABLE`          |
+| `install`      | Install the Vault CLI via Nix (Unix) or WinGet (Windows)    | `VAULT_NIX_INSTALLABLE`          |
 | `version`      | Show the active Vault CLI version            | —                                |
 | `status`       | Show Vault seal and HA status                | `VAULT_ADDR`                     |
 | `health`       | Query the Vault HTTP health endpoint as JSON | `VAULT_ADDR`                     |
@@ -78,8 +78,11 @@ task vault:snapshot VAULT_FILE=backup.snap
 | `SECRET_PATH`   | _(empty)_               | Secret path within the KV mount for `kv:get`     |
 | `SECRET_VERSION`| _(empty)_               | Optional KV version to pin for `kv:get`          |
 | `VAULT_NIX_INSTALLABLE` | `nixpkgs#vault` | Flake installable passed to `nix:install:profile` |
+| `VAULT_WINGET_INSTALLABLE` | `Hashicorp.Vault` | WinGet package ID for `winget:install:package` |
 
 ## Notes
+
+- Install uses Nix on Linux and macOS (`VAULT_NIX_INSTALLABLE`) and WinGet on Windows (`VAULT_WINGET_INSTALLABLE`, default `Hashicorp.Vault`).
 
 `init` writes the generated unseal keys and root token to `VAULT_KEYS_FILE` with mode
 `600` under `umask 077` and does not echo the JSON payload to stdout. It refuses
@@ -108,5 +111,3 @@ Vault Taskfile continues to use `VAULT_FILE=path`.
 Pin a revision by overriding the installable, for example
 `VAULT_NIX_INSTALLABLE=github:NixOS/nixpkgs/<rev>#vault`.
 
-Install goes through `nix:install:profile` (Nix is installed first if missing).
-Native Windows is not supported; use WSL2.

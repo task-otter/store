@@ -12,6 +12,8 @@ silent: true
 includes:
   nix:
     taskfile: ../nix/Taskfile.yml
+  winget:
+    taskfile: ../winget/Taskfile.yml
 
   gh: ../gh/Taskfile.yml
 
@@ -37,6 +39,7 @@ vars:
   GIT_TITLE: '{{.GIT_TITLE | default ""}}'
   GIT_URL: '{{.GIT_URL | default ""}}'
   GIT_NIX_INSTALLABLE: '{{.GIT_NIX_INSTALLABLE | default "nixpkgs#git"}}'
+  GIT_WINGET_INSTALLABLE: '{{.GIT_WINGET_INSTALLABLE | default "Git.Git"}}'
 
 tasks:
   default:
@@ -48,17 +51,33 @@ tasks:
 
   install:
     run: once
-    desc: Install git via the Nix profile
+    desc: Install git via Nix (Unix) or WinGet (Windows)
     summary: |
-      Install git into the user Nix profile when it is not already
-      available on PATH. Override the GIT_NIX_INSTALLABLE
-      variable to pin a different package or version.
+      Install git on Linux and macOS via the user Nix profile, and on
+      Windows via WinGet, when it is not already on PATH. Override
+      GIT_NIX_INSTALLABLE or GIT_WINGET_INSTALLABLE to pin a
+      different package or version.
     status:
       - command -v git >/dev/null 2>&1
+    cmds:
+      - task: _install:unix
+      - task: _install:windows
+
+  _install:unix:
+    internal: true
+    platforms: [linux, darwin]
     cmds:
       - task: nix:install:profile
         vars:
           NIX_INSTALLABLE: "{{.GIT_NIX_INSTALLABLE}}"
+
+  _install:windows:
+    internal: true
+    platforms: [windows]
+    cmds:
+      - task: winget:install:package
+        vars:
+          WINGET_INSTALLABLE: "{{.GIT_WINGET_INSTALLABLE}}"
 
   version:
     run: once

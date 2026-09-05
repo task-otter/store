@@ -42,6 +42,7 @@ func publicTasks() []string {
 
 func publicVars() []string {
 	return []string{
+		"ADRS_CARGO_CRATE",
 		"ADRS_EXTRA_ARGS",
 		"ADRS_NIX_INSTALLABLE",
 	}

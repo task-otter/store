@@ -12,9 +12,12 @@ silent: true
 includes:
   nix:
     taskfile: ../nix/Taskfile.yml
+  uv:
+    taskfile: ../uv/Taskfile.yml
 
 vars:
   DJLINT_NIX_INSTALLABLE: '{{.DJLINT_NIX_INSTALLABLE | default "nixpkgs#djlint"}}'
+  DJLINT_UV_TOOL: '{{.DJLINT_UV_TOOL | default "djlint"}}'
   DJLINT_TARGETS: '{{.DJLINT_TARGETS | default "."}}'
   DJLINT_EXTRA_ARGS: '{{.DJLINT_EXTRA_ARGS | default ""}}'
 
@@ -28,17 +31,33 @@ tasks:
 
   install:
     run: once
-    desc: Install djLint via the Nix profile
+    desc: Install djlint via Nix (Unix) or uv tool (Windows)
     summary: |
-      Install djLint into the user Nix profile when it is not already
-      available on PATH. Override the DJLINT_NIX_INSTALLABLE
-      variable to pin a different package or version.
+      Install djlint into the user Nix profile on Linux and macOS when it
+      is not already on PATH. On Windows, installs via uv tool install
+      (DJLINT_UV_TOOL). Override DJLINT_NIX_INSTALLABLE or DJLINT_UV_TOOL
+      to pin a different package or version.
     status:
       - command -v djlint >/dev/null 2>&1
+    cmds:
+      - task: _install:unix
+      - task: _install:windows
+
+  _install:unix:
+    internal: true
+    platforms: [linux, darwin]
     cmds:
       - task: nix:install:profile
         vars:
           NIX_INSTALLABLE: "{{.DJLINT_NIX_INSTALLABLE}}"
+
+  _install:windows:
+    internal: true
+    platforms: [windows]
+    cmds:
+      - task: uv:tool:install
+        vars:
+          UV_TOOL: "{{.DJLINT_UV_TOOL}}"
 
   version:
     run: once

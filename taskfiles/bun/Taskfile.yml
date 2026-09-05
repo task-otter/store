@@ -14,10 +14,13 @@ includes:
 
   nix:
     taskfile: ../nix/Taskfile.yml
+  winget:
+    taskfile: ../winget/Taskfile.yml
 
 vars:
 
   BUN_NIX_INSTALLABLE: '{{.BUN_NIX_INSTALLABLE | default "nixpkgs#bun"}}'
+  BUN_WINGET_INSTALLABLE: '{{.BUN_WINGET_INSTALLABLE | default "Oven-sh.Bun"}}'
 
 tasks:
   default:
@@ -29,15 +32,31 @@ tasks:
 
   install:
     run: once
-    desc: Install Bun via the Nix profile
+    desc: Install bun via Nix (Unix) or WinGet (Windows)
     summary: |
-      Install Bun into the user Nix profile when it is not already
-      available on PATH. Override the BUN_NIX_INSTALLABLE
-      variable to pin a different package or version.
+      Install bun on Linux and macOS via the user Nix profile, and on
+      Windows via WinGet, when it is not already on PATH. Override
+      BUN_NIX_INSTALLABLE or BUN_WINGET_INSTALLABLE to pin a
+      different package or version.
+    cmds:
+      - task: _install:unix
+      - task: _install:windows
+
+  _install:unix:
+    internal: true
+    platforms: [linux, darwin]
     cmds:
       - task: nix:install:profile
         vars:
           NIX_INSTALLABLE: "{{.BUN_NIX_INSTALLABLE}}"
+
+  _install:windows:
+    internal: true
+    platforms: [windows]
+    cmds:
+      - task: winget:install:package
+        vars:
+          WINGET_INSTALLABLE: "{{.BUN_WINGET_INSTALLABLE}}"
 
   version:
     run: once

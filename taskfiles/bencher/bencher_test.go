@@ -39,7 +39,9 @@ func publicTasks() []string {
 
 func publicVars() []string {
 	return []string{
-		"BENCHER_NIX_INSTALLABLE",
+		"BENCHER_CARGO_CRATE",
+		"BENCHER_CARGO_EXTRA_ARGS",
 		"BENCHER_EXTRA_ARGS",
+		"BENCHER_NIX_INSTALLABLE",
 	}
 }

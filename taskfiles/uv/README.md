@@ -43,7 +43,7 @@ Pin a revision by overriding the installable, for example
 | `run`            | Run a script or command via uv                     | `UV_FILE`, `UV_ARGS`, `UV_EXTRA_ARGS` |
 | `tool:install`   | Install a Python tool into an isolated environment | `UV_TOOL`, `UV_EXTRA_ARGS`        |
 | `tool:upgrade`   | Upgrade an installed uv tool                       | `UV_TOOL`, `UV_EXTRA_ARGS`        |
-| `install`        | Install uv via the Nix profile                     | `UV_NIX_INSTALLABLE`              |
+| `install`        | Install uv via Nix (Unix) or WinGet (Windows)                     | `UV_NIX_INSTALLABLE`              |
 | `version`        | Show the active uv version                         | —                                 |
 
 ## Variables
@@ -51,6 +51,7 @@ Pin a revision by overriding the installable, for example
 | Variable             | Default              | Description                                             |
 | -------------------- | -------------------- | ------------------------------------------------------- |
 | `UV_NIX_INSTALLABLE` | `nixpkgs#uv`         | Flake installable passed to `nix:install:profile`       |
+| `UV_WINGET_INSTALLABLE` | `astral-sh.uv` | WinGet package ID for `winget:install:package` |
 | `UV_VENV`            | `.venv`              | Virtual environment directory for `venv`                |
 | `UV_REQUIREMENTS`    | `requirements.txt`   | Requirements file for `pip:install`                     |
 | `UV_FILE`            | _(empty)_            | Script path; required by `run`                          |
@@ -61,6 +62,7 @@ Pin a revision by overriding the installable, for example
 
 ## Notes
 
-- Install goes through `nix:install:profile` (Nix is installed first if missing). Native Windows is not supported; use WSL2.
+- Install uses Nix on Linux and macOS (`UV_NIX_INSTALLABLE`) and WinGet on Windows (`UV_WINGET_INSTALLABLE`, default `astral-sh.uv`).
+
 - Remaining uv tasks auto-install the uv binary if it is missing.
 - **`tool:install`** creates an isolated environment for each tool so their dependencies never conflict with your project. The tool's binary is shimmed into `~/.local/bin` (Unix) or `%USERPROFILE%\.local\bin` (Windows).

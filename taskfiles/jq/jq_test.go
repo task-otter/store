@@ -38,5 +38,6 @@ func publicTasks() []string {
 func publicVars() []string {
 	return []string{
 		"JQ_NIX_INSTALLABLE",
+		"JQ_WINGET_INSTALLABLE",
 	}
 }

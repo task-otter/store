@@ -36,7 +36,7 @@ Override `JQ_NIX_INSTALLABLE` to pin a flake, for example
 
 | Task | Description |
 |---|---|
-| `install` | Install jq via the Nix profile |
+| `install` | Install jq via Nix (Unix) or WinGet (Windows) |
 | `version` | Show the active jq version |
 
 ## Variables
@@ -44,9 +44,9 @@ Override `JQ_NIX_INSTALLABLE` to pin a flake, for example
 | Variable | Default | Description |
 | -------- | ------- | ----------- |
 | `JQ_NIX_INSTALLABLE` | `nixpkgs#jq` | Flake installable for `nix:install:profile` |
+| `JQ_WINGET_INSTALLABLE` | `jqlang.jq` | WinGet package ID for `winget:install:package` |
 
 ## Notes
 
-`install` goes through `nix:install:profile`, which auto-installs Nix if it is
-missing and adds jq to the user profile (`~/.nix-profile`). Native Windows is
-not supported; use WSL2.
+- Install uses Nix on Linux and macOS (`JQ_NIX_INSTALLABLE`) and WinGet on Windows (`JQ_WINGET_INSTALLABLE`, default `jqlang.jq`).
+

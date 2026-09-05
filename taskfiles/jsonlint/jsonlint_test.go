@@ -41,5 +41,6 @@ func publicVars() []string {
 		"JSONLINT_EXTRA_ARGS",
 		"JSONLINT_NIX_INSTALLABLE",
 		"JSONLINT_TARGETS",
+		"JSONLINT_UV_TOOL",
 	}
 }

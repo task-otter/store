@@ -572,8 +572,13 @@ func expectedPublicTasksB() []tasktestutil.PublicTaskSpec {
 			tasktestutil.WithDryRunArgs(), tasktestutil.WithGroupOutput()),
 		spec("doctor", dryGroupSummary...),
 		spec(constNpmTestInstall, dryGroupSummary...),
-		spec("install:undo", dryGroupSummary...),
-		spec("lint", dryGroupSummary...),
+		spec(
+			"install:global",
+			withArgs(map[string]string{constNpmTestPackages: constNpmTestPrettier}),
+			tasktestutil.WithDryRunArgs(),
+			tasktestutil.WithGroupOutput(),
+			tasktestutil.WithSummary(),
+		),
 	}
 }
 
@@ -583,6 +588,8 @@ func expectedPublicTasksC1() []tasktestutil.PublicTaskSpec {
 	dryGroupSummary := dryGroupSummaryOptions()
 
 	return []tasktestutil.PublicTaskSpec{
+		spec("install:undo", dryGroupSummary...),
+		spec("lint", dryGroupSummary...),
 		spec(constNpmTestOutdated, dryGroupSummary...),
 		spec(constNpmTestOutdatedStrict, dryGroupSummary...),
 		spec("remove", withArgs(map[string]string{constNpmTestPackages: constNpmTestPrettier}),

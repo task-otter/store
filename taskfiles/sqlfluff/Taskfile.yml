@@ -12,9 +12,12 @@ silent: true
 includes:
   nix:
     taskfile: ../nix/Taskfile.yml
+  uv:
+    taskfile: ../uv/Taskfile.yml
 
 vars:
   SQLFLUFF_NIX_INSTALLABLE: '{{.SQLFLUFF_NIX_INSTALLABLE | default "nixpkgs#sqlfluff"}}'
+  SQLFLUFF_UV_TOOL: '{{.SQLFLUFF_UV_TOOL | default "sqlfluff"}}'
   SQLFLUFF_TARGETS: '{{.SQLFLUFF_TARGETS | default "."}}'
   SQLFLUFF_CONFIG: '{{.SQLFLUFF_CONFIG | default ""}}'
   SQLFLUFF_DIALECT: '{{.SQLFLUFF_DIALECT | default ""}}'
@@ -30,17 +33,33 @@ tasks:
 
   install:
     run: once
-    desc: Install sqlfluff via the Nix profile
+    desc: Install sqlfluff via Nix (Unix) or uv tool (Windows)
     summary: |
-      Install sqlfluff into the user Nix profile when it is not already
-      available on PATH. Override the SQLFLUFF_NIX_INSTALLABLE
-      variable to pin a different package or version.
+      Install sqlfluff into the user Nix profile on Linux and macOS when it
+      is not already on PATH. On Windows, installs via uv tool install
+      (SQLFLUFF_UV_TOOL). Override SQLFLUFF_NIX_INSTALLABLE or
+      SQLFLUFF_UV_TOOL to pin a different package or version.
     status:
       - command -v sqlfluff >/dev/null 2>&1
+    cmds:
+      - task: _install:unix
+      - task: _install:windows
+
+  _install:unix:
+    internal: true
+    platforms: [linux, darwin]
     cmds:
       - task: nix:install:profile
         vars:
           NIX_INSTALLABLE: "{{.SQLFLUFF_NIX_INSTALLABLE}}"
+
+  _install:windows:
+    internal: true
+    platforms: [windows]
+    cmds:
+      - task: uv:tool:install
+        vars:
+          UV_TOOL: "{{.SQLFLUFF_UV_TOOL}}"
 
   version:
     run: once

@@ -12,6 +12,8 @@ silent: true
 includes:
   nix:
     taskfile: ../nix/Taskfile.yml
+  winget:
+    taskfile: ../winget/Taskfile.yml
 
   jq: ../jq/Taskfile.yml
 
@@ -24,6 +26,7 @@ vars:
   GH_DATA: '{{.GH_DATA | default "{}"}}'
   GH_PAT_TOKEN: '{{.GH_PAT_TOKEN | default ""}}'
   GH_NIX_INSTALLABLE: '{{.GH_NIX_INSTALLABLE | default "nixpkgs#gh"}}'
+  GH_WINGET_INSTALLABLE: '{{.GH_WINGET_INSTALLABLE | default "GitHub.cli"}}'
 
 env:
   GH_TOKEN: "{{.GH_PAT_TOKEN}}"
@@ -38,17 +41,33 @@ tasks:
 
   install:
     run: once
-    desc: Install the GitHub CLI via the Nix profile
+    desc: Install the GitHub CLI via Nix (Unix) or WinGet (Windows)
     summary: |
-      Install the GitHub CLI into the user Nix profile when it is not already
-      available on PATH. Override the GH_NIX_INSTALLABLE
-      variable to pin a different package or version.
+      Install gh on Linux and macOS via the user Nix profile, and on
+      Windows via WinGet, when it is not already on PATH. Override
+      GH_NIX_INSTALLABLE or GH_WINGET_INSTALLABLE to pin a
+      different package or version.
     status:
       - command -v gh >/dev/null 2>&1
+    cmds:
+      - task: _install:unix
+      - task: _install:windows
+
+  _install:unix:
+    internal: true
+    platforms: [linux, darwin]
     cmds:
       - task: nix:install:profile
         vars:
           NIX_INSTALLABLE: "{{.GH_NIX_INSTALLABLE}}"
+
+  _install:windows:
+    internal: true
+    platforms: [windows]
+    cmds:
+      - task: winget:install:package
+        vars:
+          WINGET_INSTALLABLE: "{{.GH_WINGET_INSTALLABLE}}"
 
   version:
     run: once

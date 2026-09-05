@@ -23,7 +23,10 @@ const (
 	constProtoModule       = "proto"
 	constProtoTaskGen      = "gen"
 	constProtoTaskInstall  = "install"
+	constInstallWindows    = "_install:windows"
 	constNixInstallProfile = "nix:install:profile"
+	constGoInstallPkg      = "go:install:pkg"
+	constWingetInstallPkg  = "winget:install:package"
 )
 
 // TestModuleIntegration runs the shared task CLI integration suite for this module.
@@ -52,12 +55,21 @@ func TestGenDependsOnInstall(t *testing.T) {
 	assertTaskDependsOn(t, constProtoTaskGen, constProtoTaskInstall)
 }
 
-// TestInstallUsesNixProfile proves the install task installs through the shared
+// TestInstallUsesNixProfile proves the Unix install helper installs through the shared
 // nix:install:profile task rather than owning an installer of its own.
 func TestInstallUsesNixProfile(t *testing.T) {
 	t.Parallel()
 
-	assertTaskRuns(t, constProtoTaskInstall, constNixInstallProfile)
+	assertTaskRuns(t, "_install:unix", constNixInstallProfile)
+}
+
+// TestInstallWindowsUsesGoInstallPkg proves Windows install keeps WinGet for
+// protoc and installs Go plugins via go:install:pkg.
+func TestInstallWindowsUsesGoInstallPkg(t *testing.T) {
+	t.Parallel()
+
+	assertTaskRuns(t, constInstallWindows, constWingetInstallPkg)
+	assertTaskRuns(t, constInstallWindows, constGoInstallPkg)
 }
 
 func assertTaskDependsOn(t *testing.T, task, expected string) {
@@ -113,7 +125,10 @@ func publicTasks() []string {
 func publicVars() []string {
 	return []string{
 		"GO_MODULE",
+		"PROTO_GEN_GO_GRPC_PKG",
+		"PROTO_GEN_GO_PKG",
 		"PROTO_NIX_INSTALLABLE",
+		"PROTO_WINGET_INSTALLABLE",
 		"PROTO_PATH",
 		"PROTO_PATTERN",
 	}

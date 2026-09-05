@@ -43,7 +43,7 @@ task bruno-gui:open BRUNO_GUI_COLLECTION=./api
 |---|---|
 | `open` | Launch the Bruno desktop app (returns immediately on Unix) |
 | `help` | Show Bruno desktop app help |
-| `install` | Install the Bruno desktop app via the Nix profile |
+| `install` | Install the Bruno desktop app via Nix (Unix) or WinGet (Windows) |
 | `version` | Show the active Bruno desktop app version |
 
 ## Variables
@@ -51,6 +51,7 @@ task bruno-gui:open BRUNO_GUI_COLLECTION=./api
 | Variable | Default | Description |
 |---|---|---|
 | `BRUNO_GUI_NIX_INSTALLABLE` | `nixpkgs#bruno` | Flake installable passed to `nix:install:profile` |
+| `BRUNO_GUI_WINGET_INSTALLABLE` | `Bruno.Bruno` | WinGet package ID for `winget:install:package` |
 | `BRUNO_GUI_COLLECTION` | `""` | Optional path to a Bruno collection directory |
 | `BRUNO_GUI_EXTRA_ARGS` | `""` | Additional flags passed to `bruno` |
 
@@ -59,5 +60,6 @@ Pin a revision by overriding the installable, for example
 
 ## Notes
 
-- Install goes through `nix:install:profile` (Nix is installed first if missing). Native Windows is not supported for auto-install; use WSL2 or ensure `bruno` is on `PATH`.
+- Install uses Nix on Linux and macOS (`BRUNO_GUI_NIX_INSTALLABLE`) and WinGet on Windows (`BRUNO_GUI_WINGET_INSTALLABLE`, default `Bruno.Bruno`).
+
 - On macOS and Linux, `open` launches Bruno in the background (`&`) so the task exits immediately.

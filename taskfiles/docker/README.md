@@ -62,8 +62,11 @@ task docker:ps
 | `DOCKER_CONTEXT`    | `.`          | Build context directory used by `build`                  |
 | `DOCKER_EXTRA_ARGS` | _(empty)_    | Extra flags forwarded to `docker build` or `docker pull` |
 | `DOCKER_VERSION`    | _(empty)_    | Pin a Docker release for `install` on Linux and Windows; has no effect on macOS (Homebrew Cask cannot pin Docker Desktop) |
+| `DOCKER_WINGET_INSTALLABLE` | `Docker.DockerDesktop` | WinGet package ID for Windows `install` / `uninstall` / `upgrade` |
 
 ## Notes
+
+- Windows install uses `winget:install:package` with `DOCKER_WINGET_INSTALLABLE` (default `Docker.DockerDesktop`).
 
 **Linux:** `install` automatically runs `sudo usermod -aG docker $USER` after
 the engine is set up. Log out and back in for the change to take effect. The

@@ -48,11 +48,21 @@ Override the Node.js version by setting `NODEJS_NIX_INSTALLABLE` on the nodejs m
 | `audit:report`    | —                                          | Run audit reporting without failing.                                      |
 | `audit:json`      | —                                          | Output audit results as JSON.                                             |
 | `cache:clean`     | —                                          | Clear the Yarn cache.                                                     |
-| `install:tool`    | —                                          | Install the Yarn binary via the Nix profile.                              |
+| `install:tool`    | —                                          | Install the Yarn binary via Nix (Unix) or WinGet (Windows).                              |
 | `version:tool`    | —                                          | Show the version of the Yarn binary itself.                               |
 
 ## Runtime
 
 Project commands depend on `nodejs:install` and run `yarn` with `NIX_LOAD` so the Nix profile tools are on PATH. Must be run from a directory containing `package.json`.
 
-Native Windows auto-install requires WSL2 (same as other Nix profile modules).
+
+## Variables
+
+| Variable | Default | Description |
+| -------- | ------- | ----------- |
+| `YARN_NIX_INSTALLABLE` | `nixpkgs#yarn` | Flake installable for `nix:install:profile` |
+| `YARN_WINGET_INSTALLABLE` | `Yarn.Yarn` | WinGet package ID for `winget:install:package` |
+
+## Notes
+
+- Install uses Nix on Linux and macOS (`YARN_NIX_INSTALLABLE`) and WinGet on Windows (`YARN_WINGET_INSTALLABLE`, default `Yarn.Yarn`).

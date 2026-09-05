@@ -183,6 +183,7 @@ func expectedVars() []string {
 		"GH_MERGE_METHOD",
 		"GH_PAT_TOKEN",
 		"GH_NIX_INSTALLABLE",
+		"GH_WINGET_INSTALLABLE",
 		"GH_VISIBILITY",
 	}
 }

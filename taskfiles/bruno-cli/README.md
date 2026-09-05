@@ -4,7 +4,7 @@ A [TaskOtter](https://github.com/task-otter/store) module for the [Bruno](https:
 
 ## What is this Taskfile?
 
-This module runs Bruno API collections with `bru run` and `bru run --bail` for CI. The `run`, `ci`, and `help` tasks auto-install `bru` via `nix:install:profile` when it is not already on `PATH`.
+This module runs Bruno API collections with `bru run` and `bru run --bail` for CI. The `run`, `ci`, and `help` tasks auto-install `bru` via Nix on Unix and `npm:install:global` on Windows when it is not already on `PATH`.
 
 ## Usage
 
@@ -45,7 +45,7 @@ task bruno-cli:ci BRUNO_CLI_COLLECTION=./api
 | `run` | Run all requests in a Bruno collection |
 | `ci` | Run a collection and stop on the first failure (`--bail`) |
 | `help` | Show Bruno CLI help |
-| `install` | Install the Bruno CLI via the Nix profile |
+| `install` | Install the Bruno CLI via Nix (Unix) or npm (Windows) |
 | `version` | Show the active Bruno CLI version |
 
 ## Variables
@@ -53,6 +53,7 @@ task bruno-cli:ci BRUNO_CLI_COLLECTION=./api
 | Variable | Default | Description |
 |---|---|---|
 | `BRUNO_CLI_NIX_INSTALLABLE` | `nixpkgs#bruno-cli` | Flake installable passed to `nix:install:profile` |
+| `BRUNO_CLI_NPM_PACKAGE` | `@usebruno/cli` | npm package passed to `npm:install:global` on Windows |
 | `BRUNO_CLI_COLLECTION` | `"."` | Path to the Bruno collection directory |
 | `BRUNO_CLI_ENV` | `""` | Named Bruno environment to activate via `--env` |
 | `BRUNO_CLI_EXTRA_ARGS` | `""` | Additional flags passed to `bru` |
@@ -72,5 +73,6 @@ Pin a revision by overriding the installable, for example
 
 ## Notes
 
-- Install goes through `nix:install:profile` (Nix is installed first if missing). Native Windows is not supported for auto-install; use WSL2 or ensure `bru` is on `PATH`.
+- Install uses Nix on Linux and macOS (`BRUNO_CLI_NIX_INSTALLABLE`) and npm on Windows (`BRUNO_CLI_NPM_PACKAGE`, default `@usebruno/cli`; binary `bru`).
+
 - Pass arguments after `--` to override collection, env, and extra flags directly.

@@ -41,6 +41,7 @@ func publicVars() []string {
 	return []string{
 		"SHFMT_EXTRA_ARGS",
 		"SHFMT_NIX_INSTALLABLE",
+		"SHFMT_WINGET_INSTALLABLE",
 		"SHFMT_TARGETS",
 	}
 }

@@ -45,6 +45,7 @@ func publicVars() []string {
 	return []string{
 		"BUF_AGAINST",
 		"BUF_NIX_INSTALLABLE",
+		"BUF_WINGET_INSTALLABLE",
 		"BUF_CONFIG",
 		"BUF_EXTRA_ARGS",
 		"BUF_INPUT",

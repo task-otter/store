@@ -43,7 +43,7 @@ task sqlfluff:ci:fix SQLFLUFF_DIALECT=postgres
 | `ci:fix`       | Auto-fix SQL lint violations |
 | `parse`        | Print the sqlfluff parse tree for SQL files     |
 | `config:init`  | Create a default `.sqlfluff` configuration file |
-| `install`      | Install sqlfluff via the Nix profile            |
+| `install`      | Install sqlfluff via Nix (Unix) or uv tool (Windows) |
 | `version`      | Show the active sqlfluff version                |
 
 ## Variables
@@ -51,6 +51,7 @@ task sqlfluff:ci:fix SQLFLUFF_DIALECT=postgres
 | Variable              | Default   | Description                                                  |
 | --------------------- | --------- | ------------------------------------------------------------ |
 | `SQLFLUFF_NIX_INSTALLABLE` | `nixpkgs#sqlfluff` | Flake installable passed to `nix:install:profile` |
+| `SQLFLUFF_UV_TOOL`    | `sqlfluff` | uv tool name passed to `uv:tool:install` on Windows |
 | `SQLFLUFF_TARGETS`    | `.`       | Paths to lint, fix, or parse                                 |
 | `SQLFLUFF_CONFIG`     | `""`      | Config file passed via `--config`                            |
 | `SQLFLUFF_DIALECT`    | `""`      | SQL dialect passed via `--dialect`                           |
@@ -61,7 +62,7 @@ Pin a revision by overriding the installable, for example
 
 ## Notes
 
-- Install goes through `nix:install:profile` (Nix is installed first if missing). Native Windows is not supported; use WSL2.
+- Unix install uses Nix (`SQLFLUFF_NIX_INSTALLABLE`). Windows installs via `uv:tool:install` (`SQLFLUFF_UV_TOOL`).
 
 **`config:init`** writes a `.sqlfluff` file in the current directory and is
 skipped if the file already exists. To regenerate, delete `.sqlfluff` first.

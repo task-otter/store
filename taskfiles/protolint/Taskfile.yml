@@ -10,12 +10,15 @@ output:
 silent: true
 
 includes:
+  go:
+    taskfile: ../go/Taskfile.yml
   nix:
     taskfile: ../nix/Taskfile.yml
 
 vars:
   PROTOLINT_EXTRA_ARGS: '{{.PROTOLINT_EXTRA_ARGS | default ""}}'
   PROTOLINT_NIX_INSTALLABLE: '{{.PROTOLINT_NIX_INSTALLABLE | default "nixpkgs#protolint"}}'
+  PROTOLINT_GO_PKG: '{{.PROTOLINT_GO_PKG | default "github.com/yoheimuta/protolint/cmd/protolint@latest"}}'
   PROTOLINT_TARGETS: '{{.PROTOLINT_TARGETS | default "."}}'
 
 tasks:
@@ -28,25 +31,42 @@ tasks:
 
   install:
     run: once
-    desc: Install protolint via the Nix profile
+    desc: Install protolint via Nix (Unix) or go install (Windows)
     summary: |
-      Install protolint into the user Nix profile when it is not already
-      available on PATH. Override the PROTOLINT_NIX_INSTALLABLE
-      variable to pin a different package or version.
+      Install protolint into the user Nix profile on Linux and macOS when it
+      is not already on PATH. On Windows, installs via go:install:pkg using
+      PROTOLINT_GO_PKG. Override PROTOLINT_NIX_INSTALLABLE or PROTOLINT_GO_PKG
+      to pin a different package or version.
     status:
       - command -v protolint >/dev/null 2>&1
+    cmds:
+      - task: _install:unix
+      - task: _install:windows
+
+  _install:unix:
+    internal: true
+    platforms: [linux, darwin]
     cmds:
       - task: nix:install:profile
         vars:
           NIX_INSTALLABLE: "{{.PROTOLINT_NIX_INSTALLABLE}}"
+
+  _install:windows:
+    internal: true
+    platforms: [windows]
+    cmds:
+      - task: go:install:pkg
+        vars:
+          GO_PKG: "{{.PROTOLINT_GO_PKG}}"
 
   version:
     run: once
     desc: Show the active protolint version
     summary: |
       Print the version reported by the protolint binary resolved from PATH.
-      Auto-installs protolint if missing.
+      Auto-installs Go and protolint if missing.
     deps:
+      - task: go:install
       - task: install
     cmds:
       - task: _version:unix
@@ -58,9 +78,10 @@ tasks:
     summary: |
       Run protolint lint against PROTOLINT_TARGETS (default: .). Pass PROTOLINT_EXTRA_ARGS for
       protolint options such as -config_path or -reporter json.
-      Auto-installs protolint if needed.
+      Auto-installs Go and protolint if needed.
     dir: "{{.USER_WORKING_DIR}}"
     deps:
+      - task: go:install
       - task: install
     cmds:
       - task: _lint:unix
@@ -72,9 +93,10 @@ tasks:
     summary: |
       Run protolint lint -fix against PROTOLINT_TARGETS (default: .) to apply automatic
       fixes for fixable lint violations. Pass PROTOLINT_EXTRA_ARGS for protolint options.
-      Auto-installs protolint if needed.
+      Auto-installs Go and protolint if needed.
     dir: "{{.USER_WORKING_DIR}}"
     deps:
+      - task: go:install
       - task: install
     cmds:
       - task: _fix:unix

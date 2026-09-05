@@ -43,5 +43,6 @@ func publicVars() []string {
 		"YAMLLINT_EXTRA_ARGS",
 		"YAMLLINT_NIX_INSTALLABLE",
 		"YAMLLINT_TARGETS",
+		"YAMLLINT_UV_TOOL",
 	}
 }

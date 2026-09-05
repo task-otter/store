@@ -37,6 +37,7 @@ func publicTasks() []string {
 		"fmt",
 		"fmt:check",
 		"install",
+		"install:crate",
 		"lint",
 		"lint:fix",
 		"test",
@@ -48,8 +49,10 @@ func publicTasks() []string {
 
 func publicVars() []string {
 	return []string{
+		"CARGO_CRATE",
 		"CARGO_EXTRA_ARGS",
 		"CARGO_NIX_INSTALLABLE",
+		"CARGO_WINGET_INSTALLABLE",
 		"RUST_TOOLCHAIN",
 	}
 }

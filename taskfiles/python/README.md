@@ -45,7 +45,7 @@ task python:run PYTHON_FILE=script.py
 | `venv`         | Create a virtual environment                 |
 | `pip:install`  | Install packages from a requirements file    |
 | `run`          | Run a Python script                          |
-| `install`      | Install Python via the Nix profile           |
+| `install`      | Install Python via Nix (Unix) or WinGet (Windows)           |
 | `version`      | Show the active Python version               |
 
 ## Variables
@@ -53,6 +53,7 @@ task python:run PYTHON_FILE=script.py
 | Variable             | Default                                | Description                                                       |
 | -------------------- | --------------------------------------- | ------------------------------------------------------------------ |
 | `PYTHON_NIX_INSTALLABLE` | `nixpkgs#python3`                   | Flake installable passed to `nix:install:profile` |
+| `PYTHON_WINGET_INSTALLABLE` | `Python.Python.3.12` | WinGet package ID for `winget:install:package` |
 | `PYTHON_VENV`                | `.venv`                                | Virtual environment directory used by `venv`                     |
 | `PYTHON_REQUIREMENTS`        | `requirements.txt`                     | Requirements file used by `pip:install`                          |
 | `PYTHON_FILE`                | _(empty)_                              | Script path; required by `run`                                   |
@@ -64,5 +65,6 @@ Pin a Python version by overriding the installable, for example
 
 ## Notes
 
-- Install goes through `nix:install:profile` (Nix is installed first if missing). Native Windows is not supported; use WSL2.
+- Install uses Nix on Linux and macOS (`PYTHON_NIX_INSTALLABLE`) and WinGet on Windows (`PYTHON_WINGET_INSTALLABLE`, default `Python.Python.3.12`).
+
 - `venv`, `pip:install`, `run`, and `verify` use `python3` from PATH (after `NIX_LOAD` on Unix). `pip:install` runs `python3 -m pip`.

@@ -40,6 +40,7 @@ func publicTasks() []string {
 
 func publicVars() []string {
 	return []string{
+		"DOTENV_LINTER_CARGO_CRATE",
 		"DOTENV_LINTER_EXTRA_ARGS",
 		"DOTENV_LINTER_NIX_INSTALLABLE",
 		"DOTENV_LINTER_TARGETS",

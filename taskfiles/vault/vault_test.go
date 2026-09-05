@@ -306,6 +306,7 @@ func publicVars() []string {
 		"VAULT_THRESHOLD",
 		vaultAddrEnvVarName,
 		"VAULT_NIX_INSTALLABLE",
+		"VAULT_WINGET_INSTALLABLE",
 	}
 }
 

@@ -44,5 +44,6 @@ func publicVars() []string {
 		"DJLINT_EXTRA_ARGS",
 		"DJLINT_NIX_INSTALLABLE",
 		"DJLINT_TARGETS",
+		"DJLINT_UV_TOOL",
 	}
 }

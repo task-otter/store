@@ -17,25 +17,44 @@ includes:
 
   nix:
     taskfile: ../nix/Taskfile.yml
+  winget:
+    taskfile: ../winget/Taskfile.yml
 
 vars:
 
   PNPM_NIX_INSTALLABLE: '{{.PNPM_NIX_INSTALLABLE | default "nixpkgs#pnpm"}}'
+  PNPM_WINGET_INSTALLABLE: '{{.PNPM_WINGET_INSTALLABLE | default "pnpm.pnpm"}}'
 
 tasks:
   install:tool:
     run: once
-    desc: Install pnpm via the Nix profile
+    desc: Install pnpm via Nix (Unix) or WinGet (Windows)
     summary: |
-      Install pnpm into the user Nix profile when it is not already
-      available on PATH. Override the PNPM_NIX_INSTALLABLE
-      variable to pin a different package or version.
+      Install pnpm on Linux and macOS via the user Nix profile, and on
+      Windows via WinGet, when it is not already on PATH. Override
+      PNPM_NIX_INSTALLABLE or PNPM_WINGET_INSTALLABLE to pin a
+      different package or version.
     status:
-      - bash -lc '{{.NIX_LOAD}}; command -v pnpm >/dev/null 2>&1'
+      - command -v pnpm >/dev/null 2>&1
+    cmds:
+      - task: _install:unix
+      - task: _install:windows
+
+  _install:unix:
+    internal: true
+    platforms: [linux, darwin]
     cmds:
       - task: nix:install:profile
         vars:
           NIX_INSTALLABLE: "{{.PNPM_NIX_INSTALLABLE}}"
+
+  _install:windows:
+    internal: true
+    platforms: [windows]
+    cmds:
+      - task: winget:install:package
+        vars:
+          WINGET_INSTALLABLE: "{{.PNPM_WINGET_INSTALLABLE}}"
 
   version:tool:
     run: once
@@ -126,18 +145,19 @@ tasks:
 
   install:undo:
     run: once
-    desc: Explain how to remove pnpm from the Nix profile
+    desc: Explain how to remove pnpm from Nix or WinGet
     summary: |
-      pnpm is installed via nix profile. Remove with nix profile remove or
-      override PNPM_NIX_INSTALLABLE.
+      pnpm is installed via the Nix profile on Unix and WinGet on Windows.
+      Remove with nix profile remove, winget uninstall, or reinstall via
+      PNPM_NIX_INSTALLABLE / PNPM_WINGET_INSTALLABLE.
     cmds:
-      - echo 'pnpm is installed via nix profile.'
-      - "echo 'Remove with nix profile remove or reinstall via PNPM_NIX_INSTALLABLE.'"
+      - echo 'pnpm is installed via Nix (Unix) or WinGet (Windows).'
+      - echo 'Remove with nix profile remove or winget uninstall.'
 
   upgrade:
     run: once
-    desc: Upgrade pnpm via the Nix profile
-    summary: Reinstall pnpm using PNPM_NIX_INSTALLABLE (default nixpkgs#pnpm).
+    desc: Upgrade pnpm via Nix (Unix) or WinGet (Windows)
+    summary: Reinstall pnpm using PNPM_NIX_INSTALLABLE or PNPM_WINGET_INSTALLABLE.
     cmds:
       - task: install:tool
 

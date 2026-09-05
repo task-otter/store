@@ -40,7 +40,7 @@ task dotenv-linter:ci:fix DOTENV_LINTER_TARGETS=.env
 | `ci` | Lint dotenv files with dotenv-linter check |
 | `ci:fix` | Apply automatic fixes with dotenv-linter fix |
 | `diff` | Compare .env files to ensure matching key sets |
-| `install` | Install dotenv-linter via the Nix profile |
+| `install` | Install dotenv-linter via Nix (Unix) or cargo install (Windows) |
 | `version` | Show the active dotenv-linter version |
 
 ## Variables
@@ -48,6 +48,7 @@ task dotenv-linter:ci:fix DOTENV_LINTER_TARGETS=.env
 | Variable | Default | Description |
 |---|---|---|
 | `DOTENV_LINTER_NIX_INSTALLABLE` | `nixpkgs#dotenv-linter` | Flake installable passed to `nix:install:profile` |
+| `DOTENV_LINTER_CARGO_CRATE` | `dotenv-linter` | Crate name for Windows `cargo:install:crate` |
 | `DOTENV_LINTER_TARGETS` | `.env` | File or directory dotenv-linter operates on |
 | `DOTENV_LINTER_EXTRA_ARGS` | `""` | Extra flags forwarded to dotenv-linter (e.g. `--recursive`, `--skip`) |
 
@@ -56,7 +57,9 @@ Pin a revision by overriding the installable, for example
 
 ## Notes
 
-- Install goes through `nix:install:profile` (Nix is installed first if missing). Native Windows is not supported; use WSL2.
+- Unix install uses Nix (`DOTENV_LINTER_NIX_INSTALLABLE`). Windows installs via
+  `cargo:install:crate` (`DOTENV_LINTER_CARGO_CRATE`).
+
 - `ci:fix` writes changes in place; dotenv-linter creates a backup of each
   changed file.
 - The tasks target the dotenv-linter 4.x CLI, which uses subcommands

@@ -12,9 +12,12 @@ silent: true
 includes:
   nix:
     taskfile: ../nix/Taskfile.yml
+  winget:
+    taskfile: ../winget/Taskfile.yml
 
 vars:
   JQ_NIX_INSTALLABLE: '{{.JQ_NIX_INSTALLABLE | default "nixpkgs#jq"}}'
+  JQ_WINGET_INSTALLABLE: '{{.JQ_WINGET_INSTALLABLE | default "jqlang.jq"}}'
 
 tasks:
   default:
@@ -26,17 +29,33 @@ tasks:
 
   install:
     run: once
-    desc: Install jq via the Nix profile
+    desc: Install jq via Nix (Unix) or WinGet (Windows)
     summary: |
-      Install jq into the user Nix profile when it is not already
-      available on PATH. Override the JQ_NIX_INSTALLABLE
-      variable to pin a different package or version.
+      Install jq on Linux and macOS via the user Nix profile, and on
+      Windows via WinGet, when it is not already on PATH. Override
+      JQ_NIX_INSTALLABLE or JQ_WINGET_INSTALLABLE to pin a
+      different package or version.
     status:
       - command -v jq >/dev/null 2>&1
+    cmds:
+      - task: _install:unix
+      - task: _install:windows
+
+  _install:unix:
+    internal: true
+    platforms: [linux, darwin]
     cmds:
       - task: nix:install:profile
         vars:
           NIX_INSTALLABLE: "{{.JQ_NIX_INSTALLABLE}}"
+
+  _install:windows:
+    internal: true
+    platforms: [windows]
+    cmds:
+      - task: winget:install:package
+        vars:
+          WINGET_INSTALLABLE: "{{.JQ_WINGET_INSTALLABLE}}"
 
   version:
     run: once

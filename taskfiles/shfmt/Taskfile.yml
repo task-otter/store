@@ -12,10 +12,13 @@ silent: true
 includes:
   nix:
     taskfile: ../nix/Taskfile.yml
+  winget:
+    taskfile: ../winget/Taskfile.yml
 
 vars:
   SHFMT_EXTRA_ARGS: '{{.SHFMT_EXTRA_ARGS | default ""}}'
   SHFMT_NIX_INSTALLABLE: '{{.SHFMT_NIX_INSTALLABLE | default "nixpkgs#shfmt"}}'
+  SHFMT_WINGET_INSTALLABLE: '{{.SHFMT_WINGET_INSTALLABLE | default "mvdan.shfmt"}}'
   SHFMT_TARGETS: '{{.SHFMT_TARGETS | default "."}}'
 
 tasks:
@@ -28,17 +31,33 @@ tasks:
 
   install:
     run: once
-    desc: Install shfmt via the Nix profile
+    desc: Install shfmt via Nix (Unix) or WinGet (Windows)
     summary: |
-      Install shfmt into the user Nix profile when it is not already
-      available on PATH. Override the SHFMT_NIX_INSTALLABLE
-      variable to pin a different package or version.
+      Install shfmt on Linux and macOS via the user Nix profile, and on
+      Windows via WinGet, when it is not already on PATH. Override
+      SHFMT_NIX_INSTALLABLE or SHFMT_WINGET_INSTALLABLE to pin a
+      different package or version.
     status:
       - command -v shfmt >/dev/null 2>&1
+    cmds:
+      - task: _install:unix
+      - task: _install:windows
+
+  _install:unix:
+    internal: true
+    platforms: [linux, darwin]
     cmds:
       - task: nix:install:profile
         vars:
           NIX_INSTALLABLE: "{{.SHFMT_NIX_INSTALLABLE}}"
+
+  _install:windows:
+    internal: true
+    platforms: [windows]
+    cmds:
+      - task: winget:install:package
+        vars:
+          WINGET_INSTALLABLE: "{{.SHFMT_WINGET_INSTALLABLE}}"
 
   version:
     run: once

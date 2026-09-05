@@ -47,30 +47,31 @@ type (
 )
 
 const (
-	constGolangciLintCi             = "ci"
-	constGolangciLintCiFix          = "ci:fix"
-	constGolangciLintFmt            = "fmt"
-	constGolangciLintFmtCheck       = "fmt:check"
-	constGolangciLintLint           = "lint"
-	constGolangciLintLintFix        = "lint:fix"
-	constGolangciLintModule         = "golangci-lint"
-	constStockCustomLog             = "stock:custom -v"
-	constCustomRunDefaultLog        = "custom:run ./..."
-	constProjectCustomName          = "project-gcl"
-	constProjectCustomDestination   = ".tools"
-	constInitialPluginVersion       = "v1.0.0"
-	constUpdatedPluginVersion       = "v1.0.1"
-	constGolangciLintNixInstallable = "GOLANGCI_LINT_NIX_INSTALLABLE"
-	constEmptyValue                 = ""
-	constInstallTask                = "install"
-	constVersionTask                = "version"
-	constTaskBaseArgCount           = 4
-	constSecureFileMode             = 0o600
-	constPrivateDirectoryMode       = 0o750
-	constExecutableFileMode         = 0o700
-	constNewline                    = "\n"
-	constZeroLen                    = 0
-	stockGolangciLintScriptTemplate = `#!/bin/sh
+	constGolangciLintCi                = "ci"
+	constGolangciLintCiFix             = "ci:fix"
+	constGolangciLintFmt               = "fmt"
+	constGolangciLintFmtCheck          = "fmt:check"
+	constGolangciLintLint              = "lint"
+	constGolangciLintLintFix           = "lint:fix"
+	constGolangciLintModule            = "golangci-lint"
+	constStockCustomLog                = "stock:custom -v"
+	constCustomRunDefaultLog           = "custom:run ./..."
+	constProjectCustomName             = "project-gcl"
+	constProjectCustomDestination      = ".tools"
+	constInitialPluginVersion          = "v1.0.0"
+	constUpdatedPluginVersion          = "v1.0.1"
+	constGolangciLintNixInstallable    = "GOLANGCI_LINT_NIX_INSTALLABLE"
+	constGolangciLintWingetInstallable = "GOLANGCI_LINT_WINGET_INSTALLABLE"
+	constEmptyValue                    = ""
+	constInstallTask                   = "install"
+	constVersionTask                   = "version"
+	constTaskBaseArgCount              = 4
+	constSecureFileMode                = 0o600
+	constPrivateDirectoryMode          = 0o750
+	constExecutableFileMode            = 0o700
+	constNewline                       = "\n"
+	constZeroLen                       = 0
+	stockGolangciLintScriptTemplate    = `#!/bin/sh
 set -eu
 printf 'stock:%s\n' "$*" >>"$GCL_LOG"
 if [ "${1:-}" = "custom" ]; then
@@ -165,6 +166,7 @@ func publicTasks() []string {
 func publicVars() []string {
 	return []string{
 		constGolangciLintNixInstallable,
+		constGolangciLintWingetInstallable,
 		"GOLANGCI_LINT_FMT_FORMATTER_FLAGS",
 	}
 }

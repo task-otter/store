@@ -12,9 +12,12 @@ silent: true
 includes:
   nix:
     taskfile: ../nix/Taskfile.yml
+  uv:
+    taskfile: ../uv/Taskfile.yml
 
 vars:
   JSONLINT_NIX_INSTALLABLE: '{{.JSONLINT_NIX_INSTALLABLE | default "nixpkgs#python3Packages.demjson3"}}'
+  JSONLINT_UV_TOOL: '{{.JSONLINT_UV_TOOL | default "demjson3"}}'
   JSONLINT_TARGETS: '{{.JSONLINT_TARGETS | default "."}}'
   JSONLINT_EXTRA_ARGS: '{{.JSONLINT_EXTRA_ARGS | default ""}}'
 
@@ -28,17 +31,34 @@ tasks:
 
   install:
     run: once
-    desc: Install jsonlint via the Nix profile
+    desc: Install jsonlint via Nix (Unix) or uv tool (Windows)
     summary: |
-      Install the jsonlint CLI (provided by demjson3) into the user Nix profile
-      when it is not already available on PATH. Override the
-      JSONLINT_NIX_INSTALLABLE variable to pin a different package or version.
+      Install jsonlint (demjson3) into the user Nix profile on Linux and
+      macOS when it is not already on PATH. On Windows, installs via uv
+      tool install (JSONLINT_UV_TOOL, default demjson3). Override
+      JSONLINT_NIX_INSTALLABLE or JSONLINT_UV_TOOL to pin a different
+      package or version.
     status:
       - command -v jsonlint >/dev/null 2>&1
+    cmds:
+      - task: _install:unix
+      - task: _install:windows
+
+  _install:unix:
+    internal: true
+    platforms: [linux, darwin]
     cmds:
       - task: nix:install:profile
         vars:
           NIX_INSTALLABLE: "{{.JSONLINT_NIX_INSTALLABLE}}"
+
+  _install:windows:
+    internal: true
+    platforms: [windows]
+    cmds:
+      - task: uv:tool:install
+        vars:
+          UV_TOOL: "{{.JSONLINT_UV_TOOL}}"
 
   version:
     run: once

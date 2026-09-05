@@ -42,7 +42,7 @@ task pulumi:up PULUMI_STACK=dev PULUMI_EXTRA_ARGS=--yes
 | `login` | Optional `PULUMI_LOGIN_URL`, `PULUMI_EXTRA_ARGS`         | Run `pulumi login`. Empty `PULUMI_LOGIN_URL` uses the default Pulumi Cloud backend.   |
 | `new`   | Required `PULUMI_TEMPLATE`; optional `PULUMI_EXTRA_ARGS` | Scaffold a new Pulumi project from a named template (for example `aws-typescript`). |
 | `up`    | Optional `PULUMI_STACK`, `PULUMI_EXTRA_ARGS`             | Preview and deploy the current Pulumi stack in the caller's working directory.        |
-| `install` | Optional `PULUMI_NIX_INSTALLABLE`                      | Install Pulumi via the Nix profile.                                                  |
+| `install` | Optional `PULUMI_NIX_INSTALLABLE`                      | Install Pulumi via Nix (Unix) or WinGet (Windows).                                                  |
 | `version` | —                                                      | Show the active Pulumi version.                                                      |
 
 ## Variables
@@ -50,6 +50,7 @@ task pulumi:up PULUMI_STACK=dev PULUMI_EXTRA_ARGS=--yes
 | Variable                   | Default            | Description                                                                    |
 | -------------------------- | ------------------ | ------------------------------------------------------------------------------ |
 | `PULUMI_NIX_INSTALLABLE`   | `nixpkgs#pulumi`   | Flake installable passed to `nix:install:profile`                              |
+| `PULUMI_WINGET_INSTALLABLE` | `Pulumi.Pulumi` | WinGet package ID for `winget:install:package` |
 | `PULUMI_LOGIN_URL`         | _(empty)_          | Backend URL passed to `pulumi login`; empty uses the default Pulumi Cloud backend. |
 | `PULUMI_TEMPLATE`          | _(empty)_          | Template name; required by `new`.                                              |
 | `PULUMI_STACK`             | _(empty)_          | Stack name; optional for `up`. When set, passed as `--stack <name>`.           |
@@ -61,5 +62,6 @@ Pin a revision by overriding the installable, for example
 
 ## Notes
 
-- Install goes through `nix:install:profile` (Nix is installed first if missing). Native Windows is not supported; use WSL2.
+- Install uses Nix on Linux and macOS (`PULUMI_NIX_INSTALLABLE`) and WinGet on Windows (`PULUMI_WINGET_INSTALLABLE`, default `Pulumi.Pulumi`).
+
 - Every task that requires Pulumi automatically installs it first if it is not already present.

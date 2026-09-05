@@ -41,5 +41,6 @@ func publicVars() []string {
 		"YAMLFIX_EXTRA_ARGS",
 		"YAMLFIX_NIX_INSTALLABLE",
 		"YAMLFIX_TARGETS",
+		"YAMLFIX_UV_TOOL",
 	}
 }

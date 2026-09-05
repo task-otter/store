@@ -55,6 +55,7 @@ includes:
   typescript: taskfiles/typescript/Taskfile.yml
   uv: taskfiles/uv/Taskfile.yml
   vault: taskfiles/vault/Taskfile.yml
+  winget: taskfiles/winget/Taskfile.yml
   yamlfix: taskfiles/yamlfix/Taskfile.yml
   yamllint: taskfiles/yamllint/Taskfile.yml
   yarn: taskfiles/yarn/Taskfile.yml

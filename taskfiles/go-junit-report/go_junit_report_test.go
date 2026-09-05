@@ -36,6 +36,7 @@ const (
 	goInstallTask            = "go:install"
 	goJunitReportModule      = "go-junit-report"
 	goJunitReportNixVar      = "GO_JUNIT_REPORT_NIX_INSTALLABLE"
+	goJunitReportGoPkgVar    = "GO_JUNIT_REPORT_GO_PKG"
 	goJunitReportInVar       = "GO_JUNIT_REPORT_IN"
 	goJunitReportOutVar      = "GO_JUNIT_REPORT_OUT"
 	fmtPercentV              = "%v"
@@ -102,6 +103,7 @@ func publicTasks() []string {
 
 func publicVars() []string {
 	return []string{
+		goJunitReportGoPkgVar,
 		goJunitReportInVar,
 		goJunitReportOutVar,
 		goJunitReportNixVar,

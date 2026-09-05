@@ -7,13 +7,19 @@ output:
     error_only: false
 silent: true
 includes:
+  go:
+    taskfile: ../go/Taskfile.yml
   nix:
     taskfile: ../nix/Taskfile.yml
+  winget:
+    taskfile: ../winget/Taskfile.yml
 vars:
   PROTO_NIX_INSTALLABLE: >-
     {{.PROTO_NIX_INSTALLABLE | default "nixpkgs#protobuf nixpkgs#protoc-gen-go
     nixpkgs#protoc-gen-go-grpc"}}
-
+  PROTO_WINGET_INSTALLABLE: '{{.PROTO_WINGET_INSTALLABLE | default "Google.Protobuf"}}'
+  PROTO_GEN_GO_PKG: '{{.PROTO_GEN_GO_PKG | default "google.golang.org/protobuf/cmd/protoc-gen-go@latest"}}'
+  PROTO_GEN_GO_GRPC_PKG: '{{.PROTO_GEN_GO_GRPC_PKG | default "google.golang.org/grpc/cmd/protoc-gen-go-grpc@latest"}}'
   PROTO_PATH: '{{.PROTO_PATH | default "."}}'
   PROTO_PATTERN: '{{.PROTO_PATTERN | default "*.proto"}}'
   GO_MODULE: '{{.GO_MODULE | default ""}}'
@@ -26,19 +32,44 @@ tasks:
       - task --list
   install:
     run: once
-    desc: Install protoc and the Go plugins via the Nix profile
+    desc: Install protoc and Go plugins via Nix (Unix) or WinGet+go install (Windows)
     summary: |
       Install protoc, protoc-gen-go, and protoc-gen-go-grpc into the user Nix
-      profile when they are not already available on PATH. Override the
-      PROTO_NIX_INSTALLABLE variable to pin different packages or versions.
+      profile on Linux and macOS when they are not already on PATH. On
+      Windows, WinGet installs protoc (PROTO_WINGET_INSTALLABLE), then
+      go:install:pkg installs the Go plugins via PROTO_GEN_GO_PKG and
+      PROTO_GEN_GO_GRPC_PKG. Override PROTO_NIX_INSTALLABLE,
+      PROTO_WINGET_INSTALLABLE, PROTO_GEN_GO_PKG, or PROTO_GEN_GO_GRPC_PKG to
+      pin a package or version.
     status:
       - command -v protoc >/dev/null 2>&1
       - command -v protoc-gen-go >/dev/null 2>&1
       - command -v protoc-gen-go-grpc >/dev/null 2>&1
     cmds:
+      - task: _install:unix
+      - task: _install:windows
+  _install:unix:
+    internal: true
+    platforms: [linux, darwin]
+    cmds:
       - task: nix:install:profile
         vars:
           NIX_INSTALLABLE: "{{.PROTO_NIX_INSTALLABLE}}"
+
+  _install:windows:
+    internal: true
+    platforms: [windows]
+    cmds:
+      - task: winget:install:package
+        vars:
+          WINGET_INSTALLABLE: "{{.PROTO_WINGET_INSTALLABLE}}"
+      - task: go:install:pkg
+        vars:
+          GO_PKG: "{{.PROTO_GEN_GO_PKG}}"
+      - task: go:install:pkg
+        vars:
+          GO_PKG: "{{.PROTO_GEN_GO_GRPC_PKG}}"
+
   version:
     run: once
     desc: Show the active protoc version

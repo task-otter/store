@@ -10,6 +10,7 @@ exported_tasks:
   - fmt
   - fmt:check
   - install
+  - install:crate
   - lint
   - lint:fix
   - test

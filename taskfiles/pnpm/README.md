@@ -51,11 +51,21 @@ Override the Node.js version by setting `NODEJS_NIX_INSTALLABLE` on the nodejs m
 | `audit:json`      | —                                          | Output audit results as JSON.                                             |
 | `update`          | —                                          | Update packages within declared ranges.                                   |
 | `store:prune`     | —                                          | Remove unreferenced packages from the pnpm store.                         |
-| `install:tool`    | —                                          | Install the pnpm binary via the Nix profile.                              |
+| `install:tool`    | —                                          | Install the pnpm binary via Nix (Unix) or WinGet (Windows).                              |
 | `version:tool`    | —                                          | Show the version of the pnpm binary itself.                               |
 
 ## Runtime
 
 Project commands depend on `nodejs:install` and run `pnpm` with `NIX_LOAD` so the Nix profile tools are on PATH. Must be run from a directory containing `package.json`.
 
-Native Windows auto-install requires WSL2 (same as other Nix profile modules).
+
+## Variables
+
+| Variable | Default | Description |
+| -------- | ------- | ----------- |
+| `PNPM_NIX_INSTALLABLE` | `nixpkgs#pnpm` | Flake installable for `nix:install:profile` |
+| `PNPM_WINGET_INSTALLABLE` | `pnpm.pnpm` | WinGet package ID for `winget:install:package` |
+
+## Notes
+
+- Install uses Nix on Linux and macOS (`PNPM_NIX_INSTALLABLE`) and WinGet on Windows (`PNPM_WINGET_INSTALLABLE`, default `pnpm.pnpm`).

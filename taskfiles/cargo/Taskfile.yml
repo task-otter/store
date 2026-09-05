@@ -14,14 +14,19 @@ includes:
 
   nix:
     taskfile: ../nix/Taskfile.yml
+  winget:
+    taskfile: ../winget/Taskfile.yml
 
 vars:
 
   CARGO_NIX_INSTALLABLE: '{{.CARGO_NIX_INSTALLABLE | default "nixpkgs#cargo"}}'
+  CARGO_WINGET_INSTALLABLE: '{{.CARGO_WINGET_INSTALLABLE | default "Rustlang.Rustup"}}'
 
   RUST_TOOLCHAIN: '{{.RUST_TOOLCHAIN | default ""}}'
 
   CARGO_EXTRA_ARGS: '{{.CARGO_EXTRA_ARGS | default ""}}'
+
+  CARGO_CRATE: '{{.CARGO_CRATE | default ""}}'
 
 tasks:
   default:
@@ -33,17 +38,33 @@ tasks:
 
   install:
     run: once
-    desc: Install Cargo via the Nix profile
+    desc: Install cargo via Nix (Unix) or WinGet (Windows)
     summary: |
-      Install Cargo into the user Nix profile when it is not already
-      available on PATH. Override the CARGO_NIX_INSTALLABLE
-      variable to pin a different package or version.
+      Install cargo on Linux and macOS via the user Nix profile, and on
+      Windows via WinGet, when it is not already on PATH. Override
+      CARGO_NIX_INSTALLABLE or CARGO_WINGET_INSTALLABLE to pin a
+      different package or version.
     status:
       - command -v cargo >/dev/null 2>&1
+    cmds:
+      - task: _install:unix
+      - task: _install:windows
+
+  _install:unix:
+    internal: true
+    platforms: [linux, darwin]
     cmds:
       - task: nix:install:profile
         vars:
           NIX_INSTALLABLE: "{{.CARGO_NIX_INSTALLABLE}}"
+
+  _install:windows:
+    internal: true
+    platforms: [windows]
+    cmds:
+      - task: winget:install:package
+        vars:
+          WINGET_INSTALLABLE: "{{.CARGO_WINGET_INSTALLABLE}}"
 
   version:
     run: once
@@ -56,6 +77,29 @@ tasks:
     cmds:
       - task: _version:unix
       - task: _version:windows
+
+  install:crate:
+    run: once
+    desc: Install a crate with cargo install (CARGO_CRATE=name)
+    summary: |
+      Run cargo install CARGO_CRATE to install a binary crate from crates.io
+      or another source. Pass CARGO_EXTRA_ARGS for cargo flags such as --git,
+      --locked, or --force. Auto-installs the Rust toolchain if missing.
+    deps:
+      - task: install
+    requires:
+      vars:
+        - CARGO_CRATE
+    preconditions:
+      - sh: test -n "{{.CARGO_CRATE}}"
+        msg: CARGO_CRATE is required. Pass CARGO_CRATE=name when running this task.
+    cmds:
+      - task: _cargo:unix
+        vars:
+          CARGO_SUBCMD: "install {{.CARGO_CRATE}}"
+      - task: _cargo:windows
+        vars:
+          CARGO_SUBCMD: "install {{.CARGO_CRATE}}"
 
   build:
     run: once

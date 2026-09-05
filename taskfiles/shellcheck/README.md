@@ -41,7 +41,7 @@ task shellcheck:ci
 | Task | Description |
 |---|---|
 | `ci` | Lint shell scripts with ShellCheck (SHELLCHECK_TARGETS=glob) |
-| `install` | Install ShellCheck via the Nix profile |
+| `install` | Install ShellCheck via Nix (Unix) or WinGet (Windows) |
 | `version` | Show the active ShellCheck version |
 
 ## Variables
@@ -49,6 +49,7 @@ task shellcheck:ci
 | Variable | Default | Description |
 |---|---|---|
 | `SHELLCHECK_NIX_INSTALLABLE` | `nixpkgs#shellcheck` | Flake installable passed to `nix:install:profile` |
+| `SHELLCHECK_WINGET_INSTALLABLE` | `koalaman.shellcheck` | WinGet package ID for `winget:install:package` |
 | `SHELLCHECK_EXTRA_ARGS` | `""` | Additional flags passed to `shellcheck` (e.g. `--shell`, `--severity`) |
 | `SHELLCHECK_TARGETS` | `""` | Paths or globs of scripts to check; empty = discover all `*.sh` recursively |
 
@@ -57,7 +58,8 @@ Pin a revision by overriding the installable, for example
 
 ## Notes
 
-- Install goes through `nix:install:profile` (Nix is installed first if missing). Native Windows is not supported; use WSL2.
+- Install uses Nix on Linux and macOS (`SHELLCHECK_NIX_INSTALLABLE`) and WinGet on Windows (`SHELLCHECK_WINGET_INSTALLABLE`, default `koalaman.shellcheck`).
+
 - When `SHELLCHECK_TARGETS` is empty, all `*.sh` and `*.bash` files under the working tree are discovered recursively (excluding `.git`).
 - Pass explicit paths or globs (e.g. `SHELLCHECK_TARGETS="scripts/*.sh"`) to limit the scope.
 - The `ci` task auto-installs ShellCheck if it is not already present in `PATH`.

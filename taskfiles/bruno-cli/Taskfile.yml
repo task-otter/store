@@ -12,12 +12,17 @@ silent: true
 
 includes:
 
+  npm:
+    taskfile: ../npm/Taskfile.yml
+
   nix:
     taskfile: ../nix/Taskfile.yml
 
 vars:
 
   BRUNO_CLI_NIX_INSTALLABLE: '{{.BRUNO_CLI_NIX_INSTALLABLE | default "nixpkgs#bruno-cli"}}'
+
+  BRUNO_CLI_NPM_PACKAGE: '{{.BRUNO_CLI_NPM_PACKAGE | default "@usebruno/cli"}}'
 
   BRUNO_CLI_COLLECTION: '{{.BRUNO_CLI_COLLECTION | default "."}}'
 
@@ -35,17 +40,34 @@ tasks:
 
   install:
     run: once
-    desc: Install the Bruno CLI via the Nix profile
+    desc: Install the Bruno CLI via Nix (Unix) or npm (Windows)
     summary: |
-      Install the Bruno CLI into the user Nix profile when it is not already
-      available on PATH. Override the BRUNO_CLI_NIX_INSTALLABLE
-      variable to pin a different package or version.
+      Install the Bruno CLI into the user Nix profile on Linux and macOS when it
+      is not already on PATH. On Windows, installs BRUNO_CLI_NPM_PACKAGE
+      globally via npm:install:global (binary bru). Override
+      BRUNO_CLI_NIX_INSTALLABLE or BRUNO_CLI_NPM_PACKAGE to pin a different
+      package or version.
     status:
       - command -v bru >/dev/null 2>&1
+    cmds:
+      - task: _install:unix
+      - task: _install:windows
+
+  _install:unix:
+    internal: true
+    platforms: [linux, darwin]
     cmds:
       - task: nix:install:profile
         vars:
           NIX_INSTALLABLE: "{{.BRUNO_CLI_NIX_INSTALLABLE}}"
+
+  _install:windows:
+    internal: true
+    platforms: [windows]
+    cmds:
+      - task: npm:install:global
+        vars:
+          PACKAGES: "{{.BRUNO_CLI_NPM_PACKAGE}}"
 
   version:
     run: once

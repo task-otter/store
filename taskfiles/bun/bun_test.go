@@ -38,5 +38,6 @@ func publicTasks() []string {
 func publicVars() []string {
 	return []string{
 		"BUN_NIX_INSTALLABLE",
+		"BUN_WINGET_INSTALLABLE",
 	}
 }

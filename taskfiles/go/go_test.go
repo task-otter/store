@@ -39,6 +39,7 @@ const (
 	verifyTask      = "verify"
 	whichTask       = "which"
 	installTask     = "install"
+	installPkgTask  = "install:pkg"
 	versionTask     = "version"
 	goModuleName    = "go"
 	goTestCmd       = "go test"
@@ -86,6 +87,7 @@ func TestOperationalTaskDependencies(t *testing.T) {
 		constGoTestTest: {installTask},
 		benchTask:       {installTask},
 		fuzzTask:        {installTask},
+		installPkgTask:  {installTask},
 		whichTask:       {installTask},
 		verifyTask:      {installTask},
 		versionTask:     {installTask},
@@ -97,6 +99,7 @@ func publicTasks() []string {
 		benchTask,
 		fuzzTask,
 		installTask,
+		installPkgTask,
 		constGoTestTest,
 		verifyTask,
 		versionTask,
@@ -108,6 +111,8 @@ func publicVars() []string {
 	return []string{
 		"GO_FUZZTIME",
 		"GO_NIX_INSTALLABLE",
+		"GO_PKG",
+		"GO_WINGET_INSTALLABLE",
 	}
 }
 
