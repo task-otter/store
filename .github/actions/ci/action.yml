@@ -5,7 +5,7 @@ runs:
   using: composite
   steps:
     - name: Setup
-      uses: ./.github/actions/setup
+      uses: $/.github/actions/setup
     - name: Run CI
       shell: bash
       run: task -t Taskfile.yml ci

@@ -27,4 +27,4 @@ jobs:
         with:
           persist-credentials: false
       - name: Run CI
-        uses: ./.github/actions/ci
+        uses: $/.github/actions/ci
