@@ -183,7 +183,8 @@ tasks:
           )
           if ($LASTEXITCODE -ne 0) { exit $LASTEXITCODE }
           POWERSHELL
-          powershell -NoProfile -ExecutionPolicy Bypass -File "$script"
+          powershell -NoProfile -ExecutionPolicy Bypass -Command
+          "{{.WINGET_LOAD}}; {{.GO_LOAD}}; & '$script'; exit \$LASTEXITCODE"
   _ungen:unix:
     run: once
     internal: true
@@ -199,7 +200,8 @@ tasks:
     cmds:
       - >-
         powershell -NoProfile -ExecutionPolicy Bypass -Command
-        "Get-ChildItem -Recurse -Filter *.pb.go | Remove-Item -Force"
+        "{{.WINGET_LOAD}}; {{.GO_LOAD}}; Get-ChildItem -Recurse -Filter *.pb.go | Remove-Item -Force;
+        exit \$LASTEXITCODE"
       - echo Generated protobuf files removed.
   _version:unix:
     run: once
@@ -218,8 +220,10 @@ tasks:
     preconditions:
       - sh: >-
           powershell -NoProfile -ExecutionPolicy Bypass -Command
-          "if (Get-Command protoc -ErrorAction SilentlyContinue) {
+          "{{.WINGET_LOAD}}; {{.GO_LOAD}}; if (Get-Command protoc -ErrorAction SilentlyContinue) {
           exit 0 } else { exit 1 }"
         msg: protoc is not installed or not available in PATH.
     cmds:
-      - protoc --version
+      - >-
+        powershell -NoProfile -ExecutionPolicy Bypass -Command
+        "{{.WINGET_LOAD}}; {{.GO_LOAD}}; protoc --version; exit \$LASTEXITCODE"

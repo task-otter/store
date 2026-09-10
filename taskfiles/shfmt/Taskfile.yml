@@ -117,10 +117,10 @@ tasks:
     cmds:
       - >-
         powershell -NoProfile -ExecutionPolicy Bypass -Command
-        "$target='{{.SHFMT_TARGETS}}';
+        "{{.WINGET_LOAD}}; \$target='{{.SHFMT_TARGETS}}';
         shfmt -w
-          {{.SHFMT_EXTRA_ARGS}} $target;
-        exit $LASTEXITCODE"
+          {{.SHFMT_EXTRA_ARGS}} \$target;
+        exit \$LASTEXITCODE"
 
   _fmt:check:unix:
     run: once
@@ -140,10 +140,10 @@ tasks:
     cmds:
       - >-
         powershell -NoProfile -ExecutionPolicy Bypass -Command
-        "$target='{{.SHFMT_TARGETS}}';
+        "{{.WINGET_LOAD}}; \$target='{{.SHFMT_TARGETS}}';
         shfmt -d
-          {{.SHFMT_EXTRA_ARGS}} $target;
-        exit $LASTEXITCODE"
+          {{.SHFMT_EXTRA_ARGS}} \$target;
+        exit \$LASTEXITCODE"
 
   _version:unix:
     run: once
@@ -163,8 +163,10 @@ tasks:
     preconditions:
       - sh: >-
           powershell -NoProfile -ExecutionPolicy Bypass -Command
-          "if (Get-Command shfmt -ErrorAction SilentlyContinue) {
+          "{{.WINGET_LOAD}}; if (Get-Command shfmt -ErrorAction SilentlyContinue) {
           exit 0 } else { exit 1 }"
         msg: shfmt is not installed or not available in PATH.
     cmds:
-      - shfmt --version
+      - >-
+        powershell -NoProfile -ExecutionPolicy Bypass -Command
+        "{{.WINGET_LOAD}}; shfmt --version; exit \$LASTEXITCODE"

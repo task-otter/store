@@ -354,12 +354,12 @@ tasks:
     preconditions:
       - sh: >-
           powershell -NoProfile -ExecutionPolicy Bypass -Command
-          "if (Test-Path '{{.USER_WORKING_DIR}}/package.json') { exit 0 } else { exit 1 }"
+          "{{.WINGET_LOAD}}; if (Test-Path '{{.USER_WORKING_DIR}}/package.json') { exit 0 } else { exit 1 }"
         msg: "package.json not found. Run this task from the project root."
     cmds:
       - >-
         powershell -NoProfile -NonInteractive -ExecutionPolicy Bypass -Command
-        "$ErrorActionPreference = 'Stop'; $env:CI = '1'; yarn {{.ARGS}}"
+        "{{.WINGET_LOAD}}; \$ErrorActionPreference = 'Stop'; \$env:CI = '1'; yarn {{.ARGS}}; exit \$LASTEXITCODE"
 
   _install:clean:unix:
     run: once
@@ -379,7 +379,7 @@ tasks:
     preconditions:
       - sh: >-
           powershell -NoProfile -ExecutionPolicy Bypass -Command
-          "if (Test-Path '{{.USER_WORKING_DIR}}\yarn.lock') { exit 0 } else { exit 1 }"
+          "{{.WINGET_LOAD}}; if (Test-Path '{{.USER_WORKING_DIR}}\yarn.lock') { exit 0 } else { exit 1 }"
         msg: "yarn.lock not found. yarn install:clean requires a lockfile."
     cmds:
       - task: _yarn:windows
@@ -408,7 +408,7 @@ tasks:
     preconditions:
       - sh: >-
           powershell -NoProfile -ExecutionPolicy Bypass -Command
-          "if ($env:SCRIPT -match '^[A-Za-z0-9:_-]+$') { exit 0 } else { exit 1 }"
+          "{{.WINGET_LOAD}}; if (\$env:SCRIPT -match '^[A-Za-z0-9:_-]+\$') { exit 0 } else { exit 1 }"
         msg: 'SCRIPT "{{.SCRIPT}}" contains invalid characters.'
     cmds:
       - task: _yarn:windows
@@ -434,7 +434,9 @@ tasks:
       - task: nodejs:install
       - task: install:tool
     cmds:
-      - powershell -NoProfile -ExecutionPolicy Bypass -Command "node --version; yarn --version"
+      - >-
+        powershell -NoProfile -ExecutionPolicy Bypass -Command
+        "{{.WINGET_LOAD}}; node --version; yarn --version; exit \$LASTEXITCODE"
 
   _clean:unix:
     run: once
@@ -453,9 +455,11 @@ tasks:
     status:
       - >-
         powershell -NoProfile -ExecutionPolicy Bypass -Command
-        "if (Test-Path 'node_modules') { exit 1 } else { exit 0 }"
+        "{{.WINGET_LOAD}}; if (Test-Path 'node_modules') { exit 1 } else { exit 0 }"
     cmds:
-      - powershell -NoProfile -ExecutionPolicy Bypass -Command "Remove-Item -Recurse -Force 'node_modules'"
+      - >-
+        powershell -NoProfile -ExecutionPolicy Bypass -Command
+        "{{.WINGET_LOAD}}; Remove-Item -Recurse -Force 'node_modules'; exit \$LASTEXITCODE"
 
   _exec:unix:
     run: once
@@ -476,7 +480,9 @@ tasks:
     requires:
       vars: [BINARY]
     cmds:
-      - powershell -NoProfile -ExecutionPolicy Bypass -Command "& {{.BINARY}} {{.ARGS}} {{.EXTRA_ARGS}}"
+      - >-
+        powershell -NoProfile -ExecutionPolicy Bypass -Command
+        "{{.WINGET_LOAD}}; & {{.BINARY}} {{.ARGS}} {{.EXTRA_ARGS}}; exit \$LASTEXITCODE"
 
   _clean:all:unix:
     run: once
@@ -495,8 +501,8 @@ tasks:
     cmds:
       - >-
         powershell -NoProfile -ExecutionPolicy Bypass -Command
-        "if (Test-Path 'node_modules') { Remove-Item -Recurse -Force 'node_modules' };
-        if (Test-Path 'yarn.lock') { Remove-Item -Force 'yarn.lock' }"
+        "{{.WINGET_LOAD}}; if (Test-Path 'node_modules') { Remove-Item -Recurse -Force 'node_modules' };
+        if (Test-Path 'yarn.lock') { Remove-Item -Force 'yarn.lock' }; exit \$LASTEXITCODE"
 
   _version:tool:unix:
     run: once
@@ -515,8 +521,12 @@ tasks:
     platforms: [windows]
     preconditions:
       - sh: >-
-          powershell -NoProfile -ExecutionPolicy Bypass -Command "if (Get-Command yarn -ErrorAction SilentlyContinue) {
+          powershell -NoProfile -ExecutionPolicy Bypass -Command
+          "{{.WINGET_LOAD}};
+          if (Get-Command yarn -ErrorAction SilentlyContinue) {
           exit 0 } else { exit 1 }"
         msg: Yarn is not installed or not available in PATH.
     cmds:
-      - yarn --version
+      - >-
+        powershell -NoProfile -ExecutionPolicy Bypass -Command
+        "{{.WINGET_LOAD}}; yarn --version; exit \$LASTEXITCODE"

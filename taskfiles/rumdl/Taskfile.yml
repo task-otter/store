@@ -89,11 +89,14 @@ tasks:
     preconditions:
       - sh: >-
           powershell -NoProfile -ExecutionPolicy Bypass -Command
-          "if (Get-Command rumdl -ErrorAction SilentlyContinue) {
+          "{{.WINGET_LOAD}}; {{.CARGO_LOAD}};
+          if (Get-Command rumdl -ErrorAction SilentlyContinue) {
           exit 0 } else { exit 1 }"
         msg: rumdl is not installed or not available in PATH.
     cmds:
-      - rumdl --version
+      - >-
+        powershell -NoProfile -ExecutionPolicy Bypass -Command
+        "{{.WINGET_LOAD}}; {{.CARGO_LOAD}}; rumdl --version; exit \$LASTEXITCODE"
 
   # Shared implementation of lint / lint:fix / fmt. Each override is resolved exactly
   # once here; callers supply the subcommand and any trailing shell reporting.
@@ -113,8 +116,10 @@ tasks:
           {{.PATHS}}{{if .EXTRA}} {{.EXTRA}}{{end}}{{.TAIL}}'
         platforms: [linux, darwin]
       - cmd: >-
-          rumdl {{.SUBCMD}}
-          {{.PATHS}}{{if .EXTRA}} {{.EXTRA}}{{end}}
+          powershell -NoProfile -ExecutionPolicy Bypass -Command
+          "{{.WINGET_LOAD}}; {{.CARGO_LOAD}};
+          rumdl {{.SUBCMD}} {{.PATHS}}{{if .EXTRA}} {{.EXTRA}}{{end}};
+          exit \$LASTEXITCODE"
         platforms: [windows]
 
   ci:

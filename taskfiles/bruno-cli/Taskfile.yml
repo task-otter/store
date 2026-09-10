@@ -99,10 +99,10 @@ tasks:
         platforms: [linux, darwin]
       - cmd: >-
           powershell -NoProfile -ExecutionPolicy Bypass -Command
-          "bru run {{.RESOLVED_COLLECTION}}
+          "{{.WINGET_LOAD}}; bru run {{.RESOLVED_COLLECTION}}
           {{if .RESOLVED_ENV}}--env '{{.RESOLVED_ENV}}'{{end}}
           {{if .MODE_ARGS}}{{.MODE_ARGS}}{{end}}
-          {{.BRUNO_CLI_EXTRA_ARGS}}{{if .CLI_ARGS}} {{.CLI_ARGS}}{{end}}"
+          {{.BRUNO_CLI_EXTRA_ARGS}}{{if .CLI_ARGS}} {{.CLI_ARGS}}{{end}}; exit \$LASTEXITCODE"
         platforms: [windows]
 
   run:
@@ -144,8 +144,8 @@ tasks:
         platforms: [linux, darwin]
       - cmd: >-
           powershell -NoProfile -ExecutionPolicy Bypass -Command
-          "bru --help
-          {{.BRUNO_CLI_EXTRA_ARGS}}{{if .CLI_ARGS}} {{.CLI_ARGS}}{{end}}"
+          "{{.WINGET_LOAD}}; bru --help
+          {{.BRUNO_CLI_EXTRA_ARGS}}{{if .CLI_ARGS}} {{.CLI_ARGS}}{{end}}; exit \$LASTEXITCODE"
         platforms: [windows]
 
   _version:unix:
@@ -165,8 +165,12 @@ tasks:
     platforms: [windows]
     preconditions:
       - sh: >-
-          powershell -NoProfile -ExecutionPolicy Bypass -Command "if (Get-Command bru -ErrorAction SilentlyContinue) {
+          powershell -NoProfile -ExecutionPolicy Bypass -Command
+          "{{.WINGET_LOAD}};
+          if (Get-Command bru -ErrorAction SilentlyContinue) {
           exit 0 } else { exit 1 }"
         msg: the Bruno CLI is not installed or not available in PATH.
     cmds:
-      - bru --version
+      - >-
+        powershell -NoProfile -ExecutionPolicy Bypass -Command
+        "{{.WINGET_LOAD}}; bru --version; exit \$LASTEXITCODE"

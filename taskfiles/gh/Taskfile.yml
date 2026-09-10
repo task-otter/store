@@ -125,7 +125,9 @@ tasks:
     cmds:
       - cmd: bash -lc '{{.NIX_LOAD}}; gh help'
         platforms: [linux, darwin]
-      - cmd: gh help
+      - cmd: >-
+          powershell -NoProfile -ExecutionPolicy Bypass -Command
+          "{{.WINGET_LOAD}}; gh help; exit \$LASTEXITCODE"
         platforms: [windows]
 
   auth:login:
@@ -140,7 +142,9 @@ tasks:
     cmds:
       - cmd: bash -lc '{{.NIX_LOAD}}; gh auth login'
         platforms: [linux, darwin]
-      - cmd: gh auth login
+      - cmd: >-
+          powershell -NoProfile -ExecutionPolicy Bypass -Command
+          "{{.WINGET_LOAD}}; gh auth login; exit \$LASTEXITCODE"
         platforms: [windows]
 
   auth:login:web:
@@ -154,7 +158,9 @@ tasks:
     cmds:
       - cmd: bash -lc '{{.NIX_LOAD}}; gh auth login --web'
         platforms: [linux, darwin]
-      - cmd: gh auth login --web
+      - cmd: >-
+          powershell -NoProfile -ExecutionPolicy Bypass -Command
+          "{{.WINGET_LOAD}}; gh auth login --web; exit \$LASTEXITCODE"
         platforms: [windows]
 
   auth:login:ssh:
@@ -168,7 +174,9 @@ tasks:
     cmds:
       - cmd: bash -lc '{{.NIX_LOAD}}; gh auth login --git-protocol ssh'
         platforms: [linux, darwin]
-      - cmd: gh auth login --git-protocol ssh
+      - cmd: >-
+          powershell -NoProfile -ExecutionPolicy Bypass -Command
+          "{{.WINGET_LOAD}}; gh auth login --git-protocol ssh; exit \$LASTEXITCODE"
         platforms: [windows]
 
   auth:status:
@@ -182,7 +190,9 @@ tasks:
     cmds:
       - cmd: bash -lc '{{.NIX_LOAD}}; gh auth status'
         platforms: [linux, darwin]
-      - cmd: gh auth status
+      - cmd: >-
+          powershell -NoProfile -ExecutionPolicy Bypass -Command
+          "{{.WINGET_LOAD}}; gh auth status; exit \$LASTEXITCODE"
         platforms: [windows]
 
   auth:refresh:
@@ -196,7 +206,9 @@ tasks:
     cmds:
       - cmd: bash -lc '{{.NIX_LOAD}}; gh auth refresh'
         platforms: [linux, darwin]
-      - cmd: gh auth refresh
+      - cmd: >-
+          powershell -NoProfile -ExecutionPolicy Bypass -Command
+          "{{.WINGET_LOAD}}; gh auth refresh; exit \$LASTEXITCODE"
         platforms: [windows]
 
   auth:logout:
@@ -210,7 +222,9 @@ tasks:
     cmds:
       - cmd: bash -lc '{{.NIX_LOAD}}; gh auth logout'
         platforms: [linux, darwin]
-      - cmd: gh auth logout
+      - cmd: >-
+          powershell -NoProfile -ExecutionPolicy Bypass -Command
+          "{{.WINGET_LOAD}}; gh auth logout; exit \$LASTEXITCODE"
         platforms: [windows]
 
   auth:setup-git:
@@ -224,7 +238,9 @@ tasks:
     cmds:
       - cmd: bash -lc '{{.NIX_LOAD}}; gh auth setup-git'
         platforms: [linux, darwin]
-      - cmd: gh auth setup-git
+      - cmd: >-
+          powershell -NoProfile -ExecutionPolicy Bypass -Command
+          "{{.WINGET_LOAD}}; gh auth setup-git; exit \$LASTEXITCODE"
         platforms: [windows]
 
   repo:view:
@@ -240,7 +256,9 @@ tasks:
     cmds:
       - cmd: bash -lc '{{.NIX_LOAD}}; gh repo view {{if .OWNER}}{{.OWNER}}/{{end}}{{.REPO}}'
         platforms: [linux, darwin]
-      - cmd: gh repo view {{if .OWNER}}{{.OWNER}}/{{end}}{{.REPO}}
+      - cmd: >-
+          powershell -NoProfile -ExecutionPolicy Bypass -Command
+          "{{.WINGET_LOAD}}; gh repo view {{if .OWNER}}{{.OWNER}}/{{end}}{{.REPO}}; exit \$LASTEXITCODE"
         platforms: [windows]
 
   repo:create:
@@ -264,10 +282,11 @@ tasks:
           {{if .DESCRIPTION}}--description "{{.DESCRIPTION}}"{{end}}'
         platforms: [linux, darwin]
       - cmd: >-
-          gh repo create
-          {{if .OWNER}}{{.OWNER}}/{{end}}{{.REPO}}
-          --{{default "public" .GH_VISIBILITY}}
-          {{if .DESCRIPTION}}--description "{{.DESCRIPTION}}"{{end}}
+          powershell -NoProfile -ExecutionPolicy Bypass -Command
+          "{{.WINGET_LOAD}};
+          gh repo create {{if .OWNER}}{{.OWNER}}/{{end}}{{.REPO}} --{{default "public" .GH_VISIBILITY}} {{if
+          .DESCRIPTION}}--description '{{.DESCRIPTION}}'{{end}}
+          ; exit \$LASTEXITCODE"
         platforms: [windows]
 
   repo:clone:
@@ -305,7 +324,9 @@ tasks:
     cmds:
       - cmd: bash -lc '{{.NIX_LOAD}}; gh repo fork {{if .OWNER}}{{.OWNER}}/{{end}}{{.REPO}} --clone'
         platforms: [linux, darwin]
-      - cmd: gh repo fork {{if .OWNER}}{{.OWNER}}/{{end}}{{.REPO}} --clone
+      - cmd: >-
+          powershell -NoProfile -ExecutionPolicy Bypass -Command
+          "{{.WINGET_LOAD}}; gh repo fork {{if .OWNER}}{{.OWNER}}/{{end}}{{.REPO}} --clone; exit \$LASTEXITCODE"
         platforms: [windows]
 
   repo:list:
@@ -320,7 +341,9 @@ tasks:
     cmds:
       - cmd: bash -lc '{{.NIX_LOAD}}; gh repo list {{.OWNER}}'
         platforms: [linux, darwin]
-      - cmd: gh repo list {{.OWNER}}
+      - cmd: >-
+          powershell -NoProfile -ExecutionPolicy Bypass -Command
+          "{{.WINGET_LOAD}}; gh repo list {{.OWNER}}; exit \$LASTEXITCODE"
         platforms: [windows]
 
   repo:sync:
@@ -335,7 +358,9 @@ tasks:
     cmds:
       - cmd: bash -lc '{{.NIX_LOAD}}; gh repo sync {{if .BRANCH}}--branch {{.BRANCH}}{{end}}'
         platforms: [linux, darwin]
-      - cmd: gh repo sync {{if .BRANCH}}--branch {{.BRANCH}}{{end}}
+      - cmd: >-
+          powershell -NoProfile -ExecutionPolicy Bypass -Command
+          "{{.WINGET_LOAD}}; gh repo sync {{if .BRANCH}}--branch {{.BRANCH}}{{end}}; exit \$LASTEXITCODE"
         platforms: [windows]
 
   repo:archive:
@@ -353,7 +378,9 @@ tasks:
     cmds:
       - cmd: bash -lc '{{.NIX_LOAD}}; gh repo archive {{if .OWNER}}{{.OWNER}}/{{end}}{{.REPO}} --yes'
         platforms: [linux, darwin]
-      - cmd: gh repo archive {{if .OWNER}}{{.OWNER}}/{{end}}{{.REPO}} --yes
+      - cmd: >-
+          powershell -NoProfile -ExecutionPolicy Bypass -Command
+          "{{.WINGET_LOAD}}; gh repo archive {{if .OWNER}}{{.OWNER}}/{{end}}{{.REPO}} --yes; exit \$LASTEXITCODE"
         platforms: [windows]
 
   repo:delete:danger:
@@ -376,7 +403,9 @@ tasks:
     cmds:
       - cmd: bash -lc '{{.NIX_LOAD}}; gh repo delete {{if .OWNER}}{{.OWNER}}/{{end}}{{.REPO}} --yes'
         platforms: [linux, darwin]
-      - cmd: gh repo delete {{if .OWNER}}{{.OWNER}}/{{end}}{{.REPO}} --yes
+      - cmd: >-
+          powershell -NoProfile -ExecutionPolicy Bypass -Command
+          "{{.WINGET_LOAD}}; gh repo delete {{if .OWNER}}{{.OWNER}}/{{end}}{{.REPO}} --yes; exit \$LASTEXITCODE"
         platforms: [windows]
 
   pr:list:
@@ -388,7 +417,9 @@ tasks:
     cmds:
       - cmd: bash -lc '{{.NIX_LOAD}}; gh pr list'
         platforms: [linux, darwin]
-      - cmd: gh pr list
+      - cmd: >-
+          powershell -NoProfile -ExecutionPolicy Bypass -Command
+          "{{.WINGET_LOAD}}; gh pr list; exit \$LASTEXITCODE"
         platforms: [windows]
 
   pr:status:
@@ -400,7 +431,9 @@ tasks:
     cmds:
       - cmd: bash -lc '{{.NIX_LOAD}}; gh pr status'
         platforms: [linux, darwin]
-      - cmd: gh pr status
+      - cmd: >-
+          powershell -NoProfile -ExecutionPolicy Bypass -Command
+          "{{.WINGET_LOAD}}; gh pr status; exit \$LASTEXITCODE"
         platforms: [windows]
 
   pr:view:
@@ -414,7 +447,9 @@ tasks:
     cmds:
       - cmd: bash -lc '{{.NIX_LOAD}}; gh pr view {{.PR_NUMBER}}'
         platforms: [linux, darwin]
-      - cmd: gh pr view {{.PR_NUMBER}}
+      - cmd: >-
+          powershell -NoProfile -ExecutionPolicy Bypass -Command
+          "{{.WINGET_LOAD}}; gh pr view {{.PR_NUMBER}}; exit \$LASTEXITCODE"
         platforms: [windows]
 
   pr:create:
@@ -436,11 +471,11 @@ tasks:
           {{if .HEAD}}--head {{.HEAD}}{{end}}'
         platforms: [linux, darwin]
       - cmd: >-
-          gh pr create
-          {{if .PR_TITLE}}--title "{{.PR_TITLE}}"{{end}}
-          {{if .PR_BODY}}--body "{{.PR_BODY}}"{{end}}
-          {{if .GH_BASE}}--base {{.GH_BASE}}{{end}}
-          {{if .HEAD}}--head {{.HEAD}}{{end}}
+          powershell -NoProfile -ExecutionPolicy Bypass -Command
+          "{{.WINGET_LOAD}};
+          gh pr create {{if .PR_TITLE}}--title '{{.PR_TITLE}}'{{end}} {{if .PR_BODY}}--body '{{.PR_BODY}}'{{end}}
+          {{if .GH_BASE}}--base {{.GH_BASE}}{{end}} {{if .HEAD}}--head {{.HEAD}}{{end}}
+          ; exit \$LASTEXITCODE"
         platforms: [windows]
 
   pr:checkout:
@@ -457,7 +492,9 @@ tasks:
     cmds:
       - cmd: bash -lc '{{.NIX_LOAD}}; gh pr checkout {{.PR_NUMBER}}'
         platforms: [linux, darwin]
-      - cmd: gh pr checkout {{.PR_NUMBER}}
+      - cmd: >-
+          powershell -NoProfile -ExecutionPolicy Bypass -Command
+          "{{.WINGET_LOAD}}; gh pr checkout {{.PR_NUMBER}}; exit \$LASTEXITCODE"
         platforms: [windows]
 
   pr:diff:
@@ -471,7 +508,9 @@ tasks:
     cmds:
       - cmd: bash -lc '{{.NIX_LOAD}}; gh pr diff {{.PR_NUMBER}}'
         platforms: [linux, darwin]
-      - cmd: gh pr diff {{.PR_NUMBER}}
+      - cmd: >-
+          powershell -NoProfile -ExecutionPolicy Bypass -Command
+          "{{.WINGET_LOAD}}; gh pr diff {{.PR_NUMBER}}; exit \$LASTEXITCODE"
         platforms: [windows]
 
   pr:review:
@@ -485,7 +524,9 @@ tasks:
     cmds:
       - cmd: bash -lc '{{.NIX_LOAD}}; gh pr review {{.PR_NUMBER}}'
         platforms: [linux, darwin]
-      - cmd: gh pr review {{.PR_NUMBER}}
+      - cmd: >-
+          powershell -NoProfile -ExecutionPolicy Bypass -Command
+          "{{.WINGET_LOAD}}; gh pr review {{.PR_NUMBER}}; exit \$LASTEXITCODE"
         platforms: [windows]
 
   pr:merge:
@@ -503,7 +544,9 @@ tasks:
     cmds:
       - cmd: bash -lc '{{.NIX_LOAD}}; gh pr merge {{.PR_NUMBER}} --{{default "merge" .GH_MERGE_METHOD}}'
         platforms: [linux, darwin]
-      - cmd: gh pr merge {{.PR_NUMBER}} --{{default "merge" .GH_MERGE_METHOD}}
+      - cmd: >-
+          powershell -NoProfile -ExecutionPolicy Bypass -Command
+          "{{.WINGET_LOAD}}; gh pr merge {{.PR_NUMBER}} --{{default "merge" .GH_MERGE_METHOD}}; exit \$LASTEXITCODE"
         platforms: [windows]
 
   pr:close:
@@ -520,7 +563,9 @@ tasks:
     cmds:
       - cmd: bash -lc '{{.NIX_LOAD}}; gh pr close {{.PR_NUMBER}}'
         platforms: [linux, darwin]
-      - cmd: gh pr close {{.PR_NUMBER}}
+      - cmd: >-
+          powershell -NoProfile -ExecutionPolicy Bypass -Command
+          "{{.WINGET_LOAD}}; gh pr close {{.PR_NUMBER}}; exit \$LASTEXITCODE"
         platforms: [windows]
 
   pr:ready:
@@ -535,7 +580,9 @@ tasks:
     cmds:
       - cmd: bash -lc '{{.NIX_LOAD}}; gh pr ready {{.PR_NUMBER}}'
         platforms: [linux, darwin]
-      - cmd: gh pr ready {{.PR_NUMBER}}
+      - cmd: >-
+          powershell -NoProfile -ExecutionPolicy Bypass -Command
+          "{{.WINGET_LOAD}}; gh pr ready {{.PR_NUMBER}}; exit \$LASTEXITCODE"
         platforms: [windows]
 
   pr:comment:
@@ -553,7 +600,9 @@ tasks:
     cmds:
       - cmd: bash -lc '{{.NIX_LOAD}}; gh pr comment {{.PR_NUMBER}} --body "{{.PR_BODY}}"'
         platforms: [linux, darwin]
-      - cmd: gh pr comment {{.PR_NUMBER}} --body "{{.PR_BODY}}"
+      - cmd: >-
+          powershell -NoProfile -ExecutionPolicy Bypass -Command
+          "{{.WINGET_LOAD}}; gh pr comment {{.PR_NUMBER}} --body '{{.PR_BODY}}'; exit \$LASTEXITCODE"
         platforms: [windows]
 
   issue:list:
@@ -565,7 +614,9 @@ tasks:
     cmds:
       - cmd: bash -lc '{{.NIX_LOAD}}; gh issue list'
         platforms: [linux, darwin]
-      - cmd: gh issue list
+      - cmd: >-
+          powershell -NoProfile -ExecutionPolicy Bypass -Command
+          "{{.WINGET_LOAD}}; gh issue list; exit \$LASTEXITCODE"
         platforms: [windows]
 
   issue:view:
@@ -582,7 +633,9 @@ tasks:
     cmds:
       - cmd: bash -lc '{{.NIX_LOAD}}; gh issue view {{.ISSUE_NUMBER}}'
         platforms: [linux, darwin]
-      - cmd: gh issue view {{.ISSUE_NUMBER}}
+      - cmd: >-
+          powershell -NoProfile -ExecutionPolicy Bypass -Command
+          "{{.WINGET_LOAD}}; gh issue view {{.ISSUE_NUMBER}}; exit \$LASTEXITCODE"
         platforms: [windows]
 
   issue:create:
@@ -601,9 +654,11 @@ tasks:
           {{if .ISSUE_BODY}}--body "{{.ISSUE_BODY}}"{{end}}'
         platforms: [linux, darwin]
       - cmd: >-
-          gh issue create
-          {{if .ISSUE_TITLE}}--title "{{.ISSUE_TITLE}}"{{end}}
-          {{if .ISSUE_BODY}}--body "{{.ISSUE_BODY}}"{{end}}
+          powershell -NoProfile -ExecutionPolicy Bypass -Command
+          "{{.WINGET_LOAD}};
+          gh issue create {{if .ISSUE_TITLE}}--title '{{.ISSUE_TITLE}}'{{end}} {{if .ISSUE_BODY}}--body
+          '{{.ISSUE_BODY}}'{{end}}
+          ; exit \$LASTEXITCODE"
         platforms: [windows]
 
   issue:comment:
@@ -622,7 +677,9 @@ tasks:
     cmds:
       - cmd: bash -lc '{{.NIX_LOAD}}; gh issue comment {{.ISSUE_NUMBER}} --body "{{.ISSUE_BODY}}"'
         platforms: [linux, darwin]
-      - cmd: gh issue comment {{.ISSUE_NUMBER}} --body "{{.ISSUE_BODY}}"
+      - cmd: >-
+          powershell -NoProfile -ExecutionPolicy Bypass -Command
+          "{{.WINGET_LOAD}}; gh issue comment {{.ISSUE_NUMBER}} --body '{{.ISSUE_BODY}}'; exit \$LASTEXITCODE"
         platforms: [windows]
 
   issue:close:
@@ -639,7 +696,9 @@ tasks:
     cmds:
       - cmd: bash -lc '{{.NIX_LOAD}}; gh issue close {{.ISSUE_NUMBER}}'
         platforms: [linux, darwin]
-      - cmd: gh issue close {{.ISSUE_NUMBER}}
+      - cmd: >-
+          powershell -NoProfile -ExecutionPolicy Bypass -Command
+          "{{.WINGET_LOAD}}; gh issue close {{.ISSUE_NUMBER}}; exit \$LASTEXITCODE"
         platforms: [windows]
 
   issue:reopen:
@@ -656,7 +715,9 @@ tasks:
     cmds:
       - cmd: bash -lc '{{.NIX_LOAD}}; gh issue reopen {{.ISSUE_NUMBER}}'
         platforms: [linux, darwin]
-      - cmd: gh issue reopen {{.ISSUE_NUMBER}}
+      - cmd: >-
+          powershell -NoProfile -ExecutionPolicy Bypass -Command
+          "{{.WINGET_LOAD}}; gh issue reopen {{.ISSUE_NUMBER}}; exit \$LASTEXITCODE"
         platforms: [windows]
 
   issue:assign:
@@ -675,7 +736,9 @@ tasks:
     cmds:
       - cmd: bash -lc '{{.NIX_LOAD}}; gh issue edit {{.ISSUE_NUMBER}} --add-assignee {{.ASSIGNEE}}'
         platforms: [linux, darwin]
-      - cmd: gh issue edit {{.ISSUE_NUMBER}} --add-assignee {{.ASSIGNEE}}
+      - cmd: >-
+          powershell -NoProfile -ExecutionPolicy Bypass -Command
+          "{{.WINGET_LOAD}}; gh issue edit {{.ISSUE_NUMBER}} --add-assignee {{.ASSIGNEE}}; exit \$LASTEXITCODE"
         platforms: [windows]
 
   issue:label:
@@ -694,7 +757,9 @@ tasks:
     cmds:
       - cmd: bash -lc '{{.NIX_LOAD}}; gh issue edit {{.ISSUE_NUMBER}} --add-label {{.LABEL}}'
         platforms: [linux, darwin]
-      - cmd: gh issue edit {{.ISSUE_NUMBER}} --add-label {{.LABEL}}
+      - cmd: >-
+          powershell -NoProfile -ExecutionPolicy Bypass -Command
+          "{{.WINGET_LOAD}}; gh issue edit {{.ISSUE_NUMBER}} --add-label {{.LABEL}}; exit \$LASTEXITCODE"
         platforms: [windows]
 
   workflow:list:
@@ -706,7 +771,9 @@ tasks:
     cmds:
       - cmd: bash -lc '{{.NIX_LOAD}}; gh workflow list'
         platforms: [linux, darwin]
-      - cmd: gh workflow list
+      - cmd: >-
+          powershell -NoProfile -ExecutionPolicy Bypass -Command
+          "{{.WINGET_LOAD}}; gh workflow list; exit \$LASTEXITCODE"
         platforms: [windows]
 
   workflow:view:
@@ -723,7 +790,9 @@ tasks:
     cmds:
       - cmd: bash -lc '{{.NIX_LOAD}}; gh workflow view {{.WORKFLOW}}'
         platforms: [linux, darwin]
-      - cmd: gh workflow view {{.WORKFLOW}}
+      - cmd: >-
+          powershell -NoProfile -ExecutionPolicy Bypass -Command
+          "{{.WINGET_LOAD}}; gh workflow view {{.WORKFLOW}}; exit \$LASTEXITCODE"
         platforms: [windows]
 
   workflow:run:
@@ -741,7 +810,9 @@ tasks:
     cmds:
       - cmd: bash -lc '{{.NIX_LOAD}}; gh workflow run {{.WORKFLOW}} {{if .BRANCH}}--ref {{.BRANCH}}{{end}}'
         platforms: [linux, darwin]
-      - cmd: gh workflow run {{.WORKFLOW}} {{if .BRANCH}}--ref {{.BRANCH}}{{end}}
+      - cmd: >-
+          powershell -NoProfile -ExecutionPolicy Bypass -Command
+          "{{.WINGET_LOAD}}; gh workflow run {{.WORKFLOW}} {{if .BRANCH}}--ref {{.BRANCH}}{{end}}; exit \$LASTEXITCODE"
         platforms: [windows]
 
   workflow:watch:
@@ -769,7 +840,9 @@ tasks:
     cmds:
       - cmd: bash -lc '{{.NIX_LOAD}}; gh run list'
         platforms: [linux, darwin]
-      - cmd: gh run list
+      - cmd: >-
+          powershell -NoProfile -ExecutionPolicy Bypass -Command
+          "{{.WINGET_LOAD}}; gh run list; exit \$LASTEXITCODE"
         platforms: [windows]
 
   run:view:
@@ -786,7 +859,9 @@ tasks:
     cmds:
       - cmd: bash -lc '{{.NIX_LOAD}}; gh run view {{.RUN_ID}}'
         platforms: [linux, darwin]
-      - cmd: gh run view {{.RUN_ID}}
+      - cmd: >-
+          powershell -NoProfile -ExecutionPolicy Bypass -Command
+          "{{.WINGET_LOAD}}; gh run view {{.RUN_ID}}; exit \$LASTEXITCODE"
         platforms: [windows]
 
   run:logs:
@@ -803,7 +878,9 @@ tasks:
     cmds:
       - cmd: bash -lc '{{.NIX_LOAD}}; gh run view {{.RUN_ID}} --log'
         platforms: [linux, darwin]
-      - cmd: gh run view {{.RUN_ID}} --log
+      - cmd: >-
+          powershell -NoProfile -ExecutionPolicy Bypass -Command
+          "{{.WINGET_LOAD}}; gh run view {{.RUN_ID}} --log; exit \$LASTEXITCODE"
         platforms: [windows]
 
   run:rerun:
@@ -820,7 +897,9 @@ tasks:
     cmds:
       - cmd: bash -lc '{{.NIX_LOAD}}; gh run rerun {{.RUN_ID}}'
         platforms: [linux, darwin]
-      - cmd: gh run rerun {{.RUN_ID}}
+      - cmd: >-
+          powershell -NoProfile -ExecutionPolicy Bypass -Command
+          "{{.WINGET_LOAD}}; gh run rerun {{.RUN_ID}}; exit \$LASTEXITCODE"
         platforms: [windows]
 
   run:cancel:
@@ -837,7 +916,9 @@ tasks:
     cmds:
       - cmd: bash -lc '{{.NIX_LOAD}}; gh run cancel {{.RUN_ID}}'
         platforms: [linux, darwin]
-      - cmd: gh run cancel {{.RUN_ID}}
+      - cmd: >-
+          powershell -NoProfile -ExecutionPolicy Bypass -Command
+          "{{.WINGET_LOAD}}; gh run cancel {{.RUN_ID}}; exit \$LASTEXITCODE"
         platforms: [windows]
 
   release:list:
@@ -852,7 +933,9 @@ tasks:
     cmds:
       - cmd: bash -lc '{{.NIX_LOAD}}; gh release list {{if .OWNER}}--repo {{.OWNER}}/{{.REPO}}{{end}}'
         platforms: [linux, darwin]
-      - cmd: gh release list {{if .OWNER}}--repo {{.OWNER}}/{{.REPO}}{{end}}
+      - cmd: >-
+          powershell -NoProfile -ExecutionPolicy Bypass -Command
+          "{{.WINGET_LOAD}}; gh release list {{if .OWNER}}--repo {{.OWNER}}/{{.REPO}}{{end}}; exit \$LASTEXITCODE"
         platforms: [windows]
 
   release:view:
@@ -867,7 +950,10 @@ tasks:
     cmds:
       - cmd: bash -lc '{{.NIX_LOAD}}; gh release view {{.TAG}} {{if .OWNER}}--repo {{.OWNER}}/{{.REPO}}{{end}}'
         platforms: [linux, darwin]
-      - cmd: gh release view {{.TAG}} {{if .OWNER}}--repo {{.OWNER}}/{{.REPO}}{{end}}
+      - cmd: >-
+          powershell -NoProfile -ExecutionPolicy Bypass -Command
+          "{{.WINGET_LOAD}}; gh release view {{.TAG}} {{if .OWNER}}--repo {{.OWNER}}/{{.REPO}}{{end}};
+          exit \$LASTEXITCODE"
         platforms: [windows]
 
   release:create:
@@ -893,10 +979,11 @@ tasks:
           {{if .NOTES}}--notes "{{.NOTES}}"{{end}}'
         platforms: [linux, darwin]
       - cmd: >-
-          gh release create {{.TAG}}
-          {{if .OWNER}}--repo {{.OWNER}}/{{.REPO}}{{end}}
-          {{if .TITLE}}--title "{{.TITLE}}"{{end}}
-          {{if .NOTES}}--notes "{{.NOTES}}"{{end}}
+          powershell -NoProfile -ExecutionPolicy Bypass -Command
+          "{{.WINGET_LOAD}};
+          gh release create {{.TAG}} {{if .OWNER}}--repo {{.OWNER}}/{{.REPO}}{{end}} {{if .TITLE}}--title
+          '{{.TITLE}}'{{end}} {{if .NOTES}}--notes '{{.NOTES}}'{{end}}
+          ; exit \$LASTEXITCODE"
         platforms: [windows]
 
   release:upload:
@@ -919,7 +1006,10 @@ tasks:
           gh release upload {{.TAG}} {{.ASSET}}
           {{if .OWNER}}--repo {{.OWNER}}/{{.REPO}}{{end}}'
         platforms: [linux, darwin]
-      - cmd: gh release upload {{.TAG}} {{.ASSET}} {{if .OWNER}}--repo {{.OWNER}}/{{.REPO}}{{end}}
+      - cmd: >-
+          powershell -NoProfile -ExecutionPolicy Bypass -Command
+          "{{.WINGET_LOAD}}; gh release upload {{.TAG}} {{.ASSET}} {{if .OWNER}}--repo {{.OWNER}}/{{.REPO}}{{end}};
+          exit \$LASTEXITCODE"
         platforms: [windows]
 
   release:download:
@@ -941,9 +1031,11 @@ tasks:
           {{if ne .GH_DOWNLOAD_DIR "."}}--dir {{.GH_DOWNLOAD_DIR}}{{end}}'
         platforms: [linux, darwin]
       - cmd: >-
-          gh release download {{.TAG}}
-          {{if .OWNER}}--repo {{.OWNER}}/{{.REPO}}{{end}}
-          {{if ne .GH_DOWNLOAD_DIR "."}}--dir {{.GH_DOWNLOAD_DIR}}{{end}}
+          powershell -NoProfile -ExecutionPolicy Bypass -Command
+          "{{.WINGET_LOAD}};
+          gh release download {{.TAG}} {{if .OWNER}}--repo {{.OWNER}}/{{.REPO}}{{end}} {{if ne .GH_DOWNLOAD_DIR
+          "."}}--dir {{.GH_DOWNLOAD_DIR}}{{end}}
+          ; exit \$LASTEXITCODE"
         platforms: [windows]
 
   release:download:all:
@@ -986,14 +1078,14 @@ tasks:
     cmds:
       - >-
         powershell -NoProfile -ExecutionPolicy Bypass -Command
-        "$repoFlag = '{{if .OWNER}}--repo {{.OWNER}}/{{.REPO}}{{end}}';
-        $baseDir = '{{.GH_DOWNLOAD_DIR}}';
-        $tags = gh release list $repoFlag --json tagName --jq '.[].tagName';
-        foreach ($tag in $tags) {
-          $dest = Join-Path $baseDir $tag;
-          New-Item -ItemType Directory -Force -Path $dest | Out-Null;
-          gh release download $tag $repoFlag --dir $dest
-        }"
+        "{{.WINGET_LOAD}}; \$repoFlag = '{{if .OWNER}}--repo {{.OWNER}}/{{.REPO}}{{end}}';
+        \$baseDir = '{{.GH_DOWNLOAD_DIR}}';
+        \$tags = gh release list \$repoFlag --json tagName --jq '.[].tagName';
+        foreach (\$tag in \$tags) {
+          \$dest = Join-Path \$baseDir \$tag;
+          New-Item -ItemType Directory -Force -Path \$dest | Out-Null;
+          gh release download \$tag \$repoFlag --dir \$dest
+        }; exit \$LASTEXITCODE"
 
   release:delete:danger:
     run: once
@@ -1016,7 +1108,10 @@ tasks:
     cmds:
       - cmd: bash -lc '{{.NIX_LOAD}}; gh release delete {{.TAG}} --yes {{if .OWNER}}--repo {{.OWNER}}/{{.REPO}}{{end}}'
         platforms: [linux, darwin]
-      - cmd: gh release delete {{.TAG}} --yes {{if .OWNER}}--repo {{.OWNER}}/{{.REPO}}{{end}}
+      - cmd: >-
+          powershell -NoProfile -ExecutionPolicy Bypass -Command
+          "{{.WINGET_LOAD}}; gh release delete {{.TAG}} --yes {{if .OWNER}}--repo {{.OWNER}}/{{.REPO}}{{end}};
+          exit \$LASTEXITCODE"
         platforms: [windows]
 
   secret:list:
@@ -1031,7 +1126,9 @@ tasks:
     cmds:
       - cmd: bash -lc '{{.NIX_LOAD}}; gh secret list {{if .ENVIRONMENT}}--env {{.ENVIRONMENT}}{{end}}'
         platforms: [linux, darwin]
-      - cmd: gh secret list {{if .ENVIRONMENT}}--env {{.ENVIRONMENT}}{{end}}
+      - cmd: >-
+          powershell -NoProfile -ExecutionPolicy Bypass -Command
+          "{{.WINGET_LOAD}}; gh secret list {{if .ENVIRONMENT}}--env {{.ENVIRONMENT}}{{end}}; exit \$LASTEXITCODE"
         platforms: [windows]
 
   secret:set:
@@ -1075,7 +1172,10 @@ tasks:
           gh secret delete {{.SECRET_NAME}}
           {{if .ENVIRONMENT}}--env {{.ENVIRONMENT}}{{end}}'
         platforms: [linux, darwin]
-      - cmd: gh secret delete {{.SECRET_NAME}} {{if .ENVIRONMENT}}--env {{.ENVIRONMENT}}{{end}}
+      - cmd: >-
+          powershell -NoProfile -ExecutionPolicy Bypass -Command
+          "{{.WINGET_LOAD}}; gh secret delete {{.SECRET_NAME}} {{if .ENVIRONMENT}}--env {{.ENVIRONMENT}}{{end}};
+          exit \$LASTEXITCODE"
         platforms: [windows]
 
   variable:list:
@@ -1090,7 +1190,9 @@ tasks:
     cmds:
       - cmd: bash -lc '{{.NIX_LOAD}}; gh variable list {{if .ENVIRONMENT}}--env {{.ENVIRONMENT}}{{end}}'
         platforms: [linux, darwin]
-      - cmd: gh variable list {{if .ENVIRONMENT}}--env {{.ENVIRONMENT}}{{end}}
+      - cmd: >-
+          powershell -NoProfile -ExecutionPolicy Bypass -Command
+          "{{.WINGET_LOAD}}; gh variable list {{if .ENVIRONMENT}}--env {{.ENVIRONMENT}}{{end}}; exit \$LASTEXITCODE"
         platforms: [windows]
 
   variable:set:
@@ -1115,9 +1217,11 @@ tasks:
           {{if .ENVIRONMENT}}--env {{.ENVIRONMENT}}{{end}}'
         platforms: [linux, darwin]
       - cmd: >-
-          gh variable set {{.VARIABLE_NAME}}
-          --body "{{.VARIABLE_VALUE}}"
-          {{if .ENVIRONMENT}}--env {{.ENVIRONMENT}}{{end}}
+          powershell -NoProfile -ExecutionPolicy Bypass -Command
+          "{{.WINGET_LOAD}};
+          gh variable set {{.VARIABLE_NAME}} --body '{{.VARIABLE_VALUE}}' {{if .ENVIRONMENT}}--env
+          {{.ENVIRONMENT}}{{end}}
+          ; exit \$LASTEXITCODE"
         platforms: [windows]
 
   variable:delete:danger:
@@ -1141,7 +1245,10 @@ tasks:
           gh variable delete {{.VARIABLE_NAME}}
           {{if .ENVIRONMENT}}--env {{.ENVIRONMENT}}{{end}}'
         platforms: [linux, darwin]
-      - cmd: gh variable delete {{.VARIABLE_NAME}} {{if .ENVIRONMENT}}--env {{.ENVIRONMENT}}{{end}}
+      - cmd: >-
+          powershell -NoProfile -ExecutionPolicy Bypass -Command
+          "{{.WINGET_LOAD}}; gh variable delete {{.VARIABLE_NAME}} {{if .ENVIRONMENT}}--env {{.ENVIRONMENT}}{{end}};
+          exit \$LASTEXITCODE"
         platforms: [windows]
 
   gist:list:
@@ -1153,7 +1260,9 @@ tasks:
     cmds:
       - cmd: bash -lc '{{.NIX_LOAD}}; gh gist list'
         platforms: [linux, darwin]
-      - cmd: gh gist list
+      - cmd: >-
+          powershell -NoProfile -ExecutionPolicy Bypass -Command
+          "{{.WINGET_LOAD}}; gh gist list; exit \$LASTEXITCODE"
         platforms: [windows]
 
   gist:view:
@@ -1170,7 +1279,9 @@ tasks:
     cmds:
       - cmd: bash -lc '{{.NIX_LOAD}}; gh gist view {{.GIST_ID}}'
         platforms: [linux, darwin]
-      - cmd: gh gist view {{.GIST_ID}}
+      - cmd: >-
+          powershell -NoProfile -ExecutionPolicy Bypass -Command
+          "{{.WINGET_LOAD}}; gh gist view {{.GIST_ID}}; exit \$LASTEXITCODE"
         platforms: [windows]
 
   gist:create:
@@ -1188,7 +1299,10 @@ tasks:
     cmds:
       - cmd: bash -lc '{{.NIX_LOAD}}; gh gist create {{.FILE}} {{if .DESCRIPTION}}--desc "{{.DESCRIPTION}}"{{end}}'
         platforms: [linux, darwin]
-      - cmd: gh gist create {{.FILE}} {{if .DESCRIPTION}}--desc "{{.DESCRIPTION}}"{{end}}
+      - cmd: >-
+          powershell -NoProfile -ExecutionPolicy Bypass -Command
+          "{{.WINGET_LOAD}}; gh gist create {{.FILE}} {{if .DESCRIPTION}}--desc '{{.DESCRIPTION}}'{{end}};
+          exit \$LASTEXITCODE"
         platforms: [windows]
 
   gist:delete:danger:
@@ -1208,7 +1322,9 @@ tasks:
     cmds:
       - cmd: bash -lc '{{.NIX_LOAD}}; gh gist delete {{.GIST_ID}}'
         platforms: [linux, darwin]
-      - cmd: gh gist delete {{.GIST_ID}}
+      - cmd: >-
+          powershell -NoProfile -ExecutionPolicy Bypass -Command
+          "{{.WINGET_LOAD}}; gh gist delete {{.GIST_ID}}; exit \$LASTEXITCODE"
         platforms: [windows]
 
   api:get:
@@ -1225,7 +1341,9 @@ tasks:
     cmds:
       - cmd: bash -lc '{{.NIX_LOAD}}; gh api {{.ENDPOINT}}'
         platforms: [linux, darwin]
-      - cmd: gh api {{.ENDPOINT}}
+      - cmd: >-
+          powershell -NoProfile -ExecutionPolicy Bypass -Command
+          "{{.WINGET_LOAD}}; gh api {{.ENDPOINT}}; exit \$LASTEXITCODE"
         platforms: [windows]
 
   api:post:
@@ -1278,7 +1396,9 @@ tasks:
     cmds:
       - cmd: bash -lc '{{.NIX_LOAD}}; gh api --method DELETE {{.ENDPOINT}}'
         platforms: [linux, darwin]
-      - cmd: gh api --method DELETE {{.ENDPOINT}}
+      - cmd: >-
+          powershell -NoProfile -ExecutionPolicy Bypass -Command
+          "{{.WINGET_LOAD}}; gh api --method DELETE {{.ENDPOINT}}; exit \$LASTEXITCODE"
         platforms: [windows]
 
   extension:list:
@@ -1290,7 +1410,9 @@ tasks:
     cmds:
       - cmd: bash -lc '{{.NIX_LOAD}}; gh extension list'
         platforms: [linux, darwin]
-      - cmd: gh extension list
+      - cmd: >-
+          powershell -NoProfile -ExecutionPolicy Bypass -Command
+          "{{.WINGET_LOAD}}; gh extension list; exit \$LASTEXITCODE"
         platforms: [windows]
 
   extension:install:
@@ -1307,7 +1429,9 @@ tasks:
     cmds:
       - cmd: bash -lc '{{.NIX_LOAD}}; gh extension install {{.EXTENSION}}'
         platforms: [linux, darwin]
-      - cmd: gh extension install {{.EXTENSION}}
+      - cmd: >-
+          powershell -NoProfile -ExecutionPolicy Bypass -Command
+          "{{.WINGET_LOAD}}; gh extension install {{.EXTENSION}}; exit \$LASTEXITCODE"
         platforms: [windows]
 
   extension:upgrade:
@@ -1325,7 +1449,9 @@ tasks:
     cmds:
       - cmd: bash -lc '{{.NIX_LOAD}}; gh extension upgrade {{.EXTENSION}}'
         platforms: [linux, darwin]
-      - cmd: gh extension upgrade {{.EXTENSION}}
+      - cmd: >-
+          powershell -NoProfile -ExecutionPolicy Bypass -Command
+          "{{.WINGET_LOAD}}; gh extension upgrade {{.EXTENSION}}; exit \$LASTEXITCODE"
         platforms: [windows]
 
   extension:remove:
@@ -1342,7 +1468,9 @@ tasks:
     cmds:
       - cmd: bash -lc '{{.NIX_LOAD}}; gh extension remove {{.EXTENSION}}'
         platforms: [linux, darwin]
-      - cmd: gh extension remove {{.EXTENSION}}
+      - cmd: >-
+          powershell -NoProfile -ExecutionPolicy Bypass -Command
+          "{{.WINGET_LOAD}}; gh extension remove {{.EXTENSION}}; exit \$LASTEXITCODE"
         platforms: [windows]
 
   config:list:
@@ -1354,7 +1482,9 @@ tasks:
     cmds:
       - cmd: bash -lc '{{.NIX_LOAD}}; gh config list'
         platforms: [linux, darwin]
-      - cmd: gh config list
+      - cmd: >-
+          powershell -NoProfile -ExecutionPolicy Bypass -Command
+          "{{.WINGET_LOAD}}; gh config list; exit \$LASTEXITCODE"
         platforms: [windows]
 
   config:get:
@@ -1371,7 +1501,9 @@ tasks:
     cmds:
       - cmd: bash -lc '{{.NIX_LOAD}}; gh config get {{.CONFIG_KEY}}'
         platforms: [linux, darwin]
-      - cmd: gh config get {{.CONFIG_KEY}}
+      - cmd: >-
+          powershell -NoProfile -ExecutionPolicy Bypass -Command
+          "{{.WINGET_LOAD}}; gh config get {{.CONFIG_KEY}}; exit \$LASTEXITCODE"
         platforms: [windows]
 
   config:set:
@@ -1390,7 +1522,9 @@ tasks:
     cmds:
       - cmd: bash -lc '{{.NIX_LOAD}}; gh config set {{.CONFIG_KEY}} {{.CONFIG_VALUE}}'
         platforms: [linux, darwin]
-      - cmd: gh config set {{.CONFIG_KEY}} {{.CONFIG_VALUE}}
+      - cmd: >-
+          powershell -NoProfile -ExecutionPolicy Bypass -Command
+          "{{.WINGET_LOAD}}; gh config set {{.CONFIG_KEY}} {{.CONFIG_VALUE}}; exit \$LASTEXITCODE"
         platforms: [windows]
 
   ssh-key:list:
@@ -1402,7 +1536,9 @@ tasks:
     cmds:
       - cmd: bash -lc '{{.NIX_LOAD}}; gh ssh-key list'
         platforms: [linux, darwin]
-      - cmd: gh ssh-key list
+      - cmd: >-
+          powershell -NoProfile -ExecutionPolicy Bypass -Command
+          "{{.WINGET_LOAD}}; gh ssh-key list; exit \$LASTEXITCODE"
         platforms: [windows]
 
   ssh-key:add:
@@ -1423,7 +1559,11 @@ tasks:
           gh ssh-key add {{.SSH_KEY_FILE}}
           {{if .SSH_KEY_TITLE}}--title "{{.SSH_KEY_TITLE}}"{{end}}'
         platforms: [linux, darwin]
-      - cmd: gh ssh-key add {{.SSH_KEY_FILE}} {{if .SSH_KEY_TITLE}}--title "{{.SSH_KEY_TITLE}}"{{end}}
+      - cmd: >-
+          powershell -NoProfile -ExecutionPolicy Bypass -Command
+          "{{.WINGET_LOAD}};
+          gh ssh-key add {{.SSH_KEY_FILE}} {{if .SSH_KEY_TITLE}}--title '{{.SSH_KEY_TITLE}}'{{end}};
+          exit \$LASTEXITCODE"
         platforms: [windows]
 
   ssh-key:delete:danger:
@@ -1444,7 +1584,9 @@ tasks:
     cmds:
       - cmd: bash -lc '{{.NIX_LOAD}}; gh ssh-key delete {{.SSH_KEY_ID}} --yes'
         platforms: [linux, darwin]
-      - cmd: gh ssh-key delete {{.SSH_KEY_ID}} --yes
+      - cmd: >-
+          powershell -NoProfile -ExecutionPolicy Bypass -Command
+          "{{.WINGET_LOAD}}; gh ssh-key delete {{.SSH_KEY_ID}} --yes; exit \$LASTEXITCODE"
         platforms: [windows]
 
   alias:list:
@@ -1456,7 +1598,9 @@ tasks:
     cmds:
       - cmd: bash -lc '{{.NIX_LOAD}}; gh alias list'
         platforms: [linux, darwin]
-      - cmd: gh alias list
+      - cmd: >-
+          powershell -NoProfile -ExecutionPolicy Bypass -Command
+          "{{.WINGET_LOAD}}; gh alias list; exit \$LASTEXITCODE"
         platforms: [windows]
 
   alias:set:
@@ -1490,7 +1634,9 @@ tasks:
     cmds:
       - cmd: bash -lc '{{.NIX_LOAD}}; gh alias delete {{.ALIAS_NAME}}'
         platforms: [linux, darwin]
-      - cmd: gh alias delete {{.ALIAS_NAME}}
+      - cmd: >-
+          powershell -NoProfile -ExecutionPolicy Bypass -Command
+          "{{.WINGET_LOAD}}; gh alias delete {{.ALIAS_NAME}}; exit \$LASTEXITCODE"
         platforms: [windows]
 
   project:list:
@@ -1505,7 +1651,9 @@ tasks:
     cmds:
       - cmd: bash -lc '{{.NIX_LOAD}}; gh project list {{if .OWNER}}--owner {{.OWNER}}{{end}}'
         platforms: [linux, darwin]
-      - cmd: gh project list {{if .OWNER}}--owner {{.OWNER}}{{end}}
+      - cmd: >-
+          powershell -NoProfile -ExecutionPolicy Bypass -Command
+          "{{.WINGET_LOAD}}; gh project list {{if .OWNER}}--owner {{.OWNER}}{{end}}; exit \$LASTEXITCODE"
         platforms: [windows]
 
   project:view:
@@ -1523,7 +1671,10 @@ tasks:
     cmds:
       - cmd: bash -lc '{{.NIX_LOAD}}; gh project view {{.PROJECT_NUMBER}} {{if .OWNER}}--owner {{.OWNER}}{{end}}'
         platforms: [linux, darwin]
-      - cmd: gh project view {{.PROJECT_NUMBER}} {{if .OWNER}}--owner {{.OWNER}}{{end}}
+      - cmd: >-
+          powershell -NoProfile -ExecutionPolicy Bypass -Command
+          "{{.WINGET_LOAD}}; gh project view {{.PROJECT_NUMBER}} {{if .OWNER}}--owner {{.OWNER}}{{end}};
+          exit \$LASTEXITCODE"
         platforms: [windows]
 
   project:create:
@@ -1544,7 +1695,10 @@ tasks:
           gh project create --title "{{.PROJECT_TITLE}}"
           {{if .OWNER}}--owner {{.OWNER}}{{end}}'
         platforms: [linux, darwin]
-      - cmd: gh project create --title "{{.PROJECT_TITLE}}" {{if .OWNER}}--owner {{.OWNER}}{{end}}
+      - cmd: >-
+          powershell -NoProfile -ExecutionPolicy Bypass -Command
+          "{{.WINGET_LOAD}}; gh project create --title '{{.PROJECT_TITLE}}' {{if .OWNER}}--owner {{.OWNER}}{{end}};
+          exit \$LASTEXITCODE"
         platforms: [windows]
 
   open:
@@ -1556,7 +1710,9 @@ tasks:
     cmds:
       - cmd: bash -lc '{{.NIX_LOAD}}; gh repo view --web'
         platforms: [linux, darwin]
-      - cmd: gh repo view --web
+      - cmd: >-
+          powershell -NoProfile -ExecutionPolicy Bypass -Command
+          "{{.WINGET_LOAD}}; gh repo view --web; exit \$LASTEXITCODE"
         platforms: [windows]
 
   browse:
@@ -1570,7 +1726,9 @@ tasks:
     cmds:
       - cmd: bash -lc '{{.NIX_LOAD}}; gh browse'
         platforms: [linux, darwin]
-      - cmd: gh browse
+      - cmd: >-
+          powershell -NoProfile -ExecutionPolicy Bypass -Command
+          "{{.WINGET_LOAD}}; gh browse; exit \$LASTEXITCODE"
         platforms: [windows]
 
   search:repos:
@@ -1587,7 +1745,9 @@ tasks:
     cmds:
       - cmd: bash -lc '{{.NIX_LOAD}}; gh search repos "{{.QUERY}}"'
         platforms: [linux, darwin]
-      - cmd: gh search repos "{{.QUERY}}"
+      - cmd: >-
+          powershell -NoProfile -ExecutionPolicy Bypass -Command
+          "{{.WINGET_LOAD}}; gh search repos '{{.QUERY}}'; exit \$LASTEXITCODE"
         platforms: [windows]
 
   search:issues:
@@ -1604,7 +1764,9 @@ tasks:
     cmds:
       - cmd: bash -lc '{{.NIX_LOAD}}; gh search issues "{{.QUERY}}"'
         platforms: [linux, darwin]
-      - cmd: gh search issues "{{.QUERY}}"
+      - cmd: >-
+          powershell -NoProfile -ExecutionPolicy Bypass -Command
+          "{{.WINGET_LOAD}}; gh search issues '{{.QUERY}}'; exit \$LASTEXITCODE"
         platforms: [windows]
 
   search:prs:
@@ -1621,7 +1783,9 @@ tasks:
     cmds:
       - cmd: bash -lc '{{.NIX_LOAD}}; gh search prs "{{.QUERY}}"'
         platforms: [linux, darwin]
-      - cmd: gh search prs "{{.QUERY}}"
+      - cmd: >-
+          powershell -NoProfile -ExecutionPolicy Bypass -Command
+          "{{.WINGET_LOAD}}; gh search prs '{{.QUERY}}'; exit \$LASTEXITCODE"
         platforms: [windows]
 
   _repo:clone:unix:
@@ -1661,11 +1825,11 @@ tasks:
     cmds:
       - >-
         powershell -NoProfile -ExecutionPolicy Bypass -Command
-        "$target = '{{if .OWNER}}{{.OWNER}}/{{end}}{{.REPO}}';
-        $dest = '{{if ne .GH_CLONE_DIR "."}}{{.GH_CLONE_DIR}}{{end}}';
-        $args = @($dest) | Where-Object { $_ };
-        if ($env:GH_PAT) { git clone \"https://$env:GH_PAT@github.com/$target.git\" @args }
-        else { gh repo clone $target @args }"
+        "{{.WINGET_LOAD}}; \$target = '{{if .OWNER}}{{.OWNER}}/{{end}}{{.REPO}}';
+        \$dest = '{{if ne .GH_CLONE_DIR "."}}{{.GH_CLONE_DIR}}{{end}}';
+        \$args = @(\$dest) | Where-Object { \$_ };
+        if (\$env:GH_PAT) { git clone \"https://\$env:GH_PAT@github.com/\$target.git\" @args }
+        else { gh repo clone \$target @args }; exit \$LASTEXITCODE"
 
   _api:post:unix:
     run: once
@@ -1692,7 +1856,7 @@ tasks:
     cmds:
       - >-
         powershell -NoProfile -ExecutionPolicy Bypass -Command
-        "$env:GH_DATA | gh api --method POST {{.ENDPOINT}} --input -"
+        "{{.WINGET_LOAD}}; \$env:GH_DATA | gh api --method POST {{.ENDPOINT}} --input -; exit \$LASTEXITCODE"
 
   _api:patch:unix:
     run: once
@@ -1719,7 +1883,7 @@ tasks:
     cmds:
       - >-
         powershell -NoProfile -ExecutionPolicy Bypass -Command
-        "$env:GH_DATA | gh api --method PATCH {{.ENDPOINT}} --input -"
+        "{{.WINGET_LOAD}}; \$env:GH_DATA | gh api --method PATCH {{.ENDPOINT}} --input -; exit \$LASTEXITCODE"
 
   _alias:set:unix:
     run: once
@@ -1740,7 +1904,9 @@ tasks:
     summary: Run gh alias set with double-quote wrapping on Windows.
     platforms: [windows]
     cmds:
-      - gh alias set {{.ALIAS_NAME}} "{{.ALIAS_COMMAND}}"
+      - >-
+        powershell -NoProfile -ExecutionPolicy Bypass -Command
+        "{{.WINGET_LOAD}}; gh alias set {{.ALIAS_NAME}} '{{.ALIAS_COMMAND}}'; exit \$LASTEXITCODE"
 
   _workflow:watch:unix:
     run: once
@@ -1763,9 +1929,9 @@ tasks:
     cmds:
       - >-
         powershell -NoProfile -ExecutionPolicy Bypass -Command
-        "$runId = (gh run list --workflow {{.WORKFLOW}} --limit 1 --json databaseId
+        "{{.WINGET_LOAD}}; \$runId = (gh run list --workflow {{.WORKFLOW}} --limit 1 --json databaseId
         | ConvertFrom-Json)[0].databaseId;
-        gh run watch $runId"
+        gh run watch \$runId; exit \$LASTEXITCODE"
 
   _doctor:unix:
     run: once
@@ -1784,7 +1950,9 @@ tasks:
     summary: Run `gh doctor` to check configuration, auth, and connectivity on Windows.
     platforms: [windows]
     cmds:
-      - gh doctor
+      - >-
+        powershell -NoProfile -ExecutionPolicy Bypass -Command
+        "{{.WINGET_LOAD}}; gh doctor; exit \$LASTEXITCODE"
 
   _version:unix:
     run: once
@@ -1805,11 +1973,13 @@ tasks:
     preconditions:
       - sh: >-
           powershell -NoProfile -ExecutionPolicy Bypass -Command
-          "if (Get-Command gh -ErrorAction SilentlyContinue) {
+          "{{.WINGET_LOAD}}; if (Get-Command gh -ErrorAction SilentlyContinue) {
           exit 0 } else { exit 1 }"
         msg: The GitHub CLI is not installed or not available in PATH.
     cmds:
-      - gh --version
+      - >-
+        powershell -NoProfile -ExecutionPolicy Bypass -Command
+        "{{.WINGET_LOAD}}; gh --version; exit \$LASTEXITCODE"
 
   _which:unix:
     run: once
@@ -1828,7 +1998,9 @@ tasks:
     summary: Print the filesystem path of the gh binary on Windows.
     platforms: [windows]
     cmds:
-      - powershell -NoProfile -ExecutionPolicy Bypass -Command "(Get-Command gh).Source"
+      - >-
+        powershell -NoProfile -ExecutionPolicy Bypass -Command
+        "{{.WINGET_LOAD}}; (Get-Command gh).Source; exit \$LASTEXITCODE"
 
   _verify:unix:
     run: once
@@ -1862,11 +2034,11 @@ tasks:
     cmds:
       - >-
         powershell -NoProfile -ExecutionPolicy Bypass -Command
-        "Write-Host '=== gh binary ==='; (Get-Command gh).Source;
+        "{{.WINGET_LOAD}}; Write-Host '=== gh binary ==='; (Get-Command gh).Source;
         Write-Host ''; Write-Host '=== gh version ==='; gh --version;
         Write-Host ''; Write-Host '=== gh auth status ===';
         try { gh auth status }
-        catch { Write-Host 'Not authenticated. Run: task auth:login' }"
+        catch { Write-Host 'Not authenticated. Run: task auth:login' }; exit \$LASTEXITCODE"
 
   _secret:set:unix:
     run: once
@@ -1898,5 +2070,5 @@ tasks:
     cmds:
       - >-
         powershell -NoProfile -ExecutionPolicy Bypass -Command
-        "$env:GH_SECRET_VALUE | gh secret set {{.SECRET_NAME}} --body -
-        {{if .ENVIRONMENT}}--env {{.ENVIRONMENT}}{{end}}"
+        "{{.WINGET_LOAD}}; \$env:GH_SECRET_VALUE | gh secret set {{.SECRET_NAME}} --body -
+        {{if .ENVIRONMENT}}--env {{.ENVIRONMENT}}{{end}}; exit \$LASTEXITCODE"

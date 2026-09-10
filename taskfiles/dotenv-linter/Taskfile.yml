@@ -174,10 +174,11 @@ tasks:
     cmds:
       - >-
         powershell -NoProfile -ExecutionPolicy Bypass -Command
-        "$targets='{{.DOTENV_LINTER_TARGETS}}';
-        dotenv-linter {{.DOTENV_LINTER_SUBCOMMAND}} $targets.Split(' ')
+        "{{.WINGET_LOAD}}; {{.CARGO_LOAD}};
+        \$targets='{{.DOTENV_LINTER_TARGETS}}';
+        dotenv-linter {{.DOTENV_LINTER_SUBCOMMAND}} \$targets.Split(' ')
           {{.DOTENV_LINTER_EXTRA_ARGS}} {{.CLI_ARGS}};
-        exit $LASTEXITCODE"
+        exit \$LASTEXITCODE"
 
   _diff:unix:
     run: once
@@ -209,15 +210,19 @@ tasks:
     cmds:
       - >-
         powershell -NoProfile -ExecutionPolicy Bypass -Command
-        "$targets='{{.DOTENV_LINTER_TARGETS}}'.Split(' ', [System.StringSplitOptions]::RemoveEmptyEntries);
-        $options='{{.DOTENV_LINTER_EXTRA_ARGS}}'.Split(' ', [System.StringSplitOptions]::RemoveEmptyEntries);
+        "{{.WINGET_LOAD}}; {{.CARGO_LOAD}};
+        \$targets='{{.DOTENV_LINTER_TARGETS}}'.Split(' ',
+        [System.StringSplitOptions]::RemoveEmptyEntries);
+        \$options='{{.DOTENV_LINTER_EXTRA_ARGS}}'.Split(' ',
+        [System.StringSplitOptions]::RemoveEmptyEntries);
         if ('{{.CLI_ARGS}}') {
-          $arguments='{{.CLI_ARGS}}'.Split(' ', [System.StringSplitOptions]::RemoveEmptyEntries);
-          $targets=@($arguments | Where-Object { -not $_.StartsWith('-') });
-          $options=@($arguments | Where-Object { $_.StartsWith('-') });
+          \$arguments='{{.CLI_ARGS}}'.Split(' ',
+          [System.StringSplitOptions]::RemoveEmptyEntries);
+          \$targets=@(\$arguments | Where-Object { -not \$_.StartsWith('-') });
+          \$options=@(\$arguments | Where-Object { \$_.StartsWith('-') });
         };
         dotenv-linter diff @options @targets;
-        exit $LASTEXITCODE"
+        exit \$LASTEXITCODE"
 
   _version:unix:
     run: once
@@ -237,8 +242,12 @@ tasks:
     preconditions:
       - sh: >-
           powershell -NoProfile -ExecutionPolicy Bypass -Command
-          "if (Get-Command dotenv-linter -ErrorAction SilentlyContinue) {
+          "{{.WINGET_LOAD}}; {{.CARGO_LOAD}};
+          if (Get-Command dotenv-linter -ErrorAction SilentlyContinue) {
           exit 0 } else { exit 1 }"
         msg: dotenv-linter is not installed or not available in PATH.
     cmds:
-      - dotenv-linter --version
+      - >-
+        powershell -NoProfile -ExecutionPolicy Bypass -Command
+        "{{.WINGET_LOAD}}; {{.CARGO_LOAD}}; dotenv-linter --version;
+        exit \$LASTEXITCODE"

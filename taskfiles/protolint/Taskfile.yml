@@ -156,10 +156,11 @@ tasks:
     cmds:
       - >-
         powershell -NoProfile -ExecutionPolicy Bypass -Command
-        "$target='{{.PROTOLINT_TARGETS}}';
+        "{{.GO_LOAD}};
+        \$target='{{.PROTOLINT_TARGETS}}';
         protolint lint {{.PROTOLINT_FIX_FLAG}}
-          {{.PROTOLINT_EXTRA_ARGS}} $target;
-        exit $LASTEXITCODE"
+          {{.PROTOLINT_EXTRA_ARGS}} \$target;
+        exit \$LASTEXITCODE"
 
   _version:unix:
     run: once
@@ -179,8 +180,11 @@ tasks:
     preconditions:
       - sh: >-
           powershell -NoProfile -ExecutionPolicy Bypass -Command
-          "if (Get-Command protolint -ErrorAction SilentlyContinue) {
+          "{{.GO_LOAD}};
+          if (Get-Command protolint -ErrorAction SilentlyContinue) {
           exit 0 } else { exit 1 }"
         msg: protolint is not installed or not available in PATH.
     cmds:
-      - protolint version
+      - >-
+        powershell -NoProfile -ExecutionPolicy Bypass -Command
+        "{{.GO_LOAD}}; protolint version; exit \$LASTEXITCODE"

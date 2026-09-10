@@ -486,19 +486,19 @@ tasks:
     preconditions:
       - sh: >-
           powershell -NoProfile -ExecutionPolicy Bypass -Command
-          "if ((Test-Path 'node_modules\.bin\tsc.cmd') -or
+          "{{.WINGET_LOAD}}; if ((Test-Path 'node_modules\.bin\tsc.cmd') -or
           (Get-Command tsc -ErrorAction SilentlyContinue)) { exit 0 } else { exit 1 }"
         msg: "tsc not found. Run: task typescript:install"
       - sh: >-
           powershell -NoProfile -ExecutionPolicy Bypass -Command
-          "if (Test-Path '{{.TYPESCRIPT_TSCONFIG}}') { exit 0 } else { exit 1 }"
+          "{{.WINGET_LOAD}}; if (Test-Path '{{.TYPESCRIPT_TSCONFIG}}') { exit 0 } else { exit 1 }"
         msg: 'TSCONFIG "{{.TYPESCRIPT_TSCONFIG}}" not found. Run: task typescript:config:init'
     cmds:
       - >-
         powershell -NoProfile -ExecutionPolicy Bypass -Command
-        "if (Test-Path 'node_modules\.bin\tsc.cmd') { & node_modules\.bin\tsc.cmd
+        "{{.WINGET_LOAD}}; if (Test-Path 'node_modules\.bin\tsc.cmd') { & node_modules\.bin\tsc.cmd
         --project '{{.TYPESCRIPT_TSCONFIG}}' {{.ARGS}} }
-        else { tsc --project '{{.TYPESCRIPT_TSCONFIG}}' {{.ARGS}} }"
+        else { tsc --project '{{.TYPESCRIPT_TSCONFIG}}' {{.ARGS}} }; exit \$LASTEXITCODE"
 
   _tsc:noconfig:
     run: once
@@ -525,14 +525,14 @@ tasks:
     preconditions:
       - sh: >-
           powershell -NoProfile -ExecutionPolicy Bypass -Command
-          "if ((Test-Path 'node_modules\.bin\tsc.cmd') -or
+          "{{.WINGET_LOAD}}; if ((Test-Path 'node_modules\.bin\tsc.cmd') -or
           (Get-Command tsc -ErrorAction SilentlyContinue)) { exit 0 } else { exit 1 }"
         msg: "tsc not found. Run: task typescript:install"
     cmds:
       - >-
         powershell -NoProfile -ExecutionPolicy Bypass -Command
-        "if (Test-Path 'node_modules\.bin\tsc.cmd') { & node_modules\.bin\tsc.cmd {{.ARGS}} }
-        else { tsc {{.ARGS}} }"
+        "{{.WINGET_LOAD}}; if (Test-Path 'node_modules\.bin\tsc.cmd') { & node_modules\.bin\tsc.cmd {{.ARGS}} }
+        else { tsc {{.ARGS}} }; exit \$LASTEXITCODE"
 
   _tsx:
     run: once
@@ -561,18 +561,18 @@ tasks:
     preconditions:
       - sh: >-
           powershell -NoProfile -ExecutionPolicy Bypass -Command
-          "if ((Test-Path 'node_modules\.bin\tsx.cmd') -or
+          "{{.WINGET_LOAD}}; if ((Test-Path 'node_modules\.bin\tsx.cmd') -or
           (Get-Command tsx -ErrorAction SilentlyContinue)) { exit 0 } else { exit 1 }"
         msg: "tsx not found. Run: task typescript:install"
       - sh: >-
           powershell -NoProfile -ExecutionPolicy Bypass -Command
-          "if (Test-Path '{{.TYPESCRIPT_FILE}}') { exit 0 } else { exit 1 }"
+          "{{.WINGET_LOAD}}; if (Test-Path '{{.TYPESCRIPT_FILE}}') { exit 0 } else { exit 1 }"
         msg: 'TYPESCRIPT_FILE "{{.TYPESCRIPT_FILE}}" not found. Set TYPESCRIPT_FILE=path/to/your/file.ts'
     cmds:
       - >-
         powershell -NoProfile -ExecutionPolicy Bypass -Command
-        "if (Test-Path 'node_modules\.bin\tsx.cmd') { & node_modules\.bin\tsx.cmd {{.ARGS}} }
-        else { tsx {{.ARGS}} }"
+        "{{.WINGET_LOAD}}; if (Test-Path 'node_modules\.bin\tsx.cmd') { & node_modules\.bin\tsx.cmd {{.ARGS}} }
+        else { tsx {{.ARGS}} }; exit \$LASTEXITCODE"
 
   _install:windows:
     run: once
@@ -584,7 +584,7 @@ tasks:
     preconditions:
       - sh: >-
           powershell -NoProfile -ExecutionPolicy Bypass -Command
-          "if (Test-Path '{{.USER_WORKING_DIR}}\\package.json') { exit 0 } else { exit 1 }"
+          "{{.WINGET_LOAD}}; if (Test-Path '{{.USER_WORKING_DIR}}\\package.json') { exit 0 } else { exit 1 }"
         msg: "package.json not found. Run this task from the Node.js project root."
     cmds:
       - task: pnpm:add
@@ -641,12 +641,12 @@ tasks:
     preconditions:
       - sh: >-
           powershell -NoProfile -ExecutionPolicy Bypass -Command
-          "if (Get-Command node -ErrorAction SilentlyContinue) { exit 0 } else { exit 1 }"
+          "{{.WINGET_LOAD}}; if (Get-Command node -ErrorAction SilentlyContinue) { exit 0 } else { exit 1 }"
         msg: "node is not available. Install Node.js first."
     cmds:
       - >-
         powershell -NoProfile -ExecutionPolicy Bypass -Command
-        "Write-Host '=== tsc (TypeScript Compiler) ===';
+        "{{.WINGET_LOAD}}; Write-Host '=== tsc (TypeScript Compiler) ===';
         if (Test-Path 'node_modules\.bin\tsc.cmd') { & node_modules\.bin\tsc.cmd --version }
         elseif (Get-Command tsc -ErrorAction SilentlyContinue) { tsc --version }
         else { Write-Host 'tsc not found. Run task typescript:install' };
@@ -663,7 +663,7 @@ tasks:
         Write-Host ('Binary: ' + (Get-Command tsserver).Source) }
         else { Write-Host 'tsserver not found. Run task typescript:install' };
         Write-Host 'Uses TypeScript Server protocol (stdio-based), not LSP directly.';
-        Write-Host 'Managed by your editor. Do not start it manually.'"
+        Write-Host 'Managed by your editor. Do not start it manually.'; exit \$LASTEXITCODE"
 
   _tsserver:info:unix:
     run: once
@@ -707,7 +707,7 @@ tasks:
     cmds:
       - >-
         powershell -NoProfile -ExecutionPolicy Bypass -Command
-        "Write-Host '=== tsserver (TypeScript Server) ==='; Write-Host '';
+        "{{.WINGET_LOAD}}; Write-Host '=== tsserver (TypeScript Server) ==='; Write-Host '';
         if (Test-Path 'node_modules\.bin\tsserver.cmd') {
         Write-Host ('Binary: ' + (Get-Location).Path + '\node_modules\.bin\tsserver.cmd');
         Write-Host 'Source: ships with the typescript package' }
@@ -728,7 +728,7 @@ tasks:
         Write-Host '  TypeScript: Restart TS Server';
         Write-Host '  TypeScript: Select TypeScript Version';
         Write-Host '  TypeScript: Open TS Server Log';
-        Write-Host '  TypeScript: Go to Project Config'"
+        Write-Host '  TypeScript: Go to Project Config'; exit \$LASTEXITCODE"
 
   _build:clean:unix:
     run: once
@@ -753,7 +753,9 @@ tasks:
       - echo Removing {{.TYPESCRIPT_OUT_DIR}}...
       - >-
         powershell -NoProfile -ExecutionPolicy Bypass -Command
-        "if (Test-Path '{{.TYPESCRIPT_OUT_DIR}}') { Remove-Item -Recurse -Force '{{.TYPESCRIPT_OUT_DIR}}' }"
+        "{{.WINGET_LOAD}};
+        if (Test-Path '{{.TYPESCRIPT_OUT_DIR}}') { Remove-Item -Recurse -Force '{{.TYPESCRIPT_OUT_DIR}}' };
+        exit \$LASTEXITCODE"
       - task: _tsc:windows
         vars:
           ARGS: "--noEmitOnError{{if .TYPESCRIPT_TSC_FLAGS}} {{.TYPESCRIPT_TSC_FLAGS}}{{end}}"
@@ -792,10 +794,10 @@ tasks:
             {{- if .TYPESCRIPT_TSC_FLAGS}} {{.TYPESCRIPT_TSC_FLAGS}}{{end}}
       - >-
         powershell -NoProfile -ExecutionPolicy Bypass -Command
-        "Write-Host '';
+        "{{.WINGET_LOAD}}; Write-Host '';
         Write-Host 'Trace written to {{.TYPESCRIPT_TRACE_DIR}}/';
         Write-Host 'Analyse with - npx @typescript/analyze-trace {{.TYPESCRIPT_TRACE_DIR}}';
-        Write-Host 'Or load {{.TYPESCRIPT_TRACE_DIR}}/trace.json in chrome://tracing'"
+        Write-Host 'Or load {{.TYPESCRIPT_TRACE_DIR}}/trace.json in chrome://tracing'; exit \$LASTEXITCODE"
 
   _start:unix:
     run: once
@@ -819,14 +821,16 @@ tasks:
     preconditions:
       - sh: >-
           powershell -NoProfile -ExecutionPolicy Bypass -Command
-          "if (Get-Command node -ErrorAction SilentlyContinue) { exit 0 } else { exit 1 }"
+          "{{.WINGET_LOAD}}; if (Get-Command node -ErrorAction SilentlyContinue) { exit 0 } else { exit 1 }"
         msg: "node is not available. Install Node.js first."
       - sh: >-
           powershell -NoProfile -ExecutionPolicy Bypass -Command
-          "if (Test-Path '{{.TYPESCRIPT_OUTFILE}}') { exit 0 } else { exit 1 }"
+          "{{.WINGET_LOAD}}; if (Test-Path '{{.TYPESCRIPT_OUTFILE}}') { exit 0 } else { exit 1 }"
         msg: 'OUTFILE "{{.TYPESCRIPT_OUTFILE}}" not found. Run: task typescript:build'
     cmds:
-      - powershell -NoProfile -ExecutionPolicy Bypass -Command "node '{{.TYPESCRIPT_OUTFILE}}'"
+      - >-
+        powershell -NoProfile -ExecutionPolicy Bypass -Command
+        "{{.WINGET_LOAD}}; node '{{.TYPESCRIPT_OUTFILE}}'; exit \$LASTEXITCODE"
 
   _clean:unix:
     run: once
@@ -849,12 +853,14 @@ tasks:
     status:
       - >-
         powershell -NoProfile -ExecutionPolicy Bypass -Command
-        "if (Test-Path '{{.TYPESCRIPT_OUT_DIR}}') { exit 1 } else { exit 0 }"
+        "{{.WINGET_LOAD}}; if (Test-Path '{{.TYPESCRIPT_OUT_DIR}}') { exit 1 } else { exit 0 }"
     cmds:
       - echo Removing {{.TYPESCRIPT_OUT_DIR}}...
       - >-
         powershell -NoProfile -ExecutionPolicy Bypass -Command
-        "if (Test-Path '{{.TYPESCRIPT_OUT_DIR}}') { Remove-Item -Recurse -Force '{{.TYPESCRIPT_OUT_DIR}}' }"
+        "{{.WINGET_LOAD}};
+        if (Test-Path '{{.TYPESCRIPT_OUT_DIR}}') { Remove-Item -Recurse -Force '{{.TYPESCRIPT_OUT_DIR}}' };
+        exit \$LASTEXITCODE"
       - echo Done.
 
   _clean:all:unix:
@@ -879,7 +885,9 @@ tasks:
       - echo Removing build artifacts...
       - >-
         powershell -NoProfile -ExecutionPolicy Bypass -Command
-        "if (Test-Path '{{.TYPESCRIPT_OUT_DIR}}') { Remove-Item -Recurse -Force '{{.TYPESCRIPT_OUT_DIR}}' };
+        "{{.WINGET_LOAD}};
+        if (Test-Path '{{.TYPESCRIPT_OUT_DIR}}') {
+        Remove-Item -Recurse -Force '{{.TYPESCRIPT_OUT_DIR}}' };
         if (Test-Path 'tsconfig.tsbuildinfo') { Remove-Item -Force 'tsconfig.tsbuildinfo' };
         if (Test-Path '.tsc-trace') { Remove-Item -Recurse -Force '.tsc-trace' };
-        Write-Host Done."
+        Write-Host Done.; exit \$LASTEXITCODE"

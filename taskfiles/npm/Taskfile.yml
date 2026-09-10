@@ -469,12 +469,12 @@ tasks:
     preconditions:
       - sh: >-
           powershell -NoProfile -ExecutionPolicy Bypass -Command
-          "if (Test-Path '{{.USER_WORKING_DIR}}/package.json') { exit 0 } else { exit 1 }"
+          "{{.WINGET_LOAD}}; if (Test-Path '{{.USER_WORKING_DIR}}/package.json') { exit 0 } else { exit 1 }"
         msg: "package.json not found. Run this task from the project root."
     cmds:
       - >-
         powershell -NoProfile -NonInteractive -ExecutionPolicy Bypass -Command
-        "$ErrorActionPreference = 'Stop'; $env:CI = '1'; npm {{.ARGS}}"
+        "{{.WINGET_LOAD}}; \$ErrorActionPreference = 'Stop'; \$env:CI = '1'; npm {{.ARGS}}; exit \$LASTEXITCODE"
 
   _install:clean:unix:
     run: once
@@ -496,7 +496,7 @@ tasks:
     preconditions:
       - sh: >-
           powershell -NoProfile -ExecutionPolicy Bypass -Command
-          "if (Test-Path '{{.USER_WORKING_DIR}}\package-lock.json') { exit 0 } else { exit 1 }"
+          "{{.WINGET_LOAD}}; if (Test-Path '{{.USER_WORKING_DIR}}\package-lock.json') { exit 0 } else { exit 1 }"
         msg: "package-lock.json not found. npm ci requires a lockfile."
     cmds:
       - task: _npm:windows
@@ -535,7 +535,7 @@ tasks:
     preconditions:
       - sh: >-
           powershell -NoProfile -ExecutionPolicy Bypass -Command
-          "if ($env:SCRIPT -match '^[A-Za-z0-9:_-]+$') { exit 0 } else { exit 1 }"
+          "{{.WINGET_LOAD}}; if (\$env:SCRIPT -match '^[A-Za-z0-9:_-]+\$') { exit 0 } else { exit 1 }"
         msg: >-
           SCRIPT "{{.SCRIPT}}" contains invalid characters.
           Use only letters, numbers, colons, hyphens, and underscores.
@@ -561,7 +561,9 @@ tasks:
     deps:
       - task: nodejs:install
     cmds:
-      - powershell -NoProfile -ExecutionPolicy Bypass -Command "node --version; npm --version"
+      - >-
+        powershell -NoProfile -ExecutionPolicy Bypass -Command
+        "{{.WINGET_LOAD}}; node --version; npm --version; exit \$LASTEXITCODE"
 
   _clean:unix:
     run: once
@@ -584,10 +586,12 @@ tasks:
     status:
       - >-
         powershell -NoProfile -ExecutionPolicy Bypass -Command
-        "if (Test-Path 'node_modules') { exit 1 } else { exit 0 }"
+        "{{.WINGET_LOAD}}; if (Test-Path 'node_modules') { exit 1 } else { exit 0 }"
     cmds:
       - echo Removing node_modules...
-      - powershell -NoProfile -ExecutionPolicy Bypass -Command "Remove-Item -Recurse -Force 'node_modules'"
+      - >-
+        powershell -NoProfile -ExecutionPolicy Bypass -Command
+        "{{.WINGET_LOAD}}; Remove-Item -Recurse -Force 'node_modules'; exit \$LASTEXITCODE"
       - echo node_modules removed.
 
   _clean:all:unix:
@@ -611,6 +615,6 @@ tasks:
       - echo Removing node_modules and package-lock.json...
       - >-
         powershell -NoProfile -ExecutionPolicy Bypass -Command
-        "if (Test-Path 'node_modules') { Remove-Item -Recurse -Force 'node_modules' };
+        "{{.WINGET_LOAD}}; if (Test-Path 'node_modules') { Remove-Item -Recurse -Force 'node_modules' };
         if (Test-Path 'package-lock.json') { Remove-Item -Force 'package-lock.json' };
-        Write-Host Done."
+        Write-Host Done.; exit \$LASTEXITCODE"

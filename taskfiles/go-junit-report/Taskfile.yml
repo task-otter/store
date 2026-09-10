@@ -130,9 +130,13 @@ tasks:
           bash -lc '{{.NIX_LOAD}}; go-junit-report -in "{{.GO_JUNIT_REPORT_IN}}"
           -out "{{.GO_JUNIT_REPORT_OUT}}" -set-exit-code'
         platforms: [linux, darwin]
+      # GO_LOAD puts GOPATH\bin on PATH after go:install:pkg in this Task process.
       - cmd: >-
-          go-junit-report -in "{{.GO_JUNIT_REPORT_IN}}"
-          -out "{{.GO_JUNIT_REPORT_OUT}}" -set-exit-code
+          powershell -NoProfile -ExecutionPolicy Bypass -Command
+          "{{.GO_LOAD}};
+          & go-junit-report -in '{{.GO_JUNIT_REPORT_IN}}'
+          -out '{{.GO_JUNIT_REPORT_OUT}}' -set-exit-code;
+          exit \$LASTEXITCODE"
         platforms: [windows]
 
   _which:unix:
@@ -153,11 +157,14 @@ tasks:
     preconditions:
       - sh: >-
           powershell -NoProfile -ExecutionPolicy Bypass -Command
-          "if (Get-Command go-junit-report -ErrorAction SilentlyContinue) {
+          "{{.GO_LOAD}};
+          if (Get-Command go-junit-report -ErrorAction SilentlyContinue) {
           exit 0 } else { exit 1 }"
         msg: go-junit-report is not installed or not available in PATH.
     cmds:
-      - powershell -NoProfile -ExecutionPolicy Bypass -Command "(Get-Command go-junit-report).Source"
+      - >-
+        powershell -NoProfile -ExecutionPolicy Bypass -Command
+        "{{.GO_LOAD}}; (Get-Command go-junit-report).Source"
 
   _verify:unix:
     run: once
@@ -177,11 +184,14 @@ tasks:
     preconditions:
       - sh: >-
           powershell -NoProfile -ExecutionPolicy Bypass -Command
-          "if (Get-Command go-junit-report -ErrorAction SilentlyContinue) {
+          "{{.GO_LOAD}};
+          if (Get-Command go-junit-report -ErrorAction SilentlyContinue) {
           exit 0 } else { exit 1 }"
         msg: go-junit-report is not installed or not available in PATH.
     cmds:
-      - go-junit-report -version
+      - >-
+        powershell -NoProfile -ExecutionPolicy Bypass -Command
+        "{{.GO_LOAD}}; go-junit-report -version; exit \$LASTEXITCODE"
 
   _version:unix:
     run: once
@@ -201,8 +211,11 @@ tasks:
     preconditions:
       - sh: >-
           powershell -NoProfile -ExecutionPolicy Bypass -Command
-          "if (Get-Command go-junit-report -ErrorAction SilentlyContinue) {
+          "{{.GO_LOAD}};
+          if (Get-Command go-junit-report -ErrorAction SilentlyContinue) {
           exit 0 } else { exit 1 }"
         msg: go-junit-report is not installed or not available in PATH.
     cmds:
-      - go-junit-report -version
+      - >-
+        powershell -NoProfile -ExecutionPolicy Bypass -Command
+        "{{.GO_LOAD}}; go-junit-report -version; exit \$LASTEXITCODE"

@@ -151,11 +151,13 @@ tasks:
     preconditions:
       - sh: >-
           powershell -NoProfile -ExecutionPolicy Bypass -Command
-          "if (Get-Command python -ErrorAction SilentlyContinue) {
+          "{{.WINGET_LOAD}}; if (Get-Command python -ErrorAction SilentlyContinue) {
           exit 0 } else { exit 1 }"
         msg: Python is not installed or not available in PATH.
     cmds:
-      - python --version
+      - >-
+        powershell -NoProfile -ExecutionPolicy Bypass -Command
+        "{{.WINGET_LOAD}}; python --version; exit \$LASTEXITCODE"
 
   _verify:unix:
     run: once
@@ -171,8 +173,12 @@ tasks:
     internal: true
     platforms: [windows]
     cmds:
-      - python --version
-      - python -m pip --version
+      - >-
+        powershell -NoProfile -ExecutionPolicy Bypass -Command
+        "{{.WINGET_LOAD}}; python --version; exit \$LASTEXITCODE"
+      - >-
+        powershell -NoProfile -ExecutionPolicy Bypass -Command
+        "{{.WINGET_LOAD}}; python -m pip --version; exit \$LASTEXITCODE"
 
   _venv:unix:
     run: once
@@ -190,7 +196,9 @@ tasks:
     platforms: [windows]
     cmds:
       - echo Creating virtual environment at {{.PYTHON_VENV}}...
-      - python -m venv "{{.PYTHON_VENV}}"
+      - >-
+        powershell -NoProfile -ExecutionPolicy Bypass -Command
+        "{{.WINGET_LOAD}}; python -m venv '{{.PYTHON_VENV}}'; exit \$LASTEXITCODE"
       - echo Virtual environment ready.
 
   _pip:install:unix:
@@ -206,7 +214,10 @@ tasks:
     internal: true
     platforms: [windows]
     cmds:
-      - python -m pip install -r "{{.PYTHON_REQUIREMENTS}}" {{.PYTHON_EXTRA_ARGS}}
+      - >-
+        powershell -NoProfile -ExecutionPolicy Bypass -Command
+        "{{.WINGET_LOAD}}; python -m pip install -r '{{.PYTHON_REQUIREMENTS}}' {{.PYTHON_EXTRA_ARGS}};
+        exit \$LASTEXITCODE"
 
   _run:unix:
     run: once
@@ -226,6 +237,5 @@ tasks:
     platforms: [windows]
     cmds:
       - >-
-        python "{{.PYTHON_FILE}}"
-        {{.PYTHON_ARGS}}
-        {{.PYTHON_EXTRA_ARGS}}
+        powershell -NoProfile -ExecutionPolicy Bypass -Command
+        "{{.WINGET_LOAD}}; python '{{.PYTHON_FILE}}' {{.PYTHON_ARGS}} {{.PYTHON_EXTRA_ARGS}}; exit \$LASTEXITCODE"

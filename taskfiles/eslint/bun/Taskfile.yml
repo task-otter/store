@@ -233,7 +233,7 @@ tasks:
     cmds:
       - >-
         powershell -NoProfile -NonInteractive -ExecutionPolicy Bypass -Command
-        "$ErrorActionPreference = 'Stop';
-        $env:CI = '1';
-        $bun = if (Get-Command bun -ErrorAction SilentlyContinue) { 'bun' }
-        else { \"$env:USERPROFILE\.bun\bin\bun.exe\" }; & $bun {{.ARGS}}"
+        "{{.WINGET_LOAD}}; \$ErrorActionPreference = 'Stop';
+        \$env:CI = '1';
+        \$bun = if (Get-Command bun -ErrorAction SilentlyContinue) { 'bun' }
+        else { \"\$env:USERPROFILE\.bun\bin\bun.exe\" }; & \$bun {{.ARGS}}; exit \$LASTEXITCODE"

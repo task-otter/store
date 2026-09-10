@@ -112,7 +112,10 @@ tasks:
           bash -lc '{{.NIX_LOAD}};
           git init{{if .GIT_BRANCH}} --initial-branch={{.GIT_BRANCH}}{{end}} {{.GIT_EXTRA_ARGS}}'
         platforms: [linux, darwin]
-      - cmd: git init{{if .GIT_BRANCH}} --initial-branch={{.GIT_BRANCH}}{{end}} {{.GIT_EXTRA_ARGS}}
+      - cmd: >-
+          powershell -NoProfile -ExecutionPolicy Bypass -Command
+          "{{.WINGET_LOAD}}; git init{{if .GIT_BRANCH}} --initial-branch={{.GIT_BRANCH}}{{end}} {{.GIT_EXTRA_ARGS}};
+          exit \$LASTEXITCODE"
         platforms: [windows]
 
   clone:
@@ -135,8 +138,11 @@ tasks:
           {{if .GIT_CLONE_DIR}}{{.GIT_CLONE_DIR}}{{end}} {{.GIT_EXTRA_ARGS}}'
         platforms: [linux, darwin]
       - cmd: >-
-          gh repo clone {{if .GIT_OWNER}}{{.GIT_OWNER}}/{{end}}{{.GIT_REPO}}
-          {{if .GIT_CLONE_DIR}}{{.GIT_CLONE_DIR}}{{end}} {{.GIT_EXTRA_ARGS}}
+          powershell -NoProfile -ExecutionPolicy Bypass -Command
+          "{{.WINGET_LOAD}};
+          gh repo clone {{if .GIT_OWNER}}{{.GIT_OWNER}}/{{end}}{{.GIT_REPO}} {{if
+          .GIT_CLONE_DIR}}{{.GIT_CLONE_DIR}}{{end}} {{.GIT_EXTRA_ARGS}}
+          ; exit \$LASTEXITCODE"
         platforms: [windows]
 
   status:
@@ -146,7 +152,9 @@ tasks:
     cmds:
       - cmd: bash -lc '{{.NIX_LOAD}}; git status'
         platforms: [linux, darwin]
-      - cmd: git status
+      - cmd: >-
+          powershell -NoProfile -ExecutionPolicy Bypass -Command
+          "{{.WINGET_LOAD}}; git status; exit \$LASTEXITCODE"
         platforms: [windows]
 
   add:
@@ -159,7 +167,9 @@ tasks:
     cmds:
       - cmd: bash -lc '{{.NIX_LOAD}}; git add {{.GIT_FILES}} {{.GIT_EXTRA_ARGS}}'
         platforms: [linux, darwin]
-      - cmd: git add {{.GIT_FILES}} {{.GIT_EXTRA_ARGS}}
+      - cmd: >-
+          powershell -NoProfile -ExecutionPolicy Bypass -Command
+          "{{.WINGET_LOAD}}; git add {{.GIT_FILES}} {{.GIT_EXTRA_ARGS}}; exit \$LASTEXITCODE"
         platforms: [windows]
 
   add:all:
@@ -169,7 +179,9 @@ tasks:
     cmds:
       - cmd: bash -lc '{{.NIX_LOAD}}; git add --all'
         platforms: [linux, darwin]
-      - cmd: git add --all
+      - cmd: >-
+          powershell -NoProfile -ExecutionPolicy Bypass -Command
+          "{{.WINGET_LOAD}}; git add --all; exit \$LASTEXITCODE"
         platforms: [windows]
 
   commit:
@@ -184,7 +196,9 @@ tasks:
     cmds:
       - cmd: bash -lc '{{.NIX_LOAD}}; git commit -m "{{.GIT_COMMIT_MSG}}" {{.GIT_EXTRA_ARGS}}'
         platforms: [linux, darwin]
-      - cmd: git commit -m "{{.GIT_COMMIT_MSG}}" {{.GIT_EXTRA_ARGS}}
+      - cmd: >-
+          powershell -NoProfile -ExecutionPolicy Bypass -Command
+          "{{.WINGET_LOAD}}; git commit -m '{{.GIT_COMMIT_MSG}}' {{.GIT_EXTRA_ARGS}}; exit \$LASTEXITCODE"
         platforms: [windows]
 
   commit:amend:
@@ -201,8 +215,11 @@ tasks:
           {{if .GIT_COMMIT_MSG}}-m "{{.GIT_COMMIT_MSG}}"{{else}}--no-edit{{end}} {{.GIT_EXTRA_ARGS}}'
         platforms: [linux, darwin]
       - cmd: >-
-          git commit --amend
-          {{if .GIT_COMMIT_MSG}}-m "{{.GIT_COMMIT_MSG}}"{{else}}--no-edit{{end}} {{.GIT_EXTRA_ARGS}}
+          powershell -NoProfile -ExecutionPolicy Bypass -Command
+          "{{.WINGET_LOAD}};
+          git commit --amend {{if .GIT_COMMIT_MSG}}-m '{{.GIT_COMMIT_MSG}}'{{else}}--no-edit{{end}}
+          {{.GIT_EXTRA_ARGS}}
+          ; exit \$LASTEXITCODE"
         platforms: [windows]
 
   push:
@@ -218,7 +235,11 @@ tasks:
           git push {{.GIT_REMOTE}}
           {{if .GIT_BRANCH}}{{.GIT_BRANCH}}{{else}}HEAD{{end}} {{.GIT_EXTRA_ARGS}}'
         platforms: [linux, darwin]
-      - cmd: git push {{.GIT_REMOTE}} {{if .GIT_BRANCH}}{{.GIT_BRANCH}}{{else}}HEAD{{end}} {{.GIT_EXTRA_ARGS}}
+      - cmd: >-
+          powershell -NoProfile -ExecutionPolicy Bypass -Command
+          "{{.WINGET_LOAD}};
+          git push {{.GIT_REMOTE}} {{if .GIT_BRANCH}}{{.GIT_BRANCH}}{{else}}HEAD{{end}} {{.GIT_EXTRA_ARGS}};
+          exit \$LASTEXITCODE"
         platforms: [windows]
 
   push:force:
@@ -235,8 +256,11 @@ tasks:
           {{if .GIT_BRANCH}}{{.GIT_BRANCH}}{{else}}HEAD{{end}} --force-with-lease {{.GIT_EXTRA_ARGS}}'
         platforms: [linux, darwin]
       - cmd: >-
-          git push {{.GIT_REMOTE}}
-          {{if .GIT_BRANCH}}{{.GIT_BRANCH}}{{else}}HEAD{{end}} --force-with-lease {{.GIT_EXTRA_ARGS}}
+          powershell -NoProfile -ExecutionPolicy Bypass -Command
+          "{{.WINGET_LOAD}};
+          git push {{.GIT_REMOTE}} {{if .GIT_BRANCH}}{{.GIT_BRANCH}}{{else}}HEAD{{end}} --force-with-lease
+          {{.GIT_EXTRA_ARGS}}
+          ; exit \$LASTEXITCODE"
         platforms: [windows]
 
   pull:
@@ -252,7 +276,10 @@ tasks:
           git pull {{.GIT_REMOTE}}
           {{- if .GIT_BRANCH}} {{.GIT_BRANCH}}{{end}} {{.GIT_EXTRA_ARGS}}'
         platforms: [linux, darwin]
-      - cmd: git pull {{.GIT_REMOTE}}{{if .GIT_BRANCH}} {{.GIT_BRANCH}}{{end}} {{.GIT_EXTRA_ARGS}}
+      - cmd: >-
+          powershell -NoProfile -ExecutionPolicy Bypass -Command
+          "{{.WINGET_LOAD}}; git pull {{.GIT_REMOTE}}{{if .GIT_BRANCH}} {{.GIT_BRANCH}}{{end}} {{.GIT_EXTRA_ARGS}};
+          exit \$LASTEXITCODE"
         platforms: [windows]
 
   fetch:
@@ -265,7 +292,9 @@ tasks:
     cmds:
       - cmd: bash -lc '{{.NIX_LOAD}}; git fetch {{.GIT_REMOTE}} --prune {{.GIT_EXTRA_ARGS}}'
         platforms: [linux, darwin]
-      - cmd: git fetch {{.GIT_REMOTE}} --prune {{.GIT_EXTRA_ARGS}}
+      - cmd: >-
+          powershell -NoProfile -ExecutionPolicy Bypass -Command
+          "{{.WINGET_LOAD}}; git fetch {{.GIT_REMOTE}} --prune {{.GIT_EXTRA_ARGS}}; exit \$LASTEXITCODE"
         platforms: [windows]
 
   sync:
@@ -283,7 +312,10 @@ tasks:
           bash -lc '{{.NIX_LOAD}};
           gh repo sync {{if .GIT_BRANCH}}--branch {{.GIT_BRANCH}}{{end}} {{.GIT_EXTRA_ARGS}}'
         platforms: [linux, darwin]
-      - cmd: gh repo sync {{if .GIT_BRANCH}}--branch {{.GIT_BRANCH}}{{end}} {{.GIT_EXTRA_ARGS}}
+      - cmd: >-
+          powershell -NoProfile -ExecutionPolicy Bypass -Command
+          "{{.WINGET_LOAD}}; gh repo sync {{if .GIT_BRANCH}}--branch {{.GIT_BRANCH}}{{end}} {{.GIT_EXTRA_ARGS}};
+          exit \$LASTEXITCODE"
         platforms: [windows]
 
   diff:
@@ -296,7 +328,9 @@ tasks:
     cmds:
       - cmd: bash -lc '{{.NIX_LOAD}}; git diff {{.GIT_FILES}} {{.GIT_EXTRA_ARGS}}'
         platforms: [linux, darwin]
-      - cmd: git diff {{.GIT_FILES}} {{.GIT_EXTRA_ARGS}}
+      - cmd: >-
+          powershell -NoProfile -ExecutionPolicy Bypass -Command
+          "{{.WINGET_LOAD}}; git diff {{.GIT_FILES}} {{.GIT_EXTRA_ARGS}}; exit \$LASTEXITCODE"
         platforms: [windows]
 
   diff:staged:
@@ -306,7 +340,9 @@ tasks:
     cmds:
       - cmd: bash -lc '{{.NIX_LOAD}}; git diff --staged {{.GIT_EXTRA_ARGS}}'
         platforms: [linux, darwin]
-      - cmd: git diff --staged {{.GIT_EXTRA_ARGS}}
+      - cmd: >-
+          powershell -NoProfile -ExecutionPolicy Bypass -Command
+          "{{.WINGET_LOAD}}; git diff --staged {{.GIT_EXTRA_ARGS}}; exit \$LASTEXITCODE"
         platforms: [windows]
 
   log:
@@ -322,8 +358,11 @@ tasks:
           --date=short {{.GIT_EXTRA_ARGS}}'
         platforms: [linux, darwin]
       - cmd: >-
-          git log --format="%C(yellow)%h%Creset %C(blue)%ad%Creset %s %C(green)<%an>%Creset"
-          --date=short {{.GIT_EXTRA_ARGS}}
+          powershell -NoProfile -ExecutionPolicy Bypass -Command
+          "{{.WINGET_LOAD}};
+          git log --format='%C(yellow)%h%Creset %C(blue)%ad%Creset %s %C(green)<%an>%Creset' --date=short
+          {{.GIT_EXTRA_ARGS}}
+          ; exit \$LASTEXITCODE"
         platforms: [windows]
 
   log:graph:
@@ -333,7 +372,9 @@ tasks:
     cmds:
       - cmd: bash -lc '{{.NIX_LOAD}}; git log --oneline --graph --decorate --all {{.GIT_EXTRA_ARGS}}'
         platforms: [linux, darwin]
-      - cmd: git log --oneline --graph --decorate --all {{.GIT_EXTRA_ARGS}}
+      - cmd: >-
+          powershell -NoProfile -ExecutionPolicy Bypass -Command
+          "{{.WINGET_LOAD}}; git log --oneline --graph --decorate --all {{.GIT_EXTRA_ARGS}}; exit \$LASTEXITCODE"
         platforms: [windows]
 
   branch:list:
@@ -343,7 +384,9 @@ tasks:
     cmds:
       - cmd: bash -lc '{{.NIX_LOAD}}; git branch -a {{.GIT_EXTRA_ARGS}}'
         platforms: [linux, darwin]
-      - cmd: git branch -a {{.GIT_EXTRA_ARGS}}
+      - cmd: >-
+          powershell -NoProfile -ExecutionPolicy Bypass -Command
+          "{{.WINGET_LOAD}}; git branch -a {{.GIT_EXTRA_ARGS}}; exit \$LASTEXITCODE"
         platforms: [windows]
 
   branch:create:
@@ -358,7 +401,9 @@ tasks:
     cmds:
       - cmd: bash -lc '{{.NIX_LOAD}}; git switch -c {{.GIT_BRANCH}} {{.GIT_EXTRA_ARGS}}'
         platforms: [linux, darwin]
-      - cmd: git switch -c {{.GIT_BRANCH}} {{.GIT_EXTRA_ARGS}}
+      - cmd: >-
+          powershell -NoProfile -ExecutionPolicy Bypass -Command
+          "{{.WINGET_LOAD}}; git switch -c {{.GIT_BRANCH}} {{.GIT_EXTRA_ARGS}}; exit \$LASTEXITCODE"
         platforms: [windows]
 
   branch:switch:
@@ -373,7 +418,9 @@ tasks:
     cmds:
       - cmd: bash -lc '{{.NIX_LOAD}}; git switch {{.GIT_BRANCH}} {{.GIT_EXTRA_ARGS}}'
         platforms: [linux, darwin]
-      - cmd: git switch {{.GIT_BRANCH}} {{.GIT_EXTRA_ARGS}}
+      - cmd: >-
+          powershell -NoProfile -ExecutionPolicy Bypass -Command
+          "{{.WINGET_LOAD}}; git switch {{.GIT_BRANCH}} {{.GIT_EXTRA_ARGS}}; exit \$LASTEXITCODE"
         platforms: [windows]
 
   branch:delete:
@@ -390,7 +437,9 @@ tasks:
     cmds:
       - cmd: bash -lc '{{.NIX_LOAD}}; git branch -d {{.GIT_BRANCH}} {{.GIT_EXTRA_ARGS}}'
         platforms: [linux, darwin]
-      - cmd: git branch -d {{.GIT_BRANCH}} {{.GIT_EXTRA_ARGS}}
+      - cmd: >-
+          powershell -NoProfile -ExecutionPolicy Bypass -Command
+          "{{.WINGET_LOAD}}; git branch -d {{.GIT_BRANCH}} {{.GIT_EXTRA_ARGS}}; exit \$LASTEXITCODE"
         platforms: [windows]
 
   branch:rename:
@@ -405,7 +454,9 @@ tasks:
     cmds:
       - cmd: bash -lc '{{.NIX_LOAD}}; git branch -m {{.GIT_BRANCH}}'
         platforms: [linux, darwin]
-      - cmd: git branch -m {{.GIT_BRANCH}}
+      - cmd: >-
+          powershell -NoProfile -ExecutionPolicy Bypass -Command
+          "{{.WINGET_LOAD}}; git branch -m {{.GIT_BRANCH}}; exit \$LASTEXITCODE"
         platforms: [windows]
 
   tag:list:
@@ -415,7 +466,9 @@ tasks:
     cmds:
       - cmd: bash -lc '{{.NIX_LOAD}}; git tag --sort=-v:refname {{.GIT_EXTRA_ARGS}}'
         platforms: [linux, darwin]
-      - cmd: git tag --sort=-v:refname {{.GIT_EXTRA_ARGS}}
+      - cmd: >-
+          powershell -NoProfile -ExecutionPolicy Bypass -Command
+          "{{.WINGET_LOAD}}; git tag --sort=-v:refname {{.GIT_EXTRA_ARGS}}; exit \$LASTEXITCODE"
         platforms: [windows]
 
   tag:create:
@@ -433,7 +486,10 @@ tasks:
           bash -lc '{{.NIX_LOAD}};
           git tag -a {{.GIT_TAG}} -m "{{default .GIT_TAG .GIT_MESSAGE}}" {{.GIT_EXTRA_ARGS}}'
         platforms: [linux, darwin]
-      - cmd: git tag -a {{.GIT_TAG}} -m "{{default .GIT_TAG .GIT_MESSAGE}}" {{.GIT_EXTRA_ARGS}}
+      - cmd: >-
+          powershell -NoProfile -ExecutionPolicy Bypass -Command
+          "{{.WINGET_LOAD}}; git tag -a {{.GIT_TAG}} -m '{{default .GIT_TAG .GIT_MESSAGE}}' {{.GIT_EXTRA_ARGS}};
+          exit \$LASTEXITCODE"
         platforms: [windows]
 
   tag:push:
@@ -448,7 +504,11 @@ tasks:
           git push {{.GIT_REMOTE}}
           {{if .GIT_TAG}}{{.GIT_TAG}}{{else}}--tags{{end}} {{.GIT_EXTRA_ARGS}}'
         platforms: [linux, darwin]
-      - cmd: git push {{.GIT_REMOTE}} {{if .GIT_TAG}}{{.GIT_TAG}}{{else}}--tags{{end}} {{.GIT_EXTRA_ARGS}}
+      - cmd: >-
+          powershell -NoProfile -ExecutionPolicy Bypass -Command
+          "{{.WINGET_LOAD}};
+          git push {{.GIT_REMOTE}} {{if .GIT_TAG}}{{.GIT_TAG}}{{else}}--tags{{end}} {{.GIT_EXTRA_ARGS}};
+          exit \$LASTEXITCODE"
         platforms: [windows]
 
   tag:delete:
@@ -465,11 +525,15 @@ tasks:
     cmds:
       - cmd: bash -lc '{{.NIX_LOAD}}; git tag -d {{.GIT_TAG}}'
         platforms: [linux, darwin]
-      - cmd: git tag -d {{.GIT_TAG}}
+      - cmd: >-
+          powershell -NoProfile -ExecutionPolicy Bypass -Command
+          "{{.WINGET_LOAD}}; git tag -d {{.GIT_TAG}}; exit \$LASTEXITCODE"
         platforms: [windows]
       - cmd: bash -lc '{{.NIX_LOAD}}; git push {{.GIT_REMOTE}} --delete {{.GIT_TAG}}'
         platforms: [linux, darwin]
-      - cmd: git push {{.GIT_REMOTE}} --delete {{.GIT_TAG}}
+      - cmd: >-
+          powershell -NoProfile -ExecutionPolicy Bypass -Command
+          "{{.WINGET_LOAD}}; git push {{.GIT_REMOTE}} --delete {{.GIT_TAG}}; exit \$LASTEXITCODE"
         platforms: [windows]
 
   stash:
@@ -484,7 +548,10 @@ tasks:
           bash -lc '{{.NIX_LOAD}};
           git stash push {{if .GIT_MESSAGE}}-m "{{.GIT_MESSAGE}}"{{end}} {{.GIT_EXTRA_ARGS}}'
         platforms: [linux, darwin]
-      - cmd: git stash push {{if .GIT_MESSAGE}}-m "{{.GIT_MESSAGE}}"{{end}} {{.GIT_EXTRA_ARGS}}
+      - cmd: >-
+          powershell -NoProfile -ExecutionPolicy Bypass -Command
+          "{{.WINGET_LOAD}}; git stash push {{if .GIT_MESSAGE}}-m '{{.GIT_MESSAGE}}'{{end}} {{.GIT_EXTRA_ARGS}};
+          exit \$LASTEXITCODE"
         platforms: [windows]
 
   stash:pop:
@@ -496,7 +563,9 @@ tasks:
     cmds:
       - cmd: bash -lc '{{.NIX_LOAD}}; git stash pop stash@{{{.GIT_STASH_INDEX}}} {{.GIT_EXTRA_ARGS}}'
         platforms: [linux, darwin]
-      - cmd: git stash pop stash@{{{.GIT_STASH_INDEX}}} {{.GIT_EXTRA_ARGS}}
+      - cmd: >-
+          powershell -NoProfile -ExecutionPolicy Bypass -Command
+          "{{.WINGET_LOAD}}; git stash pop stash@{{{.GIT_STASH_INDEX}}} {{.GIT_EXTRA_ARGS}}; exit \$LASTEXITCODE"
         platforms: [windows]
 
   stash:list:
@@ -506,7 +575,9 @@ tasks:
     cmds:
       - cmd: bash -lc '{{.NIX_LOAD}}; git stash list'
         platforms: [linux, darwin]
-      - cmd: git stash list
+      - cmd: >-
+          powershell -NoProfile -ExecutionPolicy Bypass -Command
+          "{{.WINGET_LOAD}}; git stash list; exit \$LASTEXITCODE"
         platforms: [windows]
 
   stash:drop:
@@ -518,7 +589,9 @@ tasks:
     cmds:
       - cmd: bash -lc '{{.NIX_LOAD}}; git stash drop stash@{{{.GIT_STASH_INDEX}}} {{.GIT_EXTRA_ARGS}}'
         platforms: [linux, darwin]
-      - cmd: git stash drop stash@{{{.GIT_STASH_INDEX}}} {{.GIT_EXTRA_ARGS}}
+      - cmd: >-
+          powershell -NoProfile -ExecutionPolicy Bypass -Command
+          "{{.WINGET_LOAD}}; git stash drop stash@{{{.GIT_STASH_INDEX}}} {{.GIT_EXTRA_ARGS}}; exit \$LASTEXITCODE"
         platforms: [windows]
 
   reset:soft:
@@ -534,7 +607,9 @@ tasks:
     cmds:
       - cmd: bash -lc '{{.NIX_LOAD}}; git reset --soft {{.GIT_COMMIT}} {{.GIT_EXTRA_ARGS}}'
         platforms: [linux, darwin]
-      - cmd: git reset --soft {{.GIT_COMMIT}} {{.GIT_EXTRA_ARGS}}
+      - cmd: >-
+          powershell -NoProfile -ExecutionPolicy Bypass -Command
+          "{{.WINGET_LOAD}}; git reset --soft {{.GIT_COMMIT}} {{.GIT_EXTRA_ARGS}}; exit \$LASTEXITCODE"
         platforms: [windows]
 
   reset:hard:
@@ -551,7 +626,9 @@ tasks:
     cmds:
       - cmd: bash -lc '{{.NIX_LOAD}}; git reset --hard {{.GIT_COMMIT}} {{.GIT_EXTRA_ARGS}}'
         platforms: [linux, darwin]
-      - cmd: git reset --hard {{.GIT_COMMIT}} {{.GIT_EXTRA_ARGS}}
+      - cmd: >-
+          powershell -NoProfile -ExecutionPolicy Bypass -Command
+          "{{.WINGET_LOAD}}; git reset --hard {{.GIT_COMMIT}} {{.GIT_EXTRA_ARGS}}; exit \$LASTEXITCODE"
         platforms: [windows]
 
   clean:
@@ -564,7 +641,9 @@ tasks:
     cmds:
       - cmd: bash -lc '{{.NIX_LOAD}}; git clean -fd {{.GIT_EXTRA_ARGS}}'
         platforms: [linux, darwin]
-      - cmd: git clean -fd {{.GIT_EXTRA_ARGS}}
+      - cmd: >-
+          powershell -NoProfile -ExecutionPolicy Bypass -Command
+          "{{.WINGET_LOAD}}; git clean -fd {{.GIT_EXTRA_ARGS}}; exit \$LASTEXITCODE"
         platforms: [windows]
 
   config:user:
@@ -580,11 +659,15 @@ tasks:
     cmds:
       - cmd: bash -lc '{{.NIX_LOAD}}; git config --global user.name "{{.GIT_NAME}}"'
         platforms: [linux, darwin]
-      - cmd: git config --global user.name "{{.GIT_NAME}}"
+      - cmd: >-
+          powershell -NoProfile -ExecutionPolicy Bypass -Command
+          "{{.WINGET_LOAD}}; git config --global user.name '{{.GIT_NAME}}'; exit \$LASTEXITCODE"
         platforms: [windows]
       - cmd: bash -lc '{{.NIX_LOAD}}; git config --global user.email "{{.GIT_EMAIL}}"'
         platforms: [linux, darwin]
-      - cmd: git config --global user.email "{{.GIT_EMAIL}}"
+      - cmd: >-
+          powershell -NoProfile -ExecutionPolicy Bypass -Command
+          "{{.WINGET_LOAD}}; git config --global user.email '{{.GIT_EMAIL}}'; exit \$LASTEXITCODE"
         platforms: [windows]
 
   config:list:
@@ -594,7 +677,9 @@ tasks:
     cmds:
       - cmd: bash -lc '{{.NIX_LOAD}}; git config --list {{.GIT_EXTRA_ARGS}}'
         platforms: [linux, darwin]
-      - cmd: git config --list {{.GIT_EXTRA_ARGS}}
+      - cmd: >-
+          powershell -NoProfile -ExecutionPolicy Bypass -Command
+          "{{.WINGET_LOAD}}; git config --list {{.GIT_EXTRA_ARGS}}; exit \$LASTEXITCODE"
         platforms: [windows]
 
   remote:list:
@@ -604,7 +689,9 @@ tasks:
     cmds:
       - cmd: bash -lc '{{.NIX_LOAD}}; git remote -v'
         platforms: [linux, darwin]
-      - cmd: git remote -v
+      - cmd: >-
+          powershell -NoProfile -ExecutionPolicy Bypass -Command
+          "{{.WINGET_LOAD}}; git remote -v; exit \$LASTEXITCODE"
         platforms: [windows]
 
   remote:add:
@@ -620,7 +707,9 @@ tasks:
     cmds:
       - cmd: bash -lc '{{.NIX_LOAD}}; git remote add {{.GIT_NAME}} {{.GIT_URL}}'
         platforms: [linux, darwin]
-      - cmd: git remote add {{.GIT_NAME}} {{.GIT_URL}}
+      - cmd: >-
+          powershell -NoProfile -ExecutionPolicy Bypass -Command
+          "{{.WINGET_LOAD}}; git remote add {{.GIT_NAME}} {{.GIT_URL}}; exit \$LASTEXITCODE"
         platforms: [windows]
 
   remote:remove:
@@ -635,7 +724,9 @@ tasks:
     cmds:
       - cmd: bash -lc '{{.NIX_LOAD}}; git remote remove {{.GIT_NAME}}'
         platforms: [linux, darwin]
-      - cmd: git remote remove {{.GIT_NAME}}
+      - cmd: >-
+          powershell -NoProfile -ExecutionPolicy Bypass -Command
+          "{{.WINGET_LOAD}}; git remote remove {{.GIT_NAME}}; exit \$LASTEXITCODE"
         platforms: [windows]
 
   remote:set-url:
@@ -651,7 +742,9 @@ tasks:
     cmds:
       - cmd: bash -lc '{{.NIX_LOAD}}; git remote set-url {{.GIT_NAME}} {{.GIT_URL}}'
         platforms: [linux, darwin]
-      - cmd: git remote set-url {{.GIT_NAME}} {{.GIT_URL}}
+      - cmd: >-
+          powershell -NoProfile -ExecutionPolicy Bypass -Command
+          "{{.WINGET_LOAD}}; git remote set-url {{.GIT_NAME}} {{.GIT_URL}}; exit \$LASTEXITCODE"
         platforms: [windows]
 
   pr:create:
@@ -674,7 +767,11 @@ tasks:
           git push {{.GIT_REMOTE}}
           {{if .GIT_BRANCH}}{{.GIT_BRANCH}}{{else}}HEAD{{end}} {{.GIT_EXTRA_ARGS}}'
         platforms: [linux, darwin]
-      - cmd: git push {{.GIT_REMOTE}} {{if .GIT_BRANCH}}{{.GIT_BRANCH}}{{else}}HEAD{{end}} {{.GIT_EXTRA_ARGS}}
+      - cmd: >-
+          powershell -NoProfile -ExecutionPolicy Bypass -Command
+          "{{.WINGET_LOAD}};
+          git push {{.GIT_REMOTE}} {{if .GIT_BRANCH}}{{.GIT_BRANCH}}{{else}}HEAD{{end}} {{.GIT_EXTRA_ARGS}};
+          exit \$LASTEXITCODE"
         platforms: [windows]
       - cmd: >-
           bash -lc '{{.NIX_LOAD}};
@@ -684,10 +781,11 @@ tasks:
           {{if .GIT_BODY}}--body "{{.GIT_BODY}}"{{end}}'
         platforms: [linux, darwin]
       - cmd: >-
-          gh pr create
-          --title "{{.GIT_TITLE}}"
-          --base "{{default "main" .GIT_BASE}}"
-          {{if .GIT_BODY}}--body "{{.GIT_BODY}}"{{end}}
+          powershell -NoProfile -ExecutionPolicy Bypass -Command
+          "{{.WINGET_LOAD}};
+          gh pr create --title '{{.GIT_TITLE}}' --base '{{default "main" .GIT_BASE}}' {{if .GIT_BODY}}--body
+          '{{.GIT_BODY}}'{{end}}
+          ; exit \$LASTEXITCODE"
         platforms: [windows]
 
   pr:open:
@@ -701,7 +799,9 @@ tasks:
     cmds:
       - cmd: bash -lc '{{.NIX_LOAD}}; gh pr view --web'
         platforms: [linux, darwin]
-      - cmd: gh pr view --web
+      - cmd: >-
+          powershell -NoProfile -ExecutionPolicy Bypass -Command
+          "{{.WINGET_LOAD}}; gh pr view --web; exit \$LASTEXITCODE"
         platforms: [windows]
 
   release:create:
@@ -720,11 +820,15 @@ tasks:
     cmds:
       - cmd: bash -lc '{{.NIX_LOAD}}; git tag -a {{.GIT_TAG}} -m "{{default .GIT_TAG .GIT_TITLE}}"'
         platforms: [linux, darwin]
-      - cmd: git tag -a {{.GIT_TAG}} -m "{{default .GIT_TAG .GIT_TITLE}}"
+      - cmd: >-
+          powershell -NoProfile -ExecutionPolicy Bypass -Command
+          "{{.WINGET_LOAD}}; git tag -a {{.GIT_TAG}} -m '{{default .GIT_TAG .GIT_TITLE}}'; exit \$LASTEXITCODE"
         platforms: [windows]
       - cmd: bash -lc '{{.NIX_LOAD}}; git push {{.GIT_REMOTE}} {{.GIT_TAG}}'
         platforms: [linux, darwin]
-      - cmd: git push {{.GIT_REMOTE}} {{.GIT_TAG}}
+      - cmd: >-
+          powershell -NoProfile -ExecutionPolicy Bypass -Command
+          "{{.WINGET_LOAD}}; git push {{.GIT_REMOTE}} {{.GIT_TAG}}; exit \$LASTEXITCODE"
         platforms: [windows]
       - cmd: >-
           bash -lc '{{.NIX_LOAD}};
@@ -733,9 +837,11 @@ tasks:
           {{if .GIT_NOTES}}--notes "{{.GIT_NOTES}}"{{end}}'
         platforms: [linux, darwin]
       - cmd: >-
-          gh release create {{.GIT_TAG}}
-          {{if .GIT_TITLE}}--title "{{.GIT_TITLE}}"{{end}}
-          {{if .GIT_NOTES}}--notes "{{.GIT_NOTES}}"{{end}}
+          powershell -NoProfile -ExecutionPolicy Bypass -Command
+          "{{.WINGET_LOAD}};
+          gh release create {{.GIT_TAG}} {{if .GIT_TITLE}}--title '{{.GIT_TITLE}}'{{end}} {{if .GIT_NOTES}}--notes
+          '{{.GIT_NOTES}}'{{end}}
+          ; exit \$LASTEXITCODE"
         platforms: [windows]
 
   help:
@@ -745,7 +851,9 @@ tasks:
     cmds:
       - cmd: bash -lc '{{.NIX_LOAD}}; git help'
         platforms: [linux, darwin]
-      - cmd: git help
+      - cmd: >-
+          powershell -NoProfile -ExecutionPolicy Bypass -Command
+          "{{.WINGET_LOAD}}; git help; exit \$LASTEXITCODE"
         platforms: [windows]
 
   _version:unix:
@@ -766,8 +874,10 @@ tasks:
     preconditions:
       - sh: >-
           powershell -NoProfile -ExecutionPolicy Bypass -Command
-          "if (Get-Command git -ErrorAction SilentlyContinue) {
+          "{{.WINGET_LOAD}}; if (Get-Command git -ErrorAction SilentlyContinue) {
           exit 0 } else { exit 1 }"
         msg: git is not installed or not available in PATH.
     cmds:
-      - git --version
+      - >-
+        powershell -NoProfile -ExecutionPolicy Bypass -Command
+        "{{.WINGET_LOAD}}; git --version; exit \$LASTEXITCODE"

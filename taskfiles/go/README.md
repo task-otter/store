@@ -6,9 +6,8 @@ A Taskfile for running Go unit tests, benchmarks, and fuzz targets. The Go
 toolchain is installed through `nix:install:profile`.
 
 Linting and formatting live in the [`golangci-lint`](../golangci-lint/README.md)
-Taskfile, vulnerability scanning lives in the
-[`govulncheck`](../govulncheck/README.md) Taskfile, and JUnit XML conversion
-lives in the [`go-junit-report`](../go-junit-report/README.md) Taskfile.
+Taskfile, and JUnit XML conversion lives in the
+[`go-junit-report`](../go-junit-report/README.md) Taskfile.
 
 ## Usage
 
@@ -93,6 +92,7 @@ Pin a revision by overriding the installable, for example
 | `GO_WINGET_INSTALLABLE` | `GoLang.Go` | WinGet package ID for `winget:install:package` |
 | `GO_FUZZTIME`        | empty (`30s`) | Duration a single `fuzz` target runs before stopping |
 | `GO_PKG`             | empty        | Module path for `install:pkg`; required when running that task |
+| `GO_LOAD`            | reloads User Path; prepends GOPATH\bin | PowerShell snippet so `go`-installed tools from earlier in the same Task process are on PATH |
 
 ## Notes
 

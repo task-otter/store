@@ -98,11 +98,15 @@ tasks:
     cmds:
       - cmd: bash -lc '{{.NIX_LOAD}}; vault version'
         platforms: [linux, darwin]
-      - cmd: vault version
+      - cmd: >-
+          powershell -NoProfile -ExecutionPolicy Bypass -Command
+          "{{.WINGET_LOAD}}; vault version; exit \$LASTEXITCODE"
         platforms: [windows]
       - cmd: bash -lc '{{.NIX_LOAD}}; vault status -address="{{.VAULT_ADDR_TARGET}}"'
         platforms: [linux, darwin]
-      - cmd: vault status -address="{{.VAULT_ADDR_TARGET}}"
+      - cmd: >-
+          powershell -NoProfile -ExecutionPolicy Bypass -Command
+          "{{.WINGET_LOAD}}; vault status -address='{{.VAULT_ADDR_TARGET}}'; exit \$LASTEXITCODE"
         platforms: [windows]
 
   status:
@@ -118,7 +122,9 @@ tasks:
     cmds:
       - cmd: bash -lc '{{.NIX_LOAD}}; vault status -address="{{.VAULT_ADDR_TARGET}}" || true'
         platforms: [linux, darwin]
-      - cmd: vault status -address="{{.VAULT_ADDR_TARGET}}" || true
+      - cmd: >-
+          powershell -NoProfile -ExecutionPolicy Bypass -Command
+          "{{.WINGET_LOAD}}; vault status -address='{{.VAULT_ADDR_TARGET}}'; exit 0"
         platforms: [windows]
 
   health:
@@ -143,9 +149,8 @@ tasks:
           | jq .'
         platforms: [linux, darwin]
       - cmd: >-
-          curl -s
-          "{{.VAULT_ADDR_TARGET}}/v1/sys/health"
-          | jq .
+          powershell -NoProfile -ExecutionPolicy Bypass -Command
+          "{{.WINGET_LOAD}}; curl -s '{{.VAULT_ADDR_TARGET}}/v1/sys/health' | jq .; exit \$LASTEXITCODE"
         platforms: [windows]
 
   init:
@@ -224,7 +229,9 @@ tasks:
     cmds:
       - cmd: bash -lc '{{.NIX_LOAD}}; vault operator seal -address="{{.VAULT_ADDR_TARGET}}"'
         platforms: [linux, darwin]
-      - cmd: vault operator seal -address="{{.VAULT_ADDR_TARGET}}"
+      - cmd: >-
+          powershell -NoProfile -ExecutionPolicy Bypass -Command
+          "{{.WINGET_LOAD}}; vault operator seal -address='{{.VAULT_ADDR_TARGET}}'; exit \$LASTEXITCODE"
         platforms: [windows]
 
   login:
@@ -409,7 +416,9 @@ tasks:
       - task: install
       - cmd: bash -lc '{{.NIX_LOAD}}; vault token revoke -address="{{.VAULT_ADDR_TARGET}}" -self'
         platforms: [linux, darwin]
-      - cmd: vault token revoke -address="{{.VAULT_ADDR_TARGET}}" -self
+      - cmd: >-
+          powershell -NoProfile -ExecutionPolicy Bypass -Command
+          "{{.WINGET_LOAD}}; vault token revoke -address='{{.VAULT_ADDR_TARGET}}' -self; exit \$LASTEXITCODE"
         platforms: [windows]
 
   root-token:
@@ -433,8 +442,8 @@ tasks:
           "{{.VAULT_KEYS_FILE}}"
         platforms: [linux, darwin]
       - cmd: >-
-          jq -r '.root_token'
-          "{{.VAULT_KEYS_FILE}}"
+          powershell -NoProfile -ExecutionPolicy Bypass -Command
+          "{{.WINGET_LOAD}}; jq -r '.root_token' '{{.VAULT_KEYS_FILE}}'; exit \$LASTEXITCODE"
         platforms: [windows]
 
   peers:
@@ -450,7 +459,9 @@ tasks:
     cmds:
       - cmd: bash -lc '{{.NIX_LOAD}}; vault operator raft list-peers -address="{{.VAULT_ADDR_TARGET}}"'
         platforms: [linux, darwin]
-      - cmd: vault operator raft list-peers -address="{{.VAULT_ADDR_TARGET}}"
+      - cmd: >-
+          powershell -NoProfile -ExecutionPolicy Bypass -Command
+          "{{.WINGET_LOAD}}; vault operator raft list-peers -address='{{.VAULT_ADDR_TARGET}}'; exit \$LASTEXITCODE"
         platforms: [windows]
 
   snapshot:
@@ -473,7 +484,10 @@ tasks:
           vault operator raft snapshot save -address="{{.VAULT_ADDR_TARGET}}"
           "{{.FILE_TARGET}}"'
         platforms: [linux, darwin]
-      - cmd: vault operator raft snapshot save -address="{{.VAULT_ADDR_TARGET}}" "{{.FILE_TARGET}}"
+      - cmd: >-
+          powershell -NoProfile -ExecutionPolicy Bypass -Command
+          "{{.WINGET_LOAD}}; vault operator raft snapshot save -address='{{.VAULT_ADDR_TARGET}}' '{{.FILE_TARGET}}';
+          exit \$LASTEXITCODE"
         platforms: [windows]
 
   restore:
@@ -505,7 +519,11 @@ tasks:
           vault operator raft snapshot restore -address="{{.VAULT_ADDR_TARGET}}"
           -force "{{.FILE_TARGET}}"'
         platforms: [linux, darwin]
-      - cmd: vault operator raft snapshot restore -address="{{.VAULT_ADDR_TARGET}}" -force "{{.FILE_TARGET}}"
+      - cmd: >-
+          powershell -NoProfile -ExecutionPolicy Bypass -Command
+          "{{.WINGET_LOAD}};
+          vault operator raft snapshot restore -address='{{.VAULT_ADDR_TARGET}}' -force '{{.FILE_TARGET}}';
+          exit \$LASTEXITCODE"
         platforms: [windows]
 
   _version:unix:
@@ -527,8 +545,10 @@ tasks:
     preconditions:
       - sh: >-
           powershell -NoProfile -ExecutionPolicy Bypass -Command
-          "if (Get-Command vault -ErrorAction SilentlyContinue) {
+          "{{.WINGET_LOAD}}; if (Get-Command vault -ErrorAction SilentlyContinue) {
           exit 0 } else { exit 1 }"
         msg: The Vault CLI is not installed or not available in PATH.
     cmds:
-      - vault version
+      - >-
+        powershell -NoProfile -ExecutionPolicy Bypass -Command
+        "{{.WINGET_LOAD}}; vault version; exit \$LASTEXITCODE"

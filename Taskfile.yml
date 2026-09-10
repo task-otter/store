@@ -14,7 +14,6 @@ includes:
   adrs: taskfiles/adrs/Taskfile.yml
   ansible: taskfiles/ansible/Taskfile.yml
   ansible-lint: taskfiles/ansible-lint/Taskfile.yml
-  bencher: taskfiles/bencher/Taskfile.yml
   biome: taskfiles/biome/Taskfile.yml
   bruno-cli: taskfiles/bruno-cli/Taskfile.yml
   bruno-gui: taskfiles/bruno-gui/Taskfile.yml
@@ -31,7 +30,6 @@ includes:
   go: taskfiles/go/Taskfile.yml
   go-junit-report: taskfiles/go-junit-report/Taskfile.yml
   golangci-lint: taskfiles/golangci-lint/Taskfile.yml
-  govulncheck: taskfiles/govulncheck/Taskfile.yml
   hadolint: taskfiles/hadolint/Taskfile.yml
   htmlhint: taskfiles/htmlhint/Taskfile.yml
   jq: taskfiles/jq/Taskfile.yml
@@ -74,7 +72,6 @@ tasks:
     cmds:
       - task: actionlint:ci
       - task: golangci-lint:ci
-      - task: govulncheck:ci
       - task: yamllint:ci
       - task: zizmor:ci
 

@@ -89,8 +89,12 @@ tasks:
     platforms: [windows]
     preconditions:
       - sh: >-
-          powershell -NoProfile -ExecutionPolicy Bypass -Command "if (Get-Command node -ErrorAction SilentlyContinue) {
+          powershell -NoProfile -ExecutionPolicy Bypass -Command
+          "{{.WINGET_LOAD}};
+          if (Get-Command node -ErrorAction SilentlyContinue) {
           exit 0 } else { exit 1 }"
         msg: Node.js is not installed or not available in PATH.
     cmds:
-      - node --version
+      - >-
+        powershell -NoProfile -ExecutionPolicy Bypass -Command
+        "{{.WINGET_LOAD}}; node --version; exit \$LASTEXITCODE"

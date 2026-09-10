@@ -171,7 +171,9 @@ tasks:
     requires:
       vars: [PULUMI_ARGS]
     cmds:
-      - pulumi {{.PULUMI_ARGS}}
+      - >-
+        powershell -NoProfile -ExecutionPolicy Bypass -Command
+        "{{.WINGET_LOAD}}; pulumi {{.PULUMI_ARGS}}; exit \$LASTEXITCODE"
 
   _version:unix:
     run: once
@@ -192,8 +194,10 @@ tasks:
     preconditions:
       - sh: >-
           powershell -NoProfile -ExecutionPolicy Bypass -Command
-          "if (Get-Command pulumi -ErrorAction SilentlyContinue) {
+          "{{.WINGET_LOAD}}; if (Get-Command pulumi -ErrorAction SilentlyContinue) {
           exit 0 } else { exit 1 }"
         msg: Pulumi is not installed or not available in PATH.
     cmds:
-      - pulumi version
+      - >-
+        powershell -NoProfile -ExecutionPolicy Bypass -Command
+        "{{.WINGET_LOAD}}; pulumi version; exit \$LASTEXITCODE"

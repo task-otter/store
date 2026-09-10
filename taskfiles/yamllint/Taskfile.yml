@@ -115,8 +115,11 @@ tasks:
     preconditions:
       - sh: >-
           powershell -NoProfile -ExecutionPolicy Bypass -Command
-          "if (Get-Command yamllint -ErrorAction SilentlyContinue) {
+          "{{.WINGET_LOAD}}; {{.UV_LOAD}};
+          if (Get-Command yamllint -ErrorAction SilentlyContinue) {
           exit 0 } else { exit 1 }"
         msg: yamllint is not installed or not available in PATH.
     cmds:
-      - yamllint --version
+      - >-
+        powershell -NoProfile -ExecutionPolicy Bypass -Command
+        "{{.WINGET_LOAD}}; {{.UV_LOAD}}; yamllint --version; exit \$LASTEXITCODE"

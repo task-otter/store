@@ -100,17 +100,19 @@ tasks:
         platforms: [linux, darwin]
       - cmd: >-
           powershell -NoProfile -ExecutionPolicy Bypass -Command
-          "$ErrorActionPreference = 'Stop';
-          $t = '{{if .JSONLINT_TARGETS}}{{.JSONLINT_TARGETS}}{{else}}.{{end}}';
-          if (Test-Path -LiteralPath $t -PathType Container) {
-          $files = Get-ChildItem -LiteralPath $t -Recurse -Filter *.json -File
+          "{{.WINGET_LOAD}}; {{.UV_LOAD}};
+          \$ErrorActionPreference = 'Stop';
+          \$t = '{{if .JSONLINT_TARGETS}}{{.JSONLINT_TARGETS}}{{else}}.{{end}}';
+          if (Test-Path -LiteralPath \$t -PathType Container) {
+          \$files = Get-ChildItem -LiteralPath \$t -Recurse -Filter *.json -File
           } else {
-          $files = @(Get-Item -LiteralPath $t) };
-          $paths = @($files | ForEach-Object FullName);
-          if (-not $paths) { Write-Host 'No matching JSON files found'; exit 0 };
-          foreach ($path in $paths) {
-          jsonlint {{.JSONLINT_EXTRA_ARGS}} $path;
-          if ($LASTEXITCODE -ne 0) { exit $LASTEXITCODE } }"
+          \$files = @(Get-Item -LiteralPath \$t) };
+          \$paths = @(\$files | ForEach-Object FullName);
+          if (-not \$paths) { Write-Host 'No matching JSON files found'; exit 0 };
+          foreach (\$path in \$paths) {
+          jsonlint {{.JSONLINT_EXTRA_ARGS}} \$path;
+          if (\$LASTEXITCODE -ne 0) { exit \$LASTEXITCODE } };
+          exit \$LASTEXITCODE"
         platforms: [windows]
 
   _version:unix:
@@ -131,8 +133,11 @@ tasks:
     preconditions:
       - sh: >-
           powershell -NoProfile -ExecutionPolicy Bypass -Command
-          "if (Get-Command jsonlint -ErrorAction SilentlyContinue) {
+          "{{.WINGET_LOAD}}; {{.UV_LOAD}};
+          if (Get-Command jsonlint -ErrorAction SilentlyContinue) {
           exit 0 } else { exit 1 }"
         msg: jsonlint is not installed or not available in PATH.
     cmds:
-      - jsonlint --version
+      - >-
+        powershell -NoProfile -ExecutionPolicy Bypass -Command
+        "{{.WINGET_LOAD}}; {{.UV_LOAD}}; jsonlint --version; exit \$LASTEXITCODE"

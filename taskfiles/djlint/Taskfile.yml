@@ -134,8 +134,10 @@ tasks:
           {{.PATHS}} {{.MODE}}{{if .EXTRA}} {{.EXTRA}}{{end}}{{.TAIL}}'
         platforms: [linux, darwin]
       - cmd: >-
-          djlint
-          {{.PATHS}} {{.MODE}}{{if .EXTRA}} {{.EXTRA}}{{end}}
+          powershell -NoProfile -ExecutionPolicy Bypass -Command
+          "{{.WINGET_LOAD}}; {{.UV_LOAD}};
+          djlint {{.PATHS}} {{.MODE}}{{if .EXTRA}} {{.EXTRA}}{{end}};
+          exit \$LASTEXITCODE"
         platforms: [windows]
 
   _version:unix:
@@ -156,8 +158,11 @@ tasks:
     preconditions:
       - sh: >-
           powershell -NoProfile -ExecutionPolicy Bypass -Command
-          "if (Get-Command djlint -ErrorAction SilentlyContinue) {
+          "{{.WINGET_LOAD}}; {{.UV_LOAD}};
+          if (Get-Command djlint -ErrorAction SilentlyContinue) {
           exit 0 } else { exit 1 }"
         msg: djLint is not installed or not available in PATH.
     cmds:
-      - djlint --version
+      - >-
+        powershell -NoProfile -ExecutionPolicy Bypass -Command
+        "{{.WINGET_LOAD}}; {{.UV_LOAD}}; djlint --version; exit \$LASTEXITCODE"

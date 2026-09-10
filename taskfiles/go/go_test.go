@@ -54,6 +54,24 @@ func TestModuleIntegration(t *testing.T) {
 	taskintegration.RunHere(t)
 }
 
+// TestInstallPkgNotRunOnce
+func TestInstallPkgNotRunOnce(t *testing.T) {
+	t.Parallel()
+
+	taskfile := tasktest.LoadTaskfile(t, goModuleName)
+	task, exists := taskfile.Tasks[installPkgTask]
+
+	if !exists {
+		t.Fatal("install:pkg task is missing")
+	}
+
+	// run: once would skip the second module's GO_PKG in one
+	// `task ci` invocation, leaving that package uninstalled.
+	if task.Run == "once" {
+		t.Fatal("install:pkg must not use run: once")
+	}
+}
+
 // TestTaskfileModuleContract
 func TestTaskfileModuleContract(t *testing.T) {
 	t.Parallel()
@@ -110,6 +128,7 @@ func publicTasks() []string {
 func publicVars() []string {
 	return []string{
 		"GO_FUZZTIME",
+		"GO_LOAD",
 		"GO_NIX_INSTALLABLE",
 		"GO_PKG",
 		"GO_WINGET_INSTALLABLE",

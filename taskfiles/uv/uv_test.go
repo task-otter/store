@@ -46,6 +46,7 @@ func publicVars() []string {
 		"UV_ARGS",
 		"UV_EXTRA_ARGS",
 		"UV_FILE",
+		"UV_LOAD",
 		"PYTHON_VERSION",
 		"UV_NIX_INSTALLABLE",
 		"UV_WINGET_INSTALLABLE",

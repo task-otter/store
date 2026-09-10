@@ -163,11 +163,11 @@ tasks:
     cmds:
       - >-
         powershell -NoProfile -ExecutionPolicy Bypass -Command
-        "$inputPath='{{.BUF_INPUT}}';
+        "{{.WINGET_LOAD}}; \$inputPath='{{.BUF_INPUT}}';
         buf {{.BUF_SUBCOMMAND}} {{.BUF_CONFIG_FLAG}}
-          {{if .CLI_ARGS}}{{.CLI_ARGS}}{{else}}$inputPath
+          {{if .CLI_ARGS}}{{.CLI_ARGS}}{{else}}\$inputPath
           {{.BUF_EXTRA_ARGS}}{{end}};
-        exit $LASTEXITCODE"
+        exit \$LASTEXITCODE"
 
   breaking:
     run: once
@@ -216,12 +216,10 @@ tasks:
           && echo "✅ buf generate passed" || { echo "❌ buf generate failed"; exit 1; }'
         platforms: [linux, darwin]
       - cmd: >-
-          buf generate
-          {{if .CLI_ARGS}}{{.CLI_ARGS}}
-          {{else}}
-          "{{.BUF_INPUT}}"
-          {{.BUF_EXTRA_ARGS}}{{end}}
-          && echo "✅ buf generate passed" || { echo "❌ buf generate failed"; exit 1; }
+          powershell -NoProfile -ExecutionPolicy Bypass -Command
+          "{{.WINGET_LOAD}};
+          buf generate {{if .CLI_ARGS}}{{.CLI_ARGS}} {{else}} '{{.BUF_INPUT}}' {{.BUF_EXTRA_ARGS}}{{end}};
+          exit \$LASTEXITCODE"
         platforms: [windows]
 
   _version:unix:
@@ -242,8 +240,10 @@ tasks:
     preconditions:
       - sh: >-
           powershell -NoProfile -ExecutionPolicy Bypass -Command
-          "if (Get-Command buf -ErrorAction SilentlyContinue) {
+          "{{.WINGET_LOAD}}; if (Get-Command buf -ErrorAction SilentlyContinue) {
           exit 0 } else { exit 1 }"
         msg: Buf is not installed or not available in PATH.
     cmds:
-      - buf --version
+      - >-
+        powershell -NoProfile -ExecutionPolicy Bypass -Command
+        "{{.WINGET_LOAD}}; buf --version; exit \$LASTEXITCODE"

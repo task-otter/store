@@ -96,11 +96,11 @@ tasks:
         platforms: [linux, darwin]
       - cmd: >-
           powershell -NoProfile -ExecutionPolicy Bypass -Command
-          "Start-Process bruno{{if .RESOLVED_COLLECTION}} -ArgumentList '{{.RESOLVED_COLLECTION}}
+          "{{.WINGET_LOAD}}; Start-Process bruno{{if .RESOLVED_COLLECTION}} -ArgumentList '{{.RESOLVED_COLLECTION}}
           {{.BRUNO_GUI_EXTRA_ARGS}}{{if .CLI_ARGS}} {{.CLI_ARGS}}{{end}}'
           {{- else if or .BRUNO_GUI_EXTRA_ARGS .CLI_ARGS}}
           -ArgumentList '{{.BRUNO_GUI_EXTRA_ARGS}}
-          {{- if .CLI_ARGS}} {{.CLI_ARGS}}{{end}}'{{end}}"
+          {{- if .CLI_ARGS}} {{.CLI_ARGS}}{{end}}'{{end}}; exit \$LASTEXITCODE"
         platforms: [windows]
 
   help:
@@ -116,8 +116,8 @@ tasks:
         platforms: [linux, darwin]
       - cmd: >-
           powershell -NoProfile -ExecutionPolicy Bypass -Command
-          "bruno --help
-          {{.BRUNO_GUI_EXTRA_ARGS}}{{if .CLI_ARGS}} {{.CLI_ARGS}}{{end}}"
+          "{{.WINGET_LOAD}}; bruno --help
+          {{.BRUNO_GUI_EXTRA_ARGS}}{{if .CLI_ARGS}} {{.CLI_ARGS}}{{end}}; exit \$LASTEXITCODE"
         platforms: [windows]
 
   _version:unix:
@@ -137,8 +137,12 @@ tasks:
     platforms: [windows]
     preconditions:
       - sh: >-
-          powershell -NoProfile -ExecutionPolicy Bypass -Command "if (Get-Command bruno -ErrorAction SilentlyContinue) {
+          powershell -NoProfile -ExecutionPolicy Bypass -Command
+          "{{.WINGET_LOAD}};
+          if (Get-Command bruno -ErrorAction SilentlyContinue) {
           exit 0 } else { exit 1 }"
         msg: the Bruno desktop app is not installed or not available in PATH.
     cmds:
-      - bruno --version
+      - >-
+        powershell -NoProfile -ExecutionPolicy Bypass -Command
+        "{{.WINGET_LOAD}}; bruno --version; exit \$LASTEXITCODE"

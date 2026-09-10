@@ -263,11 +263,11 @@ tasks:
     status:
       - >-
         powershell -NoProfile -ExecutionPolicy Bypass -Command
-        "$docker = Get-Command docker -ErrorAction SilentlyContinue;
-        if (-not $docker) { exit 1 };
-        $requested = '{{.DOCKER_VERSION}}';
-        if ([string]::IsNullOrWhiteSpace($requested)
-        -or ((& $docker.Source --version) -like ('*' + $requested + '*'))) { exit 0 };
+        "{{.WINGET_LOAD}}; \$docker = Get-Command docker -ErrorAction SilentlyContinue;
+        if (-not \$docker) { exit 1 };
+        \$requested = '{{.DOCKER_VERSION}}';
+        if ([string]::IsNullOrWhiteSpace(\$requested)
+        -or ((& \$docker.Source --version) -like ('*' + \$requested + '*'))) { exit 0 };
         exit 1"
     cmds:
       - echo Installing Docker Desktop via winget...
@@ -347,7 +347,7 @@ tasks:
     status:
       - >-
         powershell -NoProfile -ExecutionPolicy Bypass -Command
-        "if (Get-Command docker -ErrorAction SilentlyContinue) { exit 1 } else { exit 0 }"
+        "{{.WINGET_LOAD}}; if (Get-Command docker -ErrorAction SilentlyContinue) { exit 1 } else { exit 0 }"
     cmds:
       - echo Removing Docker Desktop via winget...
       - task: winget:uninstall
@@ -457,9 +457,9 @@ tasks:
     cmds:
       - >-
         powershell -NoProfile -ExecutionPolicy Bypass -Command
-        "$ids = docker ps -q;
-        if ($ids) {
-        Write-Host \"Stopping $($ids.Count) container(s)...\";
-        docker stop $ids;
+        "{{.WINGET_LOAD}}; \$ids = docker ps -q;
+        if (\$ids) {
+        Write-Host \"Stopping \$(\$ids.Count) container(s)...\";
+        docker stop \$ids;
         Write-Host 'All containers stopped.'
-        } else { Write-Host 'No running containers to stop.' }"
+        } else { Write-Host 'No running containers to stop.' }; exit \$LASTEXITCODE"

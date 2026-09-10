@@ -95,11 +95,11 @@ tasks:
         platforms: [linux, darwin]
       - cmd: >-
           powershell -NoProfile -ExecutionPolicy Bypass -Command
-          "$dockerfile='{{.HADOLINT_DOCKERFILE}}';
+          "{{.WINGET_LOAD}}; \$dockerfile='{{.HADOLINT_DOCKERFILE}}';
           hadolint {{if .CLI_ARGS}}{{.CLI_ARGS}}{{else}}
             {{if .HADOLINT_CONFIG}}--config '{{.HADOLINT_CONFIG}}'{{end}}
-            $dockerfile {{.HADOLINT_EXTRA_ARGS}}{{end}};
-          exit $LASTEXITCODE"
+            \$dockerfile {{.HADOLINT_EXTRA_ARGS}}{{end}};
+          exit \$LASTEXITCODE"
         platforms: [windows]
 
   _version:unix:
@@ -120,8 +120,10 @@ tasks:
     preconditions:
       - sh: >-
           powershell -NoProfile -ExecutionPolicy Bypass -Command
-          "if (Get-Command hadolint -ErrorAction SilentlyContinue) {
+          "{{.WINGET_LOAD}}; if (Get-Command hadolint -ErrorAction SilentlyContinue) {
           exit 0 } else { exit 1 }"
         msg: hadolint is not installed or not available in PATH.
     cmds:
-      - hadolint --version
+      - >-
+        powershell -NoProfile -ExecutionPolicy Bypass -Command
+        "{{.WINGET_LOAD}}; hadolint --version; exit \$LASTEXITCODE"

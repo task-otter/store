@@ -2,7 +2,7 @@
 
 This document reflects the module dependencies declared in [`.deps.yml`](.deps.yml).
 
-**95 modules** total.
+**93 modules** total.
 
 ## Standalone
 
@@ -118,13 +118,11 @@ Modules with no `includes:` dependencies.
 ### Depth 2
 
 - `adrs` → `cargo`, `nix`
-- `bencher` → `cargo`, `nix`
 - `djlint` → `nix`, `uv`
 - `dotenv-linter` → `cargo`, `nix`
 - `gh` → `jq`, `nix`, `winget`
 - `go-junit-report` → `go`, `nix`
 - `golangci-lint` → `go`, `nix`, `winget`
-- `govulncheck` → `go`, `nix`
 - `jsonlint` → `nix`, `uv`
 - `proto` → `go`, `nix`, `winget`
 - `protolint` → `go`, `nix`
@@ -147,7 +145,6 @@ Who depends on each module:
 - `adrs` — *(none)*
 - `ansible` — *(none)*
 - `ansible-lint` — *(none)*
-- `bencher` — *(none)*
 - `biome` — *(none)*
 - `biome/bun` ← `biome`
 - `biome/node` ← `biome`
@@ -158,7 +155,7 @@ Who depends on each module:
 - `bruno-gui` — *(none)*
 - `buf` — *(none)*
 - `bun` ← `biome/bun`, `depcheck/bun`, `eslint/bun`, `htmlhint/bun`, `knip/bun`, `prettier/bun`, `spectral/bun`, `stylelint/bun`, `typescript/bun`
-- `cargo` ← `adrs`, `bencher`, `dotenv-linter`, `rumdl`
+- `cargo` ← `adrs`, `dotenv-linter`, `rumdl`
 - `depcheck` — *(none)*
 - `depcheck/bun` ← `depcheck`
 - `depcheck/node` ← `depcheck`
@@ -176,10 +173,9 @@ Who depends on each module:
 - `eslint/node/yarn` ← `eslint/node`
 - `gh` ← `git`
 - `git` — *(none)*
-- `go` ← `go-junit-report`, `golangci-lint`, `govulncheck`, `proto`, `protolint`
+- `go` ← `go-junit-report`, `golangci-lint`, `proto`, `protolint`
 - `go-junit-report` — *(none)*
 - `golangci-lint` — *(none)*
-- `govulncheck` — *(none)*
 - `hadolint` — *(none)*
 - `htmlhint` — *(none)*
 - `htmlhint/bun` ← `htmlhint`
@@ -195,7 +191,7 @@ Who depends on each module:
 - `knip/node/npm` ← `knip/node`
 - `knip/node/pnpm` ← `knip/node`
 - `knip/node/yarn` ← `knip/node`
-- `nix` ← `actionlint`, `adrs`, `ansible`, `ansible-lint`, `bencher`, `bruno-cli`, `bruno-gui`, `buf`, `bun`, `cargo`, `djlint`, `dotenv-linter`, `gh`, `git`, `go`, `go-junit-report`, `golangci-lint`, `govulncheck`, `hadolint`, `jq`, `jsonlint`, `nodejs`, `npm`, `pnpm`, `proto`, `protolint`, `pulumi`, `python`, `rumdl`, `shellcheck`, `shfmt`, `sqlfluff`, `uv`, `vault`, `yamlfix`, `yamllint`, `yarn`, `zizmor`
+- `nix` ← `actionlint`, `adrs`, `ansible`, `ansible-lint`, `bruno-cli`, `bruno-gui`, `buf`, `bun`, `cargo`, `djlint`, `dotenv-linter`, `gh`, `git`, `go`, `go-junit-report`, `golangci-lint`, `hadolint`, `jq`, `jsonlint`, `nodejs`, `npm`, `pnpm`, `proto`, `protolint`, `pulumi`, `python`, `rumdl`, `shellcheck`, `shfmt`, `sqlfluff`, `uv`, `vault`, `yamlfix`, `yamllint`, `yarn`, `zizmor`
 - `nodejs` ← `npm`, `pnpm`, `yarn`
 - `npm` ← `biome/node/npm`, `bruno-cli`, `depcheck/node/npm`, `eslint/node/npm`, `htmlhint/node/npm`, `knip/node/npm`, `prettier/node/npm`, `spectral/node/npm`, `stylelint/node/npm`, `typescript/node/npm`
 - `pnpm` ← `biome/node/pnpm`, `depcheck/node/pnpm`, `eslint/node/pnpm`, `htmlhint/node/pnpm`, `knip/node/pnpm`, `prettier/node/pnpm`, `spectral/node/pnpm`, `stylelint/node/pnpm`, `typescript/node/pnpm`

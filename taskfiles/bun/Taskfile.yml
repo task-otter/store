@@ -87,8 +87,12 @@ tasks:
     platforms: [windows]
     preconditions:
       - sh: >-
-          powershell -NoProfile -ExecutionPolicy Bypass -Command "if (Get-Command bun -ErrorAction SilentlyContinue) {
+          powershell -NoProfile -ExecutionPolicy Bypass -Command
+          "{{.WINGET_LOAD}};
+          if (Get-Command bun -ErrorAction SilentlyContinue) {
           exit 0 } else { exit 1 }"
         msg: Bun is not installed or not available in PATH.
     cmds:
-      - bun --version
+      - >-
+        powershell -NoProfile -ExecutionPolicy Bypass -Command
+        "{{.WINGET_LOAD}}; bun --version; exit \$LASTEXITCODE"

@@ -180,9 +180,18 @@ tasks:
     generates:
       - "{{.CUSTOM_GCL_BINARY}}"
     cmds:
-      - >-
-        bash -lc '{{.NIX_LOAD}};
-        {{if .GO_GLOBAL_BIN}}export PATH="{{.GO_GLOBAL_BIN}}:$PATH"; {{end}}golangci-lint custom -v'
+      - cmd: >-
+          bash -lc '{{.NIX_LOAD}};
+          {{if .GO_GLOBAL_BIN}}export PATH="{{.GO_GLOBAL_BIN}}:$PATH"; {{end}}golangci-lint custom -v'
+        platforms: [linux, darwin]
+      # WINGET_LOAD reloads Path after winget install in this Task process.
+      - cmd: >-
+          powershell -NoProfile -ExecutionPolicy Bypass -Command
+          "{{.WINGET_LOAD}};
+          \$ErrorActionPreference='Stop';
+          & golangci-lint custom -v;
+          exit \$LASTEXITCODE"
+        platforms: [windows]
 
   _lint:
     run: once
@@ -216,17 +225,21 @@ tasks:
           "$lint_binary" run {{.GO_LINT_FIX}} {{.GO_LINT_ARGS}}
           GCL_LINT_EOF
         platforms: [linux, darwin]
+      # Same indent + \$ so >- folds to one line and $ survives Task's shell.
+      # WINGET_LOAD reloads Path after winget install in this Task process.
       - cmd: >-
-          powershell -NoProfile -ExecutionPolicy Bypass -Command "$ErrorActionPreference='Stop'; $lintBinary =
-          'golangci-lint'; if ('{{.CUSTOM_GCL_ENABLED}}' -eq 'true') {
-
-            $lintBinary = '{{.CUSTOM_GCL_BINARY}}'; if (-not [System.IO.Path]::IsPathRooted($lintBinary)) {
-
-              $lintBinary = Join-Path (Get-Location) $lintBinary;
-            }
-          }; & $lintBinary run
-            {{.GO_LINT_FIX}}
-            {{.GO_LINT_ARGS}}; exit $LASTEXITCODE"
+          powershell -NoProfile -ExecutionPolicy Bypass -Command
+          "{{.WINGET_LOAD}};
+          \$ErrorActionPreference='Stop';
+          \$lintBinary = 'golangci-lint';
+          if ('{{.CUSTOM_GCL_ENABLED}}' -eq 'true') {
+          \$lintBinary = '{{.CUSTOM_GCL_BINARY}}';
+          if (-not [System.IO.Path]::IsPathRooted(\$lintBinary)) {
+          \$lintBinary = Join-Path (Get-Location) \$lintBinary;
+          }
+          };
+          & \$lintBinary run {{.GO_LINT_FIX}} {{.GO_LINT_ARGS}};
+          exit \$LASTEXITCODE"
         platforms: [windows]
 
   _fmt:
@@ -242,12 +255,11 @@ tasks:
             {{.GO_FMT_TARGETS}}'
         platforms: [linux, darwin]
       - cmd: >-
-          powershell -NoProfile -ExecutionPolicy Bypass -Command "$ErrorActionPreference='Stop';
-            & golangci-lint fmt
-              {{.GO_FMT_DIFF}}
-              {{.GOLANGCI_LINT_FMT_FORMATTER_FLAGS}}
-              {{.GO_FMT_TARGETS}};
-            exit $LASTEXITCODE"
+          powershell -NoProfile -ExecutionPolicy Bypass -Command
+          "{{.WINGET_LOAD}};
+          \$ErrorActionPreference='Stop';
+          & golangci-lint fmt {{.GO_FMT_DIFF}} {{.GOLANGCI_LINT_FMT_FORMATTER_FLAGS}} {{.GO_FMT_TARGETS}};
+          exit \$LASTEXITCODE"
         platforms: [windows]
 
   _version:unix:
@@ -270,8 +282,11 @@ tasks:
     preconditions:
       - sh: >-
           powershell -NoProfile -ExecutionPolicy Bypass -Command
-          "if (Get-Command golangci-lint -ErrorAction SilentlyContinue) {
+          "{{.WINGET_LOAD}};
+          if (Get-Command golangci-lint -ErrorAction SilentlyContinue) {
           exit 0 } else { exit 1 }"
         msg: golangci-lint is not installed or not available in PATH.
     cmds:
-      - golangci-lint --version
+      - cmd: >-
+          powershell -NoProfile -ExecutionPolicy Bypass -Command
+          "{{.WINGET_LOAD}}; golangci-lint --version; exit \$LASTEXITCODE"

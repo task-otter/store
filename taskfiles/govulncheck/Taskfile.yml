@@ -90,11 +90,14 @@ tasks:
           govulncheck \
             {{if .CLI_ARGS}}{{.CLI_ARGS}}{{else}}./...{{end}}'
         platforms: [linux, darwin]
+      # GO_LOAD puts GOPATH\bin on PATH after go:install:pkg in this Task process.
       - cmd: >-
           powershell -NoProfile -ExecutionPolicy Bypass -Command
-          "govulncheck
-            {{if .CLI_ARGS}}{{.CLI_ARGS}}{{else}}./...{{end}};
-          exit $LASTEXITCODE"
+          "{{.GO_LOAD}};
+          \$scanArgs = '{{if .CLI_ARGS}}{{.CLI_ARGS}}{{else}}./...{{end}}'.Trim().Split(' ',
+          [System.StringSplitOptions]::RemoveEmptyEntries);
+          & govulncheck @scanArgs;
+          exit \$LASTEXITCODE"
         platforms: [windows]
 
   _version:unix:
@@ -115,8 +118,11 @@ tasks:
     preconditions:
       - sh: >-
           powershell -NoProfile -ExecutionPolicy Bypass -Command
-          "if (Get-Command govulncheck -ErrorAction SilentlyContinue) {
+          "{{.GO_LOAD}};
+          if (Get-Command govulncheck -ErrorAction SilentlyContinue) {
           exit 0 } else { exit 1 }"
         msg: govulncheck is not installed or not available in PATH.
     cmds:
-      - govulncheck -version
+      - >-
+        powershell -NoProfile -ExecutionPolicy Bypass -Command
+        "{{.GO_LOAD}}; govulncheck -version; exit \$LASTEXITCODE"
