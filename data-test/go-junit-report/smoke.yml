@@ -1,3 +1,4 @@
+---
 vars:
   GO_JUNIT_REPORT_IN: gotest.log
   GO_JUNIT_REPORT_OUT: junit.xml

@@ -1,3 +1,4 @@
+---
 skip:
   - fuzz
   - install:pkg

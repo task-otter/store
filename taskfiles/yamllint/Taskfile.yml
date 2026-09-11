@@ -91,7 +91,8 @@ tasks:
     status:
       - test -f .yamllint
     cmds:
-      - "printf 'extends: default\\n' > .yamllint"
+      - "printf '---\\n' > .yamllint"
+      - "printf 'extends: default\\n' >> .yamllint"
       - "printf 'rules:\\n' >> .yamllint"
       - "printf '  line-length:\\n' >> .yamllint"
       - "printf '    max: 120\\n' >> .yamllint"
