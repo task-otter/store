@@ -1,0 +1,7 @@
+---
+version: "3"
+tasks:
+  helper:
+    internal: true
+    cmds:
+      - echo helper

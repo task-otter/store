@@ -1,0 +1,11 @@
+name: CI
+on:
+  push:
+permissions:
+  contents: read
+jobs:
+  check:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Echo
+        run: echo ok

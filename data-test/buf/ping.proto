@@ -1,0 +1,7 @@
+syntax = "proto3";
+
+package smoke.v1;
+
+message Ping {
+  string message = 1;
+}

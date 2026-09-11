@@ -1,0 +1,7 @@
+---
+version: "3"
+tasks:
+  ping:
+    desc: Echo ping
+    cmds:
+      - echo ping

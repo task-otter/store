@@ -1,0 +1,17 @@
+---
+version: "3"
+tasks:
+  default:
+    cmds:
+      - echo default
+  ping:
+    desc: Echo ping for smoke tests
+    cmds:
+      - echo ping
+  _hidden:
+    cmds:
+      - echo hidden
+  secret:
+    internal: true
+    cmds:
+      - echo secret

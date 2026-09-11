@@ -1,0 +1,11 @@
+---
+name: Smoke
+description: Run the Taskfile public-task smoke runner.
+runs:
+  using: composite
+  steps:
+    - name: Setup
+      uses: $/.github/actions/setup
+    - name: Run smoke
+      shell: bash
+      run: go run ./cmd/tasksmoke

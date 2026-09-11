@@ -1,0 +1,9 @@
+syntax = "proto3";
+
+package smoke.v1;
+
+option go_package = "smokego/ping";
+
+message Ping {
+  string message = 1;
+}

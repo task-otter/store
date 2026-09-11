@@ -1,0 +1,7 @@
+---
+version: "3"
+tasks:
+  ci:
+    desc: Run family leaf checks
+    cmds:
+      - echo ci

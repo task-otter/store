@@ -1,0 +1,8 @@
+---
+- name: Smoke playbook
+  hosts: localhost
+  gather_facts: false
+  tasks:
+    - name: Ping localhost
+      ansible.builtin.debug:
+        msg: ok

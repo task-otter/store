@@ -1,0 +1,7 @@
+{
+  "name": "typescript-smoke",
+  "private": true,
+  "devDependencies": {
+    "typescript": "^5.0.0"
+  }
+}

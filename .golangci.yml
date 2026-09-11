@@ -272,6 +272,8 @@ linters:
           match-type: prefix
         - module: github.com/golangci
           match-type: prefix
+        - module: github.com/go-task
+          match-type: prefix
       blocked: []
     gosec:
       includes: []

@@ -30,18 +30,26 @@ type (
 		Version  string           `yaml:"version"`
 	}
 
+	// TaskRequires lists Taskfile `requires` fields used by smoke and tests.
+	TaskRequires = struct {
+		Vars []string `yaml:"vars"`
+	}
+
 	// Task contains the task fields validated by the shared test helpers.
 	Task = struct {
-		Preconditions any      `yaml:"preconditions"`
-		Cmds          any      `yaml:"cmds"`
-		Deps          any      `yaml:"deps"`
-		Vars          any      `yaml:"vars"`
-		Status        any      `yaml:"status"`
-		Desc          string   `yaml:"desc"`
-		Summary       string   `yaml:"summary"`
-		Run           string   `yaml:"run"`
-		Set           []string `yaml:"set"`
-		Internal      bool     `yaml:"internal"`
+		Preconditions any           `yaml:"preconditions"`
+		Cmds          any           `yaml:"cmds"`
+		Deps          any           `yaml:"deps"`
+		Vars          any           `yaml:"vars"`
+		Status        any           `yaml:"status"`
+		Requires      *TaskRequires `yaml:"requires"`
+		Prompt        any           `yaml:"prompt"`
+		Desc          string        `yaml:"desc"`
+		Summary       string        `yaml:"summary"`
+		Run           string        `yaml:"run"`
+		Set           []string      `yaml:"set"`
+		Interactive   bool          `yaml:"interactive"`
+		Internal      bool          `yaml:"internal"`
 	}
 
 	// TestingT is the subset of [testing.TB] used by the shared helpers.
@@ -130,6 +138,18 @@ func LoadTaskfile(tester TestingT, module string) *Taskfile {
 	return mustParseTaskfile(tester, module, content)
 }
 
+// ParseTaskfile decodes Taskfile YAML without requiring a test helper.
+func ParseTaskfile(content []byte) (*Taskfile, error) {
+	taskfile := new(Taskfile)
+
+	err := yaml.Unmarshal(content, taskfile)
+	if err != nil {
+		return nil, fmt.Errorf("parse Taskfile: %w", err)
+	}
+
+	return taskfile, nil
+}
+
 // RepoRoot walks upward from the working directory to find the repository root.
 func RepoRoot(tester TestingT) string {
 	tester.Helper()
@@ -164,9 +184,7 @@ func validateTaskfileFormatting(tester TestingT, module string, content []byte) 
 }
 
 func mustParseTaskfile(tester TestingT, module string, content []byte) *Taskfile {
-	taskfile := new(Taskfile)
-
-	err := yaml.Unmarshal(content, taskfile)
+	taskfile, err := ParseTaskfile(content)
 	if err != nil {
 		tester.Fatalf("parse %s Taskfile: %v", module, err)
 	}

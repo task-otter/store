@@ -1,0 +1,7 @@
+{
+  "name": "prettier-smoke",
+  "private": true,
+  "devDependencies": {
+    "prettier": "^3.0.0"
+  }
+}

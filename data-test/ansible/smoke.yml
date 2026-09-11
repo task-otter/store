@@ -1,0 +1,6 @@
+vars:
+  ANSIBLE_PLAYBOOK: playbook.yml
+  ANSIBLE_INVENTORY: inventory.ini
+  ANSIBLE_CONFIG: ansible.cfg
+skip:
+  - galaxy:install

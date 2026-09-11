@@ -1,0 +1,39 @@
+---
+version: "3"
+tasks:
+  uninstall:
+    desc: Remove the tool
+    cmds:
+      - echo uninstall
+  fmt:check:
+    desc: Check formatting
+    cmds:
+      - echo fmtcheck
+  fmt:
+    desc: Rewrite files
+    cmds:
+      - echo fmt
+  cache:clean:
+    desc: Clean cache
+    cmds:
+      - echo cache
+  prompted:
+    desc: Ask first
+    prompt: Continue?
+    cmds:
+      - echo prompted
+  fuzz:
+    desc: Run fuzz tests
+    cmds:
+      - echo fuzz
+  needs-var:
+    desc: Requires a variable
+    requires:
+      vars:
+        - GO_PKG
+    cmds:
+      - echo pkg
+  galaxy:install:
+    desc: Install galaxy roles
+    cmds:
+      - echo galaxy
