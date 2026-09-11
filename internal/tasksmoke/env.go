@@ -24,7 +24,7 @@ func applyEnvPairs(pairs []envPair, setter func(string, string) error) error {
 func applyIsolatedHome(home string) error {
 	err := applyIsolatedHomeEnv(home, os.Setenv)
 	if err != nil {
-		return fmt.Errorf("apply isolated home: %w", err)
+		return fmt.Errorf(errWrapFormat, errApplyIsolatedHome, err)
 	}
 
 	return nil
@@ -54,7 +54,7 @@ func isolatedHomeDir(runner *engine) (string, error) {
 
 	applyErr := runner.applyHome(home)
 	if applyErr != nil {
-		return emptyString, fmt.Errorf("apply isolated home: %w", applyErr)
+		return emptyString, fmt.Errorf(errWrapFormat, errApplyIsolatedHome, applyErr)
 	}
 
 	return home, nil

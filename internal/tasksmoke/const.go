@@ -103,10 +103,11 @@ const (
 	tabPadChar        = ' '
 	dirMode           = 0o700
 	fileMode          = 0o600
-	errParseLoaded    = "parse loaded smoke config"
-	errLoadScanned    = "load scanned modules"
-	errParseModule    = "parse module taskfile"
-	errDecodeSmoke    = "decode smoke file"
-	errReadModule     = "read module Taskfile"
-	errSmokeEngine    = "run smoke engine"
+	errParseLoaded       = "parse loaded smoke config"
+	errLoadScanned       = "load scanned modules"
+	errParseModule       = "parse module taskfile"
+	errDecodeSmoke       = "decode smoke file"
+	errReadModule        = "read module Taskfile"
+	errSmokeEngine       = "run smoke engine"
+	errApplyIsolatedHome = "apply isolated home"
 )
