@@ -13,4 +13,4 @@ test-result.txt
 .tasksmoke-bin
 .tasksmoke-tmp/
 .tasksmoke-*.log
-
+.ansible
