@@ -8,6 +8,7 @@ import (
 	"os"
 	"path/filepath"
 	"strconv"
+	"strings"
 )
 
 func applyEnvPairs(pairs []envPair, setter func(string, string) error) error {
@@ -22,7 +23,7 @@ func applyEnvPairs(pairs []envPair, setter func(string, string) error) error {
 }
 
 func applyIsolatedHome(home string) error {
-	err := applyIsolatedHomeEnv(home, os.Getenv(envHome), os.Setenv)
+	err := applyIsolatedHomeEnv(home, hostHomeDir(), os.Setenv)
 	if err != nil {
 		return fmt.Errorf(errWrapFormat, errApplyIsolatedHome, err)
 	}
@@ -60,6 +61,24 @@ func ensureIsolatedConfigDir(home string) error {
 	}
 
 	return nil
+}
+
+func envValue(envs []string, key string) string {
+	prefix := key + "="
+
+	for i := range envs {
+		value, found := strings.CutPrefix(envs[i], prefix)
+
+		if found {
+			return value
+		}
+	}
+
+	return emptyString
+}
+
+func hostHomeDir() string {
+	return envValue(os.Environ(), envHome)
 }
 
 func hostNixPath(hostHome string) string {
@@ -122,7 +141,12 @@ func writeIsolatedHomeFiles(home, hostHome string) error {
 		return fmt.Errorf("ensure isolated config: %w", err)
 	}
 
-	return writeLoginShellProfiles(home, hostHome)
+	writeErr := writeLoginShellProfiles(home, hostHome)
+	if writeErr != nil {
+		return fmt.Errorf("write login shell profiles: %w", writeErr)
+	}
+
+	return nil
 }
 
 func writeLoginShellProfiles(home, hostHome string) error {
@@ -135,7 +159,8 @@ func writeLoginShellProfiles(home, hostHome string) error {
 }
 
 func writeProfileFile(home, name, body string) error {
-	path := filepath.Join(home, name)
+	path := filepath.Join(home, filepath.Base(name))
+
 	err := os.WriteFile(path, []byte(body), fileMode)
 	if err != nil {
 		return fmt.Errorf("write %s: %w", path, err)

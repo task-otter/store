@@ -263,3 +263,15 @@ func TestSetEnvPairsInvalidKey(t *testing.T) {
 	err := setEnvPairs([]envPair{{emptyString, testValue}})
 	requireErr(t, err)
 }
+
+// TestRunOneSkipsDestructiveTask exercises RunOneSkipsDestructiveTask.
+func TestRunOneSkipsDestructiveTask(t *testing.T) {
+	t.Parallel()
+
+	result := runOne(testEngine(t), &moduleRun{
+		Module: &module{Name: testGo},
+		Opts:   &runOptions{},
+	}, &taskSpec{Name: nameUninstall})
+	requireStatus(t, result, statusSkip)
+	requireEqual(t, result.Output, reasonDestructive)
+}

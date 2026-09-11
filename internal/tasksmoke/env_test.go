@@ -111,8 +111,38 @@ func discardEnv(key, value string) error {
 func readIsolatedProfile(t *testing.T, home, name string) string {
 	t.Helper()
 
-	body, err := os.ReadFile(filepath.Join(home, name))
+	body, err := readFile(filepath.Join(home, name))
 	requireNoErr(t, err)
 
 	return string(body)
+}
+
+// TestWriteIsolatedHomeFilesProfileError exercises WriteIsolatedHomeFilesProfileError.
+func TestWriteIsolatedHomeFilesProfileError(t *testing.T) {
+	t.Parallel()
+
+	home := t.TempDir()
+	err := os.Mkdir(filepath.Join(home, bashProfileName), dirMode)
+	requireNoErr(t, err)
+
+	writeErr := writeIsolatedHomeFiles(home, testHostHome)
+	requireErr(t, writeErr)
+}
+
+// TestEnvValueMissing exercises EnvValueMissing.
+func TestEnvValueMissing(t *testing.T) {
+	t.Parallel()
+
+	requireEqual(t, envValue([]string{testKey + "=" + testVal}, envHome), emptyString)
+}
+
+// TestEnvValuePresent exercises EnvValuePresent.
+func TestEnvValuePresent(t *testing.T) {
+	t.Parallel()
+
+	requireEqual(
+		t,
+		envValue([]string{testKey + "=" + testVal, envHome + "=" + testHostHome}, envHome),
+		testHostHome,
+	)
 }
