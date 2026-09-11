@@ -472,7 +472,10 @@ tasks:
     requires:
       vars: [BINARY]
     cmds:
-      - bash -lc '{{.NIX_LOAD}}; PATH="{{.USER_WORKING_DIR}}/node_modules/.bin:${PATH:-}"; {{.BINARY}} {{.ARGS}} {{.EXTRA_ARGS}}'
+      - >-
+        bash -lc '{{.NIX_LOAD}};
+        PATH="{{.USER_WORKING_DIR}}/node_modules/.bin:${PATH:-}";
+        {{.BINARY}} {{.ARGS}} {{.EXTRA_ARGS}}'
 
   _exec:windows:
     run: once
