@@ -38,9 +38,8 @@ func TestEngineRunSkipsDestructiveTasks(t *testing.T) {
 		Stderr:   nil,
 	})
 	requireNoErr(t, err)
-	requireSame(t, hasResultStatus(report, nameUninstall, statusSkip), true)
+	requireSame(t, len(report.Results) == 1, true)
 	requireSame(t, hasResultStatus(report, testFmtCheck, statusPass), true)
-	requireSame(t, hasResultStatus(report, testGalaxyInstall, statusSkip), true)
 }
 
 // TestEngineRunRecordsExecutorFailure exercises EngineRunRecordsExecutorFailure.

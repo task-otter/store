@@ -1,3 +1,11 @@
 ---
 vars:
-  DEPCHECK_PROJECT_PATH: .
+  DEPCHECK_IGNORE_PACKAGES: depcheck
+  DEPCHECK_EXTRA_ARGS: --ignores=depcheck
+skip:
+  - ci
+  - help
+  - ignores
+  - install
+  - json
+  - skip-missing

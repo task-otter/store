@@ -13,6 +13,4 @@ test-result.txt
 .tasksmoke-bin
 .tasksmoke-tmp/
 .tasksmoke-*.log
-.tasksmoke-bin
-.tasksmoke-*.log
-.tasksmoke-tmp/
+

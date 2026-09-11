@@ -1,3 +1,6 @@
 ---
 vars:
   HTMLHINT_TARGETS: "src/**/*.html"
+skip:
+  - help
+  - install

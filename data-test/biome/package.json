@@ -2,6 +2,9 @@
 	"name": "biome-smoke",
 	"private": true,
 	"devDependencies": {
-		"@biomejs/biome": "^1.9.0"
+		"@biomejs/biome": "1.9.4"
+	},
+	"resolutions": {
+		"@biomejs/biome": "1.9.4"
 	}
 }

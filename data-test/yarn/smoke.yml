@@ -1,7 +1,6 @@
 ---
 skip:
   - install:clean
-  - lint
   - test
   - dev
   - build

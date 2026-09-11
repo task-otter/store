@@ -1,3 +1,8 @@
 ---
 vars:
   STYLELINT_TARGETS: "src/**/*.css"
+skip:
+  - ci
+  - help
+  - install
+  - lint

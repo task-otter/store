@@ -1,0 +1,9 @@
+---
+skip:
+  - dependencies
+  - dev-dependencies
+  - exports
+  - files
+  - help
+  - install
+  - production

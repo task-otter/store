@@ -2,10 +2,8 @@
 vars:
   BIOME_TARGETS: src
   BIOME_DEFAULT_TARGETS: src
+  BIOME_VERSION: 1.9.4
 skip:
-  - ci
   - fmt:check
   - help
   - install
-  - lint
-  - version

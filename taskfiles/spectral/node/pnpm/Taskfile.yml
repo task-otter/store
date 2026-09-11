@@ -127,7 +127,9 @@ tasks:
     deps:
       - task: install
     cmds:
-      - task: pnpm:exec
+      - task: pnpm:_pnpm:unix
         vars:
-          BINARY: spectral
-          ARGS: "--version"
+          ARGS: "exec -- spectral --version"
+      - task: pnpm:_pnpm:windows
+        vars:
+          ARGS: "exec -- spectral --version"

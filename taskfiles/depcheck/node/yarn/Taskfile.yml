@@ -77,6 +77,8 @@ tasks:
   _run:
     internal: true
     run: when_changed
+    deps:
+      - task: install
     vars:
       RESOLVED_PATH: >-
         {{or .DEPCHECK_PROJECT_PATH .DEPCHECK_TARGETS .DEPCHECK_DEFAULT_PROJECT_PATH}}
@@ -85,7 +87,7 @@ tasks:
         vars:
           BINARY: depcheck
           ARGS: >-
-            {{- .RESOLVED_PATH}}
+            {{.RESOLVED_PATH}}
             {{- if .MODE_ARGS}} {{.MODE_ARGS}}{{end}}
           EXTRA_ARGS: >-
             {{.DEPCHECK_EXTRA_ARGS}}{{if .CLI_ARGS}} {{.CLI_ARGS}}{{end}}
@@ -130,11 +132,14 @@ tasks:
   version:
     run: once
     desc: Show the locally resolved Depcheck version
+    deps:
+      - task: install
     cmds:
       - task: yarn:exec
         vars:
           BINARY: depcheck
           ARGS: "--version"
+          EXTRA_ARGS: '{{.DEPCHECK_EXTRA_ARGS}}'
 
   help:
     run: once

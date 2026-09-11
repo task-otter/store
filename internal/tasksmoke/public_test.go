@@ -14,7 +14,7 @@ import (
 func TestIsPublicTaskNil(t *testing.T) {
 	t.Parallel()
 
-	requireSame(t, !isPublicTask(testCI, nil), true)
+	requireSame(t, !isPublicTask(nameCI, nil), true)
 }
 
 // TestIsHiddenName exercises IsHiddenName.
@@ -23,7 +23,7 @@ func TestIsHiddenName(t *testing.T) {
 
 	requireSame(t, isHiddenName(defaultTaskName), true)
 	requireSame(t, isHiddenName(testHiddenLint), true)
-	requireSame(t, !isHiddenName(testCI), true)
+	requireSame(t, !isHiddenName(nameCI), true)
 }
 
 // TestPromptEmptyList exercises PromptEmptyList.
@@ -68,7 +68,7 @@ func TestDeclaredPublicTasksFromParse(t *testing.T) {
 
 	tasks := declaredPublicTasks(taskfile)
 	requireSame(t, len(tasks) == 1, true)
-	requireEqual(t, tasks[0].Name, testCI)
+	requireEqual(t, tasks[0].Name, nameCI)
 }
 
 // TestNewSkipInputUsesSpec exercises NewSkipInputUsesSpec.

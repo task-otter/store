@@ -80,6 +80,10 @@ tasks:
       defaults. Skipped if biome.json or biome.jsonc already exists.
     status:
       - test -f biome.json || test -f biome.jsonc
+    deps:
+      - task: install
+        vars:
+          BIOME_VERSION: '{{.BIOME_VERSION}}'
     cmds:
       - task: npm:exec
         vars:
@@ -91,6 +95,10 @@ tasks:
   _run:
     internal: true
     run: when_changed
+    deps:
+      - task: install
+        vars:
+          BIOME_VERSION: '{{.BIOME_VERSION}}'
     vars:
       RESOLVED_CONFIG: '{{.BIOME_CONFIG}}'
       RESOLVED_TARGETS: '{{or .BIOME_TARGETS .BIOME_DEFAULT_TARGETS}}'
@@ -166,15 +174,24 @@ tasks:
   version:
     run: once
     desc: Show the locally resolved Biome version
+    deps:
+      - task: install
+        vars:
+          BIOME_VERSION: '{{.BIOME_VERSION}}'
     cmds:
       - task: npm:exec
         vars:
           BINARY: biome
           ARGS: "--version"
+          EXTRA_ARGS: '{{.BIOME_EXTRA_ARGS}}'
 
   help:
     run: once
     desc: Show Biome CLI help
+    deps:
+      - task: install
+        vars:
+          BIOME_VERSION: '{{.BIOME_VERSION}}'
     cmds:
       - task: npm:exec
         vars:

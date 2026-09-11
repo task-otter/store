@@ -1,4 +1,7 @@
 {
-  "name": "pnpm-smoke",
-  "private": true
+	"name": "pnpm-smoke",
+	"private": true,
+	"scripts": {
+		"lint": "node -e \"process.exit(0)\""
+	}
 }

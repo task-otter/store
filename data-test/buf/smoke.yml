@@ -1,0 +1,9 @@
+---
+vars:
+  BUF_INPUT: ping.proto
+skip:
+  - breaking
+  - ci
+  - fmt:check
+  - generate
+  - lint

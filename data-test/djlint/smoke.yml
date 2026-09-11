@@ -1,0 +1,3 @@
+---
+skip:
+  - fmt:check

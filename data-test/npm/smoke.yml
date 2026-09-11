@@ -1,15 +1,10 @@
 ---
 skip:
   - install:clean
-  - lint
   - test
   - dev
   - build
   - typecheck
-  - audit
-  - audit:fix
-  - audit:json
-  - doctor
   - audit
   - audit:fix
   - audit:json

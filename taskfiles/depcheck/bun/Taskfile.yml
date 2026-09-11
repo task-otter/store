@@ -93,15 +93,13 @@ tasks:
       - task: _bun:unix
         vars:
           ARGS: >-
-            x depcheck
-            {{- .RESOLVED_PATH}}
+            x depcheck {{.RESOLVED_PATH}}
             {{- if .MODE_ARGS}} {{.MODE_ARGS}}{{end}}
             {{.DEPCHECK_EXTRA_ARGS}}{{if .CLI_ARGS}} {{.CLI_ARGS}}{{end}}
       - task: _bun:windows
         vars:
           ARGS: >-
-            x depcheck
-            {{- .RESOLVED_PATH}}
+            x depcheck {{.RESOLVED_PATH}}
             {{- if .MODE_ARGS}} {{.MODE_ARGS}}{{end}}
             {{.DEPCHECK_EXTRA_ARGS}}{{if .CLI_ARGS}} {{.CLI_ARGS}}{{end}}
 

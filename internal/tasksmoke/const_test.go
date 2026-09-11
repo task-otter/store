@@ -25,7 +25,6 @@ const (
 	testEslintNPM      = "eslint/node/npm"
 	testFmtCheck       = "fmt:check"
 	testContinue       = "Continue?"
-	testCI             = "ci"
 	testAnsible        = "ansible"
 	testLocked         = "locked"
 	testKey            = "KEY"

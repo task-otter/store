@@ -102,7 +102,7 @@ func TestSmokeSkipsNilConfig(t *testing.T) {
 func TestYamlSkipNoMatch(t *testing.T) {
 	t.Parallel()
 
-	requireEqual(t, yamlSkipReason(testCI, []string{testOther}), emptyString)
+	requireEqual(t, yamlSkipReason(nameCI, []string{testOther}), emptyString)
 }
 
 // TestHasPromptNil exercises HasPromptNil.

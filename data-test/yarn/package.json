@@ -1,5 +1,8 @@
 {
-  "name": "yarn-smoke",
-  "private": true,
-  "packageManager": "yarn@1.22.22"
+	"name": "yarn-smoke",
+	"private": true,
+	"packageManager": "yarn@1.22.22",
+	"scripts": {
+		"lint": "node -e \"process.exit(0)\""
+	}
 }

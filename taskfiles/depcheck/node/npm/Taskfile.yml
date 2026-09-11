@@ -85,7 +85,7 @@ tasks:
         vars:
           BINARY: depcheck
           ARGS: >-
-            {{- .RESOLVED_PATH}}
+            {{.RESOLVED_PATH}}
             {{- if .MODE_ARGS}} {{.MODE_ARGS}}{{end}}
           EXTRA_ARGS: >-
             {{.DEPCHECK_EXTRA_ARGS}}{{if .CLI_ARGS}} {{.CLI_ARGS}}{{end}}

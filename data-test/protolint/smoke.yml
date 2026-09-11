@@ -1,0 +1,5 @@
+---
+vars:
+  PROTOLINT_TARGETS: ping.proto
+skip:
+  - ci

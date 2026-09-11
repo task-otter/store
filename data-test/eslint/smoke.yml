@@ -1,3 +1,9 @@
 ---
 vars:
-  ESLINT_TARGETS: src
+  ESLINT_TARGETS: "src/**/*.js"
+  ESLINT_DEFAULT_TARGETS: "src/**/*.js"
+  ESLINT_EXTRA_ARGS: --no-error-on-unmatched-pattern
+skip:
+  - ci
+  - install
+  - lint

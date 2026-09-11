@@ -251,10 +251,11 @@ func runModule(suite *suiteRun, module *module) ([]*taskResult, error) {
 }
 
 func runModuleTasks(runner *engine, run *moduleRun) []*taskResult {
-	results := make([]*taskResult, emptyLength, len(run.Module.Tasks))
+	tasks := selectedSmokeTasks(run.Module)
+	results := make([]*taskResult, emptyLength, len(tasks))
 
-	for i := range run.Module.Tasks {
-		results = append(results, runOne(runner, run, run.Module.Tasks[i]))
+	for i := range tasks {
+		results = append(results, runOne(runner, run, tasks[i]))
 	}
 
 	return results

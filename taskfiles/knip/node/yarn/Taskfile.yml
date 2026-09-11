@@ -89,6 +89,8 @@ tasks:
   _run:
     internal: true
     run: when_changed
+    deps:
+      - task: install
     vars:
       RESOLVED_CONFIG: '{{.KNIP_CONFIG}}'
     cmds:
@@ -167,12 +169,15 @@ tasks:
   version:
     run: once
     desc: Show the locally resolved Knip version
+    deps:
+      - task: install
     cmds:
       - task: yarn:exec
         vars:
           PM: '{{.PM}}'
           BINARY: knip
           ARGS: "--version"
+          EXTRA_ARGS: '{{.KNIP_EXTRA_ARGS}}'
 
   help:
     run: once

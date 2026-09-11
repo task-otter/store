@@ -100,6 +100,8 @@ tasks:
   _run:
     internal: true
     run: when_changed
+    deps:
+      - task: install
     vars:
       RESOLVED_TARGETS: '{{or .STYLELINT_TARGETS .STYLELINT_DEFAULT_TARGETS}}'
       RESOLVED_CONFIG: '{{.STYLELINT_CONFIG}}'
@@ -146,11 +148,14 @@ tasks:
   version:
     run: once
     desc: Show the locally resolved Stylelint version
+    deps:
+      - task: install
     cmds:
       - task: yarn:exec
         vars:
           BINARY: stylelint
           ARGS: "--version"
+          EXTRA_ARGS: '{{.STYLELINT_EXTRA_ARGS}}'
 
   help:
     run: once

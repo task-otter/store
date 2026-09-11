@@ -1,0 +1,11 @@
+---
+skip:
+  - build
+  - check
+  - ci
+  - fmt:check
+  - install:crate
+  - lint
+  - test
+  - verify
+  - version

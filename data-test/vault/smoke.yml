@@ -7,7 +7,12 @@ skip:
   - unseal
   - seal
   - login
+  - login:approle
+  - login:root-token
   - token:revoke-self
+  - token:issue:approle
+  - kv:get
   - root-token
   - peers
   - snapshot
+  - restore

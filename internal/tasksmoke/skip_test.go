@@ -148,7 +148,7 @@ func TestSkipEmptyPromptIgnored(t *testing.T) {
 
 	requireEqual(t, skipReason(&skipInput{
 		Module: testEcho,
-		Name:   testCI,
+		Name:   nameCI,
 		Task:   &tasktest.Task{Prompt: "  "},
 	}), emptyString)
 }
@@ -159,7 +159,7 @@ func TestSkipUnknownPromptType(t *testing.T) {
 
 	requireEqual(t, skipReason(&skipInput{
 		Module: testEcho,
-		Name:   testCI,
+		Name:   nameCI,
 		Task:   &tasktest.Task{Prompt: 1},
 	}), reasonPrompt)
 }
