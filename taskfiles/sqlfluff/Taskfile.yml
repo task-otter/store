@@ -73,6 +73,43 @@ tasks:
       - task: _version:unix
       - task: _version:windows
 
+  # Shared implementation of ci / ci:fix / parse. Each override is resolved
+  # exactly once here; callers supply the subcommand and optional reporting tail.
+  _run:
+    internal: true
+    run: when_changed
+    dir: "{{.USER_WORKING_DIR}}"
+    deps:
+      - task: install
+    vars:
+      PATHS: '{{or .SQLFLUFF_TARGETS "."}}'
+      EXTRA: '{{.SQLFLUFF_EXTRA_ARGS}}'
+      DIALECT: '{{.SQLFLUFF_DIALECT}}'
+      CONFIG: '{{.SQLFLUFF_CONFIG}}'
+    cmds:
+      - cmd: >-
+          bash -lc '{{.NIX_LOAD}};
+          sqlfluff {{.SUBCMD}}
+          {{if .CLI_ARGS}}{{.CLI_ARGS}}
+          {{else}}
+          {{if .DIALECT}}--dialect {{.DIALECT}} {{end}}
+          {{.PATHS}}
+          {{if .EXTRA}}{{.EXTRA}} {{end}}{{end}}
+          {{if .CONFIG}}--config "{{.CONFIG}}"{{end}}{{.TAIL}}'
+        platforms: [linux, darwin]
+      - cmd: >-
+          powershell -NoProfile -ExecutionPolicy Bypass -Command
+          "{{.WINGET_LOAD}}; {{.UV_LOAD}};
+          sqlfluff {{.SUBCMD}}
+          {{if .CLI_ARGS}}{{.CLI_ARGS}}
+          {{else}}
+          {{if .DIALECT}}--dialect {{.DIALECT}} {{end}}
+          {{.PATHS}}
+          {{if .EXTRA}}{{.EXTRA}} {{end}}{{end}}
+          {{if .CONFIG}}--config '{{.CONFIG}}'{{end}};
+          exit \$LASTEXITCODE"
+        platforms: [windows]
+
   ci:
     run: once
     desc: Lint SQL files with sqlfluff (SQLFLUFF_TARGETS=path)
@@ -81,20 +118,11 @@ tasks:
       SQLFLUFF_CONFIG to use a custom config file via --config,
       SQLFLUFF_DIALECT to set the SQL dialect, and SQLFLUFF_EXTRA_ARGS for
       additional flags. Auto-installs sqlfluff if missing.
-    deps:
-      - task: install
-    dir: "{{.USER_WORKING_DIR}}"
     cmds:
-      - >-
-        bash -lc '{{.NIX_LOAD}};
-        sqlfluff lint
-        {{if .CLI_ARGS}}{{.CLI_ARGS}}
-        {{else}}
-        {{if .SQLFLUFF_DIALECT}}--dialect {{.SQLFLUFF_DIALECT}} {{end}}
-        {{.SQLFLUFF_TARGETS}}
-        {{.SQLFLUFF_EXTRA_ARGS}}{{end}}
-        {{if .SQLFLUFF_CONFIG}}--config "{{.SQLFLUFF_CONFIG}}"{{end}}
-        && echo "✅ sqlfluff passed" || { echo "❌ sqlfluff failed"; exit 1; }'
+      - task: _run
+        vars:
+          SUBCMD: lint
+          TAIL: ' && echo "✅ sqlfluff passed" || { echo "❌ sqlfluff failed"; exit 1; }'
 
   ci:fix:
     run: once
@@ -103,20 +131,11 @@ tasks:
       Run sqlfluff fix against SQLFLUFF_TARGETS (default .) to automatically
       fix lint violations. Pass SQLFLUFF_CONFIG, SQLFLUFF_DIALECT, and
       SQLFLUFF_EXTRA_ARGS as needed. Auto-installs sqlfluff if missing.
-    deps:
-      - task: install
-    dir: "{{.USER_WORKING_DIR}}"
     cmds:
-      - >-
-        bash -lc '{{.NIX_LOAD}};
-        sqlfluff fix
-        {{if .CLI_ARGS}}{{.CLI_ARGS}}
-        {{else}}
-        {{if .SQLFLUFF_DIALECT}}--dialect {{.SQLFLUFF_DIALECT}} {{end}}
-        {{.SQLFLUFF_TARGETS}}
-        {{.SQLFLUFF_EXTRA_ARGS}}{{end}}
-        {{if .SQLFLUFF_CONFIG}}--config "{{.SQLFLUFF_CONFIG}}"{{end}}
-        && echo "✅ sqlfluff fixes applied"'
+      - task: _run
+        vars:
+          SUBCMD: fix
+          TAIL: ' && echo "✅ sqlfluff fixes applied"'
 
   parse:
     run: once
@@ -126,19 +145,10 @@ tasks:
       parse tree. Useful for debugging dialect issues or understanding how
       sqlfluff interprets a query. Pass SQLFLUFF_CONFIG, SQLFLUFF_DIALECT, and
       SQLFLUFF_EXTRA_ARGS as needed. Auto-installs sqlfluff if missing.
-    deps:
-      - task: install
-    dir: "{{.USER_WORKING_DIR}}"
     cmds:
-      - >-
-        bash -lc '{{.NIX_LOAD}};
-        sqlfluff parse
-        {{if .CLI_ARGS}}{{.CLI_ARGS}}
-        {{else}}
-        {{if .SQLFLUFF_DIALECT}}--dialect {{.SQLFLUFF_DIALECT}} {{end}}
-        {{.SQLFLUFF_TARGETS}}
-        {{.SQLFLUFF_EXTRA_ARGS}}{{end}}
-        {{if .SQLFLUFF_CONFIG}}--config "{{.SQLFLUFF_CONFIG}}"{{end}}'
+      - task: _run
+        vars:
+          SUBCMD: parse
 
   config:init:
     run: once

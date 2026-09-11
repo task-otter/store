@@ -40,8 +40,6 @@ tasks:
       Windows via WinGet, when it is not already on PATH. Override
       PYTHON_NIX_INSTALLABLE or PYTHON_WINGET_INSTALLABLE to pin a
       different package or version.
-    status:
-      - command -v python3 >/dev/null 2>&1
     cmds:
       - task: _install:unix
       - task: _install:windows
@@ -49,6 +47,8 @@ tasks:
   _install:unix:
     internal: true
     platforms: [linux, darwin]
+    status:
+      - command -v python3 >/dev/null 2>&1
     cmds:
       - task: nix:install:profile
         vars:
@@ -57,6 +57,11 @@ tasks:
   _install:windows:
     internal: true
     platforms: [windows]
+    status:
+      - >-
+        powershell -NoProfile -ExecutionPolicy Bypass -Command
+        "{{.WINGET_LOAD}}; if (Get-Command python -ErrorAction SilentlyContinue) {
+        exit 0 } else { exit 1 }"
     cmds:
       - task: winget:install:package
         vars:

@@ -2040,9 +2040,13 @@ tasks:
         powershell -NoProfile -ExecutionPolicy Bypass -Command
         "{{.WINGET_LOAD}}; Write-Host '=== gh binary ==='; (Get-Command gh).Source;
         Write-Host ''; Write-Host '=== gh version ==='; gh --version;
+        if (\$LASTEXITCODE -ne 0) { exit \$LASTEXITCODE };
         Write-Host ''; Write-Host '=== gh auth status ===';
-        try { gh auth status }
-        catch { Write-Host 'Not authenticated. Run: task auth:login' }; exit \$LASTEXITCODE"
+        gh auth status;
+        if (\$LASTEXITCODE -ne 0) {
+          Write-Host 'Not authenticated. Run: task auth:login'
+        };
+        exit 0"
 
   _secret:set:unix:
     run: once

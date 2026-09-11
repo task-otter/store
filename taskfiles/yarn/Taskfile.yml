@@ -438,7 +438,7 @@ tasks:
     cmds:
       - >-
         powershell -NoProfile -ExecutionPolicy Bypass -Command
-        "{{.WINGET_LOAD}}; node --version; yarn --version; exit \$LASTEXITCODE""
+        "{{.WINGET_LOAD}}; node --version; yarn --version; exit \$LASTEXITCODE"
 
   _clean:unix:
     run: once
@@ -489,7 +489,7 @@ tasks:
         powershell -NoProfile -ExecutionPolicy Bypass -Command
         "{{.WINGET_LOAD}};
         \$env:PATH = '{{.USER_WORKING_DIR}}\node_modules\.bin;' + \$env:PATH;
-        & {{.BINARY}} {{.ARGS}} {{.EXTRA_ARGS}}; exit \$LASTEXITCODE""
+        & {{.BINARY}} {{.ARGS}} {{.EXTRA_ARGS}}; exit \$LASTEXITCODE"
 
   _clean:all:unix:
     run: once

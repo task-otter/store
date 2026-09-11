@@ -498,7 +498,7 @@ tasks:
     cmds:
       - >-
         powershell -NoProfile -ExecutionPolicy Bypass -Command
-        "{{.WINGET_LOAD}}; node --version; pnpm --version; exit \$LASTEXITCODE""
+        "{{.WINGET_LOAD}}; node --version; pnpm --version; exit \$LASTEXITCODE"
 
   _clean:unix:
     run: once

@@ -8,4 +8,4 @@ runs:
       uses: $/.github/actions/setup
     - name: Run smoke
       shell: bash
-      run: task go:install && go run ./cmd/tasksmoke
+      run: task go:verify && go run ./cmd/tasksmoke

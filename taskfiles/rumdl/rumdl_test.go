@@ -41,9 +41,9 @@ func publicTasks() []string {
 
 func publicVars() []string {
 	return []string{
-		"RUMDL_CARGO_CRATE",
 		"RUMDL_EXTRA_ARGS",
 		"RUMDL_NIX_INSTALLABLE",
 		"RUMDL_TARGETS",
+		"RUMDL_WINGET_INSTALLABLE",
 	}
 }

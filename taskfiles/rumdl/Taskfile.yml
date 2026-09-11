@@ -10,16 +10,16 @@ output:
 silent: true
 
 includes:
-  cargo:
-    taskfile: ../cargo/Taskfile.yml
   nix:
     taskfile: ../nix/Taskfile.yml
+  winget:
+    taskfile: ../winget/Taskfile.yml
 
 vars:
   RUMDL_TARGETS: '{{.RUMDL_TARGETS | default "."}}'
   RUMDL_EXTRA_ARGS: '{{.RUMDL_EXTRA_ARGS | default ""}}'
   RUMDL_NIX_INSTALLABLE: '{{.RUMDL_NIX_INSTALLABLE | default "nixpkgs#rumdl"}}'
-  RUMDL_CARGO_CRATE: '{{.RUMDL_CARGO_CRATE | default "rumdl"}}'
+  RUMDL_WINGET_INSTALLABLE: '{{.RUMDL_WINGET_INSTALLABLE | default "rvben.rumdl"}}'
 
 tasks:
   default:
@@ -31,12 +31,12 @@ tasks:
 
   install:
     run: once
-    desc: Install rumdl via Nix (Unix) or cargo install (Windows)
+    desc: Install rumdl via Nix (Unix) or WinGet (Windows)
     summary: |
       Install rumdl into the user Nix profile on Linux and macOS when it
-      is not already on PATH. On Windows, install via cargo:install:crate
-      (RUMDL_CARGO_CRATE). Override RUMDL_NIX_INSTALLABLE or RUMDL_CARGO_CRATE
-      to pin a different package or crate.
+      is not already on PATH. On Windows, WinGet installs rumdl
+      (RUMDL_WINGET_INSTALLABLE). Override RUMDL_NIX_INSTALLABLE or
+      RUMDL_WINGET_INSTALLABLE to pin a different package or version.
     status:
       - command -v rumdl >/dev/null 2>&1
     cmds:
@@ -55,9 +55,9 @@ tasks:
     internal: true
     platforms: [windows]
     cmds:
-      - task: cargo:install:crate
+      - task: winget:install:package
         vars:
-          CARGO_CRATE: "{{.RUMDL_CARGO_CRATE}}"
+          WINGET_INSTALLABLE: "{{.RUMDL_WINGET_INSTALLABLE}}"
 
   version:
     run: once
@@ -89,14 +89,14 @@ tasks:
     preconditions:
       - sh: >-
           powershell -NoProfile -ExecutionPolicy Bypass -Command
-          "{{.WINGET_LOAD}}; {{.CARGO_LOAD}};
+          "{{.WINGET_LOAD}};
           if (Get-Command rumdl -ErrorAction SilentlyContinue) {
           exit 0 } else { exit 1 }"
         msg: rumdl is not installed or not available in PATH.
     cmds:
       - >-
         powershell -NoProfile -ExecutionPolicy Bypass -Command
-        "{{.WINGET_LOAD}}; {{.CARGO_LOAD}}; rumdl --version; exit \$LASTEXITCODE"
+        "{{.WINGET_LOAD}}; rumdl --version; exit \$LASTEXITCODE"
 
   # Shared implementation of lint / lint:fix / fmt. Each override is resolved exactly
   # once here; callers supply the subcommand and any trailing shell reporting.
@@ -117,7 +117,7 @@ tasks:
         platforms: [linux, darwin]
       - cmd: >-
           powershell -NoProfile -ExecutionPolicy Bypass -Command
-          "{{.WINGET_LOAD}}; {{.CARGO_LOAD}};
+          "{{.WINGET_LOAD}};
           rumdl {{.SUBCMD}} {{.PATHS}}{{if .EXTRA}} {{.EXTRA}}{{end}};
           exit \$LASTEXITCODE"
         platforms: [windows]

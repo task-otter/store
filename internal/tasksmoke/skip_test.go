@@ -76,7 +76,12 @@ func TestSkipDockerWorkTasks(t *testing.T) {
 func TestSkipNixInstallOnly(t *testing.T) {
 	t.Parallel()
 
-	requireEqual(t, skipReason(&skipInput{Module: toolNix, Name: nameInstall}), reasonNixInstall)
+	expected := reasonNixInstall
+	if unixOnly := unixOnlySkipOnOS(toolNix, runtime.GOOS); unixOnly != emptyString {
+		expected = unixOnly
+	}
+
+	requireEqual(t, skipReason(&skipInput{Module: toolNix, Name: nameInstall}), expected)
 	requireEqual(t, skipReason(&skipInput{Module: testYamllint, Name: nameInstall}), emptyString)
 }
 
@@ -118,7 +123,7 @@ func TestSkipYAMLList(t *testing.T) {
 	t.Parallel()
 
 	reason := skipReason(&skipInput{
-		Module: testAnsible,
+		Module: testYamllint,
 		Name:   testGalaxyInstall,
 		Config: &smokeConfig{Skip: []string{testGalaxyInstall}},
 	})
@@ -223,6 +228,60 @@ func TestSkipWingetViaPolicy(t *testing.T) {
 		t,
 		skipReason(&skipInput{Module: toolWinget, Name: nameInstall}),
 		wingetSkipOnOS(toolWinget, runtime.GOOS),
+	)
+}
+
+// TestSkipUnixOnlyOnWindows exercises SkipUnixOnlyOnWindows.
+func TestSkipUnixOnlyOnWindows(t *testing.T) {
+	t.Parallel()
+
+	requireEqual(t, unixOnlySkipOnOS(toolAnsible, osWindows), reasonUnixOnly)
+	requireEqual(t, unixOnlySkipOnOS(toolAnsibleLint, osWindows), reasonUnixOnly)
+	requireEqual(t, unixOnlySkipOnOS(toolNix, osWindows), reasonUnixOnly)
+	requireEqual(t, unixOnlySkipOnOS(toolAnsible, osDarwin), emptyString)
+	requireEqual(t, unixOnlySkipOnOS(toolAnsible, osLinux), emptyString)
+	requireEqual(t, unixOnlySkipOnOS(testGo, osWindows), emptyString)
+}
+
+// TestSkipUnixOnlyViaPolicy exercises SkipUnixOnlyViaPolicy.
+func TestSkipUnixOnlyViaPolicy(t *testing.T) {
+	t.Parallel()
+
+	requireEqual(
+		t,
+		skipReason(&skipInput{Module: toolAnsible, Name: nameVersion}),
+		unixOnlySkipOnOS(toolAnsible, runtime.GOOS),
+	)
+	requireEqual(
+		t,
+		skipReason(&skipInput{Module: toolAnsibleLint, Name: nameVersion}),
+		unixOnlySkipOnOS(toolAnsibleLint, runtime.GOOS),
+	)
+	requireEqual(
+		t,
+		skipReason(&skipInput{Module: toolNix, Name: nameVersion}),
+		unixOnlySkipOnOS(toolNix, runtime.GOOS),
+	)
+}
+
+// TestSkipCargoSourceOnWindows exercises SkipCargoSourceOnWindows.
+func TestSkipCargoSourceOnWindows(t *testing.T) {
+	t.Parallel()
+
+	requireEqual(t, cargoSourceSkipOnOS(toolAdrs, osWindows), reasonCargoSource)
+	requireEqual(t, cargoSourceSkipOnOS(toolAdrs, osDarwin), emptyString)
+	requireEqual(t, cargoSourceSkipOnOS(toolAdrs, osLinux), emptyString)
+	requireEqual(t, cargoSourceSkipOnOS(testGo, osWindows), emptyString)
+}
+
+// TestSkipCargoSourceViaPolicy exercises SkipCargoSourceViaPolicy.
+func TestSkipCargoSourceViaPolicy(t *testing.T) {
+	t.Parallel()
+
+	requireEqual(
+		t,
+		skipReason(&skipInput{Module: toolAdrs, Name: nameVersion}),
+		cargoSourceSkipOnOS(toolAdrs, runtime.GOOS),
 	)
 }
 

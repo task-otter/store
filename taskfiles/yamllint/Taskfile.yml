@@ -75,11 +75,21 @@ tasks:
     deps:
       - task: install
     cmds:
-      - >-
-        bash -lc '{{.NIX_LOAD}}; yamllint --strict {{if .YAMLLINT_CONFIG}}-c
-        "{{.YAMLLINT_CONFIG}}" {{end}} {{if .YAMLLINT_TARGETS}}{{.YAMLLINT_TARGETS}}
-        {{else}}.{{end}} {{.YAMLLINT_EXTRA_ARGS}}
-        && echo "✅ yamllint passed" || { echo "❌ yamllint failed"; exit 1; }'
+      - cmd: >-
+          bash -lc '{{.NIX_LOAD}}; yamllint --strict {{if .YAMLLINT_CONFIG}}-c
+          "{{.YAMLLINT_CONFIG}}" {{end}} {{if .YAMLLINT_TARGETS}}{{.YAMLLINT_TARGETS}}
+          {{else}}.{{end}} {{.YAMLLINT_EXTRA_ARGS}}
+          && echo "✅ yamllint passed" || { echo "❌ yamllint failed"; exit 1; }'
+        platforms: [linux, darwin]
+      - cmd: >-
+          powershell -NoProfile -ExecutionPolicy Bypass -Command
+          "{{.WINGET_LOAD}}; {{.UV_LOAD}};
+          yamllint --strict
+          {{if .YAMLLINT_CONFIG}}-c '{{.YAMLLINT_CONFIG}}' {{end}}
+          {{if .YAMLLINT_TARGETS}}{{.YAMLLINT_TARGETS}}{{else}}.{{end}}
+          {{.YAMLLINT_EXTRA_ARGS}};
+          exit \$LASTEXITCODE"
+        platforms: [windows]
   config:init:
     run: once
     dir: "{{.USER_WORKING_DIR}}"

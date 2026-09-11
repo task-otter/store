@@ -160,17 +160,20 @@ tasks:
       - >-
         powershell -NoProfile -ExecutionPolicy Bypass -Command
         "{{.WINGET_LOAD}}; \$ErrorActionPreference='Stop';
-        if ('{{.CLI_ARGS}}') {
+        if ('{{.CLI_ARGS}}'.Trim()) {
           shellcheck {{.CLI_ARGS}}; exit \$LASTEXITCODE
         };
-        \$extra='{{.SHELLCHECK_EXTRA_ARGS}}';
-        \$targets='{{.SHELLCHECK_TARGETS}}
-        ';
+        \$extra='{{.SHELLCHECK_EXTRA_ARGS}}'.Trim();
+        \$targets='{{.SHELLCHECK_TARGETS}}'.Trim();
         if (-not \$targets) {
-          \$files = Get-ChildItem -Recurse -Filter '*.sh' -File |
-            Where-Object { \$_.FullName -notmatch '\\\.git\\' };
+          \$files = Get-ChildItem -Recurse -File |
+            Where-Object {
+              \$_.Extension -in @('.sh', '.bash') -and
+              \$_.FullName -notmatch '\\\.git\\'
+            };
         } else {
-          \$files = @(\$targets.Split(' ') | ForEach-Object {
+          \$files = @(\$targets.Split(' ', [StringSplitOptions]::RemoveEmptyEntries) |
+            ForEach-Object {
             if (Test-Path -LiteralPath \$_ -PathType Container) {
               Get-ChildItem -LiteralPath \$_ -Recurse -File |
                 Where-Object { \$_.Extension -in @('.sh', '.bash') -and \$_.FullName -notmatch '\\\.git\\' }
@@ -182,7 +185,7 @@ tasks:
         \$paths = @(\$files | ForEach-Object FullName);
         if (-not \$paths) { Write-Host 'No matching shell scripts found'; exit 0 };
         \$arguments = @();
-        if (\$extra) { \$arguments += \$extra.Split(' ') };
+        if (\$extra) { \$arguments += \$extra.Split(' ', [StringSplitOptions]::RemoveEmptyEntries) };
         shellcheck @arguments @paths;
         if (\$LASTEXITCODE -ne 0) { exit \$LASTEXITCODE };
         Write-Host '✅ shellcheck passed'"

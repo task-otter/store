@@ -160,7 +160,7 @@ func platformSkipReason(input *skipInput) string {
 		return reason
 	}
 
-	return ghAndYAMLSkipReason(input)
+	return unixOnlyAndGHSkipReason(input)
 }
 
 func policySkipReason(input *skipInput) string {
@@ -273,6 +273,56 @@ func taskRequiresVars(task *tasktest.Task) []string {
 	}
 
 	return requiredVarNames(task.Requires)
+}
+
+func unixOnlyAndGHSkipReason(input *skipInput) string {
+	reason := unixOnlySkipReason(input.Module)
+
+	if reason != emptyString {
+		return reason
+	}
+
+	reason = cargoSourceSkipReason(input.Module)
+
+	if reason != emptyString {
+		return reason
+	}
+
+	return ghAndYAMLSkipReason(input)
+}
+
+func unixOnlyModules() []string {
+	return []string{toolAnsible, toolAnsibleLint, toolNix}
+}
+
+func unixOnlySkipOnOS(module, goos string) string {
+	if goos != osWindows || !slices.Contains(unixOnlyModules(), toolName(module)) {
+		return emptyString
+	}
+
+	return reasonUnixOnly
+}
+
+func unixOnlySkipReason(module string) string {
+	return unixOnlySkipOnOS(module, runtime.GOOS)
+}
+
+// cargoSourceModules need a full Rust toolchain + cargo install on Windows
+// (no winget package). That is too slow/flaky for GHA Windows smoke.
+func cargoSourceModules() []string {
+	return []string{toolAdrs}
+}
+
+func cargoSourceSkipOnOS(module, goos string) string {
+	if goos != osWindows || !slices.Contains(cargoSourceModules(), toolName(module)) {
+		return emptyString
+	}
+
+	return reasonCargoSource
+}
+
+func cargoSourceSkipReason(module string) string {
+	return cargoSourceSkipOnOS(module, runtime.GOOS)
 }
 
 func wingetSkipOnOS(module, goos string) string {
