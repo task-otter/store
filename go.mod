@@ -1,6 +1,6 @@
 module github.com/task-otter/store
 
-go 1.26
+go 1.26.6
 
 require (
 	github.com/go-task/task/v3 v3.53.1
