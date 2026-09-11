@@ -1,6 +1,5 @@
 ---
-version: "2"
+version: '2'
 linters:
   default: none
-  enable:
-    - govet
+  enable: [govet]

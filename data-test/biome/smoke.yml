@@ -3,7 +3,4 @@ vars:
   BIOME_TARGETS: src
   BIOME_DEFAULT_TARGETS: src
   BIOME_VERSION: 1.9.4
-skip:
-  - fmt:check
-  - help
-  - install
+skip: [fmt:check, help, install]

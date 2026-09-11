@@ -1,5 +1,4 @@
 ---
 vars:
   SAMPLE: value
-skip:
-  - galaxy:install
+skip: [galaxy:install]

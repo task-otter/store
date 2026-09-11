@@ -1,7 +1,2 @@
 ---
-skip:
-  - ci
-  - help
-  - install
-  - run
-  - version
+skip: [ci, help, install, run, version]

@@ -191,10 +191,18 @@ func TestHasNonEmptyVarNilMap(t *testing.T) {
 func TestSkipWatchSuffix(t *testing.T) {
 	t.Parallel()
 
-	requireEqual(t, skipReason(&skipInput{Module: testGo, Name: nameBuild + suffixWatch}), reasonWatch)
+	requireEqual(
+		t,
+		skipReason(&skipInput{Module: testGo, Name: nameBuild + suffixWatch}),
+		reasonWatch,
+	)
 	requireEqual(t, skipReason(&skipInput{Module: testGo, Name: nameBuild}), emptyString)
 	requireEqual(t, skipReason(&skipInput{Module: testGo, Name: testTypecheck}), emptyString)
-	requireEqual(t, skipReason(&skipInput{Module: testGo, Name: testTypecheck + suffixWatch}), reasonWatch)
+	requireEqual(
+		t,
+		skipReason(&skipInput{Module: testGo, Name: testTypecheck + suffixWatch}),
+		reasonWatch,
+	)
 }
 
 // TestSkipWingetOnUnix exercises SkipWingetOnUnix.

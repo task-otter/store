@@ -2,10 +2,4 @@
 vars:
   DEPCHECK_IGNORE_PACKAGES: depcheck
   DEPCHECK_EXTRA_ARGS: --ignores=depcheck
-skip:
-  - ci
-  - help
-  - ignores
-  - install
-  - json
-  - skip-missing
+skip: [ci, help, ignores, install, json, skip-missing]

@@ -1,11 +1,11 @@
 ---
-openapi: "3.0.3"
+openapi: 3.0.3
 info:
   title: Smoke
-  version: "1.0.0"
+  version: 1.0.0
 paths:
   /ping:
     get:
       responses:
-        "200":
+        '200':
           description: ok

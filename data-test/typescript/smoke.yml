@@ -1,9 +1,4 @@
 ---
 vars:
   TYPESCRIPT_FILE: src/index.ts
-skip:
-  - dev
-  - install
-  - run
-  - start
-
+skip: [dev, install, run, start]

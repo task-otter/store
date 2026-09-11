@@ -1,7 +1,4 @@
 ---
 vars:
   PRETTIER_TARGETS: src
-skip:
-  - fmt:check
-  - install
-
+skip: [fmt:check, install]

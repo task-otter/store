@@ -1,5 +1,2 @@
 ---
-skip:
-  - exec
-  - new
-  - generate
+skip: [exec, new, generate]

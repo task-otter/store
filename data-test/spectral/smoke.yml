@@ -1,6 +1,4 @@
 ---
 vars:
   SPECTRAL_TARGETS: openapi.yaml
-skip:
-  - help
-  - install
+skip: [help, install]

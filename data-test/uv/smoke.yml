@@ -1,4 +1,2 @@
 ---
-skip:
-  - pip:install
-  - venv
+skip: [pip:install, venv]

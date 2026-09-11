@@ -1,3 +1,4 @@
+---
 allowBuilds:
-  "@stoplight/spectral-cli": true
-  "@scarf/scarf": false
+  '@stoplight/spectral-cli': true
+  '@scarf/scarf': false
