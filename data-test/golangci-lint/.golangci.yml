@@ -3,3 +3,5 @@ version: '2'
 linters:
   default: none
   enable: [govet]
+formatters:
+  enable: [gci, gofmt, gofumpt, goimports, golines, swaggo]

@@ -153,6 +153,8 @@ tasks:
   version:
     run: once
     desc: Show the locally resolved ESLint version
+    deps:
+      - task: install
     cmds:
       - task: pnpm:exec
         vars:
@@ -162,6 +164,8 @@ tasks:
   help:
     run: once
     desc: Show ESLint CLI help
+    deps:
+      - task: install
     cmds:
       - task: pnpm:exec
         vars:

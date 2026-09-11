@@ -77,12 +77,12 @@ task vault:snapshot VAULT_FILE=backup.snap
 | `KV_MOUNT`      | _(empty)_               | KV v2 engine mount path for `kv:get`             |
 | `SECRET_PATH`   | _(empty)_               | Secret path within the KV mount for `kv:get`     |
 | `SECRET_VERSION`| _(empty)_               | Optional KV version to pin for `kv:get`          |
-| `VAULT_NIX_INSTALLABLE` | `nixpkgs#vault` | Flake installable passed to `nix:install:profile` |
+| `VAULT_NIX_INSTALLABLE` | `nixpkgs#vault-bin` | Flake installable passed to `nix:install:profile` |
 | `VAULT_WINGET_INSTALLABLE` | `Hashicorp.Vault` | WinGet package ID for `winget:install:package` |
 
 ## Notes
 
-- Install uses Nix on Linux and macOS (`VAULT_NIX_INSTALLABLE`) and WinGet on Windows (`VAULT_WINGET_INSTALLABLE`, default `Hashicorp.Vault`).
+- Install uses Nix on Linux and macOS (`VAULT_NIX_INSTALLABLE`, default `nixpkgs#vault-bin`) and WinGet on Windows (`VAULT_WINGET_INSTALLABLE`, default `Hashicorp.Vault`). Unix Nix install sets `NIXPKGS_ALLOW_UNFREE=1` and passes `--impure` to `nix:install:profile` because HashiCorp Vault is unfree in nixpkgs.
 
 `init` writes the generated unseal keys and root token to `VAULT_KEYS_FILE` with mode
 `600` under `umask 077` and does not echo the JSON payload to stdout. It refuses
@@ -109,5 +109,5 @@ instead of `VAULT_FILE=path` for `vault:snapshot` and `vault:restore`. The stand
 Vault Taskfile continues to use `VAULT_FILE=path`.
 
 Pin a revision by overriding the installable, for example
-`VAULT_NIX_INSTALLABLE=github:NixOS/nixpkgs/<rev>#vault`.
+`VAULT_NIX_INSTALLABLE=github:NixOS/nixpkgs/<rev>#vault-bin`.
 

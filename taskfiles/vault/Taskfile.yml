@@ -30,11 +30,12 @@ vars:
   VAULT_ROLE_ID: '{{.VAULT_ROLE_ID | default ""}}'
   VAULT_SECRET_ID: '{{.VAULT_SECRET_ID | default ""}}'
   VAULT_APPROLE_MOUNT: '{{.VAULT_APPROLE_MOUNT | default "approle"}}'
-  VAULT_NIX_INSTALLABLE: '{{.VAULT_NIX_INSTALLABLE | default "nixpkgs#vault"}}'
+  VAULT_NIX_INSTALLABLE: '{{.VAULT_NIX_INSTALLABLE | default "nixpkgs#vault-bin"}}'
   VAULT_WINGET_INSTALLABLE: '{{.VAULT_WINGET_INSTALLABLE | default "Hashicorp.Vault"}}'
 
 env:
   VAULT_ADDR: "{{.VAULT_ADDR_TARGET}}"
+  NIXPKGS_ALLOW_UNFREE: "1"
 
 tasks:
   default:
@@ -61,10 +62,13 @@ tasks:
   _install:unix:
     internal: true
     platforms: [linux, darwin]
+    env:
+      NIXPKGS_ALLOW_UNFREE: "1"
     cmds:
       - task: nix:install:profile
         vars:
           NIX_INSTALLABLE: "{{.VAULT_NIX_INSTALLABLE}}"
+          NIX_EXTRA_ARGS: "--impure"
 
   _install:windows:
     internal: true

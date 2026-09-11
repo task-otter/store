@@ -15,3 +15,4 @@ test-result.txt
 .tasksmoke-tmp/
 .tasksmoke-*.log
 .ansible
+smok.log
