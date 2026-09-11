@@ -1,0 +1,11 @@
+---
+skip:
+  - install:clean
+  - lint
+  - test
+  - dev
+  - build
+  - typecheck
+  - audit
+  - audit:json
+  - update

@@ -1,0 +1,13 @@
+---
+skip:
+  - verify
+  - status
+  - health
+  - init
+  - unseal
+  - seal
+  - login
+  - token:revoke-self
+  - root-token
+  - peers
+  - snapshot

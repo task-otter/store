@@ -1,0 +1,7 @@
+{
+  "name": "knip-smoke",
+  "private": true,
+  "devDependencies": {
+    "knip": "^5.0.0"
+  }
+}

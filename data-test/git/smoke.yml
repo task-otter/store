@@ -1,0 +1,7 @@
+---
+skip:
+  - log
+  - stash
+  - stash:pop
+  - sync
+  - auth:setup

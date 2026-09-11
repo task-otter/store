@@ -359,7 +359,7 @@ tasks:
     requires:
       vars: [BINARY]
     cmds:
-      - bash -c "{{.BINARY}} {{.ARGS}} {{.EXTRA_ARGS}}"
+      - bash -lc '{{.NIX_LOAD}}; PATH="{{.USER_WORKING_DIR}}/node_modules/.bin:${PATH:-}"; {{.BINARY}} {{.ARGS}} {{.EXTRA_ARGS}}'
 
   _exec:windows:
     run: once
@@ -371,7 +371,9 @@ tasks:
     cmds:
       - >-
         powershell -NoProfile -ExecutionPolicy Bypass -Command
-        "{{.WINGET_LOAD}}; & {{.BINARY}} {{.ARGS}} {{.EXTRA_ARGS}}; exit \$LASTEXITCODE"
+        "{{.WINGET_LOAD}};
+        \$env:PATH = '{{.USER_WORKING_DIR}}\node_modules\.bin;' + \$env:PATH;
+        & {{.BINARY}} {{.ARGS}} {{.EXTRA_ARGS}}; exit \$LASTEXITCODE""
 
   _pnpm:unix:
     run: when_changed
@@ -474,6 +476,7 @@ tasks:
     run: once
     internal: true
     platforms: [linux, darwin]
+    dir: "{{.USER_WORKING_DIR}}"
     set: [errexit, nounset, pipefail]
     deps:
       - task: nodejs:install
@@ -485,13 +488,14 @@ tasks:
     run: once
     internal: true
     platforms: [windows]
+    dir: "{{.USER_WORKING_DIR}}"
     deps:
       - task: nodejs:install
       - task: install:tool
     cmds:
       - >-
         powershell -NoProfile -ExecutionPolicy Bypass -Command
-        "{{.WINGET_LOAD}}; node --version; pnpm --version; exit \$LASTEXITCODE"
+        "{{.WINGET_LOAD}}; node --version; pnpm --version; exit \$LASTEXITCODE""
 
   _clean:unix:
     run: once
@@ -541,6 +545,7 @@ tasks:
     desc: Show pnpm version on macOS or Linux
     summary: Print the pnpm version on macOS or Linux.
     platforms: [linux, darwin]
+    dir: "{{.USER_WORKING_DIR}}"
     cmds:
       - bash -lc '{{.NIX_LOAD}}; pnpm --version'
 
@@ -550,6 +555,7 @@ tasks:
     desc: Show pnpm version on Windows
     summary: Print the pnpm version on Windows.
     platforms: [windows]
+    dir: "{{.USER_WORKING_DIR}}"
     preconditions:
       - sh: >-
           powershell -NoProfile -ExecutionPolicy Bypass -Command

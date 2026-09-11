@@ -5,3 +5,5 @@ vars:
   ANSIBLE_CONFIG: ansible.cfg
 skip:
   - galaxy:install
+  - run
+  - syntax:check

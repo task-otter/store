@@ -419,6 +419,7 @@ tasks:
     run: once
     internal: true
     platforms: [linux, darwin]
+    dir: "{{.USER_WORKING_DIR}}"
     set: [errexit, nounset, pipefail]
     deps:
       - task: nodejs:install
@@ -430,13 +431,14 @@ tasks:
     run: once
     internal: true
     platforms: [windows]
+    dir: "{{.USER_WORKING_DIR}}"
     deps:
       - task: nodejs:install
       - task: install:tool
     cmds:
       - >-
         powershell -NoProfile -ExecutionPolicy Bypass -Command
-        "{{.WINGET_LOAD}}; node --version; yarn --version; exit \$LASTEXITCODE"
+        "{{.WINGET_LOAD}}; node --version; yarn --version; exit \$LASTEXITCODE""
 
   _clean:unix:
     run: once
@@ -470,7 +472,7 @@ tasks:
     requires:
       vars: [BINARY]
     cmds:
-      - bash -c "{{.BINARY}} {{.ARGS}} {{.EXTRA_ARGS}}"
+      - bash -lc '{{.NIX_LOAD}}; PATH="{{.USER_WORKING_DIR}}/node_modules/.bin:${PATH:-}"; {{.BINARY}} {{.ARGS}} {{.EXTRA_ARGS}}'
 
   _exec:windows:
     run: once
@@ -482,7 +484,9 @@ tasks:
     cmds:
       - >-
         powershell -NoProfile -ExecutionPolicy Bypass -Command
-        "{{.WINGET_LOAD}}; & {{.BINARY}} {{.ARGS}} {{.EXTRA_ARGS}}; exit \$LASTEXITCODE"
+        "{{.WINGET_LOAD}};
+        \$env:PATH = '{{.USER_WORKING_DIR}}\node_modules\.bin;' + \$env:PATH;
+        & {{.BINARY}} {{.ARGS}} {{.EXTRA_ARGS}}; exit \$LASTEXITCODE""
 
   _clean:all:unix:
     run: once
@@ -510,6 +514,7 @@ tasks:
     desc: Show Yarn version on macOS or Linux
     summary: Print the yarn version on macOS or Linux.
     platforms: [linux, darwin]
+    dir: "{{.USER_WORKING_DIR}}"
     cmds:
       - bash -lc '{{.NIX_LOAD}}; yarn --version'
 
@@ -519,6 +524,7 @@ tasks:
     desc: Show Yarn version on Windows
     summary: Print the yarn version on Windows.
     platforms: [windows]
+    dir: "{{.USER_WORKING_DIR}}"
     preconditions:
       - sh: >-
           powershell -NoProfile -ExecutionPolicy Bypass -Command

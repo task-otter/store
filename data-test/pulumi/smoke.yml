@@ -1,0 +1,4 @@
+---
+skip:
+  - login
+  - up

@@ -1,0 +1,6 @@
+---
+skip:
+  - help
+  - install
+  - open
+  - version

@@ -4,6 +4,7 @@
 package tasksmoke
 
 import (
+	"runtime"
 	"testing"
 
 	"github.com/task-otter/store/internal/tasktest"
@@ -66,6 +67,8 @@ func TestSkipDockerWorkTasks(t *testing.T) {
 	t.Parallel()
 
 	requireEqual(t, skipReason(&skipInput{Module: toolDocker, Name: nameBuild}), reasonDocker)
+	requireEqual(t, skipReason(&skipInput{Module: toolDocker, Name: nameVerify}), reasonDocker)
+	requireEqual(t, skipReason(&skipInput{Module: toolDocker, Name: nameVersion}), reasonDocker)
 	requireEqual(t, skipReason(&skipInput{Module: testGo, Name: nameBuild}), emptyString)
 }
 
@@ -182,4 +185,56 @@ func TestHasNonEmptyVarNilMap(t *testing.T) {
 	t.Parallel()
 
 	requireSame(t, !hasNonEmptyVar(nil, nameCLIArgs), true)
+}
+
+// TestSkipWatchSuffix exercises SkipWatchSuffix.
+func TestSkipWatchSuffix(t *testing.T) {
+	t.Parallel()
+
+	requireEqual(t, skipReason(&skipInput{Module: testGo, Name: nameBuild + suffixWatch}), reasonWatch)
+	requireEqual(t, skipReason(&skipInput{Module: testGo, Name: nameBuild}), emptyString)
+	requireEqual(t, skipReason(&skipInput{Module: testGo, Name: testTypecheck}), emptyString)
+	requireEqual(t, skipReason(&skipInput{Module: testGo, Name: testTypecheck + suffixWatch}), reasonWatch)
+}
+
+// TestSkipWingetOnUnix exercises SkipWingetOnUnix.
+func TestSkipWingetOnUnix(t *testing.T) {
+	t.Parallel()
+
+	requireEqual(t, wingetSkipOnOS(toolWinget, osDarwin), reasonWinget)
+	requireEqual(t, wingetSkipOnOS(toolWinget, osLinux), reasonWinget)
+	requireEqual(t, wingetSkipOnOS(toolWinget, osWindows), emptyString)
+	requireEqual(t, wingetSkipOnOS(testGo, osLinux), emptyString)
+}
+
+// TestSkipWingetViaPolicy exercises SkipWingetViaPolicy.
+func TestSkipWingetViaPolicy(t *testing.T) {
+	t.Parallel()
+
+	requireEqual(
+		t,
+		skipReason(&skipInput{Module: toolWinget, Name: nameInstall}),
+		wingetSkipOnOS(toolWinget, runtime.GOOS),
+	)
+}
+
+// TestSkipGHKeepsAllowed exercises SkipGHKeepsAllowed.
+func TestSkipGHKeepsAllowed(t *testing.T) {
+	t.Parallel()
+
+	requireEqual(t, skipReason(&skipInput{Module: toolGH, Name: nameInstall}), emptyString)
+	requireEqual(t, skipReason(&skipInput{Module: toolGH, Name: nameVersion}), emptyString)
+	requireEqual(t, skipReason(&skipInput{Module: toolGH, Name: nameWhich}), emptyString)
+	requireEqual(t, skipReason(&skipInput{Module: toolGH, Name: nameHelp}), emptyString)
+	requireEqual(t, skipReason(&skipInput{Module: toolGH, Name: nameVerify}), emptyString)
+	requireEqual(t, skipReason(&skipInput{Module: toolGH, Name: nameConfigList}), emptyString)
+	requireEqual(t, skipReason(&skipInput{Module: toolGH, Name: nameAliasList}), emptyString)
+}
+
+// TestSkipGHAuthNetwork exercises SkipGHAuthNetwork.
+func TestSkipGHAuthNetwork(t *testing.T) {
+	t.Parallel()
+
+	requireEqual(t, skipReason(&skipInput{Module: toolGH, Name: testOther}), reasonGH)
+	requireEqual(t, skipReason(&skipInput{Module: testGit, Name: testOther}), emptyString)
 }

@@ -132,6 +132,7 @@ tasks:
 
   auth:login:
     run: once
+    interactive: true
     desc: Authenticate with GitHub interactively
     summary: |
       Start an interactive GitHub authentication flow via `gh auth login`.
@@ -149,6 +150,7 @@ tasks:
 
   auth:login:web:
     run: once
+    interactive: true
     desc: Authenticate with GitHub using the web browser
     summary: |
       Authenticate with GitHub by opening a browser window for OAuth.
@@ -165,6 +167,7 @@ tasks:
 
   auth:login:ssh:
     run: once
+    interactive: true
     desc: Authenticate with GitHub using SSH protocol
     summary: |
       Authenticate with GitHub using the SSH git protocol.
@@ -197,6 +200,7 @@ tasks:
 
   auth:refresh:
     run: once
+    interactive: true
     desc: Refresh the GitHub CLI authentication token
     summary: |
       Refresh the stored GitHub CLI credentials to extend their validity

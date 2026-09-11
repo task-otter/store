@@ -1,0 +1,3 @@
+---
+vars:
+  DEPCHECK_PROJECT_PATH: .

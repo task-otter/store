@@ -42,4 +42,6 @@ const (
 	testOther          = "other"
 	testShortPath      = "x"
 	testHiddenLint     = "_lint"
+	testHostHome       = "/host-home"
+	testTypecheck      = "typecheck"
 )

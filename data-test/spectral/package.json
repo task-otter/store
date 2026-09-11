@@ -1,0 +1,7 @@
+{
+  "name": "spectral-smoke",
+  "private": true,
+  "devDependencies": {
+    "@stoplight/spectral-cli": "^6.0.0"
+  }
+}

@@ -1,0 +1,3 @@
+---
+vars:
+  SPECTRAL_TARGETS: openapi.yaml

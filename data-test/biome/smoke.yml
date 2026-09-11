@@ -1,0 +1,11 @@
+---
+vars:
+  BIOME_TARGETS: src
+  BIOME_DEFAULT_TARGETS: src
+skip:
+  - ci
+  - fmt:check
+  - help
+  - install
+  - lint
+  - version

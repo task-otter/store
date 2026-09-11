@@ -168,10 +168,9 @@ tasks:
     env:
       CI: "1"
     cmds:
-      - >-
-        BUN_INSTALL="${BUN_INSTALL:-$HOME/.bun}"
-        PATH="$BUN_INSTALL/bin:$PATH"
-        bun {{.ARGS}}
+      - task: bun:_run:unix
+        vars:
+          ARGS: "{{.ARGS}}"
 
   _bun:windows:
     run: when_changed

@@ -1,0 +1,10 @@
+{
+  "name": "depcheck-smoke",
+  "private": true,
+  "devDependencies": {
+    "depcheck": "^1.4.0"
+  },
+  "depcheck": {
+    "ignoreMatches": ["depcheck"]
+  }
+}

@@ -1,0 +1,3 @@
+---
+vars:
+  STYLELINT_TARGETS: "src/**/*.css"

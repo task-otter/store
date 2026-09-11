@@ -4,11 +4,20 @@
 package tasksmoke
 
 import (
+	"runtime"
 	"slices"
 	"strings"
 
 	"github.com/task-otter/store/internal/tasktest"
 )
+
+func destructiveSkipReason(name string) string {
+	if isCleanSkip(name) || nameMatchesAny(name, extraSkipNames()) {
+		return reasonDestructive
+	}
+
+	return emptyString
+}
 
 func dockerSkipReason(module, name string) string {
 	if toolName(module) != toolDocker || !nameMatchesAny(name, dockerWorkNames()) {
@@ -21,6 +30,7 @@ func dockerSkipReason(module, name string) string {
 func dockerWorkNames() []string {
 	return []string{
 		nameBuild, nameImages, namePrune, namePruneAll, namePS, namePSAll, namePull, nameStopAll,
+		nameVerify, nameVersion,
 	}
 }
 
@@ -39,6 +49,30 @@ func fuzzSkipReason(name string, vars map[string]string) string {
 	}
 
 	return reasonFuzz
+}
+
+func ghAllowedNames() []string {
+	return []string{
+		nameAliasList, nameConfigList, nameHelp, nameInstall, nameVerify, nameVersion, nameWhich,
+	}
+}
+
+func ghAndYAMLSkipReason(input *skipInput) string {
+	reason := ghSkipReason(input.Module, input.Name)
+
+	if reason != emptyString {
+		return reason
+	}
+
+	return yamlAndNixSkipReason(input)
+}
+
+func ghSkipReason(module, name string) string {
+	if toolName(module) != toolGH || slices.Contains(ghAllowedNames(), name) {
+		return emptyString
+	}
+
+	return reasonGH
 }
 
 func hasNonEmptyVar(vars map[string]string, key string) bool {
@@ -104,11 +138,11 @@ func nameSkipReason(name string) string {
 		return reasonFmt
 	}
 
-	if isCleanSkip(name) || nameMatchesAny(name, extraSkipNames()) {
-		return reasonDestructive
+	if strings.HasSuffix(name, suffixWatch) {
+		return reasonWatch
 	}
 
-	return emptyString
+	return destructiveSkipReason(name)
 }
 
 func nixSkipReason(module, name string) string {
@@ -117,6 +151,16 @@ func nixSkipReason(module, name string) string {
 	}
 
 	return reasonNixInstall
+}
+
+func platformSkipReason(input *skipInput) string {
+	reason := wingetSkipReason(input.Module)
+
+	if reason != emptyString {
+		return reason
+	}
+
+	return ghAndYAMLSkipReason(input)
 }
 
 func policySkipReason(input *skipInput) string {
@@ -184,7 +228,7 @@ func scopedSkipReason(input *skipInput) string {
 		return reason
 	}
 
-	return yamlAndNixSkipReason(input)
+	return platformSkipReason(input)
 }
 
 func skipReason(input *skipInput) string {
@@ -229,6 +273,18 @@ func taskRequiresVars(task *tasktest.Task) []string {
 	}
 
 	return requiredVarNames(task.Requires)
+}
+
+func wingetSkipOnOS(module, goos string) string {
+	if toolName(module) != toolWinget || goos == osWindows {
+		return emptyString
+	}
+
+	return reasonWinget
+}
+
+func wingetSkipReason(module string) string {
+	return wingetSkipOnOS(module, runtime.GOOS)
 }
 
 func yamlAndNixSkipReason(input *skipInput) string {

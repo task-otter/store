@@ -22,7 +22,7 @@ func applyEnvPairs(pairs []envPair, setter func(string, string) error) error {
 }
 
 func applyIsolatedHome(home string) error {
-	err := applyIsolatedHomeEnv(home, os.Setenv)
+	err := applyIsolatedHomeEnv(home, os.Getenv(envHome), os.Setenv)
 	if err != nil {
 		return fmt.Errorf(errWrapFormat, errApplyIsolatedHome, err)
 	}
@@ -30,20 +30,40 @@ func applyIsolatedHome(home string) error {
 	return nil
 }
 
-func applyIsolatedHomeEnv(home string, setter func(string, string) error) error {
-	profile := filepath.Join(home, bashrcName)
-
-	err := os.WriteFile(profile, []byte(emptyString), fileMode)
+func applyIsolatedHomeEnv(home, hostHome string, setter func(string, string) error) error {
+	err := writeIsolatedHomeFiles(home, hostHome)
 	if err != nil {
-		return fmt.Errorf("write %s: %w", profile, err)
+		return fmt.Errorf("write isolated home files: %w", err)
 	}
 
-	envErr := applyEnvPairs(smokeEnvPairs(home, profile), setter)
+	envErr := applySmokeEnv(home, setter)
 	if envErr != nil {
-		return fmt.Errorf("set smoke env: %w", envErr)
+		return fmt.Errorf("set isolated env: %w", envErr)
 	}
 
 	return nil
+}
+
+func applySmokeEnv(home string, setter func(string, string) error) error {
+	err := applyEnvPairs(smokeEnvPairs(home, filepath.Join(home, bashrcName)), setter)
+	if err != nil {
+		return fmt.Errorf("set smoke env: %w", err)
+	}
+
+	return nil
+}
+
+func ensureIsolatedConfigDir(home string) error {
+	err := os.MkdirAll(filepath.Join(home, configDirName), dirMode)
+	if err != nil {
+		return fmt.Errorf("mkdir isolated config: %w", err)
+	}
+
+	return nil
+}
+
+func hostNixPath(hostHome string) string {
+	return filepath.Join(hostHome, nixProfileDir, nixBinName) + colonSeparator + nixDefaultBin
 }
 
 func isolatedHomeDir(runner *engine) (string, error) {
@@ -58,6 +78,22 @@ func isolatedHomeDir(runner *engine) (string, error) {
 	}
 
 	return home, nil
+}
+
+func isolatedProfileBody(hostHome string) string {
+	return nixDaemonBlock() + pathExportLine(hostHome)
+}
+
+func loginProfileNames() []string {
+	return []string{bashProfileName, profileName, bashrcName}
+}
+
+func nixDaemonBlock() string {
+	return shellIfExistsPrefix + nixDaemonSh + shellThenSource + nixDaemonSh + shellIfEnd
+}
+
+func pathExportLine(hostHome string) string {
+	return exportPathPrefix + hostNixPath(hostHome) + exportPathSuffix
 }
 
 func setEnvPairs(pairs []envPair) error {
@@ -78,4 +114,43 @@ func smokeEnvPairs(home, profile string) []envPair {
 		{envTaskColor, strconv.Itoa(emptyLength)},
 		{envNoColor, strconv.Itoa(exitFail)},
 	}
+}
+
+func writeIsolatedHomeFiles(home, hostHome string) error {
+	err := ensureIsolatedConfigDir(home)
+	if err != nil {
+		return fmt.Errorf("ensure isolated config: %w", err)
+	}
+
+	return writeLoginShellProfiles(home, hostHome)
+}
+
+func writeLoginShellProfiles(home, hostHome string) error {
+	err := writeProfileNames(home, isolatedProfileBody(hostHome), loginProfileNames())
+	if err != nil {
+		return fmt.Errorf("write login profiles: %w", err)
+	}
+
+	return nil
+}
+
+func writeProfileFile(home, name, body string) error {
+	path := filepath.Join(home, name)
+	err := os.WriteFile(path, []byte(body), fileMode)
+	if err != nil {
+		return fmt.Errorf("write %s: %w", path, err)
+	}
+
+	return nil
+}
+
+func writeProfileNames(home, body string, names []string) error {
+	for i := range names {
+		err := writeProfileFile(home, names[i], body)
+		if err != nil {
+			return fmt.Errorf("write login profile: %w", err)
+		}
+	}
+
+	return nil
 }
