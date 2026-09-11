@@ -10,6 +10,15 @@ import (
 	"github.com/task-otter/store/internal/tasktest"
 )
 
+type (
+	osSkipCase = struct {
+		skip   func(string, string) string
+		module string
+		goos   string
+		want   string
+	}
+)
+
 // TestSkipPrompt exercises SkipPrompt.
 func TestSkipPrompt(t *testing.T) {
 	t.Parallel()
@@ -77,6 +86,7 @@ func TestSkipNixInstallOnly(t *testing.T) {
 	t.Parallel()
 
 	expected := reasonNixInstall
+
 	if unixOnly := unixOnlySkipOnOS(toolNix, runtime.GOOS); unixOnly != emptyString {
 		expected = unixOnly
 	}
@@ -210,14 +220,11 @@ func TestSkipWatchSuffix(t *testing.T) {
 	)
 }
 
-// TestSkipWingetOnUnix exercises SkipWingetOnUnix.
-func TestSkipWingetOnUnix(t *testing.T) {
+// TestSkipOnOS exercises SkipOnOS.
+func TestSkipOnOS(t *testing.T) {
 	t.Parallel()
 
-	requireEqual(t, wingetSkipOnOS(toolWinget, osDarwin), reasonWinget)
-	requireEqual(t, wingetSkipOnOS(toolWinget, osLinux), reasonWinget)
-	requireEqual(t, wingetSkipOnOS(toolWinget, osWindows), emptyString)
-	requireEqual(t, wingetSkipOnOS(testGo, osLinux), emptyString)
+	assertOSSkipCases(t, osSkipCases())
 }
 
 // TestSkipWingetViaPolicy exercises SkipWingetViaPolicy.
@@ -229,18 +236,6 @@ func TestSkipWingetViaPolicy(t *testing.T) {
 		skipReason(&skipInput{Module: toolWinget, Name: nameInstall}),
 		wingetSkipOnOS(toolWinget, runtime.GOOS),
 	)
-}
-
-// TestSkipUnixOnlyOnWindows exercises SkipUnixOnlyOnWindows.
-func TestSkipUnixOnlyOnWindows(t *testing.T) {
-	t.Parallel()
-
-	requireEqual(t, unixOnlySkipOnOS(toolAnsible, osWindows), reasonUnixOnly)
-	requireEqual(t, unixOnlySkipOnOS(toolAnsibleLint, osWindows), reasonUnixOnly)
-	requireEqual(t, unixOnlySkipOnOS(toolNix, osWindows), reasonUnixOnly)
-	requireEqual(t, unixOnlySkipOnOS(toolAnsible, osDarwin), emptyString)
-	requireEqual(t, unixOnlySkipOnOS(toolAnsible, osLinux), emptyString)
-	requireEqual(t, unixOnlySkipOnOS(testGo, osWindows), emptyString)
 }
 
 // TestSkipUnixOnlyViaPolicy exercises SkipUnixOnlyViaPolicy.
@@ -264,16 +259,6 @@ func TestSkipUnixOnlyViaPolicy(t *testing.T) {
 	)
 }
 
-// TestSkipCargoSourceOnWindows exercises SkipCargoSourceOnWindows.
-func TestSkipCargoSourceOnWindows(t *testing.T) {
-	t.Parallel()
-
-	requireEqual(t, cargoSourceSkipOnOS(toolAdrs, osWindows), reasonCargoSource)
-	requireEqual(t, cargoSourceSkipOnOS(toolAdrs, osDarwin), emptyString)
-	requireEqual(t, cargoSourceSkipOnOS(toolAdrs, osLinux), emptyString)
-	requireEqual(t, cargoSourceSkipOnOS(testGo, osWindows), emptyString)
-}
-
 // TestSkipCargoSourceViaPolicy exercises SkipCargoSourceViaPolicy.
 func TestSkipCargoSourceViaPolicy(t *testing.T) {
 	t.Parallel()
@@ -283,6 +268,23 @@ func TestSkipCargoSourceViaPolicy(t *testing.T) {
 		skipReason(&skipInput{Module: toolAdrs, Name: nameVersion}),
 		cargoSourceSkipOnOS(toolAdrs, runtime.GOOS),
 	)
+}
+
+// TestUnixOnlyAndGHSkipOnOS exercises UnixOnlyAndGHSkipOnOS.
+func TestUnixOnlyAndGHSkipOnOS(t *testing.T) {
+	t.Parallel()
+
+	requireEqual(
+		t,
+		unixOnlyAndGHSkipOnOS(&skipInput{Module: toolAnsible}, osWindows),
+		reasonUnixOnly,
+	)
+	requireEqual(
+		t,
+		unixOnlyAndGHSkipOnOS(&skipInput{Module: toolAdrs}, osWindows),
+		reasonCargoSource,
+	)
+	requireEqual(t, unixOnlyAndGHSkipOnOS(&skipInput{Module: testGo}, osWindows), emptyString)
 }
 
 // TestSkipGHKeepsAllowed exercises SkipGHKeepsAllowed.
@@ -304,4 +306,31 @@ func TestSkipGHAuthNetwork(t *testing.T) {
 
 	requireEqual(t, skipReason(&skipInput{Module: toolGH, Name: testOther}), reasonGH)
 	requireEqual(t, skipReason(&skipInput{Module: testGit, Name: testOther}), emptyString)
+}
+
+func assertOSSkipCases(t *testing.T, cases []osSkipCase) {
+	t.Helper()
+
+	for i := range cases {
+		requireEqual(t, cases[i].skip(cases[i].module, cases[i].goos), cases[i].want)
+	}
+}
+
+func osSkipCases() []osSkipCase {
+	return []osSkipCase{
+		{skip: wingetSkipOnOS, module: toolWinget, goos: osDarwin, want: reasonWinget},
+		{skip: wingetSkipOnOS, module: toolWinget, goos: osLinux, want: reasonWinget},
+		{skip: wingetSkipOnOS, module: toolWinget, goos: osWindows, want: emptyString},
+		{skip: wingetSkipOnOS, module: testGo, goos: osLinux, want: emptyString},
+		{skip: unixOnlySkipOnOS, module: toolAnsible, goos: osWindows, want: reasonUnixOnly},
+		{skip: unixOnlySkipOnOS, module: toolAnsibleLint, goos: osWindows, want: reasonUnixOnly},
+		{skip: unixOnlySkipOnOS, module: toolNix, goos: osWindows, want: reasonUnixOnly},
+		{skip: unixOnlySkipOnOS, module: toolAnsible, goos: osDarwin, want: emptyString},
+		{skip: unixOnlySkipOnOS, module: toolAnsible, goos: osLinux, want: emptyString},
+		{skip: unixOnlySkipOnOS, module: testGo, goos: osWindows, want: emptyString},
+		{skip: cargoSourceSkipOnOS, module: toolAdrs, goos: osWindows, want: reasonCargoSource},
+		{skip: cargoSourceSkipOnOS, module: toolAdrs, goos: osDarwin, want: emptyString},
+		{skip: cargoSourceSkipOnOS, module: toolAdrs, goos: osLinux, want: emptyString},
+		{skip: cargoSourceSkipOnOS, module: testGo, goos: osWindows, want: emptyString},
+	}
 }

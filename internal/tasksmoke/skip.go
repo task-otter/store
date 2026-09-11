@@ -275,20 +275,24 @@ func taskRequiresVars(task *tasktest.Task) []string {
 	return requiredVarNames(task.Requires)
 }
 
-func unixOnlyAndGHSkipReason(input *skipInput) string {
-	reason := unixOnlySkipReason(input.Module)
+func unixOnlyAndGHSkipOnOS(input *skipInput, goos string) string {
+	reason := unixOnlySkipOnOS(input.Module, goos)
 
 	if reason != emptyString {
 		return reason
 	}
 
-	reason = cargoSourceSkipReason(input.Module)
+	reason = cargoSourceSkipOnOS(input.Module, goos)
 
 	if reason != emptyString {
 		return reason
 	}
 
 	return ghAndYAMLSkipReason(input)
+}
+
+func unixOnlyAndGHSkipReason(input *skipInput) string {
+	return unixOnlyAndGHSkipOnOS(input, runtime.GOOS)
 }
 
 func unixOnlyModules() []string {
@@ -303,10 +307,6 @@ func unixOnlySkipOnOS(module, goos string) string {
 	return reasonUnixOnly
 }
 
-func unixOnlySkipReason(module string) string {
-	return unixOnlySkipOnOS(module, runtime.GOOS)
-}
-
 // cargoSourceModules need a full Rust toolchain + cargo install on Windows
 // (no winget package). That is too slow/flaky for GHA Windows smoke.
 func cargoSourceModules() []string {
@@ -319,10 +319,6 @@ func cargoSourceSkipOnOS(module, goos string) string {
 	}
 
 	return reasonCargoSource
-}
-
-func cargoSourceSkipReason(module string) string {
-	return cargoSourceSkipOnOS(module, runtime.GOOS)
 }
 
 func wingetSkipOnOS(module, goos string) string {
