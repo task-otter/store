@@ -12,6 +12,11 @@ import (
 	"github.com/task-otter/store/internal/tasktest"
 )
 
+const (
+	pythonModuleName   = "python"
+	installWindowsTask = "_install:windows"
+)
+
 // TestModuleIntegration runs the shared task CLI integration suite for this module.
 func TestModuleIntegration(t *testing.T) {
 	t.Parallel()
@@ -25,7 +30,7 @@ func TestTaskfileModuleContract(t *testing.T) {
 
 	tasktest.AssertModule(
 		t,
-		"python",
+		pythonModuleName,
 		&tasktest.ModuleExpectations{Tasks: publicTasks(), Vars: publicVars()},
 	)
 }
@@ -35,8 +40,8 @@ func TestTaskfileModuleContract(t *testing.T) {
 func TestInstallWindowsStatusUsesPythonVersion(t *testing.T) {
 	t.Parallel()
 
-	taskfile := tasktest.LoadTaskfile(t, "python")
-	task, ok := taskfile.Tasks["_install:windows"]
+	taskfile := tasktest.LoadTaskfile(t, pythonModuleName)
+	task, ok := taskfile.Tasks[installWindowsTask]
 
 	if !ok {
 		t.Fatal("_install:windows is missing")
