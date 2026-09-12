@@ -520,6 +520,8 @@ tasks:
       - sh: >-
           powershell -NoProfile -ExecutionPolicy Bypass -Command
           "{{.WINGET_LOAD}}; if ((Test-Path 'node_modules\.bin\tsc.cmd') -or
+          (Test-Path 'node_modules\.bin\tsc.exe') -or
+          (Test-Path 'node_modules\.bin\tsc') -or
           (Get-Command tsc -ErrorAction SilentlyContinue)) { exit 0 } else { exit 1 }"
         msg: "tsc not found. Run: task typescript:install"
       - sh: >-
@@ -529,8 +531,10 @@ tasks:
     cmds:
       - >-
         powershell -NoProfile -ExecutionPolicy Bypass -Command
-        "{{.WINGET_LOAD}}; if (Test-Path 'node_modules\.bin\tsc.cmd') { & node_modules\.bin\tsc.cmd
-        --project '{{.TYPESCRIPT_TSCONFIG}}' {{.ARGS}} }
+        "{{.WINGET_LOAD}};
+        \$tsc = @('node_modules\.bin\tsc.cmd', 'node_modules\.bin\tsc.exe',
+        'node_modules\.bin\tsc') | Where-Object { Test-Path \$_ } | Select-Object -First 1;
+        if (\$tsc) { & \$tsc --project '{{.TYPESCRIPT_TSCONFIG}}' {{.ARGS}} }
         else { tsc --project '{{.TYPESCRIPT_TSCONFIG}}' {{.ARGS}} }; exit \$LASTEXITCODE"
 
   _tsc:noconfig:
@@ -559,13 +563,17 @@ tasks:
       - sh: >-
           powershell -NoProfile -ExecutionPolicy Bypass -Command
           "{{.WINGET_LOAD}}; if ((Test-Path 'node_modules\.bin\tsc.cmd') -or
+          (Test-Path 'node_modules\.bin\tsc.exe') -or
+          (Test-Path 'node_modules\.bin\tsc') -or
           (Get-Command tsc -ErrorAction SilentlyContinue)) { exit 0 } else { exit 1 }"
         msg: "tsc not found. Run: task typescript:install"
     cmds:
       - >-
         powershell -NoProfile -ExecutionPolicy Bypass -Command
-        "{{.WINGET_LOAD}}; if (Test-Path 'node_modules\.bin\tsc.cmd') { & node_modules\.bin\tsc.cmd {{.ARGS}} }
-        else { tsc {{.ARGS}} }; exit \$LASTEXITCODE"
+        "{{.WINGET_LOAD}};
+        \$tsc = @('node_modules\.bin\tsc.cmd', 'node_modules\.bin\tsc.exe',
+        'node_modules\.bin\tsc') | Where-Object { Test-Path \$_ } | Select-Object -First 1;
+        if (\$tsc) { & \$tsc {{.ARGS}} } else { tsc {{.ARGS}} }; exit \$LASTEXITCODE"
 
   _tsx:
     run: once
@@ -595,6 +603,8 @@ tasks:
       - sh: >-
           powershell -NoProfile -ExecutionPolicy Bypass -Command
           "{{.WINGET_LOAD}}; if ((Test-Path 'node_modules\.bin\tsx.cmd') -or
+          (Test-Path 'node_modules\.bin\tsx.exe') -or
+          (Test-Path 'node_modules\.bin\tsx') -or
           (Get-Command tsx -ErrorAction SilentlyContinue)) { exit 0 } else { exit 1 }"
         msg: "tsx not found. Run: task typescript:install"
       - sh: >-
@@ -604,8 +614,10 @@ tasks:
     cmds:
       - >-
         powershell -NoProfile -ExecutionPolicy Bypass -Command
-        "{{.WINGET_LOAD}}; if (Test-Path 'node_modules\.bin\tsx.cmd') { & node_modules\.bin\tsx.cmd {{.ARGS}} }
-        else { tsx {{.ARGS}} }; exit \$LASTEXITCODE"
+        "{{.WINGET_LOAD}};
+        \$tsx = @('node_modules\.bin\tsx.cmd', 'node_modules\.bin\tsx.exe',
+        'node_modules\.bin\tsx') | Where-Object { Test-Path \$_ } | Select-Object -First 1;
+        if (\$tsx) { & \$tsx {{.ARGS}} } else { tsx {{.ARGS}} }; exit \$LASTEXITCODE"
 
 
   _bun:unix:
@@ -698,18 +710,23 @@ tasks:
       - >-
         powershell -NoProfile -ExecutionPolicy Bypass -Command
         "{{.WINGET_LOAD}}; Write-Host '=== tsc (TypeScript Compiler) ===';
-        if (Test-Path 'node_modules\.bin\tsc.cmd') { & node_modules\.bin\tsc.cmd --version }
+        \$tsc = @('node_modules\.bin\tsc.cmd', 'node_modules\.bin\tsc.exe',
+        'node_modules\.bin\tsc') | Where-Object { Test-Path \$_ } | Select-Object -First 1;
+        if (\$tsc) { & \$tsc --version }
         elseif (Get-Command tsc -ErrorAction SilentlyContinue) { tsc --version }
         else { Write-Host 'tsc not found. Run task typescript:install' };
         Write-Host '';
         Write-Host '=== tsx (TypeScript Execute) ===';
-        if (Test-Path 'node_modules\.bin\tsx.cmd') { & node_modules\.bin\tsx.cmd --version }
+        \$tsx = @('node_modules\.bin\tsx.cmd', 'node_modules\.bin\tsx.exe',
+        'node_modules\.bin\tsx') | Where-Object { Test-Path \$_ } | Select-Object -First 1;
+        if (\$tsx) { & \$tsx --version }
         elseif (Get-Command tsx -ErrorAction SilentlyContinue) { tsx --version }
         else { Write-Host 'tsx not found. Run task typescript:install' };
         Write-Host '';
         Write-Host '=== tsserver (TypeScript Server) ===';
-        if (Test-Path 'node_modules\.bin\tsserver.cmd') {
-        Write-Host ('Binary: ' + (Get-Location).Path + '\node_modules\.bin\tsserver.cmd') }
+        \$tsserver = @('node_modules\.bin\tsserver.cmd', 'node_modules\.bin\tsserver.exe',
+        'node_modules\.bin\tsserver') | Where-Object { Test-Path \$_ } | Select-Object -First 1;
+        if (\$tsserver) { Write-Host ('Binary: ' + (Join-Path (Get-Location).Path \$tsserver)) }
         elseif (Get-Command tsserver -ErrorAction SilentlyContinue) {
         Write-Host ('Binary: ' + (Get-Command tsserver).Source) }
         else { Write-Host 'tsserver not found. Run task typescript:install' };
@@ -759,8 +776,10 @@ tasks:
       - >-
         powershell -NoProfile -ExecutionPolicy Bypass -Command
         "{{.WINGET_LOAD}}; Write-Host '=== tsserver (TypeScript Server) ==='; Write-Host '';
-        if (Test-Path 'node_modules\.bin\tsserver.cmd') {
-        Write-Host ('Binary: ' + (Get-Location).Path + '\node_modules\.bin\tsserver.cmd');
+        \$tsserver = @('node_modules\.bin\tsserver.cmd', 'node_modules\.bin\tsserver.exe',
+        'node_modules\.bin\tsserver') | Where-Object { Test-Path \$_ } | Select-Object -First 1;
+        if (\$tsserver) {
+        Write-Host ('Binary: ' + (Join-Path (Get-Location).Path \$tsserver));
         Write-Host 'Source: ships with the typescript package' }
         elseif (Get-Command tsserver -ErrorAction SilentlyContinue) {
         Write-Host ('Binary: ' + (Get-Command tsserver).Source + ' (global install)') }

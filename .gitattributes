@@ -1,1 +1,1 @@
-data-test/**/*.sh text eol=lf
+data-test/** text eol=lf

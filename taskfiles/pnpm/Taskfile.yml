@@ -376,11 +376,9 @@ tasks:
     requires:
       vars: [BINARY]
     cmds:
-      - >-
-        powershell -NoProfile -ExecutionPolicy Bypass -Command
-        "{{.WINGET_LOAD}};
-        \$env:PATH = '{{.USER_WORKING_DIR}}\node_modules\.bin;' + \$env:PATH;
-        & {{.BINARY}} {{.ARGS}} {{.EXTRA_ARGS}}; exit \$LASTEXITCODE"
+      - task: _pnpm:windows
+        vars:
+          ARGS: "exec -- {{.BINARY}} {{.ARGS}} {{.EXTRA_ARGS}}"
 
   _pnpm:unix:
     run: when_changed
@@ -427,7 +425,9 @@ tasks:
     cmds:
       - >-
         powershell -NoProfile -NonInteractive -ExecutionPolicy Bypass -Command
-        "{{.WINGET_LOAD}}; \$ErrorActionPreference = 'Stop'; \$env:CI = '1'; pnpm {{.ARGS}}; exit \$LASTEXITCODE"
+        "{{.WINGET_LOAD}}; \$ErrorActionPreference = 'Stop';
+        \$env:CI = '1'; \$env:HOME = \$env:USERPROFILE;
+        cmd /c pnpm.cmd {{.ARGS}}; exit \$LASTEXITCODE"
 
   _install:clean:unix:
     run: once

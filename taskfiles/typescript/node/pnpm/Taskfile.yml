@@ -87,7 +87,7 @@ tasks:
       - task: pnpm:add
         vars:
           PACKAGES: 'typescript{{if .RESOLVED_VERSION}}@{{.RESOLVED_VERSION}}{{end}} tsx @types/node'
-          PM: "{{.PM}}"
+          EXTRA_ARGS: --allow-build=esbuild
       - task: _install:windows
 
   install:undo:
@@ -101,7 +101,6 @@ tasks:
       - task: pnpm:remove
         vars:
           PACKAGES: "typescript tsx @types/node"
-          PM: "{{.PM}}"
 
   upgrade:
     run: once
@@ -111,7 +110,7 @@ tasks:
       - task: pnpm:add
         vars:
           PACKAGES: "typescript@latest tsx@latest @types/node@latest"
-          PM: "{{.PM}}"
+          EXTRA_ARGS: --allow-build=esbuild
 
   run:
     run: once
@@ -618,6 +617,7 @@ tasks:
           PACKAGES: >-
             {{if .TYPESCRIPT_VERSION}}typescript@{{.TYPESCRIPT_VERSION}} tsx @types/node{{else}}
               typescript tsx @types/node{{end}}
+          EXTRA_ARGS: --allow-build=esbuild
 
   _version:unix:
     run: once

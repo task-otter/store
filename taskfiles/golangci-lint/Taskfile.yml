@@ -226,10 +226,10 @@ tasks:
           GCL_LINT_EOF
         platforms: [linux, darwin]
       # Same indent + \$ so >- folds to one line and $ survives Task's shell.
-      # WINGET_LOAD reloads Path after winget install in this Task process.
+      # WINGET_LOAD reloads Path after winget; GO_LOAD puts GOPATH\bin on PATH.
       - cmd: >-
           powershell -NoProfile -ExecutionPolicy Bypass -Command
-          "{{.WINGET_LOAD}};
+          "{{.WINGET_LOAD}}; {{.GO_LOAD}};
           \$ErrorActionPreference='Stop';
           \$lintBinary = 'golangci-lint';
           if ('{{.CUSTOM_GCL_ENABLED}}' -eq 'true') {
@@ -254,9 +254,10 @@ tasks:
             {{.GOLANGCI_LINT_FMT_FORMATTER_FLAGS}} \
             {{.GO_FMT_TARGETS}}'
         platforms: [linux, darwin]
+      # WINGET_LOAD reloads Path after winget; GO_LOAD puts GOPATH\bin on PATH.
       - cmd: >-
           powershell -NoProfile -ExecutionPolicy Bypass -Command
-          "{{.WINGET_LOAD}};
+          "{{.WINGET_LOAD}}; {{.GO_LOAD}};
           \$ErrorActionPreference='Stop';
           & golangci-lint fmt {{.GO_FMT_DIFF}} {{.GOLANGCI_LINT_FMT_FORMATTER_FLAGS}} {{.GO_FMT_TARGETS}};
           exit \$LASTEXITCODE"

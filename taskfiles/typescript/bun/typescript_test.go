@@ -300,6 +300,17 @@ func TestTsserverGuidanceStaysEditorManaged(t *testing.T) {
 	}
 }
 
+// TestWindowsTasksAcceptBunShims
+func TestWindowsTasksAcceptBunShims(t *testing.T) {
+	t.Parallel()
+
+	content := read(t)
+
+	for i := range windowsBunShimNeedles() {
+		assertContains(t, content, windowsBunShimNeedles()[i])
+	}
+}
+
 // TestCommandsDoNotContainDangerousPatterns
 func TestCommandsDoNotContainDangerousPatterns(t *testing.T) {
 	t.Parallel()
@@ -371,6 +382,17 @@ func publicTasksRunAndTypecheck() []publicTaskSpec {
 
 func publicTasks() []publicTaskSpec {
 	return append(publicTasksBuildAndConfig(), publicTasksRunAndTypecheck()...)
+}
+
+func windowsBunShimNeedles() []string {
+	return []string{
+		`node_modules\.bin\tsc.exe`,
+		`node_modules\.bin\tsx.exe`,
+		`node_modules\.bin\tsserver.exe`,
+		`Test-Path 'node_modules\.bin\tsc')`,
+		`Test-Path 'node_modules\.bin\tsx')`,
+		`'node_modules\.bin\tsserver')`,
+	}
 }
 
 func assertLFLineEndings(t *testing.T, content string) {
