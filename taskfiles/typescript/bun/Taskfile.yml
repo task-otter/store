@@ -177,6 +177,8 @@ tasks:
         task typescript:typecheck
         task typescript:typecheck TYPESCRIPT_TSCONFIG=tsconfig.strict.json
         task typescript:typecheck TYPESCRIPT_TSC_FLAGS="--strict"
+    deps:
+      - task: install
     cmds:
       - task: _tsc
         vars:
@@ -195,6 +197,8 @@ tasks:
       Examples:
         task typescript:typecheck:watch
         task typescript:typecheck:watch TYPESCRIPT_TSCONFIG=tsconfig.strict.json
+    deps:
+      - task: install
     cmds:
       - task: _tsc
         vars:
@@ -223,6 +227,8 @@ tasks:
     requires:
       vars:
         - FILES
+    deps:
+      - task: install
     cmds:
       - task: _tsc:noconfig
         vars:
@@ -245,6 +251,8 @@ tasks:
         task typescript:build
         task typescript:build TYPESCRIPT_TSCONFIG=tsconfig.prod.json
         task typescript:build TYPESCRIPT_TSC_FLAGS="--incremental"
+    deps:
+      - task: install
     cmds:
       - task: _tsc
         vars:
@@ -264,6 +272,8 @@ tasks:
       Examples:
         task typescript:build:watch
         task typescript:build:watch TYPESCRIPT_TSCONFIG=tsconfig.lib.json
+    deps:
+      - task: install
     cmds:
       - task: _tsc
         vars:
@@ -283,6 +293,8 @@ tasks:
       Examples:
         task typescript:build:clean
         task typescript:build:clean TYPESCRIPT_OUT_DIR=build TYPESCRIPT_TSCONFIG=tsconfig.prod.json
+    deps:
+      - task: install
     cmds:
       - task: _build:clean:unix
       - task: _build:clean:windows
@@ -297,6 +309,8 @@ tasks:
       Examples:
         task typescript:emit:dts
         task typescript:emit:dts TYPESCRIPT_OUT_DIR=types
+    deps:
+      - task: install
     cmds:
       - task: _tsc
         vars:
@@ -319,6 +333,8 @@ tasks:
       Examples:
         task typescript:config:show
         task typescript:config:show TYPESCRIPT_TSCONFIG=tsconfig.lib.json
+    deps:
+      - task: install
     cmds:
       - task: _tsc
         vars:
@@ -340,6 +356,8 @@ tasks:
       Recommended: set "noEmitOnError": true in the generated tsconfig.json to
       prevent partial JS output when type errors exist (task typescript:build
       also passes --noEmitOnError, but the tsconfig setting covers tsc --watch).
+    deps:
+      - task: install
     cmds:
       - task: _tsc:noconfig
         vars:
@@ -358,6 +376,8 @@ tasks:
       Examples:
         task typescript:config:files
         task typescript:config:files TYPESCRIPT_TSCONFIG=tsconfig.lib.json
+    deps:
+      - task: install
     cmds:
       - task: _tsc
         vars:
@@ -376,6 +396,8 @@ tasks:
       Examples:
         task typescript:config:diagnostics
         task typescript:config:diagnostics TYPESCRIPT_TSCONFIG=tsconfig.lib.json
+    deps:
+      - task: install
     cmds:
       - task: _tsc
         vars:
@@ -395,6 +417,8 @@ tasks:
       Examples:
         task typescript:config:trace
         task typescript:config:trace TYPESCRIPT_TRACE_DIR=.traces/tsc
+    deps:
+      - task: install
     cmds:
       - task: _config:trace:unix
         vars:
@@ -426,6 +450,8 @@ tasks:
       Examples:
         task typescript:ci
         task typescript:ci TYPESCRIPT_TSCONFIG=tsconfig.strict.json
+    deps:
+      - task: install
     cmds:
       - task: _tsc
         vars:

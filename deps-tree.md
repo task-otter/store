@@ -122,15 +122,15 @@ Modules with no `includes:` dependencies.
 - `djlint` → `nix`, `uv`
 - `dotenv-linter` → `cargo`, `nix`
 - `gh` → `jq`, `nix`, `winget`
-- `go-junit-report` → `go`, `nix`
+- `go-junit-report` → `go`, `nix`, `winget`
 - `golangci-lint` → `go`, `nix`, `winget`
 - `jsonlint` → `nix`, `uv`
 - `proto` → `go`, `nix`, `winget`
-- `protolint` → `go`, `nix`
+- `protolint` → `go`, `nix`, `winget`
 - `sqlfluff` → `nix`, `uv`
 - `vault` → `jq`, `nix`, `winget`
 - `yamlfix` → `nix`, `uv`
-- `yamllint` → `nix`, `uv`
+- `yamllint` → `nix`, `uv`, `winget`
 
 ### Depth 3
 
@@ -229,7 +229,7 @@ Who depends on each module:
 - `typescript/node/yarn` ← `typescript/node`
 - `uv` ← `djlint`, `jsonlint`, `sqlfluff`, `yamlfix`, `yamllint`
 - `vault` — *(none)*
-- `winget` ← `actionlint`, `bruno-gui`, `buf`, `bun`, `cargo`, `docker`, `gh`, `git`, `go`, `golangci-lint`, `hadolint`, `jq`, `nodejs`, `pnpm`, `proto`, `pulumi`, `python`, `rumdl`, `shellcheck`, `shfmt`, `uv`, `vault`, `yarn`, `zizmor`
+- `winget` ← `actionlint`, `bruno-gui`, `buf`, `bun`, `cargo`, `docker`, `gh`, `git`, `go`, `go-junit-report`, `golangci-lint`, `hadolint`, `jq`, `nodejs`, `pnpm`, `proto`, `protolint`, `pulumi`, `python`, `rumdl`, `shellcheck`, `shfmt`, `uv`, `vault`, `yarn`, `yamllint`, `zizmor`
 - `yamlfix` — *(none)*
 - `yamllint` — *(none)*
 - `yarn` ← `biome/node/yarn`, `depcheck/node/yarn`, `eslint/node/yarn`, `htmlhint/node/yarn`, `knip/node/yarn`, `prettier/node/yarn`, `spectral/node/yarn`, `stylelint/node/yarn`, `typescript/node/yarn`

@@ -60,8 +60,7 @@ tasks:
     status:
       - >-
         powershell -NoProfile -ExecutionPolicy Bypass -Command
-        "{{.WINGET_LOAD}}; if (Get-Command python -ErrorAction SilentlyContinue) {
-        exit 0 } else { exit 1 }"
+        "{{.WINGET_LOAD}}; python --version; exit \$LASTEXITCODE"
     cmds:
       - task: winget:install:package
         vars:
@@ -156,8 +155,7 @@ tasks:
     preconditions:
       - sh: >-
           powershell -NoProfile -ExecutionPolicy Bypass -Command
-          "{{.WINGET_LOAD}}; if (Get-Command python -ErrorAction SilentlyContinue) {
-          exit 0 } else { exit 1 }"
+          "{{.WINGET_LOAD}}; python --version; exit \$LASTEXITCODE"
         msg: Python is not installed or not available in PATH.
     cmds:
       - >-

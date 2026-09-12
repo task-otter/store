@@ -4,6 +4,8 @@
 package python_test
 
 import (
+	"fmt"
+	"strings"
 	"testing"
 
 	"github.com/task-otter/store/internal/taskintegration"
@@ -26,6 +28,29 @@ func TestTaskfileModuleContract(t *testing.T) {
 		"python",
 		&tasktest.ModuleExpectations{Tasks: publicTasks(), Vars: publicVars()},
 	)
+}
+
+// TestInstallWindowsStatusUsesPythonVersion proves Store python.exe aliases
+// cannot skip winget: the Windows install status runs python --version.
+func TestInstallWindowsStatusUsesPythonVersion(t *testing.T) {
+	t.Parallel()
+
+	taskfile := tasktest.LoadTaskfile(t, "python")
+	task, ok := taskfile.Tasks["_install:windows"]
+
+	if !ok {
+		t.Fatal("_install:windows is missing")
+	}
+
+	status := fmt.Sprintf("%v", task.Status)
+
+	if !strings.Contains(status, "python --version") {
+		t.Fatalf("Windows install status must run python --version, got %s", status)
+	}
+
+	if strings.Contains(status, "Get-Command python") {
+		t.Fatal("Windows install status must not use Get-Command python")
+	}
 }
 
 func publicTasks() []string {

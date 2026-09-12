@@ -37,8 +37,6 @@ tasks:
       Windows via WinGet, when it is not already on PATH. Override
       SHFMT_NIX_INSTALLABLE or SHFMT_WINGET_INSTALLABLE to pin a
       different package or version.
-    status:
-      - command -v shfmt >/dev/null 2>&1
     cmds:
       - task: _install:unix
       - task: _install:windows
@@ -46,6 +44,8 @@ tasks:
   _install:unix:
     internal: true
     platforms: [linux, darwin]
+    status:
+      - command -v shfmt >/dev/null 2>&1
     cmds:
       - task: nix:install:profile
         vars:
@@ -54,6 +54,10 @@ tasks:
   _install:windows:
     internal: true
     platforms: [windows]
+    status:
+      - >-
+        powershell -NoProfile -ExecutionPolicy Bypass -Command
+        "{{.WINGET_LOAD}}; shfmt --version; exit \$LASTEXITCODE"
     cmds:
       - task: winget:install:package
         vars:
@@ -114,6 +118,11 @@ tasks:
     run: once
     internal: true
     platforms: [windows]
+    preconditions:
+      - sh: >-
+          powershell -NoProfile -ExecutionPolicy Bypass -Command
+          "{{.WINGET_LOAD}}; shfmt --version; exit \$LASTEXITCODE"
+        msg: shfmt is not installed or not available in PATH.
     cmds:
       - >-
         powershell -NoProfile -ExecutionPolicy Bypass -Command
@@ -137,6 +146,11 @@ tasks:
     run: once
     internal: true
     platforms: [windows]
+    preconditions:
+      - sh: >-
+          powershell -NoProfile -ExecutionPolicy Bypass -Command
+          "{{.WINGET_LOAD}}; shfmt --version; exit \$LASTEXITCODE"
+        msg: shfmt is not installed or not available in PATH.
     cmds:
       - >-
         powershell -NoProfile -ExecutionPolicy Bypass -Command
@@ -163,8 +177,7 @@ tasks:
     preconditions:
       - sh: >-
           powershell -NoProfile -ExecutionPolicy Bypass -Command
-          "{{.WINGET_LOAD}}; if (Get-Command shfmt -ErrorAction SilentlyContinue) {
-          exit 0 } else { exit 1 }"
+          "{{.WINGET_LOAD}}; shfmt --version; exit \$LASTEXITCODE"
         msg: shfmt is not installed or not available in PATH.
     cmds:
       - >-

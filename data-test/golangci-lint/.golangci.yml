@@ -4,4 +4,4 @@ linters:
   default: none
   enable: [govet]
 formatters:
-  enable: [gci, gofmt, gofumpt, goimports, golines, swaggo]
+  enable: [gci, gofmt, gofumpt, goimports, golines]

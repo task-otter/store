@@ -34,8 +34,6 @@ tasks:
       Windows via WinGet, when it is not already on PATH. Override
       YARN_NIX_INSTALLABLE or YARN_WINGET_INSTALLABLE to pin a
       different package or version.
-    status:
-      - command -v yarn >/dev/null 2>&1
     cmds:
       - task: _install:unix
       - task: _install:windows
@@ -43,6 +41,8 @@ tasks:
   _install:unix:
     internal: true
     platforms: [linux, darwin]
+    status:
+      - command -v yarn >/dev/null 2>&1
     cmds:
       - task: nix:install:profile
         vars:
@@ -51,6 +51,10 @@ tasks:
   _install:windows:
     internal: true
     platforms: [windows]
+    status:
+      - >-
+        powershell -NoProfile -ExecutionPolicy Bypass -Command
+        "{{.WINGET_LOAD}}; yarn --version; exit \$LASTEXITCODE"
     cmds:
       - task: winget:install:package
         vars:
@@ -356,6 +360,10 @@ tasks:
           powershell -NoProfile -ExecutionPolicy Bypass -Command
           "{{.WINGET_LOAD}}; if (Test-Path '{{.USER_WORKING_DIR}}/package.json') { exit 0 } else { exit 1 }"
         msg: "package.json not found. Run this task from the project root."
+      - sh: >-
+          powershell -NoProfile -ExecutionPolicy Bypass -Command
+          "{{.WINGET_LOAD}}; yarn --version; exit \$LASTEXITCODE"
+        msg: Yarn is not installed or not available in PATH.
     cmds:
       - >-
         powershell -NoProfile -NonInteractive -ExecutionPolicy Bypass -Command
@@ -531,9 +539,7 @@ tasks:
     preconditions:
       - sh: >-
           powershell -NoProfile -ExecutionPolicy Bypass -Command
-          "{{.WINGET_LOAD}};
-          if (Get-Command yarn -ErrorAction SilentlyContinue) {
-          exit 0 } else { exit 1 }"
+          "{{.WINGET_LOAD}}; yarn --version; exit \$LASTEXITCODE"
         msg: Yarn is not installed or not available in PATH.
     cmds:
       - >-

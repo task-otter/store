@@ -14,6 +14,8 @@ includes:
     taskfile: ../go/Taskfile.yml
   nix:
     taskfile: ../nix/Taskfile.yml
+  winget:
+    taskfile: ../winget/Taskfile.yml
 
 vars:
   PROTOLINT_EXTRA_ARGS: '{{.PROTOLINT_EXTRA_ARGS | default ""}}'
@@ -37,8 +39,6 @@ tasks:
       is not already on PATH. On Windows, installs via go:install:pkg using
       PROTOLINT_GO_PKG. Override PROTOLINT_NIX_INSTALLABLE or PROTOLINT_GO_PKG
       to pin a different package or version.
-    status:
-      - command -v protolint >/dev/null 2>&1
     cmds:
       - task: _install:unix
       - task: _install:windows
@@ -46,6 +46,8 @@ tasks:
   _install:unix:
     internal: true
     platforms: [linux, darwin]
+    status:
+      - command -v protolint >/dev/null 2>&1
     cmds:
       - task: nix:install:profile
         vars:
@@ -54,6 +56,10 @@ tasks:
   _install:windows:
     internal: true
     platforms: [windows]
+    status:
+      - >-
+        powershell -NoProfile -ExecutionPolicy Bypass -Command
+        "{{.WINGET_LOAD}}; {{.GO_LOAD}}; protolint version; exit \$LASTEXITCODE"
     cmds:
       - task: go:install:pkg
         vars:
@@ -153,6 +159,11 @@ tasks:
     run: once
     internal: true
     platforms: [windows]
+    preconditions:
+      - sh: >-
+          powershell -NoProfile -ExecutionPolicy Bypass -Command
+          "{{.WINGET_LOAD}}; {{.GO_LOAD}}; protolint version; exit \$LASTEXITCODE"
+        msg: protolint is not installed or not available in PATH.
     cmds:
       - >-
         powershell -NoProfile -ExecutionPolicy Bypass -Command
@@ -180,9 +191,7 @@ tasks:
     preconditions:
       - sh: >-
           powershell -NoProfile -ExecutionPolicy Bypass -Command
-          "{{.WINGET_LOAD}}; {{.GO_LOAD}};
-          if (Get-Command protolint -ErrorAction SilentlyContinue) {
-          exit 0 } else { exit 1 }"
+          "{{.WINGET_LOAD}}; {{.GO_LOAD}}; protolint version; exit \$LASTEXITCODE"
         msg: protolint is not installed or not available in PATH.
     cmds:
       - >-

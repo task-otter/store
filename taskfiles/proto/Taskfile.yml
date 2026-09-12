@@ -41,16 +41,16 @@ tasks:
       PROTO_GEN_GO_GRPC_PKG. Override PROTO_NIX_INSTALLABLE,
       PROTO_WINGET_INSTALLABLE, PROTO_GEN_GO_PKG, or PROTO_GEN_GO_GRPC_PKG to
       pin a package or version.
-    status:
-      - command -v protoc >/dev/null 2>&1
-      - command -v protoc-gen-go >/dev/null 2>&1
-      - command -v protoc-gen-go-grpc >/dev/null 2>&1
     cmds:
       - task: _install:unix
       - task: _install:windows
   _install:unix:
     internal: true
     platforms: [linux, darwin]
+    status:
+      - command -v protoc >/dev/null 2>&1
+      - command -v protoc-gen-go >/dev/null 2>&1
+      - command -v protoc-gen-go-grpc >/dev/null 2>&1
     cmds:
       - task: nix:install:profile
         vars:
@@ -59,6 +59,14 @@ tasks:
   _install:windows:
     internal: true
     platforms: [windows]
+    status:
+      - >-
+        powershell -NoProfile -ExecutionPolicy Bypass -Command
+        "{{.WINGET_LOAD}}; {{.GO_LOAD}};
+        protoc --version; if (\$LASTEXITCODE -ne 0) { exit 1 };
+        protoc-gen-go --version; if (\$LASTEXITCODE -ne 0) { exit 1 };
+        protoc-gen-go-grpc --version; if (\$LASTEXITCODE -ne 0) { exit 1 };
+        exit 0"
     cmds:
       - task: winget:install:package
         vars:
@@ -155,6 +163,11 @@ tasks:
       RESOLVED_PROTO_PATH: '{{.PROTO_PATH}}'
       RESOLVED_PROTO_PATTERN: '{{.PROTO_PATTERN}}'
       RESOLVED_GO_MODULE: '{{.GO_MODULE}}'
+    preconditions:
+      - sh: >-
+          powershell -NoProfile -ExecutionPolicy Bypass -Command
+          "{{.WINGET_LOAD}}; {{.GO_LOAD}}; protoc --version; exit \$LASTEXITCODE"
+        msg: protoc is not installed or not available in PATH.
     cmds:
       # Windows PowerShell 5.1's `-Command -` executes redirected stdin one
       # line at a time, which can silently skip the multi-line pipeline below.
@@ -220,8 +233,7 @@ tasks:
     preconditions:
       - sh: >-
           powershell -NoProfile -ExecutionPolicy Bypass -Command
-          "{{.WINGET_LOAD}}; {{.GO_LOAD}}; if (Get-Command protoc -ErrorAction SilentlyContinue) {
-          exit 0 } else { exit 1 }"
+          "{{.WINGET_LOAD}}; {{.GO_LOAD}}; protoc --version; exit \$LASTEXITCODE"
         msg: protoc is not installed or not available in PATH.
     cmds:
       - >-
