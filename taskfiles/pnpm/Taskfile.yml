@@ -427,7 +427,7 @@ tasks:
         powershell -NoProfile -NonInteractive -ExecutionPolicy Bypass -Command
         "{{.WINGET_LOAD}}; \$ErrorActionPreference = 'Stop';
         \$env:CI = '1'; \$env:HOME = \$env:USERPROFILE;
-        cmd /c pnpm.cmd {{.ARGS}}; exit \$LASTEXITCODE"
+        cmd /c pnpm {{.ARGS}}; exit \$LASTEXITCODE"
 
   _install:clean:unix:
     run: once

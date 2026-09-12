@@ -17,9 +17,8 @@ const (
 	installWindowsTask = "_install:windows"
 	pnpmWindowsTask    = "_pnpm:windows"
 	execWindowsTask    = "_exec:windows"
-	pnpmCmdShim        = "pnpm.cmd"
+	pnpmCmdShim        = "cmd /c pnpm"
 	cmdExeInvoke       = "cmd /c"
-	barePnpmArgs       = "pnpm {{.ARGS}}"
 	pnpmExecPrefix     = "exec --"
 	nodeModulesBinPath = `node_modules\.bin`
 	fmtPercentV        = "%v"
@@ -43,8 +42,8 @@ func TestInstallWindowsStatusUsesPnpmVersion(t *testing.T) {
 	assertContains(t, status, "pnpm --version")
 }
 
-// TestPnpmWindowsUsesCmdShim proves Windows pnpm runs via cmd /c pnpm.cmd,
-// not a bare pnpm invocation that PowerShell would splat or wrap as .ps1.
+// TestPnpmWindowsUsesCmdShim proves Windows pnpm runs via cmd /c pnpm,
+// not a .ps1 wrapper that PowerShell would splat.
 func TestPnpmWindowsUsesCmdShim(t *testing.T) {
 	t.Parallel()
 
@@ -52,12 +51,11 @@ func TestPnpmWindowsUsesCmdShim(t *testing.T) {
 
 	assertContains(t, cmds, pnpmCmdShim)
 	assertContains(t, cmds, cmdExeInvoke)
-	assertNotContains(t, cmds, barePnpmArgs)
 	assertContains(t, cmds, "USERPROFILE")
 }
 
 // TestExecWindowsUsesPnpmExec proves Windows exec uses pnpm exec -- through
-// the pnpm.cmd helper instead of prepending node_modules\.bin and & binary.
+// _pnpm:windows instead of prepending node_modules\.bin and & binary.
 func TestExecWindowsUsesPnpmExec(t *testing.T) {
 	t.Parallel()
 
