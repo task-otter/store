@@ -17,7 +17,7 @@ const (
 	installWindowsTask = "_install:windows"
 	pnpmWindowsTask    = "_pnpm:windows"
 	execWindowsTask    = "_exec:windows"
-	pnpmCmdShim        = "cmd /c pnpm"
+	pnpmCmdShim        = "cmd /c pnpm.cmd"
 	cmdExeInvoke       = "cmd /c"
 	pnpmExecPrefix     = "exec --"
 	nodeModulesBinPath = `node_modules\.bin`
@@ -42,7 +42,7 @@ func TestInstallWindowsStatusUsesPnpmVersion(t *testing.T) {
 	assertContains(t, status, "pnpm --version")
 }
 
-// TestPnpmWindowsUsesCmdShim proves Windows pnpm runs via cmd /c pnpm,
+// TestPnpmWindowsUsesCmdShim proves Windows pnpm runs via cmd /c pnpm.cmd,
 // not a .ps1 wrapper that PowerShell would splat.
 func TestPnpmWindowsUsesCmdShim(t *testing.T) {
 	t.Parallel()
