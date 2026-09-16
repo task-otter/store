@@ -17,8 +17,7 @@ const (
 	installWindowsTask = "_install:windows"
 	pnpmWindowsTask    = "_pnpm:windows"
 	execWindowsTask    = "_exec:windows"
-	pnpmCmdShim        = "cmd /c pnpm.cmd"
-	cmdExeInvoke       = "cmd /c"
+	pnpmWindowsExe     = "pnpm.exe"
 	pnpmExecPrefix     = "exec --"
 	nodeModulesBinPath = `node_modules\.bin`
 	fmtPercentV        = "%v"
@@ -42,15 +41,14 @@ func TestInstallWindowsStatusUsesPnpmVersion(t *testing.T) {
 	assertContains(t, status, "pnpm --version")
 }
 
-// TestPnpmWindowsUsesCmdShim proves Windows pnpm runs via cmd /c pnpm.cmd,
-// not a .ps1 wrapper that PowerShell would splat.
-func TestPnpmWindowsUsesCmdShim(t *testing.T) {
+// TestPnpmWindowsUsesExe proves Windows pnpm runs via the executable shipped
+// by WinGet, not an unavailable npm-style .cmd shim.
+func TestPnpmWindowsUsesExe(t *testing.T) {
 	t.Parallel()
 
 	cmds := mustTaskCmds(t, pnpmWindowsTask)
 
-	assertContains(t, cmds, pnpmCmdShim)
-	assertContains(t, cmds, cmdExeInvoke)
+	assertContains(t, cmds, pnpmWindowsExe)
 	assertContains(t, cmds, "USERPROFILE")
 }
 
