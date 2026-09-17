@@ -56,9 +56,9 @@ tasks:
     cmds:
       - >-
         powershell -NoProfile -NonInteractive -ExecutionPolicy Bypass -Command
-        "$ErrorActionPreference = 'Stop';
+        "$$ErrorActionPreference = 'Stop';
         npm install --global pnpm;
-        exit $LASTEXITCODE"
+        exit $$LASTEXITCODE"
 
   version:tool:
     run: once
@@ -425,10 +425,10 @@ tasks:
     cmds:
       - >-
         powershell -NoProfile -NonInteractive -ExecutionPolicy Bypass -Command
-        "$ErrorActionPreference = 'Stop';
-        $pnpm = (Get-Command pnpm -ErrorAction Stop).Source;
-        & $pnpm {{.ARGS}};
-        exit $LASTEXITCODE"
+        "$$ErrorActionPreference = 'Stop';
+        $$pnpm = (Get-Command pnpm -ErrorAction Stop).Source;
+        & $$pnpm {{.ARGS}};
+        exit $$LASTEXITCODE"
 
   _install:clean:unix:
     run: once
