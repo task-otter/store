@@ -47,18 +47,19 @@ tasks:
   _install:windows:
     internal: true
     platforms: [windows]
+
     deps:
       - task: nodejs:install
+
     status:
       - >-
         powershell -NoProfile -ExecutionPolicy Bypass -Command
-        "if (Get-Command pnpm -ErrorAction SilentlyContinue) { exit 0 } else { exit 1 }"
+        "pnpm --version"
+
     cmds:
       - >-
         powershell -NoProfile -NonInteractive -ExecutionPolicy Bypass -Command
-        "$$ErrorActionPreference = 'Stop';
-        npm install --global pnpm;
-        exit $$LASTEXITCODE"
+        "npm install --global pnpm"
 
   version:tool:
     run: once
@@ -422,13 +423,15 @@ tasks:
           "if (Test-Path '{{.USER_WORKING_DIR}}/package.json') { exit 0 } else { exit 1 }"
         msg: "package.json not found. Run this task from the project root."
 
+      - sh: >-
+          powershell -NoProfile -ExecutionPolicy Bypass -Command
+          "pnpm --version"
+        msg: "pnpm is not installed or not available in PATH."
+
     cmds:
       - >-
         powershell -NoProfile -NonInteractive -ExecutionPolicy Bypass -Command
-        "$$ErrorActionPreference = 'Stop';
-        $$pnpm = (Get-Command pnpm -ErrorAction Stop).Source;
-        & $$pnpm {{.ARGS}};
-        exit $$LASTEXITCODE"
+        "pnpm {{.ARGS}}"
 
   _install:clean:unix:
     run: once
