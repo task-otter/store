@@ -18,6 +18,7 @@ const (
 	pnpmWindowsTask    = "_pnpm:windows"
 	execWindowsTask    = "_exec:windows"
 	getCommandPnpm     = "Get-Command pnpm"
+	pnpmVariable       = "$$pnpm"
 	pnpmExecPrefix     = "exec --"
 	nodeModulesBinPath = `node_modules\.bin`
 	fmtPercentV        = "%v"
@@ -49,7 +50,7 @@ func TestPnpmWindowsUsesResolvedCommand(t *testing.T) {
 	cmds := mustTaskCmds(t, pnpmWindowsTask)
 
 	assertContains(t, cmds, getCommandPnpm)
-	assertContains(t, cmds, "& $pnpm")
+	assertContains(t, cmds, "& "+pnpmVariable)
 }
 
 // TestExecWindowsUsesPnpmExec proves Windows exec uses pnpm exec -- through
