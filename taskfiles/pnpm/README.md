@@ -51,7 +51,7 @@ Override the Node.js version by setting `NODEJS_NIX_INSTALLABLE` on the nodejs m
 | `audit:json`      | —                                          | Output audit results as JSON.                                             |
 | `update`          | —                                          | Update packages within declared ranges.                                   |
 | `store:prune`     | —                                          | Remove unreferenced packages from the pnpm store.                         |
-| `install:tool`    | —                                          | Install the pnpm binary via Nix (Unix) or `npx get-pnpm` (Windows).       |
+| `install:tool`    | —                                          | Install the pnpm binary via Nix (Unix) or PowerShell (Windows).           |
 | `version:tool`    | —                                          | Show the version of the pnpm binary itself.                               |
 
 ## Runtime
@@ -67,4 +67,4 @@ Project commands depend on `nodejs:install` and run `pnpm` with `NIX_LOAD` so th
 
 ## Notes
 
-- Install uses Nix on Linux and macOS (`PNPM_NIX_INSTALLABLE`) and `npx get-pnpm` on Windows.
+- Install uses Nix on Linux and macOS (`PNPM_NIX_INSTALLABLE`) and pnpm's official PowerShell installer on Windows.

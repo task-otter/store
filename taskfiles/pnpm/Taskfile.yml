@@ -25,10 +25,10 @@ vars:
 tasks:
   install:tool:
     run: once
-    desc: Install pnpm via Nix (Unix) or npx (Windows)
+    desc: Install pnpm via Nix (Unix) or PowerShell (Windows)
     summary: |
       Install pnpm on Linux and macOS via the user Nix profile, and on
-      Windows via npx get-pnpm, when it is not already on PATH. Override
+      Windows via the official PowerShell installer, when it is not already on PATH. Override
       PNPM_NIX_INSTALLABLE to pin a different Unix package or version.
     cmds:
       - task: _install:unix
@@ -47,8 +47,6 @@ tasks:
   _install:windows:
     internal: true
     platforms: [windows]
-    deps:
-      - task: nodejs:install
     status:
       - >-
         powershell -NoProfile -ExecutionPolicy Bypass -Command
@@ -58,7 +56,9 @@ tasks:
     cmds:
       - >-
         powershell -NoProfile -NonInteractive -ExecutionPolicy Bypass -Command
-        "npx get-pnpm; exit \$LASTEXITCODE"
+        "Invoke-WebRequest https://get.pnpm.io/install.ps1 -UseBasicParsing | Invoke-Expression;
+        \$env:Path = [Environment]::GetEnvironmentVariable('Path', 'User') + ';' +
+        [Environment]::GetEnvironmentVariable('Path', 'Machine'); exit \$LASTEXITCODE"
 
   version:tool:
     run: once
@@ -149,18 +149,18 @@ tasks:
 
   install:undo:
     run: once
-    desc: Explain how to remove pnpm from Nix or npm
+    desc: Explain how to remove pnpm from Nix or PowerShell
     summary: |
-      pnpm is installed via the Nix profile on Unix and npx get-pnpm on Windows.
-      Remove the npm-installed pnpm executable or use nix profile remove.
+      pnpm is installed via the Nix profile on Unix and the official PowerShell
+      installer on Windows. Remove it from PNPM_HOME or use nix profile remove.
     cmds:
-      - echo 'pnpm is installed via Nix (Unix) or npx get-pnpm (Windows).'
-      - echo 'Remove the npm-installed pnpm executable or use nix profile remove.'
+      - echo 'pnpm is installed via Nix (Unix) or PowerShell (Windows).'
+      - echo 'Remove the PNPM_HOME installation or use nix profile remove.'
 
   upgrade:
     run: once
-    desc: Upgrade pnpm via Nix (Unix) or npm (Windows)
-    summary: Reinstall pnpm using Nix on Unix or npx get-pnpm on Windows.
+    desc: Upgrade pnpm via Nix (Unix) or PowerShell (Windows)
+    summary: Reinstall pnpm using Nix on Unix or the official PowerShell installer on Windows.
     cmds:
       - task: install:tool
 

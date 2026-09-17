@@ -30,8 +30,8 @@ func TestModuleIntegration(t *testing.T) {
 	taskintegration.RunHere(t)
 }
 
-// TestInstallWindowsUsesNpx proves Windows installation uses npm's npx flow.
-func TestInstallWindowsUsesNpx(t *testing.T) {
+// TestInstallWindowsUsesPowerShell proves Windows uses pnpm's official installer.
+func TestInstallWindowsUsesPowerShell(t *testing.T) {
 	t.Parallel()
 
 	status := mustTaskStatus(t, installWindowsTask)
@@ -39,11 +39,11 @@ func TestInstallWindowsUsesNpx(t *testing.T) {
 	assertContains(t, status, pnpmHomePath)
 
 	cmds := mustTaskCmds(t, installWindowsTask)
-	assertContains(t, cmds, "npx get-pnpm")
+	assertContains(t, cmds, "https://get.pnpm.io/install.ps1")
 }
 
-// TestPnpmWindowsUsesNpx proves Windows pnpm runs through npm's resolver.
-func TestPnpmWindowsUsesNpx(t *testing.T) {
+// TestPnpmWindowsUsesPnpmHome proves Windows resolves pnpm from PNPM_HOME.
+func TestPnpmWindowsUsesPnpmHome(t *testing.T) {
 	t.Parallel()
 
 	cmds := mustTaskCmds(t, pnpmWindowsTask)
