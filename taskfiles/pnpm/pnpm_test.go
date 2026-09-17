@@ -18,6 +18,7 @@ const (
 	pnpmWindowsTask    = "_pnpm:windows"
 	execWindowsTask    = "_exec:windows"
 	pnpmWindowsRunner  = "pnpm {{.ARGS}}"
+	npmPrefixGlobal    = "npm prefix -g"
 	pnpmExecPrefix     = "exec --"
 	nodeModulesBinPath = `node_modules\.bin`
 	fmtPercentV        = "%v"
@@ -36,7 +37,7 @@ func TestInstallWindowsUsesNpx(t *testing.T) {
 
 	status := mustTaskStatus(t, installWindowsTask)
 
-	assertContains(t, status, "npm prefix -g")
+	assertContains(t, status, npmPrefixGlobal)
 
 	cmds := mustTaskCmds(t, installWindowsTask)
 	assertContains(t, cmds, "npx get-pnpm")
@@ -49,7 +50,7 @@ func TestPnpmWindowsUsesNpx(t *testing.T) {
 	cmds := mustTaskCmds(t, pnpmWindowsTask)
 
 	assertContains(t, cmds, pnpmWindowsRunner)
-	assertContains(t, cmds, "npm prefix -g")
+	assertContains(t, cmds, npmPrefixGlobal)
 	assertContains(t, cmds, "USERPROFILE")
 }
 
