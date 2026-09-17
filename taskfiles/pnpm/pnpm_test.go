@@ -37,6 +37,7 @@ func TestInstallWindowsStatusUsesPnpmVersion(t *testing.T) {
 	status := mustTaskStatus(t, installWindowsTask)
 
 	assertContains(t, status, "pnpm --version")
+
 	cmds := mustTaskCmds(t, installWindowsTask)
 	assertContains(t, cmds, "npx get-pnpm")
 }
