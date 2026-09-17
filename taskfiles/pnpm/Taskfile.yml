@@ -417,7 +417,8 @@ tasks:
         msg: "package.json not found. Run this task from the project root."
       - sh: >-
           powershell -NoProfile -ExecutionPolicy Bypass -Command
-          "{{.WINGET_LOAD}}; \$prefix = npm prefix -g; \$env:Path = \"\$prefix;\$env:Path\"; pnpm --version; exit \$LASTEXITCODE"
+          "{{.WINGET_LOAD}}; \$prefix = npm prefix -g; \$env:Path = \"\$prefix;\$env:Path\";
+          pnpm --version; exit \$LASTEXITCODE"
         msg: pnpm is not installed or not available in PATH.
     cmds:
       - >-
