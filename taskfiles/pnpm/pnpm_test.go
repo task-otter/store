@@ -17,7 +17,6 @@ const (
 	installWindowsTask = "_install:windows"
 	pnpmWindowsTask    = "_pnpm:windows"
 	execWindowsTask    = "_exec:windows"
-	pnpmHomePath       = "PNPM_HOME"
 	pnpmExecPrefix     = "exec --"
 	nodeModulesBinPath = `node_modules\.bin`
 	fmtPercentV        = "%v"
@@ -36,22 +35,20 @@ func TestInstallWindowsUsesPowerShell(t *testing.T) {
 
 	status := mustTaskStatus(t, installWindowsTask)
 
-	assertContains(t, status, pnpmHomePath)
+	assertContains(t, status, "Get-Command pnpm")
 
 	cmds := mustTaskCmds(t, installWindowsTask)
-	assertContains(t, cmds, "https://get.pnpm.io/install.ps1")
+	assertContains(t, cmds, "npm install --global pnpm")
 }
 
-// TestPnpmWindowsUsesPnpmHome proves Windows resolves pnpm from PNPM_HOME.
-func TestPnpmWindowsUsesPnpmHome(t *testing.T) {
+// TestPnpmWindowsUsesResolvedCommand proves Windows invokes pnpm from PATH.
+func TestPnpmWindowsUsesResolvedCommand(t *testing.T) {
 	t.Parallel()
 
 	cmds := mustTaskCmds(t, pnpmWindowsTask)
 
-	assertContains(t, cmds, pnpmHomePath)
-	assertContains(t, cmds, "Join-Path")
-	assertContains(t, cmds, "pnpm.exe")
-	assertContains(t, cmds, "USERPROFILE")
+	assertContains(t, cmds, "Get-Command pnpm")
+	assertContains(t, cmds, "& $pnpm")
 }
 
 // TestExecWindowsUsesPnpmExec proves Windows exec uses pnpm exec -- through
