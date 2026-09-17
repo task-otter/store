@@ -30,19 +30,19 @@ func TestModuleIntegration(t *testing.T) {
 	taskintegration.RunHere(t)
 }
 
-// TestInstallWindowsStatusUsesPnpmVersion proves Corepack shims cannot skip
-// winget: the Windows install status runs pnpm --version after WINGET_LOAD.
+// TestInstallWindowsUsesNpx proves Windows installation uses npm's npx flow.
 func TestInstallWindowsStatusUsesPnpmVersion(t *testing.T) {
 	t.Parallel()
 
 	status := mustTaskStatus(t, installWindowsTask)
 
-	assertContains(t, status, "WINGET_LOAD")
 	assertContains(t, status, "pnpm --version")
+	cmds := mustTaskCmds(t, installWindowsTask)
+	assertContains(t, cmds, "npx get-pnpm")
 }
 
 // TestPnpmWindowsUsesExe proves Windows pnpm runs via the executable shipped
-// by WinGet, not an unavailable npm-style .cmd shim.
+// by the executable installed through npx, not an unavailable .cmd shim.
 func TestPnpmWindowsUsesExe(t *testing.T) {
 	t.Parallel()
 
