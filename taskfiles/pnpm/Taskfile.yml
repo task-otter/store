@@ -52,7 +52,7 @@ tasks:
     status:
       - >-
         powershell -NoProfile -ExecutionPolicy Bypass -Command
-        "\$prefix = npm prefix -g; \$env:Path = \"\$prefix;\$env:Path\"; pnpm --version; exit \$LASTEXITCODE"
+        "\$pnpmHome = [Environment]::GetEnvironmentVariable('PNPM_HOME', 'User'); \$env:Path = \"\$pnpmHome\\bin;\$pnpmHome;\$env:Path\"; pnpm --version; exit \$LASTEXITCODE"
     cmds:
       - >-
         powershell -NoProfile -NonInteractive -ExecutionPolicy Bypass -Command
@@ -417,7 +417,7 @@ tasks:
         msg: "package.json not found. Run this task from the project root."
       - sh: >-
           powershell -NoProfile -ExecutionPolicy Bypass -Command
-          "{{.WINGET_LOAD}}; \$prefix = npm prefix -g; \$env:Path = \"\$prefix;\$env:Path\";
+          "{{.WINGET_LOAD}}; \$pnpmHome = [Environment]::GetEnvironmentVariable('PNPM_HOME', 'User'); \$env:PNPM_HOME = \$pnpmHome; \$env:Path = \"\$pnpmHome\\bin;\$pnpmHome;\$env:Path\";
           pnpm --version; exit \$LASTEXITCODE"
         msg: pnpm is not installed or not available in PATH.
     cmds:
@@ -425,7 +425,7 @@ tasks:
         powershell -NoProfile -NonInteractive -ExecutionPolicy Bypass -Command
         "{{.WINGET_LOAD}}; \$ErrorActionPreference = 'Stop';
         \$env:CI = '1'; \$env:HOME = \$env:USERPROFILE;
-        \$prefix = npm prefix -g; \$env:Path = \"\$prefix;\$env:Path\";
+        \$pnpmHome = [Environment]::GetEnvironmentVariable('PNPM_HOME', 'User'); \$env:PNPM_HOME = \$pnpmHome; \$env:Path = \"\$pnpmHome\\bin;\$pnpmHome;\$env:Path\";
         pnpm {{.ARGS}}; exit \$LASTEXITCODE"
 
   _install:clean:unix:
