@@ -17,7 +17,6 @@ const (
 	installWindowsTask = "_install:windows"
 	pnpmWindowsTask    = "_pnpm:windows"
 	execWindowsTask    = "_exec:windows"
-	pnpmWindowsRunner  = "pnpm {{.ARGS}}"
 	pnpmHomePath       = "PNPM_HOME"
 	pnpmExecPrefix     = "exec --"
 	nodeModulesBinPath = `node_modules\.bin`
@@ -49,8 +48,9 @@ func TestPnpmWindowsUsesNpx(t *testing.T) {
 
 	cmds := mustTaskCmds(t, pnpmWindowsTask)
 
-	assertContains(t, cmds, pnpmWindowsRunner)
 	assertContains(t, cmds, pnpmHomePath)
+	assertContains(t, cmds, "Join-Path")
+	assertContains(t, cmds, "pnpm.exe")
 	assertContains(t, cmds, "USERPROFILE")
 }
 

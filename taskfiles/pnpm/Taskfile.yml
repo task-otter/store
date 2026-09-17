@@ -431,8 +431,12 @@ tasks:
         \$env:CI = '1'; \$env:HOME = \$env:USERPROFILE;
         \$pnpmHome = [Environment]::GetEnvironmentVariable('PNPM_HOME', 'User');
         \$env:PNPM_HOME = \$pnpmHome;
-        \$env:Path = \"\$pnpmHome\\bin;\$pnpmHome;\$env:Path\";
-        pnpm {{.ARGS}}; exit \$LASTEXITCODE"
+        \$pnpm = Join-Path \$pnpmHome 'pnpm.exe';
+        if (-not (Test-Path \$pnpm)) {
+        \$pnpmHome = Join-Path \$env:LOCALAPPDATA 'pnpm';
+        \$pnpm = Join-Path \$pnpmHome 'pnpm.exe' };
+        if (-not (Test-Path \$pnpm)) { \$pnpm = Join-Path \$pnpmHome 'bin\\pnpm.exe' };
+        & \$pnpm {{.ARGS}}; exit \$LASTEXITCODE"
 
   _install:clean:unix:
     run: once
