@@ -47,18 +47,18 @@ tasks:
   _install:windows:
     internal: true
     platforms: [windows]
+    deps:
+      - task: nodejs:install
     status:
       - >-
         powershell -NoProfile -ExecutionPolicy Bypass -Command
-        "\$pnpmHome = [Environment]::GetEnvironmentVariable('PNPM_HOME', 'User');
-        \$env:Path = \"\$pnpmHome\\bin;\$pnpmHome;\$env:Path\";
-        pnpm --version; exit \$LASTEXITCODE"
+        "if (Get-Command pnpm -ErrorAction SilentlyContinue) { exit 0 } else { exit 1 }"
     cmds:
       - >-
         powershell -NoProfile -NonInteractive -ExecutionPolicy Bypass -Command
-        "Invoke-WebRequest https://get.pnpm.io/install.ps1 -UseBasicParsing | Invoke-Expression;
-        \$env:Path = [Environment]::GetEnvironmentVariable('Path', 'User') + ';' +
-        [Environment]::GetEnvironmentVariable('Path', 'Machine'); exit \$LASTEXITCODE"
+        "$ErrorActionPreference = 'Stop';
+        npm install --global pnpm;
+        exit $LASTEXITCODE"
 
   version:tool:
     run: once
@@ -404,41 +404,31 @@ tasks:
     internal: true
     platforms: [windows]
     dir: "{{.USER_WORKING_DIR}}"
+
     requires:
       vars:
         - ARGS
+
     env:
       CI: "1"
+
     deps:
       - task: nodejs:install
       - task: install:tool
+
     preconditions:
       - sh: >-
           powershell -NoProfile -ExecutionPolicy Bypass -Command
-          "{{.WINGET_LOAD}}; if (Test-Path '{{.USER_WORKING_DIR}}/package.json') { exit 0 } else { exit 1 }"
+          "if (Test-Path '{{.USER_WORKING_DIR}}/package.json') { exit 0 } else { exit 1 }"
         msg: "package.json not found. Run this task from the project root."
-      - sh: >-
-          powershell -NoProfile -ExecutionPolicy Bypass -Command
-          "{{.WINGET_LOAD}}; \$pnpmHome = [Environment]::GetEnvironmentVariable('PNPM_HOME', 'User');
-          if (-not \$pnpmHome) { \$pnpmHome = Join-Path \$env:LOCALAPPDATA 'pnpm' };
-          \$env:PNPM_HOME = \$pnpmHome;
-          \$env:Path = \"\$pnpmHome\\bin;\$pnpmHome;\$env:Path\";
-          pnpm --version; exit \$LASTEXITCODE"
-        msg: pnpm is not installed or not available in PATH.
+
     cmds:
       - >-
         powershell -NoProfile -NonInteractive -ExecutionPolicy Bypass -Command
-        "{{.WINGET_LOAD}}; \$ErrorActionPreference = 'Stop';
-        \$env:CI = '1'; \$env:HOME = \$env:USERPROFILE;
-        \$pnpmHome = [Environment]::GetEnvironmentVariable('PNPM_HOME', 'User');
-        if (-not \$pnpmHome) { \$pnpmHome = Join-Path \$env:LOCALAPPDATA 'pnpm' };
-        \$env:PNPM_HOME = \$pnpmHome;
-        \$pnpm = Join-Path \$pnpmHome 'pnpm.exe';
-        if (-not (Test-Path \$pnpm)) {
-        \$pnpmHome = Join-Path \$env:LOCALAPPDATA 'pnpm';
-        \$pnpm = Join-Path \$pnpmHome 'pnpm.exe' };
-        if (-not (Test-Path \$pnpm)) { \$pnpm = Join-Path \$pnpmHome 'bin\\pnpm.exe' };
-        & \$pnpm {{.ARGS}}; exit \$LASTEXITCODE"
+        "$ErrorActionPreference = 'Stop';
+        $pnpm = (Get-Command pnpm -ErrorAction Stop).Source;
+        & $pnpm {{.ARGS}};
+        exit $LASTEXITCODE"
 
   _install:clean:unix:
     run: once
