@@ -17,6 +17,7 @@ const (
 	installWindowsTask = "_install:windows"
 	pnpmWindowsTask    = "_pnpm:windows"
 	execWindowsTask    = "_exec:windows"
+	getCommandPnpm     = "Get-Command pnpm"
 	pnpmExecPrefix     = "exec --"
 	nodeModulesBinPath = `node_modules\.bin`
 	fmtPercentV        = "%v"
@@ -35,7 +36,7 @@ func TestInstallWindowsUsesPowerShell(t *testing.T) {
 
 	status := mustTaskStatus(t, installWindowsTask)
 
-	assertContains(t, status, "Get-Command pnpm")
+	assertContains(t, status, getCommandPnpm)
 
 	cmds := mustTaskCmds(t, installWindowsTask)
 	assertContains(t, cmds, "npm install --global pnpm")
@@ -47,7 +48,7 @@ func TestPnpmWindowsUsesResolvedCommand(t *testing.T) {
 
 	cmds := mustTaskCmds(t, pnpmWindowsTask)
 
-	assertContains(t, cmds, "Get-Command pnpm")
+	assertContains(t, cmds, getCommandPnpm)
 	assertContains(t, cmds, "& $pnpm")
 }
 
