@@ -420,6 +420,7 @@ tasks:
       - sh: >-
           powershell -NoProfile -ExecutionPolicy Bypass -Command
           "{{.WINGET_LOAD}}; \$pnpmHome = [Environment]::GetEnvironmentVariable('PNPM_HOME', 'User');
+          if (-not \$pnpmHome) { \$pnpmHome = Join-Path \$env:LOCALAPPDATA 'pnpm' };
           \$env:PNPM_HOME = \$pnpmHome;
           \$env:Path = \"\$pnpmHome\\bin;\$pnpmHome;\$env:Path\";
           pnpm --version; exit \$LASTEXITCODE"
@@ -430,6 +431,7 @@ tasks:
         "{{.WINGET_LOAD}}; \$ErrorActionPreference = 'Stop';
         \$env:CI = '1'; \$env:HOME = \$env:USERPROFILE;
         \$pnpmHome = [Environment]::GetEnvironmentVariable('PNPM_HOME', 'User');
+        if (-not \$pnpmHome) { \$pnpmHome = Join-Path \$env:LOCALAPPDATA 'pnpm' };
         \$env:PNPM_HOME = \$pnpmHome;
         \$pnpm = Join-Path \$pnpmHome 'pnpm.exe';
         if (-not (Test-Path \$pnpm)) {
