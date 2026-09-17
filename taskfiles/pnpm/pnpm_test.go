@@ -17,7 +17,7 @@ const (
 	installWindowsTask = "_install:windows"
 	pnpmWindowsTask    = "_pnpm:windows"
 	execWindowsTask    = "_exec:windows"
-	pnpmWindowsExe     = "pnpm.exe"
+	pnpmWindowsRunner  = "pnpm {{.ARGS}}"
 	pnpmExecPrefix     = "exec --"
 	nodeModulesBinPath = `node_modules\.bin`
 	fmtPercentV        = "%v"
@@ -31,25 +31,25 @@ func TestModuleIntegration(t *testing.T) {
 }
 
 // TestInstallWindowsUsesNpx proves Windows installation uses npm's npx flow.
-func TestInstallWindowsStatusUsesPnpmVersion(t *testing.T) {
+func TestInstallWindowsUsesNpx(t *testing.T) {
 	t.Parallel()
 
 	status := mustTaskStatus(t, installWindowsTask)
 
-	assertContains(t, status, "pnpm --version")
+	assertContains(t, status, "npm prefix -g")
 
 	cmds := mustTaskCmds(t, installWindowsTask)
 	assertContains(t, cmds, "npx get-pnpm")
 }
 
-// TestPnpmWindowsUsesExe proves Windows pnpm runs via the executable shipped
-// by the executable installed through npx, not an unavailable .cmd shim.
-func TestPnpmWindowsUsesExe(t *testing.T) {
+// TestPnpmWindowsUsesNpx proves Windows pnpm runs through npm's resolver.
+func TestPnpmWindowsUsesNpx(t *testing.T) {
 	t.Parallel()
 
 	cmds := mustTaskCmds(t, pnpmWindowsTask)
 
-	assertContains(t, cmds, pnpmWindowsExe)
+	assertContains(t, cmds, pnpmWindowsRunner)
+	assertContains(t, cmds, "npm prefix -g")
 	assertContains(t, cmds, "USERPROFILE")
 }
 

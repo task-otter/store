@@ -52,7 +52,7 @@ tasks:
     status:
       - >-
         powershell -NoProfile -ExecutionPolicy Bypass -Command
-        "pnpm --version; exit \$LASTEXITCODE"
+        "\$prefix = npm prefix -g; \$env:Path = \"\$prefix;\$env:Path\"; pnpm --version; exit \$LASTEXITCODE"
     cmds:
       - >-
         powershell -NoProfile -NonInteractive -ExecutionPolicy Bypass -Command
@@ -417,14 +417,15 @@ tasks:
         msg: "package.json not found. Run this task from the project root."
       - sh: >-
           powershell -NoProfile -ExecutionPolicy Bypass -Command
-          "{{.WINGET_LOAD}}; pnpm --version; exit \$LASTEXITCODE"
+          "{{.WINGET_LOAD}}; \$prefix = npm prefix -g; \$env:Path = \"\$prefix;\$env:Path\"; pnpm --version; exit \$LASTEXITCODE"
         msg: pnpm is not installed or not available in PATH.
     cmds:
       - >-
         powershell -NoProfile -NonInteractive -ExecutionPolicy Bypass -Command
         "{{.WINGET_LOAD}}; \$ErrorActionPreference = 'Stop';
         \$env:CI = '1'; \$env:HOME = \$env:USERPROFILE;
-        pnpm.exe {{.ARGS}}; exit \$LASTEXITCODE"
+        \$prefix = npm prefix -g; \$env:Path = \"\$prefix;\$env:Path\";
+        pnpm {{.ARGS}}; exit \$LASTEXITCODE"
 
   _install:clean:unix:
     run: once
