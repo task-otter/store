@@ -80,11 +80,7 @@ tasks:
     deps:
       - task: install
     cmds:
-      - >-
-        bash -lc '{{.NIX_LOAD}};
-        _t="{{if .YAMLFIX_TARGETS}}{{.YAMLFIX_TARGETS}}{{else}}.{{end}}";
-        [ -d "$_t" ] || _t="."; find "$_t" \( -name "*.yml" -o -name "*.yaml"
-        \) ! -name "Taskfile.yml" ! -name "Taskfile.yaml" -print0 | xargs -0 yamlfix {{.YAMLFIX_EXTRA_ARGS}}'
+      - yamlfix {{.YAMLFIX_TARGETS}} {{.YAMLFIX_EXTRA_ARGS}}
   _version:unix:
     run: once
     internal: true
