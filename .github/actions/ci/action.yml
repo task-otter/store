@@ -2,6 +2,11 @@
 name: CI
 description: Run the repository's own lint/format checks and go vet.
 
+inputs:
+  github-token:
+    description: GitHub token used for automated fixes
+    required: true
+
 runs:
   using: composite
   steps:
@@ -9,7 +14,14 @@ runs:
       uses: $/.github/actions/setup
     - name: Run CI
       shell: bash
-      run: task -t Taskfile.yml ci
+      run: task ci:fix
+    - name: Create fix PR
+      uses: $/.github/actions/auto-fix
+      with:
+        token: ${{ inputs.github-token }}
+    - name: Run all CI checks
+      shell: bash
+      run: task ci
     - name: Run Tests
       shell: bash
       run: |
