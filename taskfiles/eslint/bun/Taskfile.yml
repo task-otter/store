@@ -1,10 +1,10 @@
 ---
-version: "3.5"
+version: '3.5'
 
 output:
   group:
-    begin: "::group::{{.TASK}}"
-    end: "::endgroup::"
+    begin: ::group::{{.TASK}}
+    end: '::endgroup::'
     error_only: false
 
 silent: true
@@ -28,10 +28,9 @@ tasks:
     desc: Show available ESLint tasks
     cmds:
       - task --list
-
   install:
     run: once
-    dir: "{{.USER_WORKING_DIR}}"
+    dir: '{{.USER_WORKING_DIR}}'
     desc: Install ESLint as a local devDependency
     summary: |
       Install eslint as a local devDependency. Pass ESLINT_VERSION=x.y.z to pin a
@@ -55,7 +54,6 @@ tasks:
           ARGS: >-
             add -d --silent eslint{{if .RESOLVED_VERSION}}@{{.RESOLVED_VERSION}}{{end}}
             {{.RESOLVED_EXTRA_ARGS}}{{if .CLI_ARGS}} {{.CLI_ARGS}}{{end}}
-
   install:undo:
     run: once
     desc: Remove the locally installed ESLint devDependency
@@ -70,7 +68,6 @@ tasks:
       - task: _bun:windows
         vars:
           ARGS: remove --silent eslint {{.ESLINT_EXTRA_ARGS}}
-
   upgrade:
     run: once
     desc: Upgrade ESLint to the latest release
@@ -86,10 +83,9 @@ tasks:
           ARGS: >-
             add -d --silent eslint@latest
             {{.ESLINT_EXTRA_ARGS}}
-
   config:init:
     run: once
-    dir: "{{.USER_WORKING_DIR}}"
+    dir: '{{.USER_WORKING_DIR}}'
     desc: Create a starter ESLint flat config when none exists
     summary: |
       Write a minimal eslint.config.mjs with recommended defaults.
@@ -121,7 +117,6 @@ tasks:
       - echo 'Created eslint.config.mjs.'
   # Shared implementation of lint / ci:fix / ci. Each override is resolved
   # exactly once here; the three public tasks differ only by MODE_ARGS.
-
   _run:
     internal: true
     run: when_changed
@@ -149,31 +144,27 @@ tasks:
             {{- if .MODE_ARGS}}{{.MODE_ARGS}} {{end}}
             {{- .RESOLVED_TARGETS}}
             {{.RESOLVED_EXTRA_ARGS}}{{if .CLI_ARGS}} {{.CLI_ARGS}}{{end}}
-
   ci:fix:
     run: once
     desc: Lint targets with ESLint and apply fixes
     cmds:
       - task: _run
         vars:
-          MODE_ARGS: "--fix"
+          MODE_ARGS: --fix
       - echo "✅ eslint fixes applied"
-
   ci:
     run: once
     desc: Run ESLint with zero-warning CI enforcement
     cmds:
       - task: _run
         vars:
-          MODE_ARGS: "--max-warnings=0"
+          MODE_ARGS: --max-warnings=0
       - echo "✅ eslint passed"
-
   cache:clean:
     run: once
     desc: Remove the ESLint cache directory
     cmds:
       - if [ -d .cache/eslint ]; then rm -rf .cache/eslint; fi
-
   version:
     run: once
     desc: Show the locally resolved ESLint version
@@ -184,7 +175,6 @@ tasks:
       - task: _bun:windows
         vars:
           ARGS: x eslint --version
-
   help:
     run: once
     desc: Show ESLint CLI help
@@ -199,36 +189,41 @@ tasks:
           ARGS: >-
             x eslint --help
             {{.ESLINT_EXTRA_ARGS}}{{if .CLI_ARGS}} {{.CLI_ARGS}}{{end}}
-
-
   _bun:unix:
     run: when_changed
     internal: true
-    platforms: [linux, darwin]
-    dir: "{{.USER_WORKING_DIR}}"
-    set: [errexit, nounset, pipefail]
+    platforms:
+      - linux
+      - darwin
+    dir: '{{.USER_WORKING_DIR}}'
+    set:
+      - errexit
+      - nounset
+      - pipefail
     requires:
-      vars: [ARGS]
+      vars:
+        - ARGS
     deps:
       - task: bun:install
     env:
-      CI: "1"
+      CI: '1'
     cmds:
       - task: bun:_run:unix
         vars:
-          ARGS: "{{.ARGS}}"
-
+          ARGS: '{{.ARGS}}'
   _bun:windows:
     run: when_changed
     internal: true
-    platforms: [windows]
-    dir: "{{.USER_WORKING_DIR}}"
+    platforms:
+      - windows
+    dir: '{{.USER_WORKING_DIR}}'
     requires:
-      vars: [ARGS]
+      vars:
+        - ARGS
     deps:
       - task: bun:install
     env:
-      CI: "1"
+      CI: '1'
     cmds:
       - >-
         powershell -NoProfile -NonInteractive -ExecutionPolicy Bypass -Command

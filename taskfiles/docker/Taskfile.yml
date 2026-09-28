@@ -1,10 +1,10 @@
 ---
-version: "3.5"
+version: '3.5'
 
 output:
   group:
-    begin: "::group::{{.TASK}}"
-    end: "::endgroup::"
+    begin: ::group::{{.TASK}}
+    end: '::endgroup::'
     error_only: false
 
 silent: true
@@ -28,7 +28,6 @@ tasks:
     summary: Display the list of available Docker-related tasks defined in this Taskfile.
     cmds:
       - task --list
-
   install:
     run: once
     desc: Install Docker on the current operating system
@@ -48,7 +47,6 @@ tasks:
       - task: _install:macos
       - task: _install:linux
       - task: _install:windows
-
   install:undo:
     run: once
     desc: Remove Docker from the current operating system
@@ -64,7 +62,6 @@ tasks:
       - task: _install:undo:macos
       - task: _install:undo:linux
       - task: _install:undo:windows
-
   upgrade:
     run: once
     desc: Upgrade Docker to the latest release
@@ -77,7 +74,6 @@ tasks:
       - task: _upgrade:macos
       - task: _upgrade:linux
       - task: _upgrade:windows
-
   version:
     run: once
     desc: Show the installed Docker client and server versions
@@ -86,7 +82,6 @@ tasks:
       - task: install
     cmds:
       - docker version
-
   verify:
     run: once
     desc: Verify Docker installation and daemon connectivity
@@ -99,7 +94,6 @@ tasks:
     cmds:
       - docker version
       - docker info
-
   ps:
     run: once
     desc: List running Docker containers
@@ -108,7 +102,6 @@ tasks:
       - task: install
     cmds:
       - docker ps
-
   ps:all:
     run: once
     desc: List all Docker containers including stopped ones
@@ -117,7 +110,6 @@ tasks:
       - task: install
     cmds:
       - docker ps -a
-
   stop:all:
     run: once
     desc: Stop all running Docker containers
@@ -129,7 +121,6 @@ tasks:
     cmds:
       - task: _stop:all:unix
       - task: _stop:all:windows
-
   prune:
     run: once
     desc: Remove stopped containers, dangling images, and unused networks
@@ -141,7 +132,6 @@ tasks:
       - task: install
     cmds:
       - docker system prune -f
-
   prune:all:
     run: once
     desc: Full Docker system prune including volumes and all unused images
@@ -156,7 +146,6 @@ tasks:
       - task: install
     cmds:
       - docker system prune -af --volumes
-
   images:
     run: once
     desc: List local Docker images
@@ -165,7 +154,6 @@ tasks:
       - task: install
     cmds:
       - docker images
-
   build:
     run: once
     desc: Build a Docker image from a Dockerfile (DOCKER_IMAGE=name:tag)
@@ -189,7 +177,6 @@ tasks:
         -t "{{.DOCKER_IMAGE}}"
         "{{.DOCKER_CONTEXT}}"
         {{.DOCKER_EXTRA_ARGS}}
-
   pull:
     run: once
     desc: Pull a Docker image from a registry (DOCKER_IMAGE=name:tag)
@@ -209,12 +196,15 @@ tasks:
         docker pull
         "{{.DOCKER_IMAGE}}"
         {{.DOCKER_EXTRA_ARGS}}
-
   _install:macos:
     run: once
     internal: true
-    platforms: [darwin]
-    set: [errexit, nounset, pipefail]
+    platforms:
+      - darwin
+    set:
+      - errexit
+      - nounset
+      - pipefail
     status:
       # Cask install cannot pin DOCKER_VERSION; presence-only so status can succeed.
       - command -v docker >/dev/null 2>&1
@@ -226,12 +216,15 @@ tasks:
       - brew update
       - brew install --cask docker
       - echo 'Docker Desktop installed. Open the Docker app to complete initial setup.'
-
   _install:linux:
     run: once
     internal: true
-    platforms: [linux]
-    set: [errexit, nounset, pipefail]
+    platforms:
+      - linux
+    set:
+      - errexit
+      - nounset
+      - pipefail
     status:
       - >-
         command -v docker >/dev/null 2>&1
@@ -239,7 +232,7 @@ tasks:
     preconditions:
       - sh: command -v curl >/dev/null 2>&1
         msg: curl is required to download the Docker install script.
-      - sh: 'test "$(id -u)" -eq 0 || command -v sudo >/dev/null 2>&1'
+      - sh: test "$(id -u)" -eq 0 || command -v sudo >/dev/null 2>&1
         msg: sudo is required to install Docker when not running as root.
     cmds:
       - echo 'Installing Docker Engine via the official convenience script...'
@@ -255,11 +248,11 @@ tasks:
           echo "Added $USER to the docker group. Log out and back in to use Docker without sudo."
         fi
       - echo 'Docker Engine installed.'
-
   _install:windows:
     run: once
     internal: true
-    platforms: [windows]
+    platforms:
+      - windows
     status:
       - >-
         powershell -NoProfile -ExecutionPolicy Bypass -Command
@@ -273,17 +266,20 @@ tasks:
       - echo Installing Docker Desktop via winget...
       - task: winget:install:package
         vars:
-          WINGET_INSTALLABLE: "{{.DOCKER_WINGET_INSTALLABLE}}"
-          WINGET_VERSION: "{{.DOCKER_VERSION}}"
+          WINGET_INSTALLABLE: '{{.DOCKER_WINGET_INSTALLABLE}}'
+          WINGET_VERSION: '{{.DOCKER_VERSION}}'
       - echo Docker Desktop installed. Restart your terminal to use docker.
-
   _install:undo:macos:
     run: once
     internal: true
-    platforms: [darwin]
-    set: [errexit, nounset, pipefail]
+    platforms:
+      - darwin
+    set:
+      - errexit
+      - nounset
+      - pipefail
     status:
-      - "! command -v docker >/dev/null 2>&1 && ! brew list --cask docker >/dev/null 2>&1"
+      - '! command -v docker >/dev/null 2>&1 && ! brew list --cask docker >/dev/null 2>&1'
     preconditions:
       - sh: command -v brew >/dev/null 2>&1
         msg: Homebrew is required to remove Docker Desktop on macOS.
@@ -291,28 +287,34 @@ tasks:
       - echo 'Removing Docker Desktop via Homebrew...'
       - brew uninstall --cask docker --force
       - echo 'Docker Desktop removed.'
-
   _install:undo:linux:
     run: once
     internal: true
-    platforms: [linux]
-    set: [errexit, nounset, pipefail]
+    platforms:
+      - linux
+    set:
+      - errexit
+      - nounset
+      - pipefail
     status:
-      - "! command -v docker >/dev/null 2>&1"
+      - '! command -v docker >/dev/null 2>&1'
     preconditions:
-      - sh: 'test "$(id -u)" -eq 0 || command -v sudo >/dev/null 2>&1'
+      - sh: test "$(id -u)" -eq 0 || command -v sudo >/dev/null 2>&1
         msg: sudo is required to remove Docker when not running as root.
     cmds:
       - task: _install:undo:linux:apt
       - task: _install:undo:linux:dnf
-
   _install:undo:linux:apt:
     run: once
     internal: true
-    platforms: [linux]
-    set: [errexit, nounset, pipefail]
+    platforms:
+      - linux
+    set:
+      - errexit
+      - nounset
+      - pipefail
     status:
-      - "! command -v apt-get >/dev/null 2>&1"
+      - '! command -v apt-get >/dev/null 2>&1'
     cmds:
       - echo 'Removing Docker Engine packages (apt)...'
       - cmd: >-
@@ -324,14 +326,17 @@ tasks:
           docker-buildx-plugin docker-compose-plugin docker-ce-rootless-extras
         if: '[ "$(id -u)" -ne 0 ]'
       - echo 'Docker Engine packages removed.'
-
   _install:undo:linux:dnf:
     run: once
     internal: true
-    platforms: [linux]
-    set: [errexit, nounset, pipefail]
+    platforms:
+      - linux
+    set:
+      - errexit
+      - nounset
+      - pipefail
     status:
-      - "! command -v dnf >/dev/null 2>&1"
+      - '! command -v dnf >/dev/null 2>&1'
     cmds:
       - echo 'Removing Docker Engine packages (dnf)...'
       - cmd: dnf remove -y docker-ce docker-ce-cli containerd.io docker-buildx-plugin docker-compose-plugin
@@ -339,11 +344,11 @@ tasks:
       - cmd: sudo dnf remove -y docker-ce docker-ce-cli containerd.io docker-buildx-plugin docker-compose-plugin
         if: '[ "$(id -u)" -ne 0 ]'
       - echo 'Docker Engine packages removed.'
-
   _install:undo:windows:
     run: once
     internal: true
-    platforms: [windows]
+    platforms:
+      - windows
     status:
       - >-
         powershell -NoProfile -ExecutionPolicy Bypass -Command
@@ -352,14 +357,17 @@ tasks:
       - echo Removing Docker Desktop via winget...
       - task: winget:uninstall
         vars:
-          WINGET_INSTALLABLE: "{{.DOCKER_WINGET_INSTALLABLE}}"
+          WINGET_INSTALLABLE: '{{.DOCKER_WINGET_INSTALLABLE}}'
       - echo Docker Desktop removed. Restart your terminal.
-
   _upgrade:macos:
     run: once
     internal: true
-    platforms: [darwin]
-    set: [errexit, nounset, pipefail]
+    platforms:
+      - darwin
+    set:
+      - errexit
+      - nounset
+      - pipefail
     preconditions:
       - sh: command -v brew >/dev/null 2>&1
         msg: Homebrew is required to upgrade Docker on macOS.
@@ -369,30 +377,36 @@ tasks:
       - cmd: brew upgrade --cask docker
         if: brew list --cask docker >/dev/null 2>&1
       - cmd: brew install --cask docker
-        if: "! brew list --cask docker >/dev/null 2>&1"
+        if: '! brew list --cask docker >/dev/null 2>&1'
       - echo 'Docker Desktop upgraded.'
-
   _upgrade:linux:
     run: once
     internal: true
-    platforms: [linux]
-    set: [errexit, nounset, pipefail]
+    platforms:
+      - linux
+    set:
+      - errexit
+      - nounset
+      - pipefail
     preconditions:
       - sh: command -v docker >/dev/null 2>&1
         msg: Docker is not installed. Run task install first.
-      - sh: 'test "$(id -u)" -eq 0 || command -v sudo >/dev/null 2>&1'
+      - sh: test "$(id -u)" -eq 0 || command -v sudo >/dev/null 2>&1
         msg: sudo is required to upgrade Docker when not running as root.
     cmds:
       - task: _upgrade:linux:apt
       - task: _upgrade:linux:dnf
-
   _upgrade:linux:apt:
     run: once
     internal: true
-    platforms: [linux]
-    set: [errexit, nounset, pipefail]
+    platforms:
+      - linux
+    set:
+      - errexit
+      - nounset
+      - pipefail
     status:
-      - "! command -v apt-get >/dev/null 2>&1"
+      - '! command -v apt-get >/dev/null 2>&1'
     cmds:
       - echo 'Upgrading Docker Engine (apt)...'
       - cmd: >-
@@ -406,14 +420,17 @@ tasks:
           docker-ce docker-ce-cli containerd.io docker-buildx-plugin docker-compose-plugin
         if: '[ "$(id -u)" -ne 0 ]'
       - echo 'Docker Engine upgraded.'
-
   _upgrade:linux:dnf:
     run: once
     internal: true
-    platforms: [linux]
-    set: [errexit, nounset, pipefail]
+    platforms:
+      - linux
+    set:
+      - errexit
+      - nounset
+      - pipefail
     status:
-      - "! command -v dnf >/dev/null 2>&1"
+      - '! command -v dnf >/dev/null 2>&1'
     cmds:
       - echo 'Upgrading Docker Engine (dnf)...'
       - cmd: dnf update -y docker-ce docker-ce-cli containerd.io docker-buildx-plugin docker-compose-plugin
@@ -421,24 +438,28 @@ tasks:
       - cmd: sudo dnf update -y docker-ce docker-ce-cli containerd.io docker-buildx-plugin docker-compose-plugin
         if: '[ "$(id -u)" -ne 0 ]'
       - echo 'Docker Engine upgraded.'
-
   _upgrade:windows:
     run: once
     internal: true
-    platforms: [windows]
+    platforms:
+      - windows
     cmds:
       - echo Upgrading Docker Desktop via winget...
       - task: winget:upgrade
         vars:
-          WINGET_INSTALLABLE: "{{.DOCKER_WINGET_INSTALLABLE}}"
-          WINGET_VERSION: "{{.DOCKER_VERSION}}"
+          WINGET_INSTALLABLE: '{{.DOCKER_WINGET_INSTALLABLE}}'
+          WINGET_VERSION: '{{.DOCKER_VERSION}}'
       - echo Docker Desktop upgraded. Restart your terminal if prompted.
-
   _stop:all:unix:
     run: once
     internal: true
-    platforms: [linux, darwin]
-    set: [errexit, nounset, pipefail]
+    platforms:
+      - linux
+      - darwin
+    set:
+      - errexit
+      - nounset
+      - pipefail
     cmds:
       - |
         ids=$(docker ps -q 2>/dev/null)
@@ -449,11 +470,11 @@ tasks:
         else
           echo 'No running containers to stop.'
         fi
-
   _stop:all:windows:
     run: once
     internal: true
-    platforms: [windows]
+    platforms:
+      - windows
     cmds:
       - >-
         powershell -NoProfile -ExecutionPolicy Bypass -Command

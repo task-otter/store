@@ -1,6 +1,7 @@
 ---
 version: v2.12.2
 name: custom-golangci-lint
+
 plugins:
   - module: github.com/gostafa/coverlint
     import: github.com/gostafa/coverlint/plugin

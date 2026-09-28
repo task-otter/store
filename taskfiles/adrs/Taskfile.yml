@@ -1,10 +1,10 @@
 ---
-version: "3.5"
+version: '3.5'
 
 output:
   group:
-    begin: "::group::{{.TASK}}"
-    end: "::endgroup::"
+    begin: ::group::{{.TASK}}
+    end: '::endgroup::'
     error_only: false
 
 silent: true
@@ -27,7 +27,6 @@ tasks:
     summary: Display the list of available adrs-related tasks defined in this Taskfile.
     cmds:
       - task --list
-
   install:
     run: once
     desc: Install adrs via Nix (Unix) or cargo install (Windows)
@@ -41,23 +40,23 @@ tasks:
     cmds:
       - task: _install:unix
       - task: _install:windows
-
   _install:unix:
     internal: true
-    platforms: [linux, darwin]
+    platforms:
+      - linux
+      - darwin
     cmds:
       - task: nix:install:profile
         vars:
-          NIX_INSTALLABLE: "{{.ADRS_NIX_INSTALLABLE}}"
-
+          NIX_INSTALLABLE: '{{.ADRS_NIX_INSTALLABLE}}'
   _install:windows:
     internal: true
-    platforms: [windows]
+    platforms:
+      - windows
     cmds:
       - task: cargo:install:crate
         vars:
-          CARGO_CRATE: "{{.ADRS_CARGO_CRATE}}"
-
+          CARGO_CRATE: '{{.ADRS_CARGO_CRATE}}'
   version:
     run: once
     desc: Show the active adrs version
@@ -69,7 +68,6 @@ tasks:
     cmds:
       - task: _version:unix
       - task: _version:windows
-
   init:
     run: once
     desc: Initialize an ADR repository (ADRS_EXTRA_ARGS=flags)
@@ -77,7 +75,7 @@ tasks:
       Run adrs init to set up an Architecture Decision Record repository in
       the current directory. Pass ADRS_EXTRA_ARGS or arguments after -- for flags
       such as a custom directory. Auto-installs adrs if missing.
-    dir: "{{.USER_WORKING_DIR}}"
+    dir: '{{.USER_WORKING_DIR}}'
     deps:
       - task: install
     cmds:
@@ -85,21 +83,23 @@ tasks:
           bash -lc '{{.NIX_LOAD}};
           adrs init
           {{if .CLI_ARGS}}{{.CLI_ARGS}}{{else}}{{.ADRS_EXTRA_ARGS}}{{end}}'
-        platforms: [linux, darwin]
+        platforms:
+          - linux
+          - darwin
       - cmd: >-
           powershell -NoProfile -ExecutionPolicy Bypass -Command
           "{{.WINGET_LOAD}}; {{.CARGO_LOAD}};
           adrs init {{if .CLI_ARGS}}{{.CLI_ARGS}}{{else}}{{.ADRS_EXTRA_ARGS}}{{end}};
           exit \$LASTEXITCODE"
-        platforms: [windows]
-
+        platforms:
+          - windows
   new:
     run: once
     desc: Create a new ADR (ADRS_EXTRA_ARGS="title" or -- "title")
     summary: |
       Run adrs new to create a new Architecture Decision Record. Pass the
       title via ADRS_EXTRA_ARGS or after --. Auto-installs adrs if missing.
-    dir: "{{.USER_WORKING_DIR}}"
+    dir: '{{.USER_WORKING_DIR}}'
     deps:
       - task: install
     cmds:
@@ -107,14 +107,16 @@ tasks:
           bash -lc '{{.NIX_LOAD}};
           adrs new
           {{if .CLI_ARGS}}{{.CLI_ARGS}}{{else}}{{.ADRS_EXTRA_ARGS}}{{end}}'
-        platforms: [linux, darwin]
+        platforms:
+          - linux
+          - darwin
       - cmd: >-
           powershell -NoProfile -ExecutionPolicy Bypass -Command
           "{{.WINGET_LOAD}}; {{.CARGO_LOAD}};
           adrs new {{if .CLI_ARGS}}{{.CLI_ARGS}}{{else}}{{.ADRS_EXTRA_ARGS}}{{end}};
           exit \$LASTEXITCODE"
-        platforms: [windows]
-
+        platforms:
+          - windows
   list:
     run: once
     desc: List all ADRs in the repository (ADRS_EXTRA_ARGS=flags)
@@ -122,7 +124,7 @@ tasks:
       Run adrs list to show the Architecture Decision Records in the current
       repository. Pass ADRS_EXTRA_ARGS or arguments after -- for flags.
       Auto-installs adrs if missing.
-    dir: "{{.USER_WORKING_DIR}}"
+    dir: '{{.USER_WORKING_DIR}}'
     deps:
       - task: install
     cmds:
@@ -130,14 +132,16 @@ tasks:
           bash -lc '{{.NIX_LOAD}};
           adrs list
           {{if .CLI_ARGS}}{{.CLI_ARGS}}{{else}}{{.ADRS_EXTRA_ARGS}}{{end}}'
-        platforms: [linux, darwin]
+        platforms:
+          - linux
+          - darwin
       - cmd: >-
           powershell -NoProfile -ExecutionPolicy Bypass -Command
           "{{.WINGET_LOAD}}; {{.CARGO_LOAD}};
           adrs list {{if .CLI_ARGS}}{{.CLI_ARGS}}{{else}}{{.ADRS_EXTRA_ARGS}}{{end}};
           exit \$LASTEXITCODE"
-        platforms: [windows]
-
+        platforms:
+          - windows
   generate:
     run: once
     desc: Generate ADR docs (ADRS_EXTRA_ARGS="toc|graph|book")
@@ -145,7 +149,7 @@ tasks:
       Run adrs generate to build ADR documentation such as a table of
       contents, a graph, or a book. Pass the generator name via ADRS_EXTRA_ARGS or
       after --. Auto-installs adrs if missing.
-    dir: "{{.USER_WORKING_DIR}}"
+    dir: '{{.USER_WORKING_DIR}}'
     deps:
       - task: install
     cmds:
@@ -153,21 +157,23 @@ tasks:
           bash -lc '{{.NIX_LOAD}};
           adrs generate
           {{if .CLI_ARGS}}{{.CLI_ARGS}}{{else}}{{.ADRS_EXTRA_ARGS}}{{end}}'
-        platforms: [linux, darwin]
+        platforms:
+          - linux
+          - darwin
       - cmd: >-
           powershell -NoProfile -ExecutionPolicy Bypass -Command
           "{{.WINGET_LOAD}}; {{.CARGO_LOAD}};
           adrs generate {{if .CLI_ARGS}}{{.CLI_ARGS}}{{else}}{{.ADRS_EXTRA_ARGS}}{{end}};
           exit \$LASTEXITCODE"
-        platforms: [windows]
-
+        platforms:
+          - windows
   exec:
     run: once
     desc: Run any adrs subcommand (ADRS_EXTRA_ARGS or -- args)
     summary: |
       Run an arbitrary adrs subcommand. Pass the subcommand and its arguments
       via ADRS_EXTRA_ARGS or after --. Auto-installs adrs if missing.
-    dir: "{{.USER_WORKING_DIR}}"
+    dir: '{{.USER_WORKING_DIR}}'
     deps:
       - task: install
     cmds:
@@ -175,29 +181,33 @@ tasks:
           bash -lc '{{.NIX_LOAD}};
           adrs
           {{if .CLI_ARGS}}{{.CLI_ARGS}}{{else}}{{.ADRS_EXTRA_ARGS}}{{end}}'
-        platforms: [linux, darwin]
+        platforms:
+          - linux
+          - darwin
       - cmd: >-
           powershell -NoProfile -ExecutionPolicy Bypass -Command
           "{{.WINGET_LOAD}}; {{.CARGO_LOAD}};
           adrs {{if .CLI_ARGS}}{{.CLI_ARGS}}{{else}}{{.ADRS_EXTRA_ARGS}}{{end}};
           exit \$LASTEXITCODE"
-        platforms: [windows]
-
+        platforms:
+          - windows
   _version:unix:
     run: once
     internal: true
     desc: Show adrs version on macOS or Linux
     summary: Print the adrs version on macOS or Linux.
-    platforms: [linux, darwin]
+    platforms:
+      - linux
+      - darwin
     cmds:
       - bash -lc '{{.NIX_LOAD}}; adrs --version'
-
   _version:windows:
     run: once
     internal: true
     desc: Show adrs version on Windows
     summary: Print the adrs version on Windows.
-    platforms: [windows]
+    platforms:
+      - windows
     preconditions:
       - sh: >-
           powershell -NoProfile -ExecutionPolicy Bypass -Command

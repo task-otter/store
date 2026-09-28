@@ -1,10 +1,10 @@
 ---
-version: "3.5"
+version: '3.5'
 
 output:
   group:
-    begin: "::group::{{.TASK}}"
-    end: "::endgroup::"
+    begin: ::group::{{.TASK}}
+    end: '::endgroup::'
     error_only: false
 
 silent: true
@@ -14,7 +14,6 @@ includes:
     taskfile: ../nix/Taskfile.yml
   winget:
     taskfile: ../winget/Taskfile.yml
-
   gh: ../gh/Taskfile.yml
 
 vars:
@@ -48,7 +47,6 @@ tasks:
     summary: Display the list of available git-related tasks defined in this Taskfile.
     cmds:
       - task --list
-
   install:
     run: once
     desc: Install git via Nix (Unix) or WinGet (Windows)
@@ -62,23 +60,23 @@ tasks:
     cmds:
       - task: _install:unix
       - task: _install:windows
-
   _install:unix:
     internal: true
-    platforms: [linux, darwin]
+    platforms:
+      - linux
+      - darwin
     cmds:
       - task: nix:install:profile
         vars:
-          NIX_INSTALLABLE: "{{.GIT_NIX_INSTALLABLE}}"
-
+          NIX_INSTALLABLE: '{{.GIT_NIX_INSTALLABLE}}'
   _install:windows:
     internal: true
-    platforms: [windows]
+    platforms:
+      - windows
     cmds:
       - task: winget:install:package
         vars:
-          WINGET_INSTALLABLE: "{{.GIT_WINGET_INSTALLABLE}}"
-
+          WINGET_INSTALLABLE: '{{.GIT_WINGET_INSTALLABLE}}'
   version:
     run: once
     desc: Show the active git version
@@ -90,7 +88,6 @@ tasks:
     cmds:
       - task: _version:unix
       - task: _version:windows
-
   auth:setup:
     run: once
     desc: Configure git to use the GitHub CLI as a credential helper
@@ -100,7 +97,6 @@ tasks:
       Installs gh automatically if not already present.
     cmds:
       - task: gh:auth:setup-git
-
   init:
     run: once
     desc: Initialize a new git repository in the current directory
@@ -111,13 +107,15 @@ tasks:
       - cmd: >-
           bash -lc '{{.NIX_LOAD}};
           git init{{if .GIT_BRANCH}} --initial-branch={{.GIT_BRANCH}}{{end}} {{.GIT_EXTRA_ARGS}}'
-        platforms: [linux, darwin]
+        platforms:
+          - linux
+          - darwin
       - cmd: >-
           powershell -NoProfile -ExecutionPolicy Bypass -Command
           "{{.WINGET_LOAD}}; git init{{if .GIT_BRANCH}} --initial-branch={{.GIT_BRANCH}}{{end}} {{.GIT_EXTRA_ARGS}};
           exit \$LASTEXITCODE"
-        platforms: [windows]
-
+        platforms:
+          - windows
   clone:
     run: once
     desc: Clone a GitHub repository using the GitHub CLI
@@ -136,27 +134,31 @@ tasks:
           bash -lc '{{.NIX_LOAD}};
           gh repo clone {{if .GIT_OWNER}}{{.GIT_OWNER}}/{{end}}{{.GIT_REPO}}
           {{if .GIT_CLONE_DIR}}{{.GIT_CLONE_DIR}}{{end}} {{.GIT_EXTRA_ARGS}}'
-        platforms: [linux, darwin]
+        platforms:
+          - linux
+          - darwin
       - cmd: >-
           powershell -NoProfile -ExecutionPolicy Bypass -Command
           "{{.WINGET_LOAD}};
-          gh repo clone {{if .GIT_OWNER}}{{.GIT_OWNER}}/{{end}}{{.GIT_REPO}} {{if
+          gh repo clone {{if .GIT_OWNER}}{{.GIT_OWNER}}/{{end}}{{.GIT_REPO}}
           .GIT_CLONE_DIR}}{{.GIT_CLONE_DIR}}{{end}} {{.GIT_EXTRA_ARGS}}
           ; exit \$LASTEXITCODE"
-        platforms: [windows]
-
+        platforms:
+          - windows
   status:
     run: once
     desc: Show the current working tree status
     summary: Print the status of staged and unstaged changes via `git status`.
     cmds:
       - cmd: bash -lc '{{.NIX_LOAD}}; git status'
-        platforms: [linux, darwin]
+        platforms:
+          - linux
+          - darwin
       - cmd: >-
           powershell -NoProfile -ExecutionPolicy Bypass -Command
           "{{.WINGET_LOAD}}; git status; exit \$LASTEXITCODE"
-        platforms: [windows]
-
+        platforms:
+          - windows
   add:
     run: once
     desc: Stage files for the next commit
@@ -166,24 +168,28 @@ tasks:
       Example: GIT_FILES="src/main.ts tests/"
     cmds:
       - cmd: bash -lc '{{.NIX_LOAD}}; git add {{.GIT_FILES}} {{.GIT_EXTRA_ARGS}}'
-        platforms: [linux, darwin]
+        platforms:
+          - linux
+          - darwin
       - cmd: >-
           powershell -NoProfile -ExecutionPolicy Bypass -Command
           "{{.WINGET_LOAD}}; git add {{.GIT_FILES}} {{.GIT_EXTRA_ARGS}}; exit \$LASTEXITCODE"
-        platforms: [windows]
-
+        platforms:
+          - windows
   add:all:
     run: once
     desc: Stage all changes including untracked files
     summary: Stage all changes (modified, deleted, untracked) via `git add --all`.
     cmds:
       - cmd: bash -lc '{{.NIX_LOAD}}; git add --all'
-        platforms: [linux, darwin]
+        platforms:
+          - linux
+          - darwin
       - cmd: >-
           powershell -NoProfile -ExecutionPolicy Bypass -Command
           "{{.WINGET_LOAD}}; git add --all; exit \$LASTEXITCODE"
-        platforms: [windows]
-
+        platforms:
+          - windows
   commit:
     run: once
     desc: Create a commit from staged changes
@@ -195,12 +201,14 @@ tasks:
         - GIT_COMMIT_MSG
     cmds:
       - cmd: bash -lc '{{.NIX_LOAD}}; git commit -m "{{.GIT_COMMIT_MSG}}" {{.GIT_EXTRA_ARGS}}'
-        platforms: [linux, darwin]
+        platforms:
+          - linux
+          - darwin
       - cmd: >-
           powershell -NoProfile -ExecutionPolicy Bypass -Command
           "{{.WINGET_LOAD}}; git commit -m '{{.GIT_COMMIT_MSG}}' {{.GIT_EXTRA_ARGS}}; exit \$LASTEXITCODE"
-        platforms: [windows]
-
+        platforms:
+          - windows
   commit:amend:
     run: once
     desc: Amend the most recent commit
@@ -213,15 +221,17 @@ tasks:
           bash -lc '{{.NIX_LOAD}};
           git commit --amend
           {{if .GIT_COMMIT_MSG}}-m "{{.GIT_COMMIT_MSG}}"{{else}}--no-edit{{end}} {{.GIT_EXTRA_ARGS}}'
-        platforms: [linux, darwin]
+        platforms:
+          - linux
+          - darwin
       - cmd: >-
           powershell -NoProfile -ExecutionPolicy Bypass -Command
           "{{.WINGET_LOAD}};
           git commit --amend {{if .GIT_COMMIT_MSG}}-m '{{.GIT_COMMIT_MSG}}'{{else}}--no-edit{{end}}
           {{.GIT_EXTRA_ARGS}}
           ; exit \$LASTEXITCODE"
-        platforms: [windows]
-
+        platforms:
+          - windows
   push:
     run: once
     desc: Push commits to the remote repository
@@ -234,14 +244,16 @@ tasks:
           bash -lc '{{.NIX_LOAD}};
           git push {{.GIT_REMOTE}}
           {{if .GIT_BRANCH}}{{.GIT_BRANCH}}{{else}}HEAD{{end}} {{.GIT_EXTRA_ARGS}}'
-        platforms: [linux, darwin]
+        platforms:
+          - linux
+          - darwin
       - cmd: >-
           powershell -NoProfile -ExecutionPolicy Bypass -Command
           "{{.WINGET_LOAD}};
           git push {{.GIT_REMOTE}} {{if .GIT_BRANCH}}{{.GIT_BRANCH}}{{else}}HEAD{{end}} {{.GIT_EXTRA_ARGS}};
           exit \$LASTEXITCODE"
-        platforms: [windows]
-
+        platforms:
+          - windows
   push:force:
     run: once
     desc: Force-push the current branch using --force-with-lease
@@ -254,15 +266,17 @@ tasks:
           bash -lc '{{.NIX_LOAD}};
           git push {{.GIT_REMOTE}}
           {{if .GIT_BRANCH}}{{.GIT_BRANCH}}{{else}}HEAD{{end}} --force-with-lease {{.GIT_EXTRA_ARGS}}'
-        platforms: [linux, darwin]
+        platforms:
+          - linux
+          - darwin
       - cmd: >-
           powershell -NoProfile -ExecutionPolicy Bypass -Command
           "{{.WINGET_LOAD}};
           git push {{.GIT_REMOTE}} {{if .GIT_BRANCH}}{{.GIT_BRANCH}}{{else}}HEAD{{end}} --force-with-lease
           {{.GIT_EXTRA_ARGS}}
           ; exit \$LASTEXITCODE"
-        platforms: [windows]
-
+        platforms:
+          - windows
   pull:
     run: once
     desc: Pull changes from the remote repository
@@ -275,13 +289,15 @@ tasks:
           bash -lc '{{.NIX_LOAD}};
           git pull {{.GIT_REMOTE}}
           {{- if .GIT_BRANCH}} {{.GIT_BRANCH}}{{end}} {{.GIT_EXTRA_ARGS}}'
-        platforms: [linux, darwin]
+        platforms:
+          - linux
+          - darwin
       - cmd: >-
           powershell -NoProfile -ExecutionPolicy Bypass -Command
           "{{.WINGET_LOAD}}; git pull {{.GIT_REMOTE}}{{if .GIT_BRANCH}} {{.GIT_BRANCH}}{{end}} {{.GIT_EXTRA_ARGS}};
           exit \$LASTEXITCODE"
-        platforms: [windows]
-
+        platforms:
+          - windows
   fetch:
     run: once
     desc: Fetch branches from the remote without merging
@@ -291,12 +307,14 @@ tasks:
       Example: GIT_REMOTE=upstream
     cmds:
       - cmd: bash -lc '{{.NIX_LOAD}}; git fetch {{.GIT_REMOTE}} --prune {{.GIT_EXTRA_ARGS}}'
-        platforms: [linux, darwin]
+        platforms:
+          - linux
+          - darwin
       - cmd: >-
           powershell -NoProfile -ExecutionPolicy Bypass -Command
           "{{.WINGET_LOAD}}; git fetch {{.GIT_REMOTE}} --prune {{.GIT_EXTRA_ARGS}}; exit \$LASTEXITCODE"
-        platforms: [windows]
-
+        platforms:
+          - windows
   sync:
     run: once
     desc: Sync the current branch with its GitHub upstream via the GitHub CLI
@@ -311,13 +329,15 @@ tasks:
       - cmd: >-
           bash -lc '{{.NIX_LOAD}};
           gh repo sync {{if .GIT_BRANCH}}--branch {{.GIT_BRANCH}}{{end}} {{.GIT_EXTRA_ARGS}}'
-        platforms: [linux, darwin]
+        platforms:
+          - linux
+          - darwin
       - cmd: >-
           powershell -NoProfile -ExecutionPolicy Bypass -Command
           "{{.WINGET_LOAD}}; gh repo sync {{if .GIT_BRANCH}}--branch {{.GIT_BRANCH}}{{end}} {{.GIT_EXTRA_ARGS}};
           exit \$LASTEXITCODE"
-        platforms: [windows]
-
+        platforms:
+          - windows
   diff:
     run: once
     desc: Show unstaged changes in the working tree
@@ -327,24 +347,28 @@ tasks:
       Example: GIT_FILES=src/
     cmds:
       - cmd: bash -lc '{{.NIX_LOAD}}; git diff {{.GIT_FILES}} {{.GIT_EXTRA_ARGS}}'
-        platforms: [linux, darwin]
+        platforms:
+          - linux
+          - darwin
       - cmd: >-
           powershell -NoProfile -ExecutionPolicy Bypass -Command
           "{{.WINGET_LOAD}}; git diff {{.GIT_FILES}} {{.GIT_EXTRA_ARGS}}; exit \$LASTEXITCODE"
-        platforms: [windows]
-
+        platforms:
+          - windows
   diff:staged:
     run: once
     desc: Show changes staged for the next commit
     summary: Show staged changes ready for commit via `git diff --staged`.
     cmds:
       - cmd: bash -lc '{{.NIX_LOAD}}; git diff --staged {{.GIT_EXTRA_ARGS}}'
-        platforms: [linux, darwin]
+        platforms:
+          - linux
+          - darwin
       - cmd: >-
           powershell -NoProfile -ExecutionPolicy Bypass -Command
           "{{.WINGET_LOAD}}; git diff --staged {{.GIT_EXTRA_ARGS}}; exit \$LASTEXITCODE"
-        platforms: [windows]
-
+        platforms:
+          - windows
   log:
     run: once
     desc: Show the commit history with author and date
@@ -356,39 +380,45 @@ tasks:
           bash -lc '{{.NIX_LOAD}};
           git log --format="%C(yellow)%h%Creset %C(blue)%ad%Creset %s %C(green)<%an>%Creset"
           --date=short {{.GIT_EXTRA_ARGS}}'
-        platforms: [linux, darwin]
+        platforms:
+          - linux
+          - darwin
       - cmd: >-
           powershell -NoProfile -ExecutionPolicy Bypass -Command
           "{{.WINGET_LOAD}};
           git log --format='%C(yellow)%h%Creset %C(blue)%ad%Creset %s %C(green)<%an>%Creset' --date=short
           {{.GIT_EXTRA_ARGS}}
           ; exit \$LASTEXITCODE"
-        platforms: [windows]
-
+        platforms:
+          - windows
   log:graph:
     run: once
     desc: Show commit history as an ASCII branch graph
     summary: Display a compact decorated graph of all branches and commits.
     cmds:
       - cmd: bash -lc '{{.NIX_LOAD}}; git log --oneline --graph --decorate --all {{.GIT_EXTRA_ARGS}}'
-        platforms: [linux, darwin]
+        platforms:
+          - linux
+          - darwin
       - cmd: >-
           powershell -NoProfile -ExecutionPolicy Bypass -Command
           "{{.WINGET_LOAD}}; git log --oneline --graph --decorate --all {{.GIT_EXTRA_ARGS}}; exit \$LASTEXITCODE"
-        platforms: [windows]
-
+        platforms:
+          - windows
   branch:list:
     run: once
     desc: List all local and remote branches
     summary: Show all local and remote branches via `git branch -a`.
     cmds:
       - cmd: bash -lc '{{.NIX_LOAD}}; git branch -a {{.GIT_EXTRA_ARGS}}'
-        platforms: [linux, darwin]
+        platforms:
+          - linux
+          - darwin
       - cmd: >-
           powershell -NoProfile -ExecutionPolicy Bypass -Command
           "{{.WINGET_LOAD}}; git branch -a {{.GIT_EXTRA_ARGS}}; exit \$LASTEXITCODE"
-        platforms: [windows]
-
+        platforms:
+          - windows
   branch:create:
     run: once
     desc: Create and switch to a new branch from current HEAD
@@ -400,12 +430,14 @@ tasks:
         - GIT_BRANCH
     cmds:
       - cmd: bash -lc '{{.NIX_LOAD}}; git switch -c {{.GIT_BRANCH}} {{.GIT_EXTRA_ARGS}}'
-        platforms: [linux, darwin]
+        platforms:
+          - linux
+          - darwin
       - cmd: >-
           powershell -NoProfile -ExecutionPolicy Bypass -Command
           "{{.WINGET_LOAD}}; git switch -c {{.GIT_BRANCH}} {{.GIT_EXTRA_ARGS}}; exit \$LASTEXITCODE"
-        platforms: [windows]
-
+        platforms:
+          - windows
   branch:switch:
     run: once
     desc: Switch to an existing branch
@@ -417,12 +449,14 @@ tasks:
         - GIT_BRANCH
     cmds:
       - cmd: bash -lc '{{.NIX_LOAD}}; git switch {{.GIT_BRANCH}} {{.GIT_EXTRA_ARGS}}'
-        platforms: [linux, darwin]
+        platforms:
+          - linux
+          - darwin
       - cmd: >-
           powershell -NoProfile -ExecutionPolicy Bypass -Command
           "{{.WINGET_LOAD}}; git switch {{.GIT_BRANCH}} {{.GIT_EXTRA_ARGS}}; exit \$LASTEXITCODE"
-        platforms: [windows]
-
+        platforms:
+          - windows
   branch:delete:
     run: once
     desc: Delete a local branch
@@ -436,12 +470,14 @@ tasks:
     prompt: Delete local branch "{{.GIT_BRANCH}}"?
     cmds:
       - cmd: bash -lc '{{.NIX_LOAD}}; git branch -d {{.GIT_BRANCH}} {{.GIT_EXTRA_ARGS}}'
-        platforms: [linux, darwin]
+        platforms:
+          - linux
+          - darwin
       - cmd: >-
           powershell -NoProfile -ExecutionPolicy Bypass -Command
           "{{.WINGET_LOAD}}; git branch -d {{.GIT_BRANCH}} {{.GIT_EXTRA_ARGS}}; exit \$LASTEXITCODE"
-        platforms: [windows]
-
+        platforms:
+          - windows
   branch:rename:
     run: once
     desc: Rename the current branch to a new name
@@ -453,24 +489,28 @@ tasks:
         - GIT_BRANCH
     cmds:
       - cmd: bash -lc '{{.NIX_LOAD}}; git branch -m {{.GIT_BRANCH}}'
-        platforms: [linux, darwin]
+        platforms:
+          - linux
+          - darwin
       - cmd: >-
           powershell -NoProfile -ExecutionPolicy Bypass -Command
           "{{.WINGET_LOAD}}; git branch -m {{.GIT_BRANCH}}; exit \$LASTEXITCODE"
-        platforms: [windows]
-
+        platforms:
+          - windows
   tag:list:
     run: once
     desc: List all tags sorted by version descending
     summary: List tags sorted by version via `git tag --sort=-v:refname`.
     cmds:
       - cmd: bash -lc '{{.NIX_LOAD}}; git tag --sort=-v:refname {{.GIT_EXTRA_ARGS}}'
-        platforms: [linux, darwin]
+        platforms:
+          - linux
+          - darwin
       - cmd: >-
           powershell -NoProfile -ExecutionPolicy Bypass -Command
           "{{.WINGET_LOAD}}; git tag --sort=-v:refname {{.GIT_EXTRA_ARGS}}; exit \$LASTEXITCODE"
-        platforms: [windows]
-
+        platforms:
+          - windows
   tag:create:
     run: once
     desc: Create an annotated tag at HEAD
@@ -485,13 +525,15 @@ tasks:
       - cmd: >-
           bash -lc '{{.NIX_LOAD}};
           git tag -a {{.GIT_TAG}} -m "{{default .GIT_TAG .GIT_MESSAGE}}" {{.GIT_EXTRA_ARGS}}'
-        platforms: [linux, darwin]
+        platforms:
+          - linux
+          - darwin
       - cmd: >-
           powershell -NoProfile -ExecutionPolicy Bypass -Command
           "{{.WINGET_LOAD}}; git tag -a {{.GIT_TAG}} -m '{{default .GIT_TAG .GIT_MESSAGE}}' {{.GIT_EXTRA_ARGS}};
           exit \$LASTEXITCODE"
-        platforms: [windows]
-
+        platforms:
+          - windows
   tag:push:
     run: once
     desc: Push a tag or all tags to the remote
@@ -503,14 +545,16 @@ tasks:
           bash -lc '{{.NIX_LOAD}};
           git push {{.GIT_REMOTE}}
           {{if .GIT_TAG}}{{.GIT_TAG}}{{else}}--tags{{end}} {{.GIT_EXTRA_ARGS}}'
-        platforms: [linux, darwin]
+        platforms:
+          - linux
+          - darwin
       - cmd: >-
           powershell -NoProfile -ExecutionPolicy Bypass -Command
           "{{.WINGET_LOAD}};
           git push {{.GIT_REMOTE}} {{if .GIT_TAG}}{{.GIT_TAG}}{{else}}--tags{{end}} {{.GIT_EXTRA_ARGS}};
           exit \$LASTEXITCODE"
-        platforms: [windows]
-
+        platforms:
+          - windows
   tag:delete:
     run: once
     desc: Delete a tag locally and from the remote
@@ -524,18 +568,23 @@ tasks:
     prompt: Delete tag "{{.GIT_TAG}}" locally and from remote "{{.GIT_REMOTE}}"?
     cmds:
       - cmd: bash -lc '{{.NIX_LOAD}}; git tag -d {{.GIT_TAG}}'
-        platforms: [linux, darwin]
+        platforms:
+          - linux
+          - darwin
       - cmd: >-
           powershell -NoProfile -ExecutionPolicy Bypass -Command
           "{{.WINGET_LOAD}}; git tag -d {{.GIT_TAG}}; exit \$LASTEXITCODE"
-        platforms: [windows]
+        platforms:
+          - windows
       - cmd: bash -lc '{{.NIX_LOAD}}; git push {{.GIT_REMOTE}} --delete {{.GIT_TAG}}'
-        platforms: [linux, darwin]
+        platforms:
+          - linux
+          - darwin
       - cmd: >-
           powershell -NoProfile -ExecutionPolicy Bypass -Command
           "{{.WINGET_LOAD}}; git push {{.GIT_REMOTE}} --delete {{.GIT_TAG}}; exit \$LASTEXITCODE"
-        platforms: [windows]
-
+        platforms:
+          - windows
   stash:
     run: once
     desc: Stash uncommitted changes in the working tree
@@ -547,13 +596,15 @@ tasks:
       - cmd: >-
           bash -lc '{{.NIX_LOAD}};
           git stash push {{if .GIT_MESSAGE}}-m "{{.GIT_MESSAGE}}"{{end}} {{.GIT_EXTRA_ARGS}}'
-        platforms: [linux, darwin]
+        platforms:
+          - linux
+          - darwin
       - cmd: >-
           powershell -NoProfile -ExecutionPolicy Bypass -Command
           "{{.WINGET_LOAD}}; git stash push {{if .GIT_MESSAGE}}-m '{{.GIT_MESSAGE}}'{{end}} {{.GIT_EXTRA_ARGS}};
           exit \$LASTEXITCODE"
-        platforms: [windows]
-
+        platforms:
+          - windows
   stash:pop:
     run: once
     desc: Apply and remove the latest stash entry
@@ -562,24 +613,28 @@ tasks:
       Example: GIT_STASH_INDEX=1
     cmds:
       - cmd: bash -lc '{{.NIX_LOAD}}; git stash pop stash@{{{.GIT_STASH_INDEX}}} {{.GIT_EXTRA_ARGS}}'
-        platforms: [linux, darwin]
+        platforms:
+          - linux
+          - darwin
       - cmd: >-
           powershell -NoProfile -ExecutionPolicy Bypass -Command
           "{{.WINGET_LOAD}}; git stash pop stash@{{{.GIT_STASH_INDEX}}} {{.GIT_EXTRA_ARGS}}; exit \$LASTEXITCODE"
-        platforms: [windows]
-
+        platforms:
+          - windows
   stash:list:
     run: once
     desc: List all stash entries
     summary: Display all stash entries via `git stash list`.
     cmds:
       - cmd: bash -lc '{{.NIX_LOAD}}; git stash list'
-        platforms: [linux, darwin]
+        platforms:
+          - linux
+          - darwin
       - cmd: >-
           powershell -NoProfile -ExecutionPolicy Bypass -Command
           "{{.WINGET_LOAD}}; git stash list; exit \$LASTEXITCODE"
-        platforms: [windows]
-
+        platforms:
+          - windows
   stash:drop:
     run: once
     desc: Discard a stash entry without applying it
@@ -588,12 +643,14 @@ tasks:
       Example: GIT_STASH_INDEX=2
     cmds:
       - cmd: bash -lc '{{.NIX_LOAD}}; git stash drop stash@{{{.GIT_STASH_INDEX}}} {{.GIT_EXTRA_ARGS}}'
-        platforms: [linux, darwin]
+        platforms:
+          - linux
+          - darwin
       - cmd: >-
           powershell -NoProfile -ExecutionPolicy Bypass -Command
           "{{.WINGET_LOAD}}; git stash drop stash@{{{.GIT_STASH_INDEX}}} {{.GIT_EXTRA_ARGS}}; exit \$LASTEXITCODE"
-        platforms: [windows]
-
+        platforms:
+          - windows
   reset:soft:
     run: once
     desc: Soft-reset HEAD to a commit, preserving staged changes
@@ -606,12 +663,14 @@ tasks:
         - GIT_COMMIT
     cmds:
       - cmd: bash -lc '{{.NIX_LOAD}}; git reset --soft {{.GIT_COMMIT}} {{.GIT_EXTRA_ARGS}}'
-        platforms: [linux, darwin]
+        platforms:
+          - linux
+          - darwin
       - cmd: >-
           powershell -NoProfile -ExecutionPolicy Bypass -Command
           "{{.WINGET_LOAD}}; git reset --soft {{.GIT_COMMIT}} {{.GIT_EXTRA_ARGS}}; exit \$LASTEXITCODE"
-        platforms: [windows]
-
+        platforms:
+          - windows
   reset:hard:
     run: once
     desc: Hard-reset HEAD to a commit, discarding all local changes
@@ -625,12 +684,14 @@ tasks:
     prompt: Hard-reset to "{{.GIT_COMMIT}}"? All uncommitted changes will be permanently lost.
     cmds:
       - cmd: bash -lc '{{.NIX_LOAD}}; git reset --hard {{.GIT_COMMIT}} {{.GIT_EXTRA_ARGS}}'
-        platforms: [linux, darwin]
+        platforms:
+          - linux
+          - darwin
       - cmd: >-
           powershell -NoProfile -ExecutionPolicy Bypass -Command
           "{{.WINGET_LOAD}}; git reset --hard {{.GIT_COMMIT}} {{.GIT_EXTRA_ARGS}}; exit \$LASTEXITCODE"
-        platforms: [windows]
-
+        platforms:
+          - windows
   clean:
     run: once
     desc: Remove untracked files and directories from the working tree
@@ -640,12 +701,14 @@ tasks:
     prompt: Permanently remove all untracked files and directories?
     cmds:
       - cmd: bash -lc '{{.NIX_LOAD}}; git clean -fd {{.GIT_EXTRA_ARGS}}'
-        platforms: [linux, darwin]
+        platforms:
+          - linux
+          - darwin
       - cmd: >-
           powershell -NoProfile -ExecutionPolicy Bypass -Command
           "{{.WINGET_LOAD}}; git clean -fd {{.GIT_EXTRA_ARGS}}; exit \$LASTEXITCODE"
-        platforms: [windows]
-
+        platforms:
+          - windows
   config:user:
     run: once
     desc: Set the global git user name and email address
@@ -658,42 +721,51 @@ tasks:
         - GIT_EMAIL
     cmds:
       - cmd: bash -lc '{{.NIX_LOAD}}; git config --global user.name "{{.GIT_NAME}}"'
-        platforms: [linux, darwin]
+        platforms:
+          - linux
+          - darwin
       - cmd: >-
           powershell -NoProfile -ExecutionPolicy Bypass -Command
           "{{.WINGET_LOAD}}; git config --global user.name '{{.GIT_NAME}}'; exit \$LASTEXITCODE"
-        platforms: [windows]
+        platforms:
+          - windows
       - cmd: bash -lc '{{.NIX_LOAD}}; git config --global user.email "{{.GIT_EMAIL}}"'
-        platforms: [linux, darwin]
+        platforms:
+          - linux
+          - darwin
       - cmd: >-
           powershell -NoProfile -ExecutionPolicy Bypass -Command
           "{{.WINGET_LOAD}}; git config --global user.email '{{.GIT_EMAIL}}'; exit \$LASTEXITCODE"
-        platforms: [windows]
-
+        platforms:
+          - windows
   config:list:
     run: once
     desc: List all git configuration values
     summary: Show all git config values (system + global + local) via `git config --list`.
     cmds:
       - cmd: bash -lc '{{.NIX_LOAD}}; git config --list {{.GIT_EXTRA_ARGS}}'
-        platforms: [linux, darwin]
+        platforms:
+          - linux
+          - darwin
       - cmd: >-
           powershell -NoProfile -ExecutionPolicy Bypass -Command
           "{{.WINGET_LOAD}}; git config --list {{.GIT_EXTRA_ARGS}}; exit \$LASTEXITCODE"
-        platforms: [windows]
-
+        platforms:
+          - windows
   remote:list:
     run: once
     desc: List all configured remotes and their URLs
     summary: Show all remotes and their fetch/push URLs via `git remote -v`.
     cmds:
       - cmd: bash -lc '{{.NIX_LOAD}}; git remote -v'
-        platforms: [linux, darwin]
+        platforms:
+          - linux
+          - darwin
       - cmd: >-
           powershell -NoProfile -ExecutionPolicy Bypass -Command
           "{{.WINGET_LOAD}}; git remote -v; exit \$LASTEXITCODE"
-        platforms: [windows]
-
+        platforms:
+          - windows
   remote:add:
     run: once
     desc: Add a new remote to the repository
@@ -706,12 +778,14 @@ tasks:
         - GIT_URL
     cmds:
       - cmd: bash -lc '{{.NIX_LOAD}}; git remote add {{.GIT_NAME}} {{.GIT_URL}}'
-        platforms: [linux, darwin]
+        platforms:
+          - linux
+          - darwin
       - cmd: >-
           powershell -NoProfile -ExecutionPolicy Bypass -Command
           "{{.WINGET_LOAD}}; git remote add {{.GIT_NAME}} {{.GIT_URL}}; exit \$LASTEXITCODE"
-        platforms: [windows]
-
+        platforms:
+          - windows
   remote:remove:
     run: once
     desc: Remove a configured remote from the repository
@@ -723,12 +797,14 @@ tasks:
         - GIT_NAME
     cmds:
       - cmd: bash -lc '{{.NIX_LOAD}}; git remote remove {{.GIT_NAME}}'
-        platforms: [linux, darwin]
+        platforms:
+          - linux
+          - darwin
       - cmd: >-
           powershell -NoProfile -ExecutionPolicy Bypass -Command
           "{{.WINGET_LOAD}}; git remote remove {{.GIT_NAME}}; exit \$LASTEXITCODE"
-        platforms: [windows]
-
+        platforms:
+          - windows
   remote:set-url:
     run: once
     desc: Update the URL of a configured remote
@@ -741,12 +817,14 @@ tasks:
         - GIT_URL
     cmds:
       - cmd: bash -lc '{{.NIX_LOAD}}; git remote set-url {{.GIT_NAME}} {{.GIT_URL}}'
-        platforms: [linux, darwin]
+        platforms:
+          - linux
+          - darwin
       - cmd: >-
           powershell -NoProfile -ExecutionPolicy Bypass -Command
           "{{.WINGET_LOAD}}; git remote set-url {{.GIT_NAME}} {{.GIT_URL}}; exit \$LASTEXITCODE"
-        platforms: [windows]
-
+        platforms:
+          - windows
   pr:create:
     run: once
     desc: Push the current branch and open a pull request on GitHub
@@ -766,28 +844,33 @@ tasks:
           bash -lc '{{.NIX_LOAD}};
           git push {{.GIT_REMOTE}}
           {{if .GIT_BRANCH}}{{.GIT_BRANCH}}{{else}}HEAD{{end}} {{.GIT_EXTRA_ARGS}}'
-        platforms: [linux, darwin]
+        platforms:
+          - linux
+          - darwin
       - cmd: >-
           powershell -NoProfile -ExecutionPolicy Bypass -Command
           "{{.WINGET_LOAD}};
           git push {{.GIT_REMOTE}} {{if .GIT_BRANCH}}{{.GIT_BRANCH}}{{else}}HEAD{{end}} {{.GIT_EXTRA_ARGS}};
           exit \$LASTEXITCODE"
-        platforms: [windows]
+        platforms:
+          - windows
       - cmd: >-
           bash -lc '{{.NIX_LOAD}};
           gh pr create
           --title "{{.GIT_TITLE}}"
           --base "{{default "main" .GIT_BASE}}"
           {{if .GIT_BODY}}--body "{{.GIT_BODY}}"{{end}}'
-        platforms: [linux, darwin]
+        platforms:
+          - linux
+          - darwin
       - cmd: >-
           powershell -NoProfile -ExecutionPolicy Bypass -Command
           "{{.WINGET_LOAD}};
           gh pr create --title '{{.GIT_TITLE}}' --base '{{default "main" .GIT_BASE}}' {{if .GIT_BODY}}--body
           '{{.GIT_BODY}}'{{end}}
           ; exit \$LASTEXITCODE"
-        platforms: [windows]
-
+        platforms:
+          - windows
   pr:open:
     run: once
     desc: Open the current pull request in the browser via the GitHub CLI
@@ -798,12 +881,14 @@ tasks:
       - task: gh:install
     cmds:
       - cmd: bash -lc '{{.NIX_LOAD}}; gh pr view --web'
-        platforms: [linux, darwin]
+        platforms:
+          - linux
+          - darwin
       - cmd: >-
           powershell -NoProfile -ExecutionPolicy Bypass -Command
           "{{.WINGET_LOAD}}; gh pr view --web; exit \$LASTEXITCODE"
-        platforms: [windows]
-
+        platforms:
+          - windows
   release:create:
     run: once
     desc: Create a git tag and a GitHub release via the GitHub CLI
@@ -819,58 +904,70 @@ tasks:
       - task: gh:install
     cmds:
       - cmd: bash -lc '{{.NIX_LOAD}}; git tag -a {{.GIT_TAG}} -m "{{default .GIT_TAG .GIT_TITLE}}"'
-        platforms: [linux, darwin]
+        platforms:
+          - linux
+          - darwin
       - cmd: >-
           powershell -NoProfile -ExecutionPolicy Bypass -Command
           "{{.WINGET_LOAD}}; git tag -a {{.GIT_TAG}} -m '{{default .GIT_TAG .GIT_TITLE}}'; exit \$LASTEXITCODE"
-        platforms: [windows]
+        platforms:
+          - windows
       - cmd: bash -lc '{{.NIX_LOAD}}; git push {{.GIT_REMOTE}} {{.GIT_TAG}}'
-        platforms: [linux, darwin]
+        platforms:
+          - linux
+          - darwin
       - cmd: >-
           powershell -NoProfile -ExecutionPolicy Bypass -Command
           "{{.WINGET_LOAD}}; git push {{.GIT_REMOTE}} {{.GIT_TAG}}; exit \$LASTEXITCODE"
-        platforms: [windows]
+        platforms:
+          - windows
       - cmd: >-
           bash -lc '{{.NIX_LOAD}};
           gh release create {{.GIT_TAG}}
           {{if .GIT_TITLE}}--title "{{.GIT_TITLE}}"{{end}}
           {{if .GIT_NOTES}}--notes "{{.GIT_NOTES}}"{{end}}'
-        platforms: [linux, darwin]
+        platforms:
+          - linux
+          - darwin
       - cmd: >-
           powershell -NoProfile -ExecutionPolicy Bypass -Command
           "{{.WINGET_LOAD}};
           gh release create {{.GIT_TAG}} {{if .GIT_TITLE}}--title '{{.GIT_TITLE}}'{{end}} {{if .GIT_NOTES}}--notes
           '{{.GIT_NOTES}}'{{end}}
           ; exit \$LASTEXITCODE"
-        platforms: [windows]
-
+        platforms:
+          - windows
   help:
     run: once
     desc: Show the git built-in help and command list
     summary: Display the git help overview and list of common commands.
     cmds:
       - cmd: bash -lc '{{.NIX_LOAD}}; git help'
-        platforms: [linux, darwin]
+        platforms:
+          - linux
+          - darwin
       - cmd: >-
           powershell -NoProfile -ExecutionPolicy Bypass -Command
           "{{.WINGET_LOAD}}; git help; exit \$LASTEXITCODE"
-        platforms: [windows]
-
+        platforms:
+          - windows
   _version:unix:
     run: once
     internal: true
     desc: Show git version on macOS or Linux
     summary: Print the git version on macOS or Linux.
-    platforms: [linux, darwin]
+    platforms:
+      - linux
+      - darwin
     cmds:
       - bash -lc '{{.NIX_LOAD}}; git --version'
-
   _version:windows:
     run: once
     internal: true
     desc: Show git version on Windows
     summary: Print the git version on Windows.
-    platforms: [windows]
+    platforms:
+      - windows
     preconditions:
       - sh: >-
           powershell -NoProfile -ExecutionPolicy Bypass -Command

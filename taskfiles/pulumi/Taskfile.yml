@@ -1,10 +1,10 @@
 ---
-version: "3.5"
+version: '3.5'
 
 output:
   group:
-    begin: "::group::{{.TASK}}"
-    end: "::endgroup::"
+    begin: ::group::{{.TASK}}
+    end: '::endgroup::'
     error_only: false
 
 silent: true
@@ -31,7 +31,6 @@ tasks:
     summary: Display the list of available Pulumi-related tasks defined in this Taskfile.
     cmds:
       - task --list
-
   install:
     run: once
     desc: Install Pulumi via Nix (Unix) or WinGet (Windows)
@@ -45,23 +44,23 @@ tasks:
     cmds:
       - task: _install:unix
       - task: _install:windows
-
   _install:unix:
     internal: true
-    platforms: [linux, darwin]
+    platforms:
+      - linux
+      - darwin
     cmds:
       - task: nix:install:profile
         vars:
-          NIX_INSTALLABLE: "{{.PULUMI_NIX_INSTALLABLE}}"
-
+          NIX_INSTALLABLE: '{{.PULUMI_NIX_INSTALLABLE}}'
   _install:windows:
     internal: true
-    platforms: [windows]
+    platforms:
+      - windows
     cmds:
       - task: winget:install:package
         vars:
-          WINGET_INSTALLABLE: "{{.PULUMI_WINGET_INSTALLABLE}}"
-
+          WINGET_INSTALLABLE: '{{.PULUMI_WINGET_INSTALLABLE}}'
   version:
     run: once
     desc: Show the active Pulumi version
@@ -73,10 +72,9 @@ tasks:
     cmds:
       - task: _version:unix
       - task: _version:windows
-
   login:
     run: once
-    dir: "{{.USER_WORKING_DIR}}"
+    dir: '{{.USER_WORKING_DIR}}'
     desc: Log in to a Pulumi backend
     summary: |
       Run `pulumi login` against PULUMI_LOGIN_URL, falling back to the default
@@ -97,10 +95,9 @@ tasks:
             login
             {{if .PULUMI_LOGIN_URL}}"{{.PULUMI_LOGIN_URL}}"{{end}}
             {{.PULUMI_EXTRA_ARGS}}
-
   new:
     run: once
-    dir: "{{.USER_WORKING_DIR}}"
+    dir: '{{.USER_WORKING_DIR}}'
     desc: Scaffold a new Pulumi project from a template (PULUMI_TEMPLATE=name)
     summary: |
       Run `pulumi new PULUMI_TEMPLATE` to scaffold a new Pulumi project from a
@@ -128,10 +125,9 @@ tasks:
             new
             "{{.PULUMI_TEMPLATE}}"
             {{.PULUMI_EXTRA_ARGS}}
-
   up:
     run: once
-    dir: "{{.USER_WORKING_DIR}}"
+    dir: '{{.USER_WORKING_DIR}}'
     desc: Preview and deploy the current Pulumi stack
     summary: |
       Run `pulumi up` in the current working directory. Pass PULUMI_STACK=name
@@ -153,44 +149,54 @@ tasks:
             up
             {{if .PULUMI_STACK}}--stack "{{.PULUMI_STACK}}"{{end}}
             {{.PULUMI_EXTRA_ARGS}}
-
   _pulumi:unix:
     run: once
     internal: true
-    platforms: [linux, darwin]
-    set: [errexit, nounset, pipefail]
+    platforms:
+      - linux
+      - darwin
+    set:
+      - errexit
+      - nounset
+      - pipefail
     requires:
-      vars: [PULUMI_ARGS]
+      vars:
+        - PULUMI_ARGS
     cmds:
       - bash -lc '{{.NIX_LOAD}}; pulumi {{.PULUMI_ARGS}}'
-
   _pulumi:windows:
     run: once
     internal: true
-    platforms: [windows]
+    platforms:
+      - windows
     requires:
-      vars: [PULUMI_ARGS]
+      vars:
+        - PULUMI_ARGS
     cmds:
       - >-
         powershell -NoProfile -ExecutionPolicy Bypass -Command
         "{{.WINGET_LOAD}}; pulumi {{.PULUMI_ARGS}}; exit \$LASTEXITCODE"
-
   _version:unix:
     run: once
     internal: true
     desc: Show Pulumi version on macOS or Linux
     summary: Print the Pulumi version on macOS or Linux.
-    platforms: [linux, darwin]
-    set: [errexit, nounset, pipefail]
+    platforms:
+      - linux
+      - darwin
+    set:
+      - errexit
+      - nounset
+      - pipefail
     cmds:
       - bash -lc '{{.NIX_LOAD}}; pulumi version'
-
   _version:windows:
     run: once
     internal: true
     desc: Show Pulumi version on Windows
     summary: Print the Pulumi version on Windows.
-    platforms: [windows]
+    platforms:
+      - windows
     preconditions:
       - sh: >-
           powershell -NoProfile -ExecutionPolicy Bypass -Command

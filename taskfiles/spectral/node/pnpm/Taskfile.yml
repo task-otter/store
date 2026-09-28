@@ -1,10 +1,10 @@
 ---
-version: "3.5"
+version: '3.5'
 
 output:
   group:
-    begin: "::group::{{.TASK}}"
-    end: "::endgroup::"
+    begin: ::group::{{.TASK}}
+    end: '::endgroup::'
     error_only: false
 
 silent: true
@@ -25,10 +25,9 @@ tasks:
     desc: Show available Spectral tasks
     cmds:
       - task --list
-
   install:
     run: once
-    dir: "{{.USER_WORKING_DIR}}"
+    dir: '{{.USER_WORKING_DIR}}'
     desc: Install Spectral as a local devDependency
     summary: |
       Install @stoplight/spectral-cli as a local devDependency. Pass
@@ -48,7 +47,6 @@ tasks:
             @stoplight/spectral-cli{{if .RESOLVED_VERSION}}@{{.RESOLVED_VERSION}}{{end}}
           EXTRA_ARGS: >-
             {{.SPECTRAL_EXTRA_ARGS}}{{if .CLI_ARGS}} {{.CLI_ARGS}}{{end}}
-
   install:undo:
     run: once
     desc: Remove the locally installed Spectral devDependency
@@ -59,9 +57,8 @@ tasks:
     cmds:
       - task: pnpm:remove
         vars:
-          PACKAGES: "@stoplight/spectral-cli"
+          PACKAGES: '@stoplight/spectral-cli'
           EXTRA_ARGS: '{{.SPECTRAL_EXTRA_ARGS}}'
-
   upgrade:
     run: once
     desc: Upgrade Spectral to the latest release
@@ -69,9 +66,8 @@ tasks:
     cmds:
       - task: pnpm:add
         vars:
-          PACKAGES: "@stoplight/spectral-cli@latest"
+          PACKAGES: '@stoplight/spectral-cli@latest'
           EXTRA_ARGS: '{{.SPECTRAL_EXTRA_ARGS}}'
-
   config:init:
     run: once
     desc: Create a default .spectral.yaml ruleset file
@@ -79,13 +75,12 @@ tasks:
       Write a .spectral.yaml ruleset extending the built-in spectral:oas
       OpenAPI rules in the current directory. Skipped if .spectral.yaml
       already exists.
-    dir: "{{.USER_WORKING_DIR}}"
+    dir: '{{.USER_WORKING_DIR}}'
     status:
       - test -f .spectral.yaml
     cmds:
-      - 'printf ''extends: ["spectral:oas"]\n'' > .spectral.yaml'
+      - "printf 'extends: [\"spectral:oas\"]\\n' > .spectral.yaml"
       - echo 'Created .spectral.yaml extending spectral:oas.'
-
   ci:
     run: once
     desc: Lint API documents with Spectral (SPECTRAL_TARGETS=path)
@@ -93,7 +88,7 @@ tasks:
       Run spectral lint against the API documents at SPECTRAL_TARGETS. Pass RULESET to
       use a specific ruleset file via --ruleset, and SPECTRAL_EXTRA_ARGS for additional
       flags. Auto-installs Spectral if missing.
-    dir: "{{.USER_WORKING_DIR}}"
+    dir: '{{.USER_WORKING_DIR}}'
     deps:
       - task: install
     vars:
@@ -109,7 +104,6 @@ tasks:
           EXTRA_ARGS: >-
             {{.SPECTRAL_EXTRA_ARGS}}{{if .CLI_ARGS}} {{.CLI_ARGS}}{{end}}
       - echo "✅ spectral passed"
-
   help:
     run: once
     desc: Show the Spectral CLI help
@@ -119,8 +113,7 @@ tasks:
       - task: pnpm:exec
         vars:
           BINARY: spectral
-          ARGS: "--help"
-
+          ARGS: --help
   version:
     run: once
     desc: Show the locally resolved Spectral version
@@ -129,7 +122,7 @@ tasks:
     cmds:
       - task: pnpm:_pnpm:unix
         vars:
-          ARGS: "exec -- spectral --version"
+          ARGS: exec -- spectral --version
       - task: pnpm:_pnpm:windows
         vars:
-          ARGS: "exec -- spectral --version"
+          ARGS: exec -- spectral --version

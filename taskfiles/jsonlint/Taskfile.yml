@@ -1,10 +1,10 @@
 ---
-version: "3.5"
+version: '3.5'
 
 output:
   group:
-    begin: "::group::{{.TASK}}"
-    end: "::endgroup::"
+    begin: ::group::{{.TASK}}
+    end: '::endgroup::'
     error_only: false
 
 silent: true
@@ -28,7 +28,6 @@ tasks:
     summary: Display the list of available jsonlint-related tasks defined in this Taskfile.
     cmds:
       - task --list
-
   install:
     run: once
     desc: Install jsonlint via Nix (Unix) or uv tool (Windows)
@@ -43,23 +42,23 @@ tasks:
     cmds:
       - task: _install:unix
       - task: _install:windows
-
   _install:unix:
     internal: true
-    platforms: [linux, darwin]
+    platforms:
+      - linux
+      - darwin
     cmds:
       - task: nix:install:profile
         vars:
-          NIX_INSTALLABLE: "{{.JSONLINT_NIX_INSTALLABLE}}"
-
+          NIX_INSTALLABLE: '{{.JSONLINT_NIX_INSTALLABLE}}'
   _install:windows:
     internal: true
-    platforms: [windows]
+    platforms:
+      - windows
     cmds:
       - task: uv:tool:install
         vars:
-          UV_TOOL: "{{.JSONLINT_UV_TOOL}}"
-
+          UV_TOOL: '{{.JSONLINT_UV_TOOL}}'
   version:
     run: once
     desc: Show the active jsonlint version
@@ -71,7 +70,6 @@ tasks:
     cmds:
       - task: _version:unix
       - task: _version:windows
-
   ci:
     run: once
     desc: Validate JSON files with jsonlint (JSONLINT_TARGETS=path)
@@ -80,7 +78,7 @@ tasks:
       scanned recursively for *.json files; a file target is validated
       directly. Pass JSONLINT_EXTRA_ARGS for additional flags.
       Auto-installs jsonlint if missing.
-    dir: "{{.USER_WORKING_DIR}}"
+    dir: '{{.USER_WORKING_DIR}}'
     deps:
       - task: install
     cmds:
@@ -97,7 +95,9 @@ tasks:
           <"$_files";
           else echo "No matching JSON files found under $_t"; fi
           && echo "✅ jsonlint passed" || { echo "❌ jsonlint failed"; exit 1; }'
-        platforms: [linux, darwin]
+        platforms:
+          - linux
+          - darwin
       - cmd: >-
           powershell -NoProfile -ExecutionPolicy Bypass -Command
           "{{.WINGET_LOAD}}; {{.UV_LOAD}};
@@ -113,23 +113,25 @@ tasks:
           jsonlint {{.JSONLINT_EXTRA_ARGS}} \$path;
           if (\$LASTEXITCODE -ne 0) { exit \$LASTEXITCODE } };
           exit \$LASTEXITCODE"
-        platforms: [windows]
-
+        platforms:
+          - windows
   _version:unix:
     run: once
     internal: true
     desc: Show jsonlint version on macOS or Linux
     summary: Print the jsonlint version on macOS or Linux.
-    platforms: [linux, darwin]
+    platforms:
+      - linux
+      - darwin
     cmds:
       - bash -lc '{{.NIX_LOAD}}; jsonlint --version'
-
   _version:windows:
     run: once
     internal: true
     desc: Show jsonlint version on Windows
     summary: Print the jsonlint version on Windows.
-    platforms: [windows]
+    platforms:
+      - windows
     preconditions:
       - sh: >-
           powershell -NoProfile -ExecutionPolicy Bypass -Command

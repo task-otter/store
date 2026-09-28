@@ -2,6 +2,7 @@
 schema: taskotter.dev/taskfile-metadata/v1
 module: git
 taskfile: Taskfile.yml
+
 exported_tasks:
   - add
   - add:all

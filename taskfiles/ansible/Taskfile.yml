@@ -1,10 +1,10 @@
 ---
-version: "3.5"
+version: '3.5'
 
 output:
   group:
-    begin: "::group::{{.TASK}}"
-    end: "::endgroup::"
+    begin: ::group::{{.TASK}}
+    end: '::endgroup::'
     error_only: false
 
 silent: true
@@ -30,7 +30,6 @@ tasks:
     summary: Display the list of available Ansible-related tasks defined in this Taskfile.
     cmds:
       - task --list
-
   install:
     run: once
     desc: Install Ansible via the Nix profile
@@ -43,8 +42,7 @@ tasks:
     cmds:
       - task: nix:install:profile
         vars:
-          NIX_INSTALLABLE: "{{.ANSIBLE_NIX_INSTALLABLE}}"
-
+          NIX_INSTALLABLE: '{{.ANSIBLE_NIX_INSTALLABLE}}'
   version:
     run: once
     desc: Show the active Ansible version
@@ -55,7 +53,6 @@ tasks:
       - task: install
     cmds:
       - task: _version:unix
-
   syntax:check:
     run: once
     desc: Check Ansible playbook syntax (ANSIBLE_PLAYBOOK=path)
@@ -73,7 +70,6 @@ tasks:
         msg: PLAYBOOK is required. Pass ANSIBLE_PLAYBOOK=path/to/playbook.yml when running this task.
     cmds:
       - task: _syntax:check:unix
-
   run:
     run: once
     desc: Run an Ansible playbook (ANSIBLE_PLAYBOOK=path)
@@ -91,7 +87,6 @@ tasks:
         msg: PLAYBOOK is required. Pass ANSIBLE_PLAYBOOK=path/to/playbook.yml when running this task.
     cmds:
       - task: _run:unix
-
   ping:
     run: once
     desc: Test Ansible host connectivity (ANSIBLE_INVENTORY=path)
@@ -109,7 +104,6 @@ tasks:
         msg: INVENTORY is required. Pass ANSIBLE_INVENTORY=path/to/inventory when running this task.
     cmds:
       - task: _ping:unix
-
   list:hosts:
     run: once
     desc: List Ansible inventory hosts (ANSIBLE_INVENTORY=path)
@@ -127,7 +121,6 @@ tasks:
         msg: INVENTORY is required. Pass ANSIBLE_INVENTORY=path/to/inventory when running this task.
     cmds:
       - task: _list:hosts:unix
-
   galaxy:install:
     run: once
     desc: Install Ansible roles and collections (ANSIBLE_REQUIREMENTS=path)
@@ -139,7 +132,6 @@ tasks:
       - task: install
     cmds:
       - task: _galaxy:install:unix
-
   vault:encrypt:
     run: once
     desc: Encrypt a file with Ansible Vault (ANSIBLE_FILE=path)
@@ -158,8 +150,7 @@ tasks:
     cmds:
       - task: _vault:unix
         vars:
-          ARGS: 'encrypt "{{.ANSIBLE_FILE}}" {{.ANSIBLE_EXTRA_ARGS}}'
-
+          ARGS: encrypt "{{.ANSIBLE_FILE}}" {{.ANSIBLE_EXTRA_ARGS}}
   vault:decrypt:
     run: once
     desc: Decrypt a file with Ansible Vault (ANSIBLE_FILE=path)
@@ -181,13 +172,17 @@ tasks:
     cmds:
       - task: _vault:unix
         vars:
-          ARGS: 'decrypt "{{.ANSIBLE_FILE}}" {{.ANSIBLE_EXTRA_ARGS}}'
-
+          ARGS: decrypt "{{.ANSIBLE_FILE}}" {{.ANSIBLE_EXTRA_ARGS}}
   _syntax:check:unix:
     run: once
     internal: true
-    platforms: [linux, darwin]
-    set: [errexit, nounset, pipefail]
+    platforms:
+      - linux
+      - darwin
+    set:
+      - errexit
+      - nounset
+      - pipefail
     cmds:
       - |
         bash -lc '{{.NIX_LOAD}}; export ANSIBLE_CONFIG="{{.ANSIBLE_CONFIG}}";
@@ -195,12 +190,16 @@ tasks:
         ansible-playbook --syntax-check "$playbook" \
           {{if .ANSIBLE_INVENTORY}}-i "{{.ANSIBLE_INVENTORY}}"{{end}} \
           {{.ANSIBLE_EXTRA_ARGS}} {{.CLI_ARGS}}'
-
   _run:unix:
     run: once
     internal: true
-    platforms: [linux, darwin]
-    set: [errexit, nounset, pipefail]
+    platforms:
+      - linux
+      - darwin
+    set:
+      - errexit
+      - nounset
+      - pipefail
     cmds:
       - >-
         bash -lc '{{.NIX_LOAD}}; export ANSIBLE_CONFIG="{{.ANSIBLE_CONFIG}}";
@@ -208,58 +207,79 @@ tasks:
         "{{.ANSIBLE_PLAYBOOK}}"
         {{if .ANSIBLE_INVENTORY}}-i "{{.ANSIBLE_INVENTORY}}" {{end}}
         {{.ANSIBLE_EXTRA_ARGS}}'
-
   _ping:unix:
     run: once
     internal: true
-    platforms: [linux, darwin]
-    set: [errexit, nounset, pipefail]
+    platforms:
+      - linux
+      - darwin
+    set:
+      - errexit
+      - nounset
+      - pipefail
     cmds:
       - >-
         bash -lc '{{.NIX_LOAD}}; export ANSIBLE_CONFIG="{{.ANSIBLE_CONFIG}}";
         ansible "{{.ANSIBLE_PATTERN}}" -m ping
         {{if .ANSIBLE_INVENTORY}}-i "{{.ANSIBLE_INVENTORY}}" {{end}}
         {{.ANSIBLE_EXTRA_ARGS}}'
-
   _list:hosts:unix:
     run: once
     internal: true
-    platforms: [linux, darwin]
-    set: [errexit, nounset, pipefail]
+    platforms:
+      - linux
+      - darwin
+    set:
+      - errexit
+      - nounset
+      - pipefail
     cmds:
       - >-
         bash -lc '{{.NIX_LOAD}}; export ANSIBLE_CONFIG="{{.ANSIBLE_CONFIG}}";
         ansible "{{.ANSIBLE_PATTERN}}" --list-hosts
         {{if .ANSIBLE_INVENTORY}}-i "{{.ANSIBLE_INVENTORY}}" {{end}}
         {{.ANSIBLE_EXTRA_ARGS}}'
-
   _galaxy:install:unix:
     run: once
     internal: true
-    platforms: [linux, darwin]
-    set: [errexit, nounset, pipefail]
+    platforms:
+      - linux
+      - darwin
+    set:
+      - errexit
+      - nounset
+      - pipefail
     cmds:
       - >-
         bash -lc '{{.NIX_LOAD}}; export ANSIBLE_CONFIG="{{.ANSIBLE_CONFIG}}";
         ansible-galaxy install -r "{{.ANSIBLE_REQUIREMENTS}}"
         {{.ANSIBLE_EXTRA_ARGS}}'
-
   _vault:unix:
     run: once
     internal: true
-    platforms: [linux, darwin]
-    set: [errexit, nounset, pipefail]
+    platforms:
+      - linux
+      - darwin
+    set:
+      - errexit
+      - nounset
+      - pipefail
     requires:
-      vars: [ARGS]
+      vars:
+        - ARGS
     cmds:
       - bash -lc '{{.NIX_LOAD}}; export ANSIBLE_CONFIG="{{.ANSIBLE_CONFIG}}"; ansible-vault {{.ARGS}}'
-
   _version:unix:
     run: once
     internal: true
     desc: Show Ansible version on macOS or Linux
     summary: Print the Ansible version on macOS or Linux.
-    platforms: [linux, darwin]
-    set: [errexit, nounset, pipefail]
+    platforms:
+      - linux
+      - darwin
+    set:
+      - errexit
+      - nounset
+      - pipefail
     cmds:
       - bash -lc '{{.NIX_LOAD}}; ansible --version'

@@ -1,2 +1,6 @@
 ---
-skip: [help, install, open, version]
+skip:
+  - help
+  - install
+  - open
+  - version

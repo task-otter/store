@@ -1,2 +1,4 @@
 ---
-skip: [login, up]
+skip:
+  - login
+  - up

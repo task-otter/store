@@ -1,10 +1,10 @@
 ---
-version: "3.5"
+version: '3.5'
 
 output:
   group:
-    begin: "::group::{{.TASK}}"
-    end: "::endgroup::"
+    begin: ::group::{{.TASK}}
+    end: '::endgroup::'
     error_only: false
 
 silent: true
@@ -14,7 +14,6 @@ includes:
     taskfile: ../nix/Taskfile.yml
   winget:
     taskfile: ../winget/Taskfile.yml
-
   jq: ../jq/Taskfile.yml
 
 vars:
@@ -34,8 +33,8 @@ vars:
   VAULT_WINGET_INSTALLABLE: '{{.VAULT_WINGET_INSTALLABLE | default "Hashicorp.Vault"}}'
 
 env:
-  VAULT_ADDR: "{{.VAULT_ADDR_TARGET}}"
-  NIXPKGS_ALLOW_UNFREE: "1"
+  VAULT_ADDR: '{{.VAULT_ADDR_TARGET}}'
+  NIXPKGS_ALLOW_UNFREE: '1'
 
 tasks:
   default:
@@ -44,7 +43,6 @@ tasks:
     summary: Display the list of available HashiCorp Vault-related tasks defined in this Taskfile.
     cmds:
       - task --list
-
   install:
     run: once
     desc: Install Vault CLI via Nix (Unix) or WinGet (Windows)
@@ -58,26 +56,26 @@ tasks:
     cmds:
       - task: _install:unix
       - task: _install:windows
-
   _install:unix:
     internal: true
-    platforms: [linux, darwin]
+    platforms:
+      - linux
+      - darwin
     env:
-      NIXPKGS_ALLOW_UNFREE: "1"
+      NIXPKGS_ALLOW_UNFREE: '1'
     cmds:
       - task: nix:install:profile
         vars:
-          NIX_INSTALLABLE: "{{.VAULT_NIX_INSTALLABLE}}"
-          NIX_EXTRA_ARGS: "--impure"
-
+          NIX_INSTALLABLE: '{{.VAULT_NIX_INSTALLABLE}}'
+          NIX_EXTRA_ARGS: --impure
   _install:windows:
     internal: true
-    platforms: [windows]
+    platforms:
+      - windows
     cmds:
       - task: winget:install:package
         vars:
-          WINGET_INSTALLABLE: "{{.VAULT_WINGET_INSTALLABLE}}"
-
+          WINGET_INSTALLABLE: '{{.VAULT_WINGET_INSTALLABLE}}'
   version:
     run: once
     desc: Show the active Vault CLI version
@@ -89,7 +87,6 @@ tasks:
     cmds:
       - task: _version:unix
       - task: _version:windows
-
   verify:
     run: once
     desc: Verify the Vault CLI installation and server connectivity
@@ -101,18 +98,23 @@ tasks:
       - task: install
     cmds:
       - cmd: bash -lc '{{.NIX_LOAD}}; vault version'
-        platforms: [linux, darwin]
+        platforms:
+          - linux
+          - darwin
       - cmd: >-
           powershell -NoProfile -ExecutionPolicy Bypass -Command
           "{{.WINGET_LOAD}}; vault version; exit \$LASTEXITCODE"
-        platforms: [windows]
+        platforms:
+          - windows
       - cmd: bash -lc '{{.NIX_LOAD}}; vault status -address="{{.VAULT_ADDR_TARGET}}"'
-        platforms: [linux, darwin]
+        platforms:
+          - linux
+          - darwin
       - cmd: >-
           powershell -NoProfile -ExecutionPolicy Bypass -Command
           "{{.WINGET_LOAD}}; vault status -address='{{.VAULT_ADDR_TARGET}}'; exit \$LASTEXITCODE"
-        platforms: [windows]
-
+        platforms:
+          - windows
   status:
     run: once
     desc: Show Vault seal and HA status
@@ -125,12 +127,14 @@ tasks:
       - task: install
     cmds:
       - cmd: bash -lc '{{.NIX_LOAD}}; vault status -address="{{.VAULT_ADDR_TARGET}}" || true'
-        platforms: [linux, darwin]
+        platforms:
+          - linux
+          - darwin
       - cmd: >-
           powershell -NoProfile -ExecutionPolicy Bypass -Command
           "{{.WINGET_LOAD}}; vault status -address='{{.VAULT_ADDR_TARGET}}'; exit 0"
-        platforms: [windows]
-
+        platforms:
+          - windows
   health:
     run: once
     desc: Show Vault health as JSON (VAULT_ADDR=url)
@@ -139,7 +143,10 @@ tasks:
       and pretty-print it with jq. Returns HTTP 200 when active, 429 when standby,
       472 when in recovery mode, and 501 when uninitialized.
       This task only uses curl and jq — it does not require the Vault CLI.
-    set: [errexit, nounset, pipefail]
+    set:
+      - errexit
+      - nounset
+      - pipefail
     deps:
       - task: jq:install
     preconditions:
@@ -151,12 +158,14 @@ tasks:
           curl -s
           "{{.VAULT_ADDR_TARGET}}/v1/sys/health"
           | jq .'
-        platforms: [linux, darwin]
+        platforms:
+          - linux
+          - darwin
       - cmd: >-
           powershell -NoProfile -ExecutionPolicy Bypass -Command
           "{{.WINGET_LOAD}}; curl -s '{{.VAULT_ADDR_TARGET}}/v1/sys/health' | jq .; exit \$LASTEXITCODE"
-        platforms: [windows]
-
+        platforms:
+          - windows
   init:
     run: once
     desc: Initialize Vault and save unseal keys (VAULT_KEYS_FILE=path)
@@ -167,7 +176,10 @@ tasks:
       stdout. Keep this file safe and out of version control.
       KEYS_FILE defaults to .vault-init-keys.json.
       Auto-installs the CLI if missing.
-    set: [errexit, nounset, pipefail]
+    set:
+      - errexit
+      - nounset
+      - pipefail
     preconditions:
       - sh: test ! -e "{{.VAULT_KEYS_FILE}}"
         msg: >-
@@ -194,7 +206,6 @@ tasks:
         mv "$TMP" "$KF"
         trap - EXIT
         echo "Vault initialized. Unseal keys and root token saved to $KF"
-
   unseal:
     run: once
     desc: Unseal Vault using saved keys (VAULT_KEYS_FILE=path)
@@ -203,7 +214,10 @@ tasks:
       vault operator unseal. KEYS_FILE must exist and contain the JSON produced
       by the init task. Requires jq.
       Auto-installs the CLI if missing.
-    set: [errexit, nounset, pipefail]
+    set:
+      - errexit
+      - nounset
+      - pipefail
     preconditions:
       - sh: test -f "{{.VAULT_KEYS_FILE}}"
         msg: >-
@@ -219,7 +233,6 @@ tasks:
         for key in $(jq -r ".unseal_keys_b64[0:${THRESHOLD}][]" "$KEYS_FILE"); do
           vault operator unseal -address="{{.VAULT_ADDR_TARGET}}" "$key"
         done
-
   seal:
     run: once
     desc: Seal the Vault server
@@ -232,12 +245,14 @@ tasks:
       - task: install
     cmds:
       - cmd: bash -lc '{{.NIX_LOAD}}; vault operator seal -address="{{.VAULT_ADDR_TARGET}}"'
-        platforms: [linux, darwin]
+        platforms:
+          - linux
+          - darwin
       - cmd: >-
           powershell -NoProfile -ExecutionPolicy Bypass -Command
           "{{.WINGET_LOAD}}; vault operator seal -address='{{.VAULT_ADDR_TARGET}}'; exit \$LASTEXITCODE"
-        platforms: [windows]
-
+        platforms:
+          - windows
   login:
     run: once
     desc: Log in to Vault using the saved root token (VAULT_KEYS_FILE=path)
@@ -246,7 +261,10 @@ tasks:
       KEYS_FILE must exist and contain the JSON produced by the init task.
       After login, subsequent vault commands will use this token automatically.
       Auto-installs the CLI if missing.
-    set: [errexit, nounset, pipefail]
+    set:
+      - errexit
+      - nounset
+      - pipefail
     preconditions:
       - sh: test -f "{{.VAULT_KEYS_FILE}}"
         msg: >-
@@ -260,7 +278,6 @@ tasks:
         KF="{{.VAULT_KEYS_FILE}}"
         jq -r '.root_token' "$KF" \
           | vault login -address="{{.VAULT_ADDR_TARGET}}" -method=token -no-print -
-
   login:root-token:
     run: once
     desc: Log in to Vault using a token directly (VAULT_ROOT_TOKEN=<token>)
@@ -271,7 +288,10 @@ tasks:
       argument list. After login, subsequent vault commands use this token
       automatically via the token helper.
       Auto-installs the CLI if missing.
-    set: [errexit, nounset, pipefail]
+    set:
+      - errexit
+      - nounset
+      - pipefail
     env:
       VAULT_LOGIN_ROOT_TOKEN: >-
         {{.VAULT_ROOT_TOKEN}}
@@ -284,7 +304,6 @@ tasks:
         {{.NIX_LOAD}}
         printf '%s' "$VAULT_LOGIN_ROOT_TOKEN" \
           | vault login -address="{{.VAULT_ADDR_TARGET}}" -method=token -no-print -
-
   login:approle:
     run: once
     desc: Log in to Vault via AppRole (VAULT_ROLE_ID=<id> VAULT_SECRET_ID=<id>)
@@ -295,9 +314,12 @@ tasks:
       APPROLE_MOUNT. After login, subsequent vault commands use the resulting
       client token automatically via the token helper.
       Auto-installs the CLI if missing.
-    set: [errexit, nounset, pipefail]
+    set:
+      - errexit
+      - nounset
+      - pipefail
     env:
-      VAULT_LOGIN_ROLE_ID: "{{.VAULT_ROLE_ID}}"
+      VAULT_LOGIN_ROLE_ID: '{{.VAULT_ROLE_ID}}'
       VAULT_LOGIN_SECRET_ID: >-
         {{.VAULT_SECRET_ID}}
       VAULT_LOGIN_APPROLE_MOUNT: >-
@@ -323,7 +345,6 @@ tasks:
             -method=token \
             -no-print \
             -
-
   token:issue:approle:
     run: once
     desc: Issue a Vault token via AppRole and print it to stdout (VAULT_ROLE_ID=<id> VAULT_SECRET_ID=<id>)
@@ -333,9 +354,12 @@ tasks:
       token helper — it is only emitted to stdout for capture by the caller.
       Requires ROLE_ID and SECRET_ID task variables. APPROLE_MOUNT defaults to "approle".
       Auto-installs the CLI if missing.
-    set: [errexit, nounset, pipefail]
+    set:
+      - errexit
+      - nounset
+      - pipefail
     env:
-      VAULT_LOGIN_ROLE_ID: "{{.VAULT_ROLE_ID}}"
+      VAULT_LOGIN_ROLE_ID: '{{.VAULT_ROLE_ID}}'
       VAULT_LOGIN_SECRET_ID: >-
         {{.VAULT_SECRET_ID}}
       VAULT_LOGIN_APPROLE_MOUNT: >-
@@ -356,31 +380,31 @@ tasks:
             "auth/${VAULT_LOGIN_APPROLE_MOUNT}/login" \
             role_id="$VAULT_LOGIN_ROLE_ID" \
             secret_id=-
-
   kv:get:
     run: once
     desc: Read a KV v2 secret and print JSON to stdout (KV_MOUNT=<mount> SECRET_PATH=<path> [SECRET_VERSION=<n>])
     summary: |
       Read a KV v2 secret at SECRET_PATH under KV_MOUNT using the Vault CLI
       and print the result as JSON.
-
       This keeps the same interface:
         KV_MOUNT=<mount>
         SECRET_PATH=<path>
         SECRET_VERSION=<n optional>
-
       The VAULT_TOKEN environment variable must be set by the caller.
       Optionally pass SECRET_VERSION to pin to a specific KV version.
-    set: [errexit, nounset, pipefail]
+    set:
+      - errexit
+      - nounset
+      - pipefail
     vars:
-      KV_MOUNT: ""
-      SECRET_PATH: ""
-      SECRET_VERSION: ""
+      KV_MOUNT: ''
+      SECRET_PATH: ''
+      SECRET_VERSION: ''
     env:
-      KV_GET_MOUNT: "{{.KV_MOUNT}}"
-      KV_GET_PATH: "{{.SECRET_PATH}}"
-      KV_GET_VERSION: "{{.SECRET_VERSION}}"
-      VAULT_ADDR: "{{.VAULT_ADDR_TARGET}}"
+      KV_GET_MOUNT: '{{.KV_MOUNT}}'
+      KV_GET_PATH: '{{.SECRET_PATH}}'
+      KV_GET_VERSION: '{{.SECRET_VERSION}}'
+      VAULT_ADDR: '{{.VAULT_ADDR_TARGET}}'
     preconditions:
       - sh: test -n "$KV_GET_MOUNT"
         msg: KV_MOUNT must be set. Pass KV_MOUNT=<mount> on the command line.
@@ -397,34 +421,36 @@ tasks:
         {{.NIX_LOAD}}
         MOUNT="${KV_GET_MOUNT#/}"
         MOUNT="${MOUNT%/}"
-
         SECRET_PATH="${KV_GET_PATH#/}"
-
         if [ -n "$KV_GET_VERSION" ]; then
           vault kv get -format=json -mount="$MOUNT" -version="$KV_GET_VERSION" "$SECRET_PATH"
         else
           vault kv get -format=json -mount="$MOUNT" "$SECRET_PATH"
         fi
-
   token:revoke-self:
     run: once
     desc: Revoke the current Vault token (VAULT_TOKEN must be set in environment)
     summary: |
       Run vault token revoke -self to revoke the token currently set in the
       VAULT_TOKEN environment variable. Auto-installs the CLI if missing.
-    set: [errexit, nounset, pipefail]
+    set:
+      - errexit
+      - nounset
+      - pipefail
     preconditions:
       - sh: test -n "${VAULT_TOKEN:-}"
         msg: VAULT_TOKEN environment variable must be set.
     cmds:
       - task: install
       - cmd: bash -lc '{{.NIX_LOAD}}; vault token revoke -address="{{.VAULT_ADDR_TARGET}}" -self'
-        platforms: [linux, darwin]
+        platforms:
+          - linux
+          - darwin
       - cmd: >-
           powershell -NoProfile -ExecutionPolicy Bypass -Command
           "{{.WINGET_LOAD}}; vault token revoke -address='{{.VAULT_ADDR_TARGET}}' -self; exit \$LASTEXITCODE"
-        platforms: [windows]
-
+        platforms:
+          - windows
   root-token:
     run: once
     desc: Print the saved Vault root token (VAULT_KEYS_FILE=path)
@@ -444,12 +470,14 @@ tasks:
           {{.NIX_LOAD}};
           jq -r '.root_token'
           "{{.VAULT_KEYS_FILE}}"
-        platforms: [linux, darwin]
+        platforms:
+          - linux
+          - darwin
       - cmd: >-
           powershell -NoProfile -ExecutionPolicy Bypass -Command
           "{{.WINGET_LOAD}}; jq -r '.root_token' '{{.VAULT_KEYS_FILE}}'; exit \$LASTEXITCODE"
-        platforms: [windows]
-
+        platforms:
+          - windows
   peers:
     run: once
     desc: List Vault Raft cluster peers
@@ -462,12 +490,14 @@ tasks:
       - task: install
     cmds:
       - cmd: bash -lc '{{.NIX_LOAD}}; vault operator raft list-peers -address="{{.VAULT_ADDR_TARGET}}"'
-        platforms: [linux, darwin]
+        platforms:
+          - linux
+          - darwin
       - cmd: >-
           powershell -NoProfile -ExecutionPolicy Bypass -Command
           "{{.WINGET_LOAD}}; vault operator raft list-peers -address='{{.VAULT_ADDR_TARGET}}'; exit \$LASTEXITCODE"
-        platforms: [windows]
-
+        platforms:
+          - windows
   snapshot:
     run: once
     desc: Save a Vault Raft snapshot (VAULT_FILE=path; root VAULT_FILE=path)
@@ -487,13 +517,15 @@ tasks:
           bash -lc '{{.NIX_LOAD}};
           vault operator raft snapshot save -address="{{.VAULT_ADDR_TARGET}}"
           "{{.FILE_TARGET}}"'
-        platforms: [linux, darwin]
+        platforms:
+          - linux
+          - darwin
       - cmd: >-
           powershell -NoProfile -ExecutionPolicy Bypass -Command
           "{{.WINGET_LOAD}}; vault operator raft snapshot save -address='{{.VAULT_ADDR_TARGET}}' '{{.FILE_TARGET}}';
           exit \$LASTEXITCODE"
-        platforms: [windows]
-
+        platforms:
+          - windows
   restore:
     run: once
     desc: Restore a Vault Raft snapshot (VAULT_FILE=path; root VAULT_FILE=path)
@@ -510,7 +542,10 @@ tasks:
     prompt:
       - This will overwrite the current Vault state with the snapshot.
       - Continue?
-    set: [errexit, nounset, pipefail]
+    set:
+      - errexit
+      - nounset
+      - pipefail
     preconditions:
       - sh: test -f "{{.FILE_TARGET}}"
         msg: >-
@@ -522,30 +557,37 @@ tasks:
           bash -lc '{{.NIX_LOAD}};
           vault operator raft snapshot restore -address="{{.VAULT_ADDR_TARGET}}"
           -force "{{.FILE_TARGET}}"'
-        platforms: [linux, darwin]
+        platforms:
+          - linux
+          - darwin
       - cmd: >-
           powershell -NoProfile -ExecutionPolicy Bypass -Command
           "{{.WINGET_LOAD}};
           vault operator raft snapshot restore -address='{{.VAULT_ADDR_TARGET}}' -force '{{.FILE_TARGET}}';
           exit \$LASTEXITCODE"
-        platforms: [windows]
-
+        platforms:
+          - windows
   _version:unix:
     run: once
     internal: true
     desc: Show Vault CLI version on macOS or Linux
     summary: Print the Vault CLI version on macOS or Linux.
-    platforms: [linux, darwin]
-    set: [errexit, nounset, pipefail]
+    platforms:
+      - linux
+      - darwin
+    set:
+      - errexit
+      - nounset
+      - pipefail
     cmds:
       - bash -lc '{{.NIX_LOAD}}; vault version'
-
   _version:windows:
     run: once
     internal: true
     desc: Show Vault CLI version on Windows
     summary: Print the Vault CLI version on Windows.
-    platforms: [windows]
+    platforms:
+      - windows
     preconditions:
       - sh: >-
           powershell -NoProfile -ExecutionPolicy Bypass -Command

@@ -1,10 +1,10 @@
 ---
-version: "3.5"
+version: '3.5'
 
 output:
   group:
-    begin: "::group::{{.TASK}}"
-    end: "::endgroup::"
+    begin: ::group::{{.TASK}}
+    end: '::endgroup::'
     error_only: false
 
 silent: true
@@ -39,7 +39,6 @@ tasks:
     summary: Display the list of available WinGet-related tasks defined in this Taskfile.
     cmds:
       - task --list
-
   install:
     run: once
     desc: Install WinGet on the current operating system
@@ -51,7 +50,6 @@ tasks:
     cmds:
       - task: _install:windows
       - task: _unix:unsupported
-
   install:package:
     desc: Install a package with WinGet (WINGET_INSTALLABLE)
     summary: |
@@ -75,25 +73,23 @@ tasks:
       - task: _winget:pkg:windows
         vars:
           WINGET_SUBCMD: install
-          WINGET_INSTALLABLE: "{{.WINGET_INSTALLABLE}}"
-          WINGET_VERSION: "{{.WINGET_VERSION}}"
-          WINGET_SCOPE: "{{.WINGET_SCOPE}}"
-          WINGET_SOURCE: "{{.WINGET_SOURCE}}"
-          WINGET_EXTRA_ARGS: "{{.WINGET_EXTRA_ARGS}}"
+          WINGET_INSTALLABLE: '{{.WINGET_INSTALLABLE}}'
+          WINGET_VERSION: '{{.WINGET_VERSION}}'
+          WINGET_SCOPE: '{{.WINGET_SCOPE}}'
+          WINGET_SOURCE: '{{.WINGET_SOURCE}}'
+          WINGET_EXTRA_ARGS: '{{.WINGET_EXTRA_ARGS}}'
       - task: _unix:unsupported
-
   install:undo:
     desc: Uninstall a WinGet package (WINGET_INSTALLABLE)
     summary: Alias for uninstall. Removes the package identified by WINGET_INSTALLABLE.
     cmds:
       - task: uninstall
         vars:
-          WINGET_INSTALLABLE: "{{.WINGET_INSTALLABLE}}"
-          WINGET_VERSION: "{{.WINGET_VERSION}}"
-          WINGET_SCOPE: "{{.WINGET_SCOPE}}"
-          WINGET_SOURCE: "{{.WINGET_SOURCE}}"
-          WINGET_EXTRA_ARGS: "{{.WINGET_EXTRA_ARGS}}"
-
+          WINGET_INSTALLABLE: '{{.WINGET_INSTALLABLE}}'
+          WINGET_VERSION: '{{.WINGET_VERSION}}'
+          WINGET_SCOPE: '{{.WINGET_SCOPE}}'
+          WINGET_SOURCE: '{{.WINGET_SOURCE}}'
+          WINGET_EXTRA_ARGS: '{{.WINGET_EXTRA_ARGS}}'
   uninstall:
     desc: Uninstall a WinGet package (WINGET_INSTALLABLE)
     summary: |
@@ -111,13 +107,12 @@ tasks:
       - task: _winget:pkg:windows
         vars:
           WINGET_SUBCMD: uninstall
-          WINGET_INSTALLABLE: "{{.WINGET_INSTALLABLE}}"
-          WINGET_VERSION: "{{.WINGET_VERSION}}"
-          WINGET_SCOPE: "{{.WINGET_SCOPE}}"
-          WINGET_SOURCE: "{{.WINGET_SOURCE}}"
-          WINGET_EXTRA_ARGS: "{{.WINGET_EXTRA_ARGS}}"
+          WINGET_INSTALLABLE: '{{.WINGET_INSTALLABLE}}'
+          WINGET_VERSION: '{{.WINGET_VERSION}}'
+          WINGET_SCOPE: '{{.WINGET_SCOPE}}'
+          WINGET_SOURCE: '{{.WINGET_SOURCE}}'
+          WINGET_EXTRA_ARGS: '{{.WINGET_EXTRA_ARGS}}'
       - task: _unix:unsupported
-
   upgrade:
     desc: Upgrade a WinGet package (WINGET_INSTALLABLE)
     summary: |
@@ -135,13 +130,12 @@ tasks:
       - task: _winget:pkg:windows
         vars:
           WINGET_SUBCMD: upgrade
-          WINGET_INSTALLABLE: "{{.WINGET_INSTALLABLE}}"
-          WINGET_VERSION: "{{.WINGET_VERSION}}"
-          WINGET_SCOPE: "{{.WINGET_SCOPE}}"
-          WINGET_SOURCE: "{{.WINGET_SOURCE}}"
-          WINGET_EXTRA_ARGS: "{{.WINGET_EXTRA_ARGS}}"
+          WINGET_INSTALLABLE: '{{.WINGET_INSTALLABLE}}'
+          WINGET_VERSION: '{{.WINGET_VERSION}}'
+          WINGET_SCOPE: '{{.WINGET_SCOPE}}'
+          WINGET_SOURCE: '{{.WINGET_SOURCE}}'
+          WINGET_EXTRA_ARGS: '{{.WINGET_EXTRA_ARGS}}'
       - task: _unix:unsupported
-
   version:
     run: once
     desc: Show the installed WinGet version
@@ -151,7 +145,6 @@ tasks:
     cmds:
       - task: _version:windows
       - task: _unix:unsupported
-
   _install:windows:
     run: once
     internal: true
@@ -159,7 +152,8 @@ tasks:
     summary: |
       Register App Installer when it is already on the machine, then bootstrap
       WinGet with Repair-WinGetPackageManager if the client is still missing.
-    platforms: [windows]
+    platforms:
+      - windows
     status:
       - >-
         powershell -NoProfile -ExecutionPolicy Bypass -Command
@@ -185,12 +179,13 @@ tasks:
         Write-Error 'WinGet is not available. Install App Installer from the Microsoft Store.';
         exit 1"
       - echo WinGet installed. Restart your terminal if winget is not yet on PATH.
-
   _winget:pkg:windows:
     internal: true
-    platforms: [windows]
+    platforms:
+      - windows
     requires:
-      vars: [WINGET_SUBCMD]
+      vars:
+        - WINGET_SUBCMD
     preconditions:
       - sh: test -n "{{.WINGET_INSTALLABLE}}"
         msg: WINGET_INSTALLABLE is required. Pass WINGET_INSTALLABLE=Git.Git.
@@ -227,13 +222,13 @@ tasks:
         if (\$sub -eq 'upgrade' -and \$code -eq -1978335189) { exit 0 };
         if (\$sub -eq 'uninstall' -and (\$code -eq -1978335212 -or \$code -eq -1978335185)) { exit 0 };
         exit \$code"
-
   _version:windows:
     run: once
     internal: true
     desc: Show WinGet version on Windows
     summary: Print winget --version after reloading Machine/User Path and WinGet Links.
-    platforms: [windows]
+    platforms:
+      - windows
     preconditions:
       - sh: >-
           powershell -NoProfile -ExecutionPolicy Bypass -Command
@@ -244,11 +239,12 @@ tasks:
       - >-
         powershell -NoProfile -ExecutionPolicy Bypass -Command
         "{{.WINGET_LOAD}}; winget --version"
-
   _unix:unsupported:
     run: once
     internal: true
-    platforms: [linux, darwin]
+    platforms:
+      - linux
+      - darwin
     cmds:
       - >-
         bash -lc 'echo "WinGet is not supported on Linux or macOS.

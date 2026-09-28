@@ -1,10 +1,10 @@
 ---
-version: "3.5"
+version: '3.5'
 
 output:
   group:
-    begin: "::group::{{.TASK}}"
-    end: "::endgroup::"
+    begin: ::group::{{.TASK}}
+    end: '::endgroup::'
     error_only: false
 
 silent: true
@@ -30,7 +30,6 @@ tasks:
     summary: Display the list of available Buf-related tasks defined in this Taskfile.
     cmds:
       - task --list
-
   install:
     run: once
     desc: Install buf via Nix (Unix) or WinGet (Windows)
@@ -44,23 +43,23 @@ tasks:
     cmds:
       - task: _install:unix
       - task: _install:windows
-
   _install:unix:
     internal: true
-    platforms: [linux, darwin]
+    platforms:
+      - linux
+      - darwin
     cmds:
       - task: nix:install:profile
         vars:
-          NIX_INSTALLABLE: "{{.BUF_NIX_INSTALLABLE}}"
-
+          NIX_INSTALLABLE: '{{.BUF_NIX_INSTALLABLE}}'
   _install:windows:
     internal: true
-    platforms: [windows]
+    platforms:
+      - windows
     cmds:
       - task: winget:install:package
         vars:
-          WINGET_INSTALLABLE: "{{.BUF_WINGET_INSTALLABLE}}"
-
+          WINGET_INSTALLABLE: '{{.BUF_WINGET_INSTALLABLE}}'
   version:
     run: once
     desc: Show the active Buf version
@@ -72,7 +71,6 @@ tasks:
     cmds:
       - task: _version:unix
       - task: _version:windows
-
   lint:
     run: once
     desc: Lint proto files with Buf (BUF_INPUT=path)
@@ -81,48 +79,45 @@ tasks:
       buf.yaml via --config, and BUF_EXTRA_ARGS for additional flags such as
       --error-format. Pass CLI arguments after -- to override targets and
       options. Auto-installs Buf if missing.
-    dir: "{{.USER_WORKING_DIR}}"
+    dir: '{{.USER_WORKING_DIR}}'
     deps:
       - task: install
     cmds:
       - task: _buf:unix
         vars:
-          BUF_SUBCOMMAND: "lint"
+          BUF_SUBCOMMAND: lint
           BUF_CONFIG_FLAG: >-
             {{if .BUF_CONFIG}}--config "{{.BUF_CONFIG}}"{{end}}
       - task: _buf:windows
         vars:
-          BUF_SUBCOMMAND: "lint"
+          BUF_SUBCOMMAND: lint
           BUF_CONFIG_FLAG: >-
             {{if .BUF_CONFIG}}--config "{{.BUF_CONFIG}}"{{end}}
       - echo "✅ buf lint passed"
-
   ci:
     run: once
     desc: Run buf fmt:check then lint
     cmds:
       - task: fmt:check
       - task: lint
-
   ci:fix:
     run: once
     desc: Format proto files in place with Buf (BUF_INPUT=path)
     summary: |
       Run buf format --write to reformat all .proto files under INPUT in
       place. Auto-installs Buf if missing.
-    dir: "{{.USER_WORKING_DIR}}"
+    dir: '{{.USER_WORKING_DIR}}'
     deps:
       - task: install
     cmds:
       - task: _buf:unix
         vars:
-          BUF_SUBCOMMAND: "format --write"
-          BUF_CONFIG_FLAG: ""
+          BUF_SUBCOMMAND: format --write
+          BUF_CONFIG_FLAG: ''
       - task: _buf:windows
         vars:
-          BUF_SUBCOMMAND: "format --write"
-          BUF_CONFIG_FLAG: ""
-
+          BUF_SUBCOMMAND: format --write
+          BUF_CONFIG_FLAG: ''
   fmt:check:
     run: once
     desc: Check proto file formatting with Buf (BUF_INPUT=path)
@@ -130,24 +125,25 @@ tasks:
       Run buf format --diff to report formatting issues without modifying files.
       Pass INPUT to check a specific directory or module. Use ci:fix to
       apply fixes. Auto-installs Buf if missing.
-    dir: "{{.USER_WORKING_DIR}}"
+    dir: '{{.USER_WORKING_DIR}}'
     deps:
       - task: install
     cmds:
       - task: _buf:unix
         vars:
-          BUF_SUBCOMMAND: "format --diff"
-          BUF_CONFIG_FLAG: ""
+          BUF_SUBCOMMAND: format --diff
+          BUF_CONFIG_FLAG: ''
       - task: _buf:windows
         vars:
-          BUF_SUBCOMMAND: "format --diff"
-          BUF_CONFIG_FLAG: ""
+          BUF_SUBCOMMAND: format --diff
+          BUF_CONFIG_FLAG: ''
       - echo "✅ buf format check passed"
-
   _buf:unix:
     run: once
     internal: true
-    platforms: [linux, darwin]
+    platforms:
+      - linux
+      - darwin
     cmds:
       - |
         {{.NIX_LOAD}}
@@ -155,11 +151,11 @@ tasks:
         buf {{.BUF_SUBCOMMAND}} {{.BUF_CONFIG_FLAG}} \
           {{if .CLI_ARGS}}{{.CLI_ARGS}}{{else}}"$input" \
           {{.BUF_EXTRA_ARGS}}{{end}}
-
   _buf:windows:
     run: once
     internal: true
-    platforms: [windows]
+    platforms:
+      - windows
     cmds:
       - >-
         powershell -NoProfile -ExecutionPolicy Bypass -Command
@@ -168,7 +164,6 @@ tasks:
           {{if .CLI_ARGS}}{{.CLI_ARGS}}{{else}}\$inputPath
           {{.BUF_EXTRA_ARGS}}{{end}};
         exit \$LASTEXITCODE"
-
   breaking:
     run: once
     desc: Check proto files for breaking changes against AGAINST
@@ -180,22 +175,21 @@ tasks:
       Buf if missing.
     deps:
       - task: install
-    dir: "{{.USER_WORKING_DIR}}"
+    dir: '{{.USER_WORKING_DIR}}'
     cmds:
       - task: _buf:unix
         vars:
-          BUF_SUBCOMMAND: "breaking"
+          BUF_SUBCOMMAND: breaking
           BUF_CONFIG_FLAG: >-
             {{if not .CLI_ARGS}}--against
             "{{.BUF_AGAINST}}"{{end}}
       - task: _buf:windows
         vars:
-          BUF_SUBCOMMAND: "breaking"
+          BUF_SUBCOMMAND: breaking
           BUF_CONFIG_FLAG: >-
             {{if not .CLI_ARGS}}--against
             "{{.BUF_AGAINST}}"{{end}}
       - echo "✅ buf breaking check passed"
-
   generate:
     run: once
     desc: Generate code from proto files with Buf (BUF_INPUT=path)
@@ -214,29 +208,33 @@ tasks:
           "{{.BUF_INPUT}}"
           {{.BUF_EXTRA_ARGS}}{{end}}
           && echo "✅ buf generate passed" || { echo "❌ buf generate failed"; exit 1; }'
-        platforms: [linux, darwin]
+        platforms:
+          - linux
+          - darwin
       - cmd: >-
           powershell -NoProfile -ExecutionPolicy Bypass -Command
           "{{.WINGET_LOAD}};
           buf generate {{if .CLI_ARGS}}{{.CLI_ARGS}} {{else}} '{{.BUF_INPUT}}' {{.BUF_EXTRA_ARGS}}{{end}};
           exit \$LASTEXITCODE"
-        platforms: [windows]
-
+        platforms:
+          - windows
   _version:unix:
     run: once
     internal: true
     desc: Show Buf version on macOS or Linux
     summary: Print the Buf version on macOS or Linux.
-    platforms: [linux, darwin]
+    platforms:
+      - linux
+      - darwin
     cmds:
       - bash -lc '{{.NIX_LOAD}}; buf --version'
-
   _version:windows:
     run: once
     internal: true
     desc: Show Buf version on Windows
     summary: Print the Buf version on Windows.
-    platforms: [windows]
+    platforms:
+      - windows
     preconditions:
       - sh: >-
           powershell -NoProfile -ExecutionPolicy Bypass -Command

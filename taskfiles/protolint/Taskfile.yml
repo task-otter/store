@@ -1,10 +1,10 @@
 ---
-version: "3.5"
+version: '3.5'
 
 output:
   group:
-    begin: "::group::{{.TASK}}"
-    end: "::endgroup::"
+    begin: ::group::{{.TASK}}
+    end: '::endgroup::'
     error_only: false
 
 silent: true
@@ -30,7 +30,6 @@ tasks:
     summary: Display the list of available protolint-related tasks defined in this Taskfile.
     cmds:
       - task --list
-
   install:
     run: once
     desc: Install protolint via Nix (Unix) or go install (Windows)
@@ -42,20 +41,21 @@ tasks:
     cmds:
       - task: _install:unix
       - task: _install:windows
-
   _install:unix:
     internal: true
-    platforms: [linux, darwin]
+    platforms:
+      - linux
+      - darwin
     status:
       - command -v protolint >/dev/null 2>&1
     cmds:
       - task: nix:install:profile
         vars:
-          NIX_INSTALLABLE: "{{.PROTOLINT_NIX_INSTALLABLE}}"
-
+          NIX_INSTALLABLE: '{{.PROTOLINT_NIX_INSTALLABLE}}'
   _install:windows:
     internal: true
-    platforms: [windows]
+    platforms:
+      - windows
     status:
       - >-
         powershell -NoProfile -ExecutionPolicy Bypass -Command
@@ -63,8 +63,7 @@ tasks:
     cmds:
       - task: go:install:pkg
         vars:
-          GO_PKG: "{{.PROTOLINT_GO_PKG}}"
-
+          GO_PKG: '{{.PROTOLINT_GO_PKG}}'
   version:
     run: once
     desc: Show the active protolint version
@@ -77,7 +76,6 @@ tasks:
     cmds:
       - task: _version:unix
       - task: _version:windows
-
   ci:
     run: once
     desc: Lint protobuf files with protolint (PROTOLINT_TARGETS=path)
@@ -85,14 +83,13 @@ tasks:
       Run protolint lint against PROTOLINT_TARGETS (default: .). Pass PROTOLINT_EXTRA_ARGS for
       protolint options such as -config_path or -reporter json.
       Auto-installs Go and protolint if needed.
-    dir: "{{.USER_WORKING_DIR}}"
+    dir: '{{.USER_WORKING_DIR}}'
     deps:
       - task: go:install
       - task: install
     cmds:
       - task: _lint:unix
       - task: _lint:windows
-
   ci:fix:
     run: once
     desc: Fix protobuf lint issues with protolint (PROTOLINT_TARGETS=path)
@@ -100,65 +97,68 @@ tasks:
       Run protolint lint -fix against PROTOLINT_TARGETS (default: .) to apply automatic
       fixes for fixable lint violations. Pass PROTOLINT_EXTRA_ARGS for protolint options.
       Auto-installs Go and protolint if needed.
-    dir: "{{.USER_WORKING_DIR}}"
+    dir: '{{.USER_WORKING_DIR}}'
     deps:
       - task: go:install
       - task: install
     cmds:
       - task: _fix:unix
       - task: _fix:windows
-
   _lint:unix:
     run: once
     internal: true
-    platforms: [linux, darwin]
+    platforms:
+      - linux
+      - darwin
     cmds:
       - task: _lint:run:unix
         vars:
-          PROTOLINT_FIX_FLAG: ""
-
+          PROTOLINT_FIX_FLAG: ''
   _lint:windows:
     run: once
     internal: true
-    platforms: [windows]
+    platforms:
+      - windows
     cmds:
       - task: _lint:run:windows
         vars:
-          PROTOLINT_FIX_FLAG: ""
-
+          PROTOLINT_FIX_FLAG: ''
   _fix:unix:
     run: once
     internal: true
-    platforms: [linux, darwin]
+    platforms:
+      - linux
+      - darwin
     cmds:
       - task: _lint:run:unix
         vars:
-          PROTOLINT_FIX_FLAG: "-fix"
-
+          PROTOLINT_FIX_FLAG: -fix
   _fix:windows:
     run: once
     internal: true
-    platforms: [windows]
+    platforms:
+      - windows
     cmds:
       - task: _lint:run:windows
         vars:
-          PROTOLINT_FIX_FLAG: "-fix"
-
+          PROTOLINT_FIX_FLAG: -fix
   _lint:run:unix:
     run: once
     internal: true
-    platforms: [linux, darwin]
+    platforms:
+      - linux
+      - darwin
     cmds:
       - |
         bash -lc '{{.NIX_LOAD}};
         protolint lint {{.PROTOLINT_FIX_FLAG}} \
           {{.PROTOLINT_EXTRA_ARGS}} \
           "{{.PROTOLINT_TARGETS}}"'
-
   _lint:run:windows:
     run: once
     internal: true
-    platforms: [windows]
+    platforms:
+      - windows
     preconditions:
       - sh: >-
           powershell -NoProfile -ExecutionPolicy Bypass -Command
@@ -172,22 +172,23 @@ tasks:
         protolint lint {{.PROTOLINT_FIX_FLAG}}
           {{.PROTOLINT_EXTRA_ARGS}} \$target;
         exit \$LASTEXITCODE"
-
   _version:unix:
     run: once
     internal: true
     desc: Show protolint version on macOS or Linux
     summary: Print the protolint version on macOS or Linux.
-    platforms: [linux, darwin]
+    platforms:
+      - linux
+      - darwin
     cmds:
       - bash -lc '{{.NIX_LOAD}}; protolint version'
-
   _version:windows:
     run: once
     internal: true
     desc: Show protolint version on Windows
     summary: Print the protolint version on Windows.
-    platforms: [windows]
+    platforms:
+      - windows
     preconditions:
       - sh: >-
           powershell -NoProfile -ExecutionPolicy Bypass -Command

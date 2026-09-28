@@ -2,6 +2,7 @@
 schema: taskotter.dev/taskfile-metadata/v1
 module: gh
 taskfile: Taskfile.yml
+
 exported_tasks:
   - alias:delete
   - alias:list

@@ -2,6 +2,7 @@
 schema: taskotter.dev/taskfile-metadata/v1
 module: eslint
 taskfile: Taskfile.yml
+
 exported_tasks:
   - cache:clean
   - ci
@@ -12,4 +13,9 @@ exported_tasks:
   - install:undo
   - upgrade
   - version
-variants: [bun, node/npm, node/pnpm, node/yarn]
+
+variants:
+  - bun
+  - node/npm
+  - node/pnpm
+  - node/yarn

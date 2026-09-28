@@ -1,10 +1,10 @@
 ---
-version: "3.5"
+version: '3.5'
 
 output:
   group:
-    begin: "::group::{{.TASK}}"
-    end: "::endgroup::"
+    begin: ::group::{{.TASK}}
+    end: '::endgroup::'
     error_only: false
 
 silent: true
@@ -28,7 +28,6 @@ tasks:
     summary: Display the list of available ShellCheck-related tasks defined in this Taskfile.
     cmds:
       - task --list
-
   install:
     run: once
     desc: Install ShellCheck via Nix (Unix) or WinGet (Windows)
@@ -42,23 +41,23 @@ tasks:
     cmds:
       - task: _install:unix
       - task: _install:windows
-
   _install:unix:
     internal: true
-    platforms: [linux, darwin]
+    platforms:
+      - linux
+      - darwin
     cmds:
       - task: nix:install:profile
         vars:
-          NIX_INSTALLABLE: "{{.SHELLCHECK_NIX_INSTALLABLE}}"
-
+          NIX_INSTALLABLE: '{{.SHELLCHECK_NIX_INSTALLABLE}}'
   _install:windows:
     internal: true
-    platforms: [windows]
+    platforms:
+      - windows
     cmds:
       - task: winget:install:package
         vars:
-          WINGET_INSTALLABLE: "{{.SHELLCHECK_WINGET_INSTALLABLE}}"
-
+          WINGET_INSTALLABLE: '{{.SHELLCHECK_WINGET_INSTALLABLE}}'
   version:
     run: once
     desc: Show the active ShellCheck version
@@ -70,7 +69,6 @@ tasks:
     cmds:
       - task: _version:unix
       - task: _version:windows
-
   ci:
     run: once
     desc: Lint shell scripts with ShellCheck (SHELLCHECK_TARGETS=glob)
@@ -80,28 +78,29 @@ tasks:
       Pass explicit paths or globs to check specific scripts. Pass SHELLCHECK_EXTRA_ARGS
       for additional flags such as --shell or --severity, or CLI arguments
       after -- to override all variables directly. Auto-installs ShellCheck if missing.
-    dir: "{{.USER_WORKING_DIR}}"
+    dir: '{{.USER_WORKING_DIR}}'
     deps:
       - task: install
     cmds:
       - task: _lint:unix
       - task: _lint:windows
-
   _version:unix:
     run: once
     internal: true
     desc: Show ShellCheck version on macOS or Linux
     summary: Print the ShellCheck version on macOS or Linux.
-    platforms: [linux, darwin]
+    platforms:
+      - linux
+      - darwin
     cmds:
       - bash -lc '{{.NIX_LOAD}}; shellcheck --version'
-
   _version:windows:
     run: once
     internal: true
     desc: Show ShellCheck version on Windows
     summary: Print the ShellCheck version on Windows.
-    platforms: [windows]
+    platforms:
+      - windows
     preconditions:
       - sh: >-
           powershell -NoProfile -ExecutionPolicy Bypass -Command
@@ -112,12 +111,13 @@ tasks:
       - >-
         powershell -NoProfile -ExecutionPolicy Bypass -Command
         "{{.WINGET_LOAD}}; shellcheck --version; exit \$LASTEXITCODE"
-
   _lint:unix:
     run: once
     internal: true
-    platforms: [darwin, linux]
-    dir: "{{.USER_WORKING_DIR}}"
+    platforms:
+      - darwin
+      - linux
+    dir: '{{.USER_WORKING_DIR}}'
     cmds:
       - |
         bash -lc '{{.NIX_LOAD}};
@@ -125,13 +125,11 @@ tasks:
           shellcheck {{.CLI_ARGS}} && echo "✅ shellcheck passed" || { echo "❌ shellcheck failed"; exit 1; }
           exit
         fi
-
         extra="{{.SHELLCHECK_EXTRA_ARGS}}"
         targets="{{.SHELLCHECK_TARGETS}}
         "
         file_list="$(mktemp)"
         trap '"'"'rm -f "$file_list"'"'"' EXIT
-
         if [ -z "$targets" ]; then
           find . -type f \( -name "*.sh" -o -name "*.bash" \) ! -path "*/.git/*" -print0
         else
@@ -143,19 +141,17 @@ tasks:
             fi
           done
         fi >"$file_list"
-
         if [ ! -s "$file_list" ]; then
           echo "✅ shellcheck passed (no matching shell scripts found)"
           exit 0
         fi
-
         xargs -0 shellcheck $extra <"$file_list"
         echo "✅ shellcheck passed"'
-
   _lint:windows:
     run: once
     internal: true
-    platforms: [windows]
+    platforms:
+      - windows
     cmds:
       - >-
         powershell -NoProfile -ExecutionPolicy Bypass -Command

@@ -1,10 +1,10 @@
 ---
-version: "3.5"
+version: '3.5'
 
 output:
   group:
-    begin: "::group::{{.TASK}}"
-    end: "::endgroup::"
+    begin: ::group::{{.TASK}}
+    end: '::endgroup::'
     error_only: false
 
 silent: true
@@ -28,10 +28,9 @@ tasks:
     desc: Show available Prettier tasks
     cmds:
       - task --list
-
   install:
     run: once
-    dir: "{{.USER_WORKING_DIR}}"
+    dir: '{{.USER_WORKING_DIR}}'
     desc: Install Prettier as a local devDependency
     summary: |
       Install prettier as a local devDependency. Pass PRETTIER_VERSION=x.y.z to pin a
@@ -47,9 +46,8 @@ tasks:
     cmds:
       - task: yarn:add
         vars:
-          PACKAGES: 'prettier{{if .RESOLVED_VERSION}}@{{.RESOLVED_VERSION}}{{end}}'
+          PACKAGES: prettier{{if .RESOLVED_VERSION}}@{{.RESOLVED_VERSION}}{{end}}
           EXTRA_ARGS: '{{.RESOLVED_EXTRA_ARGS}}{{if .CLI_ARGS}} {{.CLI_ARGS}}{{end}}'
-
   install:undo:
     run: once
     desc: Remove the locally installed Prettier devDependency
@@ -62,7 +60,6 @@ tasks:
         vars:
           PACKAGES: prettier
           EXTRA_ARGS: '{{.PRETTIER_EXTRA_ARGS}}'
-
   upgrade:
     run: once
     desc: Upgrade Prettier to the latest release
@@ -72,20 +69,19 @@ tasks:
         vars:
           PACKAGES: prettier@latest
           EXTRA_ARGS: '{{.PRETTIER_EXTRA_ARGS}}'
-
   config:init:
     run: once
-    dir: "{{.USER_WORKING_DIR}}"
+    dir: '{{.USER_WORKING_DIR}}'
     desc: Create a starter Prettier config when none exists
     vars:
       PRETTIER_CONFIG_PATH: '{{or .PRETTIER_CONFIG ".prettierrc.json"}}'
     status:
       - test -f "{{.PRETTIER_CONFIG_PATH}}"
     cmds:
-      - "printf '{\\n' > \"{{.PRETTIER_CONFIG_PATH}}\""
+      - printf '{\n' > "{{.PRETTIER_CONFIG_PATH}}"
       - "printf '  \"singleQuote\": true,\\n' >> \"{{.PRETTIER_CONFIG_PATH}}\""
       - "printf '  \"semi\": true\\n' >> \"{{.PRETTIER_CONFIG_PATH}}\""
-      - "printf '}\\n' >> \"{{.PRETTIER_CONFIG_PATH}}\""
+      - printf '}\n' >> "{{.PRETTIER_CONFIG_PATH}}"
       - echo 'Created {{.PRETTIER_CONFIG_PATH}}.'
 
   # Shared implementation of fmt:check / ci:fix. Each override is resolved exactly
@@ -108,25 +104,22 @@ tasks:
             {{- if .RESOLVED_CONFIG}} --config "{{.RESOLVED_CONFIG}}"{{end}}
           PRETTIER_IGNORE_PATH: '{{.RESOLVED_IGNORE_PATH}}'
           PRETTIER_EXTRA_ARGS: '{{.RESOLVED_EXTRA_ARGS}}{{if .CLI_ARGS}} {{.CLI_ARGS}}{{end}}'
-
   fmt:check:
     run: once
     desc: Check formatting with Prettier
     cmds:
       - task: _run
         vars:
-          MODE_ARGS: "--check"
+          MODE_ARGS: --check
       - echo "✅ prettier passed"
-
   ci:fix:
     run: once
     desc: Format files with Prettier
     cmds:
       - task: _run
         vars:
-          MODE_ARGS: "--write"
+          MODE_ARGS: --write
       - echo "✅ prettier fixes applied"
-
   version:
     run: once
     desc: Show the locally resolved Prettier version
@@ -136,8 +129,7 @@ tasks:
       - task: yarn:exec
         vars:
           BINARY: prettier
-          ARGS: "--version"
-
+          ARGS: --version
   help:
     run: once
     desc: Show Prettier CLI help
@@ -147,18 +139,18 @@ tasks:
       - task: yarn:exec
         vars:
           BINARY: prettier
-          ARGS: "--help"
+          ARGS: --help
           EXTRA_ARGS: >-
             {{.PRETTIER_EXTRA_ARGS}}{{if .CLI_ARGS}} {{.CLI_ARGS}}{{end}}
-
   _exec:ignore:
     run: once
     internal: true
     desc: Execute a local project binary and include an ignore file when present
     requires:
-      vars: [BINARY]
+      vars:
+        - BINARY
     vars:
-      IGNORE_FLAG: "--ignore-path"
+      IGNORE_FLAG: --ignore-path
       _IGNORE_ARGS:
         sh: |
           if [ -n "{{.PRETTIER_IGNORE_PATH}}" ] && [ -f "{{.PRETTIER_IGNORE_PATH}}" ]; then
@@ -167,6 +159,6 @@ tasks:
     cmds:
       - task: yarn:exec
         vars:
-          BINARY: "{{.BINARY}}"
-          ARGS: "{{.ARGS}} {{._IGNORE_ARGS}}"
-          EXTRA_ARGS: "{{.PRETTIER_EXTRA_ARGS}}{{if .CLI_ARGS}} {{.CLI_ARGS}}{{end}}"
+          BINARY: '{{.BINARY}}'
+          ARGS: '{{.ARGS}} {{._IGNORE_ARGS}}'
+          EXTRA_ARGS: '{{.PRETTIER_EXTRA_ARGS}}{{if .CLI_ARGS}} {{.CLI_ARGS}}{{end}}'

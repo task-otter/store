@@ -2,6 +2,7 @@
 schema: taskotter.dev/taskfile-metadata/v1
 module: ansible
 taskfile: Taskfile.yml
+
 exported_tasks:
   - galaxy:install
   - install

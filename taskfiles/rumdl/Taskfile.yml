@@ -1,10 +1,10 @@
 ---
-version: "3.5"
+version: '3.5'
 
 output:
   group:
-    begin: "::group::{{.TASK}}"
-    end: "::endgroup::"
+    begin: ::group::{{.TASK}}
+    end: '::endgroup::'
     error_only: false
 
 silent: true
@@ -28,7 +28,6 @@ tasks:
     summary: Display the list of available rumdl-related tasks defined in this Taskfile.
     cmds:
       - task --list
-
   install:
     run: once
     desc: Install rumdl via Nix (Unix) or WinGet (Windows)
@@ -42,23 +41,23 @@ tasks:
     cmds:
       - task: _install:unix
       - task: _install:windows
-
   _install:unix:
     internal: true
-    platforms: [linux, darwin]
+    platforms:
+      - linux
+      - darwin
     cmds:
       - task: nix:install:profile
         vars:
-          NIX_INSTALLABLE: "{{.RUMDL_NIX_INSTALLABLE}}"
-
+          NIX_INSTALLABLE: '{{.RUMDL_NIX_INSTALLABLE}}'
   _install:windows:
     internal: true
-    platforms: [windows]
+    platforms:
+      - windows
     cmds:
       - task: winget:install:package
         vars:
-          WINGET_INSTALLABLE: "{{.RUMDL_WINGET_INSTALLABLE}}"
-
+          WINGET_INSTALLABLE: '{{.RUMDL_WINGET_INSTALLABLE}}'
   version:
     run: once
     desc: Show the active rumdl version
@@ -70,22 +69,23 @@ tasks:
     cmds:
       - task: _version:unix
       - task: _version:windows
-
   _version:unix:
     run: once
     internal: true
     desc: Show rumdl version on macOS or Linux
     summary: Print the rumdl version on macOS or Linux.
-    platforms: [linux, darwin]
+    platforms:
+      - linux
+      - darwin
     cmds:
       - bash -lc '{{.NIX_LOAD}}; rumdl --version'
-
   _version:windows:
     run: once
     internal: true
     desc: Show rumdl version on Windows
     summary: Print the rumdl version on Windows.
-    platforms: [windows]
+    platforms:
+      - windows
     preconditions:
       - sh: >-
           powershell -NoProfile -ExecutionPolicy Bypass -Command
@@ -103,7 +103,7 @@ tasks:
   _run:
     internal: true
     run: when_changed
-    dir: "{{.USER_WORKING_DIR}}"
+    dir: '{{.USER_WORKING_DIR}}'
     deps:
       - task: install
     vars:
@@ -114,14 +114,16 @@ tasks:
           bash -lc '{{.NIX_LOAD}};
           rumdl {{.SUBCMD}}
           {{.PATHS}}{{if .EXTRA}} {{.EXTRA}}{{end}}{{.TAIL}}'
-        platforms: [linux, darwin]
+        platforms:
+          - linux
+          - darwin
       - cmd: >-
           powershell -NoProfile -ExecutionPolicy Bypass -Command
           "{{.WINGET_LOAD}};
           rumdl {{.SUBCMD}} {{.PATHS}}{{if .EXTRA}} {{.EXTRA}}{{end}};
           exit \$LASTEXITCODE"
-        platforms: [windows]
-
+        platforms:
+          - windows
   ci:
     run: once
     desc: Lint Markdown files with rumdl (RUMDL_TARGETS=path)
@@ -133,7 +135,6 @@ tasks:
         vars:
           SUBCMD: check
           TAIL: ' && echo "✅ rumdl passed" || { echo "❌ rumdl failed"; exit 1; }'
-
   lint:fix:
     run: once
     desc: Fix Markdown lint issues with rumdl (RUMDL_TARGETS=path)
@@ -146,7 +147,6 @@ tasks:
       - task: _run
         vars:
           SUBCMD: check --fix
-
   ci:fix:
     run: once
     desc: Run fmt then lint:fix for CI
@@ -156,7 +156,6 @@ tasks:
     cmds:
       - task: fmt
       - task: lint:fix
-
   fmt:
     run: once
     desc: Format Markdown files with rumdl (RUMDL_TARGETS=path)

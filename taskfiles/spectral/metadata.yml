@@ -2,6 +2,7 @@
 schema: taskotter.dev/taskfile-metadata/v1
 module: spectral
 taskfile: Taskfile.yml
+
 exported_tasks:
   - ci
   - config:init
@@ -10,4 +11,9 @@ exported_tasks:
   - install:undo
   - upgrade
   - version
-variants: [bun, node/npm, node/pnpm, node/yarn]
+
+variants:
+  - bun
+  - node/npm
+  - node/pnpm
+  - node/yarn

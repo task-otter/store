@@ -1,10 +1,10 @@
 ---
-version: "3.5"
+version: '3.5'
 
 output:
   group:
-    begin: "::group::{{.TASK}}"
-    end: "::endgroup::"
+    begin: ::group::{{.TASK}}
+    end: '::endgroup::'
     error_only: false
 
 silent: true
@@ -26,7 +26,6 @@ tasks:
     summary: Display the list of available jq-related tasks defined in this Taskfile.
     cmds:
       - task --list
-
   install:
     run: once
     desc: Install jq via Nix (Unix) or WinGet (Windows)
@@ -40,23 +39,23 @@ tasks:
     cmds:
       - task: _install:unix
       - task: _install:windows
-
   _install:unix:
     internal: true
-    platforms: [linux, darwin]
+    platforms:
+      - linux
+      - darwin
     cmds:
       - task: nix:install:profile
         vars:
-          NIX_INSTALLABLE: "{{.JQ_NIX_INSTALLABLE}}"
-
+          NIX_INSTALLABLE: '{{.JQ_NIX_INSTALLABLE}}'
   _install:windows:
     internal: true
-    platforms: [windows]
+    platforms:
+      - windows
     cmds:
       - task: winget:install:package
         vars:
-          WINGET_INSTALLABLE: "{{.JQ_WINGET_INSTALLABLE}}"
-
+          WINGET_INSTALLABLE: '{{.JQ_WINGET_INSTALLABLE}}'
   version:
     run: once
     desc: Show the active jq version
@@ -68,22 +67,23 @@ tasks:
     cmds:
       - task: _version:unix
       - task: _version:windows
-
   _version:unix:
     run: once
     internal: true
     desc: Show jq version on macOS or Linux
     summary: Print the jq version on macOS or Linux.
-    platforms: [linux, darwin]
+    platforms:
+      - linux
+      - darwin
     cmds:
       - bash -lc '{{.NIX_LOAD}}; jq --version'
-
   _version:windows:
     run: once
     internal: true
     desc: Show jq version on Windows
     summary: Print the jq version on Windows.
-    platforms: [windows]
+    platforms:
+      - windows
     preconditions:
       - sh: >-
           powershell -NoProfile -ExecutionPolicy Bypass -Command

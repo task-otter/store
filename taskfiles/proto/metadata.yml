@@ -2,4 +2,9 @@
 schema: taskotter.dev/taskfile-metadata/v1
 module: proto
 taskfile: Taskfile.yml
-exported_tasks: [gen, install, ungen, version]
+
+exported_tasks:
+  - gen
+  - install
+  - ungen
+  - version

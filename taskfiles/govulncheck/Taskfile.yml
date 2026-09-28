@@ -1,23 +1,24 @@
 ---
-version: "3.5"
+version: '3.5'
+
 output:
-
   group:
-    begin: "::group::{{.TASK}}"
-    end: "::endgroup::"
+    begin: ::group::{{.TASK}}
+    end: '::endgroup::'
     error_only: false
-silent: true
-includes:
 
+silent: true
+
+includes:
   go:
     taskfile: ../go/Taskfile.yml
   nix:
     taskfile: ../nix/Taskfile.yml
+
 vars:
-
   GOVULNCHECK_NIX_INSTALLABLE: '{{.GOVULNCHECK_NIX_INSTALLABLE | default "nixpkgs#go nixpkgs#govulncheck"}}'
-
   GOVULNCHECK_GO_PKG: '{{.GOVULNCHECK_GO_PKG | default "golang.org/x/vuln/cmd/govulncheck@latest"}}'
+
 tasks:
   default:
     run: once
@@ -25,7 +26,6 @@ tasks:
     summary: Display the list of available govulncheck-related tasks defined in this Taskfile.
     cmds:
       - task --list
-
   ci:
     run: once
     desc: Scan Go packages with govulncheck
@@ -37,7 +37,6 @@ tasks:
       - task: install
     cmds:
       - task: _scan
-
   install:
     run: once
     desc: Install govulncheck via Nix (Unix) or go install (Windows)
@@ -52,23 +51,23 @@ tasks:
     cmds:
       - task: _install:unix
       - task: _install:windows
-
   _install:unix:
     internal: true
-    platforms: [linux, darwin]
+    platforms:
+      - linux
+      - darwin
     cmds:
       - task: nix:install:profile
         vars:
-          NIX_INSTALLABLE: "{{.GOVULNCHECK_NIX_INSTALLABLE}}"
-
+          NIX_INSTALLABLE: '{{.GOVULNCHECK_NIX_INSTALLABLE}}'
   _install:windows:
     internal: true
-    platforms: [windows]
+    platforms:
+      - windows
     cmds:
       - task: go:install:pkg
         vars:
-          GO_PKG: "{{.GOVULNCHECK_GO_PKG}}"
-
+          GO_PKG: '{{.GOVULNCHECK_GO_PKG}}'
   version:
     run: once
     desc: Show the active govulncheck version
@@ -80,16 +79,17 @@ tasks:
     cmds:
       - task: _version:unix
       - task: _version:windows
-
   _scan:
     internal: true
-    dir: "{{.USER_WORKING_DIR}}"
+    dir: '{{.USER_WORKING_DIR}}'
     cmds:
       - cmd: |
           bash -lc '{{.NIX_LOAD}};
           govulncheck \
             {{if .CLI_ARGS}}{{.CLI_ARGS}}{{else}}./...{{end}}'
-        platforms: [linux, darwin]
+        platforms:
+          - linux
+          - darwin
       # GO_LOAD puts GOPATH\bin on PATH after go:install:pkg in this Task process.
       - cmd: >-
           powershell -NoProfile -ExecutionPolicy Bypass -Command
@@ -98,23 +98,25 @@ tasks:
           [System.StringSplitOptions]::RemoveEmptyEntries);
           & govulncheck @scanArgs;
           exit \$LASTEXITCODE"
-        platforms: [windows]
-
+        platforms:
+          - windows
   _version:unix:
     run: once
     internal: true
     desc: Show govulncheck version on macOS or Linux
     summary: Print the govulncheck version on macOS or Linux.
-    platforms: [linux, darwin]
+    platforms:
+      - linux
+      - darwin
     cmds:
       - bash -lc '{{.NIX_LOAD}}; govulncheck -version'
-
   _version:windows:
     run: once
     internal: true
     desc: Show govulncheck version on Windows
     summary: Print the govulncheck version on Windows.
-    platforms: [windows]
+    platforms:
+      - windows
     preconditions:
       - sh: >-
           powershell -NoProfile -ExecutionPolicy Bypass -Command

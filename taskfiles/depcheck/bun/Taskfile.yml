@@ -1,10 +1,10 @@
 ---
-version: "3.5"
+version: '3.5'
 
 output:
   group:
-    begin: "::group::{{.TASK}}"
-    end: "::endgroup::"
+    begin: ::group::{{.TASK}}
+    end: '::endgroup::'
     error_only: false
 
 silent: true
@@ -27,10 +27,9 @@ tasks:
     desc: Show available Depcheck tasks
     cmds:
       - task --list
-
   install:
     run: once
-    dir: "{{.USER_WORKING_DIR}}"
+    dir: '{{.USER_WORKING_DIR}}'
     desc: Install Depcheck as a local devDependency
     summary: |
       Install depcheck as a local devDependency. Pass DEPCHECK_VERSION=x.y.z to pin a
@@ -53,7 +52,6 @@ tasks:
           ARGS: >-
             add -d --silent depcheck{{if .RESOLVED_VERSION}}@{{.RESOLVED_VERSION}}{{end}}
             {{.DEPCHECK_EXTRA_ARGS}}{{if .CLI_ARGS}} {{.CLI_ARGS}}{{end}}
-
   install:undo:
     run: once
     desc: Remove the locally installed Depcheck devDependency
@@ -68,7 +66,6 @@ tasks:
       - task: _bun:windows
         vars:
           ARGS: remove --silent depcheck {{.DEPCHECK_EXTRA_ARGS}}
-
   upgrade:
     run: once
     desc: Upgrade Depcheck to the latest release
@@ -102,15 +99,13 @@ tasks:
             x depcheck {{.RESOLVED_PATH}}
             {{- if .MODE_ARGS}} {{.MODE_ARGS}}{{end}}
             {{.DEPCHECK_EXTRA_ARGS}}{{if .CLI_ARGS}} {{.CLI_ARGS}}{{end}}
-
   json:
     run: once
     desc: Run Depcheck and print JSON output
     cmds:
       - task: _run
         vars:
-          MODE_ARGS: "--json"
-
+          MODE_ARGS: --json
   ignores:
     run: once
     desc: Run Depcheck while ignoring packages from DEPCHECK_IGNORE_PACKAGES
@@ -120,16 +115,14 @@ tasks:
     cmds:
       - task: _run
         vars:
-          MODE_ARGS: '--ignores="{{.DEPCHECK_IGNORE_PACKAGES}}"'
-
+          MODE_ARGS: --ignores="{{.DEPCHECK_IGNORE_PACKAGES}}"
   skip-missing:
     run: once
     desc: Run Depcheck while ignoring missing dependency reports
     cmds:
       - task: _run
         vars:
-          MODE_ARGS: "--skip-missing=true"
-
+          MODE_ARGS: --skip-missing=true
   ci:
     run: once
     desc: Run Depcheck with CI failure on dependency findings
@@ -137,9 +130,8 @@ tasks:
     cmds:
       - task: _run
         vars:
-          MODE_ARGS: ""
+          MODE_ARGS: ''
       - echo "✅ depcheck ci passed"
-
   version:
     run: once
     desc: Show the locally resolved Depcheck version
@@ -150,7 +142,6 @@ tasks:
       - task: _bun:windows
         vars:
           ARGS: x depcheck --version
-
   help:
     run: once
     desc: Show Depcheck CLI help
@@ -165,36 +156,41 @@ tasks:
           ARGS: >-
             x depcheck --help
             {{.DEPCHECK_EXTRA_ARGS}}{{if .CLI_ARGS}} {{.CLI_ARGS}}{{end}}
-
-
   _bun:unix:
     run: when_changed
     internal: true
-    platforms: [linux, darwin]
-    dir: "{{.USER_WORKING_DIR}}"
-    set: [errexit, nounset, pipefail]
+    platforms:
+      - linux
+      - darwin
+    dir: '{{.USER_WORKING_DIR}}'
+    set:
+      - errexit
+      - nounset
+      - pipefail
     requires:
-      vars: [ARGS]
+      vars:
+        - ARGS
     deps:
       - task: bun:install
     env:
-      CI: "1"
+      CI: '1'
     cmds:
       - task: bun:_run:unix
         vars:
-          ARGS: "{{.ARGS}}"
-
+          ARGS: '{{.ARGS}}'
   _bun:windows:
     run: when_changed
     internal: true
-    platforms: [windows]
-    dir: "{{.USER_WORKING_DIR}}"
+    platforms:
+      - windows
+    dir: '{{.USER_WORKING_DIR}}'
     requires:
-      vars: [ARGS]
+      vars:
+        - ARGS
     deps:
       - task: bun:install
     env:
-      CI: "1"
+      CI: '1'
     cmds:
       - >-
         powershell -NoProfile -NonInteractive -ExecutionPolicy Bypass -Command

@@ -2,4 +2,8 @@
 schema: taskotter.dev/taskfile-metadata/v1
 module: actionlint
 taskfile: Taskfile.yml
-exported_tasks: [ci, install, version]
+
+exported_tasks:
+  - ci
+  - install
+  - version

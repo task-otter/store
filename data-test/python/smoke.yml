@@ -1,2 +1,3 @@
 ---
-skip: [pip:install]
+skip:
+  - pip:install

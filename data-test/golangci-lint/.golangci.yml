@@ -1,7 +1,15 @@
 ---
 version: '2'
+
 linters:
   default: none
-  enable: [govet]
+  enable:
+    - govet
+
 formatters:
-  enable: [gci, gofmt, gofumpt, goimports, golines]
+  enable:
+    - gci
+    - gofmt
+    - gofumpt
+    - goimports
+    - golines

@@ -1,10 +1,10 @@
 ---
-version: "3.5"
+version: '3.5'
 
 output:
   group:
-    begin: "::group::{{.TASK}}"
-    end: "::endgroup::"
+    begin: ::group::{{.TASK}}
+    end: '::endgroup::'
     error_only: false
 
 silent: true
@@ -24,10 +24,9 @@ tasks:
     desc: Show available Knip tasks
     cmds:
       - task --list
-
   install:
     run: once
-    dir: "{{.USER_WORKING_DIR}}"
+    dir: '{{.USER_WORKING_DIR}}'
     desc: Install Knip as a local devDependency
     summary: |
       Install knip as a local devDependency. Pass KNIP_VERSION=x.y.z to pin a
@@ -50,7 +49,6 @@ tasks:
           ARGS: >-
             add -d --silent knip{{if .RESOLVED_VERSION}}@{{.RESOLVED_VERSION}}{{end}}
             {{.KNIP_EXTRA_ARGS}}{{if .CLI_ARGS}} {{.CLI_ARGS}}{{end}}
-
   install:undo:
     run: once
     desc: Remove the locally installed Knip devDependency
@@ -65,7 +63,6 @@ tasks:
       - task: _bun:windows
         vars:
           ARGS: remove --silent knip {{.KNIP_EXTRA_ARGS}}
-
   upgrade:
     run: once
     desc: Upgrade Knip to the latest release
@@ -81,10 +78,9 @@ tasks:
           ARGS: >-
             add -d --silent knip@latest
             {{.KNIP_EXTRA_ARGS}}
-
   config:init:
     run: once
-    dir: "{{.USER_WORKING_DIR}}"
+    dir: '{{.USER_WORKING_DIR}}'
     desc: Create a starter knip.json configuration file
     summary: |
       Knip has no scaffolding command, so this writes a minimal knip.json that
@@ -120,7 +116,6 @@ tasks:
             {{if .MODE}}{{.MODE}} {{end}}
             {{- if .RESOLVED_CONFIG}}--config "{{.RESOLVED_CONFIG}}"{{end}}
             {{.KNIP_EXTRA_ARGS}}{{if .CLI_ARGS}} {{.CLI_ARGS}}{{end}}
-
   production:
     run: once
     desc: Run Knip against production dependency usage
@@ -128,8 +123,7 @@ tasks:
     cmds:
       - task: _run
         vars:
-          MODE: "--production"
-
+          MODE: --production
   dependencies:
     run: once
     desc: Report unused production dependencies with Knip
@@ -137,8 +131,7 @@ tasks:
     cmds:
       - task: _run
         vars:
-          MODE: "--dependencies"
-
+          MODE: --dependencies
   dev-dependencies:
     run: once
     desc: Report unused development dependencies with Knip
@@ -146,8 +139,7 @@ tasks:
     cmds:
       - task: _run
         vars:
-          MODE: "--devDependencies"
-
+          MODE: --devDependencies
   files:
     run: once
     desc: Report unused files with Knip
@@ -155,8 +147,7 @@ tasks:
     cmds:
       - task: _run
         vars:
-          MODE: "--files"
-
+          MODE: --files
   exports:
     run: once
     desc: Report unused exports with Knip
@@ -164,8 +155,7 @@ tasks:
     cmds:
       - task: _run
         vars:
-          MODE: "--exports"
-
+          MODE: --exports
   ci:fix:
     run: once
     desc: Run Knip fix mode when supported by the installed version
@@ -173,8 +163,7 @@ tasks:
     cmds:
       - task: _run
         vars:
-          MODE: "--fix"
-
+          MODE: --fix
   ci:
     run: once
     desc: Run Knip production checks for CI
@@ -182,9 +171,8 @@ tasks:
     cmds:
       - task: _run
         vars:
-          MODE: "--production"
+          MODE: --production
       - echo "✅ knip passed"
-
   version:
     run: once
     desc: Show the locally resolved Knip version
@@ -195,7 +183,6 @@ tasks:
       - task: _bun:windows
         vars:
           ARGS: x knip --version
-
   help:
     run: once
     desc: Show Knip CLI help
@@ -210,35 +197,41 @@ tasks:
           ARGS: >-
             x knip --help
             {{.KNIP_EXTRA_ARGS}}{{if .CLI_ARGS}} {{.CLI_ARGS}}{{end}}
-
   _bun:unix:
     run: when_changed
     internal: true
-    platforms: [linux, darwin]
-    dir: "{{.USER_WORKING_DIR}}"
-    set: [errexit, nounset, pipefail]
+    platforms:
+      - linux
+      - darwin
+    dir: '{{.USER_WORKING_DIR}}'
+    set:
+      - errexit
+      - nounset
+      - pipefail
     requires:
-      vars: [ARGS]
+      vars:
+        - ARGS
     deps:
       - task: bun:install
     env:
-      CI: "1"
+      CI: '1'
     cmds:
       - task: bun:_run:unix
         vars:
-          ARGS: "{{.ARGS}}"
-
+          ARGS: '{{.ARGS}}'
   _bun:windows:
     run: when_changed
     internal: true
-    platforms: [windows]
-    dir: "{{.USER_WORKING_DIR}}"
+    platforms:
+      - windows
+    dir: '{{.USER_WORKING_DIR}}'
     requires:
-      vars: [ARGS]
+      vars:
+        - ARGS
     deps:
       - task: bun:install
     env:
-      CI: "1"
+      CI: '1'
     cmds:
       - >-
         powershell -NoProfile -NonInteractive -ExecutionPolicy Bypass -Command

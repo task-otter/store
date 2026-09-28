@@ -1,10 +1,10 @@
 ---
-version: "3.5"
+version: '3.5'
 
 output:
   group:
-    begin: "::group::{{.TASK}}"
-    end: "::endgroup::"
+    begin: ::group::{{.TASK}}
+    end: '::endgroup::'
     error_only: false
 
 silent: true
@@ -14,7 +14,6 @@ includes:
     taskfile: ../nix/Taskfile.yml
   winget:
     taskfile: ../winget/Taskfile.yml
-
   jq: ../jq/Taskfile.yml
 
 vars:
@@ -29,7 +28,7 @@ vars:
   GH_WINGET_INSTALLABLE: '{{.GH_WINGET_INSTALLABLE | default "GitHub.cli"}}'
 
 env:
-  GH_TOKEN: "{{.GH_PAT_TOKEN}}"
+  GH_TOKEN: '{{.GH_PAT_TOKEN}}'
 
 tasks:
   default:
@@ -38,7 +37,6 @@ tasks:
     summary: Display the list of available gh-related tasks defined in this Taskfile.
     cmds:
       - task --list
-
   install:
     run: once
     desc: Install the GitHub CLI via Nix (Unix) or WinGet (Windows)
@@ -52,23 +50,23 @@ tasks:
     cmds:
       - task: _install:unix
       - task: _install:windows
-
   _install:unix:
     internal: true
-    platforms: [linux, darwin]
+    platforms:
+      - linux
+      - darwin
     cmds:
       - task: nix:install:profile
         vars:
-          NIX_INSTALLABLE: "{{.GH_NIX_INSTALLABLE}}"
-
+          NIX_INSTALLABLE: '{{.GH_NIX_INSTALLABLE}}'
   _install:windows:
     internal: true
-    platforms: [windows]
+    platforms:
+      - windows
     cmds:
       - task: winget:install:package
         vars:
-          WINGET_INSTALLABLE: "{{.GH_WINGET_INSTALLABLE}}"
-
+          WINGET_INSTALLABLE: '{{.GH_WINGET_INSTALLABLE}}'
   version:
     run: once
     desc: Show the active GitHub CLI version
@@ -80,7 +78,6 @@ tasks:
     cmds:
       - task: _version:unix
       - task: _version:windows
-
   doctor:
     run: once
     desc: Run the GitHub CLI self-diagnostic check
@@ -92,7 +89,6 @@ tasks:
     cmds:
       - task: _doctor:unix
       - task: _doctor:windows
-
   which:
     run: once
     desc: Show the path to the GitHub CLI binary
@@ -102,7 +98,6 @@ tasks:
     cmds:
       - task: _which:unix
       - task: _which:windows
-
   verify:
     run: once
     desc: Verify the GitHub CLI installation and authentication status
@@ -115,7 +110,6 @@ tasks:
     cmds:
       - task: _verify:unix
       - task: _verify:windows
-
   help:
     run: once
     desc: Show the GitHub CLI built-in help
@@ -124,12 +118,14 @@ tasks:
       - task: install
     cmds:
       - cmd: bash -lc '{{.NIX_LOAD}}; gh help'
-        platforms: [linux, darwin]
+        platforms:
+          - linux
+          - darwin
       - cmd: >-
           powershell -NoProfile -ExecutionPolicy Bypass -Command
           "{{.WINGET_LOAD}}; gh help; exit \$LASTEXITCODE"
-        platforms: [windows]
-
+        platforms:
+          - windows
   auth:login:
     run: once
     interactive: true
@@ -142,12 +138,14 @@ tasks:
       - task: install
     cmds:
       - cmd: bash -lc '{{.NIX_LOAD}}; gh auth login'
-        platforms: [linux, darwin]
+        platforms:
+          - linux
+          - darwin
       - cmd: >-
           powershell -NoProfile -ExecutionPolicy Bypass -Command
           "{{.WINGET_LOAD}}; gh auth login; exit \$LASTEXITCODE"
-        platforms: [windows]
-
+        platforms:
+          - windows
   auth:login:web:
     run: once
     interactive: true
@@ -159,12 +157,14 @@ tasks:
       - task: install
     cmds:
       - cmd: bash -lc '{{.NIX_LOAD}}; gh auth login --web'
-        platforms: [linux, darwin]
+        platforms:
+          - linux
+          - darwin
       - cmd: >-
           powershell -NoProfile -ExecutionPolicy Bypass -Command
           "{{.WINGET_LOAD}}; gh auth login --web; exit \$LASTEXITCODE"
-        platforms: [windows]
-
+        platforms:
+          - windows
   auth:login:ssh:
     run: once
     interactive: true
@@ -176,12 +176,14 @@ tasks:
       - task: install
     cmds:
       - cmd: bash -lc '{{.NIX_LOAD}}; gh auth login --git-protocol ssh'
-        platforms: [linux, darwin]
+        platforms:
+          - linux
+          - darwin
       - cmd: >-
           powershell -NoProfile -ExecutionPolicy Bypass -Command
           "{{.WINGET_LOAD}}; gh auth login --git-protocol ssh; exit \$LASTEXITCODE"
-        platforms: [windows]
-
+        platforms:
+          - windows
   auth:status:
     run: once
     desc: Show the current GitHub authentication status
@@ -192,12 +194,14 @@ tasks:
       - task: install
     cmds:
       - cmd: bash -lc '{{.NIX_LOAD}}; gh auth status'
-        platforms: [linux, darwin]
+        platforms:
+          - linux
+          - darwin
       - cmd: >-
           powershell -NoProfile -ExecutionPolicy Bypass -Command
           "{{.WINGET_LOAD}}; gh auth status; exit \$LASTEXITCODE"
-        platforms: [windows]
-
+        platforms:
+          - windows
   auth:refresh:
     run: once
     interactive: true
@@ -209,12 +213,14 @@ tasks:
       - task: install
     cmds:
       - cmd: bash -lc '{{.NIX_LOAD}}; gh auth refresh'
-        platforms: [linux, darwin]
+        platforms:
+          - linux
+          - darwin
       - cmd: >-
           powershell -NoProfile -ExecutionPolicy Bypass -Command
           "{{.WINGET_LOAD}}; gh auth refresh; exit \$LASTEXITCODE"
-        platforms: [windows]
-
+        platforms:
+          - windows
   auth:logout:
     run: once
     desc: Log out from GitHub and remove stored credentials
@@ -225,12 +231,14 @@ tasks:
       - task: install
     cmds:
       - cmd: bash -lc '{{.NIX_LOAD}}; gh auth logout'
-        platforms: [linux, darwin]
+        platforms:
+          - linux
+          - darwin
       - cmd: >-
           powershell -NoProfile -ExecutionPolicy Bypass -Command
           "{{.WINGET_LOAD}}; gh auth logout; exit \$LASTEXITCODE"
-        platforms: [windows]
-
+        platforms:
+          - windows
   auth:setup-git:
     run: once
     desc: Configure git to use the GitHub CLI as a credential helper
@@ -241,12 +249,14 @@ tasks:
       - task: install
     cmds:
       - cmd: bash -lc '{{.NIX_LOAD}}; gh auth setup-git'
-        platforms: [linux, darwin]
+        platforms:
+          - linux
+          - darwin
       - cmd: >-
           powershell -NoProfile -ExecutionPolicy Bypass -Command
           "{{.WINGET_LOAD}}; gh auth setup-git; exit \$LASTEXITCODE"
-        platforms: [windows]
-
+        platforms:
+          - windows
   repo:view:
     run: once
     desc: View a GitHub repository in the terminal or browser
@@ -259,12 +269,14 @@ tasks:
       - task: install
     cmds:
       - cmd: bash -lc '{{.NIX_LOAD}}; gh repo view {{if .OWNER}}{{.OWNER}}/{{end}}{{.REPO}}'
-        platforms: [linux, darwin]
+        platforms:
+          - linux
+          - darwin
       - cmd: >-
           powershell -NoProfile -ExecutionPolicy Bypass -Command
           "{{.WINGET_LOAD}}; gh repo view {{if .OWNER}}{{.OWNER}}/{{end}}{{.REPO}}; exit \$LASTEXITCODE"
-        platforms: [windows]
-
+        platforms:
+          - windows
   repo:create:
     run: once
     desc: Create a new GitHub repository
@@ -284,15 +296,17 @@ tasks:
           {{if .OWNER}}{{.OWNER}}/{{end}}{{.REPO}}
           --{{default "public" .GH_VISIBILITY}}
           {{if .DESCRIPTION}}--description "{{.DESCRIPTION}}"{{end}}'
-        platforms: [linux, darwin]
+        platforms:
+          - linux
+          - darwin
       - cmd: >-
           powershell -NoProfile -ExecutionPolicy Bypass -Command
           "{{.WINGET_LOAD}};
-          gh repo create {{if .OWNER}}{{.OWNER}}/{{end}}{{.REPO}} --{{default "public" .GH_VISIBILITY}} {{if
+          gh repo create {{if .OWNER}}{{.OWNER}}/{{end}}{{.REPO}} --{{default "public" .GH_VISIBILITY}}
           .DESCRIPTION}}--description '{{.DESCRIPTION}}'{{end}}
           ; exit \$LASTEXITCODE"
-        platforms: [windows]
-
+        platforms:
+          - windows
   repo:clone:
     run: once
     desc: Clone a GitHub repository to the local machine
@@ -313,7 +327,6 @@ tasks:
     cmds:
       - task: _repo:clone:unix
       - task: _repo:clone:windows
-
   repo:fork:
     run: once
     desc: Fork a GitHub repository to your account
@@ -327,12 +340,14 @@ tasks:
       - task: install
     cmds:
       - cmd: bash -lc '{{.NIX_LOAD}}; gh repo fork {{if .OWNER}}{{.OWNER}}/{{end}}{{.REPO}} --clone'
-        platforms: [linux, darwin]
+        platforms:
+          - linux
+          - darwin
       - cmd: >-
           powershell -NoProfile -ExecutionPolicy Bypass -Command
           "{{.WINGET_LOAD}}; gh repo fork {{if .OWNER}}{{.OWNER}}/{{end}}{{.REPO}} --clone; exit \$LASTEXITCODE"
-        platforms: [windows]
-
+        platforms:
+          - windows
   repo:list:
     run: once
     desc: List GitHub repositories for the authenticated user or an owner
@@ -344,12 +359,14 @@ tasks:
       - task: install
     cmds:
       - cmd: bash -lc '{{.NIX_LOAD}}; gh repo list {{.OWNER}}'
-        platforms: [linux, darwin]
+        platforms:
+          - linux
+          - darwin
       - cmd: >-
           powershell -NoProfile -ExecutionPolicy Bypass -Command
           "{{.WINGET_LOAD}}; gh repo list {{.OWNER}}; exit \$LASTEXITCODE"
-        platforms: [windows]
-
+        platforms:
+          - windows
   repo:sync:
     run: once
     desc: Sync the current repository branch with the upstream source
@@ -361,12 +378,14 @@ tasks:
       - task: install
     cmds:
       - cmd: bash -lc '{{.NIX_LOAD}}; gh repo sync {{if .BRANCH}}--branch {{.BRANCH}}{{end}}'
-        platforms: [linux, darwin]
+        platforms:
+          - linux
+          - darwin
       - cmd: >-
           powershell -NoProfile -ExecutionPolicy Bypass -Command
           "{{.WINGET_LOAD}}; gh repo sync {{if .BRANCH}}--branch {{.BRANCH}}{{end}}; exit \$LASTEXITCODE"
-        platforms: [windows]
-
+        platforms:
+          - windows
   repo:archive:
     run: once
     desc: Archive a GitHub repository
@@ -381,12 +400,14 @@ tasks:
       - task: install
     cmds:
       - cmd: bash -lc '{{.NIX_LOAD}}; gh repo archive {{if .OWNER}}{{.OWNER}}/{{end}}{{.REPO}} --yes'
-        platforms: [linux, darwin]
+        platforms:
+          - linux
+          - darwin
       - cmd: >-
           powershell -NoProfile -ExecutionPolicy Bypass -Command
           "{{.WINGET_LOAD}}; gh repo archive {{if .OWNER}}{{.OWNER}}/{{end}}{{.REPO}} --yes; exit \$LASTEXITCODE"
-        platforms: [windows]
-
+        platforms:
+          - windows
   repo:delete:danger:
     run: once
     desc: Permanently delete a GitHub repository
@@ -399,19 +420,21 @@ tasks:
       vars:
         - REPO
     prompt:
-      - "This will permanently delete the repository {{if .OWNER}}{{.OWNER}}/{{end}}{{.REPO}}."
+      - This will permanently delete the repository {{if .OWNER}}{{.OWNER}}/{{end}}{{.REPO}}.
       - All code, issues, pull requests, and history will be permanently lost.
       - This action cannot be undone. Are you sure you want to continue?
     deps:
       - task: install
     cmds:
       - cmd: bash -lc '{{.NIX_LOAD}}; gh repo delete {{if .OWNER}}{{.OWNER}}/{{end}}{{.REPO}} --yes'
-        platforms: [linux, darwin]
+        platforms:
+          - linux
+          - darwin
       - cmd: >-
           powershell -NoProfile -ExecutionPolicy Bypass -Command
           "{{.WINGET_LOAD}}; gh repo delete {{if .OWNER}}{{.OWNER}}/{{end}}{{.REPO}} --yes; exit \$LASTEXITCODE"
-        platforms: [windows]
-
+        platforms:
+          - windows
   pr:list:
     run: once
     desc: List open pull requests in the current repository
@@ -420,12 +443,14 @@ tasks:
       - task: install
     cmds:
       - cmd: bash -lc '{{.NIX_LOAD}}; gh pr list'
-        platforms: [linux, darwin]
+        platforms:
+          - linux
+          - darwin
       - cmd: >-
           powershell -NoProfile -ExecutionPolicy Bypass -Command
           "{{.WINGET_LOAD}}; gh pr list; exit \$LASTEXITCODE"
-        platforms: [windows]
-
+        platforms:
+          - windows
   pr:status:
     run: once
     desc: Show pull request status for the current branch
@@ -434,12 +459,14 @@ tasks:
       - task: install
     cmds:
       - cmd: bash -lc '{{.NIX_LOAD}}; gh pr status'
-        platforms: [linux, darwin]
+        platforms:
+          - linux
+          - darwin
       - cmd: >-
           powershell -NoProfile -ExecutionPolicy Bypass -Command
           "{{.WINGET_LOAD}}; gh pr status; exit \$LASTEXITCODE"
-        platforms: [windows]
-
+        platforms:
+          - windows
   pr:view:
     run: once
     desc: View a pull request in the terminal or browser
@@ -450,12 +477,14 @@ tasks:
       - task: install
     cmds:
       - cmd: bash -lc '{{.NIX_LOAD}}; gh pr view {{.PR_NUMBER}}'
-        platforms: [linux, darwin]
+        platforms:
+          - linux
+          - darwin
       - cmd: >-
           powershell -NoProfile -ExecutionPolicy Bypass -Command
           "{{.WINGET_LOAD}}; gh pr view {{.PR_NUMBER}}; exit \$LASTEXITCODE"
-        platforms: [windows]
-
+        platforms:
+          - windows
   pr:create:
     run: once
     desc: Create a new pull request for the current branch
@@ -473,15 +502,17 @@ tasks:
           {{if .PR_BODY}}--body "{{.PR_BODY}}"{{end}}
           {{if .GH_BASE}}--base {{.GH_BASE}}{{end}}
           {{if .HEAD}}--head {{.HEAD}}{{end}}'
-        platforms: [linux, darwin]
+        platforms:
+          - linux
+          - darwin
       - cmd: >-
           powershell -NoProfile -ExecutionPolicy Bypass -Command
           "{{.WINGET_LOAD}};
           gh pr create {{if .PR_TITLE}}--title '{{.PR_TITLE}}'{{end}} {{if .PR_BODY}}--body '{{.PR_BODY}}'{{end}}
           {{if .GH_BASE}}--base {{.GH_BASE}}{{end}} {{if .HEAD}}--head {{.HEAD}}{{end}}
           ; exit \$LASTEXITCODE"
-        platforms: [windows]
-
+        platforms:
+          - windows
   pr:checkout:
     run: once
     desc: Check out a pull request branch locally
@@ -495,12 +526,14 @@ tasks:
       - task: install
     cmds:
       - cmd: bash -lc '{{.NIX_LOAD}}; gh pr checkout {{.PR_NUMBER}}'
-        platforms: [linux, darwin]
+        platforms:
+          - linux
+          - darwin
       - cmd: >-
           powershell -NoProfile -ExecutionPolicy Bypass -Command
           "{{.WINGET_LOAD}}; gh pr checkout {{.PR_NUMBER}}; exit \$LASTEXITCODE"
-        platforms: [windows]
-
+        platforms:
+          - windows
   pr:diff:
     run: once
     desc: Show the diff for a pull request
@@ -511,12 +544,14 @@ tasks:
       - task: install
     cmds:
       - cmd: bash -lc '{{.NIX_LOAD}}; gh pr diff {{.PR_NUMBER}}'
-        platforms: [linux, darwin]
+        platforms:
+          - linux
+          - darwin
       - cmd: >-
           powershell -NoProfile -ExecutionPolicy Bypass -Command
           "{{.WINGET_LOAD}}; gh pr diff {{.PR_NUMBER}}; exit \$LASTEXITCODE"
-        platforms: [windows]
-
+        platforms:
+          - windows
   pr:review:
     run: once
     desc: Add a review to a pull request
@@ -527,12 +562,14 @@ tasks:
       - task: install
     cmds:
       - cmd: bash -lc '{{.NIX_LOAD}}; gh pr review {{.PR_NUMBER}}'
-        platforms: [linux, darwin]
+        platforms:
+          - linux
+          - darwin
       - cmd: >-
           powershell -NoProfile -ExecutionPolicy Bypass -Command
           "{{.WINGET_LOAD}}; gh pr review {{.PR_NUMBER}}; exit \$LASTEXITCODE"
-        platforms: [windows]
-
+        platforms:
+          - windows
   pr:merge:
     run: once
     desc: Merge a pull request
@@ -547,12 +584,14 @@ tasks:
       - task: install
     cmds:
       - cmd: bash -lc '{{.NIX_LOAD}}; gh pr merge {{.PR_NUMBER}} --{{default "merge" .GH_MERGE_METHOD}}'
-        platforms: [linux, darwin]
+        platforms:
+          - linux
+          - darwin
       - cmd: >-
           powershell -NoProfile -ExecutionPolicy Bypass -Command
           "{{.WINGET_LOAD}}; gh pr merge {{.PR_NUMBER}} --{{default "merge" .GH_MERGE_METHOD}}; exit \$LASTEXITCODE"
-        platforms: [windows]
-
+        platforms:
+          - windows
   pr:close:
     run: once
     desc: Close a pull request without merging
@@ -566,12 +605,14 @@ tasks:
       - task: install
     cmds:
       - cmd: bash -lc '{{.NIX_LOAD}}; gh pr close {{.PR_NUMBER}}'
-        platforms: [linux, darwin]
+        platforms:
+          - linux
+          - darwin
       - cmd: >-
           powershell -NoProfile -ExecutionPolicy Bypass -Command
           "{{.WINGET_LOAD}}; gh pr close {{.PR_NUMBER}}; exit \$LASTEXITCODE"
-        platforms: [windows]
-
+        platforms:
+          - windows
   pr:ready:
     run: once
     desc: Mark a draft pull request as ready for review
@@ -583,12 +624,14 @@ tasks:
       - task: install
     cmds:
       - cmd: bash -lc '{{.NIX_LOAD}}; gh pr ready {{.PR_NUMBER}}'
-        platforms: [linux, darwin]
+        platforms:
+          - linux
+          - darwin
       - cmd: >-
           powershell -NoProfile -ExecutionPolicy Bypass -Command
           "{{.WINGET_LOAD}}; gh pr ready {{.PR_NUMBER}}; exit \$LASTEXITCODE"
-        platforms: [windows]
-
+        platforms:
+          - windows
   pr:comment:
     run: once
     desc: Add a comment to a pull request
@@ -603,12 +646,14 @@ tasks:
       - task: install
     cmds:
       - cmd: bash -lc '{{.NIX_LOAD}}; gh pr comment {{.PR_NUMBER}} --body "{{.PR_BODY}}"'
-        platforms: [linux, darwin]
+        platforms:
+          - linux
+          - darwin
       - cmd: >-
           powershell -NoProfile -ExecutionPolicy Bypass -Command
           "{{.WINGET_LOAD}}; gh pr comment {{.PR_NUMBER}} --body '{{.PR_BODY}}'; exit \$LASTEXITCODE"
-        platforms: [windows]
-
+        platforms:
+          - windows
   issue:list:
     run: once
     desc: List open issues in the current repository
@@ -617,12 +662,14 @@ tasks:
       - task: install
     cmds:
       - cmd: bash -lc '{{.NIX_LOAD}}; gh issue list'
-        platforms: [linux, darwin]
+        platforms:
+          - linux
+          - darwin
       - cmd: >-
           powershell -NoProfile -ExecutionPolicy Bypass -Command
           "{{.WINGET_LOAD}}; gh issue list; exit \$LASTEXITCODE"
-        platforms: [windows]
-
+        platforms:
+          - windows
   issue:view:
     run: once
     desc: View an issue in the terminal or browser
@@ -636,12 +683,14 @@ tasks:
       - task: install
     cmds:
       - cmd: bash -lc '{{.NIX_LOAD}}; gh issue view {{.ISSUE_NUMBER}}'
-        platforms: [linux, darwin]
+        platforms:
+          - linux
+          - darwin
       - cmd: >-
           powershell -NoProfile -ExecutionPolicy Bypass -Command
           "{{.WINGET_LOAD}}; gh issue view {{.ISSUE_NUMBER}}; exit \$LASTEXITCODE"
-        platforms: [windows]
-
+        platforms:
+          - windows
   issue:create:
     run: once
     desc: Create a new issue in the current repository
@@ -656,15 +705,17 @@ tasks:
           gh issue create
           {{if .ISSUE_TITLE}}--title "{{.ISSUE_TITLE}}"{{end}}
           {{if .ISSUE_BODY}}--body "{{.ISSUE_BODY}}"{{end}}'
-        platforms: [linux, darwin]
+        platforms:
+          - linux
+          - darwin
       - cmd: >-
           powershell -NoProfile -ExecutionPolicy Bypass -Command
           "{{.WINGET_LOAD}};
           gh issue create {{if .ISSUE_TITLE}}--title '{{.ISSUE_TITLE}}'{{end}} {{if .ISSUE_BODY}}--body
           '{{.ISSUE_BODY}}'{{end}}
           ; exit \$LASTEXITCODE"
-        platforms: [windows]
-
+        platforms:
+          - windows
   issue:comment:
     run: once
     desc: Add a comment to an issue
@@ -680,12 +731,14 @@ tasks:
       - task: install
     cmds:
       - cmd: bash -lc '{{.NIX_LOAD}}; gh issue comment {{.ISSUE_NUMBER}} --body "{{.ISSUE_BODY}}"'
-        platforms: [linux, darwin]
+        platforms:
+          - linux
+          - darwin
       - cmd: >-
           powershell -NoProfile -ExecutionPolicy Bypass -Command
           "{{.WINGET_LOAD}}; gh issue comment {{.ISSUE_NUMBER}} --body '{{.ISSUE_BODY}}'; exit \$LASTEXITCODE"
-        platforms: [windows]
-
+        platforms:
+          - windows
   issue:close:
     run: once
     desc: Close an issue
@@ -699,12 +752,14 @@ tasks:
       - task: install
     cmds:
       - cmd: bash -lc '{{.NIX_LOAD}}; gh issue close {{.ISSUE_NUMBER}}'
-        platforms: [linux, darwin]
+        platforms:
+          - linux
+          - darwin
       - cmd: >-
           powershell -NoProfile -ExecutionPolicy Bypass -Command
           "{{.WINGET_LOAD}}; gh issue close {{.ISSUE_NUMBER}}; exit \$LASTEXITCODE"
-        platforms: [windows]
-
+        platforms:
+          - windows
   issue:reopen:
     run: once
     desc: Reopen a previously closed issue
@@ -718,12 +773,14 @@ tasks:
       - task: install
     cmds:
       - cmd: bash -lc '{{.NIX_LOAD}}; gh issue reopen {{.ISSUE_NUMBER}}'
-        platforms: [linux, darwin]
+        platforms:
+          - linux
+          - darwin
       - cmd: >-
           powershell -NoProfile -ExecutionPolicy Bypass -Command
           "{{.WINGET_LOAD}}; gh issue reopen {{.ISSUE_NUMBER}}; exit \$LASTEXITCODE"
-        platforms: [windows]
-
+        platforms:
+          - windows
   issue:assign:
     run: once
     desc: Assign a GitHub user to an issue
@@ -739,12 +796,14 @@ tasks:
       - task: install
     cmds:
       - cmd: bash -lc '{{.NIX_LOAD}}; gh issue edit {{.ISSUE_NUMBER}} --add-assignee {{.ASSIGNEE}}'
-        platforms: [linux, darwin]
+        platforms:
+          - linux
+          - darwin
       - cmd: >-
           powershell -NoProfile -ExecutionPolicy Bypass -Command
           "{{.WINGET_LOAD}}; gh issue edit {{.ISSUE_NUMBER}} --add-assignee {{.ASSIGNEE}}; exit \$LASTEXITCODE"
-        platforms: [windows]
-
+        platforms:
+          - windows
   issue:label:
     run: once
     desc: Add a label to an issue
@@ -760,12 +819,14 @@ tasks:
       - task: install
     cmds:
       - cmd: bash -lc '{{.NIX_LOAD}}; gh issue edit {{.ISSUE_NUMBER}} --add-label {{.LABEL}}'
-        platforms: [linux, darwin]
+        platforms:
+          - linux
+          - darwin
       - cmd: >-
           powershell -NoProfile -ExecutionPolicy Bypass -Command
           "{{.WINGET_LOAD}}; gh issue edit {{.ISSUE_NUMBER}} --add-label {{.LABEL}}; exit \$LASTEXITCODE"
-        platforms: [windows]
-
+        platforms:
+          - windows
   workflow:list:
     run: once
     desc: List GitHub Actions workflows in the current repository
@@ -774,12 +835,14 @@ tasks:
       - task: install
     cmds:
       - cmd: bash -lc '{{.NIX_LOAD}}; gh workflow list'
-        platforms: [linux, darwin]
+        platforms:
+          - linux
+          - darwin
       - cmd: >-
           powershell -NoProfile -ExecutionPolicy Bypass -Command
           "{{.WINGET_LOAD}}; gh workflow list; exit \$LASTEXITCODE"
-        platforms: [windows]
-
+        platforms:
+          - windows
   workflow:view:
     run: once
     desc: View a GitHub Actions workflow
@@ -793,12 +856,14 @@ tasks:
       - task: install
     cmds:
       - cmd: bash -lc '{{.NIX_LOAD}}; gh workflow view {{.WORKFLOW}}'
-        platforms: [linux, darwin]
+        platforms:
+          - linux
+          - darwin
       - cmd: >-
           powershell -NoProfile -ExecutionPolicy Bypass -Command
           "{{.WINGET_LOAD}}; gh workflow view {{.WORKFLOW}}; exit \$LASTEXITCODE"
-        platforms: [windows]
-
+        platforms:
+          - windows
   workflow:run:
     run: once
     desc: Trigger a GitHub Actions workflow dispatch event
@@ -813,12 +878,14 @@ tasks:
       - task: install
     cmds:
       - cmd: bash -lc '{{.NIX_LOAD}}; gh workflow run {{.WORKFLOW}} {{if .BRANCH}}--ref {{.BRANCH}}{{end}}'
-        platforms: [linux, darwin]
+        platforms:
+          - linux
+          - darwin
       - cmd: >-
           powershell -NoProfile -ExecutionPolicy Bypass -Command
           "{{.WINGET_LOAD}}; gh workflow run {{.WORKFLOW}} {{if .BRANCH}}--ref {{.BRANCH}}{{end}}; exit \$LASTEXITCODE"
-        platforms: [windows]
-
+        platforms:
+          - windows
   workflow:watch:
     run: once
     desc: Watch a GitHub Actions workflow run in real time
@@ -834,7 +901,6 @@ tasks:
     cmds:
       - task: _workflow:watch:unix
       - task: _workflow:watch:windows
-
   run:list:
     run: once
     desc: List recent GitHub Actions runs in the current repository
@@ -843,12 +909,14 @@ tasks:
       - task: install
     cmds:
       - cmd: bash -lc '{{.NIX_LOAD}}; gh run list'
-        platforms: [linux, darwin]
+        platforms:
+          - linux
+          - darwin
       - cmd: >-
           powershell -NoProfile -ExecutionPolicy Bypass -Command
           "{{.WINGET_LOAD}}; gh run list; exit \$LASTEXITCODE"
-        platforms: [windows]
-
+        platforms:
+          - windows
   run:view:
     run: once
     desc: View a specific GitHub Actions workflow run
@@ -862,12 +930,14 @@ tasks:
       - task: install
     cmds:
       - cmd: bash -lc '{{.NIX_LOAD}}; gh run view {{.RUN_ID}}'
-        platforms: [linux, darwin]
+        platforms:
+          - linux
+          - darwin
       - cmd: >-
           powershell -NoProfile -ExecutionPolicy Bypass -Command
           "{{.WINGET_LOAD}}; gh run view {{.RUN_ID}}; exit \$LASTEXITCODE"
-        platforms: [windows]
-
+        platforms:
+          - windows
   run:logs:
     run: once
     desc: View logs for a GitHub Actions workflow run
@@ -881,12 +951,14 @@ tasks:
       - task: install
     cmds:
       - cmd: bash -lc '{{.NIX_LOAD}}; gh run view {{.RUN_ID}} --log'
-        platforms: [linux, darwin]
+        platforms:
+          - linux
+          - darwin
       - cmd: >-
           powershell -NoProfile -ExecutionPolicy Bypass -Command
           "{{.WINGET_LOAD}}; gh run view {{.RUN_ID}} --log; exit \$LASTEXITCODE"
-        platforms: [windows]
-
+        platforms:
+          - windows
   run:rerun:
     run: once
     desc: Re-run a GitHub Actions workflow run
@@ -900,12 +972,14 @@ tasks:
       - task: install
     cmds:
       - cmd: bash -lc '{{.NIX_LOAD}}; gh run rerun {{.RUN_ID}}'
-        platforms: [linux, darwin]
+        platforms:
+          - linux
+          - darwin
       - cmd: >-
           powershell -NoProfile -ExecutionPolicy Bypass -Command
           "{{.WINGET_LOAD}}; gh run rerun {{.RUN_ID}}; exit \$LASTEXITCODE"
-        platforms: [windows]
-
+        platforms:
+          - windows
   run:cancel:
     run: once
     desc: Cancel a running GitHub Actions workflow run
@@ -919,12 +993,14 @@ tasks:
       - task: install
     cmds:
       - cmd: bash -lc '{{.NIX_LOAD}}; gh run cancel {{.RUN_ID}}'
-        platforms: [linux, darwin]
+        platforms:
+          - linux
+          - darwin
       - cmd: >-
           powershell -NoProfile -ExecutionPolicy Bypass -Command
           "{{.WINGET_LOAD}}; gh run cancel {{.RUN_ID}}; exit \$LASTEXITCODE"
-        platforms: [windows]
-
+        platforms:
+          - windows
   release:list:
     run: once
     desc: List releases in the current repository
@@ -936,12 +1012,14 @@ tasks:
       - task: install
     cmds:
       - cmd: bash -lc '{{.NIX_LOAD}}; gh release list {{if .OWNER}}--repo {{.OWNER}}/{{.REPO}}{{end}}'
-        platforms: [linux, darwin]
+        platforms:
+          - linux
+          - darwin
       - cmd: >-
           powershell -NoProfile -ExecutionPolicy Bypass -Command
           "{{.WINGET_LOAD}}; gh release list {{if .OWNER}}--repo {{.OWNER}}/{{.REPO}}{{end}}; exit \$LASTEXITCODE"
-        platforms: [windows]
-
+        platforms:
+          - windows
   release:view:
     run: once
     desc: View a GitHub release
@@ -953,13 +1031,15 @@ tasks:
       - task: install
     cmds:
       - cmd: bash -lc '{{.NIX_LOAD}}; gh release view {{.TAG}} {{if .OWNER}}--repo {{.OWNER}}/{{.REPO}}{{end}}'
-        platforms: [linux, darwin]
+        platforms:
+          - linux
+          - darwin
       - cmd: >-
           powershell -NoProfile -ExecutionPolicy Bypass -Command
           "{{.WINGET_LOAD}}; gh release view {{.TAG}} {{if .OWNER}}--repo {{.OWNER}}/{{.REPO}}{{end}};
           exit \$LASTEXITCODE"
-        platforms: [windows]
-
+        platforms:
+          - windows
   release:create:
     run: once
     desc: Create a new GitHub release
@@ -981,15 +1061,17 @@ tasks:
           {{if .OWNER}}--repo {{.OWNER}}/{{.REPO}}{{end}}
           {{if .TITLE}}--title "{{.TITLE}}"{{end}}
           {{if .NOTES}}--notes "{{.NOTES}}"{{end}}'
-        platforms: [linux, darwin]
+        platforms:
+          - linux
+          - darwin
       - cmd: >-
           powershell -NoProfile -ExecutionPolicy Bypass -Command
           "{{.WINGET_LOAD}};
           gh release create {{.TAG}} {{if .OWNER}}--repo {{.OWNER}}/{{.REPO}}{{end}} {{if .TITLE}}--title
           '{{.TITLE}}'{{end}} {{if .NOTES}}--notes '{{.NOTES}}'{{end}}
           ; exit \$LASTEXITCODE"
-        platforms: [windows]
-
+        platforms:
+          - windows
   release:upload:
     run: once
     desc: Upload an asset to an existing GitHub release
@@ -1009,13 +1091,15 @@ tasks:
           bash -lc '{{.NIX_LOAD}};
           gh release upload {{.TAG}} {{.ASSET}}
           {{if .OWNER}}--repo {{.OWNER}}/{{.REPO}}{{end}}'
-        platforms: [linux, darwin]
+        platforms:
+          - linux
+          - darwin
       - cmd: >-
           powershell -NoProfile -ExecutionPolicy Bypass -Command
           "{{.WINGET_LOAD}}; gh release upload {{.TAG}} {{.ASSET}} {{if .OWNER}}--repo {{.OWNER}}/{{.REPO}}{{end}};
           exit \$LASTEXITCODE"
-        platforms: [windows]
-
+        platforms:
+          - windows
   release:download:
     run: once
     desc: Download assets from a GitHub release
@@ -1033,15 +1117,17 @@ tasks:
           gh release download {{.TAG}}
           {{if .OWNER}}--repo {{.OWNER}}/{{.REPO}}{{end}}
           {{if ne .GH_DOWNLOAD_DIR "."}}--dir {{.GH_DOWNLOAD_DIR}}{{end}}'
-        platforms: [linux, darwin]
+        platforms:
+          - linux
+          - darwin
       - cmd: >-
           powershell -NoProfile -ExecutionPolicy Bypass -Command
           "{{.WINGET_LOAD}};
-          gh release download {{.TAG}} {{if .OWNER}}--repo {{.OWNER}}/{{.REPO}}{{end}} {{if ne .GH_DOWNLOAD_DIR
+          gh release download {{.TAG}} {{if .OWNER}}--repo {{.OWNER}}/{{.REPO}}{{end}}
           "."}}--dir {{.GH_DOWNLOAD_DIR}}{{end}}
           ; exit \$LASTEXITCODE"
-        platforms: [windows]
-
+        platforms:
+          - windows
   release:download:all:
     run: once
     desc: Download assets from all releases in a repository
@@ -1056,13 +1142,17 @@ tasks:
     cmds:
       - task: _release:download:all:unix
       - task: _release:download:all:windows
-
   _release:download:all:unix:
     run: once
     internal: true
     desc: Download all release assets on macOS/Linux
-    platforms: [linux, darwin]
-    set: [errexit, nounset, pipefail]
+    platforms:
+      - linux
+      - darwin
+    set:
+      - errexit
+      - nounset
+      - pipefail
     cmds:
       - |
         {{.NIX_LOAD}}
@@ -1073,12 +1163,12 @@ tasks:
           mkdir -p "$dest"
           gh release download "$tag" $REPO_FLAG --dir "$dest" || true
         done
-
   _release:download:all:windows:
     run: once
     internal: true
     desc: Download all release assets on Windows
-    platforms: [windows]
+    platforms:
+      - windows
     cmds:
       - >-
         powershell -NoProfile -ExecutionPolicy Bypass -Command
@@ -1090,7 +1180,6 @@ tasks:
           New-Item -ItemType Directory -Force -Path \$dest | Out-Null;
           gh release download \$tag \$repoFlag --dir \$dest
         }; exit \$LASTEXITCODE"
-
   release:delete:danger:
     run: once
     desc: Permanently delete a GitHub release
@@ -1104,20 +1193,22 @@ tasks:
       vars:
         - TAG
     prompt:
-      - "This will permanently delete the GitHub release for tag {{.TAG}}."
+      - This will permanently delete the GitHub release for tag {{.TAG}}.
       - The git tag itself will be preserved, but the release record will be gone.
       - Are you sure you want to continue?
     deps:
       - task: install
     cmds:
       - cmd: bash -lc '{{.NIX_LOAD}}; gh release delete {{.TAG}} --yes {{if .OWNER}}--repo {{.OWNER}}/{{.REPO}}{{end}}'
-        platforms: [linux, darwin]
+        platforms:
+          - linux
+          - darwin
       - cmd: >-
           powershell -NoProfile -ExecutionPolicy Bypass -Command
           "{{.WINGET_LOAD}}; gh release delete {{.TAG}} --yes {{if .OWNER}}--repo {{.OWNER}}/{{.REPO}}{{end}};
           exit \$LASTEXITCODE"
-        platforms: [windows]
-
+        platforms:
+          - windows
   secret:list:
     run: once
     desc: List GitHub Actions secrets for the current repository
@@ -1129,12 +1220,14 @@ tasks:
       - task: install
     cmds:
       - cmd: bash -lc '{{.NIX_LOAD}}; gh secret list {{if .ENVIRONMENT}}--env {{.ENVIRONMENT}}{{end}}'
-        platforms: [linux, darwin]
+        platforms:
+          - linux
+          - darwin
       - cmd: >-
           powershell -NoProfile -ExecutionPolicy Bypass -Command
           "{{.WINGET_LOAD}}; gh secret list {{if .ENVIRONMENT}}--env {{.ENVIRONMENT}}{{end}}; exit \$LASTEXITCODE"
-        platforms: [windows]
-
+        platforms:
+          - windows
   secret:set:
     run: once
     desc: Create or update a GitHub Actions secret
@@ -1153,7 +1246,6 @@ tasks:
     cmds:
       - task: _secret:set:unix
       - task: _secret:set:windows
-
   secret:delete:danger:
     run: once
     desc: Permanently delete a GitHub Actions secret
@@ -1165,7 +1257,7 @@ tasks:
       vars:
         - SECRET_NAME
     prompt:
-      - "This will permanently delete the secret {{.SECRET_NAME}}."
+      - This will permanently delete the secret {{.SECRET_NAME}}.
       - Any workflows depending on this secret will break until it is re-created.
       - Are you sure you want to continue?
     deps:
@@ -1175,13 +1267,15 @@ tasks:
           bash -lc '{{.NIX_LOAD}};
           gh secret delete {{.SECRET_NAME}}
           {{if .ENVIRONMENT}}--env {{.ENVIRONMENT}}{{end}}'
-        platforms: [linux, darwin]
+        platforms:
+          - linux
+          - darwin
       - cmd: >-
           powershell -NoProfile -ExecutionPolicy Bypass -Command
           "{{.WINGET_LOAD}}; gh secret delete {{.SECRET_NAME}} {{if .ENVIRONMENT}}--env {{.ENVIRONMENT}}{{end}};
           exit \$LASTEXITCODE"
-        platforms: [windows]
-
+        platforms:
+          - windows
   variable:list:
     run: once
     desc: List GitHub Actions variables for the current repository
@@ -1193,12 +1287,14 @@ tasks:
       - task: install
     cmds:
       - cmd: bash -lc '{{.NIX_LOAD}}; gh variable list {{if .ENVIRONMENT}}--env {{.ENVIRONMENT}}{{end}}'
-        platforms: [linux, darwin]
+        platforms:
+          - linux
+          - darwin
       - cmd: >-
           powershell -NoProfile -ExecutionPolicy Bypass -Command
           "{{.WINGET_LOAD}}; gh variable list {{if .ENVIRONMENT}}--env {{.ENVIRONMENT}}{{end}}; exit \$LASTEXITCODE"
-        platforms: [windows]
-
+        platforms:
+          - windows
   variable:set:
     run: once
     desc: Create or update a GitHub Actions variable
@@ -1219,15 +1315,17 @@ tasks:
           gh variable set {{.VARIABLE_NAME}}
           --body "{{.VARIABLE_VALUE}}"
           {{if .ENVIRONMENT}}--env {{.ENVIRONMENT}}{{end}}'
-        platforms: [linux, darwin]
+        platforms:
+          - linux
+          - darwin
       - cmd: >-
           powershell -NoProfile -ExecutionPolicy Bypass -Command
           "{{.WINGET_LOAD}};
           gh variable set {{.VARIABLE_NAME}} --body '{{.VARIABLE_VALUE}}' {{if .ENVIRONMENT}}--env
           {{.ENVIRONMENT}}{{end}}
           ; exit \$LASTEXITCODE"
-        platforms: [windows]
-
+        platforms:
+          - windows
   variable:delete:danger:
     run: once
     desc: Permanently delete a GitHub Actions variable
@@ -1239,7 +1337,7 @@ tasks:
       vars:
         - VARIABLE_NAME
     prompt:
-      - "This will permanently delete the variable {{.VARIABLE_NAME}}."
+      - This will permanently delete the variable {{.VARIABLE_NAME}}.
       - Are you sure you want to continue?
     deps:
       - task: install
@@ -1248,13 +1346,15 @@ tasks:
           bash -lc '{{.NIX_LOAD}};
           gh variable delete {{.VARIABLE_NAME}}
           {{if .ENVIRONMENT}}--env {{.ENVIRONMENT}}{{end}}'
-        platforms: [linux, darwin]
+        platforms:
+          - linux
+          - darwin
       - cmd: >-
           powershell -NoProfile -ExecutionPolicy Bypass -Command
           "{{.WINGET_LOAD}}; gh variable delete {{.VARIABLE_NAME}} {{if .ENVIRONMENT}}--env {{.ENVIRONMENT}}{{end}};
           exit \$LASTEXITCODE"
-        platforms: [windows]
-
+        platforms:
+          - windows
   gist:list:
     run: once
     desc: List gists for the authenticated GitHub user
@@ -1263,12 +1363,14 @@ tasks:
       - task: install
     cmds:
       - cmd: bash -lc '{{.NIX_LOAD}}; gh gist list'
-        platforms: [linux, darwin]
+        platforms:
+          - linux
+          - darwin
       - cmd: >-
           powershell -NoProfile -ExecutionPolicy Bypass -Command
           "{{.WINGET_LOAD}}; gh gist list; exit \$LASTEXITCODE"
-        platforms: [windows]
-
+        platforms:
+          - windows
   gist:view:
     run: once
     desc: View a GitHub gist
@@ -1282,12 +1384,14 @@ tasks:
       - task: install
     cmds:
       - cmd: bash -lc '{{.NIX_LOAD}}; gh gist view {{.GIST_ID}}'
-        platforms: [linux, darwin]
+        platforms:
+          - linux
+          - darwin
       - cmd: >-
           powershell -NoProfile -ExecutionPolicy Bypass -Command
           "{{.WINGET_LOAD}}; gh gist view {{.GIST_ID}}; exit \$LASTEXITCODE"
-        platforms: [windows]
-
+        platforms:
+          - windows
   gist:create:
     run: once
     desc: Create a new GitHub gist from a file
@@ -1302,13 +1406,15 @@ tasks:
       - task: install
     cmds:
       - cmd: bash -lc '{{.NIX_LOAD}}; gh gist create {{.FILE}} {{if .DESCRIPTION}}--desc "{{.DESCRIPTION}}"{{end}}'
-        platforms: [linux, darwin]
+        platforms:
+          - linux
+          - darwin
       - cmd: >-
           powershell -NoProfile -ExecutionPolicy Bypass -Command
           "{{.WINGET_LOAD}}; gh gist create {{.FILE}} {{if .DESCRIPTION}}--desc '{{.DESCRIPTION}}'{{end}};
           exit \$LASTEXITCODE"
-        platforms: [windows]
-
+        platforms:
+          - windows
   gist:delete:danger:
     run: once
     desc: Permanently delete a GitHub gist
@@ -1319,18 +1425,20 @@ tasks:
       vars:
         - GIST_ID
     prompt:
-      - "This will permanently delete gist {{.GIST_ID}}."
+      - This will permanently delete gist {{.GIST_ID}}.
       - This action cannot be undone. Are you sure you want to continue?
     deps:
       - task: install
     cmds:
       - cmd: bash -lc '{{.NIX_LOAD}}; gh gist delete {{.GIST_ID}}'
-        platforms: [linux, darwin]
+        platforms:
+          - linux
+          - darwin
       - cmd: >-
           powershell -NoProfile -ExecutionPolicy Bypass -Command
           "{{.WINGET_LOAD}}; gh gist delete {{.GIST_ID}}; exit \$LASTEXITCODE"
-        platforms: [windows]
-
+        platforms:
+          - windows
   api:get:
     run: once
     desc: Make an authenticated GET request to the GitHub API
@@ -1344,12 +1452,14 @@ tasks:
       - task: install
     cmds:
       - cmd: bash -lc '{{.NIX_LOAD}}; gh api {{.ENDPOINT}}'
-        platforms: [linux, darwin]
+        platforms:
+          - linux
+          - darwin
       - cmd: >-
           powershell -NoProfile -ExecutionPolicy Bypass -Command
           "{{.WINGET_LOAD}}; gh api {{.ENDPOINT}}; exit \$LASTEXITCODE"
-        platforms: [windows]
-
+        platforms:
+          - windows
   api:post:
     run: once
     desc: Make an authenticated POST request to the GitHub API
@@ -1365,7 +1475,6 @@ tasks:
     cmds:
       - task: _api:post:unix
       - task: _api:post:windows
-
   api:patch:
     run: once
     desc: Make an authenticated PATCH request to the GitHub API
@@ -1381,7 +1490,6 @@ tasks:
     cmds:
       - task: _api:patch:unix
       - task: _api:patch:windows
-
   api:delete:danger:
     run: once
     desc: Make an authenticated DELETE request to the GitHub API
@@ -1393,18 +1501,20 @@ tasks:
       vars:
         - ENDPOINT
     prompt:
-      - "This will send a DELETE request to the GitHub API: {{.ENDPOINT}}"
+      - 'This will send a DELETE request to the GitHub API: {{.ENDPOINT}}'
       - This may permanently remove resources. Are you sure you want to continue?
     deps:
       - task: install
     cmds:
       - cmd: bash -lc '{{.NIX_LOAD}}; gh api --method DELETE {{.ENDPOINT}}'
-        platforms: [linux, darwin]
+        platforms:
+          - linux
+          - darwin
       - cmd: >-
           powershell -NoProfile -ExecutionPolicy Bypass -Command
           "{{.WINGET_LOAD}}; gh api --method DELETE {{.ENDPOINT}}; exit \$LASTEXITCODE"
-        platforms: [windows]
-
+        platforms:
+          - windows
   extension:list:
     run: once
     desc: List installed GitHub CLI extensions
@@ -1413,12 +1523,14 @@ tasks:
       - task: install
     cmds:
       - cmd: bash -lc '{{.NIX_LOAD}}; gh extension list'
-        platforms: [linux, darwin]
+        platforms:
+          - linux
+          - darwin
       - cmd: >-
           powershell -NoProfile -ExecutionPolicy Bypass -Command
           "{{.WINGET_LOAD}}; gh extension list; exit \$LASTEXITCODE"
-        platforms: [windows]
-
+        platforms:
+          - windows
   extension:install:
     run: once
     desc: Install a GitHub CLI extension
@@ -1432,12 +1544,14 @@ tasks:
       - task: install
     cmds:
       - cmd: bash -lc '{{.NIX_LOAD}}; gh extension install {{.EXTENSION}}'
-        platforms: [linux, darwin]
+        platforms:
+          - linux
+          - darwin
       - cmd: >-
           powershell -NoProfile -ExecutionPolicy Bypass -Command
           "{{.WINGET_LOAD}}; gh extension install {{.EXTENSION}}; exit \$LASTEXITCODE"
-        platforms: [windows]
-
+        platforms:
+          - windows
   extension:upgrade:
     run: once
     desc: Upgrade a GitHub CLI extension to the latest version
@@ -1452,12 +1566,14 @@ tasks:
       - task: install
     cmds:
       - cmd: bash -lc '{{.NIX_LOAD}}; gh extension upgrade {{.EXTENSION}}'
-        platforms: [linux, darwin]
+        platforms:
+          - linux
+          - darwin
       - cmd: >-
           powershell -NoProfile -ExecutionPolicy Bypass -Command
           "{{.WINGET_LOAD}}; gh extension upgrade {{.EXTENSION}}; exit \$LASTEXITCODE"
-        platforms: [windows]
-
+        platforms:
+          - windows
   extension:remove:
     run: once
     desc: Remove an installed GitHub CLI extension
@@ -1471,12 +1587,14 @@ tasks:
       - task: install
     cmds:
       - cmd: bash -lc '{{.NIX_LOAD}}; gh extension remove {{.EXTENSION}}'
-        platforms: [linux, darwin]
+        platforms:
+          - linux
+          - darwin
       - cmd: >-
           powershell -NoProfile -ExecutionPolicy Bypass -Command
           "{{.WINGET_LOAD}}; gh extension remove {{.EXTENSION}}; exit \$LASTEXITCODE"
-        platforms: [windows]
-
+        platforms:
+          - windows
   config:list:
     run: once
     desc: List all GitHub CLI configuration values
@@ -1485,12 +1603,14 @@ tasks:
       - task: install
     cmds:
       - cmd: bash -lc '{{.NIX_LOAD}}; gh config list'
-        platforms: [linux, darwin]
+        platforms:
+          - linux
+          - darwin
       - cmd: >-
           powershell -NoProfile -ExecutionPolicy Bypass -Command
           "{{.WINGET_LOAD}}; gh config list; exit \$LASTEXITCODE"
-        platforms: [windows]
-
+        platforms:
+          - windows
   config:get:
     run: once
     desc: Get a GitHub CLI configuration value
@@ -1504,12 +1624,14 @@ tasks:
       - task: install
     cmds:
       - cmd: bash -lc '{{.NIX_LOAD}}; gh config get {{.CONFIG_KEY}}'
-        platforms: [linux, darwin]
+        platforms:
+          - linux
+          - darwin
       - cmd: >-
           powershell -NoProfile -ExecutionPolicy Bypass -Command
           "{{.WINGET_LOAD}}; gh config get {{.CONFIG_KEY}}; exit \$LASTEXITCODE"
-        platforms: [windows]
-
+        platforms:
+          - windows
   config:set:
     run: once
     desc: Set a GitHub CLI configuration value
@@ -1525,12 +1647,14 @@ tasks:
       - task: install
     cmds:
       - cmd: bash -lc '{{.NIX_LOAD}}; gh config set {{.CONFIG_KEY}} {{.CONFIG_VALUE}}'
-        platforms: [linux, darwin]
+        platforms:
+          - linux
+          - darwin
       - cmd: >-
           powershell -NoProfile -ExecutionPolicy Bypass -Command
           "{{.WINGET_LOAD}}; gh config set {{.CONFIG_KEY}} {{.CONFIG_VALUE}}; exit \$LASTEXITCODE"
-        platforms: [windows]
-
+        platforms:
+          - windows
   ssh-key:list:
     run: once
     desc: List SSH keys associated with the GitHub account
@@ -1539,12 +1663,14 @@ tasks:
       - task: install
     cmds:
       - cmd: bash -lc '{{.NIX_LOAD}}; gh ssh-key list'
-        platforms: [linux, darwin]
+        platforms:
+          - linux
+          - darwin
       - cmd: >-
           powershell -NoProfile -ExecutionPolicy Bypass -Command
           "{{.WINGET_LOAD}}; gh ssh-key list; exit \$LASTEXITCODE"
-        platforms: [windows]
-
+        platforms:
+          - windows
   ssh-key:add:
     run: once
     desc: Add an SSH public key to the GitHub account
@@ -1562,14 +1688,16 @@ tasks:
           bash -lc '{{.NIX_LOAD}};
           gh ssh-key add {{.SSH_KEY_FILE}}
           {{if .SSH_KEY_TITLE}}--title "{{.SSH_KEY_TITLE}}"{{end}}'
-        platforms: [linux, darwin]
+        platforms:
+          - linux
+          - darwin
       - cmd: >-
           powershell -NoProfile -ExecutionPolicy Bypass -Command
           "{{.WINGET_LOAD}};
           gh ssh-key add {{.SSH_KEY_FILE}} {{if .SSH_KEY_TITLE}}--title '{{.SSH_KEY_TITLE}}'{{end}};
           exit \$LASTEXITCODE"
-        platforms: [windows]
-
+        platforms:
+          - windows
   ssh-key:delete:danger:
     run: once
     desc: Permanently delete an SSH key from the GitHub account
@@ -1581,18 +1709,20 @@ tasks:
       vars:
         - SSH_KEY_ID
     prompt:
-      - "This will permanently delete SSH key {{.SSH_KEY_ID}} from your GitHub account."
+      - This will permanently delete SSH key {{.SSH_KEY_ID}} from your GitHub account.
       - Are you sure you want to continue?
     deps:
       - task: install
     cmds:
       - cmd: bash -lc '{{.NIX_LOAD}}; gh ssh-key delete {{.SSH_KEY_ID}} --yes'
-        platforms: [linux, darwin]
+        platforms:
+          - linux
+          - darwin
       - cmd: >-
           powershell -NoProfile -ExecutionPolicy Bypass -Command
           "{{.WINGET_LOAD}}; gh ssh-key delete {{.SSH_KEY_ID}} --yes; exit \$LASTEXITCODE"
-        platforms: [windows]
-
+        platforms:
+          - windows
   alias:list:
     run: once
     desc: List all GitHub CLI command aliases
@@ -1601,12 +1731,14 @@ tasks:
       - task: install
     cmds:
       - cmd: bash -lc '{{.NIX_LOAD}}; gh alias list'
-        platforms: [linux, darwin]
+        platforms:
+          - linux
+          - darwin
       - cmd: >-
           powershell -NoProfile -ExecutionPolicy Bypass -Command
           "{{.WINGET_LOAD}}; gh alias list; exit \$LASTEXITCODE"
-        platforms: [windows]
-
+        platforms:
+          - windows
   alias:set:
     run: once
     desc: Create or update a GitHub CLI command alias
@@ -1623,7 +1755,6 @@ tasks:
     cmds:
       - task: _alias:set:unix
       - task: _alias:set:windows
-
   alias:delete:
     run: once
     desc: Delete a GitHub CLI command alias
@@ -1637,12 +1768,14 @@ tasks:
       - task: install
     cmds:
       - cmd: bash -lc '{{.NIX_LOAD}}; gh alias delete {{.ALIAS_NAME}}'
-        platforms: [linux, darwin]
+        platforms:
+          - linux
+          - darwin
       - cmd: >-
           powershell -NoProfile -ExecutionPolicy Bypass -Command
           "{{.WINGET_LOAD}}; gh alias delete {{.ALIAS_NAME}}; exit \$LASTEXITCODE"
-        platforms: [windows]
-
+        platforms:
+          - windows
   project:list:
     run: once
     desc: List GitHub Projects for a user or organisation
@@ -1654,12 +1787,14 @@ tasks:
       - task: install
     cmds:
       - cmd: bash -lc '{{.NIX_LOAD}}; gh project list {{if .OWNER}}--owner {{.OWNER}}{{end}}'
-        platforms: [linux, darwin]
+        platforms:
+          - linux
+          - darwin
       - cmd: >-
           powershell -NoProfile -ExecutionPolicy Bypass -Command
           "{{.WINGET_LOAD}}; gh project list {{if .OWNER}}--owner {{.OWNER}}{{end}}; exit \$LASTEXITCODE"
-        platforms: [windows]
-
+        platforms:
+          - windows
   project:view:
     run: once
     desc: View a GitHub Project
@@ -1674,13 +1809,15 @@ tasks:
       - task: install
     cmds:
       - cmd: bash -lc '{{.NIX_LOAD}}; gh project view {{.PROJECT_NUMBER}} {{if .OWNER}}--owner {{.OWNER}}{{end}}'
-        platforms: [linux, darwin]
+        platforms:
+          - linux
+          - darwin
       - cmd: >-
           powershell -NoProfile -ExecutionPolicy Bypass -Command
           "{{.WINGET_LOAD}}; gh project view {{.PROJECT_NUMBER}} {{if .OWNER}}--owner {{.OWNER}}{{end}};
           exit \$LASTEXITCODE"
-        platforms: [windows]
-
+        platforms:
+          - windows
   project:create:
     run: once
     desc: Create a new GitHub Project
@@ -1698,13 +1835,15 @@ tasks:
           bash -lc '{{.NIX_LOAD}};
           gh project create --title "{{.PROJECT_TITLE}}"
           {{if .OWNER}}--owner {{.OWNER}}{{end}}'
-        platforms: [linux, darwin]
+        platforms:
+          - linux
+          - darwin
       - cmd: >-
           powershell -NoProfile -ExecutionPolicy Bypass -Command
           "{{.WINGET_LOAD}}; gh project create --title '{{.PROJECT_TITLE}}' {{if .OWNER}}--owner {{.OWNER}}{{end}};
           exit \$LASTEXITCODE"
-        platforms: [windows]
-
+        platforms:
+          - windows
   open:
     run: once
     desc: Open the current repository in the browser
@@ -1713,12 +1852,14 @@ tasks:
       - task: install
     cmds:
       - cmd: bash -lc '{{.NIX_LOAD}}; gh repo view --web'
-        platforms: [linux, darwin]
+        platforms:
+          - linux
+          - darwin
       - cmd: >-
           powershell -NoProfile -ExecutionPolicy Bypass -Command
           "{{.WINGET_LOAD}}; gh repo view --web; exit \$LASTEXITCODE"
-        platforms: [windows]
-
+        platforms:
+          - windows
   browse:
     run: once
     desc: Browse the current repository on GitHub in the browser
@@ -1729,12 +1870,14 @@ tasks:
       - task: install
     cmds:
       - cmd: bash -lc '{{.NIX_LOAD}}; gh browse'
-        platforms: [linux, darwin]
+        platforms:
+          - linux
+          - darwin
       - cmd: >-
           powershell -NoProfile -ExecutionPolicy Bypass -Command
           "{{.WINGET_LOAD}}; gh browse; exit \$LASTEXITCODE"
-        platforms: [windows]
-
+        platforms:
+          - windows
   search:repos:
     run: once
     desc: Search for GitHub repositories
@@ -1748,12 +1891,14 @@ tasks:
       - task: install
     cmds:
       - cmd: bash -lc '{{.NIX_LOAD}}; gh search repos "{{.QUERY}}"'
-        platforms: [linux, darwin]
+        platforms:
+          - linux
+          - darwin
       - cmd: >-
           powershell -NoProfile -ExecutionPolicy Bypass -Command
           "{{.WINGET_LOAD}}; gh search repos '{{.QUERY}}'; exit \$LASTEXITCODE"
-        platforms: [windows]
-
+        platforms:
+          - windows
   search:issues:
     run: once
     desc: Search for GitHub issues
@@ -1767,12 +1912,14 @@ tasks:
       - task: install
     cmds:
       - cmd: bash -lc '{{.NIX_LOAD}}; gh search issues "{{.QUERY}}"'
-        platforms: [linux, darwin]
+        platforms:
+          - linux
+          - darwin
       - cmd: >-
           powershell -NoProfile -ExecutionPolicy Bypass -Command
           "{{.WINGET_LOAD}}; gh search issues '{{.QUERY}}'; exit \$LASTEXITCODE"
-        platforms: [windows]
-
+        platforms:
+          - windows
   search:prs:
     run: once
     desc: Search for GitHub pull requests
@@ -1786,12 +1933,14 @@ tasks:
       - task: install
     cmds:
       - cmd: bash -lc '{{.NIX_LOAD}}; gh search prs "{{.QUERY}}"'
-        platforms: [linux, darwin]
+        platforms:
+          - linux
+          - darwin
       - cmd: >-
           powershell -NoProfile -ExecutionPolicy Bypass -Command
           "{{.WINGET_LOAD}}; gh search prs '{{.QUERY}}'; exit \$LASTEXITCODE"
-        platforms: [windows]
-
+        platforms:
+          - windows
   _repo:clone:unix:
     run: once
     internal: true
@@ -1800,10 +1949,15 @@ tasks:
       When GH_PAT_TOKEN is set, embeds the token in the HTTPS URL for reliable
       authentication against private repos not owned by the caller.
       Falls back to gh repo clone when GH_PAT_TOKEN is absent.
-    platforms: [linux, darwin]
-    set: [errexit, nounset, pipefail]
+    platforms:
+      - linux
+      - darwin
+    set:
+      - errexit
+      - nounset
+      - pipefail
     env:
-      GH_PAT: "{{.GH_PAT_TOKEN}}"
+      GH_PAT: '{{.GH_PAT_TOKEN}}'
     cmds:
       - |
         {{.NIX_LOAD}}
@@ -1814,7 +1968,6 @@ tasks:
         else
           gh repo clone "$TARGET"${DEST:+ "$DEST"}
         fi
-
   _repo:clone:windows:
     run: once
     internal: true
@@ -1823,9 +1976,10 @@ tasks:
       When GH_PAT_TOKEN is set, embeds the token in the HTTPS URL for reliable
       authentication against private repos not owned by the caller.
       Falls back to gh repo clone when GH_PAT_TOKEN is absent.
-    platforms: [windows]
+    platforms:
+      - windows
     env:
-      GH_PAT: "{{.GH_PAT_TOKEN}}"
+      GH_PAT: '{{.GH_PAT_TOKEN}}'
     cmds:
       - >-
         powershell -NoProfile -ExecutionPolicy Bypass -Command
@@ -1834,146 +1988,170 @@ tasks:
         \$args = @(\$dest) | Where-Object { \$_ };
         if (\$env:GH_PAT) { git clone \"https://\$env:GH_PAT@github.com/\$target.git\" @args }
         else { gh repo clone \$target @args }; exit \$LASTEXITCODE"
-
   _api:post:unix:
     run: once
     internal: true
     desc: POST to the GitHub API on macOS or Linux by piping DATA via stdin
     summary: Pipe DATA to gh api --method POST via printf on macOS or Linux.
-    platforms: [linux, darwin]
-    set: [errexit, nounset, pipefail]
+    platforms:
+      - linux
+      - darwin
+    set:
+      - errexit
+      - nounset
+      - pipefail
     env:
-      GH_DATA: "{{.GH_DATA}}"
+      GH_DATA: '{{.GH_DATA}}'
     cmds:
       - |
         {{.NIX_LOAD}}
         printf '%s' "$GH_DATA" | gh api --method POST {{.ENDPOINT}} --input -
-
   _api:post:windows:
     run: once
     internal: true
     desc: POST to the GitHub API on Windows by piping DATA via stdin
     summary: Pipe DATA to gh api --method POST via PowerShell on Windows.
-    platforms: [windows]
+    platforms:
+      - windows
     env:
-      GH_DATA: "{{.GH_DATA}}"
+      GH_DATA: '{{.GH_DATA}}'
     cmds:
       - >-
         powershell -NoProfile -ExecutionPolicy Bypass -Command
         "{{.WINGET_LOAD}}; \$env:GH_DATA | gh api --method POST {{.ENDPOINT}} --input -; exit \$LASTEXITCODE"
-
   _api:patch:unix:
     run: once
     internal: true
     desc: PATCH the GitHub API on macOS or Linux by piping DATA via stdin
     summary: Pipe DATA to gh api --method PATCH via printf on macOS or Linux.
-    platforms: [linux, darwin]
-    set: [errexit, nounset, pipefail]
+    platforms:
+      - linux
+      - darwin
+    set:
+      - errexit
+      - nounset
+      - pipefail
     env:
-      GH_DATA: "{{.GH_DATA}}"
+      GH_DATA: '{{.GH_DATA}}'
     cmds:
       - |
         {{.NIX_LOAD}}
         printf '%s' "$GH_DATA" | gh api --method PATCH {{.ENDPOINT}} --input -
-
   _api:patch:windows:
     run: once
     internal: true
     desc: PATCH the GitHub API on Windows by piping DATA via stdin
     summary: Pipe DATA to gh api --method PATCH via PowerShell on Windows.
-    platforms: [windows]
+    platforms:
+      - windows
     env:
-      GH_DATA: "{{.GH_DATA}}"
+      GH_DATA: '{{.GH_DATA}}'
     cmds:
       - >-
         powershell -NoProfile -ExecutionPolicy Bypass -Command
         "{{.WINGET_LOAD}}; \$env:GH_DATA | gh api --method PATCH {{.ENDPOINT}} --input -; exit \$LASTEXITCODE"
-
   _alias:set:unix:
     run: once
     internal: true
     desc: Set a gh alias on macOS or Linux using single-quoted expansion
     summary: Run gh alias set with single-quote wrapping on macOS or Linux.
-    platforms: [linux, darwin]
-    set: [errexit, nounset, pipefail]
+    platforms:
+      - linux
+      - darwin
+    set:
+      - errexit
+      - nounset
+      - pipefail
     cmds:
       - |
         {{.NIX_LOAD}}
         gh alias set {{.ALIAS_NAME}} '{{.ALIAS_COMMAND}}'
-
   _alias:set:windows:
     run: once
     internal: true
     desc: Set a gh alias on Windows using double-quoted expansion
     summary: Run gh alias set with double-quote wrapping on Windows.
-    platforms: [windows]
+    platforms:
+      - windows
     cmds:
       - >-
         powershell -NoProfile -ExecutionPolicy Bypass -Command
         "{{.WINGET_LOAD}}; gh alias set {{.ALIAS_NAME}} '{{.ALIAS_COMMAND}}'; exit \$LASTEXITCODE"
-
   _workflow:watch:unix:
     run: once
     internal: true
     desc: Watch the latest run of a workflow on macOS or Linux
     summary: Resolve the most recent run ID via command substitution, then watch it.
-    platforms: [linux, darwin]
-    set: [errexit, nounset, pipefail]
+    platforms:
+      - linux
+      - darwin
+    set:
+      - errexit
+      - nounset
+      - pipefail
     cmds:
       - |
         {{.NIX_LOAD}}
         gh run watch $(gh run list --workflow {{.WORKFLOW}} --limit 1 --json databaseId --jq '.[0].databaseId')
-
   _workflow:watch:windows:
     run: once
     internal: true
     desc: Watch the latest run of a workflow on Windows
     summary: Resolve the most recent run ID via PowerShell, then watch it.
-    platforms: [windows]
+    platforms:
+      - windows
     cmds:
       - >-
         powershell -NoProfile -ExecutionPolicy Bypass -Command
         "{{.WINGET_LOAD}}; \$runId = (gh run list --workflow {{.WORKFLOW}} --limit 1 --json databaseId
         | ConvertFrom-Json)[0].databaseId;
         gh run watch \$runId; exit \$LASTEXITCODE"
-
   _doctor:unix:
     run: once
     internal: true
     desc: Run gh doctor on macOS or Linux
     summary: Run `gh doctor` to check configuration, auth, and connectivity on macOS or Linux.
-    platforms: [linux, darwin]
-    set: [errexit, nounset, pipefail]
+    platforms:
+      - linux
+      - darwin
+    set:
+      - errexit
+      - nounset
+      - pipefail
     cmds:
       - bash -lc '{{.NIX_LOAD}}; gh doctor'
-
   _doctor:windows:
     run: once
     internal: true
     desc: Run gh doctor on Windows
     summary: Run `gh doctor` to check configuration, auth, and connectivity on Windows.
-    platforms: [windows]
+    platforms:
+      - windows
     cmds:
       - >-
         powershell -NoProfile -ExecutionPolicy Bypass -Command
         "{{.WINGET_LOAD}}; gh doctor; exit \$LASTEXITCODE"
-
   _version:unix:
     run: once
     internal: true
     desc: Show the gh version on macOS or Linux
     summary: Print the gh version on macOS or Linux.
-    platforms: [linux, darwin]
-    set: [errexit, nounset, pipefail]
+    platforms:
+      - linux
+      - darwin
+    set:
+      - errexit
+      - nounset
+      - pipefail
     cmds:
       - bash -lc '{{.NIX_LOAD}}; gh --version'
-
   _version:windows:
     run: once
     internal: true
     desc: Show the gh version on Windows
     summary: Print the gh version on Windows.
-    platforms: [windows]
+    platforms:
+      - windows
     preconditions:
       - sh: >-
           powershell -NoProfile -ExecutionPolicy Bypass -Command
@@ -1984,28 +2162,31 @@ tasks:
       - >-
         powershell -NoProfile -ExecutionPolicy Bypass -Command
         "{{.WINGET_LOAD}}; gh --version; exit \$LASTEXITCODE"
-
   _which:unix:
     run: once
     internal: true
     desc: Show the path to the gh binary on macOS or Linux
     summary: Print the filesystem path of the gh binary on macOS or Linux.
-    platforms: [linux, darwin]
-    set: [errexit, nounset, pipefail]
+    platforms:
+      - linux
+      - darwin
+    set:
+      - errexit
+      - nounset
+      - pipefail
     cmds:
       - bash -lc '{{.NIX_LOAD}}; command -v gh'
-
   _which:windows:
     run: once
     internal: true
     desc: Show the path to the gh binary on Windows
     summary: Print the filesystem path of the gh binary on Windows.
-    platforms: [windows]
+    platforms:
+      - windows
     cmds:
       - >-
         powershell -NoProfile -ExecutionPolicy Bypass -Command
         "{{.WINGET_LOAD}}; (Get-Command gh).Source; exit \$LASTEXITCODE"
-
   _verify:unix:
     run: once
     internal: true
@@ -2013,8 +2194,13 @@ tasks:
     summary: |
       Confirm gh is installed and gh --version works, then report the current
       authentication status. Prints a clear message if not authenticated.
-    platforms: [linux, darwin]
-    set: [errexit, nounset, pipefail]
+    platforms:
+      - linux
+      - darwin
+    set:
+      - errexit
+      - nounset
+      - pipefail
     cmds:
       - |
         {{.NIX_LOAD}}
@@ -2026,7 +2212,6 @@ tasks:
         echo ''
         echo '=== gh auth status ==='
         gh auth status || echo 'Not authenticated. Run: task auth:login'
-
   _verify:windows:
     run: once
     internal: true
@@ -2034,7 +2219,8 @@ tasks:
     summary: |
       Confirm gh is installed and gh --version works on Windows, then report
       the current authentication status.
-    platforms: [windows]
+    platforms:
+      - windows
     cmds:
       - >-
         powershell -NoProfile -ExecutionPolicy Bypass -Command
@@ -2047,7 +2233,6 @@ tasks:
           Write-Host 'Not authenticated. Run: task auth:login'
         };
         exit 0"
-
   _secret:set:unix:
     run: once
     internal: true
@@ -2055,16 +2240,20 @@ tasks:
     summary: |
       Pipe the secret value via stdin to avoid exposure in the process list.
       Reads SECRET_VALUE from the task environment.
-    platforms: [linux, darwin]
-    set: [errexit, nounset, pipefail]
+    platforms:
+      - linux
+      - darwin
+    set:
+      - errexit
+      - nounset
+      - pipefail
     env:
-      GH_SECRET_VALUE: "{{.SECRET_VALUE}}"
+      GH_SECRET_VALUE: '{{.SECRET_VALUE}}'
     cmds:
       - >-
         {{.NIX_LOAD}};
         printf '%s' "$GH_SECRET_VALUE" | gh secret set {{.SECRET_NAME}} --body -
         {{if .ENVIRONMENT}}--env {{.ENVIRONMENT}}{{end}}
-
   _secret:set:windows:
     run: once
     internal: true
@@ -2072,9 +2261,10 @@ tasks:
     summary: |
       Pipe the secret value via PowerShell stdin to avoid exposure in the
       process list. Reads SECRET_VALUE from the task environment.
-    platforms: [windows]
+    platforms:
+      - windows
     env:
-      GH_SECRET_VALUE: "{{.SECRET_VALUE}}"
+      GH_SECRET_VALUE: '{{.SECRET_VALUE}}'
     cmds:
       - >-
         powershell -NoProfile -ExecutionPolicy Bypass -Command

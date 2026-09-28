@@ -1,6 +1,7 @@
 ---
 name: Setup
 description: Set up Go and the Task CLI.
+
 runs:
   using: composite
   steps:

@@ -1,10 +1,10 @@
 ---
-version: "3.5"
+version: '3.5'
 
 output:
   group:
-    begin: "::group::{{.TASK}}"
-    end: "::endgroup::"
+    begin: ::group::{{.TASK}}
+    end: '::endgroup::'
     error_only: false
 
 silent: true
@@ -30,7 +30,6 @@ tasks:
     summary: Display the list of available sqlfluff-related tasks defined in this Taskfile.
     cmds:
       - task --list
-
   install:
     run: once
     desc: Install sqlfluff via Nix (Unix) or uv tool (Windows)
@@ -44,23 +43,23 @@ tasks:
     cmds:
       - task: _install:unix
       - task: _install:windows
-
   _install:unix:
     internal: true
-    platforms: [linux, darwin]
+    platforms:
+      - linux
+      - darwin
     cmds:
       - task: nix:install:profile
         vars:
-          NIX_INSTALLABLE: "{{.SQLFLUFF_NIX_INSTALLABLE}}"
-
+          NIX_INSTALLABLE: '{{.SQLFLUFF_NIX_INSTALLABLE}}'
   _install:windows:
     internal: true
-    platforms: [windows]
+    platforms:
+      - windows
     cmds:
       - task: uv:tool:install
         vars:
-          UV_TOOL: "{{.SQLFLUFF_UV_TOOL}}"
-
+          UV_TOOL: '{{.SQLFLUFF_UV_TOOL}}'
   version:
     run: once
     desc: Show the active sqlfluff version
@@ -78,7 +77,7 @@ tasks:
   _run:
     internal: true
     run: when_changed
-    dir: "{{.USER_WORKING_DIR}}"
+    dir: '{{.USER_WORKING_DIR}}'
     deps:
       - task: install
     vars:
@@ -96,7 +95,9 @@ tasks:
           {{.PATHS}}
           {{if .EXTRA}}{{.EXTRA}} {{end}}{{end}}
           {{if .CONFIG}}--config "{{.CONFIG}}"{{end}}{{.TAIL}}'
-        platforms: [linux, darwin]
+        platforms:
+          - linux
+          - darwin
       - cmd: >-
           powershell -NoProfile -ExecutionPolicy Bypass -Command
           "{{.WINGET_LOAD}}; {{.UV_LOAD}};
@@ -108,8 +109,8 @@ tasks:
           {{if .EXTRA}}{{.EXTRA}} {{end}}{{end}}
           {{if .CONFIG}}--config '{{.CONFIG}}'{{end}};
           exit \$LASTEXITCODE"
-        platforms: [windows]
-
+        platforms:
+          - windows
   ci:
     run: once
     desc: Lint SQL files with sqlfluff (SQLFLUFF_TARGETS=path)
@@ -123,7 +124,6 @@ tasks:
         vars:
           SUBCMD: lint
           TAIL: ' && echo "✅ sqlfluff passed" || { echo "❌ sqlfluff failed"; exit 1; }'
-
   ci:fix:
     run: once
     desc: Auto-fix SQL files with sqlfluff (SQLFLUFF_TARGETS=path)
@@ -136,7 +136,6 @@ tasks:
         vars:
           SUBCMD: fix
           TAIL: ' && echo "✅ sqlfluff fixes applied"'
-
   parse:
     run: once
     desc: Parse SQL files and print the parse tree (SQLFLUFF_TARGETS=path)
@@ -149,10 +148,9 @@ tasks:
       - task: _run
         vars:
           SUBCMD: parse
-
   config:init:
     run: once
-    dir: "{{.USER_WORKING_DIR}}"
+    dir: '{{.USER_WORKING_DIR}}'
     desc: Create a default .sqlfluff configuration file
     summary: |
       Write a sensible default .sqlfluff file in the current directory.
@@ -161,30 +159,31 @@ tasks:
     status:
       - test -f .sqlfluff
     cmds:
-      - "printf '[sqlfluff]\\n' > .sqlfluff"
-      - "printf 'dialect = ansi\\n' >> .sqlfluff"
-      - "printf 'max_line_length = 120\\n' >> .sqlfluff"
-      - "printf '\\n' >> .sqlfluff"
-      - "printf '[sqlfluff:indentation]\\n' >> .sqlfluff"
-      - "printf 'indent_unit = space\\n' >> .sqlfluff"
-      - "printf 'tab_space_size = 4\\n' >> .sqlfluff"
+      - printf '[sqlfluff]\n' > .sqlfluff
+      - printf 'dialect = ansi\n' >> .sqlfluff
+      - printf 'max_line_length = 120\n' >> .sqlfluff
+      - printf '\n' >> .sqlfluff
+      - printf '[sqlfluff:indentation]\n' >> .sqlfluff
+      - printf 'indent_unit = space\n' >> .sqlfluff
+      - printf 'tab_space_size = 4\n' >> .sqlfluff
       - echo 'Created .sqlfluff with default configuration.'
-
   _version:unix:
     run: once
     internal: true
     desc: Show sqlfluff version on macOS or Linux
     summary: Print the sqlfluff version on macOS or Linux.
-    platforms: [linux, darwin]
+    platforms:
+      - linux
+      - darwin
     cmds:
       - bash -lc '{{.NIX_LOAD}}; sqlfluff --version'
-
   _version:windows:
     run: once
     internal: true
     desc: Show sqlfluff version on Windows
     summary: Print the sqlfluff version on Windows.
-    platforms: [windows]
+    platforms:
+      - windows
     preconditions:
       - sh: >-
           powershell -NoProfile -ExecutionPolicy Bypass -Command

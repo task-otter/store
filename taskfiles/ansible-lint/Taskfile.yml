@@ -1,10 +1,10 @@
 ---
-version: "3.5"
+version: '3.5'
 
 output:
   group:
-    begin: "::group::{{.TASK}}"
-    end: "::endgroup::"
+    begin: ::group::{{.TASK}}
+    end: '::endgroup::'
     error_only: false
 
 silent: true
@@ -26,7 +26,6 @@ tasks:
     summary: Display the list of available ansible-lint-related tasks defined in this Taskfile.
     cmds:
       - task --list
-
   install:
     run: once
     desc: Install ansible-lint via the Nix profile
@@ -39,8 +38,7 @@ tasks:
     cmds:
       - task: nix:install:profile
         vars:
-          NIX_INSTALLABLE: "{{.ANSIBLE_LINT_NIX_INSTALLABLE}}"
-
+          NIX_INSTALLABLE: '{{.ANSIBLE_LINT_NIX_INSTALLABLE}}'
   version:
     run: once
     desc: Show the active ansible-lint version
@@ -51,7 +49,6 @@ tasks:
       - task: install
     cmds:
       - task: _version:unix
-
   ci:
     run: once
     desc: Lint Ansible YAML files with ansible-lint (ANSIBLE_LINT_TARGETS=path)
@@ -59,13 +56,12 @@ tasks:
       Run ansible-lint against ANSIBLE_LINT_TARGETS (default .) to enforce best
       practices and YAML checks. Pass ANSIBLE_LINT_EXTRA_ARGS for additional flags.
       Auto-installs if missing.
-    dir: "{{.USER_WORKING_DIR}}"
+    dir: '{{.USER_WORKING_DIR}}'
     deps:
       - task: install
     cmds:
       - task: _lint:unix
       - echo "✅ ansible-lint passed"
-
   ci:fix:
     run: once
     desc: Auto-fix Ansible YAML files with ansible-lint --fix (ANSIBLE_LINT_TARGETS=path)
@@ -73,50 +69,63 @@ tasks:
       Run ansible-lint --fix against ANSIBLE_LINT_TARGETS (default .) to automatically
       resolve fixable lint violations. Pass ANSIBLE_LINT_EXTRA_ARGS for additional flags.
       Auto-installs if missing.
-    dir: "{{.USER_WORKING_DIR}}"
+    dir: '{{.USER_WORKING_DIR}}'
     deps:
       - task: install
     cmds:
       - task: _lint:fix:unix
       - echo "✅ ansible-lint fixes applied"
-
   _lint:unix:
     run: once
     internal: true
-    platforms: [linux, darwin]
-    set: [errexit, nounset, pipefail]
+    platforms:
+      - linux
+      - darwin
+    set:
+      - errexit
+      - nounset
+      - pipefail
     cmds:
       - task: _lint:run:unix
         vars:
-          ANSIBLE_LINT_FIX_FLAG: ""
-
+          ANSIBLE_LINT_FIX_FLAG: ''
   _lint:fix:unix:
     run: once
     internal: true
-    platforms: [linux, darwin]
-    set: [errexit, nounset, pipefail]
+    platforms:
+      - linux
+      - darwin
+    set:
+      - errexit
+      - nounset
+      - pipefail
     cmds:
       - task: _lint:run:unix
         vars:
-          ANSIBLE_LINT_FIX_FLAG: "--fix"
-
+          ANSIBLE_LINT_FIX_FLAG: --fix
   _lint:run:unix:
     run: once
     internal: true
-    platforms: [linux, darwin]
-    set: [errexit, nounset, pipefail]
+    platforms:
+      - linux
+      - darwin
+    set:
+      - errexit
+      - nounset
+      - pipefail
     cmds:
       - |
         bash -lc '{{.NIX_LOAD}}; export ANSIBLE_CONFIG="{{.ANSIBLE_LINT_CONFIG}}";
         targets="{{if .ANSIBLE_LINT_TARGETS}}{{.ANSIBLE_LINT_TARGETS}}{{else}}.{{end}}"
         ansible-lint {{.ANSIBLE_LINT_FIX_FLAG}} $targets \
           {{.ANSIBLE_LINT_EXTRA_ARGS}}'
-
   _version:unix:
     run: once
     internal: true
     desc: Show ansible-lint version on macOS or Linux
     summary: Print the ansible-lint version on macOS or Linux.
-    platforms: [linux, darwin]
+    platforms:
+      - linux
+      - darwin
     cmds:
       - bash -lc '{{.NIX_LOAD}}; ansible-lint --version'

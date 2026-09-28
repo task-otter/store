@@ -1,10 +1,10 @@
 ---
-version: "3.5"
+version: '3.5'
 
 output:
   group:
-    begin: "::group::{{.TASK}}"
-    end: "::endgroup::"
+    begin: ::group::{{.TASK}}
+    end: '::endgroup::'
     error_only: false
 
 silent: true
@@ -15,7 +15,7 @@ includes:
   nix:
     taskfile: ../nix/Taskfile.yml
 
-vars:
+vars: null
 
 tasks:
   default:
@@ -24,7 +24,6 @@ tasks:
     summary: Display the list of available npm-related tasks defined in this Taskfile.
     cmds:
       - task --list
-
   version:
     run: once
     desc: Show the active Node.js and npm versions
@@ -35,7 +34,6 @@ tasks:
     cmds:
       - task: _version:unix
       - task: _version:windows
-
   install:
     run: once
     desc: Install project dependencies with npm install
@@ -52,7 +50,6 @@ tasks:
       - task: _npm:windows
         vars:
           ARGS: install --silent --no-fund --no-audit
-
   install:clean:
     run: once
     desc: Clean install project dependencies from the lockfile
@@ -64,7 +61,6 @@ tasks:
     cmds:
       - task: _install:clean:unix
       - task: _install:clean:windows
-
   ci:fix:
     run: once
     desc: Format source files with npm run format
@@ -78,7 +74,6 @@ tasks:
       - task: _npm:windows
         vars:
           ARGS: run format
-
   add:
     run: once
     desc: Install packages as local devDependencies with npm (PACKAGES=<pkgs>)
@@ -86,15 +81,15 @@ tasks:
       Install PACKAGES as local devDependencies via npm install -D.
       Pass EXTRA_ARGS for additional npm flags.
     requires:
-      vars: [PACKAGES]
+      vars:
+        - PACKAGES
     cmds:
       - task: _npm:unix
         vars:
-          ARGS: "install -D --silent --no-fund --no-audit {{.PACKAGES}} {{.EXTRA_ARGS}}"
+          ARGS: install -D --silent --no-fund --no-audit {{.PACKAGES}} {{.EXTRA_ARGS}}
       - task: _npm:windows
         vars:
-          ARGS: "install -D --silent --no-fund --no-audit {{.PACKAGES}} {{.EXTRA_ARGS}}"
-
+          ARGS: install -D --silent --no-fund --no-audit {{.PACKAGES}} {{.EXTRA_ARGS}}
   install:global:
     run: once
     desc: Install packages globally with npm (PACKAGES=<pkgs>)
@@ -103,15 +98,15 @@ tasks:
       The Node.js runtime is loaded via nodejs:install. Must be run from a
       directory containing package.json (same as other npm project tasks).
     requires:
-      vars: [PACKAGES]
+      vars:
+        - PACKAGES
     cmds:
       - task: _npm:unix
         vars:
-          ARGS: "install -g --silent --no-fund --no-audit {{.PACKAGES}}"
+          ARGS: install -g --silent --no-fund --no-audit {{.PACKAGES}}
       - task: _npm:windows
         vars:
-          ARGS: "install -g --silent --no-fund --no-audit {{.PACKAGES}}"
-
+          ARGS: install -g --silent --no-fund --no-audit {{.PACKAGES}}
   remove:
     run: once
     desc: Remove local packages with npm (PACKAGES=<pkgs>)
@@ -119,15 +114,15 @@ tasks:
       Uninstall PACKAGES from the local project via npm uninstall.
       Pass EXTRA_ARGS for additional npm flags.
     requires:
-      vars: [PACKAGES]
+      vars:
+        - PACKAGES
     cmds:
       - task: _npm:unix
         vars:
-          ARGS: "uninstall --silent --no-fund --no-audit {{.PACKAGES}} {{.EXTRA_ARGS}}"
+          ARGS: uninstall --silent --no-fund --no-audit {{.PACKAGES}} {{.EXTRA_ARGS}}
       - task: _npm:windows
         vars:
-          ARGS: "uninstall --silent --no-fund --no-audit {{.PACKAGES}} {{.EXTRA_ARGS}}"
-
+          ARGS: uninstall --silent --no-fund --no-audit {{.PACKAGES}} {{.EXTRA_ARGS}}
   install:undo:
     run: once
     desc: Explain how to remove npm, which ships bundled with Node.js
@@ -136,8 +131,7 @@ tasks:
       Remove Node.js from the Nix profile via nodejs or nix tasks instead.
     cmds:
       - echo 'npm ships bundled with Node.js and cannot be removed independently.'
-      - "echo 'Remove Node.js via NODEJS_NIX_INSTALLABLE or nix profile remove.'"
-
+      - echo 'Remove Node.js via NODEJS_NIX_INSTALLABLE or nix profile remove.'
   upgrade:
     run: once
     desc: Upgrade npm to the latest release
@@ -147,24 +141,23 @@ tasks:
     cmds:
       - task: _npm:unix
         vars:
-          ARGS: "install -g --silent npm@latest"
+          ARGS: install -g --silent npm@latest
       - task: _npm:windows
         vars:
-          ARGS: "install -g --silent npm@latest"
-
+          ARGS: install -g --silent npm@latest
   exec:
     run: once
     desc: Execute a local project binary via npm exec (BINARY=<name>)
     requires:
-      vars: [BINARY]
+      vars:
+        - BINARY
     cmds:
       - task: _npm:unix
         vars:
-          ARGS: "exec --yes -- {{.BINARY}} {{.ARGS}} {{.EXTRA_ARGS}}"
+          ARGS: exec --yes -- {{.BINARY}} {{.ARGS}} {{.EXTRA_ARGS}}
       - task: _npm:windows
         vars:
-          ARGS: "exec --yes -- {{.BINARY}} {{.ARGS}} {{.EXTRA_ARGS}}"
-
+          ARGS: exec --yes -- {{.BINARY}} {{.ARGS}} {{.EXTRA_ARGS}}
   run:
     run: once
     desc: Run a package.json script (SCRIPT=<name>)
@@ -181,13 +174,12 @@ tasks:
     cmds:
       - task: _run:unix
         vars:
-          SCRIPT: "{{.SCRIPT}}"
-          CLI_ARGS: "{{.CLI_ARGS}}"
+          SCRIPT: '{{.SCRIPT}}'
+          CLI_ARGS: '{{.CLI_ARGS}}'
       - task: _run:windows
         vars:
-          SCRIPT: "{{.SCRIPT}}"
-          CLI_ARGS: "{{.CLI_ARGS}}"
-
+          SCRIPT: '{{.SCRIPT}}'
+          CLI_ARGS: '{{.CLI_ARGS}}'
   dev:
     run: once
     desc: Start the development server with npm run dev
@@ -201,7 +193,6 @@ tasks:
       - task: _npm:windows
         vars:
           ARGS: run dev
-
   test:
     run: once
     desc: Run the project test suite with npm test
@@ -216,7 +207,6 @@ tasks:
       - task: _npm:windows
         vars:
           ARGS: test
-
   build:
     run: once
     desc: Build the project with npm run build
@@ -230,7 +220,6 @@ tasks:
       - task: _npm:windows
         vars:
           ARGS: run build
-
   lint:
     run: once
     desc: Lint the project with npm run lint
@@ -244,7 +233,6 @@ tasks:
       - task: _npm:windows
         vars:
           ARGS: run lint
-
   typecheck:
     run: once
     desc: Run type checking with npm run typecheck
@@ -258,7 +246,6 @@ tasks:
       - task: _npm:windows
         vars:
           ARGS: run typecheck
-
   outdated:
     run: once
     desc: List outdated npm packages (non-strict, for local review)
@@ -276,7 +263,6 @@ tasks:
         vars:
           ARGS: outdated
         ignore_error: true
-
   outdated:strict:
     run: once
     desc: List outdated packages and fail if any exist (CI enforcement)
@@ -292,7 +278,6 @@ tasks:
       - task: _npm:windows
         vars:
           ARGS: outdated
-
   audit:
     run: once
     desc: Run a security vulnerability audit (strict, CI enforcement)
@@ -308,7 +293,6 @@ tasks:
       - task: _npm:windows
         vars:
           ARGS: audit
-
   audit:report:
     run: once
     desc: Report npm vulnerabilities without failing (local review)
@@ -325,7 +309,6 @@ tasks:
         vars:
           ARGS: audit
         ignore_error: true
-
   audit:fix:
     run: once
     desc: Fix security vulnerabilities with npm audit fix
@@ -340,7 +323,6 @@ tasks:
       - task: _npm:windows
         vars:
           ARGS: audit fix
-
   audit:json:
     run: once
     desc: Output npm audit results as JSON for tooling or dashboards
@@ -356,7 +338,6 @@ tasks:
       - task: _npm:windows
         vars:
           ARGS: audit --json
-
   update:
     run: once
     desc: Update all packages within declared version ranges
@@ -371,7 +352,6 @@ tasks:
       - task: _npm:windows
         vars:
           ARGS: update
-
   doctor:
     run: once
     desc: Check npm environment health with npm doctor
@@ -387,7 +367,6 @@ tasks:
       - task: _npm:windows
         vars:
           ARGS: doctor
-
   cache:clean:
     run: once
     desc: Clear the npm cache with npm cache clean
@@ -403,7 +382,6 @@ tasks:
       - task: _npm:windows
         vars:
           ARGS: cache clean --force
-
   clean:
     run: once
     desc: Remove the node_modules directory
@@ -416,7 +394,6 @@ tasks:
     cmds:
       - task: _clean:unix
       - task: _clean:windows
-
   clean:all:
     run: once
     desc: Remove node_modules and package-lock.json (destructive — regenerates lockfile)
@@ -428,110 +405,122 @@ tasks:
       lock file is corrupt or conflicted, then audit the new lock file carefully.
       Run task install after to restore dependencies and regenerate package-lock.json.
     prompt:
-      - "WARNING: This will permanently delete node_modules AND package-lock.json."
+      - 'WARNING: This will permanently delete node_modules AND package-lock.json.'
       - Regenerating the lockfile may produce a different dependency tree.
       - Continue?
     cmds:
       - task: _clean:all:unix
       - task: _clean:all:windows
-
   _npm:unix:
     run: when_changed
     internal: true
-    platforms: [linux, darwin]
-    dir: "{{.USER_WORKING_DIR}}"
-    set: [errexit, nounset, pipefail]
+    platforms:
+      - linux
+      - darwin
+    dir: '{{.USER_WORKING_DIR}}'
+    set:
+      - errexit
+      - nounset
+      - pipefail
     requires:
       vars:
         - ARGS
     env:
-      CI: "1"
+      CI: '1'
     deps:
       - task: nodejs:install
     preconditions:
-      - sh: 'test -f "{{.USER_WORKING_DIR}}/package.json"'
-        msg: "package.json not found. Run this task from the project root."
+      - sh: test -f "{{.USER_WORKING_DIR}}/package.json"
+        msg: package.json not found. Run this task from the project root.
     cmds:
       - bash -lc '{{.NIX_LOAD}}; npm {{.ARGS}}'
-
   _npm:windows:
     run: when_changed
     internal: true
-    platforms: [windows]
-    dir: "{{.USER_WORKING_DIR}}"
+    platforms:
+      - windows
+    dir: '{{.USER_WORKING_DIR}}'
     requires:
       vars:
         - ARGS
     env:
-      CI: "1"
+      CI: '1'
     deps:
       - task: nodejs:install
     preconditions:
       - sh: >-
           powershell -NoProfile -ExecutionPolicy Bypass -Command
           "{{.WINGET_LOAD}}; if (Test-Path '{{.USER_WORKING_DIR}}/package.json') { exit 0 } else { exit 1 }"
-        msg: "package.json not found. Run this task from the project root."
+        msg: package.json not found. Run this task from the project root.
     cmds:
       - >-
         powershell -NoProfile -NonInteractive -ExecutionPolicy Bypass -Command
         "{{.WINGET_LOAD}}; \$ErrorActionPreference = 'Stop'; \$env:CI = '1'; npm {{.ARGS}}; exit \$LASTEXITCODE"
-
   _install:clean:unix:
     run: once
     internal: true
-    platforms: [linux, darwin]
-    set: [errexit, nounset, pipefail]
+    platforms:
+      - linux
+      - darwin
+    set:
+      - errexit
+      - nounset
+      - pipefail
     preconditions:
-      - sh: 'test -f "{{.USER_WORKING_DIR}}/package-lock.json"'
-        msg: "package-lock.json not found. npm ci requires a lockfile."
+      - sh: test -f "{{.USER_WORKING_DIR}}/package-lock.json"
+        msg: package-lock.json not found. npm ci requires a lockfile.
     cmds:
       - task: _npm:unix
         vars:
           ARGS: ci --silent --no-fund --no-audit
-
   _install:clean:windows:
     run: once
     internal: true
-    platforms: [windows]
+    platforms:
+      - windows
     preconditions:
       - sh: >-
           powershell -NoProfile -ExecutionPolicy Bypass -Command
           "{{.WINGET_LOAD}}; if (Test-Path '{{.USER_WORKING_DIR}}\package-lock.json') { exit 0 } else { exit 1 }"
-        msg: "package-lock.json not found. npm ci requires a lockfile."
+        msg: package-lock.json not found. npm ci requires a lockfile.
     cmds:
       - task: _npm:windows
         vars:
           ARGS: ci --silent --no-fund --no-audit
-
   _run:unix:
     run: when_changed
     internal: true
-    platforms: [linux, darwin]
-    set: [errexit, nounset, pipefail]
+    platforms:
+      - linux
+      - darwin
+    set:
+      - errexit
+      - nounset
+      - pipefail
     requires:
       vars:
         - SCRIPT
     env:
-      SCRIPT: "{{.SCRIPT}}"
+      SCRIPT: '{{.SCRIPT}}'
     preconditions:
-      - sh: 'printf "%s" "$SCRIPT" | grep -qE "^[A-Za-z0-9:_-]+$"'
+      - sh: printf "%s" "$SCRIPT" | grep -qE "^[A-Za-z0-9:_-]+$"
         msg: >-
           SCRIPT "{{.SCRIPT}}" contains invalid characters.
           Use only letters, numbers, colons, hyphens, and underscores.
     cmds:
       - task: _npm:unix
         vars:
-          ARGS: "run {{.SCRIPT}}{{if .CLI_ARGS}} -- {{.CLI_ARGS}}{{end}}"
-
+          ARGS: run {{.SCRIPT}}{{if .CLI_ARGS}} -- {{.CLI_ARGS}}{{end}}
   _run:windows:
     run: when_changed
     internal: true
-    platforms: [windows]
+    platforms:
+      - windows
     requires:
       vars:
         - SCRIPT
     env:
-      SCRIPT: "{{.SCRIPT}}"
+      SCRIPT: '{{.SCRIPT}}'
     preconditions:
       - sh: >-
           powershell -NoProfile -ExecutionPolicy Bypass -Command
@@ -542,47 +531,55 @@ tasks:
     cmds:
       - task: _npm:windows
         vars:
-          ARGS: "run {{.SCRIPT}}{{if .CLI_ARGS}} -- {{.CLI_ARGS}}{{end}}"
-
+          ARGS: run {{.SCRIPT}}{{if .CLI_ARGS}} -- {{.CLI_ARGS}}{{end}}
   _version:unix:
     run: once
     internal: true
-    platforms: [linux, darwin]
-    set: [errexit, nounset, pipefail]
+    platforms:
+      - linux
+      - darwin
+    set:
+      - errexit
+      - nounset
+      - pipefail
     deps:
       - task: nodejs:install
     cmds:
       - bash -lc '{{.NIX_LOAD}}; node --version; npm --version'
-
   _version:windows:
     run: once
     internal: true
-    platforms: [windows]
+    platforms:
+      - windows
     deps:
       - task: nodejs:install
     cmds:
       - >-
         powershell -NoProfile -ExecutionPolicy Bypass -Command
         "{{.WINGET_LOAD}}; node --version; npm --version; exit \$LASTEXITCODE"
-
   _clean:unix:
     run: once
     internal: true
-    platforms: [linux, darwin]
-    dir: "{{.USER_WORKING_DIR}}"
-    set: [errexit, nounset, pipefail]
+    platforms:
+      - linux
+      - darwin
+    dir: '{{.USER_WORKING_DIR}}'
+    set:
+      - errexit
+      - nounset
+      - pipefail
     status:
-      - "test ! -d node_modules"
+      - test ! -d node_modules
     cmds:
       - echo Removing node_modules...
       - rm -rf node_modules
       - echo node_modules removed.
-
   _clean:windows:
     run: once
     internal: true
-    platforms: [windows]
-    dir: "{{.USER_WORKING_DIR}}"
+    platforms:
+      - windows
+    dir: '{{.USER_WORKING_DIR}}'
     status:
       - >-
         powershell -NoProfile -ExecutionPolicy Bypass -Command
@@ -593,24 +590,28 @@ tasks:
         powershell -NoProfile -ExecutionPolicy Bypass -Command
         "{{.WINGET_LOAD}}; Remove-Item -Recurse -Force 'node_modules'; exit \$LASTEXITCODE"
       - echo node_modules removed.
-
   _clean:all:unix:
     run: once
     internal: true
-    platforms: [linux, darwin]
-    dir: "{{.USER_WORKING_DIR}}"
-    set: [errexit, nounset, pipefail]
+    platforms:
+      - linux
+      - darwin
+    dir: '{{.USER_WORKING_DIR}}'
+    set:
+      - errexit
+      - nounset
+      - pipefail
     cmds:
       - echo Removing node_modules and package-lock.json...
       - rm -rf node_modules
       - rm -f package-lock.json
       - echo Done.
-
   _clean:all:windows:
     run: once
     internal: true
-    platforms: [windows]
-    dir: "{{.USER_WORKING_DIR}}"
+    platforms:
+      - windows
+    dir: '{{.USER_WORKING_DIR}}'
     cmds:
       - echo Removing node_modules and package-lock.json...
       - >-

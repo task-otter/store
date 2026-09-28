@@ -1,10 +1,10 @@
 ---
-version: "3.5"
+version: '3.5'
 
 output:
   group:
-    begin: "::group::{{.TASK}}"
-    end: "::endgroup::"
+    begin: ::group::{{.TASK}}
+    end: '::endgroup::'
     error_only: false
 
 silent: true
@@ -28,7 +28,6 @@ tasks:
     summary: Display the list of available dotenv-linter-related tasks defined in this Taskfile.
     cmds:
       - task --list
-
   install:
     run: once
     desc: Install dotenv-linter via Nix (Unix) or cargo install (Windows)
@@ -42,23 +41,23 @@ tasks:
     cmds:
       - task: _install:unix
       - task: _install:windows
-
   _install:unix:
     internal: true
-    platforms: [linux, darwin]
+    platforms:
+      - linux
+      - darwin
     cmds:
       - task: nix:install:profile
         vars:
-          NIX_INSTALLABLE: "{{.DOTENV_LINTER_NIX_INSTALLABLE}}"
-
+          NIX_INSTALLABLE: '{{.DOTENV_LINTER_NIX_INSTALLABLE}}'
   _install:windows:
     internal: true
-    platforms: [windows]
+    platforms:
+      - windows
     cmds:
       - task: cargo:install:crate
         vars:
-          CARGO_CRATE: "{{.DOTENV_LINTER_CARGO_CRATE}}"
-
+          CARGO_CRATE: '{{.DOTENV_LINTER_CARGO_CRATE}}'
   version:
     run: once
     desc: Show the active dotenv-linter version
@@ -70,7 +69,6 @@ tasks:
     cmds:
       - task: _version:unix
       - task: _version:windows
-
   ci:
     run: once
     desc: Lint dotenv files with dotenv-linter check (DOTENV_LINTER_TARGETS=path)
@@ -79,13 +77,12 @@ tasks:
       for additional flags such as --skip or --recursive, or pass arguments
       after -- to forward them directly. Auto-installs dotenv-linter if
       missing.
-    dir: "{{.USER_WORKING_DIR}}"
+    dir: '{{.USER_WORKING_DIR}}'
     deps:
       - task: install
     cmds:
       - task: _lint:unix
       - task: _lint:windows
-
   ci:fix:
     run: once
     desc: Fix dotenv lint issues with dotenv-linter (DOTENV_LINTER_TARGETS=path)
@@ -93,13 +90,12 @@ tasks:
       Run dotenv-linter fix against DOTENV_LINTER_TARGETS (default .env) to apply automatic
       fixes. A backup of each changed file is created by the tool. Pass
       DOTENV_LINTER_EXTRA_ARGS for additional flags. Auto-installs dotenv-linter if missing.
-    dir: "{{.USER_WORKING_DIR}}"
+    dir: '{{.USER_WORKING_DIR}}'
     deps:
       - task: install
     cmds:
       - task: _fix:unix
       - task: _fix:windows
-
   diff:
     run: once
     desc: Compare dotenv files with dotenv-linter diff (DOTENV_LINTER_TARGETS=files)
@@ -107,70 +103,73 @@ tasks:
       Run dotenv-linter diff against DOTENV_LINTER_TARGETS (two or more .env files) to
       ensure their key sets match. Pass DOTENV_LINTER_EXTRA_ARGS for additional flags.
       Auto-installs dotenv-linter if missing.
-    dir: "{{.USER_WORKING_DIR}}"
+    dir: '{{.USER_WORKING_DIR}}'
     deps:
       - task: install
     cmds:
       - task: _diff:unix
       - task: _diff:windows
-
   _lint:unix:
     run: once
     internal: true
-    platforms: [linux, darwin]
-    dir: "{{.USER_WORKING_DIR}}"
+    platforms:
+      - linux
+      - darwin
+    dir: '{{.USER_WORKING_DIR}}'
     cmds:
       - task: _lint:run:unix
         vars:
-          DOTENV_LINTER_SUBCOMMAND: "check"
-
+          DOTENV_LINTER_SUBCOMMAND: check
   _lint:windows:
     run: once
     internal: true
-    platforms: [windows]
-    dir: "{{.USER_WORKING_DIR}}"
+    platforms:
+      - windows
+    dir: '{{.USER_WORKING_DIR}}'
     cmds:
       - task: _lint:run:windows
         vars:
-          DOTENV_LINTER_SUBCOMMAND: "check"
-
+          DOTENV_LINTER_SUBCOMMAND: check
   _fix:unix:
     run: once
     internal: true
-    platforms: [linux, darwin]
-    dir: "{{.USER_WORKING_DIR}}"
+    platforms:
+      - linux
+      - darwin
+    dir: '{{.USER_WORKING_DIR}}'
     cmds:
       - task: _lint:run:unix
         vars:
-          DOTENV_LINTER_SUBCOMMAND: "fix"
-
+          DOTENV_LINTER_SUBCOMMAND: fix
   _fix:windows:
     run: once
     internal: true
-    platforms: [windows]
-    dir: "{{.USER_WORKING_DIR}}"
+    platforms:
+      - windows
+    dir: '{{.USER_WORKING_DIR}}'
     cmds:
       - task: _lint:run:windows
         vars:
-          DOTENV_LINTER_SUBCOMMAND: "fix"
-
+          DOTENV_LINTER_SUBCOMMAND: fix
   _lint:run:unix:
     run: once
     internal: true
-    platforms: [linux, darwin]
-    dir: "{{.USER_WORKING_DIR}}"
+    platforms:
+      - linux
+      - darwin
+    dir: '{{.USER_WORKING_DIR}}'
     cmds:
       - |
         bash -lc '{{.NIX_LOAD}};
         targets="{{.DOTENV_LINTER_TARGETS}}"
         dotenv-linter {{.DOTENV_LINTER_SUBCOMMAND}} $targets \
           {{.DOTENV_LINTER_EXTRA_ARGS}} {{.CLI_ARGS}}'
-
   _lint:run:windows:
     run: once
     internal: true
-    platforms: [windows]
-    dir: "{{.USER_WORKING_DIR}}"
+    platforms:
+      - windows
+    dir: '{{.USER_WORKING_DIR}}'
     cmds:
       - >-
         powershell -NoProfile -ExecutionPolicy Bypass -Command
@@ -179,12 +178,13 @@ tasks:
         dotenv-linter {{.DOTENV_LINTER_SUBCOMMAND}} \$targets.Split(' ')
           {{.DOTENV_LINTER_EXTRA_ARGS}} {{.CLI_ARGS}};
         exit \$LASTEXITCODE"
-
   _diff:unix:
     run: once
     internal: true
-    platforms: [linux, darwin]
-    dir: "{{.USER_WORKING_DIR}}"
+    platforms:
+      - linux
+      - darwin
+    dir: '{{.USER_WORKING_DIR}}'
     cmds:
       - |
         bash -lc '{{.NIX_LOAD}};
@@ -201,12 +201,12 @@ tasks:
           done
         fi
         dotenv-linter diff $options $targets'
-
   _diff:windows:
     run: once
     internal: true
-    platforms: [windows]
-    dir: "{{.USER_WORKING_DIR}}"
+    platforms:
+      - windows
+    dir: '{{.USER_WORKING_DIR}}'
     cmds:
       - >-
         powershell -NoProfile -ExecutionPolicy Bypass -Command
@@ -223,22 +223,23 @@ tasks:
         };
         dotenv-linter diff @options @targets;
         exit \$LASTEXITCODE"
-
   _version:unix:
     run: once
     internal: true
     desc: Show dotenv-linter version on macOS or Linux
     summary: Print the dotenv-linter version on macOS or Linux.
-    platforms: [linux, darwin]
+    platforms:
+      - linux
+      - darwin
     cmds:
       - bash -lc '{{.NIX_LOAD}}; dotenv-linter --version'
-
   _version:windows:
     run: once
     internal: true
     desc: Show dotenv-linter version on Windows
     summary: Print the dotenv-linter version on Windows.
-    platforms: [windows]
+    platforms:
+      - windows
     preconditions:
       - sh: >-
           powershell -NoProfile -ExecutionPolicy Bypass -Command

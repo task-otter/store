@@ -1,29 +1,24 @@
 ---
-version: "3.5"
+version: '3.5'
 
 output:
-
   group:
-    begin: "::group::{{.TASK}}"
-    end: "::endgroup::"
+    begin: ::group::{{.TASK}}
+    end: '::endgroup::'
     error_only: false
 
 silent: true
 
 includes:
-
   nix:
     taskfile: ../nix/Taskfile.yml
   winget:
     taskfile: ../winget/Taskfile.yml
 
 vars:
-
   BRUNO_GUI_NIX_INSTALLABLE: '{{.BRUNO_GUI_NIX_INSTALLABLE | default "nixpkgs#bruno"}}'
   BRUNO_GUI_WINGET_INSTALLABLE: '{{.BRUNO_GUI_WINGET_INSTALLABLE | default "Bruno.Bruno"}}'
-
   BRUNO_GUI_COLLECTION: '{{.BRUNO_GUI_COLLECTION | default ""}}'
-
   BRUNO_GUI_EXTRA_ARGS: '{{.BRUNO_GUI_EXTRA_ARGS | default ""}}'
 
 tasks:
@@ -33,7 +28,6 @@ tasks:
     summary: Display the list of available Bruno desktop app tasks defined in this Taskfile.
     cmds:
       - task --list
-
   install:
     run: once
     desc: Install the Bruno desktop app via Nix (Unix) or WinGet (Windows)
@@ -47,23 +41,23 @@ tasks:
     cmds:
       - task: _install:unix
       - task: _install:windows
-
   _install:unix:
     internal: true
-    platforms: [linux, darwin]
+    platforms:
+      - linux
+      - darwin
     cmds:
       - task: nix:install:profile
         vars:
-          NIX_INSTALLABLE: "{{.BRUNO_GUI_NIX_INSTALLABLE}}"
-
+          NIX_INSTALLABLE: '{{.BRUNO_GUI_NIX_INSTALLABLE}}'
   _install:windows:
     internal: true
-    platforms: [windows]
+    platforms:
+      - windows
     cmds:
       - task: winget:install:package
         vars:
-          WINGET_INSTALLABLE: "{{.BRUNO_GUI_WINGET_INSTALLABLE}}"
-
+          WINGET_INSTALLABLE: '{{.BRUNO_GUI_WINGET_INSTALLABLE}}'
   version:
     run: once
     desc: Show the active the Bruno desktop app version
@@ -75,7 +69,6 @@ tasks:
     cmds:
       - task: _version:unix
       - task: _version:windows
-
   open:
     run: once
     desc: Launch the Bruno desktop app (BRUNO_GUI_COLLECTION=path)
@@ -84,7 +77,7 @@ tasks:
       specific collection directory, and BRUNO_GUI_EXTRA_ARGS for additional
       flags. On macOS and Linux the app runs in the background so the task
       returns immediately. Auto-installs bruno if missing.
-    dir: "{{.USER_WORKING_DIR}}"
+    dir: '{{.USER_WORKING_DIR}}'
     vars:
       RESOLVED_COLLECTION: '{{.BRUNO_GUI_COLLECTION}}'
     deps:
@@ -93,7 +86,9 @@ tasks:
       - cmd: >-
           bash -lc '{{.NIX_LOAD}}; bruno{{if .RESOLVED_COLLECTION}} {{.RESOLVED_COLLECTION}}{{end}}
           {{.BRUNO_GUI_EXTRA_ARGS}}{{if .CLI_ARGS}} {{.CLI_ARGS}}{{end}} &'
-        platforms: [linux, darwin]
+        platforms:
+          - linux
+          - darwin
       - cmd: >-
           powershell -NoProfile -ExecutionPolicy Bypass -Command
           "{{.WINGET_LOAD}}; Start-Process bruno{{if .RESOLVED_COLLECTION}} -ArgumentList '{{.RESOLVED_COLLECTION}}
@@ -101,8 +96,8 @@ tasks:
           {{- else if or .BRUNO_GUI_EXTRA_ARGS .CLI_ARGS}}
           -ArgumentList '{{.BRUNO_GUI_EXTRA_ARGS}}
           {{- if .CLI_ARGS}} {{.CLI_ARGS}}{{end}}'{{end}}; exit \$LASTEXITCODE"
-        platforms: [windows]
-
+        platforms:
+          - windows
   help:
     run: once
     desc: Show Bruno desktop app help
@@ -113,28 +108,32 @@ tasks:
       - cmd: >-
           bash -lc '{{.NIX_LOAD}}; bruno --help
           {{.BRUNO_GUI_EXTRA_ARGS}}{{if .CLI_ARGS}} {{.CLI_ARGS}}{{end}}'
-        platforms: [linux, darwin]
+        platforms:
+          - linux
+          - darwin
       - cmd: >-
           powershell -NoProfile -ExecutionPolicy Bypass -Command
           "{{.WINGET_LOAD}}; bruno --help
           {{.BRUNO_GUI_EXTRA_ARGS}}{{if .CLI_ARGS}} {{.CLI_ARGS}}{{end}}; exit \$LASTEXITCODE"
-        platforms: [windows]
-
+        platforms:
+          - windows
   _version:unix:
     run: once
     internal: true
     desc: Show the Bruno desktop app version on macOS or Linux
     summary: Print the bruno version on macOS or Linux.
-    platforms: [linux, darwin]
+    platforms:
+      - linux
+      - darwin
     cmds:
       - bash -lc '{{.NIX_LOAD}}; bruno --version'
-
   _version:windows:
     run: once
     internal: true
     desc: Show the Bruno desktop app version on Windows
     summary: Print the bruno version on Windows.
-    platforms: [windows]
+    platforms:
+      - windows
     preconditions:
       - sh: >-
           powershell -NoProfile -ExecutionPolicy Bypass -Command

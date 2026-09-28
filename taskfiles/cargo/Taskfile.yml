@@ -1,24 +1,21 @@
 ---
-version: "3.5"
+version: '3.5'
 
 output:
-
   group:
-    begin: "::group::{{.TASK}}"
-    end: "::endgroup::"
+    begin: ::group::{{.TASK}}
+    end: '::endgroup::'
     error_only: false
 
 silent: true
 
 includes:
-
   nix:
     taskfile: ../nix/Taskfile.yml
   winget:
     taskfile: ../winget/Taskfile.yml
 
 vars:
-
   CARGO_NIX_INSTALLABLE: '{{.CARGO_NIX_INSTALLABLE | default "nixpkgs#cargo"}}'
   CARGO_WINGET_INSTALLABLE: '{{.CARGO_WINGET_INSTALLABLE | default "Rustlang.Rustup"}}'
   # \$ so Task's POSIX shell (mvdan/sh) leaves literal $ for PowerShell.
@@ -31,11 +28,8 @@ vars:
     \$cargoBin = Join-Path \$env:USERPROFILE '.cargo\bin';
     if (Test-Path -LiteralPath \$cargoBin) { \$env:Path = \$cargoBin + ';' + \$env:Path }
     `}}
-
   RUST_TOOLCHAIN: '{{.RUST_TOOLCHAIN | default ""}}'
-
   CARGO_EXTRA_ARGS: '{{.CARGO_EXTRA_ARGS | default ""}}'
-
   CARGO_CRATE: '{{.CARGO_CRATE | default ""}}'
 
 tasks:
@@ -45,7 +39,6 @@ tasks:
     summary: Display the list of available Cargo-related tasks defined in this Taskfile.
     cmds:
       - task --list
-
   install:
     run: once
     desc: Install cargo via Nix (Unix) or WinGet (Windows)
@@ -59,23 +52,23 @@ tasks:
     cmds:
       - task: _install:unix
       - task: _install:windows
-
   _install:unix:
     internal: true
-    platforms: [linux, darwin]
+    platforms:
+      - linux
+      - darwin
     cmds:
       - task: nix:install:profile
         vars:
-          NIX_INSTALLABLE: "{{.CARGO_NIX_INSTALLABLE}}"
-
+          NIX_INSTALLABLE: '{{.CARGO_NIX_INSTALLABLE}}'
   _install:windows:
     internal: true
-    platforms: [windows]
+    platforms:
+      - windows
     cmds:
       - task: winget:install:package
         vars:
-          WINGET_INSTALLABLE: "{{.CARGO_WINGET_INSTALLABLE}}"
-
+          WINGET_INSTALLABLE: '{{.CARGO_WINGET_INSTALLABLE}}'
   version:
     run: once
     desc: Show the active Cargo version
@@ -87,7 +80,6 @@ tasks:
     cmds:
       - task: _version:unix
       - task: _version:windows
-
   install:crate:
     desc: Install a crate with cargo install (CARGO_CRATE=name)
     summary: |
@@ -107,11 +99,10 @@ tasks:
     cmds:
       - task: _cargo:unix
         vars:
-          CARGO_SUBCMD: "install {{.CARGO_CRATE}}"
+          CARGO_SUBCMD: install {{.CARGO_CRATE}}
       - task: _cargo:windows
         vars:
-          CARGO_SUBCMD: "install {{.CARGO_CRATE}}"
-
+          CARGO_SUBCMD: install {{.CARGO_CRATE}}
   build:
     run: once
     desc: Build the crate with cargo build (CARGO_EXTRA_ARGS=flags)
@@ -124,11 +115,10 @@ tasks:
     cmds:
       - task: _cargo:unix
         vars:
-          CARGO_SUBCMD: "build"
+          CARGO_SUBCMD: build
       - task: _cargo:windows
         vars:
-          CARGO_SUBCMD: "build"
-
+          CARGO_SUBCMD: build
   check:
     run: once
     desc: Type-check the crate with cargo check (CARGO_EXTRA_ARGS=flags)
@@ -141,11 +131,10 @@ tasks:
     cmds:
       - task: _cargo:unix
         vars:
-          CARGO_SUBCMD: "check"
+          CARGO_SUBCMD: check
       - task: _cargo:windows
         vars:
-          CARGO_SUBCMD: "check"
-
+          CARGO_SUBCMD: check
   test:
     run: once
     desc: Run the crate test suite with cargo test (CARGO_EXTRA_ARGS=flags)
@@ -158,18 +147,16 @@ tasks:
     cmds:
       - task: _cargo:unix
         vars:
-          CARGO_SUBCMD: "test"
+          CARGO_SUBCMD: test
       - task: _cargo:windows
         vars:
-          CARGO_SUBCMD: "test"
-
+          CARGO_SUBCMD: test
   ci:
     run: once
     desc: Run cargo fmt:check then lint
     cmds:
       - task: fmt:check
       - task: lint
-
   ci:fix:
     run: once
     desc: Run cargo fmt then lint:fix
@@ -179,7 +166,6 @@ tasks:
     cmds:
       - task: fmt
       - task: lint:fix
-
   fmt:
     run: once
     desc: Format Rust code with cargo fmt (CARGO_EXTRA_ARGS=flags)
@@ -191,11 +177,10 @@ tasks:
     cmds:
       - task: _cargo:unix
         vars:
-          CARGO_SUBCMD: "fmt"
+          CARGO_SUBCMD: fmt
       - task: _cargo:windows
         vars:
-          CARGO_SUBCMD: "fmt"
-
+          CARGO_SUBCMD: fmt
   fmt:check:
     run: once
     desc: Check Rust formatting with cargo fmt --check (CARGO_EXTRA_ARGS=flags)
@@ -208,11 +193,10 @@ tasks:
     cmds:
       - task: _cargo:unix
         vars:
-          CARGO_SUBCMD: "fmt --check"
+          CARGO_SUBCMD: fmt --check
       - task: _cargo:windows
         vars:
-          CARGO_SUBCMD: "fmt --check"
-
+          CARGO_SUBCMD: fmt --check
   lint:
     run: once
     desc: Lint Rust code with cargo clippy (CARGO_EXTRA_ARGS=flags)
@@ -225,11 +209,10 @@ tasks:
     cmds:
       - task: _cargo:unix
         vars:
-          CARGO_SUBCMD: "clippy"
+          CARGO_SUBCMD: clippy
       - task: _cargo:windows
         vars:
-          CARGO_SUBCMD: "clippy"
-
+          CARGO_SUBCMD: clippy
   lint:fix:
     run: once
     desc: Auto-fix Rust lint issues with cargo clippy --fix
@@ -242,11 +225,10 @@ tasks:
     cmds:
       - task: _cargo:unix
         vars:
-          CARGO_SUBCMD: "clippy --fix"
+          CARGO_SUBCMD: clippy --fix
       - task: _cargo:windows
         vars:
-          CARGO_SUBCMD: "clippy --fix"
-
+          CARGO_SUBCMD: clippy --fix
   which:
     run: once
     desc: Show the path to the cargo binary
@@ -256,7 +238,6 @@ tasks:
     cmds:
       - task: _which:unix
       - task: _which:windows
-
   verify:
     run: once
     desc: Verify the Rust toolchain installation
@@ -268,54 +249,57 @@ tasks:
     cmds:
       - task: _verify:unix
       - task: _verify:windows
-
   _which:unix:
     run: once
     internal: true
-    platforms: [linux, darwin]
+    platforms:
+      - linux
+      - darwin
     cmds:
       - bash -lc '{{.NIX_LOAD}}; command -v cargo'
-
   _which:windows:
     run: once
     internal: true
-    platforms: [windows]
+    platforms:
+      - windows
     cmds:
       - >-
         powershell -NoProfile -ExecutionPolicy Bypass -Command
         "{{.WINGET_LOAD}}; {{.CARGO_LOAD}}; (Get-Command cargo).Source"
-
   _verify:unix:
     run: once
     internal: true
-    platforms: [linux, darwin]
+    platforms:
+      - linux
+      - darwin
     cmds:
       - bash -lc '{{.NIX_LOAD}}; cargo --version; rustc --version'
-
   _verify:windows:
     run: once
     internal: true
-    platforms: [windows]
+    platforms:
+      - windows
     cmds:
       - >-
         powershell -NoProfile -ExecutionPolicy Bypass -Command
         "{{.WINGET_LOAD}}; {{.CARGO_LOAD}};
         cargo --version; rustc --version; exit \$LASTEXITCODE"
-
   _cargo:unix:
     internal: true
-    platforms: [linux, darwin]
-    dir: "{{.USER_WORKING_DIR}}"
+    platforms:
+      - linux
+      - darwin
+    dir: '{{.USER_WORKING_DIR}}'
     cmds:
       - |
         bash -lc '{{.NIX_LOAD}};
         cargo {{if .RUST_TOOLCHAIN}}+{{.RUST_TOOLCHAIN}} {{end}}{{.CARGO_SUBCMD}} \
           {{.CARGO_EXTRA_ARGS}}'
-
   _cargo:windows:
     internal: true
-    platforms: [windows]
-    dir: "{{.USER_WORKING_DIR}}"
+    platforms:
+      - windows
+    dir: '{{.USER_WORKING_DIR}}'
     cmds:
       - >-
         powershell -NoProfile -ExecutionPolicy Bypass -Command
@@ -325,22 +309,23 @@ tasks:
         & \$c {{if .RUST_TOOLCHAIN}}+{{.RUST_TOOLCHAIN}} {{end}}{{.CARGO_SUBCMD}}
           {{.CARGO_EXTRA_ARGS}};
         exit \$LASTEXITCODE"
-
   _version:unix:
     run: once
     internal: true
     desc: Show Cargo version on macOS or Linux
     summary: Print the cargo version on macOS or Linux.
-    platforms: [linux, darwin]
+    platforms:
+      - linux
+      - darwin
     cmds:
       - bash -lc '{{.NIX_LOAD}}; cargo --version'
-
   _version:windows:
     run: once
     internal: true
     desc: Show Cargo version on Windows
     summary: Print the cargo version on Windows.
-    platforms: [windows]
+    platforms:
+      - windows
     preconditions:
       - sh: >-
           powershell -NoProfile -ExecutionPolicy Bypass -Command

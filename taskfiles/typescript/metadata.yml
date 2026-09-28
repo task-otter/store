@@ -2,6 +2,7 @@
 schema: taskotter.dev/taskfile-metadata/v1
 module: typescript
 taskfile: Taskfile.yml
+
 exported_tasks:
   - build
   - build:clean
@@ -26,4 +27,9 @@ exported_tasks:
   - typecheck:watch
   - upgrade
   - version
-variants: [bun, node/npm, node/pnpm, node/yarn]
+
+variants:
+  - bun
+  - node/npm
+  - node/pnpm
+  - node/yarn

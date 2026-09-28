@@ -2,4 +2,7 @@
 schema: taskotter.dev/taskfile-metadata/v1
 module: nodejs
 taskfile: Taskfile.yml
-exported_tasks: [install, version]
+
+exported_tasks:
+  - install
+  - version

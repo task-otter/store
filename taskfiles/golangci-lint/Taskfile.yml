@@ -1,29 +1,29 @@
 ---
-version: "3.5"
+version: '3.5'
+
 output:
-
   group:
-    begin: "::group::{{.TASK}}"
-    end: "::endgroup::"
+    begin: ::group::{{.TASK}}
+    end: '::endgroup::'
     error_only: false
-silent: true
-includes:
 
+silent: true
+
+includes:
   go:
     taskfile: ../go/Taskfile.yml
   nix:
     taskfile: ../nix/Taskfile.yml
   winget:
     taskfile: ../winget/Taskfile.yml
-vars:
 
+vars:
   GOLANGCI_LINT_NIX_INSTALLABLE: '{{.GOLANGCI_LINT_NIX_INSTALLABLE | default "nixpkgs#go nixpkgs#golangci-lint"}}'
   GOLANGCI_LINT_WINGET_INSTALLABLE: '{{.GOLANGCI_LINT_WINGET_INSTALLABLE | default "GolangCI.golangci-lint"}}'
 
   # Formatter selection shared by every golangci-lint fmt invocation on Unix and
 
   # Windows. Kept in one place so the two call sites cannot drift apart.
-
   GOLANGCI_LINT_FMT_FORMATTER_FLAGS: >-
     {{.GOLANGCI_LINT_FMT_FORMATTER_FLAGS | default "-E gci -E gofmt -E gofumpt
     -E goimports -E golines"}}
@@ -35,7 +35,6 @@ tasks:
     summary: Display the list of available golangci-lint-related tasks defined in this Taskfile.
     cmds:
       - task --list
-
   install:
     run: once
     desc: Install golangci-lint via Nix (Unix) or WinGet (Windows)
@@ -49,24 +48,24 @@ tasks:
     cmds:
       - task: _install:unix
       - task: _install:windows
-
   _install:unix:
     internal: true
-    platforms: [linux, darwin]
+    platforms:
+      - linux
+      - darwin
     cmds:
       - task: nix:install:profile
         vars:
-          NIX_INSTALLABLE: "{{.GOLANGCI_LINT_NIX_INSTALLABLE}}"
-
+          NIX_INSTALLABLE: '{{.GOLANGCI_LINT_NIX_INSTALLABLE}}'
   _install:windows:
     internal: true
-    platforms: [windows]
+    platforms:
+      - windows
     cmds:
       - task: go:install
       - task: winget:install:package
         vars:
-          WINGET_INSTALLABLE: "{{.GOLANGCI_LINT_WINGET_INSTALLABLE}}"
-
+          WINGET_INSTALLABLE: '{{.GOLANGCI_LINT_WINGET_INSTALLABLE}}'
   version:
     run: once
     desc: Show the active golangci-lint version
@@ -78,7 +77,6 @@ tasks:
     cmds:
       - task: _version:unix
       - task: _version:windows
-
   lint:
     run: once
     desc: Lint Go packages with golangci-lint
@@ -92,9 +90,8 @@ tasks:
     cmds:
       - task: _lint
         vars:
-          GO_LINT_FIX: ""
-          GO_LINT_ARGS: "{{if .CLI_ARGS}}{{.CLI_ARGS}}{{else}}./...{{end}}"
-
+          GO_LINT_FIX: ''
+          GO_LINT_ARGS: '{{if .CLI_ARGS}}{{.CLI_ARGS}}{{else}}./...{{end}}'
   lint:fix:
     run: once
     desc: Auto-fix Go lint issues with golangci-lint
@@ -109,16 +106,14 @@ tasks:
     cmds:
       - task: _lint
         vars:
-          GO_LINT_FIX: "--fix"
-          GO_LINT_ARGS: "{{if .CLI_ARGS}}{{.CLI_ARGS}}{{else}}./...{{end}}"
-
+          GO_LINT_FIX: --fix
+          GO_LINT_ARGS: '{{if .CLI_ARGS}}{{.CLI_ARGS}}{{else}}./...{{end}}'
   ci:
     run: once
     desc: Run golangci-lint fmt:check then lint
     cmds:
       - task: fmt:check
       - task: lint
-
   ci:fix:
     run: once
     desc: Run fmt then lint:fix for CI
@@ -128,7 +123,6 @@ tasks:
     cmds:
       - task: fmt
       - task: lint:fix
-
   fmt:
     run: once
     desc: Format Go files with golangci-lint formatters
@@ -141,9 +135,8 @@ tasks:
     cmds:
       - task: _fmt
         vars:
-          GO_FMT_DIFF: ""
-          GO_FMT_TARGETS: "{{if .CLI_ARGS}}{{.CLI_ARGS}}{{else}}.{{end}}"
-
+          GO_FMT_DIFF: ''
+          GO_FMT_TARGETS: '{{if .CLI_ARGS}}{{.CLI_ARGS}}{{else}}.{{end}}'
   fmt:check:
     run: once
     desc: Check Go formatting with golangci-lint formatters
@@ -157,13 +150,12 @@ tasks:
     cmds:
       - task: _fmt
         vars:
-          GO_FMT_DIFF: "--diff"
-          GO_FMT_TARGETS: "{{if .CLI_ARGS}}{{.CLI_ARGS}}{{else}}.{{end}}"
-
+          GO_FMT_DIFF: --diff
+          GO_FMT_TARGETS: '{{if .CLI_ARGS}}{{.CLI_ARGS}}{{else}}.{{end}}'
   _custom:
     run: once
     internal: true
-    dir: "{{.USER_WORKING_DIR}}"
+    dir: '{{.USER_WORKING_DIR}}'
     if: test -f .custom-gcl.yml
     method: checksum
     vars:
@@ -173,17 +165,19 @@ tasks:
         ref: fromYaml .CUSTOM_GCL_YAML
       CUSTOM_GCL_NAME: '{{default "custom-gcl" .CUSTOM_GCL.name}}'
       CUSTOM_GCL_DESTINATION: '{{default "." .CUSTOM_GCL.destination}}'
-      CUSTOM_GCL_BINARY_NAME: "{{.CUSTOM_GCL_NAME}}{{exeExt}}"
-      CUSTOM_GCL_BINARY: "{{joinPath .CUSTOM_GCL_DESTINATION .CUSTOM_GCL_BINARY_NAME}}"
+      CUSTOM_GCL_BINARY_NAME: '{{.CUSTOM_GCL_NAME}}{{exeExt}}'
+      CUSTOM_GCL_BINARY: '{{joinPath .CUSTOM_GCL_DESTINATION .CUSTOM_GCL_BINARY_NAME}}'
     sources:
       - .custom-gcl.yml
     generates:
-      - "{{.CUSTOM_GCL_BINARY}}"
+      - '{{.CUSTOM_GCL_BINARY}}'
     cmds:
       - cmd: >-
           bash -lc '{{.NIX_LOAD}};
           {{if .GO_GLOBAL_BIN}}export PATH="{{.GO_GLOBAL_BIN}}:$PATH"; {{end}}golangci-lint custom -v'
-        platforms: [linux, darwin]
+        platforms:
+          - linux
+          - darwin
       # WINGET_LOAD reloads Path after winget install in this Task process.
       - cmd: >-
           powershell -NoProfile -ExecutionPolicy Bypass -Command
@@ -191,12 +185,12 @@ tasks:
           \$ErrorActionPreference='Stop';
           & golangci-lint custom -v;
           exit \$LASTEXITCODE"
-        platforms: [windows]
-
+        platforms:
+          - windows
   _lint:
     run: once
     internal: true
-    dir: "{{.USER_WORKING_DIR}}"
+    dir: '{{.USER_WORKING_DIR}}'
     deps:
       - task: _custom
     vars:
@@ -208,8 +202,8 @@ tasks:
         ref: fromYaml .CUSTOM_GCL_YAML
       CUSTOM_GCL_NAME: '{{default "custom-gcl" .CUSTOM_GCL.name}}'
       CUSTOM_GCL_DESTINATION: '{{default "." .CUSTOM_GCL.destination}}'
-      CUSTOM_GCL_BINARY_NAME: "{{.CUSTOM_GCL_NAME}}{{exeExt}}"
-      CUSTOM_GCL_BINARY: "{{joinPath .CUSTOM_GCL_DESTINATION .CUSTOM_GCL_BINARY_NAME}}"
+      CUSTOM_GCL_BINARY_NAME: '{{.CUSTOM_GCL_NAME}}{{exeExt}}'
+      CUSTOM_GCL_BINARY: '{{joinPath .CUSTOM_GCL_DESTINATION .CUSTOM_GCL_BINARY_NAME}}'
     cmds:
       - cmd: |
           bash -lc '{{.NIX_LOAD}}; exec bash -s' <<'GCL_LINT_EOF'
@@ -221,10 +215,11 @@ tasks:
               *) lint_binary="./{{.CUSTOM_GCL_BINARY}}" ;;
             esac
           fi
-
           "$lint_binary" run {{.GO_LINT_FIX}} {{.GO_LINT_ARGS}}
           GCL_LINT_EOF
-        platforms: [linux, darwin]
+        platforms:
+          - linux
+          - darwin
       # Same indent + \$ so >- folds to one line and $ survives Task's shell.
       # WINGET_LOAD reloads Path after winget; GO_LOAD puts GOPATH\bin on PATH.
       - cmd: >-
@@ -240,12 +235,12 @@ tasks:
           };
           & \$lintBinary run {{.GO_LINT_FIX}} {{.GO_LINT_ARGS}};
           exit \$LASTEXITCODE"
-        platforms: [windows]
-
+        platforms:
+          - windows
   _fmt:
     run: once
     internal: true
-    dir: "{{.USER_WORKING_DIR}}"
+    dir: '{{.USER_WORKING_DIR}}'
     cmds:
       - cmd: |
           bash -lc '{{.NIX_LOAD}};
@@ -253,7 +248,9 @@ tasks:
             {{.GO_FMT_DIFF}} \
             {{.GOLANGCI_LINT_FMT_FORMATTER_FLAGS}} \
             {{.GO_FMT_TARGETS}}'
-        platforms: [linux, darwin]
+        platforms:
+          - linux
+          - darwin
       # WINGET_LOAD reloads Path after winget; GO_LOAD puts GOPATH\bin on PATH.
       - cmd: >-
           powershell -NoProfile -ExecutionPolicy Bypass -Command
@@ -261,25 +258,27 @@ tasks:
           \$ErrorActionPreference='Stop';
           & golangci-lint fmt {{.GO_FMT_DIFF}} {{.GOLANGCI_LINT_FMT_FORMATTER_FLAGS}} {{.GO_FMT_TARGETS}};
           exit \$LASTEXITCODE"
-        platforms: [windows]
-
+        platforms:
+          - windows
   _version:unix:
     run: once
     internal: true
     desc: Show golangci-lint version on macOS or Linux
     summary: Print the golangci-lint version on macOS or Linux.
-    platforms: [linux, darwin]
+    platforms:
+      - linux
+      - darwin
     cmds:
       - cmd: >-
           bash -lc '{{.NIX_LOAD}}; {{if .GO_GLOBAL_BIN}}export PATH="{{.GO_GLOBAL_BIN}}:$PATH"; {{end}}
           golangci-lint --version'
-
   _version:windows:
     run: once
     internal: true
     desc: Show golangci-lint version on Windows
     summary: Print the golangci-lint version on Windows.
-    platforms: [windows]
+    platforms:
+      - windows
     preconditions:
       - sh: >-
           powershell -NoProfile -ExecutionPolicy Bypass -Command

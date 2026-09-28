@@ -1,24 +1,21 @@
 ---
-version: "3.5"
+version: '3.5'
 
 output:
-
   group:
-    begin: "::group::{{.TASK}}"
-    end: "::endgroup::"
+    begin: ::group::{{.TASK}}
+    end: '::endgroup::'
     error_only: false
 
 silent: true
 
 includes:
-
   nix:
     taskfile: ../nix/Taskfile.yml
   winget:
     taskfile: ../winget/Taskfile.yml
 
 vars:
-
   UV_NIX_INSTALLABLE: '{{.UV_NIX_INSTALLABLE | default "nixpkgs#uv"}}'
   UV_WINGET_INSTALLABLE: '{{.UV_WINGET_INSTALLABLE | default "astral-sh.uv"}}'
   # \$ so Task's POSIX shell (mvdan/sh) leaves literal $ for PowerShell.
@@ -31,19 +28,12 @@ vars:
     \$localBin = Join-Path \$env:USERPROFILE '.local\bin';
     if (Test-Path -LiteralPath \$localBin) { \$env:Path = \$localBin + ';' + \$env:Path }
     `}}
-
   UV_VENV: '{{.UV_VENV | default ".venv"}}'
-
   UV_REQUIREMENTS: '{{.UV_REQUIREMENTS | default "requirements.txt"}}'
-
   UV_FILE: '{{.UV_FILE | default ""}}'
-
   UV_ARGS: '{{.UV_ARGS | default ""}}'
-
   UV_EXTRA_ARGS: '{{.UV_EXTRA_ARGS | default ""}}'
-
   PYTHON_VERSION: '{{.PYTHON_VERSION | default ""}}'
-
   UV_TOOL: '{{.UV_TOOL | default ""}}'
 
 tasks:
@@ -53,7 +43,6 @@ tasks:
     summary: Display the list of available uv-related tasks defined in this Taskfile.
     cmds:
       - task --list
-
   install:
     run: once
     desc: Install uv via Nix (Unix) or WinGet (Windows)
@@ -65,23 +54,23 @@ tasks:
     cmds:
       - task: _install:unix
       - task: _install:windows
-
   _install:unix:
     internal: true
-    platforms: [linux, darwin]
+    platforms:
+      - linux
+      - darwin
     cmds:
       - task: nix:install:profile
         vars:
-          NIX_INSTALLABLE: "{{.UV_NIX_INSTALLABLE}}"
-
+          NIX_INSTALLABLE: '{{.UV_NIX_INSTALLABLE}}'
   _install:windows:
     internal: true
-    platforms: [windows]
+    platforms:
+      - windows
     cmds:
       - task: winget:install:package
         vars:
-          WINGET_INSTALLABLE: "{{.UV_WINGET_INSTALLABLE}}"
-
+          WINGET_INSTALLABLE: '{{.UV_WINGET_INSTALLABLE}}'
   version:
     run: once
     desc: Show the active uv version
@@ -93,7 +82,6 @@ tasks:
     cmds:
       - task: _version:unix
       - task: _version:windows
-
   python:install:
     run: once
     desc: Install a Python version with uv (PYTHON_VERSION=3.x)
@@ -120,7 +108,6 @@ tasks:
           UV_ARGS: >-
             python install
             {{.PYTHON_VERSION}}
-
   venv:
     run: once
     desc: Create a Python virtual environment with uv (UV_VENV=path)
@@ -132,11 +119,10 @@ tasks:
     cmds:
       - task: _uv:unix
         vars:
-          UV_ARGS: 'venv "{{.UV_VENV}}" {{.UV_EXTRA_ARGS}}'
+          UV_ARGS: venv "{{.UV_VENV}}" {{.UV_EXTRA_ARGS}}
       - task: _uv:windows
         vars:
-          UV_ARGS: "venv '{{.UV_VENV}}' {{.UV_EXTRA_ARGS}}"
-
+          UV_ARGS: venv '{{.UV_VENV}}' {{.UV_EXTRA_ARGS}}
   pip:install:
     run: once
     desc: Install packages from a requirements file with uv (UV_REQUIREMENTS=path)
@@ -149,11 +135,10 @@ tasks:
     cmds:
       - task: _uv:unix
         vars:
-          UV_ARGS: 'pip install -r "{{.UV_REQUIREMENTS}}" {{.UV_EXTRA_ARGS}}'
+          UV_ARGS: pip install -r "{{.UV_REQUIREMENTS}}" {{.UV_EXTRA_ARGS}}
       - task: _uv:windows
         vars:
-          UV_ARGS: "pip install -r '{{.UV_REQUIREMENTS}}' {{.UV_EXTRA_ARGS}}"
-
+          UV_ARGS: pip install -r '{{.UV_REQUIREMENTS}}' {{.UV_EXTRA_ARGS}}
   run:
     run: once
     desc: Run a script or command with uv (UV_FILE=path)
@@ -182,7 +167,6 @@ tasks:
             run '{{.UV_FILE}}'
             {{.UV_ARGS}}
             {{.UV_EXTRA_ARGS}}
-
   tool:install:
     run: once
     desc: Install a tool into an isolated environment with uv (UV_TOOL=name)
@@ -212,7 +196,6 @@ tasks:
             tool install
             '{{.UV_TOOL}}'
             {{.UV_EXTRA_ARGS}}
-
   tool:upgrade:
     run: once
     desc: Upgrade an installed uv tool (UV_TOOL=name)
@@ -241,43 +224,50 @@ tasks:
             tool upgrade
             '{{.UV_TOOL}}'
             {{.UV_EXTRA_ARGS}}
-
   _uv:unix:
     internal: true
-    platforms: [linux, darwin]
-    set: [errexit, nounset, pipefail]
+    platforms:
+      - linux
+      - darwin
+    set:
+      - errexit
+      - nounset
+      - pipefail
     requires:
-      vars: [UV_ARGS]
+      vars:
+        - UV_ARGS
     cmds:
       - bash -lc '{{.NIX_LOAD}}; uv {{.UV_ARGS}}'
-
   _uv:windows:
     internal: true
-    platforms: [windows]
+    platforms:
+      - windows
     requires:
-      vars: [UV_ARGS]
+      vars:
+        - UV_ARGS
     cmds:
       - >-
         powershell -NoProfile -ExecutionPolicy Bypass -Command
         "{{.WINGET_LOAD}}; {{.UV_LOAD}};
         uv {{.UV_ARGS}};
         exit \$LASTEXITCODE"
-
   _version:unix:
     run: once
     internal: true
     desc: Show uv version on macOS or Linux
     summary: Print the uv version on macOS or Linux.
-    platforms: [linux, darwin]
+    platforms:
+      - linux
+      - darwin
     cmds:
       - bash -lc '{{.NIX_LOAD}}; uv --version'
-
   _version:windows:
     run: once
     internal: true
     desc: Show uv version on Windows
     summary: Print the uv version on Windows.
-    platforms: [windows]
+    platforms:
+      - windows
     preconditions:
       - sh: >-
           powershell -NoProfile -ExecutionPolicy Bypass -Command

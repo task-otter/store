@@ -1,10 +1,10 @@
 ---
-version: "3.5"
+version: '3.5'
 
 output:
   group:
-    begin: "::group::{{.TASK}}"
-    end: "::endgroup::"
+    begin: ::group::{{.TASK}}
+    end: '::endgroup::'
     error_only: false
 
 silent: true
@@ -31,7 +31,6 @@ tasks:
     summary: Display the list of available Python-related tasks defined in this Taskfile.
     cmds:
       - task --list
-
   install:
     run: once
     desc: Install Python via Nix (Unix) or WinGet (Windows)
@@ -43,20 +42,21 @@ tasks:
     cmds:
       - task: _install:unix
       - task: _install:windows
-
   _install:unix:
     internal: true
-    platforms: [linux, darwin]
+    platforms:
+      - linux
+      - darwin
     status:
       - command -v python3 >/dev/null 2>&1
     cmds:
       - task: nix:install:profile
         vars:
-          NIX_INSTALLABLE: "{{.PYTHON_NIX_INSTALLABLE}}"
-
+          NIX_INSTALLABLE: '{{.PYTHON_NIX_INSTALLABLE}}'
   _install:windows:
     internal: true
-    platforms: [windows]
+    platforms:
+      - windows
     status:
       - >-
         powershell -NoProfile -ExecutionPolicy Bypass -Command
@@ -64,8 +64,7 @@ tasks:
     cmds:
       - task: winget:install:package
         vars:
-          WINGET_INSTALLABLE: "{{.PYTHON_WINGET_INSTALLABLE}}"
-
+          WINGET_INSTALLABLE: '{{.PYTHON_WINGET_INSTALLABLE}}'
   version:
     run: once
     desc: Show the active Python version
@@ -77,7 +76,6 @@ tasks:
     cmds:
       - task: _version:unix
       - task: _version:windows
-
   verify:
     run: once
     desc: Verify the Python installation and pip availability
@@ -90,7 +88,6 @@ tasks:
     cmds:
       - task: _verify:unix
       - task: _verify:windows
-
   venv:
     run: once
     desc: Create a Python virtual environment (PYTHON_VENV=path)
@@ -103,7 +100,6 @@ tasks:
     cmds:
       - task: _venv:unix
       - task: _venv:windows
-
   pip:install:
     run: once
     desc: Install packages from a requirements file (PYTHON_REQUIREMENTS=path)
@@ -116,7 +112,6 @@ tasks:
     cmds:
       - task: _pip:install:unix
       - task: _pip:install:windows
-
   run:
     run: once
     desc: Run a Python script (PYTHON_FILE=path)
@@ -135,23 +130,27 @@ tasks:
     cmds:
       - task: _run:unix
       - task: _run:windows
-
   _version:unix:
     run: once
     internal: true
     desc: Show Python version on macOS or Linux
     summary: Print the Python version on macOS or Linux.
-    platforms: [linux, darwin]
-    set: [errexit, nounset, pipefail]
+    platforms:
+      - linux
+      - darwin
+    set:
+      - errexit
+      - nounset
+      - pipefail
     cmds:
       - bash -lc '{{.NIX_LOAD}}; python3 --version'
-
   _version:windows:
     run: once
     internal: true
     desc: Show Python version on Windows
     summary: Print the Python version on Windows.
-    platforms: [windows]
+    platforms:
+      - windows
     preconditions:
       - sh: >-
           powershell -NoProfile -ExecutionPolicy Bypass -Command
@@ -161,20 +160,24 @@ tasks:
       - >-
         powershell -NoProfile -ExecutionPolicy Bypass -Command
         "{{.WINGET_LOAD}}; python --version; exit \$LASTEXITCODE"
-
   _verify:unix:
     run: once
     internal: true
-    platforms: [linux, darwin]
-    set: [errexit, nounset, pipefail]
+    platforms:
+      - linux
+      - darwin
+    set:
+      - errexit
+      - nounset
+      - pipefail
     cmds:
       - bash -lc '{{.NIX_LOAD}}; python3 --version'
       - bash -lc '{{.NIX_LOAD}}; python3 -m pip --version'
-
   _verify:windows:
     run: once
     internal: true
-    platforms: [windows]
+    platforms:
+      - windows
     cmds:
       - >-
         powershell -NoProfile -ExecutionPolicy Bypass -Command
@@ -182,62 +185,74 @@ tasks:
       - >-
         powershell -NoProfile -ExecutionPolicy Bypass -Command
         "{{.WINGET_LOAD}}; python -m pip --version; exit \$LASTEXITCODE"
-
   _venv:unix:
     run: once
     internal: true
-    platforms: [linux, darwin]
-    set: [errexit, nounset, pipefail]
+    platforms:
+      - linux
+      - darwin
+    set:
+      - errexit
+      - nounset
+      - pipefail
     cmds:
       - echo 'Creating virtual environment at {{.PYTHON_VENV}}...'
       - bash -lc '{{.NIX_LOAD}}; python3 -m venv "{{.PYTHON_VENV}}"'
       - echo 'Virtual environment ready.'
-
   _venv:windows:
     run: once
     internal: true
-    platforms: [windows]
+    platforms:
+      - windows
     cmds:
       - echo Creating virtual environment at {{.PYTHON_VENV}}...
       - >-
         powershell -NoProfile -ExecutionPolicy Bypass -Command
         "{{.WINGET_LOAD}}; python -m venv '{{.PYTHON_VENV}}'; exit \$LASTEXITCODE"
       - echo Virtual environment ready.
-
   _pip:install:unix:
     run: once
     internal: true
-    platforms: [linux, darwin]
-    set: [errexit, nounset, pipefail]
+    platforms:
+      - linux
+      - darwin
+    set:
+      - errexit
+      - nounset
+      - pipefail
     cmds:
       - bash -lc '{{.NIX_LOAD}}; python3 -m pip install -r "{{.PYTHON_REQUIREMENTS}}" {{.PYTHON_EXTRA_ARGS}}'
-
   _pip:install:windows:
     run: once
     internal: true
-    platforms: [windows]
+    platforms:
+      - windows
     cmds:
       - >-
         powershell -NoProfile -ExecutionPolicy Bypass -Command
         "{{.WINGET_LOAD}}; python -m pip install -r '{{.PYTHON_REQUIREMENTS}}' {{.PYTHON_EXTRA_ARGS}};
         exit \$LASTEXITCODE"
-
   _run:unix:
     run: once
     internal: true
-    platforms: [linux, darwin]
-    set: [errexit, nounset, pipefail]
+    platforms:
+      - linux
+      - darwin
+    set:
+      - errexit
+      - nounset
+      - pipefail
     cmds:
       - >-
         bash -lc '{{.NIX_LOAD}};
         python3 "{{.PYTHON_FILE}}"
         {{.PYTHON_ARGS}}
         {{.PYTHON_EXTRA_ARGS}}'
-
   _run:windows:
     run: once
     internal: true
-    platforms: [windows]
+    platforms:
+      - windows
     cmds:
       - >-
         powershell -NoProfile -ExecutionPolicy Bypass -Command

@@ -1,10 +1,10 @@
 ---
-version: "3.5"
+version: '3.5'
 
 output:
   group:
-    begin: "::group::{{.TASK}}"
-    end: "::endgroup::"
+    begin: ::group::{{.TASK}}
+    end: '::endgroup::'
     error_only: false
 
 silent: true
@@ -28,10 +28,9 @@ tasks:
     desc: Show available ESLint tasks
     cmds:
       - task --list
-
   install:
     run: once
-    dir: "{{.USER_WORKING_DIR}}"
+    dir: '{{.USER_WORKING_DIR}}'
     desc: Install ESLint as a local devDependency
     summary: |
       Install eslint as a local devDependency. Pass ESLINT_VERSION=x.y.z to pin a
@@ -47,9 +46,8 @@ tasks:
     cmds:
       - task: npm:add
         vars:
-          PACKAGES: 'eslint{{if .RESOLVED_VERSION}}@{{.RESOLVED_VERSION}}{{end}}'
+          PACKAGES: eslint{{if .RESOLVED_VERSION}}@{{.RESOLVED_VERSION}}{{end}}
           EXTRA_ARGS: '{{.RESOLVED_EXTRA_ARGS}}{{if .CLI_ARGS}} {{.CLI_ARGS}}{{end}}'
-
   install:undo:
     run: once
     desc: Remove the locally installed ESLint devDependency
@@ -62,7 +60,6 @@ tasks:
         vars:
           PACKAGES: eslint
           EXTRA_ARGS: '{{.ESLINT_EXTRA_ARGS}}'
-
   upgrade:
     run: once
     desc: Upgrade ESLint to the latest release
@@ -72,10 +69,9 @@ tasks:
         vars:
           PACKAGES: eslint@latest
           EXTRA_ARGS: '{{.ESLINT_EXTRA_ARGS}}'
-
   config:init:
     run: once
-    dir: "{{.USER_WORKING_DIR}}"
+    dir: '{{.USER_WORKING_DIR}}'
     desc: Create a starter ESLint flat config when none exists
     summary: |
       Write a minimal eslint.config.mjs with recommended defaults.
@@ -125,31 +121,27 @@ tasks:
             {{- if .MODE_ARGS}}{{.MODE_ARGS}} {{end}}
             {{- .RESOLVED_TARGETS}}
           EXTRA_ARGS: '{{.RESOLVED_EXTRA_ARGS}}{{if .CLI_ARGS}} {{.CLI_ARGS}}{{end}}'
-
   ci:fix:
     run: once
     desc: Lint targets with ESLint and apply fixes
     cmds:
       - task: _run
         vars:
-          MODE_ARGS: "--fix"
+          MODE_ARGS: --fix
       - echo "✅ eslint fixes applied"
-
   ci:
     run: once
     desc: Run ESLint with zero-warning CI enforcement
     cmds:
       - task: _run
         vars:
-          MODE_ARGS: "--max-warnings=0"
+          MODE_ARGS: --max-warnings=0
       - echo "✅ eslint passed"
-
   cache:clean:
     run: once
     desc: Remove the ESLint cache directory
     cmds:
       - if [ -d .cache/eslint ]; then rm -rf .cache/eslint; fi
-
   version:
     run: once
     desc: Show the locally resolved ESLint version
@@ -157,8 +149,7 @@ tasks:
       - task: npm:exec
         vars:
           BINARY: eslint
-          ARGS: "--version"
-
+          ARGS: --version
   help:
     run: once
     desc: Show ESLint CLI help
@@ -166,5 +157,5 @@ tasks:
       - task: npm:exec
         vars:
           BINARY: eslint
-          ARGS: "--help"
+          ARGS: --help
           EXTRA_ARGS: '{{.ESLINT_EXTRA_ARGS}}{{if .CLI_ARGS}} {{.CLI_ARGS}}{{end}}'

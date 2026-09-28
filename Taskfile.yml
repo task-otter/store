@@ -1,10 +1,10 @@
 ---
-version: "3.5"
+version: '3.5'
 
 output:
   group:
-    begin: "::group::{{.TASK}}"
-    end: "::endgroup::"
+    begin: ::group::{{.TASK}}
+    end: '::endgroup::'
     error_only: false
 
 silent: true
@@ -65,7 +65,6 @@ tasks:
     desc: Show all available TaskOtter tasks
     cmds:
       - task --list-all
-
   ci:
     run: once
     desc: Run all CI checks
@@ -74,7 +73,6 @@ tasks:
       - task: golangci-lint:ci
       - task: yamllint:ci
       - task: zizmor:ci
-
   ci:fix:
     run: once
     desc: Run CI Fixing

@@ -1,10 +1,10 @@
 ---
-version: "3.5"
+version: '3.5'
 
 output:
   group:
-    begin: "::group::{{.TASK}}"
-    end: "::endgroup::"
+    begin: ::group::{{.TASK}}
+    end: '::endgroup::'
     error_only: false
 
 silent: true
@@ -33,7 +33,6 @@ vars:
     then . "$HOME/.nix-profile/etc/profile.d/nix.sh"; fi;
     export PATH="/nix/var/nix/profiles/default/bin:$HOME/.nix-profile/bin:${PATH:-}"`}}
 
-
 tasks:
   default:
     run: once
@@ -41,7 +40,6 @@ tasks:
     summary: Display the list of available Nix-related tasks defined in this Taskfile.
     cmds:
       - task --list
-
   install:
     run: once
     desc: Install Nix on the current operating system
@@ -55,14 +53,12 @@ tasks:
     cmds:
       - task: _install:unix
       - task: _windows:unsupported
-
   install:undo:
     run: once
     desc: Remove Nix from the current operating system
     summary: Alias for uninstall. Runs the official Nix 2.34 uninstall steps.
     cmds:
       - task: uninstall
-
   uninstall:
     run: once
     desc: Uninstall Nix from the current operating system
@@ -79,7 +75,6 @@ tasks:
       - task: _uninstall:linux
       - task: _uninstall:macos
       - task: _uninstall:windows
-
   upgrade:
     run: once
     desc: Upgrade Nix from a nixpkgs channel
@@ -95,7 +90,6 @@ tasks:
       - task: _upgrade:linux
       - task: _upgrade:macos
       - task: _windows:unsupported
-
   version:
     run: once
     desc: Show the installed Nix version
@@ -107,7 +101,6 @@ tasks:
         vars:
           NIX_ARGS: --version
       - task: _windows:unsupported
-
   features:enable:
     desc: Enable Nix experimental features in nix.conf
     summary: |
@@ -122,7 +115,6 @@ tasks:
     cmds:
       - task: _features:enable:unix
       - task: _windows:unsupported
-
   features:show:
     run: once
     desc: Show enabled and available Nix experimental features
@@ -132,9 +124,8 @@ tasks:
     cmds:
       - task: _features:show:unix
       - task: _windows:unsupported
-
   install:shell:
-    dir: "{{.USER_WORKING_DIR}}"
+    dir: '{{.USER_WORKING_DIR}}'
     interactive: true
     desc: Run a temporary Nix shell with installables (NIX_INSTALLABLE)
     summary: |
@@ -156,13 +147,12 @@ tasks:
       - task: _nix:pkg:unix
         vars:
           NIX_SUBCMD: shell
-          NIX_TRAILING: "{{if .NIX_COMMAND}}--command {{.NIX_COMMAND}}{{end}}"
-          NIX_INSTALLABLE: "{{.NIX_INSTALLABLE}}"
-          NIX_EXTRA_ARGS: "{{.NIX_EXTRA_ARGS}}"
+          NIX_TRAILING: '{{if .NIX_COMMAND}}--command {{.NIX_COMMAND}}{{end}}'
+          NIX_INSTALLABLE: '{{.NIX_INSTALLABLE}}'
+          NIX_EXTRA_ARGS: '{{.NIX_EXTRA_ARGS}}'
       - task: _windows:unsupported
-
   install:profile:
-    dir: "{{.USER_WORKING_DIR}}"
+    dir: '{{.USER_WORKING_DIR}}'
     desc: Add installables to the user Nix profile (NIX_INSTALLABLE)
     summary: |
       Run nix profile add so packages stay on PATH across sessions.
@@ -183,11 +173,10 @@ tasks:
     cmds:
       - task: _nix:pkg:unix
         vars:
-          NIX_SUBCMD: "profile add"
-          NIX_INSTALLABLE: "{{.NIX_INSTALLABLE}}"
-          NIX_EXTRA_ARGS: "{{.NIX_EXTRA_ARGS}}"
+          NIX_SUBCMD: profile add
+          NIX_INSTALLABLE: '{{.NIX_INSTALLABLE}}'
+          NIX_EXTRA_ARGS: '{{.NIX_EXTRA_ARGS}}'
       - task: _windows:unsupported
-
   _features:needed:
     run: once
     internal: true
@@ -201,14 +190,19 @@ tasks:
     cmds:
       - task: _features:enable:unix
         vars:
-          NIX_EXPERIMENTAL_FEATURES: "{{.NIX_NEEDED_FEATURES}}"
-
+          NIX_EXPERIMENTAL_FEATURES: '{{.NIX_NEEDED_FEATURES}}'
   _nix:unix:
     internal: true
-    platforms: [linux, darwin]
-    set: [errexit, nounset, pipefail]
+    platforms:
+      - linux
+      - darwin
+    set:
+      - errexit
+      - nounset
+      - pipefail
     requires:
-      vars: [NIX_ARGS]
+      vars:
+        - NIX_ARGS
     preconditions:
       - sh: >-
           [ -x /nix/var/nix/profiles/default/bin/nix ]
@@ -217,16 +211,21 @@ tasks:
         msg: Nix is not installed. Run task install first.
     cmds:
       - bash -lc '{{.NIX_LOAD}}; nix {{.NIX_ARGS}}'
-
   _nix:pkg:unix:
     internal: true
-    dir: "{{.USER_WORKING_DIR}}"
-    platforms: [linux, darwin]
-    set: [errexit, nounset, pipefail]
+    dir: '{{.USER_WORKING_DIR}}'
+    platforms:
+      - linux
+      - darwin
+    set:
+      - errexit
+      - nounset
+      - pipefail
     requires:
-      vars: [NIX_SUBCMD]
+      vars:
+        - NIX_SUBCMD
     vars:
-      NIX_TRAILING: ""
+      NIX_TRAILING: ''
     preconditions:
       - sh: test -n "{{.NIX_INSTALLABLE}}"
         msg: NIX_INSTALLABLE is required. Pass NIX_INSTALLABLE=nixpkgs#hello (or hello).
@@ -257,7 +256,6 @@ tasks:
           bash -lc '{{.NIX_LOAD}};
           nix --extra-experimental-features "{{.NIX_NEEDED_FEATURES}}" {{.NIX_SUBCMD}} '"$i"' '"$extra"' '"$trailing"
         fi
-
   _install:unix:
     run: once
     internal: true
@@ -266,8 +264,13 @@ tasks:
       Run the official installer from NIX_INSTALL_URL, or from
       releases.nixos.org when NIX_VERSION is set. macOS and systemd Linux
       pass --daemon; Linux without systemd passes --no-daemon.
-    platforms: [linux, darwin]
-    set: [errexit, nounset, pipefail]
+    platforms:
+      - linux
+      - darwin
+    set:
+      - errexit
+      - nounset
+      - pipefail
     status:
       - >-
         nix_bin="";
@@ -281,7 +284,7 @@ tasks:
     preconditions:
       - sh: command -v curl >/dev/null 2>&1
         msg: curl is required to download the Nix installer.
-      - sh: 'test "$(id -u)" -eq 0 || command -v sudo >/dev/null 2>&1'
+      - sh: test "$(id -u)" -eq 0 || command -v sudo >/dev/null 2>&1
         msg: sudo is required to install Nix when not running as root.
     cmds:
       - |
@@ -299,14 +302,17 @@ tasks:
         fi
         curl --proto '=https' --tlsv1.2 -L "$url" | sh -s -- $flags --yes
         echo 'Nix installed. Restart your shell or tasks will use NIX_LOAD to locate the binary.'
-
   _uninstall:linux:
     run: once
     internal: true
     desc: Uninstall Nix on Linux or WSL2
     summary: Follow the Nix 2.34 Linux multi-user or single-user uninstall steps.
-    platforms: [linux]
-    set: [errexit, nounset, pipefail]
+    platforms:
+      - linux
+    set:
+      - errexit
+      - nounset
+      - pipefail
     status:
       - >-
         [ ! -d /nix/store ]
@@ -363,14 +369,17 @@ tasks:
           fi
         fi
       - echo 'Nix uninstalled.'
-
   _uninstall:macos:
     run: once
     internal: true
     desc: Uninstall Nix on macOS
     summary: Follow the Nix 2.34 macOS multi-user uninstall steps.
-    platforms: [darwin]
-    set: [errexit, nounset, pipefail]
+    platforms:
+      - darwin
+    set:
+      - errexit
+      - nounset
+      - pipefail
     status:
       - >-
         [ ! -d /nix/store ]
@@ -378,7 +387,7 @@ tasks:
         && [ ! -x "$HOME/.nix-profile/bin/nix" ]
         && ! command -v nix >/dev/null 2>&1
     preconditions:
-      - sh: 'test "$(id -u)" -eq 0 || command -v sudo >/dev/null 2>&1'
+      - sh: test "$(id -u)" -eq 0 || command -v sudo >/dev/null 2>&1
         msg: sudo is required to uninstall Nix on macOS when not running as root.
     cmds:
       - echo 'Uninstalling Nix...'
@@ -429,20 +438,19 @@ tasks:
           sudo diskutil apfs deleteVolume "$vol" || true
         fi
       - echo 'Nix uninstalled. An empty /nix directory may remain until the next reboot.'
-
   _uninstall:windows:
     run: once
     internal: true
     desc: Skip Nix uninstall on native Windows
     summary: Native Windows does not host a Nix install from this Taskfile, so uninstall is a no-op.
-    platforms: [windows]
+    platforms:
+      - windows
     status:
       - >-
         powershell -NoProfile -ExecutionPolicy Bypass -Command
         "if (Get-Command nix -ErrorAction SilentlyContinue) { exit 1 } else { exit 0 }"
     cmds:
       - echo Nix is not installed on native Windows. Nothing to remove.
-
   _upgrade:linux:
     run: once
     internal: true
@@ -450,8 +458,12 @@ tasks:
     summary: |
       Run nix-env to install nix and cacert from NIX_CHANNEL, then restart
       nix-daemon on multi-user installs.
-    platforms: [linux]
-    set: [errexit, nounset, pipefail]
+    platforms:
+      - linux
+    set:
+      - errexit
+      - nounset
+      - pipefail
     preconditions:
       - sh: >-
           [ -x /nix/var/nix/profiles/default/bin/nix ]
@@ -471,7 +483,6 @@ tasks:
           nix-env --install --file "<nixpkgs>" --attr nix cacert -I nixpkgs=channel:{{.NIX_CHANNEL}}'
         fi
       - echo 'Nix upgraded.'
-
   _upgrade:macos:
     run: once
     internal: true
@@ -479,8 +490,12 @@ tasks:
     summary: |
       Run sudo nix-env to install nix and cacert from NIX_CHANNEL, then reload
       the nix-daemon launchd service.
-    platforms: [darwin]
-    set: [errexit, nounset, pipefail]
+    platforms:
+      - darwin
+    set:
+      - errexit
+      - nounset
+      - pipefail
     preconditions:
       - sh: >-
           [ -x /nix/var/nix/profiles/default/bin/nix ]
@@ -495,13 +510,17 @@ tasks:
       - sudo launchctl remove org.nixos.nix-daemon
       - sudo launchctl load /Library/LaunchDaemons/org.nixos.nix-daemon.plist
       - echo 'Nix upgraded.'
-
   _features:enable:unix:
     internal: true
     desc: Enable experimental features in nix.conf on Linux, macOS, or WSL2
     summary: Merge NIX_EXPERIMENTAL_FEATURES into the experimental-features setting in nix.conf.
-    platforms: [linux, darwin]
-    set: [errexit, nounset, pipefail]
+    platforms:
+      - linux
+      - darwin
+    set:
+      - errexit
+      - nounset
+      - pipefail
     cmds:
       - |
         conf="{{.NIX_CONF}}"
@@ -548,14 +567,18 @@ tasks:
         $as_root mv "$tmp" "$conf"
         echo "Enabled experimental features in $conf:"
         echo "  $merged"
-
   _features:show:unix:
     run: once
     internal: true
     desc: Show experimental features on Linux, macOS, or WSL2
     summary: Print the nix.conf setting and the Nix 2.34 experimental-feature catalog.
-    platforms: [linux, darwin]
-    set: [errexit, nounset, pipefail]
+    platforms:
+      - linux
+      - darwin
+    set:
+      - errexit
+      - nounset
+      - pipefail
     cmds:
       - |
         conf="{{.NIX_CONF}}"
@@ -591,11 +614,11 @@ tasks:
         echo '  read-only-local-store        read-only parameter in local store URIs'
         echo '  recursive-nix                Allow derivation builders to call Nix'
         echo '  verified-fetches             Verify git commit signatures in builtins.fetchGit'
-
   _windows:unsupported:
     run: once
     internal: true
-    platforms: [windows]
+    platforms:
+      - windows
     cmds:
       - >-
         powershell -NoProfile -ExecutionPolicy Bypass -Command

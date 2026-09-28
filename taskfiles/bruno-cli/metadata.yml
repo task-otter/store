@@ -2,4 +2,10 @@
 schema: taskotter.dev/taskfile-metadata/v1
 module: bruno-cli
 taskfile: Taskfile.yml
-exported_tasks: [ci, help, install, run, version]
+
+exported_tasks:
+  - ci
+  - help
+  - install
+  - run
+  - version

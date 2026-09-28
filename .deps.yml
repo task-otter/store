@@ -1,112 +1,348 @@
 ---
-actionlint: [nix, winget]
-adrs: [cargo, nix]
-ansible: [nix]
-ansible-lint: [nix]
-biome: [biome/bun, biome/node]
-biome/bun: [bun]
-biome/node: [biome/node/npm, biome/node/pnpm, biome/node/yarn]
-biome/node/npm: [npm]
-biome/node/pnpm: [pnpm]
-biome/node/yarn: [yarn]
-bruno-cli: [nix, npm]
-bruno-gui: [nix, winget]
-buf: [nix, winget]
-bun: [nix, winget]
-cargo: [nix, winget]
-depcheck: [depcheck/bun, depcheck/node]
-depcheck/bun: [bun]
+actionlint:
+  - nix
+  - winget
+
+adrs:
+  - cargo
+  - nix
+
+ansible:
+  - nix
+
+ansible-lint:
+  - nix
+
+biome:
+  - biome/bun
+  - biome/node
+
+biome/bun:
+  - bun
+
+biome/node:
+  - biome/node/npm
+  - biome/node/pnpm
+  - biome/node/yarn
+
+biome/node/npm:
+  - npm
+
+biome/node/pnpm:
+  - pnpm
+
+biome/node/yarn:
+  - yarn
+
+bruno-cli:
+  - nix
+  - npm
+
+bruno-gui:
+  - nix
+  - winget
+
+buf:
+  - nix
+  - winget
+
+bun:
+  - nix
+  - winget
+
+cargo:
+  - nix
+  - winget
+
+depcheck:
+  - depcheck/bun
+  - depcheck/node
+
+depcheck/bun:
+  - bun
+
 depcheck/node:
   - depcheck/node/npm
   - depcheck/node/pnpm
   - depcheck/node/yarn
-depcheck/node/npm: [npm]
-depcheck/node/pnpm: [pnpm]
-depcheck/node/yarn: [yarn]
-djlint: [nix, uv]
-docker: [winget]
-dotenv-linter: [cargo, nix]
-eslint: [eslint/bun, eslint/node]
-eslint/bun: [bun]
-eslint/node: [eslint/node/npm, eslint/node/pnpm, eslint/node/yarn]
-eslint/node/npm: [npm]
-eslint/node/pnpm: [pnpm]
-eslint/node/yarn: [yarn]
-gh: [jq, nix, winget]
-git: [gh, nix, winget]
-go: [nix, winget]
-go-junit-report: [go, nix, winget]
-golangci-lint: [go, nix, winget]
-hadolint: [nix, winget]
-htmlhint: [htmlhint/bun, htmlhint/node]
-htmlhint/bun: [bun]
+
+depcheck/node/npm:
+  - npm
+
+depcheck/node/pnpm:
+  - pnpm
+
+depcheck/node/yarn:
+  - yarn
+
+djlint:
+  - nix
+  - uv
+
+docker:
+  - winget
+
+dotenv-linter:
+  - cargo
+  - nix
+
+eslint:
+  - eslint/bun
+  - eslint/node
+
+eslint/bun:
+  - bun
+
+eslint/node:
+  - eslint/node/npm
+  - eslint/node/pnpm
+  - eslint/node/yarn
+
+eslint/node/npm:
+  - npm
+
+eslint/node/pnpm:
+  - pnpm
+
+eslint/node/yarn:
+  - yarn
+
+gh:
+  - jq
+  - nix
+  - winget
+
+git:
+  - gh
+  - nix
+  - winget
+
+go:
+  - nix
+  - winget
+
+go-junit-report:
+  - go
+  - nix
+  - winget
+
+golangci-lint:
+  - go
+  - nix
+  - winget
+
+hadolint:
+  - nix
+  - winget
+
+htmlhint:
+  - htmlhint/bun
+  - htmlhint/node
+
+htmlhint/bun:
+  - bun
+
 htmlhint/node:
   - htmlhint/node/npm
   - htmlhint/node/pnpm
   - htmlhint/node/yarn
-htmlhint/node/npm: [npm]
-htmlhint/node/pnpm: [pnpm]
-htmlhint/node/yarn: [yarn]
-jq: [nix, winget]
-jsonlint: [nix, uv]
-knip: [knip/bun, knip/node]
-knip/bun: [bun]
-knip/node: [knip/node/npm, knip/node/pnpm, knip/node/yarn]
-knip/node/npm: [npm]
-knip/node/pnpm: [pnpm]
-knip/node/yarn: [yarn]
+
+htmlhint/node/npm:
+  - npm
+
+htmlhint/node/pnpm:
+  - pnpm
+
+htmlhint/node/yarn:
+  - yarn
+
+jq:
+  - nix
+  - winget
+
+jsonlint:
+  - nix
+  - uv
+
+knip:
+  - knip/bun
+  - knip/node
+
+knip/bun:
+  - bun
+
+knip/node:
+  - knip/node/npm
+  - knip/node/pnpm
+  - knip/node/yarn
+
+knip/node/npm:
+  - npm
+
+knip/node/pnpm:
+  - pnpm
+
+knip/node/yarn:
+  - yarn
+
 nix: []
-nodejs: [nix, winget]
-npm: [nix, nodejs]
-pnpm: [nix, nodejs, winget]
-prettier: [prettier/bun, prettier/node]
-prettier/bun: [bun]
+
+nodejs:
+  - nix
+  - winget
+
+npm:
+  - nix
+  - nodejs
+
+pnpm:
+  - nix
+  - nodejs
+  - winget
+
+prettier:
+  - prettier/bun
+  - prettier/node
+
+prettier/bun:
+  - bun
+
 prettier/node:
   - prettier/node/npm
   - prettier/node/pnpm
   - prettier/node/yarn
-prettier/node/npm: [npm]
-prettier/node/pnpm: [pnpm]
-prettier/node/yarn: [yarn]
-proto: [go, nix, winget]
-protolint: [go, nix, winget]
-pulumi: [nix, winget]
-python: [nix, winget]
-rumdl: [nix, winget]
-shellcheck: [nix, winget]
-shfmt: [nix, winget]
-spectral: [spectral/bun, spectral/node]
-spectral/bun: [bun]
+
+prettier/node/npm:
+  - npm
+
+prettier/node/pnpm:
+  - pnpm
+
+prettier/node/yarn:
+  - yarn
+
+proto:
+  - go
+  - nix
+  - winget
+
+protolint:
+  - go
+  - nix
+  - winget
+
+pulumi:
+  - nix
+  - winget
+
+python:
+  - nix
+  - winget
+
+rumdl:
+  - nix
+  - winget
+
+shellcheck:
+  - nix
+  - winget
+
+shfmt:
+  - nix
+  - winget
+
+spectral:
+  - spectral/bun
+  - spectral/node
+
+spectral/bun:
+  - bun
+
 spectral/node:
   - spectral/node/npm
   - spectral/node/pnpm
   - spectral/node/yarn
-spectral/node/npm: [npm]
-spectral/node/pnpm: [pnpm]
-spectral/node/yarn: [yarn]
-sqlfluff: [nix, uv]
-stylelint: [stylelint/bun, stylelint/node]
-stylelint/bun: [bun]
+
+spectral/node/npm:
+  - npm
+
+spectral/node/pnpm:
+  - pnpm
+
+spectral/node/yarn:
+  - yarn
+
+sqlfluff:
+  - nix
+  - uv
+
+stylelint:
+  - stylelint/bun
+  - stylelint/node
+
+stylelint/bun:
+  - bun
+
 stylelint/node:
   - stylelint/node/npm
   - stylelint/node/pnpm
   - stylelint/node/yarn
-stylelint/node/npm: [npm]
-stylelint/node/pnpm: [pnpm]
-stylelint/node/yarn: [yarn]
-typescript: [typescript/bun, typescript/node]
-typescript/bun: [bun]
+
+stylelint/node/npm:
+  - npm
+
+stylelint/node/pnpm:
+  - pnpm
+
+stylelint/node/yarn:
+  - yarn
+
+typescript:
+  - typescript/bun
+  - typescript/node
+
+typescript/bun:
+  - bun
+
 typescript/node:
   - typescript/node/npm
   - typescript/node/pnpm
   - typescript/node/yarn
-typescript/node/npm: [npm]
-typescript/node/pnpm: [pnpm]
-typescript/node/yarn: [yarn]
-uv: [nix, winget]
-vault: [jq, nix, winget]
+
+typescript/node/npm:
+  - npm
+
+typescript/node/pnpm:
+  - pnpm
+
+typescript/node/yarn:
+  - yarn
+
+uv:
+  - nix
+  - winget
+
+vault:
+  - jq
+  - nix
+  - winget
+
 winget: []
-yamlfix: [nix, uv]
-yamllint: [nix, uv, winget]
-yarn: [nix, nodejs, winget]
-zizmor: [nix, winget]
+
+yamlfix:
+  - nix
+  - uv
+
+yamllint:
+  - nix
+  - uv
+  - winget
+
+yarn:
+  - nix
+  - nodejs
+  - winget
+
+zizmor:
+  - nix
+  - winget

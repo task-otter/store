@@ -2,6 +2,7 @@
 schema: taskotter.dev/taskfile-metadata/v1
 module: depcheck
 taskfile: Taskfile.yml
+
 exported_tasks:
   - ci
   - help
@@ -12,4 +13,9 @@ exported_tasks:
   - skip-missing
   - upgrade
   - version
-variants: [bun, node/npm, node/pnpm, node/yarn]
+
+variants:
+  - bun
+  - node/npm
+  - node/pnpm
+  - node/yarn

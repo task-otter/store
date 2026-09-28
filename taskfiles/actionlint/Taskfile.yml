@@ -1,29 +1,24 @@
 ---
-version: "3.5"
+version: '3.5'
 
 output:
-
   group:
-    begin: "::group::{{.TASK}}"
-    end: "::endgroup::"
+    begin: ::group::{{.TASK}}
+    end: '::endgroup::'
     error_only: false
 
 silent: true
 
 includes:
-
   nix:
     taskfile: ../nix/Taskfile.yml
   winget:
     taskfile: ../winget/Taskfile.yml
 
 vars:
-
   ACTIONLINT_NIX_INSTALLABLE: '{{.ACTIONLINT_NIX_INSTALLABLE | default "nixpkgs#actionlint"}}'
   ACTIONLINT_WINGET_INSTALLABLE: '{{.ACTIONLINT_WINGET_INSTALLABLE | default "rhysd.actionlint"}}'
-
   ACTIONLINT_EXTRA_ARGS: '{{.ACTIONLINT_EXTRA_ARGS | default ""}}'
-
   ACTIONLINT_TARGETS: '{{.ACTIONLINT_TARGETS | default ""}}'
 
 tasks:
@@ -33,7 +28,6 @@ tasks:
     summary: Display the list of available actionlint-related tasks defined in this Taskfile.
     cmds:
       - task --list
-
   install:
     run: once
     desc: Install actionlint via Nix (Unix) or WinGet (Windows)
@@ -47,23 +41,23 @@ tasks:
     cmds:
       - task: _install:unix
       - task: _install:windows
-
   _install:unix:
     internal: true
-    platforms: [linux, darwin]
+    platforms:
+      - linux
+      - darwin
     cmds:
       - task: nix:install:profile
         vars:
-          NIX_INSTALLABLE: "{{.ACTIONLINT_NIX_INSTALLABLE}}"
-
+          NIX_INSTALLABLE: '{{.ACTIONLINT_NIX_INSTALLABLE}}'
   _install:windows:
     internal: true
-    platforms: [windows]
+    platforms:
+      - windows
     cmds:
       - task: winget:install:package
         vars:
-          WINGET_INSTALLABLE: "{{.ACTIONLINT_WINGET_INSTALLABLE}}"
-
+          WINGET_INSTALLABLE: '{{.ACTIONLINT_WINGET_INSTALLABLE}}'
   version:
     run: once
     desc: Show the active actionlint version
@@ -75,7 +69,6 @@ tasks:
     cmds:
       - task: _version:unix
       - task: _version:windows
-
   ci:
     run: once
     desc: Lint GitHub Actions workflow files with actionlint
@@ -85,7 +78,7 @@ tasks:
       explicit paths to check specific workflows. Pass ACTIONLINT_EXTRA_ARGS
       for additional flags such as -ignore or -format, or CLI arguments after
       -- to override targets and options. Auto-installs actionlint if missing.
-    dir: "{{.USER_WORKING_DIR}}"
+    dir: '{{.USER_WORKING_DIR}}'
     deps:
       - task: install
     cmds:
@@ -97,7 +90,9 @@ tasks:
             {{.ACTIONLINT_TARGETS}}{{end}} \
             && echo "✅ actionlint passed" || { echo "❌ actionlint failed"; exit 1; }
           ACTIONLINT_EOF
-        platforms: [linux, darwin]
+        platforms:
+          - linux
+          - darwin
       - cmd: >-
           powershell -NoProfile -ExecutionPolicy Bypass -Command
           "{{.WINGET_LOAD}};
@@ -105,23 +100,25 @@ tasks:
             {{.ACTIONLINT_EXTRA_ARGS}}
             {{.ACTIONLINT_TARGETS}}{{end}};
           exit \$LASTEXITCODE"
-        platforms: [windows]
-
+        platforms:
+          - windows
   _version:unix:
     run: once
     internal: true
     desc: Show actionlint version on macOS or Linux
     summary: Print the actionlint version on macOS or Linux.
-    platforms: [linux, darwin]
+    platforms:
+      - linux
+      - darwin
     cmds:
       - bash -lc '{{.NIX_LOAD}}; actionlint -version'
-
   _version:windows:
     run: once
     internal: true
     desc: Show actionlint version on Windows
     summary: Print the actionlint version on Windows.
-    platforms: [windows]
+    platforms:
+      - windows
     preconditions:
       - sh: >-
           powershell -NoProfile -ExecutionPolicy Bypass -Command

@@ -1,10 +1,10 @@
 ---
-version: "3.5"
+version: '3.5'
 
 output:
   group:
-    begin: "::group::{{.TASK}}"
-    end: "::endgroup::"
+    begin: ::group::{{.TASK}}
+    end: '::endgroup::'
     error_only: false
 
 silent: true
@@ -29,7 +29,6 @@ tasks:
     summary: Display the list of available hadolint-related tasks defined in this Taskfile.
     cmds:
       - task --list
-
   install:
     run: once
     desc: Install hadolint via Nix (Unix) or WinGet (Windows)
@@ -41,20 +40,21 @@ tasks:
     cmds:
       - task: _install:unix
       - task: _install:windows
-
   _install:unix:
     internal: true
-    platforms: [linux, darwin]
+    platforms:
+      - linux
+      - darwin
     status:
       - command -v hadolint >/dev/null 2>&1
     cmds:
       - task: nix:install:profile
         vars:
-          NIX_INSTALLABLE: "{{.HADOLINT_NIX_INSTALLABLE}}"
-
+          NIX_INSTALLABLE: '{{.HADOLINT_NIX_INSTALLABLE}}'
   _install:windows:
     internal: true
-    platforms: [windows]
+    platforms:
+      - windows
     status:
       - >-
         powershell -NoProfile -ExecutionPolicy Bypass -Command
@@ -62,8 +62,7 @@ tasks:
     cmds:
       - task: winget:install:package
         vars:
-          WINGET_INSTALLABLE: "{{.HADOLINT_WINGET_INSTALLABLE}}"
-
+          WINGET_INSTALLABLE: '{{.HADOLINT_WINGET_INSTALLABLE}}'
   version:
     run: once
     desc: Show the active hadolint version
@@ -75,7 +74,6 @@ tasks:
     cmds:
       - task: _version:unix
       - task: _version:windows
-
   ci:
     run: once
     desc: Lint a Dockerfile with hadolint (HADOLINT_DOCKERFILE=path)
@@ -84,18 +82,19 @@ tasks:
       use a custom config file via --config, and HADOLINT_EXTRA_ARGS for additional
       flags such as --ignore or --format. Pass CLI arguments after -- to
       override targets and options. Auto-installs hadolint if missing.
-    dir: "{{.USER_WORKING_DIR}}"
+    dir: '{{.USER_WORKING_DIR}}'
     deps:
       - task: install
     cmds:
       - task: _ci:unix
       - task: _ci:windows
-
   _ci:unix:
     run: once
     internal: true
-    platforms: [linux, darwin]
-    dir: "{{.USER_WORKING_DIR}}"
+    platforms:
+      - linux
+      - darwin
+    dir: '{{.USER_WORKING_DIR}}'
     cmds:
       - |
         bash -lc '{{.NIX_LOAD}};
@@ -105,12 +104,12 @@ tasks:
           {{else}}{{if .HADOLINT_CONFIG}}--config "{{.HADOLINT_CONFIG}}"{{end}} \
           "$dockerfile" {{.HADOLINT_EXTRA_ARGS}}{{end}} \
           && echo "✅ hadolint passed" || { echo "❌ hadolint failed"; exit 1; }'
-
   _ci:windows:
     run: once
     internal: true
-    platforms: [windows]
-    dir: "{{.USER_WORKING_DIR}}"
+    platforms:
+      - windows
+    dir: '{{.USER_WORKING_DIR}}'
     preconditions:
       - sh: >-
           powershell -NoProfile -ExecutionPolicy Bypass -Command
@@ -124,22 +123,23 @@ tasks:
           {{if .HADOLINT_CONFIG}}--config '{{.HADOLINT_CONFIG}}'{{end}}
           \$dockerfile {{.HADOLINT_EXTRA_ARGS}}{{end}};
         exit \$LASTEXITCODE"
-
   _version:unix:
     run: once
     internal: true
     desc: Show hadolint version on macOS or Linux
     summary: Print the hadolint version on macOS or Linux.
-    platforms: [linux, darwin]
+    platforms:
+      - linux
+      - darwin
     cmds:
       - bash -lc '{{.NIX_LOAD}}; hadolint --version'
-
   _version:windows:
     run: once
     internal: true
     desc: Show hadolint version on Windows
     summary: Print the hadolint version on Windows.
-    platforms: [windows]
+    platforms:
+      - windows
     preconditions:
       - sh: >-
           powershell -NoProfile -ExecutionPolicy Bypass -Command

@@ -1,33 +1,25 @@
 ---
-version: "3.5"
+version: '3.5'
 
 output:
-
   group:
-    begin: "::group::{{.TASK}}"
-    end: "::endgroup::"
+    begin: ::group::{{.TASK}}
+    end: '::endgroup::'
     error_only: false
 
 silent: true
 
 includes:
-
   npm:
     taskfile: ../npm/Taskfile.yml
-
   nix:
     taskfile: ../nix/Taskfile.yml
 
 vars:
-
   BRUNO_CLI_NIX_INSTALLABLE: '{{.BRUNO_CLI_NIX_INSTALLABLE | default "nixpkgs#bruno-cli"}}'
-
   BRUNO_CLI_NPM_PACKAGE: '{{.BRUNO_CLI_NPM_PACKAGE | default "@usebruno/cli"}}'
-
   BRUNO_CLI_COLLECTION: '{{.BRUNO_CLI_COLLECTION | default "."}}'
-
   BRUNO_CLI_ENV: '{{.BRUNO_CLI_ENV | default ""}}'
-
   BRUNO_CLI_EXTRA_ARGS: '{{.BRUNO_CLI_EXTRA_ARGS | default ""}}'
 
 tasks:
@@ -37,7 +29,6 @@ tasks:
     summary: Display the list of available Bruno CLI-related tasks defined in this Taskfile.
     cmds:
       - task --list
-
   install:
     run: once
     desc: Install the Bruno CLI via Nix (Unix) or npm (Windows)
@@ -52,23 +43,23 @@ tasks:
     cmds:
       - task: _install:unix
       - task: _install:windows
-
   _install:unix:
     internal: true
-    platforms: [linux, darwin]
+    platforms:
+      - linux
+      - darwin
     cmds:
       - task: nix:install:profile
         vars:
-          NIX_INSTALLABLE: "{{.BRUNO_CLI_NIX_INSTALLABLE}}"
-
+          NIX_INSTALLABLE: '{{.BRUNO_CLI_NIX_INSTALLABLE}}'
   _install:windows:
     internal: true
-    platforms: [windows]
+    platforms:
+      - windows
     cmds:
       - task: npm:install:global
         vars:
-          PACKAGES: "{{.BRUNO_CLI_NPM_PACKAGE}}"
-
+          PACKAGES: '{{.BRUNO_CLI_NPM_PACKAGE}}'
   version:
     run: once
     desc: Show the active the Bruno CLI version
@@ -80,11 +71,10 @@ tasks:
     cmds:
       - task: _version:unix
       - task: _version:windows
-
   _run:
     internal: true
     run: when_changed
-    dir: "{{.USER_WORKING_DIR}}"
+    dir: '{{.USER_WORKING_DIR}}'
     vars:
       RESOLVED_COLLECTION: '{{.BRUNO_CLI_COLLECTION}}'
       RESOLVED_ENV: '{{.BRUNO_CLI_ENV}}'
@@ -96,15 +86,17 @@ tasks:
           {{- if .RESOLVED_ENV}} --env "{{.RESOLVED_ENV}}"{{end}}
           {{- if .MODE_ARGS}} {{.MODE_ARGS}}{{end}}
           {{.BRUNO_CLI_EXTRA_ARGS}}{{if .CLI_ARGS}} {{.CLI_ARGS}}{{end}}'
-        platforms: [linux, darwin]
+        platforms:
+          - linux
+          - darwin
       - cmd: >-
           powershell -NoProfile -ExecutionPolicy Bypass -Command
           "{{.WINGET_LOAD}}; bru run {{.RESOLVED_COLLECTION}}
           {{if .RESOLVED_ENV}}--env '{{.RESOLVED_ENV}}'{{end}}
           {{if .MODE_ARGS}}{{.MODE_ARGS}}{{end}}
           {{.BRUNO_CLI_EXTRA_ARGS}}{{if .CLI_ARGS}} {{.CLI_ARGS}}{{end}}; exit \$LASTEXITCODE"
-        platforms: [windows]
-
+        platforms:
+          - windows
   run:
     run: once
     desc: Run a Bruno collection (BRUNO_CLI_COLLECTION=path)
@@ -116,8 +108,7 @@ tasks:
     cmds:
       - task: _run
         vars:
-          MODE_ARGS: ""
-
+          MODE_ARGS: ''
   ci:
     run: once
     desc: Run Bruno collection in CI mode with --bail (BRUNO_CLI_COLLECTION=path)
@@ -129,8 +120,7 @@ tasks:
     cmds:
       - task: _run
         vars:
-          MODE_ARGS: "--bail"
-
+          MODE_ARGS: --bail
   help:
     run: once
     desc: Show Bruno CLI help
@@ -141,28 +131,32 @@ tasks:
       - cmd: >-
           bash -lc '{{.NIX_LOAD}}; bru --help
           {{.BRUNO_CLI_EXTRA_ARGS}}{{if .CLI_ARGS}} {{.CLI_ARGS}}{{end}}'
-        platforms: [linux, darwin]
+        platforms:
+          - linux
+          - darwin
       - cmd: >-
           powershell -NoProfile -ExecutionPolicy Bypass -Command
           "{{.WINGET_LOAD}}; bru --help
           {{.BRUNO_CLI_EXTRA_ARGS}}{{if .CLI_ARGS}} {{.CLI_ARGS}}{{end}}; exit \$LASTEXITCODE"
-        platforms: [windows]
-
+        platforms:
+          - windows
   _version:unix:
     run: once
     internal: true
     desc: Show the Bruno CLI version on macOS or Linux
     summary: Print the bru version on macOS or Linux.
-    platforms: [linux, darwin]
+    platforms:
+      - linux
+      - darwin
     cmds:
       - bash -lc '{{.NIX_LOAD}}; bru --version'
-
   _version:windows:
     run: once
     internal: true
     desc: Show the Bruno CLI version on Windows
     summary: Print the bru version on Windows.
-    platforms: [windows]
+    platforms:
+      - windows
     preconditions:
       - sh: >-
           powershell -NoProfile -ExecutionPolicy Bypass -Command

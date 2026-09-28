@@ -1,10 +1,10 @@
 ---
-version: "3.5"
+version: '3.5'
 
 output:
   group:
-    begin: "::group::{{.TASK}}"
-    end: "::endgroup::"
+    begin: ::group::{{.TASK}}
+    end: '::endgroup::'
     error_only: false
 
 silent: true
@@ -26,10 +26,9 @@ tasks:
     desc: Show available Biome tasks
     cmds:
       - task --list
-
   install:
     run: once
-    dir: "{{.USER_WORKING_DIR}}"
+    dir: '{{.USER_WORKING_DIR}}'
     desc: Install Biome as a local devDependency
     summary: |
       Install @biomejs/biome as a local devDependency. Pass BIOME_VERSION=x.y.z to
@@ -53,7 +52,6 @@ tasks:
           ARGS: >-
             add -d --silent @biomejs/biome{{if .RESOLVED_VERSION}}@{{.RESOLVED_VERSION}}{{end}}
             {{.BIOME_EXTRA_ARGS}}{{if .CLI_ARGS}} {{.CLI_ARGS}}{{end}}
-
   install:undo:
     run: once
     desc: Remove the locally installed Biome devDependency
@@ -68,7 +66,6 @@ tasks:
       - task: _bun:windows
         vars:
           ARGS: remove --silent @biomejs/biome {{.BIOME_EXTRA_ARGS}}
-
   upgrade:
     run: once
     desc: Upgrade Biome to the latest release
@@ -84,10 +81,9 @@ tasks:
           ARGS: >-
             add -d --silent @biomejs/biome@latest
             {{.BIOME_EXTRA_ARGS}}
-
   config:init:
     run: once
-    dir: "{{.USER_WORKING_DIR}}"
+    dir: '{{.USER_WORKING_DIR}}'
     desc: Create a biome.json config file in the current directory
     summary: |
       Run biome init to generate a biome.json config file with recommended
@@ -130,7 +126,6 @@ tasks:
             {{- if .RESOLVED_CONFIG}} --config-path "{{.RESOLVED_CONFIG}}"{{end}}
             {{- if .RESOLVED_TARGETS}} {{.RESOLVED_TARGETS}}{{end}}
             {{.BIOME_EXTRA_ARGS}}{{if .CLI_ARGS}} {{.CLI_ARGS}}{{end}}
-
   lint:
     run: once
     desc: Run Biome check
@@ -139,7 +134,6 @@ tasks:
         vars:
           SUBCMD: check
       - echo "✅ biome passed"
-
   lint:fix:
     run: once
     desc: Run Biome check and write safe fixes
@@ -148,7 +142,6 @@ tasks:
         vars:
           SUBCMD: check --write
       - echo "✅ biome fixes applied"
-
   fmt:check:
     run: once
     desc: Check formatting with Biome
@@ -156,7 +149,6 @@ tasks:
       - task: _run
         vars:
           SUBCMD: format
-
   fmt:
     run: once
     desc: Format files with Biome
@@ -165,14 +157,12 @@ tasks:
         vars:
           SUBCMD: format --write
       - echo "✅ biome fixes applied"
-
   ci:
     run: once
     desc: Run Biome fmt:check then lint
     cmds:
       - task: fmt:check
       - task: lint
-
   ci:fix:
     run: once
     desc: Run fmt then lint:fix for CI
@@ -182,14 +172,12 @@ tasks:
     cmds:
       - task: fmt
       - task: lint:fix
-
   cache:clean:
     run: once
     desc: Remove common Biome cache directories if present
     cmds:
       - if [ -d .cache/biome ]; then rm -rf .cache/biome; fi
       - if [ -d node_modules/.cache/biome ]; then rm -rf node_modules/.cache/biome; fi
-
   version:
     run: once
     desc: Show the locally resolved Biome version
@@ -200,7 +188,6 @@ tasks:
       - task: _bun:windows
         vars:
           ARGS: x biome --version
-
   help:
     run: once
     desc: Show Biome CLI help
@@ -215,35 +202,41 @@ tasks:
           ARGS: >-
             x biome --help
             {{.BIOME_EXTRA_ARGS}}{{if .CLI_ARGS}} {{.CLI_ARGS}}{{end}}
-
   _bun:unix:
     run: when_changed
     internal: true
-    platforms: [linux, darwin]
-    dir: "{{.USER_WORKING_DIR}}"
-    set: [errexit, nounset, pipefail]
+    platforms:
+      - linux
+      - darwin
+    dir: '{{.USER_WORKING_DIR}}'
+    set:
+      - errexit
+      - nounset
+      - pipefail
     requires:
-      vars: [ARGS]
+      vars:
+        - ARGS
     deps:
       - task: bun:install
     env:
-      CI: "1"
+      CI: '1'
     cmds:
       - task: bun:_run:unix
         vars:
-          ARGS: "{{.ARGS}}"
-
+          ARGS: '{{.ARGS}}'
   _bun:windows:
     run: when_changed
     internal: true
-    platforms: [windows]
-    dir: "{{.USER_WORKING_DIR}}"
+    platforms:
+      - windows
+    dir: '{{.USER_WORKING_DIR}}'
     requires:
-      vars: [ARGS]
+      vars:
+        - ARGS
     deps:
       - task: bun:install
     env:
-      CI: "1"
+      CI: '1'
     cmds:
       - >-
         powershell -NoProfile -NonInteractive -ExecutionPolicy Bypass -Command

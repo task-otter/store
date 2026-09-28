@@ -1,10 +1,10 @@
 ---
-version: "3.5"
+version: '3.5'
 
 output:
   group:
-    begin: "::group::{{.TASK}}"
-    end: "::endgroup::"
+    begin: ::group::{{.TASK}}
+    end: '::endgroup::'
     error_only: false
 
 silent: true
@@ -27,10 +27,9 @@ tasks:
     desc: Show available Depcheck tasks
     cmds:
       - task --list
-
   install:
     run: once
-    dir: "{{.USER_WORKING_DIR}}"
+    dir: '{{.USER_WORKING_DIR}}'
     desc: Install Depcheck as a local devDependency
     summary: |
       Install depcheck as a local devDependency. Pass DEPCHECK_VERSION=x.y.z to pin a
@@ -45,10 +44,9 @@ tasks:
     cmds:
       - task: pnpm:add
         vars:
-          PACKAGES: 'depcheck{{if .RESOLVED_VERSION}}@{{.RESOLVED_VERSION}}{{end}}'
+          PACKAGES: depcheck{{if .RESOLVED_VERSION}}@{{.RESOLVED_VERSION}}{{end}}
           EXTRA_ARGS: >-
             {{.DEPCHECK_EXTRA_ARGS}}{{if .CLI_ARGS}} {{.CLI_ARGS}}{{end}}
-
   install:undo:
     run: once
     desc: Remove the locally installed Depcheck devDependency
@@ -61,7 +59,6 @@ tasks:
         vars:
           PACKAGES: depcheck
           EXTRA_ARGS: '{{.DEPCHECK_EXTRA_ARGS}}'
-
   upgrade:
     run: once
     desc: Upgrade Depcheck to the latest release
@@ -91,15 +88,13 @@ tasks:
             {{- if .MODE_ARGS}} {{.MODE_ARGS}}{{end}}
           EXTRA_ARGS: >-
             {{.DEPCHECK_EXTRA_ARGS}}{{if .CLI_ARGS}} {{.CLI_ARGS}}{{end}}
-
   json:
     run: once
     desc: Run Depcheck and print JSON output
     cmds:
       - task: _run
         vars:
-          MODE_ARGS: "--json"
-
+          MODE_ARGS: --json
   ignores:
     run: once
     desc: Run Depcheck while ignoring packages from DEPCHECK_IGNORE_PACKAGES
@@ -109,16 +104,14 @@ tasks:
     cmds:
       - task: _run
         vars:
-          MODE_ARGS: '--ignores="{{.DEPCHECK_IGNORE_PACKAGES}}"'
-
+          MODE_ARGS: --ignores="{{.DEPCHECK_IGNORE_PACKAGES}}"
   skip-missing:
     run: once
     desc: Run Depcheck while ignoring missing dependency reports
     cmds:
       - task: _run
         vars:
-          MODE_ARGS: "--skip-missing=true"
-
+          MODE_ARGS: --skip-missing=true
   ci:
     run: once
     desc: Run Depcheck with CI failure on dependency findings
@@ -126,9 +119,8 @@ tasks:
     cmds:
       - task: _run
         vars:
-          MODE_ARGS: ""
+          MODE_ARGS: ''
       - echo "✅ depcheck ci passed"
-
   version:
     run: once
     desc: Show the locally resolved Depcheck version
@@ -138,9 +130,8 @@ tasks:
       - task: pnpm:exec
         vars:
           BINARY: depcheck
-          ARGS: "--version"
+          ARGS: --version
           EXTRA_ARGS: '{{.DEPCHECK_EXTRA_ARGS}}'
-
   help:
     run: once
     desc: Show Depcheck CLI help
@@ -148,6 +139,6 @@ tasks:
       - task: pnpm:exec
         vars:
           BINARY: depcheck
-          ARGS: "--help"
+          ARGS: --help
           EXTRA_ARGS: >-
             {{.DEPCHECK_EXTRA_ARGS}}{{if .CLI_ARGS}} {{.CLI_ARGS}}{{end}}

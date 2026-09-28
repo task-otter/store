@@ -1,6 +1,7 @@
 ---
 name: CI
 description: Run the repository's own lint/format checks and go vet.
+
 runs:
   using: composite
   steps:
