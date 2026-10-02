@@ -194,6 +194,10 @@ func publicTasks() []string {
 
 func publicVars() []string {
 	return []string{
+		"VAULT_SSH_ROLE",
+		"VAULT_SSH_PRIVATE_KEY_PATH",
+		"VAULT_SSH_PUBLIC_KEY_PATH",
+		"VAULT_SSH_MOUNT",
 		"VAULT_APPROLE_MOUNT",
 		"VAULT_EXTRA_ARGS",
 		roleEnvVarName,

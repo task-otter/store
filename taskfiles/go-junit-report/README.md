@@ -80,5 +80,7 @@ dependents run `go:install`.
 
 - Unix install uses Nix (`GO_JUNIT_REPORT_NIX_INSTALLABLE`). On Windows, install uses `go:install:pkg` with `GO_JUNIT_REPORT_GO_PKG`.
 
-- Go is provided by the included [`go`](../go/README.md) module. Operational tasks depend on `go:install`.
-- `report`, `which`, `verify`, and `version` auto-install Go and `go-junit-report`.
+- `report`, `which`, `verify`, and `version` auto-install `go-junit-report`.
+  Go is installed through the included module only when the Windows installer needs it.
+- `report` validates required paths, a readable input file, and a writable output
+  location before installation. Input and output must differ.

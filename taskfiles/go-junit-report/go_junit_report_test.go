@@ -33,7 +33,6 @@ const (
 	whichTask                = "which"
 	installTask              = "install"
 	versionTask              = "version"
-	goInstallTask            = "go:install"
 	goJunitReportModule      = "go-junit-report"
 	goJunitReportNixVar      = "GO_JUNIT_REPORT_NIX_INSTALLABLE"
 	goJunitReportGoPkgVar    = "GO_JUNIT_REPORT_GO_PKG"
@@ -84,11 +83,26 @@ func TestOperationalTaskDependencies(t *testing.T) {
 	taskfile := tasktest.LoadTaskfile(t, goJunitReportModule)
 
 	assertDependencyMap(t, taskfile, map[string][]string{
-		constGoJunitReportReport: {goInstallTask, installTask},
-		whichTask:                {goInstallTask, installTask},
-		verifyTask:               {goInstallTask, installTask},
-		versionTask:              {goInstallTask, installTask},
+		whichTask:   {installTask},
+		verifyTask:  {installTask},
+		versionTask: {installTask},
 	})
+}
+
+// TestReportValidatesBeforeInstalling ensures invalid paths cannot trigger installation.
+func TestReportValidatesBeforeInstalling(t *testing.T) {
+	t.Parallel()
+
+	taskfile := tasktest.LoadTaskfile(t, goJunitReportModule)
+	report := taskfile.Tasks[constGoJunitReportReport]
+
+	if report.Deps != nil {
+		t.Fatal("report must validate inputs before calling install from cmds")
+	}
+
+	if report.Preconditions == nil {
+		t.Fatal("report must validate its input and output paths")
+	}
 }
 
 func publicTasks() []string {

@@ -24,27 +24,27 @@ vars:
   VAULT_ROLE_ID: '{{.VAULT_ROLE_ID | default ""}}'
   VAULT_SECRET_ID: '{{.VAULT_SECRET_ID | default ""}}'
   VAULT_APPROLE_MOUNT: '{{.VAULT_APPROLE_MOUNT | default "approle"}}'
-  SSH_ROLE: '{{.SSH_ROLE | default ""}}'
-  SSH_PRIVATE_KEY_PATH: '{{.SSH_PRIVATE_KEY_PATH | default ""}}'
-  SSH_PUBLIC_KEY_PATH: '{{.SSH_PUBLIC_KEY_PATH | default ""}}'
-  SSH_MOUNT: '{{.SSH_MOUNT | default "ssh"}}'
+  VAULT_SSH_ROLE: '{{.VAULT_SSH_ROLE | default ""}}'
+  VAULT_SSH_PRIVATE_KEY_PATH: '{{.VAULT_SSH_PRIVATE_KEY_PATH | default ""}}'
+  VAULT_SSH_PUBLIC_KEY_PATH: '{{.VAULT_SSH_PUBLIC_KEY_PATH | default ""}}'
+  VAULT_SSH_MOUNT: '{{.VAULT_SSH_MOUNT | default "ssh"}}'
   VAULT_NIX_INSTALLABLE: '{{.VAULT_NIX_INSTALLABLE | default "nixpkgs#vault-bin"}}'
   VAULT_WINGET_INSTALLABLE: '{{.VAULT_WINGET_INSTALLABLE | default "Hashicorp.Vault"}}'
 
 env:
   VAULT_ADDR: '{{.VAULT_ADDR_TARGET}}'
   NIXPKGS_ALLOW_UNFREE: '1'
-  VAULT_SSH_ROLE: '{{.SSH_ROLE}}'
-  VAULT_SSH_PRIVATE_KEY_PATH: '{{.SSH_PRIVATE_KEY_PATH}}'
-  VAULT_SSH_PUBLIC_KEY_PATH: '{{.SSH_PUBLIC_KEY_PATH}}'
-  VAULT_SSH_MOUNT: '{{.SSH_MOUNT}}'
+  VAULT_SSH_ROLE: '{{.VAULT_SSH_ROLE}}'
+  VAULT_SSH_PRIVATE_KEY_PATH: '{{.VAULT_SSH_PRIVATE_KEY_PATH}}'
+  VAULT_SSH_PUBLIC_KEY_PATH: '{{.VAULT_SSH_PUBLIC_KEY_PATH}}'
+  VAULT_SSH_MOUNT: '{{.VAULT_SSH_MOUNT}}'
 
 tasks:
   ssh:keys:
     desc: Generate an SSH key pair and sign the public key with Vault
     summary: |
-      Set SSH_ROLE, SSH_PRIVATE_KEY_PATH and SSH_PUBLIC_KEY_PATH.
-      SSH_MOUNT defaults to ssh. Uses the current Vault authentication.
+      Set VAULT_SSH_ROLE, VAULT_SSH_PRIVATE_KEY_PATH and VAULT_SSH_PUBLIC_KEY_PATH.
+      VAULT_SSH_MOUNT defaults to ssh. Uses the current Vault authentication.
       Reuses existing keys and renews the certificate on every invocation.
       Saves the certificate beside the public key as <name>-cert.pub.
       Requires ssh-keygen on PATH; generates an unencrypted Ed25519 key.
@@ -54,17 +54,17 @@ tasks:
       - pipefail
     preconditions:
       - sh: test -n "$VAULT_SSH_ROLE"
-        msg: SSH_ROLE must be set.
+        msg: VAULT_SSH_ROLE must be set.
       - sh: test -n "$VAULT_SSH_PRIVATE_KEY_PATH"
-        msg: SSH_PRIVATE_KEY_PATH must be set.
+        msg: VAULT_SSH_PRIVATE_KEY_PATH must be set.
       - sh: test -n "$VAULT_SSH_PUBLIC_KEY_PATH"
-        msg: SSH_PUBLIC_KEY_PATH must be set.
+        msg: VAULT_SSH_PUBLIC_KEY_PATH must be set.
       - sh: test "$VAULT_SSH_PRIVATE_KEY_PATH" != "$VAULT_SSH_PUBLIC_KEY_PATH"
         msg: Private and public key paths must differ.
       - sh: test "$VAULT_SSH_PRIVATE_KEY_PATH" != "${VAULT_SSH_PUBLIC_KEY_PATH%.pub}-cert.pub"
         msg: Private key path must differ from the derived certificate path.
       - sh: test -n "$VAULT_SSH_MOUNT"
-        msg: SSH_MOUNT must be set.
+        msg: VAULT_SSH_MOUNT must be set.
       - sh: command -v ssh-keygen >/dev/null 2>&1
         msg: ssh-keygen is required on PATH.
     cmds:

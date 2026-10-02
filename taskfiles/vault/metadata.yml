@@ -4,11 +4,11 @@ module: vault
 taskfile: Taskfile.yml
 
 exported_tasks:
-  - ssh:keys
   - healthy
   - install
   - kv:get
   - login:approle
   - login:root-token
+  - ssh:keys
   - token:revoke
   - version

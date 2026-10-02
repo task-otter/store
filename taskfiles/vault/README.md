@@ -38,13 +38,13 @@ task vault:healthy VAULT_ADDR=http://127.0.0.1:8200
 Generate an SSH key pair and sign it using an existing Vault SSH role:
 
 ```sh
-task vault:ssh:keys SSH_ROLE=my-role \
-  SSH_PRIVATE_KEY_PATH="$HOME/.ssh/vault_key" \
-  SSH_PUBLIC_KEY_PATH="$HOME/.ssh/vault_key.pub"
+task vault:ssh:keys VAULT_SSH_ROLE=my-role \
+  VAULT_SSH_PRIVATE_KEY_PATH="$HOME/.ssh/vault_key" \
+  VAULT_SSH_PUBLIC_KEY_PATH="$HOME/.ssh/vault_key.pub"
 ```
 
 `ssh:keys` requires `ssh-keygen` on PATH and current Vault authentication
-(`VAULT_TOKEN` or the token helper). Override `SSH_MOUNT` (default `ssh`) for
+(`VAULT_TOKEN` or the token helper). Override `VAULT_SSH_MOUNT` (default `ssh`) for
 another SSH secrets engine mount. It generates an unencrypted Ed25519 key,
 reuses an existing pair, and derives a missing public key from the private key.
 Each invocation signs the public key and writes `vault_key-cert.pub` beside it.
@@ -55,7 +55,7 @@ before dependencies install Vault and prepare the key pair.
 | -------------- | -------------------------------------------- | -------------------------------- |
 | `install`      | Install the Vault CLI via Nix (Unix) or WinGet (Windows)    | `VAULT_NIX_INSTALLABLE`          |
 | `version`      | Show the active Vault CLI version            | —                                |
-| `ssh:keys` | Generate and sign SSH keys | `SSH_ROLE`, `SSH_PRIVATE_KEY_PATH`, `SSH_PUBLIC_KEY_PATH`, `SSH_MOUNT` |
+| `ssh:keys` | Generate and sign SSH keys | `VAULT_SSH_ROLE`, `VAULT_SSH_PRIVATE_KEY_PATH`, `VAULT_SSH_PUBLIC_KEY_PATH`, `VAULT_SSH_MOUNT` |
 | `healthy`       | Query the Vault HTTP health endpoint as JSON | `VAULT_ADDR`                     |
 | `login:root-token` | Log in using a token directly                | `VAULT_ROOT_TOKEN`                     |
 | `login:approle`    | Log in using the AppRole auth method         | `VAULT_ROLE_ID`, `VAULT_SECRET_ID`, `VAULT_APPROLE_MOUNT` |

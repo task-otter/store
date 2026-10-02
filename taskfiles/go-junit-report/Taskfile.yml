@@ -71,9 +71,8 @@ tasks:
     desc: Show the active go-junit-report version
     summary: |
       Print the version reported by the go-junit-report binary resolved from PATH.
-      Auto-installs Go and go-junit-report if missing.
+      Auto-installs go-junit-report if missing.
     deps:
-      - task: go:install
       - task: install
     cmds:
       - task: _version:unix
@@ -82,10 +81,9 @@ tasks:
     run: once
     desc: Show the path to the go-junit-report binary
     summary: |
-      Print the go-junit-report binary resolved from PATH. Auto-installs Go and
-      go-junit-report if missing.
+      Print the go-junit-report binary resolved from PATH.
+      Auto-installs go-junit-report if missing.
     deps:
-      - task: go:install
       - task: install
     cmds:
       - task: _which:unix
@@ -95,10 +93,8 @@ tasks:
     desc: Verify the go-junit-report installation
     summary: |
       Check that go-junit-report is installed and print the active version for
-      quick installation diagnostics. Auto-installs Go and go-junit-report if
-      missing.
+      quick installation diagnostics. Auto-installs go-junit-report if missing.
     deps:
-      - task: go:install
       - task: install
     cmds:
       - task: _verify:unix
@@ -111,23 +107,34 @@ tasks:
       Convert an existing go test log file to JUnit XML via go-junit-report.
       Requires GO_JUNIT_REPORT_IN (input log path) and GO_JUNIT_REPORT_OUT
       (output XML path). Does not run go test or write coverage profiles.
-      Auto-installs Go (via go:install) and go-junit-report if missing.
-    deps:
-      - task: go:install
-      - task: install
+      Validates paths before auto-installing go-junit-report if missing.
+    env:
+      GO_JUNIT_REPORT_INPUT: '{{.GO_JUNIT_REPORT_IN}}'
+      GO_JUNIT_REPORT_OUTPUT: '{{.GO_JUNIT_REPORT_OUT}}'
     requires:
       vars:
         - GO_JUNIT_REPORT_IN
         - GO_JUNIT_REPORT_OUT
     preconditions:
-      - sh: test -n "{{.GO_JUNIT_REPORT_IN}}"
+      - sh: test -n "$GO_JUNIT_REPORT_INPUT"
         msg: GO_JUNIT_REPORT_IN is required. Pass GO_JUNIT_REPORT_IN=path/to/gotest.log when running this task.
-      - sh: test -n "{{.GO_JUNIT_REPORT_OUT}}"
+      - sh: test -n "$GO_JUNIT_REPORT_OUTPUT"
         msg: GO_JUNIT_REPORT_OUT is required. Pass GO_JUNIT_REPORT_OUT=path/to/junit.xml when running this task.
+      - sh: test -f "$GO_JUNIT_REPORT_INPUT" && test -r "$GO_JUNIT_REPORT_INPUT"
+        msg: GO_JUNIT_REPORT_IN must point to a readable log file.
+      - sh: test "$GO_JUNIT_REPORT_INPUT" != "$GO_JUNIT_REPORT_OUTPUT"
+        msg: Input and output paths must differ.
+      - sh: test -d "$(dirname "$GO_JUNIT_REPORT_OUTPUT")" && test -w "$(dirname "$GO_JUNIT_REPORT_OUTPUT")"
+        msg: GO_JUNIT_REPORT_OUT must have an existing writable parent directory.
+      - sh: >-
+          test ! -e "$GO_JUNIT_REPORT_OUTPUT" ||
+          { test -f "$GO_JUNIT_REPORT_OUTPUT" && test -w "$GO_JUNIT_REPORT_OUTPUT"; }
+        msg: Existing GO_JUNIT_REPORT_OUT must be a writable regular file.
     cmds:
+      - task: install
       - cmd: >-
-          bash -lc '{{.NIX_LOAD}}; go-junit-report -in "{{.GO_JUNIT_REPORT_IN}}"
-          -out "{{.GO_JUNIT_REPORT_OUT}}" -set-exit-code'
+          bash -lc '{{.NIX_LOAD}}; go-junit-report -in "$GO_JUNIT_REPORT_INPUT"
+          -out "$GO_JUNIT_REPORT_OUTPUT" -set-exit-code'
         platforms:
           - linux
           - darwin
@@ -135,8 +142,8 @@ tasks:
       - cmd: >-
           powershell -NoProfile -ExecutionPolicy Bypass -Command
           "{{.WINGET_LOAD}}; {{.GO_LOAD}};
-          & go-junit-report -in '{{.GO_JUNIT_REPORT_IN}}'
-          -out '{{.GO_JUNIT_REPORT_OUT}}' -set-exit-code;
+          & go-junit-report -in \$env:GO_JUNIT_REPORT_INPUT
+          -out \$env:GO_JUNIT_REPORT_OUTPUT -set-exit-code;
           exit \$LASTEXITCODE"
         platforms:
           - windows
