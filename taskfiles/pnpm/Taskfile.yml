@@ -1,10 +1,10 @@
 ---
-version: "3.5"
+version: '3.5'
 
 output:
   group:
     begin: ::group::{{.TASK}}
-    end: "::endgroup::"
+    end: '::endgroup::'
     error_only: false
 
 silent: true
@@ -39,7 +39,7 @@ tasks:
     cmds:
       - task: nix:install:profile
         vars:
-          NIX_INSTALLABLE: "{{.PNPM_NIX_INSTALLABLE}}"
+          NIX_INSTALLABLE: '{{.PNPM_NIX_INSTALLABLE}}'
   _install:windows:
     internal: true
     platforms:
@@ -84,9 +84,9 @@ tasks:
     summary: Run pnpm install from a project root that contains package.json.
     cmds:
       - task: _pnpm:unix
-        vars: { ARGS: install --silent }
+        vars: {ARGS: install --silent}
       - task: _pnpm:windows
-        vars: { ARGS: install --silent }
+        vars: {ARGS: install --silent}
   install:clean:
     run: once
     desc: Clean install project dependencies from the lockfile
@@ -100,9 +100,9 @@ tasks:
     summary: Execute the format script defined in package.json through pnpm run format.
     cmds:
       - task: _pnpm:unix
-        vars: { ARGS: run format }
+        vars: {ARGS: run format}
       - task: _pnpm:windows
-        vars: { ARGS: run format }
+        vars: {ARGS: run format}
   add:
     run: once
     desc: Install packages as local devDependencies with pnpm (PACKAGES=<pkgs>)
@@ -159,14 +159,14 @@ tasks:
     cmds:
       - task: _exec:unix
         vars:
-          BINARY: "{{.BINARY}}"
-          ARGS: "{{.ARGS}}"
-          EXTRA_ARGS: "{{.EXTRA_ARGS}}"
+          BINARY: '{{.BINARY}}'
+          ARGS: '{{.ARGS}}'
+          EXTRA_ARGS: '{{.EXTRA_ARGS}}'
       - task: _exec:windows
         vars:
-          BINARY: "{{.BINARY}}"
-          ARGS: "{{.ARGS}}"
-          EXTRA_ARGS: "{{.EXTRA_ARGS}}"
+          BINARY: '{{.BINARY}}'
+          ARGS: '{{.ARGS}}'
+          EXTRA_ARGS: '{{.EXTRA_ARGS}}'
   run:
     run: once
     desc: Run a package.json script with pnpm
@@ -177,67 +177,67 @@ tasks:
     cmds:
       - task: _run:unix
         vars:
-          SCRIPT: "{{.SCRIPT}}"
-          CLI_ARGS: "{{.CLI_ARGS}}"
+          SCRIPT: '{{.SCRIPT}}'
+          CLI_ARGS: '{{.CLI_ARGS}}'
       - task: _run:windows
         vars:
-          SCRIPT: "{{.SCRIPT}}"
-          CLI_ARGS: "{{.CLI_ARGS}}"
+          SCRIPT: '{{.SCRIPT}}'
+          CLI_ARGS: '{{.CLI_ARGS}}'
   dev:
     run: once
     desc: Start the development script with pnpm
     summary: Execute the dev script defined in package.json through pnpm run dev.
     cmds:
       - task: _pnpm:unix
-        vars: { ARGS: run dev }
+        vars: {ARGS: run dev}
       - task: _pnpm:windows
-        vars: { ARGS: run dev }
+        vars: {ARGS: run dev}
   test:
     run: once
     desc: Run the project test script with pnpm
     summary: Execute the test script defined in package.json through pnpm test.
     cmds:
       - task: _pnpm:unix
-        vars: { ARGS: test }
+        vars: {ARGS: test}
       - task: _pnpm:windows
-        vars: { ARGS: test }
+        vars: {ARGS: test}
   build:
     run: once
     desc: Build the project with pnpm
     summary: Execute the build script defined in package.json through pnpm run build.
     cmds:
       - task: _pnpm:unix
-        vars: { ARGS: run build }
+        vars: {ARGS: run build}
       - task: _pnpm:windows
-        vars: { ARGS: run build }
+        vars: {ARGS: run build}
   lint:
     run: once
     desc: Lint the project with pnpm
     summary: Execute the lint script defined in package.json through pnpm run lint.
     cmds:
       - task: _pnpm:unix
-        vars: { ARGS: run lint }
+        vars: {ARGS: run lint}
       - task: _pnpm:windows
-        vars: { ARGS: run lint }
+        vars: {ARGS: run lint}
   typecheck:
     run: once
     desc: Type check the project with pnpm
     summary: Execute the typecheck script defined in package.json through pnpm run typecheck.
     cmds:
       - task: _pnpm:unix
-        vars: { ARGS: run typecheck }
+        vars: {ARGS: run typecheck}
       - task: _pnpm:windows
-        vars: { ARGS: run typecheck }
+        vars: {ARGS: run typecheck}
   outdated:
     run: once
     desc: List outdated pnpm packages locally
     summary: Run pnpm outdated for review and ignore its non-zero outdated result.
     cmds:
       - task: _pnpm:unix
-        vars: { ARGS: outdated }
+        vars: {ARGS: outdated}
         ignore_error: true
       - task: _pnpm:windows
-        vars: { ARGS: outdated }
+        vars: {ARGS: outdated}
         ignore_error: true
   outdated:strict:
     run: once
@@ -245,37 +245,37 @@ tasks:
     summary: Run pnpm outdated and propagate the pnpm exit code for CI enforcement.
     cmds:
       - task: _pnpm:unix
-        vars: { ARGS: outdated }
+        vars: {ARGS: outdated}
       - task: _pnpm:windows
-        vars: { ARGS: outdated }
+        vars: {ARGS: outdated}
   update:
     run: once
     desc: Update dependencies with pnpm
     summary: Run pnpm update to update installed dependencies within declared ranges.
     cmds:
       - task: _pnpm:unix
-        vars: { ARGS: update }
+        vars: {ARGS: update}
       - task: _pnpm:windows
-        vars: { ARGS: update }
+        vars: {ARGS: update}
   audit:
     run: once
     desc: Run a strict pnpm vulnerability audit
     summary: Run pnpm audit and propagate vulnerability findings for CI enforcement.
     cmds:
       - task: _pnpm:unix
-        vars: { ARGS: audit }
+        vars: {ARGS: audit}
       - task: _pnpm:windows
-        vars: { ARGS: audit }
+        vars: {ARGS: audit}
   audit:report:
     run: once
     desc: Report pnpm vulnerabilities locally
     summary: Run pnpm audit for local review while ignoring its vulnerability exit code.
     cmds:
       - task: _pnpm:unix
-        vars: { ARGS: audit }
+        vars: {ARGS: audit}
         ignore_error: true
       - task: _pnpm:windows
-        vars: { ARGS: audit }
+        vars: {ARGS: audit}
         ignore_error: true
   audit:fix:
     run: once
@@ -283,27 +283,27 @@ tasks:
     summary: Run pnpm audit --fix to apply available dependency vulnerability fixes.
     cmds:
       - task: _pnpm:unix
-        vars: { ARGS: audit --fix }
+        vars: {ARGS: audit --fix}
       - task: _pnpm:windows
-        vars: { ARGS: audit --fix }
+        vars: {ARGS: audit --fix}
   audit:json:
     run: once
     desc: Output pnpm audit results as JSON
     summary: Run pnpm audit --json for tooling and propagate the pnpm audit exit code.
     cmds:
       - task: _pnpm:unix
-        vars: { ARGS: audit --json }
+        vars: {ARGS: audit --json}
       - task: _pnpm:windows
-        vars: { ARGS: audit --json }
+        vars: {ARGS: audit --json}
   store:prune:
     run: once
     desc: Prune the pnpm content-addressable store
     summary: Run pnpm store prune to remove unreferenced packages from the pnpm store.
     cmds:
       - task: _pnpm:unix
-        vars: { ARGS: store prune }
+        vars: {ARGS: store prune}
       - task: _pnpm:windows
-        vars: { ARGS: store prune }
+        vars: {ARGS: store prune}
   clean:
     run: once
     desc: Remove the node_modules directory
@@ -319,7 +319,7 @@ tasks:
     desc: Remove node_modules and pnpm-lock.yaml
     summary: Delete node_modules and pnpm-lock.yaml so a later pnpm install regenerates the lockfile.
     prompt:
-      - "WARNING: This will permanently delete node_modules AND pnpm-lock.yaml."
+      - 'WARNING: This will permanently delete node_modules AND pnpm-lock.yaml.'
       - Continue?
     cmds:
       - task: _clean:all:unix
@@ -330,7 +330,7 @@ tasks:
     platforms:
       - linux
       - darwin
-    dir: "{{.USER_WORKING_DIR}}"
+    dir: '{{.USER_WORKING_DIR}}'
     set:
       - errexit
       - nounset
@@ -348,7 +348,7 @@ tasks:
     internal: true
     platforms:
       - windows
-    dir: "{{.USER_WORKING_DIR}}"
+    dir: '{{.USER_WORKING_DIR}}'
     requires:
       vars:
         - BINARY
@@ -362,7 +362,7 @@ tasks:
     platforms:
       - linux
       - darwin
-    dir: "{{.USER_WORKING_DIR}}"
+    dir: '{{.USER_WORKING_DIR}}'
     set:
       - errexit
       - nounset
@@ -371,7 +371,7 @@ tasks:
       vars:
         - ARGS
     env:
-      CI: "1"
+      CI: '1'
     deps:
       - task: nodejs:install
       - task: install:tool
@@ -385,12 +385,12 @@ tasks:
     internal: true
     platforms:
       - windows
-    dir: "{{.USER_WORKING_DIR}}"
+    dir: '{{.USER_WORKING_DIR}}'
     requires:
       vars:
         - ARGS
     env:
-      CI: "1"
+      CI: '1'
     deps:
       - task: nodejs:install
       - task: install:tool
@@ -418,7 +418,7 @@ tasks:
         msg: pnpm-lock.yaml not found. pnpm install:clean requires a lockfile.
     cmds:
       - task: _pnpm:unix
-        vars: { ARGS: install --frozen-lockfile --silent }
+        vars: {ARGS: install --frozen-lockfile --silent}
   _install:clean:windows:
     run: once
     internal: true
@@ -431,7 +431,7 @@ tasks:
         msg: pnpm-lock.yaml not found. pnpm install:clean requires a lockfile.
     cmds:
       - task: _pnpm:windows
-        vars: { ARGS: install --frozen-lockfile --silent }
+        vars: {ARGS: install --frozen-lockfile --silent}
   _run:unix:
     run: when_changed
     internal: true
@@ -439,7 +439,7 @@ tasks:
       - linux
       - darwin
     env:
-      SCRIPT: "{{.SCRIPT}}"
+      SCRIPT: '{{.SCRIPT}}'
     preconditions:
       - sh: printf "%s" "$SCRIPT" | grep -qE "^[A-Za-z0-9:_-]+$"
         msg: SCRIPT "{{.SCRIPT}}" contains invalid characters.
@@ -453,7 +453,7 @@ tasks:
     platforms:
       - windows
     env:
-      SCRIPT: "{{.SCRIPT}}"
+      SCRIPT: '{{.SCRIPT}}'
     preconditions:
       - sh: >-
           powershell -NoProfile -ExecutionPolicy Bypass -Command
@@ -469,7 +469,7 @@ tasks:
     platforms:
       - linux
       - darwin
-    dir: "{{.USER_WORKING_DIR}}"
+    dir: '{{.USER_WORKING_DIR}}'
     set:
       - errexit
       - nounset
@@ -484,7 +484,7 @@ tasks:
     internal: true
     platforms:
       - windows
-    dir: "{{.USER_WORKING_DIR}}"
+    dir: '{{.USER_WORKING_DIR}}'
     deps:
       - task: nodejs:install
       - task: install:tool
@@ -498,7 +498,7 @@ tasks:
     platforms:
       - linux
       - darwin
-    dir: "{{.USER_WORKING_DIR}}"
+    dir: '{{.USER_WORKING_DIR}}'
     status:
       - test ! -d node_modules
     cmds:
@@ -508,7 +508,7 @@ tasks:
     internal: true
     platforms:
       - windows
-    dir: "{{.USER_WORKING_DIR}}"
+    dir: '{{.USER_WORKING_DIR}}'
     status:
       - >-
         powershell -NoProfile -ExecutionPolicy Bypass -Command
@@ -523,7 +523,7 @@ tasks:
     platforms:
       - linux
       - darwin
-    dir: "{{.USER_WORKING_DIR}}"
+    dir: '{{.USER_WORKING_DIR}}'
     cmds:
       - rm -rf node_modules
       - rm -f pnpm-lock.yaml
@@ -532,7 +532,7 @@ tasks:
     internal: true
     platforms:
       - windows
-    dir: "{{.USER_WORKING_DIR}}"
+    dir: '{{.USER_WORKING_DIR}}'
     cmds:
       - >-
         powershell -NoProfile -ExecutionPolicy Bypass -Command
@@ -546,7 +546,7 @@ tasks:
     platforms:
       - linux
       - darwin
-    dir: "{{.USER_WORKING_DIR}}"
+    dir: '{{.USER_WORKING_DIR}}'
     cmds:
       - bash -lc '{{.NIX_LOAD}}; pnpm --version'
   _version:tool:windows:
@@ -556,7 +556,7 @@ tasks:
     summary: Print the pnpm version on Windows.
     platforms:
       - windows
-    dir: "{{.USER_WORKING_DIR}}"
+    dir: '{{.USER_WORKING_DIR}}'
     preconditions:
       - sh: >-
           powershell -NoProfile -ExecutionPolicy Bypass -Command

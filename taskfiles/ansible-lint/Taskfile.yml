@@ -1,10 +1,10 @@
 ---
-version: "3.5"
+version: '3.5'
 
 output:
   group:
     begin: ::group::{{.TASK}}
-    end: "::endgroup::"
+    end: '::endgroup::'
     error_only: false
 
 silent: true
@@ -38,7 +38,7 @@ tasks:
     cmds:
       - task: nix:install:profile
         vars:
-          NIX_INSTALLABLE: "{{.ANSIBLE_LINT_NIX_INSTALLABLE}}"
+          NIX_INSTALLABLE: '{{.ANSIBLE_LINT_NIX_INSTALLABLE}}'
   version:
     run: once
     desc: Show the active ansible-lint version
@@ -56,7 +56,7 @@ tasks:
       Run ansible-lint against ANSIBLE_LINT_TARGETS (default .) to enforce best
       practices and YAML checks. Pass ANSIBLE_LINT_EXTRA_ARGS for additional flags.
       Auto-installs if missing.
-    dir: "{{.USER_WORKING_DIR}}"
+    dir: '{{.USER_WORKING_DIR}}'
     deps:
       - task: install
     cmds:
@@ -69,7 +69,7 @@ tasks:
       Run ansible-lint --fix against ANSIBLE_LINT_TARGETS (default .) to automatically
       resolve fixable lint violations. Pass ANSIBLE_LINT_EXTRA_ARGS for additional flags.
       Auto-installs if missing.
-    dir: "{{.USER_WORKING_DIR}}"
+    dir: '{{.USER_WORKING_DIR}}'
     deps:
       - task: install
     cmds:
@@ -88,7 +88,7 @@ tasks:
     cmds:
       - task: _lint:run:unix
         vars:
-          ANSIBLE_LINT_FIX_FLAG: ""
+          ANSIBLE_LINT_FIX_FLAG: ''
   _lint:fix:unix:
     run: once
     internal: true

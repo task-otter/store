@@ -1,10 +1,10 @@
 ---
-version: "3.5"
+version: '3.5'
 
 output:
   group:
     begin: ::group::{{.TASK}}
-    end: "::endgroup::"
+    end: '::endgroup::'
     error_only: false
 
 silent: true
@@ -49,7 +49,7 @@ tasks:
     cmds:
       - task: nix:install:profile
         vars:
-          NIX_INSTALLABLE: "{{.ZIZMOR_NIX_INSTALLABLE}}"
+          NIX_INSTALLABLE: '{{.ZIZMOR_NIX_INSTALLABLE}}'
   _install:windows:
     internal: true
     platforms:
@@ -57,7 +57,7 @@ tasks:
     cmds:
       - task: winget:install:package
         vars:
-          WINGET_INSTALLABLE: "{{.ZIZMOR_WINGET_INSTALLABLE}}"
+          WINGET_INSTALLABLE: '{{.ZIZMOR_WINGET_INSTALLABLE}}'
   version:
     run: once
     desc: Show the active zizmor version
@@ -81,7 +81,7 @@ tasks:
       ZIZMOR_EXTRA_ARGS for additional flags such as --format or
       --min-severity, or CLI arguments after -- to override targets and options.
       Auto-installs zizmor if missing.
-    dir: "{{.USER_WORKING_DIR}}"
+    dir: '{{.USER_WORKING_DIR}}'
     deps:
       - task: install
     cmds:

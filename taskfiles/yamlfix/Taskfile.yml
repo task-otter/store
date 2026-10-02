@@ -1,10 +1,10 @@
 ---
-version: "3.5"
+version: '3.5'
 
 output:
   group:
     begin: ::group::{{.TASK}}
-    end: "::endgroup::"
+    end: '::endgroup::'
     error_only: false
 
 silent: true
@@ -49,7 +49,7 @@ tasks:
     cmds:
       - task: nix:install:profile
         vars:
-          NIX_INSTALLABLE: "{{.YAMLFIX_NIX_INSTALLABLE}}"
+          NIX_INSTALLABLE: '{{.YAMLFIX_NIX_INSTALLABLE}}'
   _install:windows:
     internal: true
     platforms:
@@ -57,7 +57,7 @@ tasks:
     cmds:
       - task: uv:tool:install
         vars:
-          UV_TOOL: "{{.YAMLFIX_UV_TOOL}}"
+          UV_TOOL: '{{.YAMLFIX_UV_TOOL}}'
   version:
     run: once
     desc: Show the active yamlfix version
@@ -71,7 +71,7 @@ tasks:
       - task: _version:windows
   ci:fix:
     run: once
-    dir: "{{.USER_WORKING_DIR}}"
+    dir: '{{.USER_WORKING_DIR}}'
     desc: Auto-fix YAML files with yamlfix (YAMLFIX_TARGETS=path)
     summary: |
       Run yamlfix against YAML files found under YAMLFIX_TARGETS (default .). Excludes

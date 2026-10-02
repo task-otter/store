@@ -1,10 +1,10 @@
 ---
-version: "3.5"
+version: '3.5'
 
 output:
   group:
     begin: ::group::{{.TASK}}
-    end: "::endgroup::"
+    end: '::endgroup::'
     error_only: false
 
 silent: true
@@ -26,7 +26,7 @@ tasks:
       - task --list
   install:
     run: once
-    dir: "{{.USER_WORKING_DIR}}"
+    dir: '{{.USER_WORKING_DIR}}'
     desc: Install Knip as a local devDependency
     summary: |
       Install knip as a local devDependency. Pass KNIP_VERSION=x.y.z to pin a
@@ -37,7 +37,7 @@ tasks:
         const requested = '{{.RESOLVED_VERSION}}';
         process.exit(!requested || installed.version === requested ? 0 : 1)"
     vars:
-      RESOLVED_VERSION: "{{.KNIP_VERSION}}"
+      RESOLVED_VERSION: '{{.KNIP_VERSION}}'
     cmds:
       - task: _bun:unix
         vars:
@@ -80,7 +80,7 @@ tasks:
             {{.KNIP_EXTRA_ARGS}}
   config:init:
     run: once
-    dir: "{{.USER_WORKING_DIR}}"
+    dir: '{{.USER_WORKING_DIR}}'
     desc: Create a starter knip.json configuration file
     summary: |
       Knip has no scaffolding command, so this writes a minimal knip.json that
@@ -100,7 +100,7 @@ tasks:
     internal: true
     run: when_changed
     vars:
-      RESOLVED_CONFIG: "{{.KNIP_CONFIG}}"
+      RESOLVED_CONFIG: '{{.KNIP_CONFIG}}'
     cmds:
       - task: _bun:unix
         vars:
@@ -203,7 +203,7 @@ tasks:
     platforms:
       - linux
       - darwin
-    dir: "{{.USER_WORKING_DIR}}"
+    dir: '{{.USER_WORKING_DIR}}'
     set:
       - errexit
       - nounset
@@ -214,24 +214,24 @@ tasks:
     deps:
       - task: bun:install
     env:
-      CI: "1"
+      CI: '1'
     cmds:
       - task: bun:_run:unix
         vars:
-          ARGS: "{{.ARGS}}"
+          ARGS: '{{.ARGS}}'
   _bun:windows:
     run: when_changed
     internal: true
     platforms:
       - windows
-    dir: "{{.USER_WORKING_DIR}}"
+    dir: '{{.USER_WORKING_DIR}}'
     requires:
       vars:
         - ARGS
     deps:
       - task: bun:install
     env:
-      CI: "1"
+      CI: '1'
     cmds:
       - >-
         powershell -NoProfile -NonInteractive -ExecutionPolicy Bypass -Command

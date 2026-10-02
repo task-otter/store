@@ -1,10 +1,10 @@
 ---
-version: "3.5"
+version: '3.5'
 
 output:
   group:
     begin: ::group::{{.TASK}}
-    end: "::endgroup::"
+    end: '::endgroup::'
     error_only: false
 
 silent: true
@@ -29,13 +29,13 @@ tasks:
       - task --list
   install:
     run: once
-    dir: "{{.USER_WORKING_DIR}}"
+    dir: '{{.USER_WORKING_DIR}}'
     desc: Install Depcheck as a local devDependency
     summary: |
       Install depcheck as a local devDependency. Pass DEPCHECK_VERSION=x.y.z to pin a
       specific release instead of the package manager's default resolution.
     vars:
-      RESOLVED_VERSION: "{{.DEPCHECK_VERSION}}"
+      RESOLVED_VERSION: '{{.DEPCHECK_VERSION}}'
     status:
       - >-
         node -e "const installed = require('./node_modules/depcheck/package.json');
@@ -58,7 +58,7 @@ tasks:
       - task: yarn:remove
         vars:
           PACKAGES: depcheck
-          EXTRA_ARGS: "{{.DEPCHECK_EXTRA_ARGS}}"
+          EXTRA_ARGS: '{{.DEPCHECK_EXTRA_ARGS}}'
   upgrade:
     run: once
     desc: Upgrade Depcheck to the latest release
@@ -67,7 +67,7 @@ tasks:
       - task: yarn:add
         vars:
           PACKAGES: depcheck@latest
-          EXTRA_ARGS: "{{.DEPCHECK_EXTRA_ARGS}}"
+          EXTRA_ARGS: '{{.DEPCHECK_EXTRA_ARGS}}'
 
   # Shared implementation of lint / json / ignores / skip-missing. Each override
   # is resolved exactly once here; callers supply only the trailing mode flag.
@@ -119,7 +119,7 @@ tasks:
     cmds:
       - task: _run
         vars:
-          MODE_ARGS: ""
+          MODE_ARGS: ''
       - echo "✅ depcheck ci passed"
   version:
     run: once
@@ -131,7 +131,7 @@ tasks:
         vars:
           BINARY: depcheck
           ARGS: --version
-          EXTRA_ARGS: "{{.DEPCHECK_EXTRA_ARGS}}"
+          EXTRA_ARGS: '{{.DEPCHECK_EXTRA_ARGS}}'
   help:
     run: once
     desc: Show Depcheck CLI help

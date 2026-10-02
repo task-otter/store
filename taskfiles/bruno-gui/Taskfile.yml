@@ -1,10 +1,10 @@
 ---
-version: "3.5"
+version: '3.5'
 
 output:
   group:
     begin: ::group::{{.TASK}}
-    end: "::endgroup::"
+    end: '::endgroup::'
     error_only: false
 
 silent: true
@@ -49,7 +49,7 @@ tasks:
     cmds:
       - task: nix:install:profile
         vars:
-          NIX_INSTALLABLE: "{{.BRUNO_GUI_NIX_INSTALLABLE}}"
+          NIX_INSTALLABLE: '{{.BRUNO_GUI_NIX_INSTALLABLE}}'
   _install:windows:
     internal: true
     platforms:
@@ -57,7 +57,7 @@ tasks:
     cmds:
       - task: winget:install:package
         vars:
-          WINGET_INSTALLABLE: "{{.BRUNO_GUI_WINGET_INSTALLABLE}}"
+          WINGET_INSTALLABLE: '{{.BRUNO_GUI_WINGET_INSTALLABLE}}'
   version:
     run: once
     desc: Show the active the Bruno desktop app version
@@ -77,9 +77,9 @@ tasks:
       specific collection directory, and BRUNO_GUI_EXTRA_ARGS for additional
       flags. On macOS and Linux the app runs in the background so the task
       returns immediately. Auto-installs bruno if missing.
-    dir: "{{.USER_WORKING_DIR}}"
+    dir: '{{.USER_WORKING_DIR}}'
     vars:
-      RESOLVED_COLLECTION: "{{.BRUNO_GUI_COLLECTION}}"
+      RESOLVED_COLLECTION: '{{.BRUNO_GUI_COLLECTION}}'
     deps:
       - task: install
     cmds:

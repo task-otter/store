@@ -1,10 +1,10 @@
 ---
-version: "3.5"
+version: '3.5'
 
 output:
   group:
     begin: ::group::{{.TASK}}
-    end: "::endgroup::"
+    end: '::endgroup::'
     error_only: false
 
 silent: true
@@ -52,7 +52,7 @@ tasks:
     cmds:
       - task: nix:install:profile
         vars:
-          NIX_INSTALLABLE: "{{.YAMLLINT_NIX_INSTALLABLE}}"
+          NIX_INSTALLABLE: '{{.YAMLLINT_NIX_INSTALLABLE}}'
   _install:windows:
     internal: true
     platforms:
@@ -64,7 +64,7 @@ tasks:
     cmds:
       - task: uv:tool:install
         vars:
-          UV_TOOL: "{{.YAMLLINT_UV_TOOL}}"
+          UV_TOOL: '{{.YAMLLINT_UV_TOOL}}'
   version:
     run: once
     desc: Show the active yamllint version
@@ -78,7 +78,7 @@ tasks:
       - task: _version:windows
   ci:
     run: once
-    dir: "{{.USER_WORKING_DIR}}"
+    dir: '{{.USER_WORKING_DIR}}'
     desc: Lint YAML files in strict mode for CI (YAMLLINT_TARGETS=path)
     summary: |
       Run yamllint --strict against YAMLLINT_TARGETS. Exits non-zero on warnings as
@@ -107,7 +107,7 @@ tasks:
           - windows
   config:init:
     run: once
-    dir: "{{.USER_WORKING_DIR}}"
+    dir: '{{.USER_WORKING_DIR}}'
     desc: Create a default .yamllint configuration file
     summary: |
       Write a sensible default .yamllint file in the current directory.

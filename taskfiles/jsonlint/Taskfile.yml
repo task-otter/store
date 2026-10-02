@@ -1,10 +1,10 @@
 ---
-version: "3.5"
+version: '3.5'
 
 output:
   group:
     begin: ::group::{{.TASK}}
-    end: "::endgroup::"
+    end: '::endgroup::'
     error_only: false
 
 silent: true
@@ -50,7 +50,7 @@ tasks:
     cmds:
       - task: nix:install:profile
         vars:
-          NIX_INSTALLABLE: "{{.JSONLINT_NIX_INSTALLABLE}}"
+          NIX_INSTALLABLE: '{{.JSONLINT_NIX_INSTALLABLE}}'
   _install:windows:
     internal: true
     platforms:
@@ -58,7 +58,7 @@ tasks:
     cmds:
       - task: uv:tool:install
         vars:
-          UV_TOOL: "{{.JSONLINT_UV_TOOL}}"
+          UV_TOOL: '{{.JSONLINT_UV_TOOL}}'
   version:
     run: once
     desc: Show the active jsonlint version
@@ -78,7 +78,7 @@ tasks:
       scanned recursively for *.json files; a file target is validated
       directly. Pass JSONLINT_EXTRA_ARGS for additional flags.
       Auto-installs jsonlint if missing.
-    dir: "{{.USER_WORKING_DIR}}"
+    dir: '{{.USER_WORKING_DIR}}'
     deps:
       - task: install
     cmds:

@@ -1,10 +1,10 @@
 ---
-version: "3.5"
+version: '3.5'
 
 output:
   group:
     begin: ::group::{{.TASK}}
-    end: "::endgroup::"
+    end: '::endgroup::'
     error_only: false
 
 silent: true
@@ -52,7 +52,7 @@ tasks:
     cmds:
       - task: nix:install:profile
         vars:
-          NIX_INSTALLABLE: "{{.PULUMI_NIX_INSTALLABLE}}"
+          NIX_INSTALLABLE: '{{.PULUMI_NIX_INSTALLABLE}}'
   _install:windows:
     internal: true
     platforms:
@@ -60,7 +60,7 @@ tasks:
     cmds:
       - task: winget:install:package
         vars:
-          WINGET_INSTALLABLE: "{{.PULUMI_WINGET_INSTALLABLE}}"
+          WINGET_INSTALLABLE: '{{.PULUMI_WINGET_INSTALLABLE}}'
   version:
     run: once
     desc: Show the active Pulumi version
@@ -74,7 +74,7 @@ tasks:
       - task: _version:windows
   login:
     run: once
-    dir: "{{.USER_WORKING_DIR}}"
+    dir: '{{.USER_WORKING_DIR}}'
     desc: Log in to a Pulumi backend
     summary: |
       Run `pulumi login` against PULUMI_LOGIN_URL, falling back to the default
@@ -97,7 +97,7 @@ tasks:
             {{.PULUMI_EXTRA_ARGS}}
   new:
     run: once
-    dir: "{{.USER_WORKING_DIR}}"
+    dir: '{{.USER_WORKING_DIR}}'
     desc: Scaffold a new Pulumi project from a template (PULUMI_TEMPLATE=name)
     summary: |
       Run `pulumi new PULUMI_TEMPLATE` to scaffold a new Pulumi project from a
@@ -127,7 +127,7 @@ tasks:
             {{.PULUMI_EXTRA_ARGS}}
   up:
     run: once
-    dir: "{{.USER_WORKING_DIR}}"
+    dir: '{{.USER_WORKING_DIR}}'
     desc: Preview and deploy the current Pulumi stack
     summary: |
       Run `pulumi up` in the current working directory. Pass PULUMI_STACK=name

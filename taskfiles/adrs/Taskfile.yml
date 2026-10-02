@@ -1,10 +1,10 @@
 ---
-version: "3.5"
+version: '3.5'
 
 output:
   group:
     begin: ::group::{{.TASK}}
-    end: "::endgroup::"
+    end: '::endgroup::'
     error_only: false
 
 silent: true
@@ -48,7 +48,7 @@ tasks:
     cmds:
       - task: nix:install:profile
         vars:
-          NIX_INSTALLABLE: "{{.ADRS_NIX_INSTALLABLE}}"
+          NIX_INSTALLABLE: '{{.ADRS_NIX_INSTALLABLE}}'
   _install:windows:
     internal: true
     platforms:
@@ -56,7 +56,7 @@ tasks:
     cmds:
       - task: cargo:install:crate
         vars:
-          CARGO_CRATE: "{{.ADRS_CARGO_CRATE}}"
+          CARGO_CRATE: '{{.ADRS_CARGO_CRATE}}'
   version:
     run: once
     desc: Show the active adrs version
@@ -75,7 +75,7 @@ tasks:
       Run adrs init to set up an Architecture Decision Record repository in
       the current directory. Pass ADRS_EXTRA_ARGS or arguments after -- for flags
       such as a custom directory. Auto-installs adrs if missing.
-    dir: "{{.USER_WORKING_DIR}}"
+    dir: '{{.USER_WORKING_DIR}}'
     deps:
       - task: install
     cmds:
@@ -99,7 +99,7 @@ tasks:
     summary: |
       Run adrs new to create a new Architecture Decision Record. Pass the
       title via ADRS_EXTRA_ARGS or after --. Auto-installs adrs if missing.
-    dir: "{{.USER_WORKING_DIR}}"
+    dir: '{{.USER_WORKING_DIR}}'
     deps:
       - task: install
     cmds:
@@ -124,7 +124,7 @@ tasks:
       Run adrs list to show the Architecture Decision Records in the current
       repository. Pass ADRS_EXTRA_ARGS or arguments after -- for flags.
       Auto-installs adrs if missing.
-    dir: "{{.USER_WORKING_DIR}}"
+    dir: '{{.USER_WORKING_DIR}}'
     deps:
       - task: install
     cmds:
@@ -149,7 +149,7 @@ tasks:
       Run adrs generate to build ADR documentation such as a table of
       contents, a graph, or a book. Pass the generator name via ADRS_EXTRA_ARGS or
       after --. Auto-installs adrs if missing.
-    dir: "{{.USER_WORKING_DIR}}"
+    dir: '{{.USER_WORKING_DIR}}'
     deps:
       - task: install
     cmds:
@@ -173,7 +173,7 @@ tasks:
     summary: |
       Run an arbitrary adrs subcommand. Pass the subcommand and its arguments
       via ADRS_EXTRA_ARGS or after --. Auto-installs adrs if missing.
-    dir: "{{.USER_WORKING_DIR}}"
+    dir: '{{.USER_WORKING_DIR}}'
     deps:
       - task: install
     cmds:

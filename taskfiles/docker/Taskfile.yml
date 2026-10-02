@@ -1,10 +1,10 @@
 ---
-version: "3.5"
+version: '3.5'
 
 output:
   group:
     begin: ::group::{{.TASK}}
-    end: "::endgroup::"
+    end: '::endgroup::'
     error_only: false
 
 silent: true
@@ -266,8 +266,8 @@ tasks:
       - echo Installing Docker Desktop via winget...
       - task: winget:install:package
         vars:
-          WINGET_INSTALLABLE: "{{.DOCKER_WINGET_INSTALLABLE}}"
-          WINGET_VERSION: "{{.DOCKER_VERSION}}"
+          WINGET_INSTALLABLE: '{{.DOCKER_WINGET_INSTALLABLE}}'
+          WINGET_VERSION: '{{.DOCKER_VERSION}}'
       - echo Docker Desktop installed. Restart your terminal to use docker.
   _install:undo:macos:
     run: once
@@ -279,7 +279,7 @@ tasks:
       - nounset
       - pipefail
     status:
-      - "! command -v docker >/dev/null 2>&1 && ! brew list --cask docker >/dev/null 2>&1"
+      - '! command -v docker >/dev/null 2>&1 && ! brew list --cask docker >/dev/null 2>&1'
     preconditions:
       - sh: command -v brew >/dev/null 2>&1
         msg: Homebrew is required to remove Docker Desktop on macOS.
@@ -297,7 +297,7 @@ tasks:
       - nounset
       - pipefail
     status:
-      - "! command -v docker >/dev/null 2>&1"
+      - '! command -v docker >/dev/null 2>&1'
     preconditions:
       - sh: test "$(id -u)" -eq 0 || command -v sudo >/dev/null 2>&1
         msg: sudo is required to remove Docker when not running as root.
@@ -314,7 +314,7 @@ tasks:
       - nounset
       - pipefail
     status:
-      - "! command -v apt-get >/dev/null 2>&1"
+      - '! command -v apt-get >/dev/null 2>&1'
     cmds:
       - echo 'Removing Docker Engine packages (apt)...'
       - cmd: >-
@@ -336,7 +336,7 @@ tasks:
       - nounset
       - pipefail
     status:
-      - "! command -v dnf >/dev/null 2>&1"
+      - '! command -v dnf >/dev/null 2>&1'
     cmds:
       - echo 'Removing Docker Engine packages (dnf)...'
       - cmd: dnf remove -y docker-ce docker-ce-cli containerd.io docker-buildx-plugin docker-compose-plugin
@@ -357,7 +357,7 @@ tasks:
       - echo Removing Docker Desktop via winget...
       - task: winget:uninstall
         vars:
-          WINGET_INSTALLABLE: "{{.DOCKER_WINGET_INSTALLABLE}}"
+          WINGET_INSTALLABLE: '{{.DOCKER_WINGET_INSTALLABLE}}'
       - echo Docker Desktop removed. Restart your terminal.
   _upgrade:macos:
     run: once
@@ -377,7 +377,7 @@ tasks:
       - cmd: brew upgrade --cask docker
         if: brew list --cask docker >/dev/null 2>&1
       - cmd: brew install --cask docker
-        if: "! brew list --cask docker >/dev/null 2>&1"
+        if: '! brew list --cask docker >/dev/null 2>&1'
       - echo 'Docker Desktop upgraded.'
   _upgrade:linux:
     run: once
@@ -406,7 +406,7 @@ tasks:
       - nounset
       - pipefail
     status:
-      - "! command -v apt-get >/dev/null 2>&1"
+      - '! command -v apt-get >/dev/null 2>&1'
     cmds:
       - echo 'Upgrading Docker Engine (apt)...'
       - cmd: >-
@@ -430,7 +430,7 @@ tasks:
       - nounset
       - pipefail
     status:
-      - "! command -v dnf >/dev/null 2>&1"
+      - '! command -v dnf >/dev/null 2>&1'
     cmds:
       - echo 'Upgrading Docker Engine (dnf)...'
       - cmd: dnf update -y docker-ce docker-ce-cli containerd.io docker-buildx-plugin docker-compose-plugin
@@ -447,8 +447,8 @@ tasks:
       - echo Upgrading Docker Desktop via winget...
       - task: winget:upgrade
         vars:
-          WINGET_INSTALLABLE: "{{.DOCKER_WINGET_INSTALLABLE}}"
-          WINGET_VERSION: "{{.DOCKER_VERSION}}"
+          WINGET_INSTALLABLE: '{{.DOCKER_WINGET_INSTALLABLE}}'
+          WINGET_VERSION: '{{.DOCKER_VERSION}}'
       - echo Docker Desktop upgraded. Restart your terminal if prompted.
   _stop:all:unix:
     run: once

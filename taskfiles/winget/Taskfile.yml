@@ -1,10 +1,10 @@
 ---
-version: "3.5"
+version: '3.5'
 
 output:
   group:
     begin: ::group::{{.TASK}}
-    end: "::endgroup::"
+    end: '::endgroup::'
     error_only: false
 
 silent: true
@@ -73,11 +73,11 @@ tasks:
       - task: _winget:pkg:windows
         vars:
           WINGET_SUBCMD: install
-          WINGET_INSTALLABLE: "{{.WINGET_INSTALLABLE}}"
-          WINGET_VERSION: "{{.WINGET_VERSION}}"
-          WINGET_SCOPE: "{{.WINGET_SCOPE}}"
-          WINGET_SOURCE: "{{.WINGET_SOURCE}}"
-          WINGET_EXTRA_ARGS: "{{.WINGET_EXTRA_ARGS}}"
+          WINGET_INSTALLABLE: '{{.WINGET_INSTALLABLE}}'
+          WINGET_VERSION: '{{.WINGET_VERSION}}'
+          WINGET_SCOPE: '{{.WINGET_SCOPE}}'
+          WINGET_SOURCE: '{{.WINGET_SOURCE}}'
+          WINGET_EXTRA_ARGS: '{{.WINGET_EXTRA_ARGS}}'
       - task: _unix:unsupported
   install:undo:
     desc: Uninstall a WinGet package (WINGET_INSTALLABLE)
@@ -85,11 +85,11 @@ tasks:
     cmds:
       - task: uninstall
         vars:
-          WINGET_INSTALLABLE: "{{.WINGET_INSTALLABLE}}"
-          WINGET_VERSION: "{{.WINGET_VERSION}}"
-          WINGET_SCOPE: "{{.WINGET_SCOPE}}"
-          WINGET_SOURCE: "{{.WINGET_SOURCE}}"
-          WINGET_EXTRA_ARGS: "{{.WINGET_EXTRA_ARGS}}"
+          WINGET_INSTALLABLE: '{{.WINGET_INSTALLABLE}}'
+          WINGET_VERSION: '{{.WINGET_VERSION}}'
+          WINGET_SCOPE: '{{.WINGET_SCOPE}}'
+          WINGET_SOURCE: '{{.WINGET_SOURCE}}'
+          WINGET_EXTRA_ARGS: '{{.WINGET_EXTRA_ARGS}}'
   uninstall:
     desc: Uninstall a WinGet package (WINGET_INSTALLABLE)
     summary: |
@@ -107,11 +107,11 @@ tasks:
       - task: _winget:pkg:windows
         vars:
           WINGET_SUBCMD: uninstall
-          WINGET_INSTALLABLE: "{{.WINGET_INSTALLABLE}}"
-          WINGET_VERSION: "{{.WINGET_VERSION}}"
-          WINGET_SCOPE: "{{.WINGET_SCOPE}}"
-          WINGET_SOURCE: "{{.WINGET_SOURCE}}"
-          WINGET_EXTRA_ARGS: "{{.WINGET_EXTRA_ARGS}}"
+          WINGET_INSTALLABLE: '{{.WINGET_INSTALLABLE}}'
+          WINGET_VERSION: '{{.WINGET_VERSION}}'
+          WINGET_SCOPE: '{{.WINGET_SCOPE}}'
+          WINGET_SOURCE: '{{.WINGET_SOURCE}}'
+          WINGET_EXTRA_ARGS: '{{.WINGET_EXTRA_ARGS}}'
       - task: _unix:unsupported
   upgrade:
     desc: Upgrade a WinGet package (WINGET_INSTALLABLE)
@@ -130,11 +130,11 @@ tasks:
       - task: _winget:pkg:windows
         vars:
           WINGET_SUBCMD: upgrade
-          WINGET_INSTALLABLE: "{{.WINGET_INSTALLABLE}}"
-          WINGET_VERSION: "{{.WINGET_VERSION}}"
-          WINGET_SCOPE: "{{.WINGET_SCOPE}}"
-          WINGET_SOURCE: "{{.WINGET_SOURCE}}"
-          WINGET_EXTRA_ARGS: "{{.WINGET_EXTRA_ARGS}}"
+          WINGET_INSTALLABLE: '{{.WINGET_INSTALLABLE}}'
+          WINGET_VERSION: '{{.WINGET_VERSION}}'
+          WINGET_SCOPE: '{{.WINGET_SCOPE}}'
+          WINGET_SOURCE: '{{.WINGET_SOURCE}}'
+          WINGET_EXTRA_ARGS: '{{.WINGET_EXTRA_ARGS}}'
       - task: _unix:unsupported
   version:
     run: once

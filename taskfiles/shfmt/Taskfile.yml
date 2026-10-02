@@ -1,10 +1,10 @@
 ---
-version: "3.5"
+version: '3.5'
 
 output:
   group:
     begin: ::group::{{.TASK}}
-    end: "::endgroup::"
+    end: '::endgroup::'
     error_only: false
 
 silent: true
@@ -49,7 +49,7 @@ tasks:
     cmds:
       - task: nix:install:profile
         vars:
-          NIX_INSTALLABLE: "{{.SHFMT_NIX_INSTALLABLE}}"
+          NIX_INSTALLABLE: '{{.SHFMT_NIX_INSTALLABLE}}'
   _install:windows:
     internal: true
     platforms:
@@ -61,7 +61,7 @@ tasks:
     cmds:
       - task: winget:install:package
         vars:
-          WINGET_INSTALLABLE: "{{.SHFMT_WINGET_INSTALLABLE}}"
+          WINGET_INSTALLABLE: '{{.SHFMT_WINGET_INSTALLABLE}}'
   version:
     run: once
     desc: Show the active shfmt version
@@ -80,7 +80,7 @@ tasks:
       Reformat shell scripts at SHFMT_TARGETS (default: .) in place. Pass SHFMT_EXTRA_ARGS
       for shfmt options such as -i 2, -ci, -sr, or -ln bash. Auto-installs shfmt
       if needed.
-    dir: "{{.USER_WORKING_DIR}}"
+    dir: '{{.USER_WORKING_DIR}}'
     deps:
       - task: install
     cmds:
@@ -93,7 +93,7 @@ tasks:
       Report formatting differences for shell scripts at SHFMT_TARGETS (default: .)
       without modifying files. Pass SHFMT_EXTRA_ARGS for shfmt options such as -i 2,
       -ci, -sr, or -ln bash. Auto-installs shfmt if needed.
-    dir: "{{.USER_WORKING_DIR}}"
+    dir: '{{.USER_WORKING_DIR}}'
     deps:
       - task: install
     cmds:

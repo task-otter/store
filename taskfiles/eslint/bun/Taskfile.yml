@@ -1,10 +1,10 @@
 ---
-version: "3.5"
+version: '3.5'
 
 output:
   group:
     begin: ::group::{{.TASK}}
-    end: "::endgroup::"
+    end: '::endgroup::'
     error_only: false
 
 silent: true
@@ -30,14 +30,14 @@ tasks:
       - task --list
   install:
     run: once
-    dir: "{{.USER_WORKING_DIR}}"
+    dir: '{{.USER_WORKING_DIR}}'
     desc: Install ESLint as a local devDependency
     summary: |
       Install eslint as a local devDependency. Pass ESLINT_VERSION=x.y.z to pin a
       specific release instead of the package manager's default resolution.
     vars:
-      RESOLVED_VERSION: "{{.ESLINT_VERSION}}"
-      RESOLVED_EXTRA_ARGS: "{{.ESLINT_EXTRA_ARGS}}"
+      RESOLVED_VERSION: '{{.ESLINT_VERSION}}'
+      RESOLVED_EXTRA_ARGS: '{{.ESLINT_EXTRA_ARGS}}'
     status:
       - >-
         node -e "const installed = require('./node_modules/eslint/package.json');
@@ -85,7 +85,7 @@ tasks:
             {{.ESLINT_EXTRA_ARGS}}
   config:init:
     run: once
-    dir: "{{.USER_WORKING_DIR}}"
+    dir: '{{.USER_WORKING_DIR}}'
     desc: Create a starter ESLint flat config when none exists
     summary: |
       Write a minimal eslint.config.mjs with recommended defaults.
@@ -121,10 +121,10 @@ tasks:
     internal: true
     run: when_changed
     vars:
-      RESOLVED_CONFIG: "{{.ESLINT_CONFIG}}"
-      RESOLVED_CACHE: "{{or .ESLINT_CACHE .ESLINT_DEFAULT_CACHE}}"
-      RESOLVED_TARGETS: "{{or .ESLINT_TARGETS .ESLINT_DEFAULT_TARGETS}}"
-      RESOLVED_EXTRA_ARGS: "{{.ESLINT_EXTRA_ARGS}}"
+      RESOLVED_CONFIG: '{{.ESLINT_CONFIG}}'
+      RESOLVED_CACHE: '{{or .ESLINT_CACHE .ESLINT_DEFAULT_CACHE}}'
+      RESOLVED_TARGETS: '{{or .ESLINT_TARGETS .ESLINT_DEFAULT_TARGETS}}'
+      RESOLVED_EXTRA_ARGS: '{{.ESLINT_EXTRA_ARGS}}'
     cmds:
       - task: _bun:unix
         vars:
@@ -195,7 +195,7 @@ tasks:
     platforms:
       - linux
       - darwin
-    dir: "{{.USER_WORKING_DIR}}"
+    dir: '{{.USER_WORKING_DIR}}'
     set:
       - errexit
       - nounset
@@ -206,24 +206,24 @@ tasks:
     deps:
       - task: bun:install
     env:
-      CI: "1"
+      CI: '1'
     cmds:
       - task: bun:_run:unix
         vars:
-          ARGS: "{{.ARGS}}"
+          ARGS: '{{.ARGS}}'
   _bun:windows:
     run: when_changed
     internal: true
     platforms:
       - windows
-    dir: "{{.USER_WORKING_DIR}}"
+    dir: '{{.USER_WORKING_DIR}}'
     requires:
       vars:
         - ARGS
     deps:
       - task: bun:install
     env:
-      CI: "1"
+      CI: '1'
     cmds:
       - >-
         powershell -NoProfile -NonInteractive -ExecutionPolicy Bypass -Command

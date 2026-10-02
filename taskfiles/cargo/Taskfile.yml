@@ -1,10 +1,10 @@
 ---
-version: "3.5"
+version: '3.5'
 
 output:
   group:
     begin: ::group::{{.TASK}}
-    end: "::endgroup::"
+    end: '::endgroup::'
     error_only: false
 
 silent: true
@@ -60,7 +60,7 @@ tasks:
     cmds:
       - task: nix:install:profile
         vars:
-          NIX_INSTALLABLE: "{{.CARGO_NIX_INSTALLABLE}}"
+          NIX_INSTALLABLE: '{{.CARGO_NIX_INSTALLABLE}}'
   _install:windows:
     internal: true
     platforms:
@@ -68,7 +68,7 @@ tasks:
     cmds:
       - task: winget:install:package
         vars:
-          WINGET_INSTALLABLE: "{{.CARGO_WINGET_INSTALLABLE}}"
+          WINGET_INSTALLABLE: '{{.CARGO_WINGET_INSTALLABLE}}'
   version:
     run: once
     desc: Show the active Cargo version
@@ -289,7 +289,7 @@ tasks:
     platforms:
       - linux
       - darwin
-    dir: "{{.USER_WORKING_DIR}}"
+    dir: '{{.USER_WORKING_DIR}}'
     cmds:
       - |
         bash -lc '{{.NIX_LOAD}};
@@ -299,7 +299,7 @@ tasks:
     internal: true
     platforms:
       - windows
-    dir: "{{.USER_WORKING_DIR}}"
+    dir: '{{.USER_WORKING_DIR}}'
     cmds:
       - >-
         powershell -NoProfile -ExecutionPolicy Bypass -Command

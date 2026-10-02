@@ -1,10 +1,10 @@
 ---
-version: "3.5"
+version: '3.5'
 
 output:
   group:
     begin: ::group::{{.TASK}}
-    end: "::endgroup::"
+    end: '::endgroup::'
     error_only: false
 
 silent: true
@@ -50,7 +50,7 @@ tasks:
     cmds:
       - task: nix:install:profile
         vars:
-          NIX_INSTALLABLE: "{{.HADOLINT_NIX_INSTALLABLE}}"
+          NIX_INSTALLABLE: '{{.HADOLINT_NIX_INSTALLABLE}}'
   _install:windows:
     internal: true
     platforms:
@@ -62,7 +62,7 @@ tasks:
     cmds:
       - task: winget:install:package
         vars:
-          WINGET_INSTALLABLE: "{{.HADOLINT_WINGET_INSTALLABLE}}"
+          WINGET_INSTALLABLE: '{{.HADOLINT_WINGET_INSTALLABLE}}'
   version:
     run: once
     desc: Show the active hadolint version
@@ -82,7 +82,7 @@ tasks:
       use a custom config file via --config, and HADOLINT_EXTRA_ARGS for additional
       flags such as --ignore or --format. Pass CLI arguments after -- to
       override targets and options. Auto-installs hadolint if missing.
-    dir: "{{.USER_WORKING_DIR}}"
+    dir: '{{.USER_WORKING_DIR}}'
     deps:
       - task: install
     cmds:
@@ -94,7 +94,7 @@ tasks:
     platforms:
       - linux
       - darwin
-    dir: "{{.USER_WORKING_DIR}}"
+    dir: '{{.USER_WORKING_DIR}}'
     cmds:
       - |
         bash -lc '{{.NIX_LOAD}};
@@ -109,7 +109,7 @@ tasks:
     internal: true
     platforms:
       - windows
-    dir: "{{.USER_WORKING_DIR}}"
+    dir: '{{.USER_WORKING_DIR}}'
     preconditions:
       - sh: >-
           powershell -NoProfile -ExecutionPolicy Bypass -Command

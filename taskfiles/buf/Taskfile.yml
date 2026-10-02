@@ -1,10 +1,10 @@
 ---
-version: "3.5"
+version: '3.5'
 
 output:
   group:
     begin: ::group::{{.TASK}}
-    end: "::endgroup::"
+    end: '::endgroup::'
     error_only: false
 
 silent: true
@@ -51,7 +51,7 @@ tasks:
     cmds:
       - task: nix:install:profile
         vars:
-          NIX_INSTALLABLE: "{{.BUF_NIX_INSTALLABLE}}"
+          NIX_INSTALLABLE: '{{.BUF_NIX_INSTALLABLE}}'
   _install:windows:
     internal: true
     platforms:
@@ -59,7 +59,7 @@ tasks:
     cmds:
       - task: winget:install:package
         vars:
-          WINGET_INSTALLABLE: "{{.BUF_WINGET_INSTALLABLE}}"
+          WINGET_INSTALLABLE: '{{.BUF_WINGET_INSTALLABLE}}'
   version:
     run: once
     desc: Show the active Buf version
@@ -79,7 +79,7 @@ tasks:
       buf.yaml via --config, and BUF_EXTRA_ARGS for additional flags such as
       --error-format. Pass CLI arguments after -- to override targets and
       options. Auto-installs Buf if missing.
-    dir: "{{.USER_WORKING_DIR}}"
+    dir: '{{.USER_WORKING_DIR}}'
     deps:
       - task: install
     cmds:
@@ -106,18 +106,18 @@ tasks:
     summary: |
       Run buf format --write to reformat all .proto files under INPUT in
       place. Auto-installs Buf if missing.
-    dir: "{{.USER_WORKING_DIR}}"
+    dir: '{{.USER_WORKING_DIR}}'
     deps:
       - task: install
     cmds:
       - task: _buf:unix
         vars:
           BUF_SUBCOMMAND: format --write
-          BUF_CONFIG_FLAG: ""
+          BUF_CONFIG_FLAG: ''
       - task: _buf:windows
         vars:
           BUF_SUBCOMMAND: format --write
-          BUF_CONFIG_FLAG: ""
+          BUF_CONFIG_FLAG: ''
   fmt:check:
     run: once
     desc: Check proto file formatting with Buf (BUF_INPUT=path)
@@ -125,18 +125,18 @@ tasks:
       Run buf format --diff to report formatting issues without modifying files.
       Pass INPUT to check a specific directory or module. Use ci:fix to
       apply fixes. Auto-installs Buf if missing.
-    dir: "{{.USER_WORKING_DIR}}"
+    dir: '{{.USER_WORKING_DIR}}'
     deps:
       - task: install
     cmds:
       - task: _buf:unix
         vars:
           BUF_SUBCOMMAND: format --diff
-          BUF_CONFIG_FLAG: ""
+          BUF_CONFIG_FLAG: ''
       - task: _buf:windows
         vars:
           BUF_SUBCOMMAND: format --diff
-          BUF_CONFIG_FLAG: ""
+          BUF_CONFIG_FLAG: ''
       - echo "✅ buf format check passed"
   _buf:unix:
     run: once
@@ -175,7 +175,7 @@ tasks:
       Buf if missing.
     deps:
       - task: install
-    dir: "{{.USER_WORKING_DIR}}"
+    dir: '{{.USER_WORKING_DIR}}'
     cmds:
       - task: _buf:unix
         vars:
