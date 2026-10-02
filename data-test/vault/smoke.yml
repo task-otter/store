@@ -1,18 +1,8 @@
 ---
 skip:
-  - verify
-  - status
-  - health
-  - init
-  - unseal
-  - seal
-  - login
+  - ssh:keys
+  - healthy
   - login:approle
   - login:root-token
-  - token:revoke-self
-  - token:issue:approle
+  - token:revoke
   - kv:get
-  - root-token
-  - peers
-  - snapshot
-  - restore

@@ -19,24 +19,102 @@ includes:
 vars:
   VAULT_ADDR: '{{.VAULT_ADDR | default "http://127.0.0.1:8200"}}'
   VAULT_ADDR_TARGET: '{{.VAULT_ADDR_TARGET | default "{{.VAULT_ADDR}}"}}'
-  VAULT_KEYS_FILE: '{{.VAULT_KEYS_FILE | default ".vault-init-keys.json"}}'
-  VAULT_SHARES: '{{.VAULT_SHARES | default "5"}}'
-  VAULT_THRESHOLD: '{{.VAULT_THRESHOLD | default "3"}}'
-  VAULT_SNAPSHOT_FILE: '{{.VAULT_SNAPSHOT_FILE | default "vault-snapshot.snap"}}'
-  VAULT_FILE: '{{.VAULT_FILE | default ""}}'
   VAULT_EXTRA_ARGS: '{{.VAULT_EXTRA_ARGS | default ""}}'
   VAULT_ROOT_TOKEN: '{{.VAULT_ROOT_TOKEN | default ""}}'
   VAULT_ROLE_ID: '{{.VAULT_ROLE_ID | default ""}}'
   VAULT_SECRET_ID: '{{.VAULT_SECRET_ID | default ""}}'
   VAULT_APPROLE_MOUNT: '{{.VAULT_APPROLE_MOUNT | default "approle"}}'
+  SSH_ROLE: '{{.SSH_ROLE | default ""}}'
+  SSH_PRIVATE_KEY_PATH: '{{.SSH_PRIVATE_KEY_PATH | default ""}}'
+  SSH_PUBLIC_KEY_PATH: '{{.SSH_PUBLIC_KEY_PATH | default ""}}'
+  SSH_MOUNT: '{{.SSH_MOUNT | default "ssh"}}'
   VAULT_NIX_INSTALLABLE: '{{.VAULT_NIX_INSTALLABLE | default "nixpkgs#vault-bin"}}'
   VAULT_WINGET_INSTALLABLE: '{{.VAULT_WINGET_INSTALLABLE | default "Hashicorp.Vault"}}'
 
 env:
   VAULT_ADDR: '{{.VAULT_ADDR_TARGET}}'
   NIXPKGS_ALLOW_UNFREE: '1'
+  VAULT_SSH_ROLE: '{{.SSH_ROLE}}'
+  VAULT_SSH_PRIVATE_KEY_PATH: '{{.SSH_PRIVATE_KEY_PATH}}'
+  VAULT_SSH_PUBLIC_KEY_PATH: '{{.SSH_PUBLIC_KEY_PATH}}'
+  VAULT_SSH_MOUNT: '{{.SSH_MOUNT}}'
 
 tasks:
+  ssh:keys:
+    desc: Generate an SSH key pair and sign the public key with Vault
+    summary: |
+      Set SSH_ROLE, SSH_PRIVATE_KEY_PATH and SSH_PUBLIC_KEY_PATH.
+      SSH_MOUNT defaults to ssh. Uses the current Vault authentication.
+      Reuses existing keys and renews the certificate on every invocation.
+      Saves the certificate beside the public key as <name>-cert.pub.
+      Requires ssh-keygen on PATH; generates an unencrypted Ed25519 key.
+    set:
+      - errexit
+      - nounset
+      - pipefail
+    preconditions:
+      - sh: test -n "$VAULT_SSH_ROLE"
+        msg: SSH_ROLE must be set.
+      - sh: test -n "$VAULT_SSH_PRIVATE_KEY_PATH"
+        msg: SSH_PRIVATE_KEY_PATH must be set.
+      - sh: test -n "$VAULT_SSH_PUBLIC_KEY_PATH"
+        msg: SSH_PUBLIC_KEY_PATH must be set.
+      - sh: test "$VAULT_SSH_PRIVATE_KEY_PATH" != "$VAULT_SSH_PUBLIC_KEY_PATH"
+        msg: Private and public key paths must differ.
+      - sh: test "$VAULT_SSH_PRIVATE_KEY_PATH" != "${VAULT_SSH_PUBLIC_KEY_PATH%.pub}-cert.pub"
+        msg: Private key path must differ from the derived certificate path.
+      - sh: test -n "$VAULT_SSH_MOUNT"
+        msg: SSH_MOUNT must be set.
+      - sh: command -v ssh-keygen >/dev/null 2>&1
+        msg: ssh-keygen is required on PATH.
+    cmds:
+      - task: _ssh:keys:prepare
+      - |
+        {{.NIX_LOAD}}
+        CERT_PATH="${VAULT_SSH_PUBLIC_KEY_PATH%.pub}-cert.pub"
+        CERT_TEMP=$(mktemp "${CERT_PATH}.XXXXXX")
+        trap 'rm -f "$CERT_TEMP"' EXIT
+        vault write -address="$VAULT_ADDR" -field=signed_key \
+          "${VAULT_SSH_MOUNT%/}/sign/$VAULT_SSH_ROLE" \
+          "public_key=@$VAULT_SSH_PUBLIC_KEY_PATH" > "$CERT_TEMP"
+        test -s "$CERT_TEMP"
+        chmod 644 "$CERT_TEMP"
+        mv "$CERT_TEMP" "$CERT_PATH"
+  _ssh:keys:prepare:
+    internal: true
+    deps:
+      - task: install
+      - task: _ssh:keys:generate
+  _ssh:keys:generate:
+    internal: true
+    set:
+      - errexit
+      - nounset
+      - pipefail
+    status:
+      - test -s "$VAULT_SSH_PRIVATE_KEY_PATH" && test -s "$VAULT_SSH_PUBLIC_KEY_PATH"
+    preconditions:
+      - sh: test -f "$VAULT_SSH_PRIVATE_KEY_PATH" || test ! -e "$VAULT_SSH_PUBLIC_KEY_PATH"
+        msg: Public key exists without a private key; refusing to overwrite it.
+      - sh: test ! -e "$VAULT_SSH_PRIVATE_KEY_PATH" || test -s "$VAULT_SSH_PRIVATE_KEY_PATH"
+        msg: Existing private key is empty; refusing to overwrite it.
+      - sh: test ! -e "$VAULT_SSH_PUBLIC_KEY_PATH" || test -s "$VAULT_SSH_PUBLIC_KEY_PATH"
+        msg: Existing public key is empty; refusing to overwrite it.
+    cmds:
+      - |
+        mkdir -p "$(dirname "$VAULT_SSH_PRIVATE_KEY_PATH")" \
+          "$(dirname "$VAULT_SSH_PUBLIC_KEY_PATH")"
+        if [ ! -e "$VAULT_SSH_PRIVATE_KEY_PATH" ]; then
+          KEY_DIR=$(mktemp -d)
+          trap 'rm -rf "$KEY_DIR"' EXIT
+          ssh-keygen -q -t ed25519 -N '' -f "$KEY_DIR/key"
+          mv "$KEY_DIR/key" "$VAULT_SSH_PRIVATE_KEY_PATH"
+          mv "$KEY_DIR/key.pub" "$VAULT_SSH_PUBLIC_KEY_PATH"
+        else
+          ssh-keygen -y -P '' -f "$VAULT_SSH_PRIVATE_KEY_PATH" > "$VAULT_SSH_PUBLIC_KEY_PATH"
+        fi
+        chmod 600 "$VAULT_SSH_PRIVATE_KEY_PATH"
+        chmod 644 "$VAULT_SSH_PUBLIC_KEY_PATH"
   default:
     run: once
     desc: Show available Vault automation tasks
@@ -87,55 +165,7 @@ tasks:
     cmds:
       - task: _version:unix
       - task: _version:windows
-  verify:
-    run: once
-    desc: Verify the Vault CLI installation and server connectivity
-    summary: |
-      Print the Vault CLI version and current server status. Useful for confirming
-      the binary is installed and the server at VAULT_ADDR is reachable.
-      Auto-installs the CLI if missing.
-    deps:
-      - task: install
-    cmds:
-      - cmd: bash -lc '{{.NIX_LOAD}}; vault version'
-        platforms:
-          - linux
-          - darwin
-      - cmd: >-
-          powershell -NoProfile -ExecutionPolicy Bypass -Command
-          "{{.WINGET_LOAD}}; vault version; exit \$LASTEXITCODE"
-        platforms:
-          - windows
-      - cmd: bash -lc '{{.NIX_LOAD}}; vault status -address="{{.VAULT_ADDR_TARGET}}"'
-        platforms:
-          - linux
-          - darwin
-      - cmd: >-
-          powershell -NoProfile -ExecutionPolicy Bypass -Command
-          "{{.WINGET_LOAD}}; vault status -address='{{.VAULT_ADDR_TARGET}}'; exit \$LASTEXITCODE"
-        platforms:
-          - windows
-  status:
-    run: once
-    desc: Show Vault seal and HA status
-    summary: |
-      Run vault status to display the current seal state, HA mode, cluster info,
-      and active node details. Exits with a non-zero code if sealed — the ||true
-      prevents task failure when the server is sealed or unreachable.
-      Auto-installs the CLI if missing.
-    deps:
-      - task: install
-    cmds:
-      - cmd: bash -lc '{{.NIX_LOAD}}; vault status -address="{{.VAULT_ADDR_TARGET}}" || true'
-        platforms:
-          - linux
-          - darwin
-      - cmd: >-
-          powershell -NoProfile -ExecutionPolicy Bypass -Command
-          "{{.WINGET_LOAD}}; vault status -address='{{.VAULT_ADDR_TARGET}}'; exit 0"
-        platforms:
-          - windows
-  health:
+  healthy:
     run: once
     desc: Show Vault health as JSON (VAULT_ADDR=url)
     summary: |
@@ -166,118 +196,6 @@ tasks:
           "{{.WINGET_LOAD}}; curl -s '{{.VAULT_ADDR_TARGET}}/v1/sys/health' | jq .; exit \$LASTEXITCODE"
         platforms:
           - windows
-  init:
-    run: once
-    desc: Initialize Vault and save unseal keys (VAULT_KEYS_FILE=path)
-    summary: |
-      Run vault operator init with SHARES key shares and THRESHOLD as the unseal
-      threshold. The resulting JSON — containing unseal keys and the root token —
-      is written to KEYS_FILE with mode 600 under umask 077 and is not echoed to
-      stdout. Keep this file safe and out of version control.
-      KEYS_FILE defaults to .vault-init-keys.json.
-      Auto-installs the CLI if missing.
-    set:
-      - errexit
-      - nounset
-      - pipefail
-    preconditions:
-      - sh: test ! -e "{{.VAULT_KEYS_FILE}}"
-        msg: >-
-          KEYS_FILE already exists:
-          {{.VAULT_KEYS_FILE}}.
-          Move or remove it before running init again.
-    cmds:
-      - task: install
-      - |
-        {{.NIX_LOAD}}
-        KF="{{.VAULT_KEYS_FILE}}"
-        TMP="${KF}.tmp.$$"
-        trap 'rm -f "$TMP"' EXIT
-        if [ -e "$KF" ]; then
-          echo "KEYS_FILE already exists: $KF. Move or remove it before running init again." >&2
-          exit 1
-        fi
-        vault operator init \
-          -address="{{.VAULT_ADDR_TARGET}}" \
-          -key-shares={{.VAULT_SHARES}} \
-          -key-threshold={{.VAULT_THRESHOLD}} \
-          -format=json > "$TMP"
-        chmod 600 "$TMP"
-        mv "$TMP" "$KF"
-        trap - EXIT
-        echo "Vault initialized. Unseal keys and root token saved to $KF"
-  unseal:
-    run: once
-    desc: Unseal Vault using saved keys (VAULT_KEYS_FILE=path)
-    summary: |
-      Read THRESHOLD unseal keys from KEYS_FILE and submit each one via
-      vault operator unseal. KEYS_FILE must exist and contain the JSON produced
-      by the init task. Requires jq.
-      Auto-installs the CLI if missing.
-    set:
-      - errexit
-      - nounset
-      - pipefail
-    preconditions:
-      - sh: test -f "{{.VAULT_KEYS_FILE}}"
-        msg: >-
-          KEYS_FILE not found. Run task init first to generate
-          {{.VAULT_KEYS_FILE}}.
-    cmds:
-      - task: jq:install
-      - task: install
-      - |
-        {{.NIX_LOAD}}
-        VAULT_KEYS_FILE="{{.VAULT_KEYS_FILE}}"
-        VAULT_THRESHOLD="{{.VAULT_THRESHOLD}}"
-        for key in $(jq -r ".unseal_keys_b64[0:${THRESHOLD}][]" "$KEYS_FILE"); do
-          vault operator unseal -address="{{.VAULT_ADDR_TARGET}}" "$key"
-        done
-  seal:
-    run: once
-    desc: Seal the Vault server
-    summary: |
-      Run vault operator seal to re-seal the active Vault server. After sealing,
-      the server will not serve secrets until it is unsealed again with the
-      required number of unseal key shares. Requires an authenticated session.
-      Auto-installs the CLI if missing.
-    deps:
-      - task: install
-    cmds:
-      - cmd: bash -lc '{{.NIX_LOAD}}; vault operator seal -address="{{.VAULT_ADDR_TARGET}}"'
-        platforms:
-          - linux
-          - darwin
-      - cmd: >-
-          powershell -NoProfile -ExecutionPolicy Bypass -Command
-          "{{.WINGET_LOAD}}; vault operator seal -address='{{.VAULT_ADDR_TARGET}}'; exit \$LASTEXITCODE"
-        platforms:
-          - windows
-  login:
-    run: once
-    desc: Log in to Vault using the saved root token (VAULT_KEYS_FILE=path)
-    summary: |
-      Extract the root token from KEYS_FILE and authenticate with vault login.
-      KEYS_FILE must exist and contain the JSON produced by the init task.
-      After login, subsequent vault commands will use this token automatically.
-      Auto-installs the CLI if missing.
-    set:
-      - errexit
-      - nounset
-      - pipefail
-    preconditions:
-      - sh: test -f "{{.VAULT_KEYS_FILE}}"
-        msg: >-
-          KEYS_FILE not found. Run task init first to generate
-          {{.VAULT_KEYS_FILE}}.
-    cmds:
-      - task: jq:install
-      - task: install
-      - |
-        {{.NIX_LOAD}}
-        KF="{{.VAULT_KEYS_FILE}}"
-        jq -r '.root_token' "$KF" \
-          | vault login -address="{{.VAULT_ADDR_TARGET}}" -method=token -no-print -
   login:root-token:
     run: once
     desc: Log in to Vault using a token directly (VAULT_ROOT_TOKEN=<token>)
@@ -345,41 +263,6 @@ tasks:
             -method=token \
             -no-print \
             -
-  token:issue:approle:
-    run: once
-    desc: Issue a Vault token via AppRole and print it to stdout (VAULT_ROLE_ID=<id> VAULT_SECRET_ID=<id>)
-    summary: |
-      Authenticate with Vault using the AppRole auth method and print the resulting
-      client token to stdout. Unlike login:approle, the token is not stored in the
-      token helper — it is only emitted to stdout for capture by the caller.
-      Requires ROLE_ID and SECRET_ID task variables. APPROLE_MOUNT defaults to "approle".
-      Auto-installs the CLI if missing.
-    set:
-      - errexit
-      - nounset
-      - pipefail
-    env:
-      VAULT_LOGIN_ROLE_ID: '{{.VAULT_ROLE_ID}}'
-      VAULT_LOGIN_SECRET_ID: >-
-        {{.VAULT_SECRET_ID}}
-      VAULT_LOGIN_APPROLE_MOUNT: >-
-        {{.VAULT_APPROLE_MOUNT}}
-    preconditions:
-      - sh: test -n "$VAULT_LOGIN_ROLE_ID"
-        msg: ROLE_ID must be set. Pass VAULT_ROLE_ID=<role-id> on the command line.
-      - sh: test -n "$VAULT_LOGIN_SECRET_ID"
-        msg: SECRET_ID must be set. Pass VAULT_SECRET_ID=<secret-id> on the command line.
-    cmds:
-      - task: install
-      - |
-        {{.NIX_LOAD}}
-        printf '%s' "$VAULT_LOGIN_SECRET_ID" \
-          | vault write \
-            -address="{{.VAULT_ADDR_TARGET}}" \
-            -field=token \
-            "auth/${VAULT_LOGIN_APPROLE_MOUNT}/login" \
-            role_id="$VAULT_LOGIN_ROLE_ID" \
-            secret_id=-
   kv:get:
     run: once
     desc: Read a KV v2 secret and print JSON to stdout (KV_MOUNT=<mount> SECRET_PATH=<path> [SECRET_VERSION=<n>])
@@ -427,7 +310,7 @@ tasks:
         else
           vault kv get -format=json -mount="$MOUNT" "$SECRET_PATH"
         fi
-  token:revoke-self:
+  token:revoke:
     run: once
     desc: Revoke the current Vault token (VAULT_TOKEN must be set in environment)
     summary: |
@@ -449,122 +332,6 @@ tasks:
       - cmd: >-
           powershell -NoProfile -ExecutionPolicy Bypass -Command
           "{{.WINGET_LOAD}}; vault token revoke -address='{{.VAULT_ADDR_TARGET}}' -self; exit \$LASTEXITCODE"
-        platforms:
-          - windows
-  root-token:
-    run: once
-    desc: Print the saved Vault root token (VAULT_KEYS_FILE=path)
-    summary: |
-      Read the root_token field from KEYS_FILE and print it to stdout. Useful for
-      scripting or when you need to pass the root token to another tool.
-      KEYS_FILE must exist and contain the JSON produced by the init task.
-    deps:
-      - task: jq:install
-    preconditions:
-      - sh: test -f "{{.VAULT_KEYS_FILE}}"
-        msg: >-
-          KEYS_FILE not found. Run task init first to generate
-          {{.VAULT_KEYS_FILE}}.
-    cmds:
-      - cmd: >-
-          {{.NIX_LOAD}};
-          jq -r '.root_token'
-          "{{.VAULT_KEYS_FILE}}"
-        platforms:
-          - linux
-          - darwin
-      - cmd: >-
-          powershell -NoProfile -ExecutionPolicy Bypass -Command
-          "{{.WINGET_LOAD}}; jq -r '.root_token' '{{.VAULT_KEYS_FILE}}'; exit \$LASTEXITCODE"
-        platforms:
-          - windows
-  peers:
-    run: once
-    desc: List Vault Raft cluster peers
-    summary: |
-      Run vault operator raft list-peers to display all nodes in the Raft cluster
-      with their addresses, followers, voter status, and applied index.
-      Requires an authenticated session and an active Vault server.
-      Auto-installs the CLI if missing.
-    deps:
-      - task: install
-    cmds:
-      - cmd: bash -lc '{{.NIX_LOAD}}; vault operator raft list-peers -address="{{.VAULT_ADDR_TARGET}}"'
-        platforms:
-          - linux
-          - darwin
-      - cmd: >-
-          powershell -NoProfile -ExecutionPolicy Bypass -Command
-          "{{.WINGET_LOAD}}; vault operator raft list-peers -address='{{.VAULT_ADDR_TARGET}}'; exit \$LASTEXITCODE"
-        platforms:
-          - windows
-  snapshot:
-    run: once
-    desc: Save a Vault Raft snapshot (VAULT_FILE=path; root VAULT_FILE=path)
-    summary: |
-      Run vault operator raft snapshot save to write a point-in-time backup of
-      the Vault Raft storage to VAULT_FILE. VAULT_FILE defaults to SNAPSHOT_FILE
-      (vault-snapshot.snap). Requires an authenticated session.
-      Auto-installs the CLI if missing.
-    vars:
-      FILE_TARGET: >-
-        {{if .VAULT_FILE}}{{.VAULT_FILE -}}
-        {{else}}{{.VAULT_SNAPSHOT_FILE}}{{end}}
-    deps:
-      - task: install
-    cmds:
-      - cmd: >-
-          bash -lc '{{.NIX_LOAD}};
-          vault operator raft snapshot save -address="{{.VAULT_ADDR_TARGET}}"
-          "{{.FILE_TARGET}}"'
-        platforms:
-          - linux
-          - darwin
-      - cmd: >-
-          powershell -NoProfile -ExecutionPolicy Bypass -Command
-          "{{.WINGET_LOAD}}; vault operator raft snapshot save -address='{{.VAULT_ADDR_TARGET}}' '{{.FILE_TARGET}}';
-          exit \$LASTEXITCODE"
-        platforms:
-          - windows
-  restore:
-    run: once
-    desc: Restore a Vault Raft snapshot (VAULT_FILE=path; root VAULT_FILE=path)
-    summary: |
-      Run vault operator raft snapshot restore -force to restore Vault state from
-      a previously saved snapshot at VAULT_FILE. VAULT_FILE defaults to SNAPSHOT_FILE
-      (vault-snapshot.snap). This is a destructive operation that overwrites the
-      current Vault state. Requires an authenticated session.
-      Auto-installs the CLI if missing.
-    vars:
-      FILE_TARGET: >-
-        {{if .VAULT_FILE}}{{.VAULT_FILE -}}
-        {{else}}{{.VAULT_SNAPSHOT_FILE}}{{end}}
-    prompt:
-      - This will overwrite the current Vault state with the snapshot.
-      - Continue?
-    set:
-      - errexit
-      - nounset
-      - pipefail
-    preconditions:
-      - sh: test -f "{{.FILE_TARGET}}"
-        msg: >-
-          Snapshot file not found. Pass VAULT_FILE=path/to/snapshot, or VAULT_FILE=path/to/snapshot from the root
-          include.
-    cmds:
-      - task: install
-      - cmd: >-
-          bash -lc '{{.NIX_LOAD}};
-          vault operator raft snapshot restore -address="{{.VAULT_ADDR_TARGET}}"
-          -force "{{.FILE_TARGET}}"'
-        platforms:
-          - linux
-          - darwin
-      - cmd: >-
-          powershell -NoProfile -ExecutionPolicy Bypass -Command
-          "{{.WINGET_LOAD}};
-          vault operator raft snapshot restore -address='{{.VAULT_ADDR_TARGET}}' -force '{{.FILE_TARGET}}';
-          exit \$LASTEXITCODE"
         platforms:
           - windows
   _version:unix:

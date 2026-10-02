@@ -2,17 +2,16 @@
 
 ## What is this Taskfile?
 
-A Taskfile for running common HashiCorp Vault operator workflows such as status
-checks, initialization, unseal, login, Raft peer inspection, snapshots, and
-restores. Operational tasks auto-install the Vault CLI via `nix:install:profile`.
+A Taskfile for installing the HashiCorp Vault CLI, checking server health,
+authenticating with tokens or AppRole, and reading KV secrets. Operational tasks
+auto-install the Vault CLI via Nix on Unix or WinGet on Windows.
 
 ## Usage
 
 ### Standalone
 
 ```sh
-task -t taskfiles/vault/Taskfile.yml status
-task -t taskfiles/vault/Taskfile.yml health
+task -t taskfiles/vault/Taskfile.yml healthy
 ```
 
 Install only:
@@ -31,49 +30,48 @@ includes:
 Then run:
 
 ```sh
-task vault:status
-task vault:health VAULT_ADDR=http://127.0.0.1:8200
-task vault:snapshot VAULT_FILE=backup.snap
+task vault:healthy VAULT_ADDR=http://127.0.0.1:8200
 ```
 
 ## Public Tasks
 
+Generate an SSH key pair and sign it using an existing Vault SSH role:
+
+```sh
+task vault:ssh:keys SSH_ROLE=my-role \
+  SSH_PRIVATE_KEY_PATH="$HOME/.ssh/vault_key" \
+  SSH_PUBLIC_KEY_PATH="$HOME/.ssh/vault_key.pub"
+```
+
+`ssh:keys` requires `ssh-keygen` on PATH and current Vault authentication
+(`VAULT_TOKEN` or the token helper). Override `SSH_MOUNT` (default `ssh`) for
+another SSH secrets engine mount. It generates an unencrypted Ed25519 key,
+reuses an existing pair, and derives a missing public key from the private key.
+Each invocation signs the public key and writes `vault_key-cert.pub` beside it.
+Failed signing preserves any existing certificate. Input preconditions run
+before dependencies install Vault and prepare the key pair.
+
 | Task           | Description                                  | Key variables                    |
 | -------------- | -------------------------------------------- | -------------------------------- |
-| `verify`       | Verify CLI installation and server status    | `VAULT_ADDR`                     |
 | `install`      | Install the Vault CLI via Nix (Unix) or WinGet (Windows)    | `VAULT_NIX_INSTALLABLE`          |
 | `version`      | Show the active Vault CLI version            | —                                |
-| `status`       | Show Vault seal and HA status                | `VAULT_ADDR`                     |
-| `health`       | Query the Vault HTTP health endpoint as JSON | `VAULT_ADDR`                     |
-| `init`         | Initialize Vault and save unseal keys        | `VAULT_KEYS_FILE`, `VAULT_SHARES`, `VAULT_THRESHOLD` |
-| `unseal`       | Unseal Vault using saved keys                | `VAULT_KEYS_FILE`, `VAULT_THRESHOLD`         |
-| `seal`         | Seal the active Vault server                 | `VAULT_ADDR`                     |
-| `login`            | Log in using the saved root token            | `VAULT_KEYS_FILE`                      |
+| `ssh:keys` | Generate and sign SSH keys | `SSH_ROLE`, `SSH_PRIVATE_KEY_PATH`, `SSH_PUBLIC_KEY_PATH`, `SSH_MOUNT` |
+| `healthy`       | Query the Vault HTTP health endpoint as JSON | `VAULT_ADDR`                     |
 | `login:root-token` | Log in using a token directly                | `VAULT_ROOT_TOKEN`                     |
 | `login:approle`    | Log in using the AppRole auth method         | `VAULT_ROLE_ID`, `VAULT_SECRET_ID`, `VAULT_APPROLE_MOUNT` |
-| `root-token`       | Print the saved root token                   | `VAULT_KEYS_FILE`                      |
-| `token:issue:approle` | Exchange AppRole credentials for a token (printed to stdout) | `VAULT_ROLE_ID`, `VAULT_SECRET_ID`, `VAULT_APPROLE_MOUNT` |
-| `token:revoke-self`   | Revoke the current Vault token              | `VAULT_TOKEN` (env)              |
+| `token:revoke`   | Revoke the current Vault token              | `VAULT_TOKEN` (env)              |
 | `kv:get`              | Read a KV v2 secret and print JSON to stdout | `KV_MOUNT`, `SECRET_PATH`, `SECRET_VERSION` |
-| `peers`        | List Vault Raft cluster peers                | `VAULT_ADDR`                     |
-| `snapshot`     | Save a Vault Raft snapshot                   | `VAULT_FILE`, `VAULT_SNAPSHOT_FILE`; root: `VAULT_FILE` |
-| `restore`      | Restore a Vault Raft snapshot                | `VAULT_FILE`, `VAULT_SNAPSHOT_FILE`; root: `VAULT_FILE` |
 
 ## Variables
 
 | Variable        | Default                 | Description                                      |
 | --------------- | ----------------------- | ------------------------------------------------ |
 | `VAULT_ADDR`    | `http://127.0.0.1:8200` | Vault server address used by CLI and HTTP tasks  |
-| `VAULT_KEYS_FILE`     | `.vault-init-keys.json` | File used for init output, unseal keys, and token |
-| `VAULT_SHARES`        | `5`                     | Number of unseal key shares for `init`           |
-| `VAULT_THRESHOLD`     | `3`                     | Unseal key threshold for `init` and `unseal`     |
-| `VAULT_SNAPSHOT_FILE` | `vault-snapshot.snap`   | Default Raft snapshot path                       |
-| `VAULT_FILE`          | _(empty)_               | Snapshot path override for `snapshot`/`restore` |
 | `VAULT_EXTRA_ARGS`    | _(empty)_               | Reserved for root include compatibility          |
 | `VAULT_ROOT_TOKEN`    | _(empty)_               | Token for `login:root-token`                     |
-| `VAULT_ROLE_ID`       | _(empty)_               | AppRole role_id for `login:approle` and `token:issue:approle` |
-| `VAULT_SECRET_ID`     | _(empty)_               | AppRole secret_id for `login:approle` and `token:issue:approle` |
-| `VAULT_APPROLE_MOUNT` | `approle`               | AppRole mount path for `login:approle` and `token:issue:approle` |
+| `VAULT_ROLE_ID`       | _(empty)_               | AppRole role_id for `login:approle` |
+| `VAULT_SECRET_ID`     | _(empty)_               | AppRole secret_id for `login:approle` |
+| `VAULT_APPROLE_MOUNT` | `approle`               | AppRole mount path for `login:approle` |
 | `KV_MOUNT`      | _(empty)_               | KV v2 engine mount path for `kv:get`             |
 | `SECRET_PATH`   | _(empty)_               | Secret path within the KV mount for `kv:get`     |
 | `SECRET_VERSION`| _(empty)_               | Optional KV version to pin for `kv:get`          |
@@ -84,30 +82,12 @@ task vault:snapshot VAULT_FILE=backup.snap
 
 - Install uses Nix on Linux and macOS (`VAULT_NIX_INSTALLABLE`, default `nixpkgs#vault-bin`) and WinGet on Windows (`VAULT_WINGET_INSTALLABLE`, default `Hashicorp.Vault`). Unix Nix install sets `NIXPKGS_ALLOW_UNFREE=1` and passes `--impure` to `nix:install:profile` because HashiCorp Vault is unfree in nixpkgs.
 
-`init` writes the generated unseal keys and root token to `VAULT_KEYS_FILE` with mode
-`600` under `umask 077` and does not echo the JSON payload to stdout. It refuses
-to overwrite an existing `VAULT_KEYS_FILE`; move or remove the file before initializing
-again. The default `.vault-init-keys.json` and `vault-snapshot.snap` files are
-ignored by the repo.
-
-`restore` is destructive and requires confirmation before it runs. It validates
-the snapshot file before installing or invoking the Vault CLI.
-
-`token:issue:approle` exchanges AppRole credentials for a client token and prints
-it to stdout — unlike `login:approle`, the token is not stored in the token helper.
-Pipe or capture the output for use by the caller.
-
-`token:revoke-self` revokes the token in `VAULT_TOKEN`. The variable must be set
+`token:revoke` revokes the token in `VAULT_TOKEN`. The variable must be set
 in the caller's environment before running this task.
 
 `kv:get` requires both `VAULT_TOKEN` and `VAULT_ADDR` to be set in the caller's
 environment. `KV_MOUNT` and `SECRET_PATH` must be provided as task variables.
 Pass `SECRET_VERSION=<n>` to pin to a specific KV version.
 
-When using this repository's root Taskfile include, pass `VAULT_FILE=path`
-instead of `VAULT_FILE=path` for `vault:snapshot` and `vault:restore`. The standalone
-Vault Taskfile continues to use `VAULT_FILE=path`.
-
 Pin a revision by overriding the installable, for example
 `VAULT_NIX_INSTALLABLE=github:NixOS/nixpkgs/<rev>#vault-bin`.
-
