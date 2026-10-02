@@ -1,10 +1,10 @@
 ---
-version: '3.5'
+version: "3.5"
 
 output:
   group:
     begin: ::group::{{.TASK}}
-    end: '::endgroup::'
+    end: "::endgroup::"
     error_only: false
 
 silent: true
@@ -51,7 +51,7 @@ tasks:
     cmds:
       - task: nix:install:profile
         vars:
-          NIX_INSTALLABLE: '{{.PROTOLINT_NIX_INSTALLABLE}}'
+          NIX_INSTALLABLE: "{{.PROTOLINT_NIX_INSTALLABLE}}"
   _install:windows:
     internal: true
     platforms:
@@ -63,7 +63,7 @@ tasks:
     cmds:
       - task: go:install:pkg
         vars:
-          GO_PKG: '{{.PROTOLINT_GO_PKG}}'
+          GO_PKG: "{{.PROTOLINT_GO_PKG}}"
   version:
     run: once
     desc: Show the active protolint version
@@ -83,7 +83,7 @@ tasks:
       Run protolint lint against PROTOLINT_TARGETS (default: .). Pass PROTOLINT_EXTRA_ARGS for
       protolint options such as -config_path or -reporter json.
       Auto-installs Go and protolint if needed.
-    dir: '{{.USER_WORKING_DIR}}'
+    dir: "{{.USER_WORKING_DIR}}"
     deps:
       - task: go:install
       - task: install
@@ -97,7 +97,7 @@ tasks:
       Run protolint lint -fix against PROTOLINT_TARGETS (default: .) to apply automatic
       fixes for fixable lint violations. Pass PROTOLINT_EXTRA_ARGS for protolint options.
       Auto-installs Go and protolint if needed.
-    dir: '{{.USER_WORKING_DIR}}'
+    dir: "{{.USER_WORKING_DIR}}"
     deps:
       - task: go:install
       - task: install
@@ -113,7 +113,7 @@ tasks:
     cmds:
       - task: _lint:run:unix
         vars:
-          PROTOLINT_FIX_FLAG: ''
+          PROTOLINT_FIX_FLAG: ""
   _lint:windows:
     run: once
     internal: true
@@ -122,7 +122,7 @@ tasks:
     cmds:
       - task: _lint:run:windows
         vars:
-          PROTOLINT_FIX_FLAG: ''
+          PROTOLINT_FIX_FLAG: ""
   _fix:unix:
     run: once
     internal: true

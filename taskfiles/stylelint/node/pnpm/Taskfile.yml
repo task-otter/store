@@ -1,10 +1,10 @@
 ---
-version: '3.5'
+version: "3.5"
 
 output:
   group:
     begin: ::group::{{.TASK}}
-    end: '::endgroup::'
+    end: "::endgroup::"
     error_only: false
 
 silent: true
@@ -32,14 +32,14 @@ tasks:
       - task --list
   install:
     run: once
-    dir: '{{.USER_WORKING_DIR}}'
+    dir: "{{.USER_WORKING_DIR}}"
     desc: Install Stylelint and the standard config as local devDependencies
     summary: |
       Install stylelint and stylelint-config-standard as local devDependencies.
       Pass STYLELINT_VERSION=x.y.z to pin stylelint to a specific release.
     vars:
-      RESOLVED_VERSION: '{{.STYLELINT_VERSION}}'
-      RESOLVED_EXTRA_ARGS: '{{.STYLELINT_EXTRA_ARGS}}'
+      RESOLVED_VERSION: "{{.STYLELINT_VERSION}}"
+      RESOLVED_EXTRA_ARGS: "{{.STYLELINT_EXTRA_ARGS}}"
     status:
       - >-
         node -e "const installed = require('./node_modules/stylelint/package.json');
@@ -50,7 +50,7 @@ tasks:
         vars:
           PACKAGES: >-
             stylelint{{if .RESOLVED_VERSION}}@{{.RESOLVED_VERSION}}{{end}} stylelint-config-standard
-          EXTRA_ARGS: '{{.RESOLVED_EXTRA_ARGS}}{{if .CLI_ARGS}} {{.CLI_ARGS}}{{end}}'
+          EXTRA_ARGS: "{{.RESOLVED_EXTRA_ARGS}}{{if .CLI_ARGS}} {{.CLI_ARGS}}{{end}}"
   install:undo:
     run: once
     desc: Remove the locally installed Stylelint devDependencies
@@ -62,7 +62,7 @@ tasks:
       - task: pnpm:remove
         vars:
           PACKAGES: stylelint stylelint-config-standard
-          EXTRA_ARGS: '{{.STYLELINT_EXTRA_ARGS}}'
+          EXTRA_ARGS: "{{.STYLELINT_EXTRA_ARGS}}"
   upgrade:
     run: once
     desc: Upgrade Stylelint to the latest release
@@ -71,13 +71,13 @@ tasks:
       - task: pnpm:add
         vars:
           PACKAGES: stylelint@latest stylelint-config-standard@latest
-          EXTRA_ARGS: '{{.STYLELINT_EXTRA_ARGS}}'
+          EXTRA_ARGS: "{{.STYLELINT_EXTRA_ARGS}}"
   config:init:
     run: once
-    dir: '{{.USER_WORKING_DIR}}'
+    dir: "{{.USER_WORKING_DIR}}"
     desc: Create a starter Stylelint config when none exists
     vars:
-      RESOLVED_CONFIG: '{{.STYLELINT_CONFIG}}'
+      RESOLVED_CONFIG: "{{.STYLELINT_CONFIG}}"
     cmds:
       - |
         config_file="{{.RESOLVED_CONFIG}}"
@@ -99,12 +99,12 @@ tasks:
     deps:
       - task: install
     vars:
-      RESOLVED_TARGETS: '{{or .STYLELINT_TARGETS .STYLELINT_DEFAULT_TARGETS}}'
-      RESOLVED_CONFIG: '{{.STYLELINT_CONFIG}}'
-      RESOLVED_CACHE: '{{or .STYLELINT_CACHE .STYLELINT_DEFAULT_CACHE}}'
+      RESOLVED_TARGETS: "{{or .STYLELINT_TARGETS .STYLELINT_DEFAULT_TARGETS}}"
+      RESOLVED_CONFIG: "{{.STYLELINT_CONFIG}}"
+      RESOLVED_CACHE: "{{or .STYLELINT_CACHE .STYLELINT_DEFAULT_CACHE}}"
       RESOLVED_EMPTY: >-
         {{or .STYLELINT_ALLOW_EMPTY_INPUT .STYLELINT_DEFAULT_ALLOW_EMPTY_INPUT}}
-      RESOLVED_EXTRA_ARGS: '{{.STYLELINT_EXTRA_ARGS}}'
+      RESOLVED_EXTRA_ARGS: "{{.STYLELINT_EXTRA_ARGS}}"
     cmds:
       - task: pnpm:exec
         vars:
@@ -115,7 +115,7 @@ tasks:
             {{- if .RESOLVED_CONFIG}} --config "{{.RESOLVED_CONFIG}}"{{end}}
             {{- if eq .RESOLVED_CACHE "true"}} --cache --cache-location .cache/stylelint/{{end}}
             {{- if eq .RESOLVED_EMPTY "true"}} --allow-empty-input{{end}}
-          EXTRA_ARGS: '{{.RESOLVED_EXTRA_ARGS}}{{if .CLI_ARGS}} {{.CLI_ARGS}}{{end}}'
+          EXTRA_ARGS: "{{.RESOLVED_EXTRA_ARGS}}{{if .CLI_ARGS}} {{.CLI_ARGS}}{{end}}"
   ci:fix:
     run: once
     desc: Lint stylesheet targets with Stylelint and apply fixes
@@ -147,7 +147,7 @@ tasks:
         vars:
           BINARY: stylelint
           ARGS: --version
-          EXTRA_ARGS: '{{.STYLELINT_EXTRA_ARGS}}'
+          EXTRA_ARGS: "{{.STYLELINT_EXTRA_ARGS}}"
   help:
     run: once
     desc: Show Stylelint CLI help

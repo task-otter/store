@@ -44,80 +44,80 @@ task git:pr:create GIT_TITLE="feat: add feature" GIT_BASE=main
 
 ## Public Tasks
 
-| Task             | Description                                                     | Key variables                     |
-| ---------------- | --------------------------------------------------------------- | --------------------------------- |
-| `auth:setup`     | Configure git to use gh as credential helper                    | —                                 |
-| `init`           | Initialize a new git repository                                 | `GIT_BRANCH`                          |
-| `clone`          | Clone a GitHub repository using the GitHub CLI                  | `GIT_REPO`, `GIT_OWNER`, `GIT_CLONE_DIR`      |
-| `status`         | Show the current working tree status                            | —                                 |
-| `add`            | Stage files for the next commit                                 | `GIT_FILES`                           |
-| `add:all`        | Stage all changes including untracked files                     | —                                 |
-| `commit`         | Create a commit from staged changes                             | `GIT_COMMIT_MSG`                      |
-| `commit:amend`   | Amend the most recent commit                                    | `GIT_COMMIT_MSG`                      |
-| `push`           | Push commits to the remote repository                           | `GIT_REMOTE`, `GIT_BRANCH`                |
-| `push:force`     | Force-push using --force-with-lease                             | `GIT_REMOTE`, `GIT_BRANCH`                |
-| `pull`           | Pull changes from the remote repository                         | `GIT_REMOTE`, `GIT_BRANCH`                |
-| `fetch`          | Fetch branches from the remote without merging                  | `GIT_REMOTE`                          |
-| `sync`           | Sync the current branch with its GitHub upstream                | `GIT_BRANCH`                          |
-| `diff`           | Show unstaged changes in the working tree                       | `GIT_FILES`                           |
-| `diff:staged`    | Show changes staged for the next commit                         | —                                 |
-| `log`            | Show the commit history with author and date                    | `GIT_EXTRA_ARGS`                      |
-| `log:graph`      | Show commit history as an ASCII branch graph                    | `GIT_EXTRA_ARGS`                      |
-| `branch:list`    | List all local and remote branches                              | —                                 |
-| `branch:create`  | Create and switch to a new branch from current HEAD             | `GIT_BRANCH`                          |
-| `branch:switch`  | Switch to an existing branch                                    | `GIT_BRANCH`                          |
-| `branch:delete`  | Delete a local branch                                           | `GIT_BRANCH`                          |
-| `branch:rename`  | Rename the current branch to a new name                         | `GIT_BRANCH`                          |
-| `tag:list`       | List all tags sorted by version descending                      | —                                 |
-| `tag:create`     | Create an annotated tag at HEAD                                 | `GIT_TAG`, `GIT_MESSAGE`                  |
-| `tag:push`       | Push a tag or all tags to the remote                            | `GIT_TAG`, `GIT_REMOTE`                   |
-| `tag:delete`     | Delete a tag locally and from the remote                        | `GIT_TAG`, `GIT_REMOTE`                   |
-| `stash`          | Stash uncommitted changes in the working tree                   | `GIT_MESSAGE`                         |
-| `stash:pop`      | Apply and remove the latest stash entry                         | `GIT_STASH_INDEX`                     |
-| `stash:list`     | List all stash entries                                          | —                                 |
-| `stash:drop`     | Discard a stash entry without applying it                       | `GIT_STASH_INDEX`                     |
-| `reset:soft`     | Soft-reset HEAD to a commit, preserving staged changes          | `GIT_COMMIT`                          |
-| `reset:hard`     | Hard-reset HEAD to a commit, discarding all local changes       | `GIT_COMMIT`                          |
-| `clean`          | Remove untracked files and directories from the working tree    | —                                 |
-| `config:user`    | Set the global git user name and email address                  | `GIT_NAME`, `GIT_EMAIL`                   |
-| `config:list`    | List all git configuration values                               | —                                 |
-| `remote:list`    | List all configured remotes and their URLs                      | —                                 |
-| `remote:add`     | Add a new remote to the repository                              | `GIT_NAME`, `GIT_URL`                     |
-| `remote:remove`  | Remove a configured remote from the repository                  | `GIT_NAME`                            |
-| `remote:set-url` | Update the URL of a configured remote                           | `GIT_NAME`, `GIT_URL`                     |
+| Task             | Description                                                     | Key variables                                     |
+| ---------------- | --------------------------------------------------------------- | ------------------------------------------------- |
+| `auth:setup`     | Configure git to use gh as credential helper                    | —                                                 |
+| `init`           | Initialize a new git repository                                 | `GIT_BRANCH`                                      |
+| `clone`          | Clone a GitHub repository using the GitHub CLI                  | `GIT_REPO`, `GIT_OWNER`, `GIT_CLONE_DIR`          |
+| `status`         | Show the current working tree status                            | —                                                 |
+| `add`            | Stage files for the next commit                                 | `GIT_FILES`                                       |
+| `add:all`        | Stage all changes including untracked files                     | —                                                 |
+| `commit`         | Create a commit from staged changes                             | `GIT_COMMIT_MSG`                                  |
+| `commit:amend`   | Amend the most recent commit                                    | `GIT_COMMIT_MSG`                                  |
+| `push`           | Push commits to the remote repository                           | `GIT_REMOTE`, `GIT_BRANCH`                        |
+| `push:force`     | Force-push using --force-with-lease                             | `GIT_REMOTE`, `GIT_BRANCH`                        |
+| `pull`           | Pull changes from the remote repository                         | `GIT_REMOTE`, `GIT_BRANCH`                        |
+| `fetch`          | Fetch branches from the remote without merging                  | `GIT_REMOTE`                                      |
+| `sync`           | Sync the current branch with its GitHub upstream                | `GIT_BRANCH`                                      |
+| `diff`           | Show unstaged changes in the working tree                       | `GIT_FILES`                                       |
+| `diff:staged`    | Show changes staged for the next commit                         | —                                                 |
+| `log`            | Show the commit history with author and date                    | `GIT_EXTRA_ARGS`                                  |
+| `log:graph`      | Show commit history as an ASCII branch graph                    | `GIT_EXTRA_ARGS`                                  |
+| `branch:list`    | List all local and remote branches                              | —                                                 |
+| `branch:create`  | Create and switch to a new branch from current HEAD             | `GIT_BRANCH`                                      |
+| `branch:switch`  | Switch to an existing branch                                    | `GIT_BRANCH`                                      |
+| `branch:delete`  | Delete a local branch                                           | `GIT_BRANCH`                                      |
+| `branch:rename`  | Rename the current branch to a new name                         | `GIT_BRANCH`                                      |
+| `tag:list`       | List all tags sorted by version descending                      | —                                                 |
+| `tag:create`     | Create an annotated tag at HEAD                                 | `GIT_TAG`, `GIT_MESSAGE`                          |
+| `tag:push`       | Push a tag or all tags to the remote                            | `GIT_TAG`, `GIT_REMOTE`                           |
+| `tag:delete`     | Delete a tag locally and from the remote                        | `GIT_TAG`, `GIT_REMOTE`                           |
+| `stash`          | Stash uncommitted changes in the working tree                   | `GIT_MESSAGE`                                     |
+| `stash:pop`      | Apply and remove the latest stash entry                         | `GIT_STASH_INDEX`                                 |
+| `stash:list`     | List all stash entries                                          | —                                                 |
+| `stash:drop`     | Discard a stash entry without applying it                       | `GIT_STASH_INDEX`                                 |
+| `reset:soft`     | Soft-reset HEAD to a commit, preserving staged changes          | `GIT_COMMIT`                                      |
+| `reset:hard`     | Hard-reset HEAD to a commit, discarding all local changes       | `GIT_COMMIT`                                      |
+| `clean`          | Remove untracked files and directories from the working tree    | —                                                 |
+| `config:user`    | Set the global git user name and email address                  | `GIT_NAME`, `GIT_EMAIL`                           |
+| `config:list`    | List all git configuration values                               | —                                                 |
+| `remote:list`    | List all configured remotes and their URLs                      | —                                                 |
+| `remote:add`     | Add a new remote to the repository                              | `GIT_NAME`, `GIT_URL`                             |
+| `remote:remove`  | Remove a configured remote from the repository                  | `GIT_NAME`                                        |
+| `remote:set-url` | Update the URL of a configured remote                           | `GIT_NAME`, `GIT_URL`                             |
 | `pr:create`      | Push the current branch and open a pull request on GitHub       | `GIT_TITLE`, `GIT_BASE`, `GIT_BODY`, `GIT_REMOTE` |
-| `pr:open`        | Open the current pull request in the browser via the GitHub CLI | —                                 |
+| `pr:open`        | Open the current pull request in the browser via the GitHub CLI | —                                                 |
 | `release:create` | Create a git tag and a GitHub release via the GitHub CLI        | `GIT_TAG`, `GIT_TITLE`, `GIT_NOTES`, `GIT_REMOTE` |
-| `help`           | Show the git built-in help and command list                     | —                                 |
-| `install`        | Install git via Nix (Unix) or WinGet (Windows)                                 | `GIT_NIX_INSTALLABLE`             |
-| `version`        | Show the active git version                                     | —                                 |
+| `help`           | Show the git built-in help and command list                     | —                                                 |
+| `install`        | Install git via Nix (Unix) or WinGet (Windows)                  | `GIT_NIX_INSTALLABLE`                             |
+| `version`        | Show the active git version                                     | —                                                 |
 
 ## Variables
 
-| Variable       | Default   | Description                                           |
-| -------------- | --------- | ----------------------------------------------------- |
-| `GIT_REMOTE`       | `origin`  | Remote name for push, pull, fetch, and tag operations |
-| `GIT_BASE`         | `main`    | Base branch for pull requests                         |
-| `GIT_MERGE_METHOD` | `merge`   | PR merge strategy: `merge`, `squash`, `rebase`        |
-| `GIT_FILES`        | `.`       | Files or globs for `add` and `diff`                   |
-| `GIT_STASH_INDEX`  | `0`       | Stash entry index for `stash:pop` and `stash:drop`    |
-| `GIT_BRANCH`       | _(empty)_ | Branch name                                           |
-| `GIT_CLONE_DIR`    | _(empty)_ | Destination directory for `clone`                     |
-| `GIT_COMMIT`       | _(empty)_ | Commit ref for `reset:soft` and `reset:hard`          |
-| `GIT_COMMIT_MSG`   | _(empty)_ | Commit message                                        |
-| `GIT_EMAIL`        | _(empty)_ | Git user email for `config:user`                      |
-| `GIT_NAME`         | _(empty)_ | Git user name or remote name                          |
-| `GIT_NOTES`        | _(empty)_ | Release notes body                                    |
-| `GIT_OWNER`        | _(empty)_ | GitHub user or organisation for `clone`               |
-| `GIT_REPO`         | _(empty)_ | Repository name for `clone`                           |
-| `GIT_TAG`          | _(empty)_ | Tag name                                              |
-| `GIT_TITLE`        | _(empty)_ | PR or release title                                   |
-| `GIT_BODY`         | _(empty)_ | PR description                                        |
-| `GIT_URL`          | _(empty)_ | Remote URL for `remote:add` and `remote:set-url`      |
-| `GIT_MESSAGE`      | _(empty)_ | Tag annotation or stash description                   |
-| `GIT_EXTRA_ARGS`       | _(empty)_ | Extra arguments appended to the underlying command    |
-| `GIT_NIX_INSTALLABLE`  | `nixpkgs#git` | Flake installable passed to `nix:install:profile` |
-| `GIT_WINGET_INSTALLABLE` | `Git.Git` | WinGet package ID for `winget:install:package` |
+| Variable                 | Default       | Description                                           |
+| ------------------------ | ------------- | ----------------------------------------------------- |
+| `GIT_REMOTE`             | `origin`      | Remote name for push, pull, fetch, and tag operations |
+| `GIT_BASE`               | `main`        | Base branch for pull requests                         |
+| `GIT_MERGE_METHOD`       | `merge`       | PR merge strategy: `merge`, `squash`, `rebase`        |
+| `GIT_FILES`              | `.`           | Files or globs for `add` and `diff`                   |
+| `GIT_STASH_INDEX`        | `0`           | Stash entry index for `stash:pop` and `stash:drop`    |
+| `GIT_BRANCH`             | _(empty)_     | Branch name                                           |
+| `GIT_CLONE_DIR`          | _(empty)_     | Destination directory for `clone`                     |
+| `GIT_COMMIT`             | _(empty)_     | Commit ref for `reset:soft` and `reset:hard`          |
+| `GIT_COMMIT_MSG`         | _(empty)_     | Commit message                                        |
+| `GIT_EMAIL`              | _(empty)_     | Git user email for `config:user`                      |
+| `GIT_NAME`               | _(empty)_     | Git user name or remote name                          |
+| `GIT_NOTES`              | _(empty)_     | Release notes body                                    |
+| `GIT_OWNER`              | _(empty)_     | GitHub user or organisation for `clone`               |
+| `GIT_REPO`               | _(empty)_     | Repository name for `clone`                           |
+| `GIT_TAG`                | _(empty)_     | Tag name                                              |
+| `GIT_TITLE`              | _(empty)_     | PR or release title                                   |
+| `GIT_BODY`               | _(empty)_     | PR description                                        |
+| `GIT_URL`                | _(empty)_     | Remote URL for `remote:add` and `remote:set-url`      |
+| `GIT_MESSAGE`            | _(empty)_     | Tag annotation or stash description                   |
+| `GIT_EXTRA_ARGS`         | _(empty)_     | Extra arguments appended to the underlying command    |
+| `GIT_NIX_INSTALLABLE`    | `nixpkgs#git` | Flake installable passed to `nix:install:profile`     |
+| `GIT_WINGET_INSTALLABLE` | `Git.Git`     | WinGet package ID for `winget:install:package`        |
 
 ## Examples
 
@@ -185,4 +185,3 @@ Pin a revision by overriding the installable, for example
 - Install uses Nix on Linux and macOS (`GIT_NIX_INSTALLABLE`) and WinGet on Windows (`GIT_WINGET_INSTALLABLE`, default `Git.Git`).
 
 - Tasks that call `gh` auto-install the GitHub CLI via `gh:install`.
-

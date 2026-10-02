@@ -36,31 +36,31 @@ Available leaves: `bun`, `node/{npm,pnpm,yarn}`.
 
 ## Public Tasks
 
-| Task                 | Variables                                     | Description                                                              |
-| -------------------- | --------------------------------------------- | ------------------------------------------------------------------------ |
-| `version`            | —                                             | Show resolved `tsc`, `tsx`, and `tsserver` information.                  |
-| `tsserver:info`      | —                                             | Show where `tsserver` resolves from and how editors use it.              |
-| `install`            | Optional `TYPESCRIPT_VERSION`                      | Install `typescript`, `tsx`, and `@types/node` using lockfile detection. Pass `TYPESCRIPT_VERSION=x.y.z` to pin the `typescript` package. |
-| `install:undo`       | — | Remove the locally installed TypeScript dev dependencies.                |
-| `upgrade`             | — | Reinstall `typescript`, `tsx`, and `@types/node` at their latest versions. |
-| `run`                | Optional `TYPESCRIPT_FILE`, `TYPESCRIPT_TSX_FLAGS`, `CLI_ARGS`      | Execute one TypeScript file once with `tsx`.                             |
-| `dev`                | Optional `TYPESCRIPT_FILE`, `TYPESCRIPT_TSX_FLAGS`                  | Run one TypeScript file in `tsx watch` mode.                             |
-| `typecheck`          | Optional `TYPESCRIPT_TSCONFIG`, `TYPESCRIPT_TSC_FLAGS`              | Run `tsc --noEmit` for the full project.                                 |
-| `typecheck:watch`    | Optional `TYPESCRIPT_TSCONFIG`, `TYPESCRIPT_TSC_FLAGS`              | Run `tsc --noEmit --watch`.                                              |
-| `typecheck:files`    | Required `FILES`; optional `TYPESCRIPT_TSC_FLAGS`        | Type-check explicit files without loading `tsconfig.json`.               |
-| `build`              | Optional `TYPESCRIPT_TSCONFIG`, `TYPESCRIPT_TSC_FLAGS`              | Compile the project with `tsc --noEmitOnError`.                          |
-| `build:watch`        | Optional `TYPESCRIPT_TSCONFIG`, `TYPESCRIPT_TSC_FLAGS`              | Compile in watch mode with `tsc --noEmitOnError --watch`.                |
-| `build:clean`        | Optional `TYPESCRIPT_OUT_DIR`, `TYPESCRIPT_TSCONFIG`, `TYPESCRIPT_TSC_FLAGS`   | Remove the output directory and run a fresh compile.                     |
-| `emit:dts`           | Optional `TYPESCRIPT_OUT_DIR`, `TYPESCRIPT_TSCONFIG`, `TYPESCRIPT_TSC_FLAGS`   | Emit declaration files only.                                             |
-| `config:show`        | Optional `TYPESCRIPT_TSCONFIG`                           | Print the fully resolved TypeScript config.                              |
-| `config:init`        | —                                             | Generate a starter `tsconfig.json` with `tsc --init`.                    |
-| `config:files`       | Optional `TYPESCRIPT_TSCONFIG`                           | List every file included in the compilation.                             |
-| `config:diagnostics` | Optional `TYPESCRIPT_TSCONFIG`                           | Print compiler performance diagnostics.                                  |
-| `config:trace`       | Optional `TYPESCRIPT_TRACE_DIR`, `TYPESCRIPT_TSCONFIG`, `TYPESCRIPT_TSC_FLAGS` | Emit a TypeScript performance trace.                                     |
-| `start`              | Optional `TYPESCRIPT_OUTFILE`                            | Run compiled JavaScript with Node.js.                                    |
-| `ci`                 | Optional `TYPESCRIPT_TSCONFIG`, `TYPESCRIPT_TSC_FLAGS`              | Run the same strict no-emit type-check used by CI.                       |
-| `clean`              | Optional `TYPESCRIPT_OUT_DIR`                            | Remove the compiled output directory.                                    |
-| `clean:all`          | Optional `TYPESCRIPT_OUT_DIR`                            | Remove output, incremental build cache, and trace output.                |
+| Task                 | Variables                                                                      | Description                                                                                                                               |
+| -------------------- | ------------------------------------------------------------------------------ | ----------------------------------------------------------------------------------------------------------------------------------------- |
+| `version`            | —                                                                              | Show resolved `tsc`, `tsx`, and `tsserver` information.                                                                                   |
+| `tsserver:info`      | —                                                                              | Show where `tsserver` resolves from and how editors use it.                                                                               |
+| `install`            | Optional `TYPESCRIPT_VERSION`                                                  | Install `typescript`, `tsx`, and `@types/node` using lockfile detection. Pass `TYPESCRIPT_VERSION=x.y.z` to pin the `typescript` package. |
+| `install:undo`       | —                                                                              | Remove the locally installed TypeScript dev dependencies.                                                                                 |
+| `upgrade`            | —                                                                              | Reinstall `typescript`, `tsx`, and `@types/node` at their latest versions.                                                                |
+| `run`                | Optional `TYPESCRIPT_FILE`, `TYPESCRIPT_TSX_FLAGS`, `CLI_ARGS`                 | Execute one TypeScript file once with `tsx`.                                                                                              |
+| `dev`                | Optional `TYPESCRIPT_FILE`, `TYPESCRIPT_TSX_FLAGS`                             | Run one TypeScript file in `tsx watch` mode.                                                                                              |
+| `typecheck`          | Optional `TYPESCRIPT_TSCONFIG`, `TYPESCRIPT_TSC_FLAGS`                         | Run `tsc --noEmit` for the full project.                                                                                                  |
+| `typecheck:watch`    | Optional `TYPESCRIPT_TSCONFIG`, `TYPESCRIPT_TSC_FLAGS`                         | Run `tsc --noEmit --watch`.                                                                                                               |
+| `typecheck:files`    | Required `FILES`; optional `TYPESCRIPT_TSC_FLAGS`                              | Type-check explicit files without loading `tsconfig.json`.                                                                                |
+| `build`              | Optional `TYPESCRIPT_TSCONFIG`, `TYPESCRIPT_TSC_FLAGS`                         | Compile the project with `tsc --noEmitOnError`.                                                                                           |
+| `build:watch`        | Optional `TYPESCRIPT_TSCONFIG`, `TYPESCRIPT_TSC_FLAGS`                         | Compile in watch mode with `tsc --noEmitOnError --watch`.                                                                                 |
+| `build:clean`        | Optional `TYPESCRIPT_OUT_DIR`, `TYPESCRIPT_TSCONFIG`, `TYPESCRIPT_TSC_FLAGS`   | Remove the output directory and run a fresh compile.                                                                                      |
+| `emit:dts`           | Optional `TYPESCRIPT_OUT_DIR`, `TYPESCRIPT_TSCONFIG`, `TYPESCRIPT_TSC_FLAGS`   | Emit declaration files only.                                                                                                              |
+| `config:show`        | Optional `TYPESCRIPT_TSCONFIG`                                                 | Print the fully resolved TypeScript config.                                                                                               |
+| `config:init`        | —                                                                              | Generate a starter `tsconfig.json` with `tsc --init`.                                                                                     |
+| `config:files`       | Optional `TYPESCRIPT_TSCONFIG`                                                 | List every file included in the compilation.                                                                                              |
+| `config:diagnostics` | Optional `TYPESCRIPT_TSCONFIG`                                                 | Print compiler performance diagnostics.                                                                                                   |
+| `config:trace`       | Optional `TYPESCRIPT_TRACE_DIR`, `TYPESCRIPT_TSCONFIG`, `TYPESCRIPT_TSC_FLAGS` | Emit a TypeScript performance trace.                                                                                                      |
+| `start`              | Optional `TYPESCRIPT_OUTFILE`                                                  | Run compiled JavaScript with Node.js.                                                                                                     |
+| `ci`                 | Optional `TYPESCRIPT_TSCONFIG`, `TYPESCRIPT_TSC_FLAGS`                         | Run the same strict no-emit type-check used by CI.                                                                                        |
+| `clean`              | Optional `TYPESCRIPT_OUT_DIR`                                                  | Remove the compiled output directory.                                                                                                     |
+| `clean:all`          | Optional `TYPESCRIPT_OUT_DIR`                                                  | Remove output, incremental build cache, and trace output.                                                                                 |
 
 ## Examples
 

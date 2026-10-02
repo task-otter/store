@@ -1,10 +1,10 @@
 ---
-version: '3.5'
+version: "3.5"
 
 output:
   group:
     begin: ::group::{{.TASK}}
-    end: '::endgroup::'
+    end: "::endgroup::"
     error_only: false
 
 silent: true
@@ -49,7 +49,7 @@ tasks:
     cmds:
       - task: nix:install:profile
         vars:
-          NIX_INSTALLABLE: '{{.DJLINT_NIX_INSTALLABLE}}'
+          NIX_INSTALLABLE: "{{.DJLINT_NIX_INSTALLABLE}}"
   _install:windows:
     internal: true
     platforms:
@@ -57,7 +57,7 @@ tasks:
     cmds:
       - task: uv:tool:install
         vars:
-          UV_TOOL: '{{.DJLINT_UV_TOOL}}'
+          UV_TOOL: "{{.DJLINT_UV_TOOL}}"
   version:
     run: once
     desc: Show the active djLint version
@@ -116,12 +116,12 @@ tasks:
   _run:
     internal: true
     run: when_changed
-    dir: '{{.USER_WORKING_DIR}}'
+    dir: "{{.USER_WORKING_DIR}}"
     deps:
       - task: install
     vars:
       PATHS: '{{or .DJLINT_TARGETS "."}}'
-      EXTRA: '{{.DJLINT_EXTRA_ARGS}}'
+      EXTRA: "{{.DJLINT_EXTRA_ARGS}}"
     cmds:
       - cmd: >-
           bash -lc '{{.NIX_LOAD}};

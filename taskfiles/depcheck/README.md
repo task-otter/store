@@ -31,17 +31,17 @@ Available leaves: `bun`, `node/{npm,pnpm,yarn}`.
 
 ## Public Tasks
 
-| Task           | Variables                                                                             | Description                                   |
-| -------------- | ------------------------------------------------------------------------------------- | --------------------------------------------- |
-| `install`      | Optional `DEPCHECK_VERSION`, `DEPCHECK_EXTRA_ARGS`, `CLI_ARGS`                                    | Install `depcheck` as a local dev dependency. Pass `DEPCHECK_VERSION=x.y.z` to pin a release. |
-| `install:undo` | Optional `DEPCHECK_EXTRA_ARGS`                                                           | Remove the locally installed `depcheck` devDependency. |
-| `upgrade`      | Optional `DEPCHECK_EXTRA_ARGS`                                                           | Reinstall `depcheck` at the latest version.   |
-| `json`         | Optional `DEPCHECK_PROJECT_PATH`, `DEPCHECK_TARGETS`, `DEPCHECK_EXTRA_ARGS`, `CLI_ARGS`                    | Run Depcheck with `--json`.                   |
-| `ignores`      | Optional `DEPCHECK_PROJECT_PATH`, `DEPCHECK_TARGETS`, `DEPCHECK_IGNORE_PACKAGES`, `DEPCHECK_EXTRA_ARGS`, `CLI_ARGS` | Run Depcheck with ignored packages.           |
-| `skip-missing` | Optional `DEPCHECK_PROJECT_PATH`, `DEPCHECK_TARGETS`, `DEPCHECK_EXTRA_ARGS`, `CLI_ARGS`                    | Run Depcheck with `--skip-missing=true`.      |
-| `ci`           | Optional `DEPCHECK_PROJECT_PATH`, `DEPCHECK_TARGETS`, `DEPCHECK_EXTRA_ARGS`, `CLI_ARGS`                    | Run Depcheck and fail on findings.            |
-| `version`      | — | Show the resolved Depcheck version.           |
-| `help`         | Optional `DEPCHECK_EXTRA_ARGS`, `CLI_ARGS`                                               | Show Depcheck CLI help.                       |
+| Task           | Variables                                                                                                           | Description                                                                                   |
+| -------------- | ------------------------------------------------------------------------------------------------------------------- | --------------------------------------------------------------------------------------------- |
+| `install`      | Optional `DEPCHECK_VERSION`, `DEPCHECK_EXTRA_ARGS`, `CLI_ARGS`                                                      | Install `depcheck` as a local dev dependency. Pass `DEPCHECK_VERSION=x.y.z` to pin a release. |
+| `install:undo` | Optional `DEPCHECK_EXTRA_ARGS`                                                                                      | Remove the locally installed `depcheck` devDependency.                                        |
+| `upgrade`      | Optional `DEPCHECK_EXTRA_ARGS`                                                                                      | Reinstall `depcheck` at the latest version.                                                   |
+| `json`         | Optional `DEPCHECK_PROJECT_PATH`, `DEPCHECK_TARGETS`, `DEPCHECK_EXTRA_ARGS`, `CLI_ARGS`                             | Run Depcheck with `--json`.                                                                   |
+| `ignores`      | Optional `DEPCHECK_PROJECT_PATH`, `DEPCHECK_TARGETS`, `DEPCHECK_IGNORE_PACKAGES`, `DEPCHECK_EXTRA_ARGS`, `CLI_ARGS` | Run Depcheck with ignored packages.                                                           |
+| `skip-missing` | Optional `DEPCHECK_PROJECT_PATH`, `DEPCHECK_TARGETS`, `DEPCHECK_EXTRA_ARGS`, `CLI_ARGS`                             | Run Depcheck with `--skip-missing=true`.                                                      |
+| `ci`           | Optional `DEPCHECK_PROJECT_PATH`, `DEPCHECK_TARGETS`, `DEPCHECK_EXTRA_ARGS`, `CLI_ARGS`                             | Run Depcheck and fail on findings.                                                            |
+| `version`      | —                                                                                                                   | Show the resolved Depcheck version.                                                           |
+| `help`         | Optional `DEPCHECK_EXTRA_ARGS`, `CLI_ARGS`                                                                          | Show Depcheck CLI help.                                                                       |
 
 ## Variables
 

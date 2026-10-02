@@ -38,21 +38,20 @@ Override `BUN_NIX_INSTALLABLE` to pin a flake (for example
 
 ## Public Tasks
 
-| Task | Description |
-|---|---|
+| Task      | Description                                    |
+| --------- | ---------------------------------------------- |
 | `install` | Install Bun via Nix (Unix) or WinGet (Windows) |
-| `version` | Show the active Bun version |
+| `version` | Show the active Bun version                    |
 
 Dependents auto-install Bun via `bun:install`.
 
 ## Variables
 
-| Variable | Default | Description |
-| -------- | ------- | ----------- |
-| `BUN_NIX_INSTALLABLE` | `nixpkgs#bun` | Flake installable for `nix:install:profile` |
+| Variable                 | Default       | Description                                    |
+| ------------------------ | ------------- | ---------------------------------------------- |
+| `BUN_NIX_INSTALLABLE`    | `nixpkgs#bun` | Flake installable for `nix:install:profile`    |
 | `BUN_WINGET_INSTALLABLE` | `Oven-sh.Bun` | WinGet package ID for `winget:install:package` |
 
 ## Notes
 
 - Install uses Nix on Linux and macOS (`BUN_NIX_INSTALLABLE`) and WinGet on Windows (`BUN_WINGET_INSTALLABLE`, default `Oven-sh.Bun`).
-

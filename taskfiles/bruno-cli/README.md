@@ -40,36 +40,36 @@ task bruno-cli:ci BRUNO_CLI_COLLECTION=./api
 
 ## Public Tasks
 
-| Task | Description |
-|---|---|
-| `run` | Run all requests in a Bruno collection |
-| `ci` | Run a collection and stop on the first failure (`--bail`) |
-| `help` | Show Bruno CLI help |
-| `install` | Install the Bruno CLI via Nix (Unix) or npm (Windows) |
-| `version` | Show the active Bruno CLI version |
+| Task      | Description                                               |
+| --------- | --------------------------------------------------------- |
+| `run`     | Run all requests in a Bruno collection                    |
+| `ci`      | Run a collection and stop on the first failure (`--bail`) |
+| `help`    | Show Bruno CLI help                                       |
+| `install` | Install the Bruno CLI via Nix (Unix) or npm (Windows)     |
+| `version` | Show the active Bruno CLI version                         |
 
 ## Variables
 
-| Variable | Default | Description |
-|---|---|---|
-| `BRUNO_CLI_NIX_INSTALLABLE` | `nixpkgs#bruno-cli` | Flake installable passed to `nix:install:profile` |
-| `BRUNO_CLI_NPM_PACKAGE` | `@usebruno/cli` | npm package passed to `npm:install:global` on Windows |
-| `BRUNO_CLI_COLLECTION` | `"."` | Path to the Bruno collection directory |
-| `BRUNO_CLI_ENV` | `""` | Named Bruno environment to activate via `--env` |
-| `BRUNO_CLI_EXTRA_ARGS` | `""` | Additional flags passed to `bru` |
+| Variable                    | Default             | Description                                           |
+| --------------------------- | ------------------- | ----------------------------------------------------- |
+| `BRUNO_CLI_NIX_INSTALLABLE` | `nixpkgs#bruno-cli` | Flake installable passed to `nix:install:profile`     |
+| `BRUNO_CLI_NPM_PACKAGE`     | `@usebruno/cli`     | npm package passed to `npm:install:global` on Windows |
+| `BRUNO_CLI_COLLECTION`      | `"."`               | Path to the Bruno collection directory                |
+| `BRUNO_CLI_ENV`             | `""`                | Named Bruno environment to activate via `--env`       |
+| `BRUNO_CLI_EXTRA_ARGS`      | `""`                | Additional flags passed to `bru`                      |
 
 Pin a revision by overriding the installable, for example
 `BRUNO_CLI_NIX_INSTALLABLE=github:NixOS/nixpkgs/<rev>#bruno-cli`.
 
 ## Breaking changes from `bruno:*`
 
-| Before | After |
-|---|---|
-| `task bruno:bun:run` | `task bruno-cli:run` |
-| `task bruno:node:npm:ci` | `task bruno-cli:ci` |
-| `task bruno:bun:install` | `task nix:install:profile NIX_INSTALLABLE=nixpkgs#bruno-cli` |
-| `BRUNO_COLLECTION` | `BRUNO_CLI_COLLECTION` |
-| `BRUNO_VERSION` | Pin via `BRUNO_CLI_NIX_INSTALLABLE=github:NixOS/nixpkgs/<rev>#bruno-cli` |
+| Before                   | After                                                                    |
+| ------------------------ | ------------------------------------------------------------------------ |
+| `task bruno:bun:run`     | `task bruno-cli:run`                                                     |
+| `task bruno:node:npm:ci` | `task bruno-cli:ci`                                                      |
+| `task bruno:bun:install` | `task nix:install:profile NIX_INSTALLABLE=nixpkgs#bruno-cli`             |
+| `BRUNO_COLLECTION`       | `BRUNO_CLI_COLLECTION`                                                   |
+| `BRUNO_VERSION`          | Pin via `BRUNO_CLI_NIX_INSTALLABLE=github:NixOS/nixpkgs/<rev>#bruno-cli` |
 
 ## Notes
 

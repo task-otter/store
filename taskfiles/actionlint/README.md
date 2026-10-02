@@ -38,20 +38,20 @@ task actionlint:ci
 
 ## Public Tasks
 
-| Task | Description |
-|---|---|
-| `ci` | Lint GitHub Actions workflow files with actionlint |
+| Task      | Description                                           |
+| --------- | ----------------------------------------------------- |
+| `ci`      | Lint GitHub Actions workflow files with actionlint    |
 | `install` | Install actionlint via Nix (Unix) or WinGet (Windows) |
-| `version` | Show the active actionlint version |
+| `version` | Show the active actionlint version                    |
 
 ## Variables
 
-| Variable | Default | Description |
-|---|---|---|
-| `ACTIONLINT_NIX_INSTALLABLE` | `nixpkgs#actionlint` | Flake installable passed to `nix:install:profile` |
-| `ACTIONLINT_WINGET_INSTALLABLE` | `rhysd.actionlint` | WinGet package ID for `winget:install:package` |
-| `ACTIONLINT_EXTRA_ARGS` | `""` | Additional flags passed to `actionlint` (e.g. `-ignore`, `-format`) |
-| `ACTIONLINT_TARGETS` | `""` | Paths to workflow files; empty = auto-discover `.github/workflows` |
+| Variable                        | Default              | Description                                                         |
+| ------------------------------- | -------------------- | ------------------------------------------------------------------- |
+| `ACTIONLINT_NIX_INSTALLABLE`    | `nixpkgs#actionlint` | Flake installable passed to `nix:install:profile`                   |
+| `ACTIONLINT_WINGET_INSTALLABLE` | `rhysd.actionlint`   | WinGet package ID for `winget:install:package`                      |
+| `ACTIONLINT_EXTRA_ARGS`         | `""`                 | Additional flags passed to `actionlint` (e.g. `-ignore`, `-format`) |
+| `ACTIONLINT_TARGETS`            | `""`                 | Paths to workflow files; empty = auto-discover `.github/workflows`  |
 
 Pin a revision by overriding the installable, for example
 `ACTIONLINT_NIX_INSTALLABLE=github:NixOS/nixpkgs/<rev>#actionlint`.

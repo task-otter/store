@@ -60,27 +60,27 @@ task buf:generate BUF_INPUT=api/v1
 
 ## Public Tasks
 
-| Task            | Description                                              | Key variables                  |
-| --------------- | -------------------------------------------------------- | ------------------------------ |
+| Task        | Description                                            | Key variables                                |
+| ----------- | ------------------------------------------------------ | -------------------------------------------- |
 | `breaking`  | Check proto files for breaking changes against AGAINST | `BUF_INPUT`, `BUF_AGAINST`, `BUF_EXTRA_ARGS` |
-| `ci`        | Run `fmt:check` then `lint`                            | `BUF_INPUT`, `BUF_CONFIG`, `BUF_EXTRA_ARGS` |
-| `ci:fix`    | Format proto files in place with Buf                   | `BUF_INPUT`, `BUF_EXTRA_ARGS` |
-| `fmt:check` | Check proto file formatting with Buf                   | `BUF_INPUT`, `BUF_EXTRA_ARGS` |
-| `generate`  | Generate code from proto files with Buf                | `BUF_INPUT`, `BUF_EXTRA_ARGS` |
-| `install`   | Install Buf via Nix (Unix) or WinGet (Windows)                        | `BUF_NIX_INSTALLABLE` |
-| `lint`      | Lint proto files with Buf                              | `BUF_INPUT`, `BUF_CONFIG`, `BUF_EXTRA_ARGS` |
-| `version`   | Show the active Buf version                            | — |
+| `ci`        | Run `fmt:check` then `lint`                            | `BUF_INPUT`, `BUF_CONFIG`, `BUF_EXTRA_ARGS`  |
+| `ci:fix`    | Format proto files in place with Buf                   | `BUF_INPUT`, `BUF_EXTRA_ARGS`                |
+| `fmt:check` | Check proto file formatting with Buf                   | `BUF_INPUT`, `BUF_EXTRA_ARGS`                |
+| `generate`  | Generate code from proto files with Buf                | `BUF_INPUT`, `BUF_EXTRA_ARGS`                |
+| `install`   | Install Buf via Nix (Unix) or WinGet (Windows)         | `BUF_NIX_INSTALLABLE`                        |
+| `lint`      | Lint proto files with Buf                              | `BUF_INPUT`, `BUF_CONFIG`, `BUF_EXTRA_ARGS`  |
+| `version`   | Show the active Buf version                            | —                                            |
 
 ## Variables
 
-| Variable      | Default              | Description                                              |
-| ------------- | -------------------- | -------------------------------------------------------- |
-| `BUF_AGAINST`            | `.git#branch=main` | Baseline for `breaking`: a git ref, Buf module, or path |
-| `BUF_NIX_INSTALLABLE`    | `nixpkgs#buf`      | Flake installable passed to `nix:install:profile`       |
-| `BUF_WINGET_INSTALLABLE` | `bufbuild.buf` | WinGet package ID for `winget:install:package` |
-| `BUF_CONFIG`             | empty              | Path to a `buf.yaml` config file passed via `--config`  |
-| `BUF_EXTRA_ARGS`  | empty                | Extra arguments appended when `CLI_ARGS` is not provided |
-| `BUF_INPUT`       | `.`                  | Proto source directory or Buf module passed to buf       |
+| Variable                 | Default            | Description                                              |
+| ------------------------ | ------------------ | -------------------------------------------------------- |
+| `BUF_AGAINST`            | `.git#branch=main` | Baseline for `breaking`: a git ref, Buf module, or path  |
+| `BUF_NIX_INSTALLABLE`    | `nixpkgs#buf`      | Flake installable passed to `nix:install:profile`        |
+| `BUF_WINGET_INSTALLABLE` | `bufbuild.buf`     | WinGet package ID for `winget:install:package`           |
+| `BUF_CONFIG`             | empty              | Path to a `buf.yaml` config file passed via `--config`   |
+| `BUF_EXTRA_ARGS`         | empty              | Extra arguments appended when `CLI_ARGS` is not provided |
+| `BUF_INPUT`              | `.`                | Proto source directory or Buf module passed to buf       |
 
 Pin a revision by overriding the installable, for example
 `BUF_NIX_INSTALLABLE=github:NixOS/nixpkgs/<rev>#buf`.

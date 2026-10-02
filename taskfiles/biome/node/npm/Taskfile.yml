@@ -1,10 +1,10 @@
 ---
-version: '3.5'
+version: "3.5"
 
 output:
   group:
     begin: ::group::{{.TASK}}
-    end: '::endgroup::'
+    end: "::endgroup::"
     error_only: false
 
 silent: true
@@ -28,7 +28,7 @@ tasks:
       - task --list
   install:
     run: once
-    dir: '{{.USER_WORKING_DIR}}'
+    dir: "{{.USER_WORKING_DIR}}"
     desc: Install Biome as a local devDependency
     summary: |
       Install @biomejs/biome as a local devDependency. Pass BIOME_VERSION=x.y.z to
@@ -40,12 +40,12 @@ tasks:
         const requested = '{{.RESOLVED_VERSION}}';
         process.exit(!requested || installed.version === requested ? 0 : 1)"
     vars:
-      RESOLVED_VERSION: '{{.BIOME_VERSION}}'
+      RESOLVED_VERSION: "{{.BIOME_VERSION}}"
     cmds:
       - task: npm:add
         vars:
-          PACKAGES: '@biomejs/biome{{if .RESOLVED_VERSION}}@{{.RESOLVED_VERSION}}{{end}}'
-          EXTRA_ARGS: '{{.BIOME_EXTRA_ARGS}}{{if .CLI_ARGS}} {{.CLI_ARGS}}{{end}}'
+          PACKAGES: "@biomejs/biome{{if .RESOLVED_VERSION}}@{{.RESOLVED_VERSION}}{{end}}"
+          EXTRA_ARGS: "{{.BIOME_EXTRA_ARGS}}{{if .CLI_ARGS}} {{.CLI_ARGS}}{{end}}"
   install:undo:
     run: once
     desc: Remove the locally installed Biome devDependency
@@ -56,8 +56,8 @@ tasks:
     cmds:
       - task: npm:remove
         vars:
-          PACKAGES: '@biomejs/biome'
-          EXTRA_ARGS: '{{.BIOME_EXTRA_ARGS}}'
+          PACKAGES: "@biomejs/biome"
+          EXTRA_ARGS: "{{.BIOME_EXTRA_ARGS}}"
   upgrade:
     run: once
     desc: Upgrade Biome to the latest release
@@ -65,11 +65,11 @@ tasks:
     cmds:
       - task: npm:add
         vars:
-          PACKAGES: '@biomejs/biome@latest'
-          EXTRA_ARGS: '{{.BIOME_EXTRA_ARGS}}'
+          PACKAGES: "@biomejs/biome@latest"
+          EXTRA_ARGS: "{{.BIOME_EXTRA_ARGS}}"
   config:init:
     run: once
-    dir: '{{.USER_WORKING_DIR}}'
+    dir: "{{.USER_WORKING_DIR}}"
     desc: Create a biome.json config file in the current directory
     summary: |
       Run biome init to generate a biome.json config file with recommended
@@ -79,13 +79,13 @@ tasks:
     deps:
       - task: install
         vars:
-          BIOME_VERSION: '{{.BIOME_VERSION}}'
+          BIOME_VERSION: "{{.BIOME_VERSION}}"
     cmds:
       - task: npm:exec
         vars:
           BINARY: biome
           ARGS: init
-          EXTRA_ARGS: '{{.BIOME_EXTRA_ARGS}}{{if .CLI_ARGS}} {{.CLI_ARGS}}{{end}}'
+          EXTRA_ARGS: "{{.BIOME_EXTRA_ARGS}}{{if .CLI_ARGS}} {{.CLI_ARGS}}{{end}}"
 
   # Shared implementation of lint / lint:fix / fmt / fmt:check / ci.
   _run:
@@ -94,10 +94,10 @@ tasks:
     deps:
       - task: install
         vars:
-          BIOME_VERSION: '{{.BIOME_VERSION}}'
+          BIOME_VERSION: "{{.BIOME_VERSION}}"
     vars:
-      RESOLVED_CONFIG: '{{.BIOME_CONFIG}}'
-      RESOLVED_TARGETS: '{{or .BIOME_TARGETS .BIOME_DEFAULT_TARGETS}}'
+      RESOLVED_CONFIG: "{{.BIOME_CONFIG}}"
+      RESOLVED_TARGETS: "{{or .BIOME_TARGETS .BIOME_DEFAULT_TARGETS}}"
     cmds:
       - task: npm:exec
         vars:
@@ -106,7 +106,7 @@ tasks:
             {{.SUBCMD}}
             {{- if .RESOLVED_CONFIG}} --config-path "{{.RESOLVED_CONFIG}}"{{end}}
             {{- if .RESOLVED_TARGETS}} {{.RESOLVED_TARGETS}}{{end}}
-          EXTRA_ARGS: '{{.BIOME_EXTRA_ARGS}}{{if .CLI_ARGS}} {{.CLI_ARGS}}{{end}}'
+          EXTRA_ARGS: "{{.BIOME_EXTRA_ARGS}}{{if .CLI_ARGS}} {{.CLI_ARGS}}{{end}}"
   lint:
     run: once
     desc: Run Biome check
@@ -165,23 +165,23 @@ tasks:
     deps:
       - task: install
         vars:
-          BIOME_VERSION: '{{.BIOME_VERSION}}'
+          BIOME_VERSION: "{{.BIOME_VERSION}}"
     cmds:
       - task: npm:exec
         vars:
           BINARY: biome
           ARGS: --version
-          EXTRA_ARGS: '{{.BIOME_EXTRA_ARGS}}'
+          EXTRA_ARGS: "{{.BIOME_EXTRA_ARGS}}"
   help:
     run: once
     desc: Show Biome CLI help
     deps:
       - task: install
         vars:
-          BIOME_VERSION: '{{.BIOME_VERSION}}'
+          BIOME_VERSION: "{{.BIOME_VERSION}}"
     cmds:
       - task: npm:exec
         vars:
           BINARY: biome
           ARGS: --help
-          EXTRA_ARGS: '{{.BIOME_EXTRA_ARGS}}{{if .CLI_ARGS}} {{.CLI_ARGS}}{{end}}'
+          EXTRA_ARGS: "{{.BIOME_EXTRA_ARGS}}{{if .CLI_ARGS}} {{.CLI_ARGS}}{{end}}"

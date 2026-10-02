@@ -35,22 +35,22 @@ task dotenv-linter:ci:fix DOTENV_LINTER_TARGETS=.env
 
 ## Public Tasks
 
-| Task | Description |
-|---|---|
-| `ci` | Lint dotenv files with dotenv-linter check |
-| `ci:fix` | Apply automatic fixes with dotenv-linter fix |
-| `diff` | Compare .env files to ensure matching key sets |
+| Task      | Description                                                     |
+| --------- | --------------------------------------------------------------- |
+| `ci`      | Lint dotenv files with dotenv-linter check                      |
+| `ci:fix`  | Apply automatic fixes with dotenv-linter fix                    |
+| `diff`    | Compare .env files to ensure matching key sets                  |
 | `install` | Install dotenv-linter via Nix (Unix) or cargo install (Windows) |
-| `version` | Show the active dotenv-linter version |
+| `version` | Show the active dotenv-linter version                           |
 
 ## Variables
 
-| Variable | Default | Description |
-|---|---|---|
-| `DOTENV_LINTER_NIX_INSTALLABLE` | `nixpkgs#dotenv-linter` | Flake installable passed to `nix:install:profile` |
-| `DOTENV_LINTER_CARGO_CRATE` | `dotenv-linter` | Crate name for Windows `cargo:install:crate` |
-| `DOTENV_LINTER_TARGETS` | `.env` | File or directory dotenv-linter operates on |
-| `DOTENV_LINTER_EXTRA_ARGS` | `""` | Extra flags forwarded to dotenv-linter (e.g. `--recursive`, `--skip`) |
+| Variable                        | Default                 | Description                                                           |
+| ------------------------------- | ----------------------- | --------------------------------------------------------------------- |
+| `DOTENV_LINTER_NIX_INSTALLABLE` | `nixpkgs#dotenv-linter` | Flake installable passed to `nix:install:profile`                     |
+| `DOTENV_LINTER_CARGO_CRATE`     | `dotenv-linter`         | Crate name for Windows `cargo:install:crate`                          |
+| `DOTENV_LINTER_TARGETS`         | `.env`                  | File or directory dotenv-linter operates on                           |
+| `DOTENV_LINTER_EXTRA_ARGS`      | `""`                    | Extra flags forwarded to dotenv-linter (e.g. `--recursive`, `--skip`) |
 
 Pin a revision by overriding the installable, for example
 `DOTENV_LINTER_NIX_INSTALLABLE=github:NixOS/nixpkgs/<rev>#dotenv-linter`.

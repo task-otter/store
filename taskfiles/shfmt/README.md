@@ -38,21 +38,21 @@ task shfmt:fmt:check SHFMT_TARGETS=scripts
 
 ## Public Tasks
 
-| Task | Description |
-|---|---|
-| `ci:fix` | Format shell scripts in place (`SHFMT_TARGETS=path`) |
+| Task        | Description                                                                  |
+| ----------- | ---------------------------------------------------------------------------- |
+| `ci:fix`    | Format shell scripts in place (`SHFMT_TARGETS=path`)                         |
 | `fmt:check` | Check shell script formatting without modifying files (`SHFMT_TARGETS=path`) |
-| `install` | Install shfmt via Nix (Unix) or WinGet (Windows) |
-| `version` | Show the active shfmt version |
+| `install`   | Install shfmt via Nix (Unix) or WinGet (Windows)                             |
+| `version`   | Show the active shfmt version                                                |
 
 ## Variables
 
-| Variable | Default | Description |
-|---|---|---|
-| `SHFMT_NIX_INSTALLABLE` | `nixpkgs#shfmt` | Flake installable passed to `nix:install:profile` |
-| `SHFMT_WINGET_INSTALLABLE` | `mvdan.shfmt` | WinGet package ID for `winget:install:package` |
-| `SHFMT_TARGETS` | `.` | File or directory to format or check |
-| `SHFMT_EXTRA_ARGS` | _(empty)_ | Extra shfmt flags, for example `-i 2`, `-ci`, `-sr`, or `-ln bash` |
+| Variable                   | Default         | Description                                                        |
+| -------------------------- | --------------- | ------------------------------------------------------------------ |
+| `SHFMT_NIX_INSTALLABLE`    | `nixpkgs#shfmt` | Flake installable passed to `nix:install:profile`                  |
+| `SHFMT_WINGET_INSTALLABLE` | `mvdan.shfmt`   | WinGet package ID for `winget:install:package`                     |
+| `SHFMT_TARGETS`            | `.`             | File or directory to format or check                               |
+| `SHFMT_EXTRA_ARGS`         | _(empty)_       | Extra shfmt flags, for example `-i 2`, `-ci`, `-sr`, or `-ln bash` |
 
 Pin a revision by overriding the installable, for example
 `SHFMT_NIX_INSTALLABLE=github:NixOS/nixpkgs/<rev>#shfmt`.

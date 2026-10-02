@@ -31,16 +31,16 @@ Available leaves: `bun`, `node/{npm,pnpm,yarn}`.
 
 ## Public Tasks
 
-| Task          | Variables                                                                   | Description                                               |
-| ------------- | --------------------------------------------------------------------------- | --------------------------------------------------------- |
-| `install`     | Optional `PRETTIER_VERSION`, `PRETTIER_EXTRA_ARGS`, `CLI_ARGS`                          | Install `prettier` as a local dev dependency. Pass `PRETTIER_VERSION=x.y.z` to pin a release. |
-| `install:undo`| Optional `PRETTIER_EXTRA_ARGS`                                                 | Remove the locally installed `prettier` devDependency.    |
-| `upgrade`     | Optional `PRETTIER_EXTRA_ARGS`                                                 | Reinstall `prettier` at the latest version.                |
-| `config:init` | Optional `PRETTIER_CONFIG`                                                           | Create a starter Prettier config when one does not exist. |
-| `fmt:check`   | Optional `PRETTIER_TARGETS`, `PRETTIER_CONFIG`, `PRETTIER_IGNORE_PATH`, `PRETTIER_EXTRA_ARGS`, `CLI_ARGS` | Run `prettier --check`.                                   |
-| `ci:fix` | Optional `PRETTIER_TARGETS`, `PRETTIER_CONFIG`, `PRETTIER_IGNORE_PATH`, `PRETTIER_EXTRA_ARGS`, `CLI_ARGS` | Run `prettier --write`. |
-| `version`     | — | Show the resolved Prettier version.                       |
-| `help`        | Optional `PRETTIER_EXTRA_ARGS`, `CLI_ARGS`                                     | Show Prettier CLI help.                                   |
+| Task           | Variables                                                                                                 | Description                                                                                   |
+| -------------- | --------------------------------------------------------------------------------------------------------- | --------------------------------------------------------------------------------------------- |
+| `install`      | Optional `PRETTIER_VERSION`, `PRETTIER_EXTRA_ARGS`, `CLI_ARGS`                                            | Install `prettier` as a local dev dependency. Pass `PRETTIER_VERSION=x.y.z` to pin a release. |
+| `install:undo` | Optional `PRETTIER_EXTRA_ARGS`                                                                            | Remove the locally installed `prettier` devDependency.                                        |
+| `upgrade`      | Optional `PRETTIER_EXTRA_ARGS`                                                                            | Reinstall `prettier` at the latest version.                                                   |
+| `config:init`  | Optional `PRETTIER_CONFIG`                                                                                | Create a starter Prettier config when one does not exist.                                     |
+| `fmt:check`    | Optional `PRETTIER_TARGETS`, `PRETTIER_CONFIG`, `PRETTIER_IGNORE_PATH`, `PRETTIER_EXTRA_ARGS`, `CLI_ARGS` | Run `prettier --check`.                                                                       |
+| `ci:fix`       | Optional `PRETTIER_TARGETS`, `PRETTIER_CONFIG`, `PRETTIER_IGNORE_PATH`, `PRETTIER_EXTRA_ARGS`, `CLI_ARGS` | Run `prettier --write`.                                                                       |
+| `version`      | —                                                                                                         | Show the resolved Prettier version.                                                           |
+| `help`         | Optional `PRETTIER_EXTRA_ARGS`, `CLI_ARGS`                                                                | Show Prettier CLI help.                                                                       |
 
 ## Variables
 

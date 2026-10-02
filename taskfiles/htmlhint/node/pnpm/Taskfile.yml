@@ -1,10 +1,10 @@
 ---
-version: '3.5'
+version: "3.5"
 
 output:
   group:
     begin: ::group::{{.TASK}}
-    end: '::endgroup::'
+    end: "::endgroup::"
     error_only: false
 
 silent: true
@@ -27,13 +27,13 @@ tasks:
       - task --list
   install:
     run: once
-    dir: '{{.USER_WORKING_DIR}}'
+    dir: "{{.USER_WORKING_DIR}}"
     desc: Install HTMLHint as a local devDependency
     summary: |
       Install htmlhint as a local devDependency. Pass HTMLHINT_VERSION=x.y.z to pin a
       specific release instead of the package manager's default resolution.
     vars:
-      RESOLVED_VERSION: '{{.HTMLHINT_VERSION}}'
+      RESOLVED_VERSION: "{{.HTMLHINT_VERSION}}"
     status:
       - >-
         node -e "const installed = require('./node_modules/htmlhint/package.json');
@@ -57,7 +57,7 @@ tasks:
       - task: pnpm:remove
         vars:
           PACKAGES: htmlhint
-          EXTRA_ARGS: '{{.HTMLHINT_EXTRA_ARGS}}'
+          EXTRA_ARGS: "{{.HTMLHINT_EXTRA_ARGS}}"
   upgrade:
     run: once
     desc: Upgrade HTMLHint to the latest release
@@ -66,14 +66,14 @@ tasks:
       - task: pnpm:add
         vars:
           PACKAGES: htmlhint@latest
-          EXTRA_ARGS: '{{.HTMLHINT_EXTRA_ARGS}}'
+          EXTRA_ARGS: "{{.HTMLHINT_EXTRA_ARGS}}"
   config:init:
     run: once
     desc: Create a default .htmlhintrc configuration file
     summary: |
       Write a .htmlhintrc file with HTMLHint's recommended default rules in
       the current directory. Skipped if .htmlhintrc already exists.
-    dir: '{{.USER_WORKING_DIR}}'
+    dir: "{{.USER_WORKING_DIR}}"
     status:
       - test -f .htmlhintrc
     cmds:
@@ -97,11 +97,11 @@ tasks:
       Run htmlhint against HTMLHINT_TARGETS (default **/*.html). Pass HTMLHINT_CONFIG to use a
       custom configuration file via --config, and HTMLHINT_EXTRA_ARGS for additional
       flags. Auto-installs HTMLHint if missing.
-    dir: '{{.USER_WORKING_DIR}}'
+    dir: "{{.USER_WORKING_DIR}}"
     deps:
       - task: install
     vars:
-      RESOLVED_CONFIG: '{{.HTMLHINT_CONFIG}}'
+      RESOLVED_CONFIG: "{{.HTMLHINT_CONFIG}}"
       RESOLVED_TARGETS: '{{or .HTMLHINT_TARGETS "**/*.html"}}'
     cmds:
       - task: pnpm:exec

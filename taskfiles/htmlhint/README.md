@@ -34,24 +34,24 @@ project root (where `package.json` lives).
 
 ## Public Tasks
 
-| Task | Description | Key variables |
-|---|---|---|
-| `install` | Install HTMLHint as a local devDependency | `HTMLHINT_VERSION` |
-| `install:undo` | Remove the HTMLHint devDependency | |
-| `upgrade` | Upgrade HTMLHint to the latest release | |
-| `ci` | Lint HTML files with HTMLHint | `HTMLHINT_TARGETS`, `HTMLHINT_CONFIG`, `HTMLHINT_EXTRA_ARGS` |
-| `config:init` | Create a default .htmlhintrc configuration file | |
-| `help` | Show the HTMLHint CLI help | |
-| `version` | Show the locally resolved HTMLHint version | |
+| Task           | Description                                     | Key variables                                                |
+| -------------- | ----------------------------------------------- | ------------------------------------------------------------ |
+| `install`      | Install HTMLHint as a local devDependency       | `HTMLHINT_VERSION`                                           |
+| `install:undo` | Remove the HTMLHint devDependency               |                                                              |
+| `upgrade`      | Upgrade HTMLHint to the latest release          |                                                              |
+| `ci`           | Lint HTML files with HTMLHint                   | `HTMLHINT_TARGETS`, `HTMLHINT_CONFIG`, `HTMLHINT_EXTRA_ARGS` |
+| `config:init`  | Create a default .htmlhintrc configuration file |                                                              |
+| `help`         | Show the HTMLHint CLI help                      |                                                              |
+| `version`      | Show the locally resolved HTMLHint version      |                                                              |
 
 ## Variables
 
-| Variable | Default | Description |
-|---|---|---|
-| `HTMLHINT_VERSION` | `""` (package manager default) | Pin a specific htmlhint release |
-| `HTMLHINT_TARGETS` | `**/*.html` | Glob of HTML files to lint |
-| `HTMLHINT_CONFIG` | `""` | Path to a custom HTMLHint configuration file |
-| `HTMLHINT_EXTRA_ARGS` | `""` | Extra flags forwarded to htmlhint |
+| Variable              | Default                        | Description                                  |
+| --------------------- | ------------------------------ | -------------------------------------------- |
+| `HTMLHINT_VERSION`    | `""` (package manager default) | Pin a specific htmlhint release              |
+| `HTMLHINT_TARGETS`    | `**/*.html`                    | Glob of HTML files to lint                   |
+| `HTMLHINT_CONFIG`     | `""`                           | Path to a custom HTMLHint configuration file |
+| `HTMLHINT_EXTRA_ARGS` | `""`                           | Extra flags forwarded to htmlhint            |
 
 ## Notes
 

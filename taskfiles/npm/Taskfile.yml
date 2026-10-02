@@ -1,10 +1,10 @@
 ---
-version: '3.5'
+version: "3.5"
 
 output:
   group:
     begin: ::group::{{.TASK}}
-    end: '::endgroup::'
+    end: "::endgroup::"
     error_only: false
 
 silent: true
@@ -174,12 +174,12 @@ tasks:
     cmds:
       - task: _run:unix
         vars:
-          SCRIPT: '{{.SCRIPT}}'
-          CLI_ARGS: '{{.CLI_ARGS}}'
+          SCRIPT: "{{.SCRIPT}}"
+          CLI_ARGS: "{{.CLI_ARGS}}"
       - task: _run:windows
         vars:
-          SCRIPT: '{{.SCRIPT}}'
-          CLI_ARGS: '{{.CLI_ARGS}}'
+          SCRIPT: "{{.SCRIPT}}"
+          CLI_ARGS: "{{.CLI_ARGS}}"
   dev:
     run: once
     desc: Start the development server with npm run dev
@@ -405,7 +405,7 @@ tasks:
       lock file is corrupt or conflicted, then audit the new lock file carefully.
       Run task install after to restore dependencies and regenerate package-lock.json.
     prompt:
-      - 'WARNING: This will permanently delete node_modules AND package-lock.json.'
+      - "WARNING: This will permanently delete node_modules AND package-lock.json."
       - Regenerating the lockfile may produce a different dependency tree.
       - Continue?
     cmds:
@@ -417,7 +417,7 @@ tasks:
     platforms:
       - linux
       - darwin
-    dir: '{{.USER_WORKING_DIR}}'
+    dir: "{{.USER_WORKING_DIR}}"
     set:
       - errexit
       - nounset
@@ -426,7 +426,7 @@ tasks:
       vars:
         - ARGS
     env:
-      CI: '1'
+      CI: "1"
     deps:
       - task: nodejs:install
     preconditions:
@@ -439,12 +439,12 @@ tasks:
     internal: true
     platforms:
       - windows
-    dir: '{{.USER_WORKING_DIR}}'
+    dir: "{{.USER_WORKING_DIR}}"
     requires:
       vars:
         - ARGS
     env:
-      CI: '1'
+      CI: "1"
     deps:
       - task: nodejs:install
     preconditions:
@@ -501,7 +501,7 @@ tasks:
       vars:
         - SCRIPT
     env:
-      SCRIPT: '{{.SCRIPT}}'
+      SCRIPT: "{{.SCRIPT}}"
     preconditions:
       - sh: printf "%s" "$SCRIPT" | grep -qE "^[A-Za-z0-9:_-]+$"
         msg: >-
@@ -520,7 +520,7 @@ tasks:
       vars:
         - SCRIPT
     env:
-      SCRIPT: '{{.SCRIPT}}'
+      SCRIPT: "{{.SCRIPT}}"
     preconditions:
       - sh: >-
           powershell -NoProfile -ExecutionPolicy Bypass -Command
@@ -563,7 +563,7 @@ tasks:
     platforms:
       - linux
       - darwin
-    dir: '{{.USER_WORKING_DIR}}'
+    dir: "{{.USER_WORKING_DIR}}"
     set:
       - errexit
       - nounset
@@ -579,7 +579,7 @@ tasks:
     internal: true
     platforms:
       - windows
-    dir: '{{.USER_WORKING_DIR}}'
+    dir: "{{.USER_WORKING_DIR}}"
     status:
       - >-
         powershell -NoProfile -ExecutionPolicy Bypass -Command
@@ -596,7 +596,7 @@ tasks:
     platforms:
       - linux
       - darwin
-    dir: '{{.USER_WORKING_DIR}}'
+    dir: "{{.USER_WORKING_DIR}}"
     set:
       - errexit
       - nounset
@@ -611,7 +611,7 @@ tasks:
     internal: true
     platforms:
       - windows
-    dir: '{{.USER_WORKING_DIR}}'
+    dir: "{{.USER_WORKING_DIR}}"
     cmds:
       - echo Removing node_modules and package-lock.json...
       - >-

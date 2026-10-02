@@ -36,20 +36,20 @@ task jsonlint:ci JSONLINT_TARGETS=data/   # validates every *.json under data/
 
 ## Public Tasks
 
-| Task | Description |
-|---|---|
-| `ci` | Validate JSON files with jsonlint |
+| Task      | Description                                          |
+| --------- | ---------------------------------------------------- |
+| `ci`      | Validate JSON files with jsonlint                    |
 | `install` | Install jsonlint via Nix (Unix) or uv tool (Windows) |
-| `version` | Show the active jsonlint version |
+| `version` | Show the active jsonlint version                     |
 
 ## Variables
 
-| Variable | Default | Description |
-|---|---|---|
-| `JSONLINT_NIX_INSTALLABLE` | `nixpkgs#python3Packages.demjson3` | Flake installable passed to `nix:install:profile` |
-| `JSONLINT_UV_TOOL` | `demjson3` | uv tool name passed to `uv:tool:install` on Windows (provides `jsonlint`) |
-| `JSONLINT_TARGETS` | `.` | File or directory to validate; directories are scanned recursively for `*.json` |
-| `JSONLINT_EXTRA_ARGS` | `""` | Extra flags forwarded to jsonlint |
+| Variable                   | Default                            | Description                                                                     |
+| -------------------------- | ---------------------------------- | ------------------------------------------------------------------------------- |
+| `JSONLINT_NIX_INSTALLABLE` | `nixpkgs#python3Packages.demjson3` | Flake installable passed to `nix:install:profile`                               |
+| `JSONLINT_UV_TOOL`         | `demjson3`                         | uv tool name passed to `uv:tool:install` on Windows (provides `jsonlint`)       |
+| `JSONLINT_TARGETS`         | `.`                                | File or directory to validate; directories are scanned recursively for `*.json` |
+| `JSONLINT_EXTRA_ARGS`      | `""`                               | Extra flags forwarded to jsonlint                                               |
 
 Pin a revision by overriding the installable, for example
 `JSONLINT_NIX_INSTALLABLE=github:NixOS/nixpkgs/<rev>#python3Packages.demjson3`.

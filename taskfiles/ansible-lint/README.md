@@ -40,21 +40,21 @@ task ansible-lint:ci:fix ANSIBLE_LINT_TARGETS=playbooks/
 
 ## Public Tasks
 
-| Task     | Description                                              |
-| -------- | -------------------------------------------------------- |
-| `ci`     | Lint Ansible YAML files with ansible-lint                |
-| `ci:fix` | Auto-fix Ansible YAML files with ansible-lint `--fix` |
-| `install` | Install ansible-lint via the Nix profile |
-| `version` | Show the active ansible-lint version |
+| Task      | Description                                           |
+| --------- | ----------------------------------------------------- |
+| `ci`      | Lint Ansible YAML files with ansible-lint             |
+| `ci:fix`  | Auto-fix Ansible YAML files with ansible-lint `--fix` |
+| `install` | Install ansible-lint via the Nix profile              |
+| `version` | Show the active ansible-lint version                  |
 
 ## Variables
 
-| Variable                         | Default                | Description |
-| -------------------------------- | ---------------------- | ----------- |
-| `ANSIBLE_LINT_NIX_INSTALLABLE`   | `nixpkgs#ansible-lint` | Flake installable passed to `nix:install:profile` |
-| `ANSIBLE_LINT_CONFIG`            | `ansible/ansible.cfg`  | Value exported as `ANSIBLE_CONFIG` for ansible-lint |
-| `ANSIBLE_LINT_TARGETS`           | `.`                    | Files or directories to lint with `ci` / `ci:fix` |
-| `ANSIBLE_LINT_EXTRA_ARGS`        | _(empty)_              | Extra flags forwarded to ansible-lint |
+| Variable                       | Default                | Description                                         |
+| ------------------------------ | ---------------------- | --------------------------------------------------- |
+| `ANSIBLE_LINT_NIX_INSTALLABLE` | `nixpkgs#ansible-lint` | Flake installable passed to `nix:install:profile`   |
+| `ANSIBLE_LINT_CONFIG`          | `ansible/ansible.cfg`  | Value exported as `ANSIBLE_CONFIG` for ansible-lint |
+| `ANSIBLE_LINT_TARGETS`         | `.`                    | Files or directories to lint with `ci` / `ci:fix`   |
+| `ANSIBLE_LINT_EXTRA_ARGS`      | _(empty)_              | Extra flags forwarded to ansible-lint               |
 
 Pin a revision by overriding the installable, for example
 `ANSIBLE_LINT_NIX_INSTALLABLE=github:NixOS/nixpkgs/<rev>#ansible-lint`.

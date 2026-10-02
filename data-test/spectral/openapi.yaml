@@ -9,5 +9,5 @@ paths:
   /ping:
     get:
       responses:
-        '200':
+        "200":
           description: ok

@@ -10,7 +10,7 @@ Accepted
 
 Until now every module was covered by a contract test that parses its
 `Taskfile.yml`, `metadata.yml` and `README.md`. Those tests describe what a
-module *declares*, and they never start the `task` binary.
+module _declares_, and they never start the `task` binary.
 
 That leaves a class of defects invisible. A Taskfile can parse as YAML and still
 fail to load in the CLI: a broken `includes:` path, a template that does not

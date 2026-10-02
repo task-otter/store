@@ -35,31 +35,31 @@ Pin a revision by overriding the installable, for example
 
 ## Public Tasks
 
-| Task             | Description                                        | Key variables                     |
-| ---------------- | -------------------------------------------------- | --------------------------------- |
-| `python:install` | Install a Python version via uv                    | `PYTHON_VERSION`                  |
-| `venv`           | Create a virtual environment                       | `UV_VENV`, `UV_EXTRA_ARGS`        |
-| `pip:install`    | Install packages from a requirements file          | `UV_REQUIREMENTS`, `UV_EXTRA_ARGS` |
+| Task             | Description                                        | Key variables                         |
+| ---------------- | -------------------------------------------------- | ------------------------------------- |
+| `python:install` | Install a Python version via uv                    | `PYTHON_VERSION`                      |
+| `venv`           | Create a virtual environment                       | `UV_VENV`, `UV_EXTRA_ARGS`            |
+| `pip:install`    | Install packages from a requirements file          | `UV_REQUIREMENTS`, `UV_EXTRA_ARGS`    |
 | `run`            | Run a script or command via uv                     | `UV_FILE`, `UV_ARGS`, `UV_EXTRA_ARGS` |
-| `tool:install`   | Install a Python tool into an isolated environment | `UV_TOOL`, `UV_EXTRA_ARGS`        |
-| `tool:upgrade`   | Upgrade an installed uv tool                       | `UV_TOOL`, `UV_EXTRA_ARGS`        |
-| `install`        | Install uv via Nix (Unix) or WinGet (Windows)                     | `UV_NIX_INSTALLABLE`              |
-| `version`        | Show the active uv version                         | —                                 |
+| `tool:install`   | Install a Python tool into an isolated environment | `UV_TOOL`, `UV_EXTRA_ARGS`            |
+| `tool:upgrade`   | Upgrade an installed uv tool                       | `UV_TOOL`, `UV_EXTRA_ARGS`            |
+| `install`        | Install uv via Nix (Unix) or WinGet (Windows)      | `UV_NIX_INSTALLABLE`                  |
+| `version`        | Show the active uv version                         | —                                     |
 
 ## Variables
 
-| Variable             | Default              | Description                                             |
-| -------------------- | -------------------- | ------------------------------------------------------- |
-| `UV_NIX_INSTALLABLE` | `nixpkgs#uv`         | Flake installable passed to `nix:install:profile`       |
-| `UV_WINGET_INSTALLABLE` | `astral-sh.uv` | WinGet package ID for `winget:install:package` |
-| `UV_LOAD`            | reloads User Path; prepends `%USERPROFILE%\.local\bin` | PowerShell snippet so `uv` and uv-installed tools from earlier in the same Task process are on PATH |
-| `UV_VENV`            | `.venv`              | Virtual environment directory for `venv`                |
-| `UV_REQUIREMENTS`    | `requirements.txt`   | Requirements file for `pip:install`                     |
-| `UV_FILE`            | _(empty)_            | Script path; required by `run`                          |
-| `UV_ARGS`            | _(empty)_            | Positional arguments forwarded to the script in `run`   |
-| `UV_EXTRA_ARGS`      | _(empty)_            | Extra flags forwarded to the underlying uv command      |
-| `PYTHON_VERSION`     | _(empty)_            | Python version to install; required by `python:install` |
-| `UV_TOOL`            | _(empty)_            | Tool name; required by `tool:install` and `tool:upgrade` |
+| Variable                | Default                                                | Description                                                                                         |
+| ----------------------- | ------------------------------------------------------ | --------------------------------------------------------------------------------------------------- |
+| `UV_NIX_INSTALLABLE`    | `nixpkgs#uv`                                           | Flake installable passed to `nix:install:profile`                                                   |
+| `UV_WINGET_INSTALLABLE` | `astral-sh.uv`                                         | WinGet package ID for `winget:install:package`                                                      |
+| `UV_LOAD`               | reloads User Path; prepends `%USERPROFILE%\.local\bin` | PowerShell snippet so `uv` and uv-installed tools from earlier in the same Task process are on PATH |
+| `UV_VENV`               | `.venv`                                                | Virtual environment directory for `venv`                                                            |
+| `UV_REQUIREMENTS`       | `requirements.txt`                                     | Requirements file for `pip:install`                                                                 |
+| `UV_FILE`               | _(empty)_                                              | Script path; required by `run`                                                                      |
+| `UV_ARGS`               | _(empty)_                                              | Positional arguments forwarded to the script in `run`                                               |
+| `UV_EXTRA_ARGS`         | _(empty)_                                              | Extra flags forwarded to the underlying uv command                                                  |
+| `PYTHON_VERSION`        | _(empty)_                                              | Python version to install; required by `python:install`                                             |
+| `UV_TOOL`               | _(empty)_                                              | Tool name; required by `tool:install` and `tool:upgrade`                                            |
 
 ## Notes
 

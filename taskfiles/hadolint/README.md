@@ -42,21 +42,21 @@ task hadolint:ci HADOLINT_DOCKERFILE=services/api/Dockerfile
 
 ## Public Tasks
 
-| Task | Description                     | Key variables                                              |
-| ---- | ------------------------------- | ---------------------------------------------------------- |
-| `ci` | Lint a Dockerfile with hadolint | `HADOLINT_DOCKERFILE`, `HADOLINT_CONFIG`, `HADOLINT_EXTRA_ARGS` |
-| `install` | Install hadolint via Nix (Unix) or WinGet (Windows) | `HADOLINT_NIX_INSTALLABLE` |
-| `version` | Show the active hadolint version | — |
+| Task      | Description                                         | Key variables                                                   |
+| --------- | --------------------------------------------------- | --------------------------------------------------------------- |
+| `ci`      | Lint a Dockerfile with hadolint                     | `HADOLINT_DOCKERFILE`, `HADOLINT_CONFIG`, `HADOLINT_EXTRA_ARGS` |
+| `install` | Install hadolint via Nix (Unix) or WinGet (Windows) | `HADOLINT_NIX_INSTALLABLE`                                      |
+| `version` | Show the active hadolint version                    | —                                                               |
 
 ## Variables
 
-| Variable                     | Default      | Description                                            |
-| ---------------------------- | ------------ | ------------------------------------------------------ |
-| `HADOLINT_NIX_INSTALLABLE`   | `nixpkgs#hadolint` | Flake installable passed to `nix:install:profile` |
-| `HADOLINT_WINGET_INSTALLABLE` | `hadolint.hadolint` | WinGet package ID for `winget:install:package` |
-| `HADOLINT_DOCKERFILE`        | `Dockerfile` | Path to the Dockerfile to lint                         |
-| `HADOLINT_CONFIG`            | empty        | Path to a hadolint config file passed via `--config`   |
-| `HADOLINT_EXTRA_ARGS`        | empty        | Extra arguments appended when CLI_ARGS is not provided |
+| Variable                      | Default             | Description                                            |
+| ----------------------------- | ------------------- | ------------------------------------------------------ |
+| `HADOLINT_NIX_INSTALLABLE`    | `nixpkgs#hadolint`  | Flake installable passed to `nix:install:profile`      |
+| `HADOLINT_WINGET_INSTALLABLE` | `hadolint.hadolint` | WinGet package ID for `winget:install:package`         |
+| `HADOLINT_DOCKERFILE`         | `Dockerfile`        | Path to the Dockerfile to lint                         |
+| `HADOLINT_CONFIG`             | empty               | Path to a hadolint config file passed via `--config`   |
+| `HADOLINT_EXTRA_ARGS`         | empty               | Extra arguments appended when CLI_ARGS is not provided |
 
 Pin a revision by overriding the installable, for example
 `HADOLINT_NIX_INSTALLABLE=github:NixOS/nixpkgs/<rev>#hadolint`.

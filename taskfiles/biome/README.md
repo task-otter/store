@@ -31,21 +31,21 @@ Available leaves: `bun`, `node/{npm,pnpm,yarn}`.
 
 ## Public Tasks
 
-| Task           | Variables                                                    | Description                                                                |
-| -------------- | ------------------------------------------------------------ | -------------------------------------------------------------------------- |
-| `install`      | Optional `BIOME_VERSION`, `BIOME_EXTRA_ARGS`, `CLI_ARGS`           | Install `@biomejs/biome` as a local dev dependency. Pass `BIOME_VERSION=x.y.z` to pin a release. |
-| `install:undo` | Optional `BIOME_EXTRA_ARGS`                                  | Remove the locally installed `@biomejs/biome` devDependency.               |
-| `upgrade`      | Optional `BIOME_EXTRA_ARGS`                                  | Reinstall `@biomejs/biome` at the latest version.                          |
-| `config:init`  | Optional `BIOME_EXTRA_ARGS`, `CLI_ARGS`                      | Run `biome init`. Skipped if `biome.json` or `biome.jsonc` already exists. |
-| `lint`         | Optional `BIOME_TARGETS`, `BIOME_CONFIG`, `BIOME_EXTRA_ARGS`, `CLI_ARGS` | Run `biome check`.                                                         |
-| `lint:fix`     | Optional `BIOME_TARGETS`, `BIOME_CONFIG`, `BIOME_EXTRA_ARGS`, `CLI_ARGS` | Run `biome check --write`.                                                 |
-| `fmt:check`    | Optional `BIOME_TARGETS`, `BIOME_CONFIG`, `BIOME_EXTRA_ARGS`, `CLI_ARGS` | Run `biome format`.                                                        |
-| `fmt`          | Optional `BIOME_TARGETS`, `BIOME_CONFIG`, `BIOME_EXTRA_ARGS`, `CLI_ARGS` | Run `biome format --write`.                                                |
-| `ci`           | — | Run `fmt:check` then `lint` |
-| `ci:fix` | — | Run `fmt` then `lint:fix` for CI |
-| `cache:clean`  | —                                                            | Remove common Biome cache directories.                                     |
-| `version`      | — | Show the resolved Biome version.                                           |
-| `help`         | Optional `BIOME_EXTRA_ARGS`, `CLI_ARGS`                      | Show Biome CLI help.                                                       |
+| Task           | Variables                                                                | Description                                                                                      |
+| -------------- | ------------------------------------------------------------------------ | ------------------------------------------------------------------------------------------------ |
+| `install`      | Optional `BIOME_VERSION`, `BIOME_EXTRA_ARGS`, `CLI_ARGS`                 | Install `@biomejs/biome` as a local dev dependency. Pass `BIOME_VERSION=x.y.z` to pin a release. |
+| `install:undo` | Optional `BIOME_EXTRA_ARGS`                                              | Remove the locally installed `@biomejs/biome` devDependency.                                     |
+| `upgrade`      | Optional `BIOME_EXTRA_ARGS`                                              | Reinstall `@biomejs/biome` at the latest version.                                                |
+| `config:init`  | Optional `BIOME_EXTRA_ARGS`, `CLI_ARGS`                                  | Run `biome init`. Skipped if `biome.json` or `biome.jsonc` already exists.                       |
+| `lint`         | Optional `BIOME_TARGETS`, `BIOME_CONFIG`, `BIOME_EXTRA_ARGS`, `CLI_ARGS` | Run `biome check`.                                                                               |
+| `lint:fix`     | Optional `BIOME_TARGETS`, `BIOME_CONFIG`, `BIOME_EXTRA_ARGS`, `CLI_ARGS` | Run `biome check --write`.                                                                       |
+| `fmt:check`    | Optional `BIOME_TARGETS`, `BIOME_CONFIG`, `BIOME_EXTRA_ARGS`, `CLI_ARGS` | Run `biome format`.                                                                              |
+| `fmt`          | Optional `BIOME_TARGETS`, `BIOME_CONFIG`, `BIOME_EXTRA_ARGS`, `CLI_ARGS` | Run `biome format --write`.                                                                      |
+| `ci`           | —                                                                        | Run `fmt:check` then `lint`                                                                      |
+| `ci:fix`       | —                                                                        | Run `fmt` then `lint:fix` for CI                                                                 |
+| `cache:clean`  | —                                                                        | Remove common Biome cache directories.                                                           |
+| `version`      | —                                                                        | Show the resolved Biome version.                                                                 |
+| `help`         | Optional `BIOME_EXTRA_ARGS`, `CLI_ARGS`                                  | Show Biome CLI help.                                                                             |
 
 ## Variables
 

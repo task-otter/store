@@ -1,10 +1,10 @@
 ---
-version: '3.5'
+version: "3.5"
 
 output:
   group:
     begin: ::group::{{.TASK}}
-    end: '::endgroup::'
+    end: "::endgroup::"
     error_only: false
 
 silent: true
@@ -32,14 +32,14 @@ tasks:
       - task --list
   install:
     run: once
-    dir: '{{.USER_WORKING_DIR}}'
+    dir: "{{.USER_WORKING_DIR}}"
     desc: Install Stylelint and the standard config as local devDependencies
     summary: |
       Install stylelint and stylelint-config-standard as local devDependencies.
       Pass STYLELINT_VERSION=x.y.z to pin stylelint to a specific release.
     vars:
-      RESOLVED_VERSION: '{{.STYLELINT_VERSION}}'
-      RESOLVED_EXTRA_ARGS: '{{.STYLELINT_EXTRA_ARGS}}'
+      RESOLVED_VERSION: "{{.STYLELINT_VERSION}}"
+      RESOLVED_EXTRA_ARGS: "{{.STYLELINT_EXTRA_ARGS}}"
     status:
       - >-
         node -e "const installed = require('./node_modules/stylelint/package.json');
@@ -89,10 +89,10 @@ tasks:
             {{.STYLELINT_EXTRA_ARGS}}
   config:init:
     run: once
-    dir: '{{.USER_WORKING_DIR}}'
+    dir: "{{.USER_WORKING_DIR}}"
     desc: Create a starter Stylelint config when none exists
     vars:
-      RESOLVED_CONFIG: '{{.STYLELINT_CONFIG}}'
+      RESOLVED_CONFIG: "{{.STYLELINT_CONFIG}}"
     cmds:
       - |
         config_file="{{.RESOLVED_CONFIG}}"
@@ -112,12 +112,12 @@ tasks:
     internal: true
     run: when_changed
     vars:
-      RESOLVED_TARGETS: '{{or .STYLELINT_TARGETS .STYLELINT_DEFAULT_TARGETS}}'
-      RESOLVED_CONFIG: '{{.STYLELINT_CONFIG}}'
-      RESOLVED_CACHE: '{{or .STYLELINT_CACHE .STYLELINT_DEFAULT_CACHE}}'
+      RESOLVED_TARGETS: "{{or .STYLELINT_TARGETS .STYLELINT_DEFAULT_TARGETS}}"
+      RESOLVED_CONFIG: "{{.STYLELINT_CONFIG}}"
+      RESOLVED_CACHE: "{{or .STYLELINT_CACHE .STYLELINT_DEFAULT_CACHE}}"
       RESOLVED_EMPTY: >-
         {{or .STYLELINT_ALLOW_EMPTY_INPUT .STYLELINT_DEFAULT_ALLOW_EMPTY_INPUT}}
-      RESOLVED_EXTRA_ARGS: '{{.STYLELINT_EXTRA_ARGS}}'
+      RESOLVED_EXTRA_ARGS: "{{.STYLELINT_EXTRA_ARGS}}"
     cmds:
       - task: _bun:unix
         vars:
@@ -190,7 +190,7 @@ tasks:
     platforms:
       - linux
       - darwin
-    dir: '{{.USER_WORKING_DIR}}'
+    dir: "{{.USER_WORKING_DIR}}"
     set:
       - errexit
       - nounset
@@ -201,24 +201,24 @@ tasks:
     deps:
       - task: bun:install
     env:
-      CI: '1'
+      CI: "1"
     cmds:
       - task: bun:_run:unix
         vars:
-          ARGS: '{{.ARGS}}'
+          ARGS: "{{.ARGS}}"
   _bun:windows:
     run: when_changed
     internal: true
     platforms:
       - windows
-    dir: '{{.USER_WORKING_DIR}}'
+    dir: "{{.USER_WORKING_DIR}}"
     requires:
       vars:
         - ARGS
     deps:
       - task: bun:install
     env:
-      CI: '1'
+      CI: "1"
     cmds:
       - >-
         powershell -NoProfile -NonInteractive -ExecutionPolicy Bypass -Command

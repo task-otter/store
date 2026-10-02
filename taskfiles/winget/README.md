@@ -73,25 +73,25 @@ upgrade it (`--no-upgrade`). Use `upgrade` to move to a newer release.
 
 ## Public Tasks
 
-| Task              | Description                                              | Key variables                          |
-| ----------------- | -------------------------------------------------------- | -------------------------------------- |
-| `install`         | Install WinGet on Windows if missing                     | none                                   |
-| `install:package` | Persistent `winget install --id` for a package          | `WINGET_INSTALLABLE`, `WINGET_VERSION`, `WINGET_SCOPE`, `WINGET_SOURCE`, `WINGET_EXTRA_ARGS` |
-| `uninstall`       | `winget uninstall --id`                                 | `WINGET_INSTALLABLE`, `WINGET_VERSION`, `WINGET_SCOPE`, `WINGET_SOURCE`, `WINGET_EXTRA_ARGS` |
-| `install:undo`    | Same as `uninstall`                                     | `WINGET_INSTALLABLE`                    |
-| `upgrade`         | `winget upgrade --id`                                   | `WINGET_INSTALLABLE`, `WINGET_VERSION`, `WINGET_SCOPE`, `WINGET_SOURCE`, `WINGET_EXTRA_ARGS` |
-| `version`         | Show the installed WinGet version                        | none                                   |
+| Task              | Description                                    | Key variables                                                                                |
+| ----------------- | ---------------------------------------------- | -------------------------------------------------------------------------------------------- |
+| `install`         | Install WinGet on Windows if missing           | none                                                                                         |
+| `install:package` | Persistent `winget install --id` for a package | `WINGET_INSTALLABLE`, `WINGET_VERSION`, `WINGET_SCOPE`, `WINGET_SOURCE`, `WINGET_EXTRA_ARGS` |
+| `uninstall`       | `winget uninstall --id`                        | `WINGET_INSTALLABLE`, `WINGET_VERSION`, `WINGET_SCOPE`, `WINGET_SOURCE`, `WINGET_EXTRA_ARGS` |
+| `install:undo`    | Same as `uninstall`                            | `WINGET_INSTALLABLE`                                                                         |
+| `upgrade`         | `winget upgrade --id`                          | `WINGET_INSTALLABLE`, `WINGET_VERSION`, `WINGET_SCOPE`, `WINGET_SOURCE`, `WINGET_EXTRA_ARGS` |
+| `version`         | Show the installed WinGet version              | none                                                                                         |
 
 ## Variables
 
-| Variable            | Default     | Description |
-| ------------------- | ----------- | ----------- |
-| `WINGET_INSTALLABLE` | _(empty)_   | WinGet package ID for `install:package`, `uninstall`, and `upgrade` (e.g. `Git.Git`) |
-| `WINGET_VERSION`    | _(empty)_   | Pin a package version (`winget --version`); empty installs latest |
-| `WINGET_SCOPE`      | _(empty)_   | Optional `user` or `machine` scope |
-| `WINGET_SOURCE`     | `winget`    | WinGet source; default avoids Microsoft Store agreement prompts |
-| `WINGET_EXTRA_ARGS` | _(empty)_   | Extra flags forwarded to `winget install` / `uninstall` / `upgrade` |
-| `WINGET_LOAD`       | reloads Machine/User Path; prepends WinGet Links; appends WindowsApps | PowerShell snippet so `winget` and packages installed earlier in the same Task process are on PATH. WindowsApps is last so Store aliases do not shadow real installs. |
+| Variable             | Default                                                               | Description                                                                                                                                                           |
+| -------------------- | --------------------------------------------------------------------- | --------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| `WINGET_INSTALLABLE` | _(empty)_                                                             | WinGet package ID for `install:package`, `uninstall`, and `upgrade` (e.g. `Git.Git`)                                                                                  |
+| `WINGET_VERSION`     | _(empty)_                                                             | Pin a package version (`winget --version`); empty installs latest                                                                                                     |
+| `WINGET_SCOPE`       | _(empty)_                                                             | Optional `user` or `machine` scope                                                                                                                                    |
+| `WINGET_SOURCE`      | `winget`                                                              | WinGet source; default avoids Microsoft Store agreement prompts                                                                                                       |
+| `WINGET_EXTRA_ARGS`  | _(empty)_                                                             | Extra flags forwarded to `winget install` / `uninstall` / `upgrade`                                                                                                   |
+| `WINGET_LOAD`        | reloads Machine/User Path; prepends WinGet Links; appends WindowsApps | PowerShell snippet so `winget` and packages installed earlier in the same Task process are on PATH. WindowsApps is last so Store aliases do not shadow real installs. |
 
 ## Notes
 

@@ -1,10 +1,10 @@
 ---
-version: '3.5'
+version: "3.5"
 
 output:
   group:
     begin: ::group::{{.TASK}}
-    end: '::endgroup::'
+    end: "::endgroup::"
     error_only: false
 
 silent: true
@@ -32,12 +32,12 @@ vars:
   VAULT_WINGET_INSTALLABLE: '{{.VAULT_WINGET_INSTALLABLE | default "Hashicorp.Vault"}}'
 
 env:
-  VAULT_ADDR: '{{.VAULT_ADDR_TARGET}}'
-  NIXPKGS_ALLOW_UNFREE: '1'
-  VAULT_SSH_ROLE: '{{.VAULT_SSH_ROLE}}'
-  VAULT_SSH_PRIVATE_KEY_PATH: '{{.VAULT_SSH_PRIVATE_KEY_PATH}}'
-  VAULT_SSH_PUBLIC_KEY_PATH: '{{.VAULT_SSH_PUBLIC_KEY_PATH}}'
-  VAULT_SSH_MOUNT: '{{.VAULT_SSH_MOUNT}}'
+  VAULT_ADDR: "{{.VAULT_ADDR_TARGET}}"
+  NIXPKGS_ALLOW_UNFREE: "1"
+  VAULT_SSH_ROLE: "{{.VAULT_SSH_ROLE}}"
+  VAULT_SSH_PRIVATE_KEY_PATH: "{{.VAULT_SSH_PRIVATE_KEY_PATH}}"
+  VAULT_SSH_PUBLIC_KEY_PATH: "{{.VAULT_SSH_PUBLIC_KEY_PATH}}"
+  VAULT_SSH_MOUNT: "{{.VAULT_SSH_MOUNT}}"
 
 tasks:
   ssh:keys:
@@ -140,11 +140,11 @@ tasks:
       - linux
       - darwin
     env:
-      NIXPKGS_ALLOW_UNFREE: '1'
+      NIXPKGS_ALLOW_UNFREE: "1"
     cmds:
       - task: nix:install:profile
         vars:
-          NIX_INSTALLABLE: '{{.VAULT_NIX_INSTALLABLE}}'
+          NIX_INSTALLABLE: "{{.VAULT_NIX_INSTALLABLE}}"
           NIX_EXTRA_ARGS: --impure
   _install:windows:
     internal: true
@@ -153,7 +153,7 @@ tasks:
     cmds:
       - task: winget:install:package
         vars:
-          WINGET_INSTALLABLE: '{{.VAULT_WINGET_INSTALLABLE}}'
+          WINGET_INSTALLABLE: "{{.VAULT_WINGET_INSTALLABLE}}"
   version:
     run: once
     desc: Show the active Vault CLI version
@@ -237,7 +237,7 @@ tasks:
       - nounset
       - pipefail
     env:
-      VAULT_LOGIN_ROLE_ID: '{{.VAULT_ROLE_ID}}'
+      VAULT_LOGIN_ROLE_ID: "{{.VAULT_ROLE_ID}}"
       VAULT_LOGIN_SECRET_ID: >-
         {{.VAULT_SECRET_ID}}
       VAULT_LOGIN_APPROLE_MOUNT: >-
@@ -280,14 +280,14 @@ tasks:
       - nounset
       - pipefail
     vars:
-      KV_MOUNT: ''
-      SECRET_PATH: ''
-      SECRET_VERSION: ''
+      KV_MOUNT: ""
+      SECRET_PATH: ""
+      SECRET_VERSION: ""
     env:
-      KV_GET_MOUNT: '{{.KV_MOUNT}}'
-      KV_GET_PATH: '{{.SECRET_PATH}}'
-      KV_GET_VERSION: '{{.SECRET_VERSION}}'
-      VAULT_ADDR: '{{.VAULT_ADDR_TARGET}}'
+      KV_GET_MOUNT: "{{.KV_MOUNT}}"
+      KV_GET_PATH: "{{.SECRET_PATH}}"
+      KV_GET_VERSION: "{{.SECRET_VERSION}}"
+      VAULT_ADDR: "{{.VAULT_ADDR_TARGET}}"
     preconditions:
       - sh: test -n "$KV_GET_MOUNT"
         msg: KV_MOUNT must be set. Pass KV_MOUNT=<mount> on the command line.

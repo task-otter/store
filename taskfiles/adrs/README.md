@@ -40,23 +40,23 @@ Pass arguments and flags with `ADRS_EXTRA_ARGS=...` or after `--`.
 
 ## Public Tasks
 
-| Task | Description |
-|---|---|
-| `init` | Initialize an ADR repository |
-| `new` | Create a new ADR |
-| `list` | List all ADRs |
-| `generate` | Generate ADR docs (`toc`, `graph`, or `book`) |
-| `exec` | Run any adrs subcommand |
-| `install` | Install adrs via Nix (Unix) or cargo install (Windows) |
-| `version` | Show the active adrs version |
+| Task       | Description                                            |
+| ---------- | ------------------------------------------------------ |
+| `init`     | Initialize an ADR repository                           |
+| `new`      | Create a new ADR                                       |
+| `list`     | List all ADRs                                          |
+| `generate` | Generate ADR docs (`toc`, `graph`, or `book`)          |
+| `exec`     | Run any adrs subcommand                                |
+| `install`  | Install adrs via Nix (Unix) or cargo install (Windows) |
+| `version`  | Show the active adrs version                           |
 
 ## Variables
 
-| Variable | Default | Description |
-|---|---|---|
-| `ADRS_NIX_INSTALLABLE` | `nixpkgs#adrs` | Flake installable passed to `nix:install:profile` |
-| `ADRS_CARGO_CRATE` | `adrs` | Crate name for Windows `cargo:install:crate` |
-| `ADRS_EXTRA_ARGS` | `""` | Arguments and flags appended to the adrs subcommand |
+| Variable               | Default        | Description                                         |
+| ---------------------- | -------------- | --------------------------------------------------- |
+| `ADRS_NIX_INSTALLABLE` | `nixpkgs#adrs` | Flake installable passed to `nix:install:profile`   |
+| `ADRS_CARGO_CRATE`     | `adrs`         | Crate name for Windows `cargo:install:crate`        |
+| `ADRS_EXTRA_ARGS`      | `""`           | Arguments and flags appended to the adrs subcommand |
 
 Pin a revision by overriding the installable, for example
 `ADRS_NIX_INSTALLABLE=github:NixOS/nixpkgs/<rev>#adrs`.
@@ -65,4 +65,3 @@ Pin a revision by overriding the installable, for example
 
 - Unix install uses Nix (`ADRS_NIX_INSTALLABLE`). Windows installs via
   `cargo:install:crate` (`ADRS_CARGO_CRATE`).
-

@@ -38,20 +38,20 @@ task shellcheck:ci
 
 ## Public Tasks
 
-| Task | Description |
-|---|---|
-| `ci` | Lint shell scripts with ShellCheck (SHELLCHECK_TARGETS=glob) |
-| `install` | Install ShellCheck via Nix (Unix) or WinGet (Windows) |
-| `version` | Show the active ShellCheck version |
+| Task      | Description                                                  |
+| --------- | ------------------------------------------------------------ |
+| `ci`      | Lint shell scripts with ShellCheck (SHELLCHECK_TARGETS=glob) |
+| `install` | Install ShellCheck via Nix (Unix) or WinGet (Windows)        |
+| `version` | Show the active ShellCheck version                           |
 
 ## Variables
 
-| Variable | Default | Description |
-|---|---|---|
-| `SHELLCHECK_NIX_INSTALLABLE` | `nixpkgs#shellcheck` | Flake installable passed to `nix:install:profile` |
-| `SHELLCHECK_WINGET_INSTALLABLE` | `koalaman.shellcheck` | WinGet package ID for `winget:install:package` |
-| `SHELLCHECK_EXTRA_ARGS` | `""` | Additional flags passed to `shellcheck` (e.g. `--shell`, `--severity`) |
-| `SHELLCHECK_TARGETS` | `""` | Paths or globs of scripts to check; empty = discover all `*.sh` recursively |
+| Variable                        | Default               | Description                                                                 |
+| ------------------------------- | --------------------- | --------------------------------------------------------------------------- |
+| `SHELLCHECK_NIX_INSTALLABLE`    | `nixpkgs#shellcheck`  | Flake installable passed to `nix:install:profile`                           |
+| `SHELLCHECK_WINGET_INSTALLABLE` | `koalaman.shellcheck` | WinGet package ID for `winget:install:package`                              |
+| `SHELLCHECK_EXTRA_ARGS`         | `""`                  | Additional flags passed to `shellcheck` (e.g. `--shell`, `--severity`)      |
+| `SHELLCHECK_TARGETS`            | `""`                  | Paths or globs of scripts to check; empty = discover all `*.sh` recursively |
 
 Pin a revision by overriding the installable, for example
 `SHELLCHECK_NIX_INSTALLABLE=github:NixOS/nixpkgs/<rev>#shellcheck`.

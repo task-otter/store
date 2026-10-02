@@ -51,32 +51,32 @@ Each invocation signs the public key and writes `vault_key-cert.pub` beside it.
 Failed signing preserves any existing certificate. Input preconditions run
 before dependencies install Vault and prepare the key pair.
 
-| Task           | Description                                  | Key variables                    |
-| -------------- | -------------------------------------------- | -------------------------------- |
-| `install`      | Install the Vault CLI via Nix (Unix) or WinGet (Windows)    | `VAULT_NIX_INSTALLABLE`          |
-| `version`      | Show the active Vault CLI version            | —                                |
-| `ssh:keys` | Generate and sign SSH keys | `VAULT_SSH_ROLE`, `VAULT_SSH_PRIVATE_KEY_PATH`, `VAULT_SSH_PUBLIC_KEY_PATH`, `VAULT_SSH_MOUNT` |
-| `healthy`       | Query the Vault HTTP health endpoint as JSON | `VAULT_ADDR`                     |
-| `login:root-token` | Log in using a token directly                | `VAULT_ROOT_TOKEN`                     |
-| `login:approle`    | Log in using the AppRole auth method         | `VAULT_ROLE_ID`, `VAULT_SECRET_ID`, `VAULT_APPROLE_MOUNT` |
-| `token:revoke`   | Revoke the current Vault token              | `VAULT_TOKEN` (env)              |
-| `kv:get`              | Read a KV v2 secret and print JSON to stdout | `KV_MOUNT`, `SECRET_PATH`, `SECRET_VERSION` |
+| Task               | Description                                              | Key variables                                                                                  |
+| ------------------ | -------------------------------------------------------- | ---------------------------------------------------------------------------------------------- |
+| `install`          | Install the Vault CLI via Nix (Unix) or WinGet (Windows) | `VAULT_NIX_INSTALLABLE`                                                                        |
+| `version`          | Show the active Vault CLI version                        | —                                                                                              |
+| `ssh:keys`         | Generate and sign SSH keys                               | `VAULT_SSH_ROLE`, `VAULT_SSH_PRIVATE_KEY_PATH`, `VAULT_SSH_PUBLIC_KEY_PATH`, `VAULT_SSH_MOUNT` |
+| `healthy`          | Query the Vault HTTP health endpoint as JSON             | `VAULT_ADDR`                                                                                   |
+| `login:root-token` | Log in using a token directly                            | `VAULT_ROOT_TOKEN`                                                                             |
+| `login:approle`    | Log in using the AppRole auth method                     | `VAULT_ROLE_ID`, `VAULT_SECRET_ID`, `VAULT_APPROLE_MOUNT`                                      |
+| `token:revoke`     | Revoke the current Vault token                           | `VAULT_TOKEN` (env)                                                                            |
+| `kv:get`           | Read a KV v2 secret and print JSON to stdout             | `KV_MOUNT`, `SECRET_PATH`, `SECRET_VERSION`                                                    |
 
 ## Variables
 
-| Variable        | Default                 | Description                                      |
-| --------------- | ----------------------- | ------------------------------------------------ |
-| `VAULT_ADDR`    | `http://127.0.0.1:8200` | Vault server address used by CLI and HTTP tasks  |
-| `VAULT_EXTRA_ARGS`    | _(empty)_               | Reserved for root include compatibility          |
-| `VAULT_ROOT_TOKEN`    | _(empty)_               | Token for `login:root-token`                     |
-| `VAULT_ROLE_ID`       | _(empty)_               | AppRole role_id for `login:approle` |
-| `VAULT_SECRET_ID`     | _(empty)_               | AppRole secret_id for `login:approle` |
-| `VAULT_APPROLE_MOUNT` | `approle`               | AppRole mount path for `login:approle` |
-| `KV_MOUNT`      | _(empty)_               | KV v2 engine mount path for `kv:get`             |
-| `SECRET_PATH`   | _(empty)_               | Secret path within the KV mount for `kv:get`     |
-| `SECRET_VERSION`| _(empty)_               | Optional KV version to pin for `kv:get`          |
-| `VAULT_NIX_INSTALLABLE` | `nixpkgs#vault-bin` | Flake installable passed to `nix:install:profile` |
-| `VAULT_WINGET_INSTALLABLE` | `Hashicorp.Vault` | WinGet package ID for `winget:install:package` |
+| Variable                   | Default                 | Description                                       |
+| -------------------------- | ----------------------- | ------------------------------------------------- |
+| `VAULT_ADDR`               | `http://127.0.0.1:8200` | Vault server address used by CLI and HTTP tasks   |
+| `VAULT_EXTRA_ARGS`         | _(empty)_               | Reserved for root include compatibility           |
+| `VAULT_ROOT_TOKEN`         | _(empty)_               | Token for `login:root-token`                      |
+| `VAULT_ROLE_ID`            | _(empty)_               | AppRole role_id for `login:approle`               |
+| `VAULT_SECRET_ID`          | _(empty)_               | AppRole secret_id for `login:approle`             |
+| `VAULT_APPROLE_MOUNT`      | `approle`               | AppRole mount path for `login:approle`            |
+| `KV_MOUNT`                 | _(empty)_               | KV v2 engine mount path for `kv:get`              |
+| `SECRET_PATH`              | _(empty)_               | Secret path within the KV mount for `kv:get`      |
+| `SECRET_VERSION`           | _(empty)_               | Optional KV version to pin for `kv:get`           |
+| `VAULT_NIX_INSTALLABLE`    | `nixpkgs#vault-bin`     | Flake installable passed to `nix:install:profile` |
+| `VAULT_WINGET_INSTALLABLE` | `Hashicorp.Vault`       | WinGet package ID for `winget:install:package`    |
 
 ## Notes
 

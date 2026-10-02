@@ -1,10 +1,10 @@
 ---
-version: '3.5'
+version: "3.5"
 
 output:
   group:
     begin: ::group::{{.TASK}}
-    end: '::endgroup::'
+    end: "::endgroup::"
     error_only: false
 
 silent: true
@@ -51,7 +51,7 @@ tasks:
     cmds:
       - task: nix:install:profile
         vars:
-          NIX_INSTALLABLE: '{{.BRUNO_CLI_NIX_INSTALLABLE}}'
+          NIX_INSTALLABLE: "{{.BRUNO_CLI_NIX_INSTALLABLE}}"
   _install:windows:
     internal: true
     platforms:
@@ -59,7 +59,7 @@ tasks:
     cmds:
       - task: npm:install:global
         vars:
-          PACKAGES: '{{.BRUNO_CLI_NPM_PACKAGE}}'
+          PACKAGES: "{{.BRUNO_CLI_NPM_PACKAGE}}"
   version:
     run: once
     desc: Show the active the Bruno CLI version
@@ -74,10 +74,10 @@ tasks:
   _run:
     internal: true
     run: when_changed
-    dir: '{{.USER_WORKING_DIR}}'
+    dir: "{{.USER_WORKING_DIR}}"
     vars:
-      RESOLVED_COLLECTION: '{{.BRUNO_CLI_COLLECTION}}'
-      RESOLVED_ENV: '{{.BRUNO_CLI_ENV}}'
+      RESOLVED_COLLECTION: "{{.BRUNO_CLI_COLLECTION}}"
+      RESOLVED_ENV: "{{.BRUNO_CLI_ENV}}"
     deps:
       - task: install
     cmds:
@@ -108,7 +108,7 @@ tasks:
     cmds:
       - task: _run
         vars:
-          MODE_ARGS: ''
+          MODE_ARGS: ""
   ci:
     run: once
     desc: Run Bruno collection in CI mode with --bail (BRUNO_CLI_COLLECTION=path)

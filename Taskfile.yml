@@ -1,10 +1,10 @@
 ---
-version: '3.5'
+version: "3.5"
 
 output:
   group:
     begin: ::group::{{.TASK}}
-    end: '::endgroup::'
+    end: "::endgroup::"
     error_only: false
 
 silent: true
@@ -73,9 +73,11 @@ tasks:
       - task: golangci-lint:ci
       - task: yamllint:ci
       - task: zizmor:ci
+      - task: prettier:bun:ci
   ci:fix:
     run: once
     desc: Run CI Fixing
     cmds:
       - task: golangci-lint:ci:fix
       - task: yamlfix:ci:fix
+      - task: prettier:bun:ci:fix

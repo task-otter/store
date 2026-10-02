@@ -1,10 +1,10 @@
 ---
-version: '3.5'
+version: "3.5"
 
 output:
   group:
     begin: ::group::{{.TASK}}
-    end: '::endgroup::'
+    end: "::endgroup::"
     error_only: false
 
 silent: true
@@ -53,7 +53,7 @@ tasks:
     cmds:
       - task: nix:install:profile
         vars:
-          NIX_INSTALLABLE: '{{.GO_JUNIT_REPORT_NIX_INSTALLABLE}}'
+          NIX_INSTALLABLE: "{{.GO_JUNIT_REPORT_NIX_INSTALLABLE}}"
   _install:windows:
     internal: true
     platforms:
@@ -65,7 +65,7 @@ tasks:
     cmds:
       - task: go:install:pkg
         vars:
-          GO_PKG: '{{.GO_JUNIT_REPORT_GO_PKG}}'
+          GO_PKG: "{{.GO_JUNIT_REPORT_GO_PKG}}"
   version:
     run: once
     desc: Show the active go-junit-report version
@@ -101,7 +101,7 @@ tasks:
       - task: _verify:windows
   report:
     run: once
-    dir: '{{.USER_WORKING_DIR}}'
+    dir: "{{.USER_WORKING_DIR}}"
     desc: Convert a go test log file to JUnit XML
     summary: |
       Convert an existing go test log file to JUnit XML via go-junit-report.
@@ -109,8 +109,8 @@ tasks:
       (output XML path). Does not run go test or write coverage profiles.
       Validates paths before auto-installing go-junit-report if missing.
     env:
-      GO_JUNIT_REPORT_INPUT: '{{.GO_JUNIT_REPORT_IN}}'
-      GO_JUNIT_REPORT_OUTPUT: '{{.GO_JUNIT_REPORT_OUT}}'
+      GO_JUNIT_REPORT_INPUT: "{{.GO_JUNIT_REPORT_IN}}"
+      GO_JUNIT_REPORT_OUTPUT: "{{.GO_JUNIT_REPORT_OUT}}"
     requires:
       vars:
         - GO_JUNIT_REPORT_IN

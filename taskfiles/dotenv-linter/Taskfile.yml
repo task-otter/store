@@ -1,10 +1,10 @@
 ---
-version: '3.5'
+version: "3.5"
 
 output:
   group:
     begin: ::group::{{.TASK}}
-    end: '::endgroup::'
+    end: "::endgroup::"
     error_only: false
 
 silent: true
@@ -49,7 +49,7 @@ tasks:
     cmds:
       - task: nix:install:profile
         vars:
-          NIX_INSTALLABLE: '{{.DOTENV_LINTER_NIX_INSTALLABLE}}'
+          NIX_INSTALLABLE: "{{.DOTENV_LINTER_NIX_INSTALLABLE}}"
   _install:windows:
     internal: true
     platforms:
@@ -57,7 +57,7 @@ tasks:
     cmds:
       - task: cargo:install:crate
         vars:
-          CARGO_CRATE: '{{.DOTENV_LINTER_CARGO_CRATE}}'
+          CARGO_CRATE: "{{.DOTENV_LINTER_CARGO_CRATE}}"
   version:
     run: once
     desc: Show the active dotenv-linter version
@@ -77,7 +77,7 @@ tasks:
       for additional flags such as --skip or --recursive, or pass arguments
       after -- to forward them directly. Auto-installs dotenv-linter if
       missing.
-    dir: '{{.USER_WORKING_DIR}}'
+    dir: "{{.USER_WORKING_DIR}}"
     deps:
       - task: install
     cmds:
@@ -90,7 +90,7 @@ tasks:
       Run dotenv-linter fix against DOTENV_LINTER_TARGETS (default .env) to apply automatic
       fixes. A backup of each changed file is created by the tool. Pass
       DOTENV_LINTER_EXTRA_ARGS for additional flags. Auto-installs dotenv-linter if missing.
-    dir: '{{.USER_WORKING_DIR}}'
+    dir: "{{.USER_WORKING_DIR}}"
     deps:
       - task: install
     cmds:
@@ -103,7 +103,7 @@ tasks:
       Run dotenv-linter diff against DOTENV_LINTER_TARGETS (two or more .env files) to
       ensure their key sets match. Pass DOTENV_LINTER_EXTRA_ARGS for additional flags.
       Auto-installs dotenv-linter if missing.
-    dir: '{{.USER_WORKING_DIR}}'
+    dir: "{{.USER_WORKING_DIR}}"
     deps:
       - task: install
     cmds:
@@ -115,7 +115,7 @@ tasks:
     platforms:
       - linux
       - darwin
-    dir: '{{.USER_WORKING_DIR}}'
+    dir: "{{.USER_WORKING_DIR}}"
     cmds:
       - task: _lint:run:unix
         vars:
@@ -125,7 +125,7 @@ tasks:
     internal: true
     platforms:
       - windows
-    dir: '{{.USER_WORKING_DIR}}'
+    dir: "{{.USER_WORKING_DIR}}"
     cmds:
       - task: _lint:run:windows
         vars:
@@ -136,7 +136,7 @@ tasks:
     platforms:
       - linux
       - darwin
-    dir: '{{.USER_WORKING_DIR}}'
+    dir: "{{.USER_WORKING_DIR}}"
     cmds:
       - task: _lint:run:unix
         vars:
@@ -146,7 +146,7 @@ tasks:
     internal: true
     platforms:
       - windows
-    dir: '{{.USER_WORKING_DIR}}'
+    dir: "{{.USER_WORKING_DIR}}"
     cmds:
       - task: _lint:run:windows
         vars:
@@ -157,7 +157,7 @@ tasks:
     platforms:
       - linux
       - darwin
-    dir: '{{.USER_WORKING_DIR}}'
+    dir: "{{.USER_WORKING_DIR}}"
     cmds:
       - |
         bash -lc '{{.NIX_LOAD}};
@@ -169,7 +169,7 @@ tasks:
     internal: true
     platforms:
       - windows
-    dir: '{{.USER_WORKING_DIR}}'
+    dir: "{{.USER_WORKING_DIR}}"
     cmds:
       - >-
         powershell -NoProfile -ExecutionPolicy Bypass -Command
@@ -184,7 +184,7 @@ tasks:
     platforms:
       - linux
       - darwin
-    dir: '{{.USER_WORKING_DIR}}'
+    dir: "{{.USER_WORKING_DIR}}"
     cmds:
       - |
         bash -lc '{{.NIX_LOAD}};
@@ -206,7 +206,7 @@ tasks:
     internal: true
     platforms:
       - windows
-    dir: '{{.USER_WORKING_DIR}}'
+    dir: "{{.USER_WORKING_DIR}}"
     cmds:
       - >-
         powershell -NoProfile -ExecutionPolicy Bypass -Command

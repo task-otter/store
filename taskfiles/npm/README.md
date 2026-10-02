@@ -24,35 +24,35 @@ Override the Node.js version by setting `NODEJS_NIX_INSTALLABLE` on the nodejs m
 
 ## Public Tasks
 
-| Task              | Variables                                  | Description                                                               |
-| ----------------- | ------------------------------------------ | ------------------------------------------------------------------------- |
-| `add`             | Required `PACKAGES`; optional `EXTRA_ARGS` | Add packages as devDependencies with `npm install -D`.                    |
-| `version`         | —                                          | Show the active Node.js and npm versions.                                 |
-| `install`         | —                                          | Run `npm install` to install all dependencies from `package.json`.        |
-| `install:clean`   | —                                          | Run `npm ci` for a clean lockfile-driven install.                         |
-| `install:global`  | Required `PACKAGES`                        | Install packages globally with `npm install -g`.                          |
-| `install:undo`    | —                                          | Explain how to remove npm (bundled with Node.js).                         |
-| `upgrade`         | —                                          | Upgrade npm to the latest release globally.                               |
-| `ci:fix`          | —                                          | Run `npm run format`.                                                     |
-| `clean`           | —                                          | Remove `node_modules`.                                                    |
-| `clean:all`       | —                                          | Remove `node_modules` and `package-lock.json`.                            |
-| `dev`             | —                                          | Run `npm run dev`.                                                        |
-| `build`           | —                                          | Run `npm run build`.                                                      |
-| `test`            | —                                          | Run `npm test`.                                                           |
-| `lint`            | —                                          | Run `npm run lint`.                                                       |
-| `typecheck`       | —                                          | Run `npm run typecheck`.                                                  |
-| `run`             | Required `SCRIPT`; optional CLI args       | Run a `package.json` script.                                              |
-| `exec`            | Required `BINARY`                          | Execute a local binary via `npm exec`.                                    |
-| `remove`          | Required `PACKAGES`                        | Uninstall packages.                                                       |
-| `outdated`        | —                                          | List outdated packages (non-strict).                                      |
-| `outdated:strict` | —                                          | List outdated packages and fail if any exist.                             |
-| `audit`           | —                                          | Run `npm audit` (strict).                                                 |
-| `audit:report`    | —                                          | Run `npm audit` without failing.                                        |
-| `audit:fix`       | —                                          | Run `npm audit fix`.                                                      |
-| `audit:json`      | —                                          | Output audit results as JSON.                                             |
-| `update`          | —                                          | Update packages within declared ranges.                                   |
-| `doctor`          | —                                          | Run `npm doctor`.                                                         |
-| `cache:clean`     | —                                          | Clear the npm cache.                                                      |
+| Task              | Variables                                  | Description                                                        |
+| ----------------- | ------------------------------------------ | ------------------------------------------------------------------ |
+| `add`             | Required `PACKAGES`; optional `EXTRA_ARGS` | Add packages as devDependencies with `npm install -D`.             |
+| `version`         | —                                          | Show the active Node.js and npm versions.                          |
+| `install`         | —                                          | Run `npm install` to install all dependencies from `package.json`. |
+| `install:clean`   | —                                          | Run `npm ci` for a clean lockfile-driven install.                  |
+| `install:global`  | Required `PACKAGES`                        | Install packages globally with `npm install -g`.                   |
+| `install:undo`    | —                                          | Explain how to remove npm (bundled with Node.js).                  |
+| `upgrade`         | —                                          | Upgrade npm to the latest release globally.                        |
+| `ci:fix`          | —                                          | Run `npm run format`.                                              |
+| `clean`           | —                                          | Remove `node_modules`.                                             |
+| `clean:all`       | —                                          | Remove `node_modules` and `package-lock.json`.                     |
+| `dev`             | —                                          | Run `npm run dev`.                                                 |
+| `build`           | —                                          | Run `npm run build`.                                               |
+| `test`            | —                                          | Run `npm test`.                                                    |
+| `lint`            | —                                          | Run `npm run lint`.                                                |
+| `typecheck`       | —                                          | Run `npm run typecheck`.                                           |
+| `run`             | Required `SCRIPT`; optional CLI args       | Run a `package.json` script.                                       |
+| `exec`            | Required `BINARY`                          | Execute a local binary via `npm exec`.                             |
+| `remove`          | Required `PACKAGES`                        | Uninstall packages.                                                |
+| `outdated`        | —                                          | List outdated packages (non-strict).                               |
+| `outdated:strict` | —                                          | List outdated packages and fail if any exist.                      |
+| `audit`           | —                                          | Run `npm audit` (strict).                                          |
+| `audit:report`    | —                                          | Run `npm audit` without failing.                                   |
+| `audit:fix`       | —                                          | Run `npm audit fix`.                                               |
+| `audit:json`      | —                                          | Output audit results as JSON.                                      |
+| `update`          | —                                          | Update packages within declared ranges.                            |
+| `doctor`          | —                                          | Run `npm doctor`.                                                  |
+| `cache:clean`     | —                                          | Clear the npm cache.                                               |
 
 ## Runtime
 

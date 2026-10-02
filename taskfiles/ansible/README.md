@@ -57,16 +57,16 @@ task ansible:run ANSIBLE_PLAYBOOK=site.yml ANSIBLE_INVENTORY=hosts
 
 ## Variables
 
-| Variable       | Default | Description |
-| -------------- | ------- | ----------- |
-| `ANSIBLE_NIX_INSTALLABLE` | `nixpkgs#ansible` | Flake installable passed to `nix:install:profile` |
-| `ANSIBLE_CONFIG` | `ansible/ansible.cfg` | Value exported as `ANSIBLE_CONFIG` for ansible commands |
-| `ANSIBLE_PLAYBOOK`     | _(empty)_                              | Playbook path; required by `run` and `syntax:check`              |
-| `ANSIBLE_INVENTORY`    | _(empty)_                              | Inventory file or directory; required by `ping` and `list:hosts` |
-| `ANSIBLE_PATTERN`      | `all`                                  | Host pattern for `ping` and `list:hosts`                         |
-| `ANSIBLE_FILE`         | _(empty)_                              | File path; required by `vault:encrypt` and `vault:decrypt`       |
-| `ANSIBLE_REQUIREMENTS` | `requirements.yml`                     | Requirements file for `galaxy:install`                           |
-| `ANSIBLE_EXTRA_ARGS`   | _(empty)_                              | Extra flags forwarded to the underlying Ansible command          |
+| Variable                  | Default               | Description                                                      |
+| ------------------------- | --------------------- | ---------------------------------------------------------------- |
+| `ANSIBLE_NIX_INSTALLABLE` | `nixpkgs#ansible`     | Flake installable passed to `nix:install:profile`                |
+| `ANSIBLE_CONFIG`          | `ansible/ansible.cfg` | Value exported as `ANSIBLE_CONFIG` for ansible commands          |
+| `ANSIBLE_PLAYBOOK`        | _(empty)_             | Playbook path; required by `run` and `syntax:check`              |
+| `ANSIBLE_INVENTORY`       | _(empty)_             | Inventory file or directory; required by `ping` and `list:hosts` |
+| `ANSIBLE_PATTERN`         | `all`                 | Host pattern for `ping` and `list:hosts`                         |
+| `ANSIBLE_FILE`            | _(empty)_             | File path; required by `vault:encrypt` and `vault:decrypt`       |
+| `ANSIBLE_REQUIREMENTS`    | `requirements.yml`    | Requirements file for `galaxy:install`                           |
+| `ANSIBLE_EXTRA_ARGS`      | _(empty)_             | Extra flags forwarded to the underlying Ansible command          |
 
 Pin a revision by overriding the installable, for example
 `ANSIBLE_NIX_INSTALLABLE=github:NixOS/nixpkgs/<rev>#ansible`.

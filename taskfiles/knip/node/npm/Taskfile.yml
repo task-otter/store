@@ -1,10 +1,10 @@
 ---
-version: '3.5'
+version: "3.5"
 
 output:
   group:
     begin: ::group::{{.TASK}}
-    end: '::endgroup::'
+    end: "::endgroup::"
     error_only: false
 
 silent: true
@@ -26,7 +26,7 @@ tasks:
       - task --list
   install:
     run: once
-    dir: '{{.USER_WORKING_DIR}}'
+    dir: "{{.USER_WORKING_DIR}}"
     desc: Install Knip as a local devDependency
     summary: |
       Install knip as a local devDependency. Pass KNIP_VERSION=x.y.z to pin a
@@ -37,12 +37,12 @@ tasks:
         const requested = '{{.RESOLVED_VERSION}}';
         process.exit(!requested || installed.version === requested ? 0 : 1)"
     vars:
-      RESOLVED_VERSION: '{{.KNIP_VERSION}}'
+      RESOLVED_VERSION: "{{.KNIP_VERSION}}"
     cmds:
       - task: npm:add
         vars:
           PACKAGES: knip{{if .RESOLVED_VERSION}}@{{.RESOLVED_VERSION}}{{end}}
-          EXTRA_ARGS: '{{.KNIP_EXTRA_ARGS}}{{if .CLI_ARGS}} {{.CLI_ARGS}}{{end}}'
+          EXTRA_ARGS: "{{.KNIP_EXTRA_ARGS}}{{if .CLI_ARGS}} {{.CLI_ARGS}}{{end}}"
   install:undo:
     run: once
     desc: Remove the locally installed Knip devDependency
@@ -54,7 +54,7 @@ tasks:
       - task: npm:remove
         vars:
           PACKAGES: knip
-          EXTRA_ARGS: '{{.KNIP_EXTRA_ARGS}}'
+          EXTRA_ARGS: "{{.KNIP_EXTRA_ARGS}}"
   upgrade:
     run: once
     desc: Upgrade Knip to the latest release
@@ -63,10 +63,10 @@ tasks:
       - task: npm:add
         vars:
           PACKAGES: knip@latest
-          EXTRA_ARGS: '{{.KNIP_EXTRA_ARGS}}'
+          EXTRA_ARGS: "{{.KNIP_EXTRA_ARGS}}"
   config:init:
     run: once
-    dir: '{{.USER_WORKING_DIR}}'
+    dir: "{{.USER_WORKING_DIR}}"
     desc: Create a starter knip.json configuration file
     summary: |
       Knip has no scaffolding command, so this writes a minimal knip.json that
@@ -86,7 +86,7 @@ tasks:
     internal: true
     run: when_changed
     vars:
-      RESOLVED_CONFIG: '{{.KNIP_CONFIG}}'
+      RESOLVED_CONFIG: "{{.KNIP_CONFIG}}"
     cmds:
       - task: npm:exec
         vars:
@@ -94,7 +94,7 @@ tasks:
           ARGS: >-
             {{if .MODE}}{{.MODE}} {{end}}
             {{- if .RESOLVED_CONFIG}}--config "{{.RESOLVED_CONFIG}}"{{end}}
-          EXTRA_ARGS: '{{.KNIP_EXTRA_ARGS}}{{if .CLI_ARGS}} {{.CLI_ARGS}}{{end}}'
+          EXTRA_ARGS: "{{.KNIP_EXTRA_ARGS}}{{if .CLI_ARGS}} {{.CLI_ARGS}}{{end}}"
   production:
     run: once
     desc: Run Knip against production dependency usage
@@ -158,7 +158,7 @@ tasks:
     cmds:
       - task: npm:exec
         vars:
-          PM: '{{.PM}}'
+          PM: "{{.PM}}"
           BINARY: knip
           ARGS: --version
   help:
@@ -169,4 +169,4 @@ tasks:
         vars:
           BINARY: knip
           ARGS: --help
-          EXTRA_ARGS: '{{.KNIP_EXTRA_ARGS}}{{if .CLI_ARGS}} {{.CLI_ARGS}}{{end}}'
+          EXTRA_ARGS: "{{.KNIP_EXTRA_ARGS}}{{if .CLI_ARGS}} {{.CLI_ARGS}}{{end}}"

@@ -37,23 +37,23 @@ task djlint:fmt:check DJLINT_TARGETS=templates
 
 ## Public Tasks
 
-| Task | Description |
-|---|---|
-| `lint` | Lint HTML templates with djlint --lint |
+| Task        | Description                                                        |
+| ----------- | ------------------------------------------------------------------ |
+| `lint`      | Lint HTML templates with djlint --lint                             |
 | `fmt:check` | Report formatting changes without modifying files (djlint --check) |
-| `ci` | Run `fmt:check` then `lint` |
-| `ci:fix` | Format HTML templates in place with djlint --reformat |
-| `install` | Install djLint via Nix (Unix) or uv tool (Windows) |
-| `version` | Show the active djLint version |
+| `ci`        | Run `fmt:check` then `lint`                                        |
+| `ci:fix`    | Format HTML templates in place with djlint --reformat              |
+| `install`   | Install djLint via Nix (Unix) or uv tool (Windows)                 |
+| `version`   | Show the active djLint version                                     |
 
 ## Variables
 
-| Variable | Default | Description |
-|---|---|---|
-| `DJLINT_NIX_INSTALLABLE` | `nixpkgs#djlint` | Flake installable passed to `nix:install:profile` |
-| `DJLINT_UV_TOOL` | `djlint` | uv tool name passed to `uv:tool:install` on Windows |
-| `DJLINT_TARGETS` | `.` | File or directory djLint operates on |
-| `DJLINT_EXTRA_ARGS` | `""` | Extra flags forwarded to djLint (e.g. `--profile django`) |
+| Variable                 | Default          | Description                                               |
+| ------------------------ | ---------------- | --------------------------------------------------------- |
+| `DJLINT_NIX_INSTALLABLE` | `nixpkgs#djlint` | Flake installable passed to `nix:install:profile`         |
+| `DJLINT_UV_TOOL`         | `djlint`         | uv tool name passed to `uv:tool:install` on Windows       |
+| `DJLINT_TARGETS`         | `.`              | File or directory djLint operates on                      |
+| `DJLINT_EXTRA_ARGS`      | `""`             | Extra flags forwarded to djLint (e.g. `--profile django`) |
 
 Pin a revision by overriding the installable, for example
 `DJLINT_NIX_INSTALLABLE=github:NixOS/nixpkgs/<rev>#djlint`.

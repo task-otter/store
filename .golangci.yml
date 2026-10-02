@@ -1,5 +1,5 @@
 ---
-version: '2'
+version: "2"
 
 linters:
   default: all
@@ -19,7 +19,7 @@ linters:
         type: module
         settings:
           rules:
-            - pattern: '**'
+            - pattern: "**"
               min: 1.0
           test-result-path: test-result.txt
           coverage-result-path: coverage.out
@@ -31,7 +31,7 @@ linters:
           generated: false
           dependency-scope: module
           rules:
-            - pattern: '**'
+            - pattern: "**"
               max: 0.3
       reusability:
         type: module
@@ -40,9 +40,9 @@ linters:
           dependency-scope: module
           field-usage: direct
           rules:
-            - pattern: '**'
+            - pattern: "**"
               min: 0.80
-            - pattern: '**/*_test'
+            - pattern: "**/*_test"
               min: 0.0
     asasalint:
       exclude: []
@@ -82,7 +82,7 @@ linters:
         production:
           files:
             - $all
-            - '!$test'
+            - "!$test"
           list-mode: lax
           deny:
             - pkg: io/ioutil$
@@ -91,7 +91,7 @@ linters:
               desc: Use go.yaml.in/yaml/v3 packages
         domain_must_not_import_infrastructure:
           files:
-            - '**/internal/domain/**/*.go'
+            - "**/internal/domain/**/*.go"
           list-mode: lax
           deny:
             - pkg: github.com/your-org/your-app/internal/infrastructure
@@ -100,7 +100,7 @@ linters:
               desc: Domain code must not depend on HTTP, gRPC, or transport code.
         application_must_not_import_transport:
           files:
-            - '**/internal/application/**/*.go'
+            - "**/internal/application/**/*.go"
           list-mode: lax
           deny:
             - pkg: github.com/your-org/your-app/internal/transport
@@ -249,7 +249,7 @@ linters:
     godot:
       scope: all
       exclude:
-        - '^SPDX-License-Identifier:'
+        - "^SPDX-License-Identifier:"
         - ^Taskotter
       period: true
       capital: true
@@ -311,12 +311,12 @@ linters:
         G101:
           pattern: (?i)passwd|pass|password|pwd|secret|token|api[_-]?key|bearer|credential|private[_-]?key
           ignore_entropy: false
-          entropy_threshold: '20.0'
-          per_char_threshold: '2.0'
-          truncate: '64'
-        G301: '0750'
-        G302: '0600'
-        G306: '0600'
+          entropy_threshold: "20.0"
+          per_char_threshold: "2.0"
+          truncate: "64"
+        G301: "0750"
+        G302: "0600"
+        G306: "0600"
     gosmopolitan:
       allow-time-local: false
       escape-hatches: []
@@ -621,7 +621,7 @@ linters:
       go-require:
         ignore-http-handlers: false
       require-error:
-        fn-pattern: ''
+        fn-pattern: ""
       suite-extra-assert-call:
         mode: require
     thelper:
@@ -780,8 +780,8 @@ output:
       print-linter-name: true
       print-issued-lines: true
       colors: true
-  path-prefix: ''
-  path-mode: ''
+  path-prefix: ""
+  path-mode: ""
   sort-order:
     - severity
     - linter
@@ -789,7 +789,7 @@ output:
   show-stats: true
 
 run:
-  timeout: '0'
+  timeout: "0"
   relative-path-mode: gomod
   issues-exit-code: 1
   tests: true
@@ -798,7 +798,7 @@ run:
   enable-build-vcs: true
   allow-parallel-runners: false
   allow-serial-runners: false
-  go: '1.26'
+  go: "1.26"
   concurrency: 0
 
 severity:

@@ -37,25 +37,25 @@ task pulumi:up PULUMI_STACK=dev PULUMI_EXTRA_ARGS=--yes
 
 ## Public Tasks
 
-| Task    | Variables                                                | Description                                                                           |
-| ------- | -------------------------------------------------------- | ------------------------------------------------------------------------------------- |
-| `login` | Optional `PULUMI_LOGIN_URL`, `PULUMI_EXTRA_ARGS`         | Run `pulumi login`. Empty `PULUMI_LOGIN_URL` uses the default Pulumi Cloud backend.   |
-| `new`   | Required `PULUMI_TEMPLATE`; optional `PULUMI_EXTRA_ARGS` | Scaffold a new Pulumi project from a named template (for example `aws-typescript`). |
-| `up`    | Optional `PULUMI_STACK`, `PULUMI_EXTRA_ARGS`             | Preview and deploy the current Pulumi stack in the caller's working directory.        |
-| `install` | Optional `PULUMI_NIX_INSTALLABLE`                      | Install Pulumi via Nix (Unix) or WinGet (Windows).                                                  |
-| `version` | —                                                      | Show the active Pulumi version.                                                      |
+| Task      | Variables                                                | Description                                                                         |
+| --------- | -------------------------------------------------------- | ----------------------------------------------------------------------------------- |
+| `login`   | Optional `PULUMI_LOGIN_URL`, `PULUMI_EXTRA_ARGS`         | Run `pulumi login`. Empty `PULUMI_LOGIN_URL` uses the default Pulumi Cloud backend. |
+| `new`     | Required `PULUMI_TEMPLATE`; optional `PULUMI_EXTRA_ARGS` | Scaffold a new Pulumi project from a named template (for example `aws-typescript`). |
+| `up`      | Optional `PULUMI_STACK`, `PULUMI_EXTRA_ARGS`             | Preview and deploy the current Pulumi stack in the caller's working directory.      |
+| `install` | Optional `PULUMI_NIX_INSTALLABLE`                        | Install Pulumi via Nix (Unix) or WinGet (Windows).                                  |
+| `version` | —                                                        | Show the active Pulumi version.                                                     |
 
 ## Variables
 
-| Variable                   | Default            | Description                                                                    |
-| -------------------------- | ------------------ | ------------------------------------------------------------------------------ |
-| `PULUMI_NIX_INSTALLABLE`   | `nixpkgs#pulumi`   | Flake installable passed to `nix:install:profile`                              |
-| `PULUMI_WINGET_INSTALLABLE` | `Pulumi.Pulumi` | WinGet package ID for `winget:install:package` |
-| `PULUMI_LOGIN_URL`         | _(empty)_          | Backend URL passed to `pulumi login`; empty uses the default Pulumi Cloud backend. |
-| `PULUMI_TEMPLATE`          | _(empty)_          | Template name; required by `new`.                                              |
-| `PULUMI_STACK`             | _(empty)_          | Stack name; optional for `up`. When set, passed as `--stack <name>`.           |
-| `PULUMI_ARGS`              | _(empty)_          | Positional arguments forwarded to underlying Pulumi commands.                  |
-| `PULUMI_EXTRA_ARGS`        | _(empty)_          | Extra flags forwarded to the underlying `pulumi` command (for example `--yes`). |
+| Variable                    | Default          | Description                                                                        |
+| --------------------------- | ---------------- | ---------------------------------------------------------------------------------- |
+| `PULUMI_NIX_INSTALLABLE`    | `nixpkgs#pulumi` | Flake installable passed to `nix:install:profile`                                  |
+| `PULUMI_WINGET_INSTALLABLE` | `Pulumi.Pulumi`  | WinGet package ID for `winget:install:package`                                     |
+| `PULUMI_LOGIN_URL`          | _(empty)_        | Backend URL passed to `pulumi login`; empty uses the default Pulumi Cloud backend. |
+| `PULUMI_TEMPLATE`           | _(empty)_        | Template name; required by `new`.                                                  |
+| `PULUMI_STACK`              | _(empty)_        | Stack name; optional for `up`. When set, passed as `--stack <name>`.               |
+| `PULUMI_ARGS`               | _(empty)_        | Positional arguments forwarded to underlying Pulumi commands.                      |
+| `PULUMI_EXTRA_ARGS`         | _(empty)_        | Extra flags forwarded to the underlying `pulumi` command (for example `--yes`).    |
 
 Pin a revision by overriding the installable, for example
 `PULUMI_NIX_INSTALLABLE=github:NixOS/nixpkgs/<rev>#pulumi`.

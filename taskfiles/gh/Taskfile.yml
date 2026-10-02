@@ -1,10 +1,10 @@
 ---
-version: '3.5'
+version: "3.5"
 
 output:
   group:
     begin: ::group::{{.TASK}}
-    end: '::endgroup::'
+    end: "::endgroup::"
     error_only: false
 
 silent: true
@@ -28,7 +28,7 @@ vars:
   GH_WINGET_INSTALLABLE: '{{.GH_WINGET_INSTALLABLE | default "GitHub.cli"}}'
 
 env:
-  GH_TOKEN: '{{.GH_PAT_TOKEN}}'
+  GH_TOKEN: "{{.GH_PAT_TOKEN}}"
 
 tasks:
   default:
@@ -58,7 +58,7 @@ tasks:
     cmds:
       - task: nix:install:profile
         vars:
-          NIX_INSTALLABLE: '{{.GH_NIX_INSTALLABLE}}'
+          NIX_INSTALLABLE: "{{.GH_NIX_INSTALLABLE}}"
   _install:windows:
     internal: true
     platforms:
@@ -66,7 +66,7 @@ tasks:
     cmds:
       - task: winget:install:package
         vars:
-          WINGET_INSTALLABLE: '{{.GH_WINGET_INSTALLABLE}}'
+          WINGET_INSTALLABLE: "{{.GH_WINGET_INSTALLABLE}}"
   version:
     run: once
     desc: Show the active GitHub CLI version
@@ -1501,7 +1501,7 @@ tasks:
       vars:
         - ENDPOINT
     prompt:
-      - 'This will send a DELETE request to the GitHub API: {{.ENDPOINT}}'
+      - "This will send a DELETE request to the GitHub API: {{.ENDPOINT}}"
       - This may permanently remove resources. Are you sure you want to continue?
     deps:
       - task: install
@@ -1957,7 +1957,7 @@ tasks:
       - nounset
       - pipefail
     env:
-      GH_PAT: '{{.GH_PAT_TOKEN}}'
+      GH_PAT: "{{.GH_PAT_TOKEN}}"
     cmds:
       - |
         {{.NIX_LOAD}}
@@ -1979,7 +1979,7 @@ tasks:
     platforms:
       - windows
     env:
-      GH_PAT: '{{.GH_PAT_TOKEN}}'
+      GH_PAT: "{{.GH_PAT_TOKEN}}"
     cmds:
       - >-
         powershell -NoProfile -ExecutionPolicy Bypass -Command
@@ -2001,7 +2001,7 @@ tasks:
       - nounset
       - pipefail
     env:
-      GH_DATA: '{{.GH_DATA}}'
+      GH_DATA: "{{.GH_DATA}}"
     cmds:
       - |
         {{.NIX_LOAD}}
@@ -2014,7 +2014,7 @@ tasks:
     platforms:
       - windows
     env:
-      GH_DATA: '{{.GH_DATA}}'
+      GH_DATA: "{{.GH_DATA}}"
     cmds:
       - >-
         powershell -NoProfile -ExecutionPolicy Bypass -Command
@@ -2032,7 +2032,7 @@ tasks:
       - nounset
       - pipefail
     env:
-      GH_DATA: '{{.GH_DATA}}'
+      GH_DATA: "{{.GH_DATA}}"
     cmds:
       - |
         {{.NIX_LOAD}}
@@ -2045,7 +2045,7 @@ tasks:
     platforms:
       - windows
     env:
-      GH_DATA: '{{.GH_DATA}}'
+      GH_DATA: "{{.GH_DATA}}"
     cmds:
       - >-
         powershell -NoProfile -ExecutionPolicy Bypass -Command
@@ -2248,7 +2248,7 @@ tasks:
       - nounset
       - pipefail
     env:
-      GH_SECRET_VALUE: '{{.SECRET_VALUE}}'
+      GH_SECRET_VALUE: "{{.SECRET_VALUE}}"
     cmds:
       - >-
         {{.NIX_LOAD}};
@@ -2264,7 +2264,7 @@ tasks:
     platforms:
       - windows
     env:
-      GH_SECRET_VALUE: '{{.SECRET_VALUE}}'
+      GH_SECRET_VALUE: "{{.SECRET_VALUE}}"
     cmds:
       - >-
         powershell -NoProfile -ExecutionPolicy Bypass -Command

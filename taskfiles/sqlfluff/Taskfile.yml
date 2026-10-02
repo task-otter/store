@@ -1,10 +1,10 @@
 ---
-version: '3.5'
+version: "3.5"
 
 output:
   group:
     begin: ::group::{{.TASK}}
-    end: '::endgroup::'
+    end: "::endgroup::"
     error_only: false
 
 silent: true
@@ -51,7 +51,7 @@ tasks:
     cmds:
       - task: nix:install:profile
         vars:
-          NIX_INSTALLABLE: '{{.SQLFLUFF_NIX_INSTALLABLE}}'
+          NIX_INSTALLABLE: "{{.SQLFLUFF_NIX_INSTALLABLE}}"
   _install:windows:
     internal: true
     platforms:
@@ -59,7 +59,7 @@ tasks:
     cmds:
       - task: uv:tool:install
         vars:
-          UV_TOOL: '{{.SQLFLUFF_UV_TOOL}}'
+          UV_TOOL: "{{.SQLFLUFF_UV_TOOL}}"
   version:
     run: once
     desc: Show the active sqlfluff version
@@ -77,14 +77,14 @@ tasks:
   _run:
     internal: true
     run: when_changed
-    dir: '{{.USER_WORKING_DIR}}'
+    dir: "{{.USER_WORKING_DIR}}"
     deps:
       - task: install
     vars:
       PATHS: '{{or .SQLFLUFF_TARGETS "."}}'
-      EXTRA: '{{.SQLFLUFF_EXTRA_ARGS}}'
-      DIALECT: '{{.SQLFLUFF_DIALECT}}'
-      CONFIG: '{{.SQLFLUFF_CONFIG}}'
+      EXTRA: "{{.SQLFLUFF_EXTRA_ARGS}}"
+      DIALECT: "{{.SQLFLUFF_DIALECT}}"
+      CONFIG: "{{.SQLFLUFF_CONFIG}}"
     cmds:
       - cmd: >-
           bash -lc '{{.NIX_LOAD}};
@@ -150,7 +150,7 @@ tasks:
           SUBCMD: parse
   config:init:
     run: once
-    dir: '{{.USER_WORKING_DIR}}'
+    dir: "{{.USER_WORKING_DIR}}"
     desc: Create a default .sqlfluff configuration file
     summary: |
       Write a sensible default .sqlfluff file in the current directory.

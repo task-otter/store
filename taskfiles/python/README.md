@@ -39,26 +39,26 @@ task python:run PYTHON_FILE=script.py
 
 ## Public Tasks
 
-| Task           | Description                                |
-| -------------- | ------------------------------------------- |
-| `verify`       | Show Python and pip versions                 |
-| `venv`         | Create a virtual environment                 |
-| `pip:install`  | Install packages from a requirements file    |
-| `run`          | Run a Python script                          |
-| `install`      | Install Python via Nix (Unix) or WinGet (Windows)           |
-| `version`      | Show the active Python version               |
+| Task          | Description                                       |
+| ------------- | ------------------------------------------------- |
+| `verify`      | Show Python and pip versions                      |
+| `venv`        | Create a virtual environment                      |
+| `pip:install` | Install packages from a requirements file         |
+| `run`         | Run a Python script                               |
+| `install`     | Install Python via Nix (Unix) or WinGet (Windows) |
+| `version`     | Show the active Python version                    |
 
 ## Variables
 
-| Variable             | Default                                | Description                                                       |
-| -------------------- | --------------------------------------- | ------------------------------------------------------------------ |
-| `PYTHON_NIX_INSTALLABLE` | `nixpkgs#python3`                   | Flake installable passed to `nix:install:profile` |
-| `PYTHON_WINGET_INSTALLABLE` | `Python.Python.3.12` | WinGet package ID for `winget:install:package` |
-| `PYTHON_VENV`                | `.venv`                                | Virtual environment directory used by `venv`                     |
-| `PYTHON_REQUIREMENTS`        | `requirements.txt`                     | Requirements file used by `pip:install`                          |
-| `PYTHON_FILE`                | _(empty)_                              | Script path; required by `run`                                   |
-| `PYTHON_ARGS`                | _(empty)_                              | Positional arguments forwarded to the script in `run`            |
-| `PYTHON_EXTRA_ARGS`          | _(empty)_                              | Extra flags forwarded to `pip install` or the Python interpreter |
+| Variable                    | Default              | Description                                                      |
+| --------------------------- | -------------------- | ---------------------------------------------------------------- |
+| `PYTHON_NIX_INSTALLABLE`    | `nixpkgs#python3`    | Flake installable passed to `nix:install:profile`                |
+| `PYTHON_WINGET_INSTALLABLE` | `Python.Python.3.12` | WinGet package ID for `winget:install:package`                   |
+| `PYTHON_VENV`               | `.venv`              | Virtual environment directory used by `venv`                     |
+| `PYTHON_REQUIREMENTS`       | `requirements.txt`   | Requirements file used by `pip:install`                          |
+| `PYTHON_FILE`               | _(empty)_            | Script path; required by `run`                                   |
+| `PYTHON_ARGS`               | _(empty)_            | Positional arguments forwarded to the script in `run`            |
+| `PYTHON_EXTRA_ARGS`         | _(empty)_            | Extra flags forwarded to `pip install` or the Python interpreter |
 
 Pin a Python version by overriding the installable, for example
 `PYTHON_NIX_INSTALLABLE=nixpkgs#python313`.

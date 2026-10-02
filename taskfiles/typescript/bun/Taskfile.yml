@@ -1,5 +1,5 @@
 ---
-version: '3.5'
+version: "3.5"
 
 includes:
   bun:
@@ -9,7 +9,7 @@ includes:
 output:
   group:
     begin: ::group::{{.TASK}}
-    end: '::endgroup::'
+    end: "::endgroup::"
     error_only: false
 
 silent: true
@@ -59,7 +59,7 @@ tasks:
       - task: _tsserver:info:windows
   install:
     run: once
-    dir: '{{.USER_WORKING_DIR}}'
+    dir: "{{.USER_WORKING_DIR}}"
     desc: Install TypeScript dev dependencies (auto-detects package manager)
     summary: |
       Install typescript (provides tsc + tsserver), tsx, and @types/node as
@@ -72,7 +72,7 @@ tasks:
         yarn.lock            → yarn add -D
         (fallback)           → npm install -D
     vars:
-      RESOLVED_VERSION: '{{.TYPESCRIPT_VERSION}}'
+      RESOLVED_VERSION: "{{.TYPESCRIPT_VERSION}}"
     status:
       - >-
         node -e "const installed = require('./node_modules/typescript/package.json');
@@ -326,7 +326,7 @@ tasks:
           ARGS: --showConfig
   config:init:
     run: once
-    dir: '{{.USER_WORKING_DIR}}'
+    dir: "{{.USER_WORKING_DIR}}"
     status:
       - test -f tsconfig.json
     desc: Generate a starter tsconfig.json in the current directory (tsc --init)
@@ -400,10 +400,10 @@ tasks:
     cmds:
       - task: _config:trace:unix
         vars:
-          TYPESCRIPT_TRACE_DIR: '{{.TYPESCRIPT_TRACE_DIR}}'
+          TYPESCRIPT_TRACE_DIR: "{{.TYPESCRIPT_TRACE_DIR}}"
       - task: _config:trace:windows
         vars:
-          TYPESCRIPT_TRACE_DIR: '{{.TYPESCRIPT_TRACE_DIR}}'
+          TYPESCRIPT_TRACE_DIR: "{{.TYPESCRIPT_TRACE_DIR}}"
   start:
     run: once
     desc: Run the compiled JavaScript with node (TYPESCRIPT_OUTFILE=dist/index.js)
@@ -460,7 +460,7 @@ tasks:
       Run task typescript:build after to produce a fresh compile.
       Override the output directory with TYPESCRIPT_OUT_DIR=build.
     prompt:
-      - 'WARNING: This will delete {{.TYPESCRIPT_OUT_DIR}}/, tsconfig.tsbuildinfo, and .tsc-trace/.'
+      - "WARNING: This will delete {{.TYPESCRIPT_OUT_DIR}}/, tsconfig.tsbuildinfo, and .tsc-trace/."
       - Continue?
     cmds:
       - task: _clean:all:unix
@@ -471,14 +471,14 @@ tasks:
     platforms:
       - linux
       - darwin
-    dir: '{{.USER_WORKING_DIR}}'
+    dir: "{{.USER_WORKING_DIR}}"
     set:
       - errexit
       - nounset
       - pipefail
     preconditions:
       - sh: test -f "{{.USER_WORKING_DIR}}/node_modules/.bin/tsc" || command -v tsc >/dev/null 2>&1
-        msg: 'tsc not found. Run: task typescript:install'
+        msg: "tsc not found. Run: task typescript:install"
       - sh: test -f "{{.USER_WORKING_DIR}}/{{.TYPESCRIPT_TSCONFIG}}"
         msg: 'TSCONFIG "{{.TYPESCRIPT_TSCONFIG}}" not found. Run: task typescript:config:init'
     cmds:
@@ -493,7 +493,7 @@ tasks:
     internal: true
     platforms:
       - windows
-    dir: '{{.USER_WORKING_DIR}}'
+    dir: "{{.USER_WORKING_DIR}}"
     preconditions:
       - sh: >-
           powershell -NoProfile -ExecutionPolicy Bypass -Command
@@ -501,7 +501,7 @@ tasks:
           (Test-Path 'node_modules\.bin\tsc.exe') -or
           (Test-Path 'node_modules\.bin\tsc') -or
           (Get-Command tsc -ErrorAction SilentlyContinue)) { exit 0 } else { exit 1 }"
-        msg: 'tsc not found. Run: task typescript:install'
+        msg: "tsc not found. Run: task typescript:install"
       - sh: >-
           powershell -NoProfile -ExecutionPolicy Bypass -Command
           "{{.WINGET_LOAD}}; if (Test-Path '{{.TYPESCRIPT_TSCONFIG}}') { exit 0 } else { exit 1 }"
@@ -520,14 +520,14 @@ tasks:
     platforms:
       - linux
       - darwin
-    dir: '{{.USER_WORKING_DIR}}'
+    dir: "{{.USER_WORKING_DIR}}"
     set:
       - errexit
       - nounset
       - pipefail
     preconditions:
       - sh: test -f "{{.USER_WORKING_DIR}}/node_modules/.bin/tsc" || command -v tsc >/dev/null 2>&1
-        msg: 'tsc not found. Run: task typescript:install'
+        msg: "tsc not found. Run: task typescript:install"
     cmds:
       - |
         if [ -f "node_modules/.bin/tsc" ]; then
@@ -540,7 +540,7 @@ tasks:
     internal: true
     platforms:
       - windows
-    dir: '{{.USER_WORKING_DIR}}'
+    dir: "{{.USER_WORKING_DIR}}"
     preconditions:
       - sh: >-
           powershell -NoProfile -ExecutionPolicy Bypass -Command
@@ -548,7 +548,7 @@ tasks:
           (Test-Path 'node_modules\.bin\tsc.exe') -or
           (Test-Path 'node_modules\.bin\tsc') -or
           (Get-Command tsc -ErrorAction SilentlyContinue)) { exit 0 } else { exit 1 }"
-        msg: 'tsc not found. Run: task typescript:install'
+        msg: "tsc not found. Run: task typescript:install"
     cmds:
       - >-
         powershell -NoProfile -ExecutionPolicy Bypass -Command
@@ -562,14 +562,14 @@ tasks:
     platforms:
       - linux
       - darwin
-    dir: '{{.USER_WORKING_DIR}}'
+    dir: "{{.USER_WORKING_DIR}}"
     set:
       - errexit
       - nounset
       - pipefail
     preconditions:
       - sh: test -f "{{.USER_WORKING_DIR}}/node_modules/.bin/tsx" || command -v tsx >/dev/null 2>&1
-        msg: 'tsx not found. Run: task typescript:install'
+        msg: "tsx not found. Run: task typescript:install"
       - sh: test -f "{{.USER_WORKING_DIR}}/{{.TYPESCRIPT_FILE}}"
         msg: TYPESCRIPT_FILE "{{.TYPESCRIPT_FILE}}" not found. Set TYPESCRIPT_FILE=path/to/your/file.ts
     cmds:
@@ -584,7 +584,7 @@ tasks:
     internal: true
     platforms:
       - windows
-    dir: '{{.USER_WORKING_DIR}}'
+    dir: "{{.USER_WORKING_DIR}}"
     preconditions:
       - sh: >-
           powershell -NoProfile -ExecutionPolicy Bypass -Command
@@ -592,7 +592,7 @@ tasks:
           (Test-Path 'node_modules\.bin\tsx.exe') -or
           (Test-Path 'node_modules\.bin\tsx') -or
           (Get-Command tsx -ErrorAction SilentlyContinue)) { exit 0 } else { exit 1 }"
-        msg: 'tsx not found. Run: task typescript:install'
+        msg: "tsx not found. Run: task typescript:install"
       - sh: >-
           powershell -NoProfile -ExecutionPolicy Bypass -Command
           "{{.WINGET_LOAD}}; if (Test-Path '{{.TYPESCRIPT_FILE}}') { exit 0 } else { exit 1 }"
@@ -610,7 +610,7 @@ tasks:
     platforms:
       - linux
       - darwin
-    dir: '{{.USER_WORKING_DIR}}'
+    dir: "{{.USER_WORKING_DIR}}"
     set:
       - errexit
       - nounset
@@ -621,24 +621,24 @@ tasks:
     deps:
       - task: bun:install
     env:
-      CI: '1'
+      CI: "1"
     cmds:
       - task: bun:_run:unix
         vars:
-          ARGS: '{{.ARGS}}'
+          ARGS: "{{.ARGS}}"
   _bun:windows:
     run: when_changed
     internal: true
     platforms:
       - windows
-    dir: '{{.USER_WORKING_DIR}}'
+    dir: "{{.USER_WORKING_DIR}}"
     requires:
       vars:
         - ARGS
     deps:
       - task: bun:install
     env:
-      CI: '1'
+      CI: "1"
     cmds:
       - >-
         powershell -NoProfile -NonInteractive -ExecutionPolicy Bypass -Command
@@ -652,7 +652,7 @@ tasks:
     platforms:
       - linux
       - darwin
-    dir: '{{.USER_WORKING_DIR}}'
+    dir: "{{.USER_WORKING_DIR}}"
     set:
       - errexit
       - nounset
@@ -695,7 +695,7 @@ tasks:
     internal: true
     platforms:
       - windows
-    dir: '{{.USER_WORKING_DIR}}'
+    dir: "{{.USER_WORKING_DIR}}"
     preconditions:
       - sh: >-
           powershell -NoProfile -ExecutionPolicy Bypass -Command
@@ -733,7 +733,7 @@ tasks:
     platforms:
       - linux
       - darwin
-    dir: '{{.USER_WORKING_DIR}}'
+    dir: "{{.USER_WORKING_DIR}}"
     set:
       - errexit
       - nounset
@@ -770,7 +770,7 @@ tasks:
     internal: true
     platforms:
       - windows
-    dir: '{{.USER_WORKING_DIR}}'
+    dir: "{{.USER_WORKING_DIR}}"
     cmds:
       - >-
         powershell -NoProfile -ExecutionPolicy Bypass -Command
@@ -804,7 +804,7 @@ tasks:
     platforms:
       - linux
       - darwin
-    dir: '{{.USER_WORKING_DIR}}'
+    dir: "{{.USER_WORKING_DIR}}"
     set:
       - errexit
       - nounset
@@ -821,7 +821,7 @@ tasks:
     internal: true
     platforms:
       - windows
-    dir: '{{.USER_WORKING_DIR}}'
+    dir: "{{.USER_WORKING_DIR}}"
     cmds:
       - echo Removing {{.TYPESCRIPT_OUT_DIR}}...
       - >-
@@ -839,7 +839,7 @@ tasks:
     platforms:
       - linux
       - darwin
-    dir: '{{.USER_WORKING_DIR}}'
+    dir: "{{.USER_WORKING_DIR}}"
     set:
       - errexit
       - nounset
@@ -861,7 +861,7 @@ tasks:
     internal: true
     platforms:
       - windows
-    dir: '{{.USER_WORKING_DIR}}'
+    dir: "{{.USER_WORKING_DIR}}"
     cmds:
       - echo Generating trace to {{.TYPESCRIPT_TRACE_DIR}}...
       - task: _tsc:windows
@@ -881,7 +881,7 @@ tasks:
     platforms:
       - linux
       - darwin
-    dir: '{{.USER_WORKING_DIR}}'
+    dir: "{{.USER_WORKING_DIR}}"
     set:
       - errexit
       - nounset
@@ -898,7 +898,7 @@ tasks:
     internal: true
     platforms:
       - windows
-    dir: '{{.USER_WORKING_DIR}}'
+    dir: "{{.USER_WORKING_DIR}}"
     preconditions:
       - sh: >-
           powershell -NoProfile -ExecutionPolicy Bypass -Command
@@ -918,7 +918,7 @@ tasks:
     platforms:
       - linux
       - darwin
-    dir: '{{.USER_WORKING_DIR}}'
+    dir: "{{.USER_WORKING_DIR}}"
     set:
       - errexit
       - nounset
@@ -934,7 +934,7 @@ tasks:
     internal: true
     platforms:
       - windows
-    dir: '{{.USER_WORKING_DIR}}'
+    dir: "{{.USER_WORKING_DIR}}"
     status:
       - >-
         powershell -NoProfile -ExecutionPolicy Bypass -Command
@@ -953,7 +953,7 @@ tasks:
     platforms:
       - linux
       - darwin
-    dir: '{{.USER_WORKING_DIR}}'
+    dir: "{{.USER_WORKING_DIR}}"
     set:
       - errexit
       - nounset
@@ -969,7 +969,7 @@ tasks:
     internal: true
     platforms:
       - windows
-    dir: '{{.USER_WORKING_DIR}}'
+    dir: "{{.USER_WORKING_DIR}}"
     cmds:
       - echo Removing build artifacts...
       - >-

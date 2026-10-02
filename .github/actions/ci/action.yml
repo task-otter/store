@@ -28,7 +28,7 @@ runs:
       run: |
         task -t Taskfile.yml go-junit-report:report GO_JUNIT_REPORT_IN=test-result.txt GO_JUNIT_REPORT_OUT=junit.xml
     - name: Upload coverage to Codecov
-      uses: codecov/codecov-action@fb8b3582c8e4def4969c97caa2f19720cb33a72f  # v7.0.0
+      uses: codecov/codecov-action@fb8b3582c8e4def4969c97caa2f19720cb33a72f # v7.0.0
       with:
         use_oidc: true
         files: ./coverage.out
@@ -38,7 +38,7 @@ runs:
         fail_ci_if_error: true
         verbose: true
     - name: Upload test results to Codecov
-      uses: codecov/codecov-action@fb8b3582c8e4def4969c97caa2f19720cb33a72f  # v7.0.0
+      uses: codecov/codecov-action@fb8b3582c8e4def4969c97caa2f19720cb33a72f # v7.0.0
       with:
         use_oidc: true
         report_type: test_results

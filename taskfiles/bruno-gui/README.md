@@ -39,21 +39,21 @@ task bruno-gui:open BRUNO_GUI_COLLECTION=./api
 
 ## Public Tasks
 
-| Task | Description |
-|---|---|
-| `open` | Launch the Bruno desktop app (returns immediately on Unix) |
-| `help` | Show Bruno desktop app help |
+| Task      | Description                                                      |
+| --------- | ---------------------------------------------------------------- |
+| `open`    | Launch the Bruno desktop app (returns immediately on Unix)       |
+| `help`    | Show Bruno desktop app help                                      |
 | `install` | Install the Bruno desktop app via Nix (Unix) or WinGet (Windows) |
-| `version` | Show the active Bruno desktop app version |
+| `version` | Show the active Bruno desktop app version                        |
 
 ## Variables
 
-| Variable | Default | Description |
-|---|---|---|
-| `BRUNO_GUI_NIX_INSTALLABLE` | `nixpkgs#bruno` | Flake installable passed to `nix:install:profile` |
-| `BRUNO_GUI_WINGET_INSTALLABLE` | `Bruno.Bruno` | WinGet package ID for `winget:install:package` |
-| `BRUNO_GUI_COLLECTION` | `""` | Optional path to a Bruno collection directory |
-| `BRUNO_GUI_EXTRA_ARGS` | `""` | Additional flags passed to `bruno` |
+| Variable                       | Default         | Description                                       |
+| ------------------------------ | --------------- | ------------------------------------------------- |
+| `BRUNO_GUI_NIX_INSTALLABLE`    | `nixpkgs#bruno` | Flake installable passed to `nix:install:profile` |
+| `BRUNO_GUI_WINGET_INSTALLABLE` | `Bruno.Bruno`   | WinGet package ID for `winget:install:package`    |
+| `BRUNO_GUI_COLLECTION`         | `""`            | Optional path to a Bruno collection directory     |
+| `BRUNO_GUI_EXTRA_ARGS`         | `""`            | Additional flags passed to `bruno`                |
 
 Pin a revision by overriding the installable, for example
 `BRUNO_GUI_NIX_INSTALLABLE=github:NixOS/nixpkgs/<rev>#bruno`.

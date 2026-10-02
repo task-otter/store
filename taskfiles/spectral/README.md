@@ -35,24 +35,24 @@ project root (where `package.json` lives).
 
 ## Public Tasks
 
-| Task | Description | Key variables |
-|---|---|---|
-| `install` | Install Spectral as a local devDependency | `SPECTRAL_VERSION` |
-| `install:undo` | Remove the Spectral devDependency | |
-| `upgrade` | Upgrade Spectral to the latest release | |
-| `ci` | Lint API documents with Spectral | `SPECTRAL_TARGETS`, `SPECTRAL_RULESET`, `SPECTRAL_EXTRA_ARGS` |
-| `config:init` | Create a default .spectral.yaml ruleset | |
-| `help` | Show the Spectral CLI help | |
-| `version` | Show the locally resolved Spectral version | |
+| Task           | Description                                | Key variables                                                 |
+| -------------- | ------------------------------------------ | ------------------------------------------------------------- |
+| `install`      | Install Spectral as a local devDependency  | `SPECTRAL_VERSION`                                            |
+| `install:undo` | Remove the Spectral devDependency          |                                                               |
+| `upgrade`      | Upgrade Spectral to the latest release     |                                                               |
+| `ci`           | Lint API documents with Spectral           | `SPECTRAL_TARGETS`, `SPECTRAL_RULESET`, `SPECTRAL_EXTRA_ARGS` |
+| `config:init`  | Create a default .spectral.yaml ruleset    |                                                               |
+| `help`         | Show the Spectral CLI help                 |                                                               |
+| `version`      | Show the locally resolved Spectral version |                                                               |
 
 ## Variables
 
-| Variable | Default | Description |
-|---|---|---|
-| `SPECTRAL_VERSION` | `""` (package manager default) | Pin a specific @stoplight/spectral-cli release |
-| `SPECTRAL_TARGETS` | `""` | API document(s) to lint, e.g. `openapi.yaml` |
-| `SPECTRAL_RULESET` | `""` | Path to a Spectral ruleset file passed via `--ruleset` |
-| `SPECTRAL_EXTRA_ARGS` | `""` | Extra flags forwarded to spectral |
+| Variable              | Default                        | Description                                            |
+| --------------------- | ------------------------------ | ------------------------------------------------------ |
+| `SPECTRAL_VERSION`    | `""` (package manager default) | Pin a specific @stoplight/spectral-cli release         |
+| `SPECTRAL_TARGETS`    | `""`                           | API document(s) to lint, e.g. `openapi.yaml`           |
+| `SPECTRAL_RULESET`    | `""`                           | Path to a Spectral ruleset file passed via `--ruleset` |
+| `SPECTRAL_EXTRA_ARGS` | `""`                           | Extra flags forwarded to spectral                      |
 
 Spectral skips matching files as top-level lint targets, but may still load them when another document references them through `$ref`.
 

@@ -1,10 +1,10 @@
 ---
-version: '3.5'
+version: "3.5"
 
 output:
   group:
     begin: ::group::{{.TASK}}
-    end: '::endgroup::'
+    end: "::endgroup::"
     error_only: false
 
 silent: true
@@ -125,7 +125,7 @@ tasks:
       - task: _features:show:unix
       - task: _windows:unsupported
   install:shell:
-    dir: '{{.USER_WORKING_DIR}}'
+    dir: "{{.USER_WORKING_DIR}}"
     interactive: true
     desc: Run a temporary Nix shell with installables (NIX_INSTALLABLE)
     summary: |
@@ -147,12 +147,12 @@ tasks:
       - task: _nix:pkg:unix
         vars:
           NIX_SUBCMD: shell
-          NIX_TRAILING: '{{if .NIX_COMMAND}}--command {{.NIX_COMMAND}}{{end}}'
-          NIX_INSTALLABLE: '{{.NIX_INSTALLABLE}}'
-          NIX_EXTRA_ARGS: '{{.NIX_EXTRA_ARGS}}'
+          NIX_TRAILING: "{{if .NIX_COMMAND}}--command {{.NIX_COMMAND}}{{end}}"
+          NIX_INSTALLABLE: "{{.NIX_INSTALLABLE}}"
+          NIX_EXTRA_ARGS: "{{.NIX_EXTRA_ARGS}}"
       - task: _windows:unsupported
   install:profile:
-    dir: '{{.USER_WORKING_DIR}}'
+    dir: "{{.USER_WORKING_DIR}}"
     desc: Add installables to the user Nix profile (NIX_INSTALLABLE)
     summary: |
       Run nix profile add so packages stay on PATH across sessions.
@@ -174,8 +174,8 @@ tasks:
       - task: _nix:pkg:unix
         vars:
           NIX_SUBCMD: profile add
-          NIX_INSTALLABLE: '{{.NIX_INSTALLABLE}}'
-          NIX_EXTRA_ARGS: '{{.NIX_EXTRA_ARGS}}'
+          NIX_INSTALLABLE: "{{.NIX_INSTALLABLE}}"
+          NIX_EXTRA_ARGS: "{{.NIX_EXTRA_ARGS}}"
       - task: _windows:unsupported
   _features:needed:
     run: once
@@ -190,7 +190,7 @@ tasks:
     cmds:
       - task: _features:enable:unix
         vars:
-          NIX_EXPERIMENTAL_FEATURES: '{{.NIX_NEEDED_FEATURES}}'
+          NIX_EXPERIMENTAL_FEATURES: "{{.NIX_NEEDED_FEATURES}}"
   _nix:unix:
     internal: true
     platforms:
@@ -213,7 +213,7 @@ tasks:
       - bash -lc '{{.NIX_LOAD}}; nix {{.NIX_ARGS}}'
   _nix:pkg:unix:
     internal: true
-    dir: '{{.USER_WORKING_DIR}}'
+    dir: "{{.USER_WORKING_DIR}}"
     platforms:
       - linux
       - darwin
@@ -225,7 +225,7 @@ tasks:
       vars:
         - NIX_SUBCMD
     vars:
-      NIX_TRAILING: ''
+      NIX_TRAILING: ""
     preconditions:
       - sh: test -n "{{.NIX_INSTALLABLE}}"
         msg: NIX_INSTALLABLE is required. Pass NIX_INSTALLABLE=nixpkgs#hello (or hello).

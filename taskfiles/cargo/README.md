@@ -72,33 +72,33 @@ task cargo:build RUST_TOOLCHAIN=1.79.0 CARGO_EXTRA_ARGS=--release
 
 ## Public Tasks
 
-| Task | Description |
-|---|---|
-| `build` | Build the crate with `cargo build` |
-| `check` | Type-check the crate with `cargo check` |
-| `test` | Run the crate test suite with `cargo test` |
-| `fmt` | Format Rust code with `cargo fmt` |
-| `fmt:check` | Check Rust formatting with `cargo fmt --check` |
-| `lint` | Lint Rust code with `cargo clippy` |
-| `lint:fix` | Auto-fix Rust lint issues with `cargo clippy --fix` |
-| `ci` | Run `fmt:check` then `lint` |
-| `ci:fix` | Run `fmt` then `lint:fix` for CI |
-| `which` | Show the path to the cargo binary |
-| `verify` | Print cargo and rustc versions |
-| `install` | Install Cargo via Nix (Unix) or WinGet (Windows) |
+| Task            | Description                                          |
+| --------------- | ---------------------------------------------------- |
+| `build`         | Build the crate with `cargo build`                   |
+| `check`         | Type-check the crate with `cargo check`              |
+| `test`          | Run the crate test suite with `cargo test`           |
+| `fmt`           | Format Rust code with `cargo fmt`                    |
+| `fmt:check`     | Check Rust formatting with `cargo fmt --check`       |
+| `lint`          | Lint Rust code with `cargo clippy`                   |
+| `lint:fix`      | Auto-fix Rust lint issues with `cargo clippy --fix`  |
+| `ci`            | Run `fmt:check` then `lint`                          |
+| `ci:fix`        | Run `fmt` then `lint:fix` for CI                     |
+| `which`         | Show the path to the cargo binary                    |
+| `verify`        | Print cargo and rustc versions                       |
+| `install`       | Install Cargo via Nix (Unix) or WinGet (Windows)     |
 | `install:crate` | Install a crate with `cargo install` (`CARGO_CRATE`) |
-| `version` | Show the active Cargo version |
+| `version`       | Show the active Cargo version                        |
 
 ## Variables
 
-| Variable | Default | Description |
-|---|---|---|
-| `CARGO_NIX_INSTALLABLE` | `nixpkgs#cargo` | Flake installable passed to `nix:install:profile` |
-| `CARGO_WINGET_INSTALLABLE` | `Rustlang.Rustup` | WinGet package ID for `winget:install:package` |
-| `CARGO_LOAD` | reloads User Path; prepends `%USERPROFILE%\.cargo\bin` | PowerShell snippet so `cargo` and cargo-installed binaries from earlier in the same Task process are on PATH |
-| `RUST_TOOLCHAIN` | empty | Optional toolchain channel or version, such as `nightly` or `1.79.0` |
-| `CARGO_EXTRA_ARGS` | empty | Extra flags appended to Cargo subcommands |
-| `CARGO_CRATE` | empty | Crate name for `install:crate`; required when running that task |
+| Variable                   | Default                                                | Description                                                                                                  |
+| -------------------------- | ------------------------------------------------------ | ------------------------------------------------------------------------------------------------------------ |
+| `CARGO_NIX_INSTALLABLE`    | `nixpkgs#cargo`                                        | Flake installable passed to `nix:install:profile`                                                            |
+| `CARGO_WINGET_INSTALLABLE` | `Rustlang.Rustup`                                      | WinGet package ID for `winget:install:package`                                                               |
+| `CARGO_LOAD`               | reloads User Path; prepends `%USERPROFILE%\.cargo\bin` | PowerShell snippet so `cargo` and cargo-installed binaries from earlier in the same Task process are on PATH |
+| `RUST_TOOLCHAIN`           | empty                                                  | Optional toolchain channel or version, such as `nightly` or `1.79.0`                                         |
+| `CARGO_EXTRA_ARGS`         | empty                                                  | Extra flags appended to Cargo subcommands                                                                    |
+| `CARGO_CRATE`              | empty                                                  | Crate name for `install:crate`; required when running that task                                              |
 
 ## Notes
 

@@ -1,10 +1,10 @@
 ---
-version: '3.5'
+version: "3.5"
 
 output:
   group:
     begin: ::group::{{.TASK}}
-    end: '::endgroup::'
+    end: "::endgroup::"
     error_only: false
 
 silent: true
@@ -42,7 +42,7 @@ tasks:
     cmds:
       - task: nix:install:profile
         vars:
-          NIX_INSTALLABLE: '{{.ANSIBLE_NIX_INSTALLABLE}}'
+          NIX_INSTALLABLE: "{{.ANSIBLE_NIX_INSTALLABLE}}"
   version:
     run: once
     desc: Show the active Ansible version

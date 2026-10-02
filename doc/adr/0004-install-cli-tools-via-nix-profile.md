@@ -106,7 +106,7 @@ The nix module is unchanged: it still installs Nix itself (`nix:install`) and
 exposes `install:profile` / `install:shell`.
 
 **Out of scope:** JS local-devDep `install` / `upgrade` / `{TOOL}_VERSION`;
-npm / yarn / pnpm project install (installing *project* dependencies, not the
+npm / yarn / pnpm project install (installing _project_ dependencies, not the
 CLI itself).
 
 **Exceptions:** docker keeps `install` / `install:undo` / `upgrade` / `version`,

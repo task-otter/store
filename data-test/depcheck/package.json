@@ -5,6 +5,8 @@
     "depcheck": "^1.4.0"
   },
   "depcheck": {
-    "ignoreMatches": ["depcheck"]
+    "ignoreMatches": [
+      "depcheck"
+    ]
   }
 }

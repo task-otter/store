@@ -1,10 +1,10 @@
 ---
-version: '3.5'
+version: "3.5"
 
 output:
   group:
     begin: ::group::{{.TASK}}
-    end: '::endgroup::'
+    end: "::endgroup::"
     error_only: false
 
 silent: true
@@ -60,7 +60,7 @@ tasks:
     cmds:
       - task: nix:install:profile
         vars:
-          NIX_INSTALLABLE: '{{.GO_NIX_INSTALLABLE}}'
+          NIX_INSTALLABLE: "{{.GO_NIX_INSTALLABLE}}"
   _install:windows:
     internal: true
     platforms:
@@ -68,7 +68,7 @@ tasks:
     cmds:
       - task: winget:install:package
         vars:
-          WINGET_INSTALLABLE: '{{.GO_WINGET_INSTALLABLE}}'
+          WINGET_INSTALLABLE: "{{.GO_WINGET_INSTALLABLE}}"
   install:pkg:
     desc: Install a Go package with go install (GO_PKG=module@version)
     summary: |
@@ -90,10 +90,10 @@ tasks:
     cmds:
       - task: _install:pkg:unix
         vars:
-          GO_PKG: '{{.GO_PKG}}'
+          GO_PKG: "{{.GO_PKG}}"
       - task: _install:pkg:windows
         vars:
-          GO_PKG: '{{.GO_PKG}}'
+          GO_PKG: "{{.GO_PKG}}"
   _install:pkg:unix:
     internal: true
     platforms:
@@ -168,7 +168,7 @@ tasks:
       - task: _verify:windows
   test:
     run: once
-    dir: '{{.USER_WORKING_DIR}}'
+    dir: "{{.USER_WORKING_DIR}}"
     desc: Run Go unit tests
     summary: |
       Run `go test -v` against all Go packages by default. Pass CLI arguments
@@ -191,7 +191,7 @@ tasks:
           - windows
   bench:
     run: once
-    dir: '{{.USER_WORKING_DIR}}'
+    dir: "{{.USER_WORKING_DIR}}"
     desc: Run Go benchmarks
     summary: |
       Run `go test` benchmarks (-bench .) with memory statistics and no
@@ -216,7 +216,7 @@ tasks:
           - windows
   fuzz:
     run: once
-    dir: '{{.USER_WORKING_DIR}}'
+    dir: "{{.USER_WORKING_DIR}}"
     desc: Run a Go fuzz target
     summary: |
       Run a Go fuzz target for a bounded duration (GO_FUZZTIME, default 30s). Go
@@ -226,7 +226,7 @@ tasks:
     deps:
       - task: install
     vars:
-      GO_FUZZ_TIME: '{{if .GO_FUZZTIME}}{{.GO_FUZZTIME}}{{else}}30s{{end}}'
+      GO_FUZZ_TIME: "{{if .GO_FUZZTIME}}{{.GO_FUZZTIME}}{{else}}30s{{end}}"
     cmds:
       - cmd: >-
           bash -lc '{{.NIX_LOAD}}; go test -run "^$" -fuzztime "{{.GO_FUZZ_TIME}}"

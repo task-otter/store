@@ -85,24 +85,24 @@ task golangci-lint:fmt -- ./internal/...
 
 ## Public Tasks
 
-| Task          | Description                                            |
-| ------------- | ------------------------------------------------------- |
-| `lint`        | Lint all Go packages with golangci-lint                 |
-| `lint:fix`    | Auto-fix Go lint issues with golangci-lint               |
-| `ci`          | Run `fmt:check` then `lint` |
-| `ci:fix`      | Run `fmt` then `lint:fix` for CI |
-| `fmt`         | Format Go files with golangci-lint formatters            |
-| `fmt:check`   | Check Go formatting with golangci-lint formatters         |
-| `install` | Install golangci-lint via Nix (Unix) or WinGet (Windows) |
-| `version` | Show the active golangci-lint version |
+| Task        | Description                                              |
+| ----------- | -------------------------------------------------------- |
+| `lint`      | Lint all Go packages with golangci-lint                  |
+| `lint:fix`  | Auto-fix Go lint issues with golangci-lint               |
+| `ci`        | Run `fmt:check` then `lint`                              |
+| `ci:fix`    | Run `fmt` then `lint:fix` for CI                         |
+| `fmt`       | Format Go files with golangci-lint formatters            |
+| `fmt:check` | Check Go formatting with golangci-lint formatters        |
+| `install`   | Install golangci-lint via Nix (Unix) or WinGet (Windows) |
+| `version`   | Show the active golangci-lint version                    |
 
 ## Variables
 
-| Variable                             | Default                                   | Description                                                      |
-| ------------------------------------- | ------------------------------------------ | ------------------------------------------------------------------ |
-| `GOLANGCI_LINT_NIX_INSTALLABLE`       | `nixpkgs#go nixpkgs#golangci-lint`         | Flake installables passed to `nix:install:profile` (Go plus the linter) |
-| `GOLANGCI_LINT_WINGET_INSTALLABLE` | `GolangCI.golangci-lint` | WinGet package ID for `winget:install:package` |
-| `GOLANGCI_LINT_FMT_FORMATTER_FLAGS`   | `-E gci -E gofmt -E gofumpt -E goimports -E golines` | Formatter set passed to `golangci-lint fmt`     |
+| Variable                            | Default                                              | Description                                                             |
+| ----------------------------------- | ---------------------------------------------------- | ----------------------------------------------------------------------- |
+| `GOLANGCI_LINT_NIX_INSTALLABLE`     | `nixpkgs#go nixpkgs#golangci-lint`                   | Flake installables passed to `nix:install:profile` (Go plus the linter) |
+| `GOLANGCI_LINT_WINGET_INSTALLABLE`  | `GolangCI.golangci-lint`                             | WinGet package ID for `winget:install:package`                          |
+| `GOLANGCI_LINT_FMT_FORMATTER_FLAGS` | `-E gci -E gofmt -E gofumpt -E goimports -E golines` | Formatter set passed to `golangci-lint fmt`                             |
 
 Pin a revision by overriding the installable, for example
 `GOLANGCI_LINT_NIX_INSTALLABLE=github:NixOS/nixpkgs/<rev>#golangci-lint`.

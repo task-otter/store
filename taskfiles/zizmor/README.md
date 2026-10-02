@@ -41,20 +41,20 @@ task zizmor:version
 
 ## Public Tasks
 
-| Task | Description |
-|---|---|
-| `ci` | Audit GitHub Actions workflows for security issues |
-| `install` | Install zizmor via Nix (Unix) or WinGet (Windows) |
-| `version` | Show the active zizmor version |
+| Task      | Description                                        |
+| --------- | -------------------------------------------------- |
+| `ci`      | Audit GitHub Actions workflows for security issues |
+| `install` | Install zizmor via Nix (Unix) or WinGet (Windows)  |
+| `version` | Show the active zizmor version                     |
 
 ## Variables
 
-| Variable | Default | Description |
-|---|---|---|
-| `ZIZMOR_NIX_INSTALLABLE` | `nixpkgs#zizmor` | Flake installable passed to `nix:install:profile` |
-| `ZIZMOR_WINGET_INSTALLABLE` | `zizmor.zizmor` | WinGet package ID for `winget:install:package` |
-| `ZIZMOR_EXTRA_ARGS` | `"--offline"` | Additional flags passed to `zizmor` (e.g. `--format`, `--min-severity`, `--gh-token`) |
-| `ZIZMOR_TARGETS` | `".github"` | Path to audit; scans workflows and composite actions under `.github` |
+| Variable                    | Default          | Description                                                                           |
+| --------------------------- | ---------------- | ------------------------------------------------------------------------------------- |
+| `ZIZMOR_NIX_INSTALLABLE`    | `nixpkgs#zizmor` | Flake installable passed to `nix:install:profile`                                     |
+| `ZIZMOR_WINGET_INSTALLABLE` | `zizmor.zizmor`  | WinGet package ID for `winget:install:package`                                        |
+| `ZIZMOR_EXTRA_ARGS`         | `"--offline"`    | Additional flags passed to `zizmor` (e.g. `--format`, `--min-severity`, `--gh-token`) |
+| `ZIZMOR_TARGETS`            | `".github"`      | Path to audit; scans workflows and composite actions under `.github`                  |
 
 Pin a revision by overriding the installable, for example
 `ZIZMOR_NIX_INSTALLABLE=github:NixOS/nixpkgs/<rev>#zizmor`.

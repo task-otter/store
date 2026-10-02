@@ -37,23 +37,23 @@ task rumdl:fmt
 
 ## Public Tasks
 
-| Task | Description | Key variables |
-|---|---|---|
-| `ci` | Lint Markdown files with rumdl check | `RUMDL_TARGETS`, `RUMDL_EXTRA_ARGS` |
-| `lint:fix` | Apply automatic fixes with rumdl check --fix | `RUMDL_TARGETS`, `RUMDL_EXTRA_ARGS` |
-| `ci:fix` | Run `fmt` then `lint:fix` for CI | — |
-| `fmt` | Format Markdown files with rumdl fmt | `RUMDL_TARGETS`, `RUMDL_EXTRA_ARGS` |
-| `install` | Install rumdl via Nix (Unix) or cargo install (Windows) | `RUMDL_NIX_INSTALLABLE`, `RUMDL_CARGO_CRATE` |
-| `version` | Show the active rumdl version | — |
+| Task       | Description                                             | Key variables                                |
+| ---------- | ------------------------------------------------------- | -------------------------------------------- |
+| `ci`       | Lint Markdown files with rumdl check                    | `RUMDL_TARGETS`, `RUMDL_EXTRA_ARGS`          |
+| `lint:fix` | Apply automatic fixes with rumdl check --fix            | `RUMDL_TARGETS`, `RUMDL_EXTRA_ARGS`          |
+| `ci:fix`   | Run `fmt` then `lint:fix` for CI                        | —                                            |
+| `fmt`      | Format Markdown files with rumdl fmt                    | `RUMDL_TARGETS`, `RUMDL_EXTRA_ARGS`          |
+| `install`  | Install rumdl via Nix (Unix) or cargo install (Windows) | `RUMDL_NIX_INSTALLABLE`, `RUMDL_CARGO_CRATE` |
+| `version`  | Show the active rumdl version                           | —                                            |
 
 ## Variables
 
-| Variable | Default | Description |
-|---|---|---|
+| Variable                | Default         | Description                                       |
+| ----------------------- | --------------- | ------------------------------------------------- |
 | `RUMDL_NIX_INSTALLABLE` | `nixpkgs#rumdl` | Flake installable passed to `nix:install:profile` |
-| `RUMDL_CARGO_CRATE` | `rumdl` | Crate name for Windows `cargo:install:crate` |
-| `RUMDL_TARGETS` | `.` | File or directory rumdl operates on |
-| `RUMDL_EXTRA_ARGS` | `""` | Extra flags forwarded to rumdl |
+| `RUMDL_CARGO_CRATE`     | `rumdl`         | Crate name for Windows `cargo:install:crate`      |
+| `RUMDL_TARGETS`         | `.`             | File or directory rumdl operates on               |
+| `RUMDL_EXTRA_ARGS`      | `""`            | Extra flags forwarded to rumdl                    |
 
 Pin a revision by overriding the installable, for example
 `RUMDL_NIX_INSTALLABLE=github:NixOS/nixpkgs/<rev>#rumdl`.

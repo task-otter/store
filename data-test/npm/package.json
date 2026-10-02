@@ -1,7 +1,7 @@
 {
-	"name": "npm-smoke",
-	"private": true,
-	"scripts": {
-		"lint": "node -e \"process.exit(0)\""
-	}
+  "name": "npm-smoke",
+  "private": true,
+  "scripts": {
+    "lint": "node -e \"process.exit(0)\""
+  }
 }

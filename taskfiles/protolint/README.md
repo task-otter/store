@@ -35,21 +35,21 @@ task protolint:ci:fix PROTOLINT_TARGETS=api
 
 ## Public Tasks
 
-| Task | Description |
-|---|---|
-| `ci` | Lint protobuf files with protolint |
-| `ci:fix` | Apply automatic fixes with protolint lint -fix |
+| Task      | Description                                              |
+| --------- | -------------------------------------------------------- |
+| `ci`      | Lint protobuf files with protolint                       |
+| `ci:fix`  | Apply automatic fixes with protolint lint -fix           |
 | `install` | Install protolint via Nix (Unix) or go install (Windows) |
-| `version` | Show the active protolint version |
+| `version` | Show the active protolint version                        |
 
 ## Variables
 
-| Variable | Default | Description |
-|---|---|---|
-| `PROTOLINT_NIX_INSTALLABLE` | `nixpkgs#protolint` | Flake installable passed to `nix:install:profile` |
-| `PROTOLINT_GO_PKG` | `github.com/yoheimuta/protolint/cmd/protolint@latest` | Go module passed to `go:install:pkg` on Windows |
-| `PROTOLINT_TARGETS` | `.` | File or directory protolint operates on |
-| `PROTOLINT_EXTRA_ARGS` | `""` | Extra flags forwarded to protolint (e.g. `-config_path`, `-reporter json`) |
+| Variable                    | Default                                               | Description                                                                |
+| --------------------------- | ----------------------------------------------------- | -------------------------------------------------------------------------- |
+| `PROTOLINT_NIX_INSTALLABLE` | `nixpkgs#protolint`                                   | Flake installable passed to `nix:install:profile`                          |
+| `PROTOLINT_GO_PKG`          | `github.com/yoheimuta/protolint/cmd/protolint@latest` | Go module passed to `go:install:pkg` on Windows                            |
+| `PROTOLINT_TARGETS`         | `.`                                                   | File or directory protolint operates on                                    |
+| `PROTOLINT_EXTRA_ARGS`      | `""`                                                  | Extra flags forwarded to protolint (e.g. `-config_path`, `-reporter json`) |
 
 Pin a revision by overriding the installable, for example
 `PROTOLINT_NIX_INSTALLABLE=github:NixOS/nixpkgs/<rev>#protolint`.
@@ -58,4 +58,3 @@ Pin a revision by overriding the installable, for example
 
 - Unix install uses Nix (`PROTOLINT_NIX_INSTALLABLE`). On Windows, install uses `go:install:pkg` with `PROTOLINT_GO_PKG`.
 - Go is provided by the included [`go`](../go/README.md) module. Operational tasks depend on `go:install`.
-
