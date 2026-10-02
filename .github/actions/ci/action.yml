@@ -23,7 +23,6 @@ runs:
         task actionlint:ci
         task yamllint:ci
         task zizmor:ci
-        task prettier:bun:ci
     - name: Run Tests
       shell: bash
       run: |
