@@ -1,10 +1,10 @@
 /** @type {import("eslint").Linter.Config[]} */
 export default [
   {
-    files: ["src/**/*.js"],
+    files: ['src/**/*.js'],
     languageOptions: {
-      ecmaVersion: "latest",
-      sourceType: "module",
+      ecmaVersion: 'latest',
+      sourceType: 'module',
     },
   },
 ];

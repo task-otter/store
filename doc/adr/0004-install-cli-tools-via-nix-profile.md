@@ -70,7 +70,7 @@ tasks:
     cmds:
       - task: nix:install:profile
         vars:
-          NIX_INSTALLABLE: "{{.ACTIONLINT_NIX_INSTALLABLE}}"
+          NIX_INSTALLABLE: '{{.ACTIONLINT_NIX_INSTALLABLE}}'
 
   version:
     desc: Show the active actionlint version

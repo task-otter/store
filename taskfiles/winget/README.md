@@ -54,7 +54,7 @@ tasks:
     cmds:
       - task: winget:install:package
         vars:
-          WINGET_INSTALLABLE: "{{.JQ_WINGET_INSTALLABLE}}"
+          WINGET_INSTALLABLE: '{{.JQ_WINGET_INSTALLABLE}}'
 ```
 
 ## Auto-install behaviour
