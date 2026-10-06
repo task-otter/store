@@ -4,9 +4,48 @@
 package tasksmoke
 
 import (
+	"bytes"
+	"os"
 	"path/filepath"
 	"testing"
 )
+
+const (
+	inheritedSmokeVarsTaskfile = `version: '3'
+vars:
+  TARGET: '{{.TARGET | default "wrong"}}'
+tasks:
+  parent:
+    deps: [dependency]
+    cmds:
+      - task: child
+  dependency:
+    cmds:
+      - test '{{.TARGET}}' = src
+  child:
+    cmds:
+      - test '{{.TARGET}}' = src
+`
+)
+
+// TestExecuteGoTaskInheritsSmokeVars checks overrides in nested tasks and dependencies.
+func TestExecuteGoTaskInheritsSmokeVars(t *testing.T) {
+	t.Parallel()
+
+	dir := t.TempDir()
+	requireNoErr(
+		t,
+		os.WriteFile(
+			filepath.Join(dir, taskfileName),
+			[]byte(inheritedSmokeVarsTaskfile),
+			fileMode,
+		),
+	)
+	requireNoErr(t, executeGoTask(&runRequest{
+		Dir: dir, Name: "parent", WorkDir: dir, Timeout: defaultTimeout,
+		Output: new(bytes.Buffer), Vars: map[string]string{"TARGET": "src"},
+	}))
+}
 
 // TestExecuteGoTaskRunsPing exercises ExecuteGoTaskRunsPing.
 func TestExecuteGoTaskRunsPing(t *testing.T) {

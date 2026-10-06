@@ -32,6 +32,9 @@ func executeGoTask(request *runRequest) error {
 		return fmt.Errorf(errRunFormat, request.Dir, request.Name, err)
 	}
 
+	// Match CLI global overrides so dependencies and nested tasks inherit smoke vars.
+	setCallVars(executor.Taskfile.Vars, request.Vars)
+
 	runErr := runExecutorTask(executor, request)
 	if runErr != nil {
 		return fmt.Errorf("run executor task: %w", runErr)
