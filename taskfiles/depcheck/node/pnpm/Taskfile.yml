@@ -45,8 +45,6 @@ tasks:
       - task: pnpm:add
         vars:
           PACKAGES: depcheck{{if .RESOLVED_VERSION}}@{{.RESOLVED_VERSION}}{{end}}
-          EXTRA_ARGS: >-
-            {{.DEPCHECK_EXTRA_ARGS}}{{if .CLI_ARGS}} {{.CLI_ARGS}}{{end}}
   install:undo:
     run: once
     desc: Remove the locally installed Depcheck devDependency

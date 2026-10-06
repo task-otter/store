@@ -37,7 +37,6 @@ tasks:
       specific release instead of the package manager's default resolution.
     vars:
       RESOLVED_VERSION: '{{.ESLINT_VERSION}}'
-      RESOLVED_EXTRA_ARGS: '{{.ESLINT_EXTRA_ARGS}}'
     status:
       - >-
         node -e "const installed = require('./node_modules/eslint/package.json');
@@ -47,7 +46,6 @@ tasks:
       - task: pnpm:add
         vars:
           PACKAGES: eslint{{if .RESOLVED_VERSION}}@{{.RESOLVED_VERSION}}{{end}}
-          EXTRA_ARGS: '{{.RESOLVED_EXTRA_ARGS}}{{if .CLI_ARGS}} {{.CLI_ARGS}}{{end}}'
   install:undo:
     run: once
     desc: Remove the locally installed ESLint devDependency
