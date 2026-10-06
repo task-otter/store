@@ -14,7 +14,7 @@ includes:
     taskfile: ../nix/Taskfile.yml
   winget:
     taskfile: ../winget/Taskfile.yml
-  jq: ../jq/Taskfile.yml
+  dasel: ../dasel/Taskfile.yml
 
 vars:
   VAULT_ADDR: '{{.VAULT_ADDR | default "http://127.0.0.1:8200"}}'
@@ -170,15 +170,15 @@ tasks:
     desc: Show Vault health as JSON (VAULT_ADDR=url)
     summary: |
       Fetch the raw health JSON from the Vault HTTP API at VAULT_ADDR/v1/sys/health
-      and pretty-print it with jq. Returns HTTP 200 when active, 429 when standby,
+      and pretty-print it with Dasel. Returns HTTP 200 when active, 429 when standby,
       472 when in recovery mode, and 501 when uninitialized.
-      This task only uses curl and jq — it does not require the Vault CLI.
+      This task only uses curl and Dasel — it does not require the Vault CLI.
     set:
       - errexit
       - nounset
       - pipefail
     deps:
-      - task: jq:install
+      - task: dasel:install
     preconditions:
       - sh: command -v curl >/dev/null 2>&1
         msg: curl is required to query the Vault health endpoint.
@@ -187,13 +187,15 @@ tasks:
           bash -lc '{{.NIX_LOAD}};
           curl -s
           "{{.VAULT_ADDR_TARGET}}/v1/sys/health"
-          | jq .'
+          | dasel -i json -o json'
         platforms:
           - linux
           - darwin
       - cmd: >-
           powershell -NoProfile -ExecutionPolicy Bypass -Command
-          "{{.WINGET_LOAD}}; curl -s '{{.VAULT_ADDR_TARGET}}/v1/sys/health' | jq .; exit \$LASTEXITCODE"
+          "{{.WINGET_LOAD}}; {{.GO_LOAD}};
+          curl.exe -s '{{.VAULT_ADDR_TARGET}}/v1/sys/health'
+          | dasel -i json -o json; exit \$LASTEXITCODE"
         platforms:
           - windows
   login:root-token:

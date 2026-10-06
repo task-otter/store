@@ -1,0 +1,4 @@
+---
+vars:
+  DASEL_NIX_INSTALLABLE: nixpkgs#dasel
+  DASEL_GO_PKG: github.com/tomwright/dasel/v3/cmd/dasel@latest

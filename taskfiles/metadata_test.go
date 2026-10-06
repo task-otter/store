@@ -145,7 +145,7 @@ func toolFamilies() map[string]bool {
 }
 
 // exportedTasks returns the sorted public task names for a module (its path
-// relative to taskfiles/, e.g. "jq" or "prettier/node/npm").
+// relative to taskfiles/, e.g. "dasel" or "prettier/node/npm").
 func exportedTasks(t *testing.T, module string) []string {
 	t.Helper()
 

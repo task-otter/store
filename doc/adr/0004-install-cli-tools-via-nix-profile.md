@@ -87,7 +87,7 @@ tasks:
 ```
 
 A module that depends on another module's tool depends on that module's
-`install` task — `git` on `gh:install`, `vault` on `jq:install` — never on a
+`install` task — `git` on `gh:install`, `vault` on `dasel:install` — never on a
 namespaced `nix:install:profile`.
 
 `NIX_LOAD` comes from the nix include. Unix commands that invoke the installed
@@ -98,9 +98,9 @@ without a shell restart. Pinning is an installable override, for example
 `NIX_INSTALLABLE` is passed only as a **task-local** var into
 `nix:install:profile`. Consuming modules never declare it at top-level.
 
-Modules with no work tasks of their own — jq is the only one — are not an
+Modules with no work tasks of their own — Dasel is one example — are not an
 exception: they keep `default` and export `[install, version]` like everything
-else, so `task jq:install` works the same way as `task actionlint:install`.
+else, so `task dasel:install` works the same way as `task actionlint:install`.
 
 The nix module is unchanged: it still installs Nix itself (`nix:install`) and
 exposes `install:profile` / `install:shell`.

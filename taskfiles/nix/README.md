@@ -27,7 +27,7 @@ shipping their own installers.
 ```sh
 task -t taskfiles/nix/Taskfile.yml install
 task -t taskfiles/nix/Taskfile.yml install:shell NIX_INSTALLABLE=nixpkgs#hello NIX_COMMAND=hello
-task -t taskfiles/nix/Taskfile.yml install:profile NIX_INSTALLABLE=nixpkgs#jq
+task -t taskfiles/nix/Taskfile.yml install:profile NIX_INSTALLABLE=nixpkgs#dasel
 task -t taskfiles/nix/Taskfile.yml uninstall
 ```
 
@@ -43,7 +43,7 @@ Then run:
 ```sh
 task nix:install
 task nix:install:shell NIX_INSTALLABLE=hello NIX_COMMAND=hello
-task nix:install:profile NIX_INSTALLABLE=nixpkgs#jq
+task nix:install:profile NIX_INSTALLABLE=nixpkgs#dasel
 ```
 
 ## Auto-install behaviour
@@ -123,7 +123,7 @@ and `flakes` (no separate `features:enable` step). They also require
 ```sh
 task install:shell NIX_INSTALLABLE=nixpkgs#hello
 task install:shell NIX_INSTALLABLE=hello NIX_COMMAND=hello
-task install:profile NIX_INSTALLABLE=nixpkgs#jq
+task install:profile NIX_INSTALLABLE=nixpkgs#dasel
 ```
 
 A value without `#` or a path prefix is expanded to `nixpkgs#<name>`.
@@ -169,29 +169,29 @@ task features:show
 Default is `nix-command flakes` — the usual pair for `nix build`, `nix run`,
 and `nix flake`. `flakes` always enables `fetch-tree` as well.
 
-| Feature | Description |
+| Feature                   | Description                                                               |
 | ------------------------- | ------------------------------------------------------------------------- | ------- | ------------------------------- |
-| `auto-allocate-uids` | Automatically pick UIDs for builds instead of creating `nixbld*` accounts |
-| `blake3-hashes` | Support for BLAKE3 hashes |
-| `ca-derivations` | Content-addressed derivations; skip rebuilds when outputs do not change |
-| `cgroups` | Execute builds inside cgroups |
-| `configurable-impure-env` | Allow the `impure-env` setting |
-| `daemon-trust-override` | Force trusting or not trusting `nix-daemon` clients |
-| `dynamic-derivations` | Text-hashed `.drv` outputs and dependencies on derivation outputs |
-| `external-builders` | External builders / sandbox providers |
-| `fetch-closure` | `builtins.fetchClosure` |
-| `fetch-tree` | `builtins.fetchTree` (also enabled by `flakes`) |
-| `flakes` | Flakes (`nix flake`) |
-| `git-hashing` | Content-addressed store objects hashed with Git's hashing algorithm |
-| `impure-derivations` | Derivations with `__impure` that may produce different outputs each build |
-| `local-overlay-store` | Local overlay store |
-| `mounted-ssh-store` | Mounted SSH store |
-| `nix-command` | New `nix` subcommands (`nix build`, `nix run`, `nix flake`, …) |
-| `parse-toml-timestamps` | Parse timestamps in `builtins.fromTOML` |
-| `pipe-operators` | `                                                                         | >`and`< | ` operators in the Nix language |
-| `read-only-local-store` | `read-only` parameter in local store URIs |
-| `recursive-nix` | Allow derivation builders to call Nix |
-| `verified-fetches` | Verify git commit signatures in `builtins.fetchGit` |
+| `auto-allocate-uids`      | Automatically pick UIDs for builds instead of creating `nixbld*` accounts |
+| `blake3-hashes`           | Support for BLAKE3 hashes                                                 |
+| `ca-derivations`          | Content-addressed derivations; skip rebuilds when outputs do not change   |
+| `cgroups`                 | Execute builds inside cgroups                                             |
+| `configurable-impure-env` | Allow the `impure-env` setting                                            |
+| `daemon-trust-override`   | Force trusting or not trusting `nix-daemon` clients                       |
+| `dynamic-derivations`     | Text-hashed `.drv` outputs and dependencies on derivation outputs         |
+| `external-builders`       | External builders / sandbox providers                                     |
+| `fetch-closure`           | `builtins.fetchClosure`                                                   |
+| `fetch-tree`              | `builtins.fetchTree` (also enabled by `flakes`)                           |
+| `flakes`                  | Flakes (`nix flake`)                                                      |
+| `git-hashing`             | Content-addressed store objects hashed with Git's hashing algorithm       |
+| `impure-derivations`      | Derivations with `__impure` that may produce different outputs each build |
+| `local-overlay-store`     | Local overlay store                                                       |
+| `mounted-ssh-store`       | Mounted SSH store                                                         |
+| `nix-command`             | New `nix` subcommands (`nix build`, `nix run`, `nix flake`, …)            |
+| `parse-toml-timestamps`   | Parse timestamps in `builtins.fromTOML`                                   |
+| `pipe-operators`          | `                                                                         | >`and`< | ` operators in the Nix language |
+| `read-only-local-store`   | `read-only` parameter in local store URIs                                 |
+| `recursive-nix`           | Allow derivation builders to call Nix                                     |
+| `verified-fetches`        | Verify git commit signatures in `builtins.fetchGit`                       |
 
 ## Security Notes
 

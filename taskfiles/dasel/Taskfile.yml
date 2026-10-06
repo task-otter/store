@@ -1,0 +1,97 @@
+---
+version: '3.5'
+
+output:
+  group:
+    begin: ::group::{{.TASK}}
+    end: '::endgroup::'
+    error_only: false
+
+silent: true
+
+includes:
+  go:
+    taskfile: ../go/Taskfile.yml
+  nix:
+    taskfile: ../nix/Taskfile.yml
+  winget:
+    taskfile: ../winget/Taskfile.yml
+
+vars:
+  DASEL_NIX_INSTALLABLE: '{{.DASEL_NIX_INSTALLABLE | default "nixpkgs#dasel"}}'
+  DASEL_GO_PKG: '{{.DASEL_GO_PKG | default "github.com/tomwright/dasel/v3/cmd/dasel@latest"}}'
+
+tasks:
+  default:
+    run: once
+    desc: Show available Dasel automation tasks
+    summary: Display the list of available Dasel-related tasks defined in this Taskfile.
+    cmds:
+      - task --list
+  install:
+    run: once
+    desc: Install Dasel via Nix (Unix) or go install (Windows)
+    summary: |
+      Install Dasel on Linux and macOS into the user Nix profile when it is
+      not already on PATH. Override DASEL_NIX_INSTALLABLE to pin a different
+      package or version. On Windows, use go:install:pkg with DASEL_GO_PKG.
+      The shared Go module installs Go via WinGet when needed.
+    cmds:
+      - task: _install:unix
+      - task: _install:windows
+  _install:unix:
+    internal: true
+    platforms:
+      - linux
+      - darwin
+    status:
+      - command -v dasel >/dev/null 2>&1
+    cmds:
+      - task: nix:install:profile
+        vars:
+          NIX_INSTALLABLE: '{{.DASEL_NIX_INSTALLABLE}}'
+  _install:windows:
+    internal: true
+    platforms:
+      - windows
+    status:
+      - >-
+        powershell -NoProfile -ExecutionPolicy Bypass -Command
+        "{{.WINGET_LOAD}}; {{.GO_LOAD}}; dasel version; exit \$LASTEXITCODE"
+    cmds:
+      - task: go:install:pkg
+        vars:
+          GO_PKG: '{{.DASEL_GO_PKG}}'
+  version:
+    run: once
+    desc: Show the active Dasel version
+    summary: |
+      Print the version reported by the dasel binary resolved from PATH.
+      Auto-installs Dasel if missing.
+    deps:
+      - task: install
+    cmds:
+      - task: _version:unix
+      - task: _version:windows
+  _version:unix:
+    run: once
+    internal: true
+    platforms:
+      - linux
+      - darwin
+    cmds:
+      - bash -lc '{{.NIX_LOAD}}; dasel version'
+  _version:windows:
+    run: once
+    internal: true
+    platforms:
+      - windows
+    preconditions:
+      - sh: >-
+          powershell -NoProfile -ExecutionPolicy Bypass -Command
+          "{{.WINGET_LOAD}}; {{.GO_LOAD}}; dasel version; exit \$LASTEXITCODE"
+        msg: Dasel is not installed or not available in PATH.
+    cmds:
+      - >-
+        powershell -NoProfile -ExecutionPolicy Bypass -Command
+        "{{.WINGET_LOAD}}; {{.GO_LOAD}}; dasel version; exit \$LASTEXITCODE"

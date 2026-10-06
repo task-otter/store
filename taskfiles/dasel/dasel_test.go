@@ -1,7 +1,7 @@
 // Taskotter 2026.
 // SPDX-License-Identifier: Apache-2.0.
 
-package jq_test
+package dasel_test
 
 import (
 	"testing"
@@ -17,13 +17,13 @@ func TestModuleIntegration(t *testing.T) {
 	taskintegration.RunHere(t)
 }
 
-// TestTaskfileModuleContract
+// TestTaskfileModuleContract checks the module's public surface.
 func TestTaskfileModuleContract(t *testing.T) {
 	t.Parallel()
 
 	tasktest.AssertModule(
 		t,
-		"jq",
+		"dasel",
 		&tasktest.ModuleExpectations{Tasks: publicTasks(), Vars: publicVars()},
 	)
 }
@@ -37,7 +37,7 @@ func publicTasks() []string {
 
 func publicVars() []string {
 	return []string{
-		"JQ_NIX_INSTALLABLE",
-		"JQ_WINGET_INSTALLABLE",
+		"DASEL_NIX_INSTALLABLE",
+		"DASEL_GO_PKG",
 	}
 }

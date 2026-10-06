@@ -1,6 +1,6 @@
 ---
 schema: taskotter.dev/taskfile-metadata/v1
-module: jq
+module: dasel
 taskfile: Taskfile.yml
 
 exported_tasks:

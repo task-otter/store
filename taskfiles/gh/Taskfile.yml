@@ -14,7 +14,7 @@ includes:
     taskfile: ../nix/Taskfile.yml
   winget:
     taskfile: ../winget/Taskfile.yml
-  jq: ../jq/Taskfile.yml
+  dasel: ../dasel/Taskfile.yml
 
 vars:
   GH_VISIBILITY: '{{.GH_VISIBILITY | default "public"}}'
@@ -897,7 +897,7 @@ tasks:
         - WORKFLOW
     deps:
       - task: install
-      - task: jq:install
+      - task: dasel:install
     cmds:
       - task: _workflow:watch:unix
       - task: _workflow:watch:windows
@@ -1138,7 +1138,7 @@ tasks:
       Example: OWNER=hashicorp REPO=terraform GH_DOWNLOAD_DIR=./releases
     deps:
       - task: install
-      - task: jq:install
+      - task: dasel:install
     cmds:
       - task: _release:download:all:unix
       - task: _release:download:all:windows
@@ -1158,7 +1158,14 @@ tasks:
         {{.NIX_LOAD}}
         REPO_FLAG="{{if .OWNER}}--repo {{.OWNER}}/{{.REPO}}{{end}}"
         BASE_DIR="{{.GH_DOWNLOAD_DIR}}"
-        for tag in $(gh release list $REPO_FLAG --json tagName --jq '.[].tagName'); do
+        gh release list $REPO_FLAG --json tagName | dasel -i json -o csv \
+          | tail -n +2 | while IFS= read -r tag; do
+          # Decode the single CSV field, including tags with commas or quotes.
+          if [[ "$tag" == \"*\" ]]; then
+            tag=${tag#\"}
+            tag=${tag%\"}
+            tag=$(printf '%s' "$tag" | sed 's/""/"/g')
+          fi
           dest="${BASE_DIR}/${tag}"
           mkdir -p "$dest"
           gh release download "$tag" $REPO_FLAG --dir "$dest" || true
@@ -1172,9 +1179,10 @@ tasks:
     cmds:
       - >-
         powershell -NoProfile -ExecutionPolicy Bypass -Command
-        "{{.WINGET_LOAD}}; \$repoFlag = '{{if .OWNER}}--repo {{.OWNER}}/{{.REPO}}{{end}}';
+        "{{.WINGET_LOAD}}; {{.GO_LOAD}}; \$repoFlag = '{{if .OWNER}}--repo {{.OWNER}}/{{.REPO}}{{end}}';
         \$baseDir = '{{.GH_DOWNLOAD_DIR}}';
-        \$tags = gh release list \$repoFlag --json tagName --jq '.[].tagName';
+        \$tags = gh release list \$repoFlag --json tagName
+        | dasel -i json -o json 'map(tagName)' | ConvertFrom-Json;
         foreach (\$tag in \$tags) {
           \$dest = Join-Path \$baseDir \$tag;
           New-Item -ItemType Directory -Force -Path \$dest | Out-Null;
@@ -2092,7 +2100,9 @@ tasks:
     cmds:
       - |
         {{.NIX_LOAD}}
-        gh run watch $(gh run list --workflow {{.WORKFLOW}} --limit 1 --json databaseId --jq '.[0].databaseId')
+        RUN_ID=$(gh run list --workflow {{.WORKFLOW}} --limit 1 --json databaseId \
+          | dasel -i json -o json 'first().databaseId')
+        gh run watch "$RUN_ID"
   _workflow:watch:windows:
     run: once
     internal: true
@@ -2103,8 +2113,8 @@ tasks:
     cmds:
       - >-
         powershell -NoProfile -ExecutionPolicy Bypass -Command
-        "{{.WINGET_LOAD}}; \$runId = (gh run list --workflow {{.WORKFLOW}} --limit 1 --json databaseId
-        | ConvertFrom-Json)[0].databaseId;
+        "{{.WINGET_LOAD}}; {{.GO_LOAD}}; \$runId = gh run list --workflow {{.WORKFLOW}} --limit 1 --json databaseId
+        | dasel -i json -o json 'first().databaseId';
         gh run watch \$runId; exit \$LASTEXITCODE"
   _doctor:unix:
     run: once

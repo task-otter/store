@@ -16,7 +16,7 @@ import (
 )
 
 const (
-	fixtureModule   = "jq"
+	fixtureModule   = "dasel"
 	shfmtModule     = "shfmt"
 	biomeModule     = "biome"
 	defaultTaskName = "default"
@@ -51,7 +51,7 @@ func TestRunExercisesShfmt(t *testing.T) {
 
 // TestRunHereExercisesCurrentModule runs the suite from the module working directory.
 func TestRunHereExercisesCurrentModule(t *testing.T) {
-	inDir(t, jqModuleDir(t), func() {
+	inDir(t, fixtureModuleDir(t), func() {
 		taskintegration.RunHere(t)
 	})
 
@@ -116,7 +116,7 @@ func inDir(t *testing.T, dir string, callback func()) {
 	callback()
 }
 
-func jqModuleDir(t *testing.T) string {
+func fixtureModuleDir(t *testing.T) string {
 	t.Helper()
 
 	return filepath.Join(tasktest.RepoRoot(t), taskfilesDir, fixtureModule)
