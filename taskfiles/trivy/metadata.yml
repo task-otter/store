@@ -1,0 +1,10 @@
+---
+schema: taskotter.dev/taskfile-metadata/v1
+module: trivy
+taskfile: Taskfile.yml
+
+exported_tasks:
+  - ci:fs
+  - ci:image
+  - install
+  - version

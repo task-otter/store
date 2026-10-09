@@ -298,6 +298,10 @@ stylelint/node/pnpm:
 stylelint/node/yarn:
   - yarn
 
+trivy:
+  - nix
+  - winget
+
 typescript:
   - typescript/bun
   - typescript/node

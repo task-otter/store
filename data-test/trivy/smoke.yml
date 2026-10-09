@@ -1,0 +1,7 @@
+---
+vars:
+  TRIVY_FS_TARGET: fixture
+
+skip:
+  # Image scanning requires an external image; keep the fixture smoke independent of a registry or daemon.
+  - ci:image

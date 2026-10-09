@@ -2,7 +2,7 @@
 
 This document reflects the module dependencies declared in [`.deps.yml`](.deps.yml).
 
-**93 modules** total.
+**94 modules** total.
 
 ## Standalone
 
@@ -36,6 +36,7 @@ Modules with no `includes:` dependencies.
 - `rumdl` → `nix`, `winget`
 - `shellcheck` → `nix`, `winget`
 - `shfmt` → `nix`, `winget`
+- `trivy` → `nix`, `winget`
 - `uv` → `nix`, `winget`
 - `zizmor` → `nix`, `winget`
 
@@ -178,7 +179,7 @@ Who depends on each module:
 - `knip/node/npm` ← `knip/node`
 - `knip/node/pnpm` ← `knip/node`
 - `knip/node/yarn` ← `knip/node`
-- `nix` ← `actionlint`, `adrs`, `ansible`, `ansible-lint`, `bruno-cli`, `bruno-gui`, `buf`, `bun`, `cargo`, `dasel`, `djlint`, `dotenv-linter`, `gh`, `git`, `go`, `go-junit-report`, `golangci-lint`, `hadolint`, `jsonlint`, `nodejs`, `npm`, `pnpm`, `proto`, `protolint`, `pulumi`, `python`, `rumdl`, `shellcheck`, `shfmt`, `sqlfluff`, `uv`, `vault`, `yamlfix`, `yamllint`, `yarn`, `zizmor`
+- `nix` ← `actionlint`, `adrs`, `ansible`, `ansible-lint`, `bruno-cli`, `bruno-gui`, `buf`, `bun`, `cargo`, `dasel`, `djlint`, `dotenv-linter`, `gh`, `git`, `go`, `go-junit-report`, `golangci-lint`, `hadolint`, `jsonlint`, `nodejs`, `npm`, `pnpm`, `proto`, `protolint`, `pulumi`, `python`, `rumdl`, `shellcheck`, `shfmt`, `sqlfluff`, `trivy`, `uv`, `vault`, `yamlfix`, `yamllint`, `yarn`, `zizmor`
 - `nodejs` ← `npm`, `pnpm`, `yarn`
 - `npm` ← `biome/node/npm`, `bruno-cli`, `depcheck/node/npm`, `eslint/node/npm`, `htmlhint/node/npm`, `knip/node/npm`, `prettier/node/npm`, `spectral/node/npm`, `stylelint/node/npm`, `typescript/node/npm`
 - `pnpm` ← `biome/node/pnpm`, `depcheck/node/pnpm`, `eslint/node/pnpm`, `htmlhint/node/pnpm`, `knip/node/pnpm`, `prettier/node/pnpm`, `spectral/node/pnpm`, `stylelint/node/pnpm`, `typescript/node/pnpm`
@@ -208,6 +209,7 @@ Who depends on each module:
 - `stylelint/node/npm` ← `stylelint/node`
 - `stylelint/node/pnpm` ← `stylelint/node`
 - `stylelint/node/yarn` ← `stylelint/node`
+- `trivy` — _(none)_
 - `typescript` — _(none)_
 - `typescript/bun` ← `typescript`
 - `typescript/node` ← `typescript`
@@ -216,7 +218,7 @@ Who depends on each module:
 - `typescript/node/yarn` ← `typescript/node`
 - `uv` ← `djlint`, `jsonlint`, `sqlfluff`, `yamlfix`, `yamllint`
 - `vault` — _(none)_
-- `winget` ← `actionlint`, `bruno-gui`, `buf`, `bun`, `cargo`, `dasel`, `docker`, `gh`, `git`, `go`, `go-junit-report`, `golangci-lint`, `hadolint`, `nodejs`, `pnpm`, `proto`, `protolint`, `pulumi`, `python`, `rumdl`, `shellcheck`, `shfmt`, `uv`, `vault`, `yamllint`, `yarn`, `zizmor`
+- `winget` ← `actionlint`, `bruno-gui`, `buf`, `bun`, `cargo`, `dasel`, `docker`, `gh`, `git`, `go`, `go-junit-report`, `golangci-lint`, `hadolint`, `nodejs`, `pnpm`, `proto`, `protolint`, `pulumi`, `python`, `rumdl`, `shellcheck`, `shfmt`, `trivy`, `uv`, `vault`, `yamllint`, `yarn`, `zizmor`
 - `yamlfix` — _(none)_
 - `yamllint` — _(none)_
 - `yarn` ← `biome/node/yarn`, `depcheck/node/yarn`, `eslint/node/yarn`, `htmlhint/node/yarn`, `knip/node/yarn`, `prettier/node/yarn`, `spectral/node/yarn`, `stylelint/node/yarn`, `typescript/node/yarn`

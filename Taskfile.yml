@@ -50,6 +50,7 @@ includes:
   spectral: taskfiles/spectral/Taskfile.yml
   sqlfluff: taskfiles/sqlfluff/Taskfile.yml
   stylelint: taskfiles/stylelint/Taskfile.yml
+  trivy: taskfiles/trivy/Taskfile.yml
   typescript: taskfiles/typescript/Taskfile.yml
   uv: taskfiles/uv/Taskfile.yml
   vault: taskfiles/vault/Taskfile.yml

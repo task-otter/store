@@ -1,0 +1,172 @@
+---
+version: '3.5'
+
+output:
+  group:
+    begin: ::group::{{.TASK}}
+    end: '::endgroup::'
+    error_only: false
+
+silent: true
+
+includes:
+  nix:
+    taskfile: ../nix/Taskfile.yml
+  winget:
+    taskfile: ../winget/Taskfile.yml
+
+vars:
+  TRIVY_IMAGE: '{{.TRIVY_IMAGE | default ""}}'
+  TRIVY_FS_TARGET: '{{.TRIVY_FS_TARGET | default "."}}'
+  TRIVY_IMAGE_ARGS: >-
+    {{.TRIVY_IMAGE_ARGS | default `--scanners vuln,misconfig,secret,license
+    --image-config-scanners misconfig,secret
+    --severity UNKNOWN,LOW,MEDIUM,HIGH,CRITICAL --exit-code 1 --exit-on-eol 1
+    --detection-priority comprehensive --ignore-unfixed=false --license-full
+    --removed-pkgs --include-deprecated-checks --no-progress`}}
+  TRIVY_FS_ARGS: >-
+    {{.TRIVY_FS_ARGS | default `--scanners vuln,misconfig,secret,license
+    --severity UNKNOWN,LOW,MEDIUM,HIGH,CRITICAL --exit-code 1
+    --detection-priority comprehensive --ignore-unfixed=false --license-full
+    --include-dev-deps --include-deprecated-checks --no-progress`}}
+  TRIVY_IMAGE_EXTRA_ARGS: '{{.TRIVY_IMAGE_EXTRA_ARGS | default ""}}'
+  TRIVY_FS_EXTRA_ARGS: '{{.TRIVY_FS_EXTRA_ARGS | default ""}}'
+  TRIVY_NIX_INSTALLABLE: '{{.TRIVY_NIX_INSTALLABLE | default "nixpkgs#trivy"}}'
+  TRIVY_WINGET_INSTALLABLE: '{{.TRIVY_WINGET_INSTALLABLE | default "AquaSecurity.Trivy"}}'
+
+tasks:
+  default:
+    run: once
+    desc: Show available Trivy automation tasks
+    summary: Display the list of available Trivy-related tasks defined in this Taskfile.
+    cmds:
+      - task --list
+  install:
+    run: once
+    desc: Install Trivy via Nix (Unix) or WinGet (Windows)
+    summary: |
+      Install Trivy on Linux and macOS via the user Nix profile, and on
+      Windows via WinGet, when it is not already on PATH. Override
+      TRIVY_NIX_INSTALLABLE or TRIVY_WINGET_INSTALLABLE to select a
+      different package. Pin a Nix revision through TRIVY_NIX_INSTALLABLE
+      or a Windows release through WINGET_VERSION.
+    cmds:
+      - task: _install:unix
+      - task: _install:windows
+  _install:unix:
+    internal: true
+    platforms:
+      - linux
+      - darwin
+    status:
+      - bash -lc '{{.NIX_LOAD}}; command -v trivy >/dev/null 2>&1'
+    cmds:
+      - task: nix:install:profile
+        vars:
+          NIX_INSTALLABLE: '{{.TRIVY_NIX_INSTALLABLE}}'
+  _install:windows:
+    internal: true
+    platforms:
+      - windows
+    status:
+      - >-
+        powershell -NoProfile -ExecutionPolicy Bypass -Command
+        "{{.WINGET_LOAD}};
+        if (Get-Command trivy -ErrorAction SilentlyContinue) { exit 0 } else { exit 1 }"
+    cmds:
+      - task: winget:install:package
+        vars:
+          WINGET_INSTALLABLE: '{{.TRIVY_WINGET_INSTALLABLE}}'
+  version:
+    run: once
+    desc: Show the active Trivy version
+    summary: |
+      Print the version reported by the trivy binary resolved from PATH.
+      Auto-installs Trivy if missing.
+    deps:
+      - task: install
+    cmds:
+      - task: _version:unix
+      - task: _version:windows
+  ci:image:
+    desc: Scan a container image with strict Trivy checks (TRIVY_IMAGE=reference)
+    summary: |
+      Scan TRIVY_IMAGE for vulnerabilities, misconfigurations, secrets and
+      licenses at all severities. Fail on findings or an end-of-life OS.
+      Uses comprehensive detection, full license scanning, removed Alpine
+      packages and image configuration checks. Auto-installs Trivy if missing.
+      Override TRIVY_IMAGE_ARGS to replace the policy flags, or append flags
+      using TRIVY_IMAGE_EXTRA_ARGS (for example --platform or --format).
+      Runs from the caller's working directory; Trivy config and ignores apply.
+    dir: '{{.USER_WORKING_DIR}}'
+    env:
+      TRIVY_SCAN_TARGET: '{{.TRIVY_IMAGE}}'
+    preconditions:
+      - sh: test -n "$TRIVY_SCAN_TARGET"
+        msg: TRIVY_IMAGE is required. Pass TRIVY_IMAGE=registry/image:tag.
+    cmds:
+      - task: install
+      - cmd: >-
+          bash -lc '{{.NIX_LOAD}};
+          trivy image {{.TRIVY_IMAGE_ARGS}} {{.TRIVY_IMAGE_EXTRA_ARGS}} "$TRIVY_SCAN_TARGET"'
+        platforms:
+          - linux
+          - darwin
+      - cmd: >-
+          powershell -NoProfile -ExecutionPolicy Bypass -Command
+          "{{.WINGET_LOAD}};
+          trivy image {{.TRIVY_IMAGE_ARGS}} {{.TRIVY_IMAGE_EXTRA_ARGS}} \$env:TRIVY_SCAN_TARGET;
+          exit \$LASTEXITCODE"
+        platforms:
+          - windows
+  ci:fs:
+    desc: Scan a filesystem with strict Trivy checks (TRIVY_FS_TARGET=path)
+    summary: |
+      Scan TRIVY_FS_TARGET (default: .) for vulnerabilities, misconfigurations,
+      secrets and licenses at all severities. Fail on findings, including
+      unfixed vulnerabilities. Uses comprehensive detection, full license
+      scanning and supported development dependencies. Auto-installs if missing.
+      Override TRIVY_FS_ARGS to replace the policy flags, or append flags
+      using TRIVY_FS_EXTRA_ARGS (for example --config, --format or --output).
+      Runs from the caller's working directory; Trivy config and ignores apply.
+    dir: '{{.USER_WORKING_DIR}}'
+    env:
+      TRIVY_SCAN_TARGET: '{{.TRIVY_FS_TARGET}}'
+    cmds:
+      - task: install
+      - cmd: >-
+          bash -lc '{{.NIX_LOAD}};
+          trivy fs {{.TRIVY_FS_ARGS}} {{.TRIVY_FS_EXTRA_ARGS}} "$TRIVY_SCAN_TARGET"'
+        platforms:
+          - linux
+          - darwin
+      - cmd: >-
+          powershell -NoProfile -ExecutionPolicy Bypass -Command
+          "{{.WINGET_LOAD}};
+          trivy fs {{.TRIVY_FS_ARGS}} {{.TRIVY_FS_EXTRA_ARGS}} \$env:TRIVY_SCAN_TARGET;
+          exit \$LASTEXITCODE"
+        platforms:
+          - windows
+  _version:unix:
+    run: once
+    internal: true
+    platforms:
+      - linux
+      - darwin
+    cmds:
+      - bash -lc '{{.NIX_LOAD}}; trivy --version'
+  _version:windows:
+    run: once
+    internal: true
+    platforms:
+      - windows
+    preconditions:
+      - sh: >-
+          powershell -NoProfile -ExecutionPolicy Bypass -Command
+          "{{.WINGET_LOAD}};
+          if (Get-Command trivy -ErrorAction SilentlyContinue) { exit 0 } else { exit 1 }"
+        msg: Trivy is not installed or not available in PATH.
+    cmds:
+      - >-
+        powershell -NoProfile -ExecutionPolicy Bypass -Command
+        "{{.WINGET_LOAD}}; trivy --version; exit \$LASTEXITCODE"
