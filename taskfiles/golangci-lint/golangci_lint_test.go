@@ -75,6 +75,10 @@ const (
 set -eu
 printf 'stock:%s\n' "$*" >>"$GCL_LOG"
 if [ "${1:-}" = "custom" ]; then
+  if [ -n "${GCL_EXPECT_TOOLCHAIN:-}" ] && [ "${GOTOOLCHAIN:-}" != "$GCL_EXPECT_TOOLCHAIN" ]; then
+    echo "custom build used an older Go toolchain" >&2
+    exit 3
+  fi
   exit_code="${GCL_CUSTOM_EXIT:-0}"
   if [ "$exit_code" -ne 0 ]; then
     exit "$exit_code"
@@ -122,7 +126,25 @@ func TestGolangciLintCustomBuildLifecycle(t *testing.T) {
 	assertInitialCustomBuild(t, &fixture)
 	assertCachedCustomBuild(t, &fixture)
 	assertUpdatedCustomBuild(t, &fixture)
+	assertCustomRebuildAfterGoModChange(t, &fixture)
 	assertCustomRebuildAfterRemoval(t, &fixture)
+}
+
+// TestGolangciLintCustomBuildToolchain checks that the temporary build inherits the project's Go version.
+func TestGolangciLintCustomBuildToolchain(t *testing.T) {
+	t.Parallel()
+	skipWindows(t)
+
+	fixture := newCustomGolangciLintFixture(t)
+	fixture.writeConfig(t, projectCustomConfig(constInitialPluginVersion))
+	output, err := fixture.runCommand(t.Context(), &golangciLintRun{
+		taskName: constGolangciLintLint,
+		extraEnv: []string{"GCL_EXPECT_TOOLCHAIN=go1.27.2"},
+		args:     nil,
+	})
+	if err != nil {
+		t.Fatalf("custom build must use the project's Go toolchain: %v\n%s", err, output)
+	}
 }
 
 // TestGolangciLintCustomBuildDefaultsAndFallback
@@ -269,6 +291,25 @@ func assertUpdatedCustomBuild(t *testing.T, fixture *gclFixture) {
 	fixture.assertLog(t, constStockCustomLog, constCustomRunDefaultLog)
 }
 
+func assertCustomRebuildAfterGoModChange(t *testing.T, fixture *gclFixture) {
+	t.Helper()
+
+	writeProjectGoVersion(t, fixture.project, "1.27.2")
+	fixture.clearLog(t)
+	fixture.run(t, constGolangciLintLint)
+	fixture.assertLog(t, constStockCustomLog, constCustomRunDefaultLog)
+}
+
+func writeProjectGoVersion(t *testing.T, project, version string) {
+	t.Helper()
+
+	err := os.WriteFile(filepath.Join(project, "go.mod"),
+		[]byte("module example.com/project\n\ngo "+version+"\n"), constSecureFileMode)
+	if err != nil {
+		t.Fatalf("write project Go version: %v", err)
+	}
+}
+
 func projectCustomConfig(pluginVersion string) *golangciLintConfig {
 	return &golangciLintConfig{
 		name:          constProjectCustomName,
@@ -310,11 +351,14 @@ func newCustomGolangciLintFixture(t *testing.T) gclFixture {
 	t.Helper()
 
 	project, bin := newCustomGolangciLintFixtureDirs(t)
+	writeProjectGoVersion(t, project, "1.27.1")
 
 	logPath := filepath.Join(project, constGolangciLintModule+".log")
 	template := filepath.Join(project, "custom-template")
 	writeExecutable(t, template, customGolangciLintScript())
 	writeExecutable(t, filepath.Join(bin, constGolangciLintModule), stockGolangciLintScript())
+	writeExecutable(t, filepath.Join(bin, "go"), "#!/bin/sh\nset -eu\n"+
+		"[ \"$*\" = 'env GOVERSION' ]\nprintf 'go1.27.2\\n'\n")
 
 	return gclFixture{
 		project:  project,
@@ -445,7 +489,7 @@ func stockGolangciLintScript() string {
 }
 
 func golangciLintConfigLines(config *golangciLintConfig) []string {
-	lines := []string{"version: v2.12.2"}
+	lines := []string{"version: v2.14.0"}
 
 	if config.name != constEmptyValue {
 		lines = append(lines, "name: "+config.name)

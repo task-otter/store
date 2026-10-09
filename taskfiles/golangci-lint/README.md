@@ -52,6 +52,10 @@ Auto-installs golangci-lint if missing. When `.custom-gcl.yml` exists in the
 working directory, `lint` and `lint:fix` build or reuse its custom binary
 instead of the stock golangci-lint binary.
 
+Custom builds use the Go toolchain selected in the working directory, including
+the version required by `go.mod`. Changes to `.custom-gcl.yml` or `go.mod`
+invalidate the cached custom binary.
+
 Override the default `./...` target or pass extra flags with `--`:
 
 ```sh

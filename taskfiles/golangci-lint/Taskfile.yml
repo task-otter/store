@@ -169,20 +169,29 @@ tasks:
       CUSTOM_GCL_BINARY: '{{joinPath .CUSTOM_GCL_DESTINATION .CUSTOM_GCL_BINARY_NAME}}'
     sources:
       - .custom-gcl.yml
+      - go.mod
     generates:
       - '{{.CUSTOM_GCL_BINARY}}'
+    # The builder uses a temporary clone, outside this project's go.mod.
+    # Carry the selected toolchain there instead of falling back to its Go minimum.
     cmds:
       - cmd: >-
           bash -lc '{{.NIX_LOAD}};
-          {{if .GO_GLOBAL_BIN}}export PATH="{{.GO_GLOBAL_BIN}}:$PATH"; {{end}}golangci-lint custom -v'
+          {{if .GO_GLOBAL_BIN}}export PATH="{{.GO_GLOBAL_BIN}}:$PATH"; {{end}}
+          GOTOOLCHAIN="$(go env GOVERSION)" || exit $?;
+          export GOTOOLCHAIN;
+          golangci-lint custom -v'
         platforms:
           - linux
           - darwin
       # WINGET_LOAD reloads Path after winget install in this Task process.
       - cmd: >-
           powershell -NoProfile -ExecutionPolicy Bypass -Command
-          "{{.WINGET_LOAD}};
+          "{{.WINGET_LOAD}}; {{.GO_LOAD}};
           \$ErrorActionPreference='Stop';
+          \$goVersion = & go env GOVERSION;
+          if (\$LASTEXITCODE -ne 0) { exit \$LASTEXITCODE };
+          \$env:GOTOOLCHAIN = \$goVersion.Trim();
           & golangci-lint custom -v;
           exit \$LASTEXITCODE"
         platforms:
