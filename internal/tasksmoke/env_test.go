@@ -82,32 +82,6 @@ func TestIsolatedHomeDirApplyError(t *testing.T) {
 	requireErr(t, err)
 }
 
-func assertLoginProfiles(t *testing.T, home string) {
-	t.Helper()
-
-	names := loginProfileNames()
-
-	for i := range names {
-		requireSame(t, pathExists(filepath.Join(home, names[i])), true)
-	}
-}
-
-func assertProfileUsesHostNix(t *testing.T, home string) {
-	t.Helper()
-
-	body := readIsolatedProfile(t, home, bashProfileName)
-	requireSame(t, strings.Contains(body, hostNixPath(testHostHome)), true)
-	requireSame(t, strings.Contains(body, nixDaemonSh), true)
-	requireSame(t, strings.Contains(body, filepath.Join(home, nixProfileDir)), false)
-}
-
-func discardEnv(key, value string) error {
-	keepValue(key)
-	keepValue(value)
-
-	return nil
-}
-
 // TestApplySmokeEnvClearsGoRoot prevents mixing the launcher and task toolchains.
 func TestApplySmokeEnvClearsGoRoot(t *testing.T) {
 	t.Parallel()
@@ -120,15 +94,6 @@ func TestApplySmokeEnvClearsGoRoot(t *testing.T) {
 	})
 	requireNoErr(t, err)
 	requireEqual(t, values[envGoRoot], emptyString)
-}
-
-func readIsolatedProfile(t *testing.T, home, name string) string {
-	t.Helper()
-
-	body, err := readFile(filepath.Join(home, name))
-	requireNoErr(t, err)
-
-	return string(body)
 }
 
 // TestWriteIsolatedHomeFilesProfileError exercises WriteIsolatedHomeFilesProfileError.
@@ -159,4 +124,39 @@ func TestEnvValuePresent(t *testing.T) {
 		envValue([]string{testKey + "=" + testVal, envHome + "=" + testHostHome}, envHome),
 		testHostHome,
 	)
+}
+
+func assertLoginProfiles(t *testing.T, home string) {
+	t.Helper()
+
+	names := loginProfileNames()
+
+	for i := range names {
+		requireSame(t, pathExists(filepath.Join(home, names[i])), true)
+	}
+}
+
+func assertProfileUsesHostNix(t *testing.T, home string) {
+	t.Helper()
+
+	body := readIsolatedProfile(t, home, bashProfileName)
+	requireSame(t, strings.Contains(body, hostNixPath(testHostHome)), true)
+	requireSame(t, strings.Contains(body, nixDaemonSh), true)
+	requireSame(t, strings.Contains(body, filepath.Join(home, nixProfileDir)), false)
+}
+
+func discardEnv(key, value string) error {
+	keepValue(key)
+	keepValue(value)
+
+	return nil
+}
+
+func readIsolatedProfile(t *testing.T, home, name string) string {
+	t.Helper()
+
+	body, err := readFile(filepath.Join(home, name))
+	requireNoErr(t, err)
+
+	return string(body)
 }

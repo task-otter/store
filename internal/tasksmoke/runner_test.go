@@ -13,13 +13,7 @@ func TestEngineRunListsWithoutExecuting(t *testing.T) {
 	t.Parallel()
 
 	engine := testEngine(t)
-	report, err := runSuite(engine, &runOptions{
-		RepoRoot: testdataRepo(t),
-		ListOnly: true,
-		Module:   testEcho,
-		Stdout:   nil,
-		Stderr:   nil,
-	})
+	report, err := runSuite(engine, testRunOptions(testdataRepo(t), testEcho, true))
 	requireNoErr(t, err)
 	requireSame(t, len(report.Results) > emptyLength, true)
 	requireStatus(t, report.Results[0], statusPass)
@@ -30,13 +24,7 @@ func TestEngineRunSkipsDestructiveTasks(t *testing.T) {
 	t.Parallel()
 
 	engine := testEngine(t)
-	report, err := runSuite(engine, &runOptions{
-		RepoRoot: testdataRepo(t),
-		ListOnly: true,
-		Module:   testSkipme,
-		Stdout:   nil,
-		Stderr:   nil,
-	})
+	report, err := runSuite(engine, testRunOptions(testdataRepo(t), testSkipme, true))
 	requireNoErr(t, err)
 	requireSame(t, len(report.Results) == 1, true)
 	requireSame(t, hasResultStatus(report, testFmtCheck, statusPass), true)
@@ -52,13 +40,7 @@ func TestEngineRunRecordsExecutorFailure(t *testing.T) {
 		return sentinelErr()
 	}
 
-	report, err := runSuite(engine, &runOptions{
-		RepoRoot: testdataRepo(t),
-		ListOnly: false,
-		Module:   testEcho,
-		Stdout:   nil,
-		Stderr:   nil,
-	})
+	report, err := runSuite(engine, testRunOptions(testdataRepo(t), testEcho, false))
 	requireNoErr(t, err)
 	requireSame(t, hasFailures(report.Results), true)
 }
@@ -71,43 +53,14 @@ func TestEngineRunCopiesStubs(t *testing.T) {
 	requireSame(t, pathExists(filepath.Join(workDir, testHelloFile)), true)
 }
 
-func captureEchoWorkDir(t *testing.T) string {
-	t.Helper()
-
-	engine := testEngine(t)
-	dir := new(string)
-
-	engine.runTask = bindWorkDir(dir)
-
-	report, err := runIsolated(engine, echoModuleOpts(t))
-	keepValue(report)
-	requireNoErr(t, err)
-
-	return *dir
-}
-
-func bindWorkDir(dir *string) runTaskFunc {
-	return func(request *runRequest) error {
-		*dir = request.WorkDir
-
-		return nil
-	}
-}
-
-func echoModuleOpts(t *testing.T) *runOptions {
-	t.Helper()
-
-	return &runOptions{Module: testEcho, RepoRoot: testdataRepo(t)}
-}
-
 // TestFilterModulesExactAndPrefix exercises FilterModulesExactAndPrefix.
 func TestFilterModulesExactAndPrefix(t *testing.T) {
 	t.Parallel()
 
 	modules := []*module{
-		{Name: testEslint},
-		{Name: testEslintNPM},
-		{Name: testYamllint},
+		testNamedModule(testEslint),
+		testNamedModule(testEslintNPM),
+		testNamedModule(testYamllint),
 	}
 	selected := filterModules(modules, testEslint)
 
@@ -119,7 +72,7 @@ func TestFilterModulesExactAndPrefix(t *testing.T) {
 func TestFinishResultSetsFail(t *testing.T) {
 	t.Parallel()
 
-	result := finishResult(&taskResult{Status: statusPass}, sentinelErr())
+	result := finishResult(testNamedResult(emptyString, emptyString, statusPass), sentinelErr())
 	requireStatus(t, result, statusFail)
 }
 
@@ -127,7 +80,15 @@ func TestFinishResultSetsFail(t *testing.T) {
 func TestRequestOutputNilBuffer(t *testing.T) {
 	t.Parallel()
 
-	requireEqual(t, requestOutput(&runRequest{Output: nil}), emptyString)
+	requireEqual(t, requestOutput(&runRequest{
+		Vars:    nil,
+		Dir:     emptyString,
+		Home:    emptyString,
+		Name:    emptyString,
+		WorkDir: emptyString,
+		Timeout: emptyLength,
+		Output:  nil,
+	}), emptyString)
 }
 
 // TestSpecRequiresEmpty exercises SpecRequiresEmpty.
@@ -164,7 +125,7 @@ func TestEngineRunIsolatedHomeError(t *testing.T) {
 
 	value, err := runSuite(
 		engine,
-		&runOptions{RepoRoot: testdataRepo(t), ListOnly: false, Module: testEcho},
+		testRunOptions(testdataRepo(t), testEcho, false),
 	)
 	keepValue(value)
 	requireErr(t, err)
@@ -178,4 +139,33 @@ func hasResultStatus(report *smokeReport, name, status string) bool {
 	}
 
 	return false
+}
+
+func captureEchoWorkDir(t *testing.T) string {
+	t.Helper()
+
+	engine := testEngine(t)
+	dir := new(string)
+
+	engine.runTask = bindWorkDir(dir)
+
+	report, err := runIsolated(engine, echoModuleOpts(t))
+	keepValue(report)
+	requireNoErr(t, err)
+
+	return *dir
+}
+
+func bindWorkDir(dir *string) runTaskFunc {
+	return func(request *runRequest) error {
+		*dir = request.WorkDir
+
+		return nil
+	}
+}
+
+func echoModuleOpts(t *testing.T) *runOptions {
+	t.Helper()
+
+	return testRunOptions(testdataRepo(t), testEcho, false)
 }

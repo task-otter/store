@@ -21,6 +21,74 @@ func TestWriteReportContainsStatuses(t *testing.T) {
 	requireReportHasStatus(t, output.String(), statusSkip)
 }
 
+// TestHasFailuresDetectsFail exercises HasFailuresDetectsFail.
+func TestHasFailuresDetectsFail(t *testing.T) {
+	t.Parallel()
+
+	requireSame(
+		t,
+		hasFailures([]*taskResult{testNamedResult(emptyString, emptyString, statusFail)}),
+		true,
+	)
+	requireSame(
+		t,
+		!hasFailures([]*taskResult{testNamedResult(emptyString, emptyString, statusPass)}),
+		true,
+	)
+}
+
+// TestWriteReportRejectsClosedWriter exercises WriteReportRejectsClosedWriter.
+func TestWriteReportRejectsClosedWriter(t *testing.T) {
+	t.Parallel()
+
+	err := writeReport(failWriter{}, []*taskResult{
+		testNamedResult(testEcho, testPing, statusPass),
+	})
+	requireErr(t, err)
+}
+
+// TestDurationTextRounds exercises DurationTextRounds.
+func TestDurationTextRounds(t *testing.T) {
+	t.Parallel()
+
+	requireEqual(t, durationText(time.Second), testOneSecond)
+}
+
+// TestWriteAlignedHeaderError exercises WriteAlignedHeaderError.
+func TestWriteAlignedHeaderError(t *testing.T) {
+	t.Parallel()
+
+	err := writeAligned(&reportSinkStub{
+		flushErr: nil,
+		remain:   emptyLength,
+	}, testReportRows())
+	requireErr(t, err)
+}
+
+// TestWriteAlignedRowError exercises WriteAlignedRowError.
+func TestWriteAlignedRowError(t *testing.T) {
+	t.Parallel()
+
+	err := writeAligned(&reportSinkStub{
+		flushErr: nil,
+		remain:   exitFail,
+	}, testReportRows())
+	requireErr(t, err)
+}
+
+// TestWriteAlignedFlushError exercises WriteAlignedFlushError.
+func TestWriteAlignedFlushError(t *testing.T) {
+	t.Parallel()
+
+	err := writeAligned(
+		&reportSinkStub{remain: nameSplitParts, flushErr: sentinelErr()},
+		[]*taskResult{
+			testNamedResult(testEcho, testPing, statusPass),
+		},
+	)
+	requireErr(t, err)
+}
+
 func sampleStatusRows() []*taskResult {
 	return []*taskResult{
 		{
@@ -46,69 +114,4 @@ func requireReportHasStatus(t *testing.T, report, status string) {
 	t.Helper()
 
 	requireSame(t, strings.Contains(report, status), true)
-}
-
-// TestHasFailuresDetectsFail exercises HasFailuresDetectsFail.
-func TestHasFailuresDetectsFail(t *testing.T) {
-	t.Parallel()
-
-	requireSame(t, hasFailures([]*taskResult{{Status: statusFail}}), true)
-	requireSame(t, !hasFailures([]*taskResult{{Status: statusPass}}), true)
-}
-
-// TestWriteReportRejectsClosedWriter exercises WriteReportRejectsClosedWriter.
-func TestWriteReportRejectsClosedWriter(t *testing.T) {
-	t.Parallel()
-
-	err := writeReport(failWriter{}, []*taskResult{
-		{
-			Module:   testEcho,
-			Task:     testPing,
-			Status:   statusPass,
-			Duration: emptyLength,
-			Err:      nil,
-			Output:   emptyString,
-		},
-	})
-	requireErr(t, err)
-}
-
-// TestDurationTextRounds exercises DurationTextRounds.
-func TestDurationTextRounds(t *testing.T) {
-	t.Parallel()
-
-	requireEqual(t, durationText(time.Second), testOneSecond)
-}
-
-// TestWriteAlignedHeaderError exercises WriteAlignedHeaderError.
-func TestWriteAlignedHeaderError(t *testing.T) {
-	t.Parallel()
-
-	err := writeAligned(&reportSinkStub{}, []*taskResult{
-		{Module: testEcho, Task: testPing, Status: statusPass},
-	})
-	requireErr(t, err)
-}
-
-// TestWriteAlignedRowError exercises WriteAlignedRowError.
-func TestWriteAlignedRowError(t *testing.T) {
-	t.Parallel()
-
-	err := writeAligned(&reportSinkStub{remain: exitFail}, []*taskResult{
-		{Module: testEcho, Task: testPing, Status: statusPass},
-	})
-	requireErr(t, err)
-}
-
-// TestWriteAlignedFlushError exercises WriteAlignedFlushError.
-func TestWriteAlignedFlushError(t *testing.T) {
-	t.Parallel()
-
-	err := writeAligned(
-		&reportSinkStub{remain: nameSplitParts, flushErr: sentinelErr()},
-		[]*taskResult{
-			{Module: testEcho, Task: testPing, Status: statusPass},
-		},
-	)
-	requireErr(t, err)
 }

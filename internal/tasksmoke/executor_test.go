@@ -42,6 +42,8 @@ func TestExecuteGoTaskInheritsSmokeVars(t *testing.T) {
 		),
 	)
 	requireNoErr(t, executeGoTask(&runRequest{
+		Home: emptyString,
+
 		Dir: dir, Name: "parent", WorkDir: dir, Timeout: defaultTimeout,
 		Output: new(bytes.Buffer), Vars: map[string]string{"TARGET": "src"},
 	}))
@@ -69,6 +71,10 @@ func TestExecuteGoTaskSetupError(t *testing.T) {
 	t.Parallel()
 
 	err := executeGoTask(&runRequest{
+		Output: nil,
+		Vars:   nil,
+		Home:   emptyString,
+
 		Dir:     t.TempDir(),
 		Name:    testPing,
 		Timeout: defaultTimeout,
@@ -81,12 +87,7 @@ func TestExecuteGoTaskSetupError(t *testing.T) {
 func TestExecuteGoTaskUnknownTask(t *testing.T) {
 	t.Parallel()
 
-	err := executeGoTask(&runRequest{
-		Dir:     testdataAbs(t, testdataPingPath),
-		Name:    testMissingTask,
-		Timeout: defaultTimeout,
-		WorkDir: t.TempDir(),
-	})
+	err := executeGoTask(testPingRequest(t, testMissingTask))
 	requireErr(t, err)
 }
 
@@ -94,12 +95,7 @@ func TestExecuteGoTaskUnknownTask(t *testing.T) {
 func TestExecuteGoTaskCapturesNilOutput(t *testing.T) {
 	t.Parallel()
 
-	err := executeGoTask(&runRequest{
-		Dir:     testdataAbs(t, testdataPingPath),
-		Name:    testPing,
-		Timeout: defaultTimeout,
-		WorkDir: t.TempDir(),
-	})
+	err := executeGoTask(testPingRequest(t, testPing))
 	requireNoErr(t, err)
 }
 

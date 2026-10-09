@@ -10,6 +10,8 @@ import (
 	"runtime"
 	"strings"
 	"testing"
+
+	yaml "go.yaml.in/yaml/v3"
 )
 
 type (
@@ -120,8 +122,79 @@ func TestWriteStubValue(t *testing.T) {
 	assertWriteStubValueExtraArgs(t, dir)
 }
 
+// TestNormalizeLoadedTaskfileInvalidReturn checks the fallback after a fatal call.
+func TestNormalizeLoadedTaskfileInvalidReturn(t *testing.T) {
+	t.Parallel()
+
+	expectInternalFatalStay(t, "taskfile must be", func(fake *internalFakeTest) {
+		if normalizeLoadedTaskfile(fake, nil) != nil {
+			t.Fatal("invalid taskfile must return nil")
+		}
+	})
+}
+
+// TestNormalizeCommandResultInvalidReturn checks the fallback after a fatal call.
+func TestNormalizeCommandResultInvalidReturn(t *testing.T) {
+	t.Parallel()
+
+	expectInternalFatalStay(t, "result must be", func(fake *internalFakeTest) {
+		if normalizeCommandResult(fake, nil) != nil {
+			t.Fatal("invalid command result must return nil")
+		}
+	})
+}
+
+// TestRequireGroupNodeMissingReturn checks the fallback for missing group config.
+func TestRequireGroupNodeMissingReturn(t *testing.T) {
+	t.Parallel()
+
+	node := internalYAMLNode(yaml.MappingNode)
+
+	expectInternalFatalStay(t, "include group config", func(fake *internalFakeTest) {
+		if requireGroupNode(fake, internalStubName, node) != nil {
+			t.Fatal("missing group must return nil")
+		}
+	})
+}
+
+// TestRequireGroupOutputMappingInvalidReturn checks the fallback for scalar output.
+func TestRequireGroupOutputMappingInvalidReturn(t *testing.T) {
+	t.Parallel()
+
+	node := internalYAMLNode(yaml.ScalarNode)
+
+	expectInternalFatalStay(t, "advanced object format", func(fake *internalFakeTest) {
+		assertInternalNilNode(t, requireGroupOutputMapping(fake, internalStubName, node))
+	})
+}
+
+// TestAssertGroupErrorOnlyMissingReturn checks the fallback for missing error_only.
+func TestAssertGroupErrorOnlyMissingReturn(t *testing.T) {
+	t.Parallel()
+
+	expectInternalFatalStay(t, "explicitly set to false", func(fake *internalFakeTest) {
+		assertGroupErrorOnly(fake, internalStubName, new(yaml.Node))
+	})
+}
+
 func newInternalFake(stay stayAfterFatal) *internalFakeTest {
 	return &internalFakeTest{fatal: nil, tempDirs: nil, nextDir: zeroIndex, stay: stay}
+}
+
+func internalYAMLNode(kind yaml.Kind) *yaml.Node {
+	node := new(yaml.Node)
+
+	node.Kind = kind
+
+	return node
+}
+
+func assertInternalNilNode(t *testing.T, node *yaml.Node) {
+	t.Helper()
+
+	if node != nil {
+		t.Fatal("invalid output must return nil")
+	}
 }
 
 func assertFindModuleReadmeStops(t *testing.T) {

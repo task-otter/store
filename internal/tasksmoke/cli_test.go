@@ -69,12 +69,20 @@ func TestReportExitCode(t *testing.T) {
 
 	requireSame(
 		t,
-		reportExitCode(&smokeReport{Results: []*taskResult{{Status: statusFail}}}),
+		reportExitCode(
+			&smokeReport{
+				Results: []*taskResult{testNamedResult(emptyString, emptyString, statusFail)},
+			},
+		),
 		exitFail,
 	)
 	requireSame(
 		t,
-		reportExitCode(&smokeReport{Results: []*taskResult{{Status: statusPass}}}),
+		reportExitCode(
+			&smokeReport{
+				Results: []*taskResult{testNamedResult(emptyString, emptyString, statusPass)},
+			},
+		),
 		emptyLength,
 	)
 }
@@ -100,7 +108,7 @@ func TestWriteAndExitReportsFailure(t *testing.T) {
 	t.Parallel()
 
 	code := writeAndExit(new(bytes.Buffer), new(bytes.Buffer), &smokeReport{
-		Results: []*taskResult{{Module: testEcho, Task: testPing, Status: statusFail}},
+		Results: []*taskResult{testNamedResult(testEcho, testPing, statusFail)},
 	})
 	requireSame(t, code == exitFail, true)
 }
@@ -110,7 +118,7 @@ func TestWriteAndExitWriterError(t *testing.T) {
 	t.Parallel()
 
 	code := writeAndExit(failWriter{}, new(bytes.Buffer), &smokeReport{
-		Results: []*taskResult{{Module: testEcho, Task: testPing, Status: statusPass}},
+		Results: []*taskResult{testNamedResult(testEcho, testPing, statusPass)},
 	})
 	requireSame(t, code == exitFail, true)
 }

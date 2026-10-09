@@ -51,26 +51,6 @@ func TestTopLevelVarsOverridableDefault(t *testing.T) {
 	runTopLevelVarsOverridableDefault(t)
 }
 
-func runTopLevelVarsOverridableDefault(t *testing.T) {
-	t.Helper()
-
-	taskfilesDir := filepath.Join(tasktest.RepoRoot(t), taskfilesDirName)
-	collector := &varsOverridableCollector{t: t, violations: nil}
-	walker := newTaskfileModuleWalk(&taskfileModuleWalkParams{
-		t:         t,
-		onModule:  collector.appendModuleViolations,
-		dir:       taskfilesDir,
-		errPrefix: "overridable vars module path",
-	})
-
-	err := filepath.WalkDir(taskfilesDir, walker.collect)
-	if err != nil {
-		t.Fatalf(walkTaskfilesErrFormat, err)
-	}
-
-	collector.failIfViolations()
-}
-
 // TestIsOverridableDefaultVarValue covers the template patterns that count as
 // an overridable `| default` form versus bare literals that lock merge.
 func TestIsOverridableDefaultVarValue(t *testing.T) {
@@ -333,4 +313,24 @@ func formatVarValue(value any) string {
 	}
 
 	return fmt.Sprintf("%T(%v)", value, value)
+}
+
+func runTopLevelVarsOverridableDefault(t *testing.T) {
+	t.Helper()
+
+	taskfilesDir := filepath.Join(tasktest.RepoRoot(t), taskfilesDirName)
+	collector := &varsOverridableCollector{t: t, violations: nil}
+	walker := newTaskfileModuleWalk(&taskfileModuleWalkParams{
+		t:         t,
+		onModule:  collector.appendModuleViolations,
+		dir:       taskfilesDir,
+		errPrefix: "overridable vars module path",
+	})
+
+	err := filepath.WalkDir(taskfilesDir, walker.collect)
+	if err != nil {
+		t.Fatalf(walkTaskfilesErrFormat, err)
+	}
+
+	collector.failIfViolations()
 }

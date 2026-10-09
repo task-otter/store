@@ -15,7 +15,10 @@ func TestFolderScannerVisitError(t *testing.T) {
 	t.Parallel()
 
 	scanner := newFolderScanner(t.TempDir())
-	err := visitFolder(&walkVisit{Err: sentinelErr(), Path: testShortPath, Scan: scanner})
+	err := visitFolder(&walkVisit{
+		Entry: nil,
+		Err:   sentinelErr(), Path: testShortPath, Scan: scanner,
+	})
 	requireErr(t, err)
 }
 
@@ -46,7 +49,10 @@ func TestRunWithRootDiscoverError(t *testing.T) {
 
 	code := runWithRoot(&cliRun{
 		Engine: testEngine(t),
-		Flags:  &cliFlags{List: true},
+		Flags: &cliFlags{
+			Module: emptyString,
+			List:   true,
+		},
 		Root:   t.TempDir(),
 		Stdout: new(bytes.Buffer),
 		Stderr: new(bytes.Buffer),
@@ -78,16 +84,12 @@ func TestSkipRemainingDestructiveNames(t *testing.T) {
 	requireEqual(t, skipName(nameVaultEncrypt), reasonDestructive)
 }
 
-func skipName(name string) string {
-	return skipReason(&skipInput{Module: testShortPath, Name: name})
-}
-
 // TestSkipDockerNameList exercises SkipDockerNameList.
 func TestSkipDockerNameList(t *testing.T) {
 	t.Parallel()
 
-	requireEqual(t, skipReason(&skipInput{Module: toolDocker, Name: namePruneAll}), reasonDocker)
-	requireEqual(t, skipReason(&skipInput{Module: toolDocker, Name: nameStopAll}), reasonDocker)
+	requireEqual(t, skipReason(testNamedSkipInput(toolDocker, namePruneAll)), reasonDocker)
+	requireEqual(t, skipReason(testNamedSkipInput(toolDocker, nameStopAll)), reasonDocker)
 }
 
 // TestSmokeSkipsNilConfig exercises SmokeSkipsNilConfig.
@@ -110,4 +112,8 @@ func TestHasPromptNil(t *testing.T) {
 	t.Parallel()
 
 	requireSame(t, !hasPrompt(nil), true)
+}
+
+func skipName(name string) string {
+	return skipReason(testNamedSkipInput(testShortPath, name))
 }

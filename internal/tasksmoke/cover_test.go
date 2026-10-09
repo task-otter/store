@@ -38,6 +38,8 @@ func TestExecuteGoTaskCapturesOutput(t *testing.T) {
 
 	output := new(bytes.Buffer)
 	err := executeGoTask(&runRequest{
+		Vars: nil,
+
 		Dir:     testdataAbs(t, testdataPingPath),
 		Home:    t.TempDir(),
 		Name:    testPing,
@@ -57,25 +59,9 @@ func TestCollectResultsWorkDirError(t *testing.T) {
 
 	engine.mkdirTemp = failAfterFirstMkdir(t)
 
-	value, err := runSuite(engine, &runOptions{RepoRoot: testdataRepo(t), Module: testEcho})
+	value, err := runSuite(engine, testRunOptions(testdataRepo(t), testEcho, false))
 	keepValue(value)
 	requireErr(t, err)
-}
-
-func failAfterFirstMkdir(t *testing.T) mkdirTempFunc {
-	t.Helper()
-
-	calls := emptyLength
-
-	return func() (string, error) {
-		calls++
-
-		if calls == exitFail {
-			return t.TempDir(), nil
-		}
-
-		return emptyString, sentinelErr()
-	}
 }
 
 // TestCopyDirectoryCopyFSError exercises CopyDirectoryCopyFSError.
@@ -152,8 +138,13 @@ func TestStartCLIError(t *testing.T) {
 	t.Parallel()
 
 	code := startCLI(&startedCLI{
-		Err:    sentinelErr(),
-		Flags:  &cliFlags{List: true},
+		Root: emptyString,
+
+		Err: sentinelErr(),
+		Flags: &cliFlags{
+			Module: emptyString,
+			List:   true,
+		},
 		Stderr: new(bytes.Buffer),
 		Stdout: new(bytes.Buffer),
 	})
@@ -169,7 +160,7 @@ func TestAttachConfigsReadError(t *testing.T) {
 	err := os.MkdirAll(path, dirMode)
 	requireNoErr(t, err)
 
-	attachErr := attachConfigs(root, []*module{{Name: testEcho}})
+	attachErr := attachConfigs(root, []*module{testNamedModule(testEcho)})
 	requireErr(t, attachErr)
 }
 
@@ -179,24 +170,13 @@ func TestRunSelectedConfigError(t *testing.T) {
 
 	engine := testEngine(t)
 	root := blockedSmokeConfigRoot(t)
-	suite := bindSuite(engine, &runOptions{RepoRoot: root, ListOnly: true}, emptyString)
+	suite := bindSuite(engine, testRunOptions(root, emptyString, true), emptyString)
 
-	suite.modules = []*module{{Name: testEcho}}
+	suite.modules = []*module{testNamedModule(testEcho)}
 
 	value, runErr := runSelected(suite)
 	keepValue(value)
 	requireErr(t, runErr)
-}
-
-func blockedSmokeConfigRoot(t *testing.T) string {
-	t.Helper()
-
-	root := t.TempDir()
-	path := filepath.Join(root, dataTestDirName, testEcho, smokeConfigName)
-	err := os.MkdirAll(path, dirMode)
-	requireNoErr(t, err)
-
-	return root
 }
 
 // TestDetectRepoRootFromMissing exercises DetectRepoRootFromMissing.
@@ -248,11 +228,7 @@ func TestWriteHeaderZeroWriter(t *testing.T) {
 func TestWriteResultRowZeroWriter(t *testing.T) {
 	t.Parallel()
 
-	err := writeResultRow(zeroWriter{}, &taskResult{
-		Module: testEcho,
-		Status: statusPass,
-		Task:   testPing,
-	})
+	err := writeResultRow(zeroWriter{}, testNamedResult(testEcho, testPing, statusPass))
 	requireErr(t, err)
 }
 
@@ -269,9 +245,39 @@ func TestRunOneSkipsDestructiveTask(t *testing.T) {
 	t.Parallel()
 
 	result := runOne(testEngine(t), &moduleRun{
-		Module: &module{Name: testGo},
-		Opts:   &runOptions{},
-	}, &taskSpec{Name: nameUninstall})
+		Home:    emptyString,
+		WorkDir: emptyString,
+
+		Module: testNamedModule(testGo),
+		Opts:   testRunOptions(emptyString, emptyString, false),
+	}, testNamedSpec(nameUninstall))
 	requireStatus(t, result, statusSkip)
 	requireEqual(t, result.Output, reasonDestructive)
+}
+
+func failAfterFirstMkdir(t *testing.T) mkdirTempFunc {
+	t.Helper()
+
+	calls := emptyLength
+
+	return func() (string, error) {
+		calls++
+
+		if calls == exitFail {
+			return t.TempDir(), nil
+		}
+
+		return emptyString, sentinelErr()
+	}
+}
+
+func blockedSmokeConfigRoot(t *testing.T) string {
+	t.Helper()
+
+	root := t.TempDir()
+	path := filepath.Join(root, dataTestDirName, testEcho, smokeConfigName)
+	err := os.MkdirAll(path, dirMode)
+	requireNoErr(t, err)
+
+	return root
 }

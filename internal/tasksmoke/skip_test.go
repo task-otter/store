@@ -24,9 +24,11 @@ func TestSkipPrompt(t *testing.T) {
 	t.Parallel()
 
 	reason := skipReason(&skipInput{
+		Config: nil,
+
 		Module: testEcho,
 		Name:   "prompted",
-		Task:   &tasktest.Task{Prompt: testContinue},
+		Task:   testPromptTask(testContinue),
 	})
 
 	requireEqual(t, reason, reasonPrompt)
@@ -37,9 +39,11 @@ func TestSkipInteractive(t *testing.T) {
 	t.Parallel()
 
 	reason := skipReason(&skipInput{
+		Config: nil,
+
 		Module: "nix",
 		Name:   "install:shell",
-		Task:   &tasktest.Task{Interactive: true},
+		Task:   testInteractiveTask(),
 	})
 
 	requireEqual(t, reason, reasonInteractive)
@@ -49,17 +53,17 @@ func TestSkipInteractive(t *testing.T) {
 func TestSkipUninstall(t *testing.T) {
 	t.Parallel()
 
-	requireEqual(t, skipReason(&skipInput{Module: testGo, Name: nameUninstall}), reasonDestructive)
+	requireEqual(t, skipReason(testNamedSkipInput(testGo, nameUninstall)), reasonDestructive)
 }
 
 // TestSkipFmtKeepsFmtCheck exercises SkipFmtKeepsFmtCheck.
 func TestSkipFmtKeepsFmtCheck(t *testing.T) {
 	t.Parallel()
 
-	requireEqual(t, skipReason(&skipInput{Module: testGo, Name: nameFmt}), reasonFmt)
+	requireEqual(t, skipReason(testNamedSkipInput(testGo, nameFmt)), reasonFmt)
 	requireEqual(
 		t,
-		skipReason(&skipInput{Module: testGo, Name: nameFmt + colonSeparator + "check"}),
+		skipReason(testNamedSkipInput(testGo, nameFmt+colonSeparator+"check")),
 		emptyString,
 	)
 }
@@ -68,17 +72,17 @@ func TestSkipFmtKeepsFmtCheck(t *testing.T) {
 func TestSkipCacheCleanStaysIn(t *testing.T) {
 	t.Parallel()
 
-	requireEqual(t, skipReason(&skipInput{Module: testEslint, Name: nameCacheClean}), emptyString)
+	requireEqual(t, skipReason(testNamedSkipInput(testEslint, nameCacheClean)), emptyString)
 }
 
 // TestSkipDockerWorkTasks exercises SkipDockerWorkTasks.
 func TestSkipDockerWorkTasks(t *testing.T) {
 	t.Parallel()
 
-	requireEqual(t, skipReason(&skipInput{Module: toolDocker, Name: nameBuild}), reasonDocker)
-	requireEqual(t, skipReason(&skipInput{Module: toolDocker, Name: nameVerify}), reasonDocker)
-	requireEqual(t, skipReason(&skipInput{Module: toolDocker, Name: nameVersion}), reasonDocker)
-	requireEqual(t, skipReason(&skipInput{Module: testGo, Name: nameBuild}), emptyString)
+	requireEqual(t, skipReason(testNamedSkipInput(toolDocker, nameBuild)), reasonDocker)
+	requireEqual(t, skipReason(testNamedSkipInput(toolDocker, nameVerify)), reasonDocker)
+	requireEqual(t, skipReason(testNamedSkipInput(toolDocker, nameVersion)), reasonDocker)
+	requireEqual(t, skipReason(testNamedSkipInput(testGo, nameBuild)), emptyString)
 }
 
 // TestSkipNixInstallOnly exercises SkipNixInstallOnly.
@@ -91,15 +95,15 @@ func TestSkipNixInstallOnly(t *testing.T) {
 		expected = unixOnly
 	}
 
-	requireEqual(t, skipReason(&skipInput{Module: toolNix, Name: nameInstall}), expected)
-	requireEqual(t, skipReason(&skipInput{Module: testYamllint, Name: nameInstall}), emptyString)
+	requireEqual(t, skipReason(testNamedSkipInput(toolNix, nameInstall)), expected)
+	requireEqual(t, skipReason(testNamedSkipInput(testYamllint, nameInstall)), emptyString)
 }
 
 // TestSkipFuzzWithoutCLIArgs exercises SkipFuzzWithoutCLIArgs.
 func TestSkipFuzzWithoutCLIArgs(t *testing.T) {
 	t.Parallel()
 
-	requireEqual(t, skipReason(&skipInput{Module: testGo, Name: nameFuzz}), reasonFuzz)
+	requireEqual(t, skipReason(testNamedSkipInput(testGo, nameFuzz)), reasonFuzz)
 }
 
 // TestSkipFuzzWithCLIArgs exercises SkipFuzzWithCLIArgs.
@@ -107,9 +111,14 @@ func TestSkipFuzzWithCLIArgs(t *testing.T) {
 	t.Parallel()
 
 	reason := skipReason(&skipInput{
+		Task: nil,
+
 		Module: testGo,
 		Name:   nameFuzz,
-		Config: &smokeConfig{Vars: map[string]string{nameCLIArgs: "-fuzz FuzzName ."}},
+		Config: &smokeConfig{
+			Skip: nil,
+			Vars: map[string]string{nameCLIArgs: "-fuzz FuzzName ."},
+		},
 	})
 
 	requireEqual(t, reason, emptyString)
@@ -120,9 +129,11 @@ func TestSkipMissingRequiredVars(t *testing.T) {
 	t.Parallel()
 
 	reason := skipReason(&skipInput{
+		Config: nil,
+
 		Module: testGo,
 		Name:   testInstallPkg,
-		Task:   &tasktest.Task{Requires: &tasktest.TaskRequires{Vars: []string{testGOPKG}}},
+		Task:   testRequiredTask(&tasktest.TaskRequires{Vars: []string{testGOPKG}}),
 	})
 
 	requireEqual(t, reason, reasonRequired)
@@ -133,9 +144,14 @@ func TestSkipYAMLList(t *testing.T) {
 	t.Parallel()
 
 	reason := skipReason(&skipInput{
+		Task: nil,
+
 		Module: testYamllint,
 		Name:   testGalaxyInstall,
-		Config: &smokeConfig{Skip: []string{testGalaxyInstall}},
+		Config: &smokeConfig{
+			Vars: nil,
+			Skip: []string{testGalaxyInstall},
+		},
 	})
 
 	requireEqual(t, reason, reasonYAMLSkip)
@@ -146,14 +162,18 @@ func TestSkipPromptListAndStringList(t *testing.T) {
 	t.Parallel()
 
 	requireEqual(t, skipReason(&skipInput{
+		Config: nil,
+
 		Module: testGit,
 		Name:   "install:undo",
-		Task:   &tasktest.Task{Prompt: []any{testContinue}},
+		Task:   testPromptTask([]any{testContinue}),
 	}), reasonPrompt)
 	requireEqual(t, skipReason(&skipInput{
+		Config: nil,
+
 		Module: testGit,
 		Name:   testOther,
-		Task:   &tasktest.Task{Prompt: []string{testContinue}},
+		Task:   testPromptTask([]string{testContinue}),
 	}), reasonPrompt)
 }
 
@@ -162,9 +182,11 @@ func TestSkipEmptyPromptIgnored(t *testing.T) {
 	t.Parallel()
 
 	requireEqual(t, skipReason(&skipInput{
+		Config: nil,
+
 		Module: testEcho,
 		Name:   nameCI,
-		Task:   &tasktest.Task{Prompt: "  "},
+		Task:   testPromptTask("  "),
 	}), emptyString)
 }
 
@@ -173,9 +195,11 @@ func TestSkipUnknownPromptType(t *testing.T) {
 	t.Parallel()
 
 	requireEqual(t, skipReason(&skipInput{
+		Config: nil,
+
 		Module: testEcho,
 		Name:   nameCI,
-		Task:   &tasktest.Task{Prompt: 1},
+		Task:   testPromptTask(1),
 	}), reasonPrompt)
 }
 
@@ -183,8 +207,8 @@ func TestSkipUnknownPromptType(t *testing.T) {
 func TestSkipGitMutators(t *testing.T) {
 	t.Parallel()
 
-	requireEqual(t, skipReason(&skipInput{Module: testGit, Name: namePushForce}), reasonDestructive)
-	requireEqual(t, skipReason(&skipInput{Module: testGit, Name: nameClean}), reasonDestructive)
+	requireEqual(t, skipReason(testNamedSkipInput(testGit, namePushForce)), reasonDestructive)
+	requireEqual(t, skipReason(testNamedSkipInput(testGit, nameClean)), reasonDestructive)
 }
 
 // TestNameMatchesSuffix exercises NameMatchesSuffix.
@@ -208,14 +232,14 @@ func TestSkipWatchSuffix(t *testing.T) {
 
 	requireEqual(
 		t,
-		skipReason(&skipInput{Module: testGo, Name: nameBuild + suffixWatch}),
+		skipReason(testNamedSkipInput(testGo, nameBuild+suffixWatch)),
 		reasonWatch,
 	)
-	requireEqual(t, skipReason(&skipInput{Module: testGo, Name: nameBuild}), emptyString)
-	requireEqual(t, skipReason(&skipInput{Module: testGo, Name: testTypecheck}), emptyString)
+	requireEqual(t, skipReason(testNamedSkipInput(testGo, nameBuild)), emptyString)
+	requireEqual(t, skipReason(testNamedSkipInput(testGo, testTypecheck)), emptyString)
 	requireEqual(
 		t,
-		skipReason(&skipInput{Module: testGo, Name: testTypecheck + suffixWatch}),
+		skipReason(testNamedSkipInput(testGo, testTypecheck+suffixWatch)),
 		reasonWatch,
 	)
 }
@@ -233,7 +257,7 @@ func TestSkipWingetViaPolicy(t *testing.T) {
 
 	requireEqual(
 		t,
-		skipReason(&skipInput{Module: toolWinget, Name: nameInstall}),
+		skipReason(testNamedSkipInput(toolWinget, nameInstall)),
 		wingetSkipOnOS(toolWinget, runtime.GOOS),
 	)
 }
@@ -244,17 +268,17 @@ func TestSkipUnixOnlyViaPolicy(t *testing.T) {
 
 	requireEqual(
 		t,
-		skipReason(&skipInput{Module: toolAnsible, Name: nameVersion}),
+		skipReason(testNamedSkipInput(toolAnsible, nameVersion)),
 		unixOnlySkipOnOS(toolAnsible, runtime.GOOS),
 	)
 	requireEqual(
 		t,
-		skipReason(&skipInput{Module: toolAnsibleLint, Name: nameVersion}),
+		skipReason(testNamedSkipInput(toolAnsibleLint, nameVersion)),
 		unixOnlySkipOnOS(toolAnsibleLint, runtime.GOOS),
 	)
 	requireEqual(
 		t,
-		skipReason(&skipInput{Module: toolNix, Name: nameVersion}),
+		skipReason(testNamedSkipInput(toolNix, nameVersion)),
 		unixOnlySkipOnOS(toolNix, runtime.GOOS),
 	)
 }
@@ -265,7 +289,7 @@ func TestSkipCargoSourceViaPolicy(t *testing.T) {
 
 	requireEqual(
 		t,
-		skipReason(&skipInput{Module: toolAdrs, Name: nameVersion}),
+		skipReason(testNamedSkipInput(toolAdrs, nameVersion)),
 		cargoSourceSkipOnOS(toolAdrs, runtime.GOOS),
 	)
 }
@@ -276,36 +300,40 @@ func TestUnixOnlyAndGHSkipOnOS(t *testing.T) {
 
 	requireEqual(
 		t,
-		unixOnlyAndGHSkipOnOS(&skipInput{Module: toolAnsible}, osWindows),
+		unixOnlyAndGHSkipOnOS(testNamedSkipInput(toolAnsible, emptyString), osWindows),
 		reasonUnixOnly,
 	)
 	requireEqual(
 		t,
-		unixOnlyAndGHSkipOnOS(&skipInput{Module: toolAdrs}, osWindows),
+		unixOnlyAndGHSkipOnOS(testNamedSkipInput(toolAdrs, emptyString), osWindows),
 		reasonCargoSource,
 	)
-	requireEqual(t, unixOnlyAndGHSkipOnOS(&skipInput{Module: testGo}, osWindows), emptyString)
+	requireEqual(
+		t,
+		unixOnlyAndGHSkipOnOS(testNamedSkipInput(testGo, emptyString), osWindows),
+		emptyString,
+	)
 }
 
 // TestSkipGHKeepsAllowed exercises SkipGHKeepsAllowed.
 func TestSkipGHKeepsAllowed(t *testing.T) {
 	t.Parallel()
 
-	requireEqual(t, skipReason(&skipInput{Module: toolGH, Name: nameInstall}), emptyString)
-	requireEqual(t, skipReason(&skipInput{Module: toolGH, Name: nameVersion}), emptyString)
-	requireEqual(t, skipReason(&skipInput{Module: toolGH, Name: nameWhich}), emptyString)
-	requireEqual(t, skipReason(&skipInput{Module: toolGH, Name: nameHelp}), emptyString)
-	requireEqual(t, skipReason(&skipInput{Module: toolGH, Name: nameVerify}), emptyString)
-	requireEqual(t, skipReason(&skipInput{Module: toolGH, Name: nameConfigList}), emptyString)
-	requireEqual(t, skipReason(&skipInput{Module: toolGH, Name: nameAliasList}), emptyString)
+	requireEqual(t, skipReason(testNamedSkipInput(toolGH, nameInstall)), emptyString)
+	requireEqual(t, skipReason(testNamedSkipInput(toolGH, nameVersion)), emptyString)
+	requireEqual(t, skipReason(testNamedSkipInput(toolGH, nameWhich)), emptyString)
+	requireEqual(t, skipReason(testNamedSkipInput(toolGH, nameHelp)), emptyString)
+	requireEqual(t, skipReason(testNamedSkipInput(toolGH, nameVerify)), emptyString)
+	requireEqual(t, skipReason(testNamedSkipInput(toolGH, nameConfigList)), emptyString)
+	requireEqual(t, skipReason(testNamedSkipInput(toolGH, nameAliasList)), emptyString)
 }
 
 // TestSkipGHAuthNetwork exercises SkipGHAuthNetwork.
 func TestSkipGHAuthNetwork(t *testing.T) {
 	t.Parallel()
 
-	requireEqual(t, skipReason(&skipInput{Module: toolGH, Name: testOther}), reasonGH)
-	requireEqual(t, skipReason(&skipInput{Module: testGit, Name: testOther}), emptyString)
+	requireEqual(t, skipReason(testNamedSkipInput(toolGH, testOther)), reasonGH)
+	requireEqual(t, skipReason(testNamedSkipInput(testGit, testOther)), emptyString)
 }
 
 func assertOSSkipCases(t *testing.T, cases []osSkipCase) {

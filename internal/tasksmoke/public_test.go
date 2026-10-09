@@ -38,7 +38,11 @@ func TestPromptEmptyList(t *testing.T) {
 func TestSpecAsTaskCopiesRequires(t *testing.T) {
 	t.Parallel()
 
-	task := specAsTask(&taskSpec{Name: testInstallPkg, Requires: []string{testGOPKG}})
+	task := specAsTask(&taskSpec{
+		Prompt:      nil,
+		Interactive: false,
+		Name:        testInstallPkg, Requires: []string{testGOPKG},
+	})
 	requireSame(t, task.Requires != nil, true)
 	requireEqual(t, task.Requires.Vars[0], testGOPKG)
 }
@@ -54,7 +58,17 @@ func TestRequiredVarNamesNil(t *testing.T) {
 func TestCompareTaskSpecs(t *testing.T) {
 	t.Parallel()
 
-	requireSame(t, compareTaskSpecs(&taskSpec{Name: "a"}, &taskSpec{Name: "b"}) < 0, true)
+	requireSame(t, compareTaskSpecs(&taskSpec{
+		Prompt:      nil,
+		Requires:    nil,
+		Interactive: false,
+		Name:        "a",
+	}, &taskSpec{
+		Prompt:      nil,
+		Requires:    nil,
+		Interactive: false,
+		Name:        "b",
+	}) < 0, true)
 }
 
 // TestDeclaredPublicTasksFromParse exercises DeclaredPublicTasksFromParse.
@@ -75,7 +89,12 @@ func TestDeclaredPublicTasksFromParse(t *testing.T) {
 func TestNewSkipInputUsesSpec(t *testing.T) {
 	t.Parallel()
 
-	input := newSkipInput(&module{Name: testGo}, &taskSpec{Name: nameFuzz})
+	input := newSkipInput(testNamedModule(testGo), &taskSpec{
+		Prompt:      nil,
+		Requires:    nil,
+		Interactive: false,
+		Name:        nameFuzz,
+	})
 	requireEqual(t, input.Name, nameFuzz)
 	requireEqual(t, filepath.Base(input.Module), testGo)
 }

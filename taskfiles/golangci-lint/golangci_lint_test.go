@@ -137,6 +137,7 @@ func TestGolangciLintCustomBuildToolchain(t *testing.T) {
 
 	fixture := newCustomGolangciLintFixture(t)
 	fixture.writeConfig(t, projectCustomConfig(constInitialPluginVersion))
+
 	output, err := fixture.runCommand(t.Context(), &golangciLintRun{
 		taskName: constGolangciLintLint,
 		extraEnv: []string{"GCL_EXPECT_TOOLCHAIN=go1.27.2"},

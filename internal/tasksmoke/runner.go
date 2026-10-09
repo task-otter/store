@@ -332,6 +332,17 @@ func skippedResult(module, name, reason string) *taskResult {
 
 func specAsTask(spec *taskSpec) *tasktest.Task {
 	task := tasktest.Task{
+		Preconditions: nil,
+		Cmds:          nil,
+		Deps:          nil,
+		Vars:          nil,
+		Status:        nil,
+		Desc:          emptyString,
+		Summary:       emptyString,
+		Run:           emptyString,
+		Set:           nil,
+		Internal:      false,
+
 		Interactive: spec.Interactive,
 		Prompt:      spec.Prompt,
 		Requires:    specRequires(spec.Requires),

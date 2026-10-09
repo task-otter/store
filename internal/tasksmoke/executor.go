@@ -105,6 +105,13 @@ func setCallVars(vars *ast.Vars, values map[string]string) {
 func setSortedCallVars(vars *ast.Vars, values map[string]string, keys []string) {
 	for i := range keys {
 		key := keys[i]
-		vars.Set(key, ast.Var{Value: values[key]})
+		vars.Set(key, ast.Var{
+			Live:   nil,
+			Sh:     nil,
+			Ref:    emptyString,
+			Dir:    emptyString,
+			Secret: false,
+			Value:  values[key],
+		})
 	}
 }

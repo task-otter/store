@@ -801,9 +801,9 @@ func assertTextAndEmptyHelpers(t *testing.T, taskNode *yaml.Node) {
 		t.Fatal("ttu.NodeText scalar mismatch")
 	}
 
-	if got := tasktestutil.NodeText(
-		tasktestutil.NodeMappingValue(taskNode, "sequence"),
-	); got != alphaBetaText {
+	got := tasktestutil.NodeText(tasktestutil.NodeMappingValue(taskNode, "sequence"))
+
+	if got != alphaBetaText {
 		t.Fatalf("ttu.NodeText sequence = %q", got)
 	}
 

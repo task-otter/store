@@ -60,6 +60,16 @@ func TestDeclaredPublicTasksSkipHidden(t *testing.T) {
 	requireSame(t, hasTask(echoModule, testSecretTask), false)
 }
 
+// TestStubSourceJoinsTool exercises StubSourceJoinsTool.
+func TestStubSourceJoinsTool(t *testing.T) {
+	t.Parallel()
+
+	got := stubSource(filepath.FromSlash(testRepoSlash), testEslintNPM)
+	want := filepath.Join(filepath.FromSlash(testRepoSlash), dataTestDirName, testEslint)
+
+	requireEqual(t, got, want)
+}
+
 func hasModule(modules []*module, name string) bool {
 	for i := range modules {
 		if modules[i].Name == name {
@@ -92,14 +102,4 @@ func mustModule(t *testing.T, modules []*module, name string) *module {
 	t.Fatalf("module %q not found", name)
 
 	return nil
-}
-
-// TestStubSourceJoinsTool exercises StubSourceJoinsTool.
-func TestStubSourceJoinsTool(t *testing.T) {
-	t.Parallel()
-
-	got := stubSource(filepath.FromSlash(testRepoSlash), testEslintNPM)
-	want := filepath.Join(filepath.FromSlash(testRepoSlash), dataTestDirName, testEslint)
-
-	requireEqual(t, got, want)
 }

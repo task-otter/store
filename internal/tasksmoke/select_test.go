@@ -105,14 +105,23 @@ func TestSelectedSmokeTasksVersionOnly(t *testing.T) {
 }
 
 func namedSmokeModule(names ...string) *module {
-	return &module{Name: testGo, Tasks: namedTaskSpecs(names)}
+	return &module{
+		Config: nil,
+		Dir:    emptyString,
+		Name:   testGo, Tasks: namedTaskSpecs(names),
+	}
 }
 
 func namedTaskSpecs(names []string) []*taskSpec {
 	tasks := make([]*taskSpec, emptyLength, len(names))
 
 	for i := range names {
-		tasks = append(tasks, &taskSpec{Name: names[i]})
+		tasks = append(tasks, &taskSpec{
+			Prompt:      nil,
+			Requires:    nil,
+			Interactive: false,
+			Name:        names[i],
+		})
 	}
 
 	return tasks
@@ -133,7 +142,10 @@ func requireSelectedNames(t *testing.T, module *module, names ...string) {
 func skippedSmokeModule(skip []string, names ...string) *module {
 	module := namedSmokeModule(names...)
 
-	module.Config = &smokeConfig{Skip: skip}
+	module.Config = &smokeConfig{
+		Vars: nil,
+		Skip: skip,
+	}
 
 	return module
 }
