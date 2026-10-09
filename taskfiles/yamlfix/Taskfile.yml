@@ -59,7 +59,9 @@ tasks:
     status:
       - >-
         powershell -NoProfile -ExecutionPolicy Bypass -Command
-        "{{.WINGET_LOAD}}; {{.UV_LOAD}}; yamlfix --version; exit \$LASTEXITCODE"
+        "{{.WINGET_LOAD}}; {{.UV_LOAD}};
+        if (-not (Get-Command yamlfix -ErrorAction SilentlyContinue)) { exit 1 };
+        yamlfix --version; exit \$LASTEXITCODE"
     cmds:
       - task: uv:tool:install
         vars:
