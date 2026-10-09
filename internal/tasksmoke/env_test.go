@@ -108,6 +108,20 @@ func discardEnv(key, value string) error {
 	return nil
 }
 
+// TestApplySmokeEnvClearsGoRoot prevents mixing the launcher and task toolchains.
+func TestApplySmokeEnvClearsGoRoot(t *testing.T) {
+	t.Parallel()
+
+	values := map[string]string{envGoRoot: testValue}
+	err := applySmokeEnv(t.TempDir(), func(key, value string) error {
+		values[key] = value
+
+		return nil
+	})
+	requireNoErr(t, err)
+	requireEqual(t, values[envGoRoot], emptyString)
+}
+
 func readIsolatedProfile(t *testing.T, home, name string) string {
 	t.Helper()
 

@@ -116,6 +116,7 @@ const (
 	tempHomePrefix       = "tasksmoke-home-"
 	tempWorkPrefix       = "tasksmoke-work-"
 	envHome              = "HOME"
+	envGoRoot            = "GOROOT"
 	envProfile           = "PROFILE"
 	envZdotdir           = "ZDOTDIR"
 	envCI                = "CI"

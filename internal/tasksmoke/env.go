@@ -127,6 +127,8 @@ func setEnvPairs(pairs []envPair) error {
 func smokeEnvPairs(home, profile string) []envPair {
 	return []envPair{
 		{envHome, home},
+		// go run can export its toolchain's GOROOT; tasks may select a different Go from PATH.
+		{envGoRoot, emptyString},
 		{envProfile, profile},
 		{envZdotdir, home},
 		{envCI, envTrue},
