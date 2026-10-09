@@ -61,7 +61,9 @@ tasks:
     status:
       - >-
         powershell -NoProfile -ExecutionPolicy Bypass -Command
-        "{{.WINGET_LOAD}}; {{.GO_LOAD}}; go-junit-report -version; exit \$LASTEXITCODE"
+        "{{.WINGET_LOAD}}; {{.GO_LOAD}};
+        if (-not (Get-Command go-junit-report -ErrorAction SilentlyContinue)) { exit 1 };
+        go-junit-report -version; exit \$LASTEXITCODE"
     cmds:
       - task: go:install:pkg
         vars:
@@ -168,6 +170,7 @@ tasks:
       - sh: >-
           powershell -NoProfile -ExecutionPolicy Bypass -Command
           "{{.WINGET_LOAD}}; {{.GO_LOAD}};
+          if (-not (Get-Command go-junit-report -ErrorAction SilentlyContinue)) { exit 1 };
           go-junit-report -version; exit \$LASTEXITCODE"
         msg: go-junit-report is not installed or not available in PATH.
     cmds:
@@ -195,6 +198,7 @@ tasks:
       - sh: >-
           powershell -NoProfile -ExecutionPolicy Bypass -Command
           "{{.WINGET_LOAD}}; {{.GO_LOAD}};
+          if (-not (Get-Command go-junit-report -ErrorAction SilentlyContinue)) { exit 1 };
           go-junit-report -version; exit \$LASTEXITCODE"
         msg: go-junit-report is not installed or not available in PATH.
     cmds:
@@ -222,6 +226,7 @@ tasks:
       - sh: >-
           powershell -NoProfile -ExecutionPolicy Bypass -Command
           "{{.WINGET_LOAD}}; {{.GO_LOAD}};
+          if (-not (Get-Command go-junit-report -ErrorAction SilentlyContinue)) { exit 1 };
           go-junit-report -version; exit \$LASTEXITCODE"
         msg: go-junit-report is not installed or not available in PATH.
     cmds:
