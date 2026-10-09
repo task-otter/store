@@ -5,7 +5,9 @@ A [TaskOtter](https://github.com/task-otter/store) module for [yamlfix](https://
 ## What is this Taskfile?
 
 This module formats YAML files in place. The `ci:fix` task auto-installs
-yamlfix via `nix:install:profile`. It excludes `Taskfile.yml` / `Taskfile.yaml`
+yamlfix via `nix:install:profile` on Unix or `uv:tool:install` on Windows.
+On Windows, it runs in PowerShell after reloading the uv tool path.
+It excludes `Taskfile.yml` / `Taskfile.yaml`
 whose Go template syntax is incompatible with yamlfix.
 
 ## Usage
