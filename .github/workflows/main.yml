@@ -19,7 +19,7 @@ permissions:
 
 env:
   # Fall back to the source repository on proxy errors, including HTTP 502.
-  GOPROXY: 'https://proxy.golang.org|direct'
+  GOPROXY: https://proxy.golang.org|direct
   TEST_SHARDS: '6'
 
 jobs:
