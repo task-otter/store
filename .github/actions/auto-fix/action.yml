@@ -29,7 +29,11 @@ runs:
         fi
     - name: Create pull request
       id: create-pr
-      if: steps.changes.outputs.changed == 'true'
+      # Dependabot PRs have a read-only token, including on manual reruns.
+      if: >-
+        steps.changes.outputs.changed == 'true' &&
+        github.actor != 'dependabot[bot]' &&
+        github.event.pull_request.user.login != 'dependabot[bot]'
       uses: peter-evans/create-pull-request@5f6978faf089d4d20b00c7766989d076bb2fc7f1  # v8.1.1
       with:
         token: ${{ inputs.token }}

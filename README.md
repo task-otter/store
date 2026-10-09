@@ -175,6 +175,29 @@ Contract tests also enforce:
 After adding, removing, or renaming an exported task, update `metadata.yml`
 and the module README, then run `go test ./...`.
 
+## Dependency updates
+
+[Dependabot](.github/dependabot.yml) checks the root Go module, root npm
+development dependencies, GitHub workflows, and composite actions every Monday
+at 09:00 Africa/Cairo. Minor and patch version updates are grouped by ecosystem;
+major updates remain individual PRs for review. Each ecosystem allows up to five
+open version-update PRs, and new releases have a seven-day cooldown.
+Security updates are exempt from the cooldown and version-update PR limit.
+
+Test manifests under `data-test/` and `taskfiles/npm/` are fixtures and are not
+included in version updates. Tool versions embedded in Taskfile variables and
+Nix/WinGet install settings are maintained separately.
+
+Dependabot PRs run CI and smoke checks. CI still fails when formatting changes
+are needed, but skips creating fix PRs and uploading to Codecov because these
+steps require write or OIDC credentials. Review and merge dependency updates
+after the required checks pass.
+
+To receive security-fix PRs, enable the dependency graph, Dependabot alerts,
+and Dependabot security updates in the repository's GitHub security settings.
+The configuration file enables version updates once merged into the default
+branch; it does not enable these repository settings.
+
 ## License
 
 [MIT](LICENSE)
