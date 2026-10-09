@@ -28,6 +28,7 @@ func TestTaskfileModuleContract(t *testing.T) {
 			Tasks: []string{"ci:fs", "ci:image", "install", "version"},
 			Vars: []string{
 				"TRIVY_IMAGE", "TRIVY_FS_TARGET",
+				"TRIVY_SCANNERS",
 				"TRIVY_IMAGE_ARGS", "TRIVY_FS_ARGS",
 				"TRIVY_IMAGE_EXTRA_ARGS", "TRIVY_FS_EXTRA_ARGS",
 				"TRIVY_NIX_INSTALLABLE", "TRIVY_WINGET_INSTALLABLE",

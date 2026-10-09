@@ -47,6 +47,7 @@ available within the current Task process.
 | -------------------------- | ----------------------------------- | ---------------------------------------------------------- |
 | `TRIVY_IMAGE`              | _(empty; required for image scans)_ | Container image reference                                  |
 | `TRIVY_FS_TARGET`          | `.`                                 | Filesystem path relative to the caller's working directory |
+| `TRIVY_SCANNERS`           | `vuln,misconfig,secret,license`     | Scanners used by the default image and filesystem policies |
 | `TRIVY_IMAGE_ARGS`         | Strict image flags below            | Replace image scan policy                                  |
 | `TRIVY_FS_ARGS`            | Strict filesystem flags below       | Replace filesystem scan policy                             |
 | `TRIVY_IMAGE_EXTRA_ARGS`   | _(empty)_                           | Append image flags; later flags can override policy        |
@@ -82,6 +83,16 @@ Image scans additionally use `--image-config-scanners misconfig,secret`,
 `--removed-pkgs` (supported for Alpine) and `--exit-on-eol 1`. Filesystem scans
 add `--include-dev-deps` (supported for npm, yarn and Gradle).
 Scan failures propagate to Task on all supported operating systems.
+
+This repository's top-level `ci` task uses the module's strict defaults without
+policy overrides. Any finding fails CI, including LOW license notices and
+UNKNOWN licenses. Full license scanning and development dependency scanning
+remain enabled.
+
+Use `TRIVY_SCANNERS` to select scanners when using the default policy flags.
+Repeating `--scanners` in extra arguments adds scanners rather than replacing
+the default list. Custom `TRIVY_IMAGE_ARGS` or `TRIVY_FS_ARGS` must specify
+their own scanner list.
 
 Set variables on an include to customize the tasks for a project:
 

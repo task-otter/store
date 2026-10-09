@@ -18,17 +18,18 @@ includes:
 vars:
   TRIVY_IMAGE: '{{.TRIVY_IMAGE | default ""}}'
   TRIVY_FS_TARGET: '{{.TRIVY_FS_TARGET | default "."}}'
+  TRIVY_SCANNERS: '{{.TRIVY_SCANNERS | default "vuln,misconfig,secret,license"}}'
   TRIVY_IMAGE_ARGS: >-
-    {{.TRIVY_IMAGE_ARGS | default `--scanners vuln,misconfig,secret,license
+    {{.TRIVY_IMAGE_ARGS | default (printf `--scanners %s
     --image-config-scanners misconfig,secret
     --severity UNKNOWN,LOW,MEDIUM,HIGH,CRITICAL --exit-code 1 --exit-on-eol 1
     --detection-priority comprehensive --ignore-unfixed=false --license-full
-    --removed-pkgs --include-deprecated-checks --no-progress`}}
+    --removed-pkgs --include-deprecated-checks --no-progress` .TRIVY_SCANNERS)}}
   TRIVY_FS_ARGS: >-
-    {{.TRIVY_FS_ARGS | default `--scanners vuln,misconfig,secret,license
+    {{.TRIVY_FS_ARGS | default (printf `--scanners %s
     --severity UNKNOWN,LOW,MEDIUM,HIGH,CRITICAL --exit-code 1
     --detection-priority comprehensive --ignore-unfixed=false --license-full
-    --include-dev-deps --include-deprecated-checks --no-progress`}}
+    --include-dev-deps --include-deprecated-checks --no-progress` .TRIVY_SCANNERS)}}
   TRIVY_IMAGE_EXTRA_ARGS: '{{.TRIVY_IMAGE_EXTRA_ARGS | default ""}}'
   TRIVY_FS_EXTRA_ARGS: '{{.TRIVY_FS_EXTRA_ARGS | default ""}}'
   TRIVY_NIX_INSTALLABLE: '{{.TRIVY_NIX_INSTALLABLE | default "nixpkgs#trivy"}}'

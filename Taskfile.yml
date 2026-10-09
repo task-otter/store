@@ -75,7 +75,7 @@ tasks:
       - task: yamllint:ci
       - task: zizmor:ci
       - task: trivy:ci:fs
-      - task: prettier:bun:ci
+      - task: prettier:bun:fmt:check
   ci:fix:
     run: once
     desc: Run CI Fixing
