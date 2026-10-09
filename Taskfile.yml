@@ -74,6 +74,7 @@ tasks:
       - task: golangci-lint:ci
       - task: yamllint:ci
       - task: zizmor:ci
+      - task: trivy:ci:fs
       - task: prettier:bun:ci
   ci:fix:
     run: once

@@ -1,6 +1,6 @@
 ---
 name: CI
-description: Run the repository's own lint/format checks and go vet.
+description: Run the repository's lint/format checks, security scans and go vet.
 
 inputs:
   github-token:
@@ -23,6 +23,7 @@ runs:
         task actionlint:ci
         task yamllint:ci
         task zizmor:ci
+        task trivy:ci:fs
     - name: Run Tests
       shell: bash
       run: |
