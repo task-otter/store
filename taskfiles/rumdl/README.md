@@ -31,8 +31,7 @@ includes:
 
 ```bash
 task rumdl:ci RUMDL_TARGETS=docs
-task rumdl:lint:fix RUMDL_TARGETS=README.md
-task rumdl:fmt
+task rumdl:ci:fix RUMDL_TARGETS=README.md
 ```
 
 ## Public Tasks
@@ -40,9 +39,7 @@ task rumdl:fmt
 | Task       | Description                                             | Key variables                                |
 | ---------- | ------------------------------------------------------- | -------------------------------------------- |
 | `ci`       | Lint Markdown files with rumdl check                    | `RUMDL_TARGETS`, `RUMDL_EXTRA_ARGS`          |
-| `lint:fix` | Apply automatic fixes with rumdl check --fix            | `RUMDL_TARGETS`, `RUMDL_EXTRA_ARGS`          |
-| `ci:fix`   | Run `fmt` then `lint:fix` for CI                        | —                                            |
-| `fmt`      | Format Markdown files with rumdl fmt                    | `RUMDL_TARGETS`, `RUMDL_EXTRA_ARGS`          |
+| `ci:fix`   | Format Markdown files with rumdl fmt                    | `RUMDL_TARGETS`, `RUMDL_EXTRA_ARGS`          |
 | `install`  | Install rumdl via Nix (Unix) or cargo install (Windows) | `RUMDL_NIX_INSTALLABLE`, `RUMDL_CARGO_CRATE` |
 | `version`  | Show the active rumdl version                           | —                                            |
 
@@ -62,8 +59,8 @@ Pin a revision by overriding the installable, for example
 
 * Unix install uses Nix (`RUMDL_NIX_INSTALLABLE`). Windows installs via
   `cargo:install:crate` (`RUMDL_CARGO_CRATE`).
-* `lint:fix` (rumdl check --fix) exits non-zero when unfixable violations remain,
-  which suits pre-commit hooks and CI. `fmt` (rumdl fmt) uses formatter-style
-  exit codes and exits zero after formatting, which suits editor integration.
+* `ci:fix` (rumdl fmt) uses formatter-style exit codes and exits zero after
+  successful formatting even if unfixable violations remain. Run `ci` to
+  check for remaining violations.
 * Auto-install: every run task depends on the module's `install` task, so the
   tool is installed on first use.

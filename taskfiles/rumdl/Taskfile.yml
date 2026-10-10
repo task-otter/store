@@ -98,7 +98,7 @@ tasks:
         powershell -NoProfile -ExecutionPolicy Bypass -Command
         "{{.WINGET_LOAD}}; rumdl --version; exit \$LASTEXITCODE"
 
-  # Shared implementation of lint / lint:fix / fmt. Each override is resolved exactly
+  # Shared implementation of ci / ci:fix. Each override is resolved exactly
   # once here; callers supply the subcommand and any trailing shell reporting.
   _run:
     internal: true
@@ -135,33 +135,12 @@ tasks:
         vars:
           SUBCMD: check
           TAIL: ' && echo "✅ rumdl passed" || { echo "❌ rumdl failed"; exit 1; }'
-  lint:fix:
-    run: once
-    desc: Fix Markdown lint issues with rumdl (RUMDL_TARGETS=path)
-    summary: |
-      Run rumdl check --fix against RUMDL_TARGETS (default .) to apply automatic
-      fixes for fixable lint violations. Exits non-zero when unfixable
-      violations remain. Pass RUMDL_EXTRA_ARGS for additional flags.
-      Auto-installs rumdl if missing.
-    cmds:
-      - task: _run
-        vars:
-          SUBCMD: check --fix
   ci:fix:
-    run: once
-    desc: Run fmt then lint:fix for CI
-    summary: |
-      Run fmt then lint:fix. Applies formatting and automatic lint fixes
-      suitable for CI autofix workflows.
-    cmds:
-      - task: fmt
-      - task: lint:fix
-  fmt:
     run: once
     desc: Format Markdown files with rumdl (RUMDL_TARGETS=path)
     summary: |
-      Run rumdl fmt against RUMDL_TARGETS (default .). Unlike lint:fix, fmt uses
-      formatter-style exit codes and exits zero after successful formatting
+      Run rumdl fmt against RUMDL_TARGETS (default .). Uses formatter-style
+      exit codes and exits zero after successful formatting
       even if unfixable violations remain. Pass RUMDL_EXTRA_ARGS for additional
       flags. Auto-installs rumdl if missing.
     cmds:
