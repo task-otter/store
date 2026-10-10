@@ -2,6 +2,7 @@
 
 [![CI](https://github.com/task-otter/store/actions/workflows/main.yml/badge.svg)](https://github.com/task-otter/store/actions/workflows/main.yml)
 [![codecov](https://codecov.io/gh/task-otter/store/graph/badge.svg)](https://codecov.io/gh/task-otter/store)
+[![FOSSA Status](https://app.fossa.com/api/projects/git%2Bgithub.com%2Ftask-otter%2Fstore.svg?type=shield)](https://app.fossa.com/projects/git%2Bgithub.com%2Ftask-otter%2Fstore?ref=badge_shield)
 
 Reusable, tested [Taskfile](https://taskfile.dev) modules for installing and
 running common dev tools. Clone or submodule this repo, include a module, and
@@ -201,3 +202,6 @@ branch; it does not enable these repository settings.
 ## License
 
 [MIT](LICENSE)
+
+
+[![FOSSA Status](https://app.fossa.com/api/projects/git%2Bgithub.com%2Ftask-otter%2Fstore.svg?type=large)](https://app.fossa.com/projects/git%2Bgithub.com%2Ftask-otter%2Fstore?ref=badge_large)
