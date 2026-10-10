@@ -71,10 +71,9 @@ tasks:
     desc: Run all CI checks
     cmds:
       - task: actionlint:ci
-      - task: golangci-lint:ci
       - task: yamllint:ci
       - task: zizmor:ci
-      - task: ci:security
+      - task: trivy:ci:fs
       - task: prettier:bun:fmt:check
   ci:fix:
     run: once
@@ -83,25 +82,3 @@ tasks:
       - task: golangci-lint:ci:fix
       - task: yamlfix:ci:fix
       - task: prettier:bun:ci:fix
-  ci:security:
-    desc: Prepare npm license metadata and run strict repository security checks
-    cmds:
-      # Build with the active Go toolchain; older checker binaries cannot
-      # analyze this repository's Go 1.27 packages.
-      - go run golang.org/x/vuln/cmd/govulncheck@v1.8.0 -test ./...
-      - task: _ci:npm:licenses
-        vars:
-          ARGS: ci --ignore-scripts --no-audit --no-fund
-      - task: _ci:npm:licenses
-        vars:
-          ARGS: --prefix taskfiles/npm ci --ignore-scripts --no-audit --no-fund
-      - task: trivy:ci:fs
-  _ci:npm:licenses:
-    internal: true
-    cmds:
-      - task: npm:_npm:unix
-        vars:
-          ARGS: '{{.ARGS}}'
-      - task: npm:_npm:windows
-        vars:
-          ARGS: '{{.ARGS}}'

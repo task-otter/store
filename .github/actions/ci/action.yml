@@ -19,11 +19,7 @@ runs:
         token: ${{ inputs.github-token }}
     - name: Run all CI checks
       shell: bash
-      run: |
-        task actionlint:ci
-        task yamllint:ci
-        task zizmor:ci
-        task ci:security
+      run: task ci
     - name: Run Tests
       shell: bash
       run: |
