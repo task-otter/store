@@ -17,3 +17,4 @@ test-result.txt
 .tasksmoke-*.log
 .ansible
 smok.log
+.rumdl_cache/**
