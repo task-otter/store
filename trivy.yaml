@@ -1,0 +1,5 @@
+---
+license:
+  # Approved license allowlist (Trivy calls this setting "ignored").
+  ignored:
+    - BlueOak-1.0.0

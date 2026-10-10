@@ -85,9 +85,10 @@ add `--include-dev-deps` (supported for npm, yarn and Gradle).
 Scan failures propagate to Task on all supported operating systems.
 
 This repository's top-level `ci` task uses the module's strict defaults without
-policy overrides. Any finding fails CI, including LOW license notices and
-UNKNOWN licenses. Full license scanning and development dependency scanning
-remain enabled.
+policy overrides. Findings fail CI, including LOW license notices and UNKNOWN
+licenses, except licenses explicitly approved in the repository's `trivy.yaml`
+allowlist. BlueOak-1.0.0 is approved via `license.ignored`. Full license scanning
+and development dependency scanning remain enabled.
 
 Use `TRIVY_SCANNERS` to select scanners when using the default policy flags.
 Repeating `--scanners` in extra arguments adds scanners rather than replacing
