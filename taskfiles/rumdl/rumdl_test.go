@@ -30,9 +30,7 @@ func TestTaskfileModuleContract(t *testing.T) {
 
 func publicTasks() []string {
 	return []string{
-		"lint:fix",
 		"ci:fix",
-		"fmt",
 		"ci",
 		"install",
 		"version",
