@@ -763,6 +763,9 @@ linters:
         - cuddle-group
       disable: []
   exclusions:
+    paths:
+      - node_modules/.*
+      - data-test/.*
     generated: disable
     warn-unused: true
 
