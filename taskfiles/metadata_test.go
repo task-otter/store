@@ -78,7 +78,6 @@ const (
 	knipFamily       = "knip"
 	prettierFamily   = "prettier"
 	spectralFamily   = "spectral"
-	stylelintFamily  = "stylelint"
 	typescriptFamily = "typescript"
 
 	walkTaskfilesErrFormat = "walk taskfiles: %v"
@@ -139,7 +138,7 @@ func TestTaskCliLoadsEveryFamily(t *testing.T) {
 func toolFamilies() map[string]bool {
 	return map[string]bool{
 		eslintFamily: true, prettierFamily: true, biomeFamily: true,
-		depcheckFamily: true, knipFamily: true, stylelintFamily: true, typescriptFamily: true,
+		depcheckFamily: true, knipFamily: true, typescriptFamily: true,
 		htmlhintFamily: true, spectralFamily: true,
 	}
 }

@@ -22,9 +22,7 @@ includes:
   cargo: taskfiles/cargo/Taskfile.yml
   dasel: taskfiles/dasel/Taskfile.yml
   depcheck: taskfiles/depcheck/Taskfile.yml
-  djlint: taskfiles/djlint/Taskfile.yml
   docker: taskfiles/docker/Taskfile.yml
-  dotenv-linter: taskfiles/dotenv-linter/Taskfile.yml
   eslint: taskfiles/eslint/Taskfile.yml
   gh: taskfiles/gh/Taskfile.yml
   git: taskfiles/git/Taskfile.yml
@@ -33,7 +31,6 @@ includes:
   golangci-lint: taskfiles/golangci-lint/Taskfile.yml
   hadolint: taskfiles/hadolint/Taskfile.yml
   htmlhint: taskfiles/htmlhint/Taskfile.yml
-  jsonlint: taskfiles/jsonlint/Taskfile.yml
   knip: taskfiles/knip/Taskfile.yml
   nix: taskfiles/nix/Taskfile.yml
   nodejs: taskfiles/nodejs/Taskfile.yml
@@ -42,14 +39,10 @@ includes:
   prettier: taskfiles/prettier/Taskfile.yml
   proto: taskfiles/proto/Taskfile.yml
   protolint: taskfiles/protolint/Taskfile.yml
-  pulumi: taskfiles/pulumi/Taskfile.yml
   python: taskfiles/python/Taskfile.yml
   rumdl: taskfiles/rumdl/Taskfile.yml
-  shellcheck: taskfiles/shellcheck/Taskfile.yml
-  shfmt: taskfiles/shfmt/Taskfile.yml
   spectral: taskfiles/spectral/Taskfile.yml
   sqlfluff: taskfiles/sqlfluff/Taskfile.yml
-  stylelint: taskfiles/stylelint/Taskfile.yml
   trivy: taskfiles/trivy/Taskfile.yml
   typescript: taskfiles/typescript/Taskfile.yml
   uv: taskfiles/uv/Taskfile.yml
@@ -75,6 +68,7 @@ tasks:
       - task: zizmor:ci
       - task: trivy:ci:fs
       - task: prettier:bun:fmt:check
+      - task: rumdl:ci
   ci:fix:
     run: once
     desc: Run CI Fixing
@@ -82,3 +76,4 @@ tasks:
       - task: golangci-lint:ci:fix
       - task: yamlfix:ci:fix
       - task: prettier:bun:ci:fix
+      - task: rumdl:ci:fix

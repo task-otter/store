@@ -17,7 +17,7 @@ import (
 
 const (
 	fixtureModule   = "dasel"
-	shfmtModule     = "shfmt"
+	rumdlModule     = "rumdl"
 	biomeModule     = "biome"
 	defaultTaskName = "default"
 	stdoutText      = "listing"
@@ -42,11 +42,11 @@ func TestRunExercisesBiome(t *testing.T) {
 	taskintegration.Run(t, biomeModule)
 }
 
-// TestRunExercisesShfmt runs the suite against a module with public tasks.
-func TestRunExercisesShfmt(t *testing.T) {
+// TestRunExercisesRumdl runs the suite against a module with public tasks.
+func TestRunExercisesRumdl(t *testing.T) {
 	t.Parallel()
 
-	taskintegration.Run(t, shfmtModule)
+	taskintegration.Run(t, rumdlModule)
 }
 
 // TestRunHereExercisesCurrentModule runs the suite from the module working directory.

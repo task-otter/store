@@ -2,7 +2,7 @@
 
 This document reflects the module dependencies declared in [`.deps.yml`](.deps.yml).
 
-**94 modules** total.
+**82 modules** total.
 
 ## Standalone
 
@@ -31,11 +31,8 @@ Modules with no `includes:` dependencies.
 - `go` → `nix`, `winget`
 - `hadolint` → `nix`, `winget`
 - `nodejs` → `nix`, `winget`
-- `pulumi` → `nix`, `winget`
 - `python` → `nix`, `winget`
 - `rumdl` → `nix`, `winget`
-- `shellcheck` → `nix`, `winget`
-- `shfmt` → `nix`, `winget`
 - `trivy` → `nix`, `winget`
 - `uv` → `nix`, `winget`
 - `zizmor` → `nix`, `winget`
@@ -46,13 +43,10 @@ Modules with no `includes:` dependencies.
 - `biome/bun` → `bun`
 - `dasel` → `go`, `nix`, `winget`
 - `depcheck/bun` → `bun`
-- `djlint` → `nix`, `uv`
-- `dotenv-linter` → `cargo`, `nix`
 - `eslint/bun` → `bun`
 - `go-junit-report` → `go`, `nix`, `winget`
 - `golangci-lint` → `go`, `nix`, `winget`
 - `htmlhint/bun` → `bun`
-- `jsonlint` → `nix`, `uv`
 - `knip/bun` → `bun`
 - `npm` → `nix`, `nodejs`
 - `pnpm` → `nix`, `nodejs`, `winget`
@@ -61,7 +55,6 @@ Modules with no `includes:` dependencies.
 - `protolint` → `go`, `nix`, `winget`
 - `spectral/bun` → `bun`
 - `sqlfluff` → `nix`, `uv`
-- `stylelint/bun` → `bun`
 - `typescript/bun` → `bun`
 - `yamlfix` → `nix`, `uv`
 - `yamllint` → `nix`, `uv`, `winget`
@@ -92,9 +85,6 @@ Modules with no `includes:` dependencies.
 - `spectral/node/npm` → `npm`
 - `spectral/node/pnpm` → `pnpm`
 - `spectral/node/yarn` → `yarn`
-- `stylelint/node/npm` → `npm`
-- `stylelint/node/pnpm` → `pnpm`
-- `stylelint/node/yarn` → `yarn`
 - `typescript/node/npm` → `npm`
 - `typescript/node/pnpm` → `pnpm`
 - `typescript/node/yarn` → `yarn`
@@ -110,7 +100,6 @@ Modules with no `includes:` dependencies.
 - `knip/node` → `knip/node/npm`, `knip/node/pnpm`, `knip/node/yarn`
 - `prettier/node` → `prettier/node/npm`, `prettier/node/pnpm`, `prettier/node/yarn`
 - `spectral/node` → `spectral/node/npm`, `spectral/node/pnpm`, `spectral/node/yarn`
-- `stylelint/node` → `stylelint/node/npm`, `stylelint/node/pnpm`, `stylelint/node/yarn`
 - `typescript/node` → `typescript/node/npm`, `typescript/node/pnpm`, `typescript/node/yarn`
 
 ### Depth 5
@@ -122,7 +111,6 @@ Modules with no `includes:` dependencies.
 - `knip` → `knip/bun`, `knip/node`
 - `prettier` → `prettier/bun`, `prettier/node`
 - `spectral` → `spectral/bun`, `spectral/node`
-- `stylelint` → `stylelint/bun`, `stylelint/node`
 - `typescript` → `typescript/bun`, `typescript/node`
 
 ## Reverse tree
@@ -142,8 +130,8 @@ Who depends on each module:
 - `bruno-cli` — _(none)_
 - `bruno-gui` — _(none)_
 - `buf` — _(none)_
-- `bun` ← `biome/bun`, `depcheck/bun`, `eslint/bun`, `htmlhint/bun`, `knip/bun`, `prettier/bun`, `spectral/bun`, `stylelint/bun`, `typescript/bun`
-- `cargo` ← `adrs`, `dotenv-linter`
+- `bun` ← `biome/bun`, `depcheck/bun`, `eslint/bun`, `htmlhint/bun`, `knip/bun`, `prettier/bun`, `spectral/bun`, `typescript/bun`
+- `cargo` ← `adrs`
 - `dasel` ← `gh`, `vault`
 - `depcheck` — _(none)_
 - `depcheck/bun` ← `depcheck`
@@ -151,9 +139,7 @@ Who depends on each module:
 - `depcheck/node/npm` ← `depcheck/node`
 - `depcheck/node/pnpm` ← `depcheck/node`
 - `depcheck/node/yarn` ← `depcheck/node`
-- `djlint` — _(none)_
 - `docker` — _(none)_
-- `dotenv-linter` — _(none)_
 - `eslint` — _(none)_
 - `eslint/bun` ← `eslint`
 - `eslint/node` ← `eslint`
@@ -172,17 +158,16 @@ Who depends on each module:
 - `htmlhint/node/npm` ← `htmlhint/node`
 - `htmlhint/node/pnpm` ← `htmlhint/node`
 - `htmlhint/node/yarn` ← `htmlhint/node`
-- `jsonlint` — _(none)_
 - `knip` — _(none)_
 - `knip/bun` ← `knip`
 - `knip/node` ← `knip`
 - `knip/node/npm` ← `knip/node`
 - `knip/node/pnpm` ← `knip/node`
 - `knip/node/yarn` ← `knip/node`
-- `nix` ← `actionlint`, `adrs`, `ansible`, `ansible-lint`, `bruno-cli`, `bruno-gui`, `buf`, `bun`, `cargo`, `dasel`, `djlint`, `dotenv-linter`, `gh`, `git`, `go`, `go-junit-report`, `golangci-lint`, `hadolint`, `jsonlint`, `nodejs`, `npm`, `pnpm`, `proto`, `protolint`, `pulumi`, `python`, `rumdl`, `shellcheck`, `shfmt`, `sqlfluff`, `trivy`, `uv`, `vault`, `yamlfix`, `yamllint`, `yarn`, `zizmor`
+- `nix` ← `actionlint`, `adrs`, `ansible`, `ansible-lint`, `bruno-cli`, `bruno-gui`, `buf`, `bun`, `cargo`, `dasel`, `gh`, `git`, `go`, `go-junit-report`, `golangci-lint`, `hadolint`, `nodejs`, `npm`, `pnpm`, `proto`, `protolint`, `python`, `rumdl`, `sqlfluff`, `trivy`, `uv`, `vault`, `yamlfix`, `yamllint`, `yarn`, `zizmor`
 - `nodejs` ← `npm`, `pnpm`, `yarn`
-- `npm` ← `biome/node/npm`, `bruno-cli`, `depcheck/node/npm`, `eslint/node/npm`, `htmlhint/node/npm`, `knip/node/npm`, `prettier/node/npm`, `spectral/node/npm`, `stylelint/node/npm`, `typescript/node/npm`
-- `pnpm` ← `biome/node/pnpm`, `depcheck/node/pnpm`, `eslint/node/pnpm`, `htmlhint/node/pnpm`, `knip/node/pnpm`, `prettier/node/pnpm`, `spectral/node/pnpm`, `stylelint/node/pnpm`, `typescript/node/pnpm`
+- `npm` ← `biome/node/npm`, `bruno-cli`, `depcheck/node/npm`, `eslint/node/npm`, `htmlhint/node/npm`, `knip/node/npm`, `prettier/node/npm`, `spectral/node/npm`, `typescript/node/npm`
+- `pnpm` ← `biome/node/pnpm`, `depcheck/node/pnpm`, `eslint/node/pnpm`, `htmlhint/node/pnpm`, `knip/node/pnpm`, `prettier/node/pnpm`, `spectral/node/pnpm`, `typescript/node/pnpm`
 - `prettier` — _(none)_
 - `prettier/bun` ← `prettier`
 - `prettier/node` ← `prettier`
@@ -191,11 +176,8 @@ Who depends on each module:
 - `prettier/node/yarn` ← `prettier/node`
 - `proto` — _(none)_
 - `protolint` — _(none)_
-- `pulumi` — _(none)_
 - `python` — _(none)_
 - `rumdl` — _(none)_
-- `shellcheck` — _(none)_
-- `shfmt` — _(none)_
 - `spectral` — _(none)_
 - `spectral/bun` ← `spectral`
 - `spectral/node` ← `spectral`
@@ -203,12 +185,6 @@ Who depends on each module:
 - `spectral/node/pnpm` ← `spectral/node`
 - `spectral/node/yarn` ← `spectral/node`
 - `sqlfluff` — _(none)_
-- `stylelint` — _(none)_
-- `stylelint/bun` ← `stylelint`
-- `stylelint/node` ← `stylelint`
-- `stylelint/node/npm` ← `stylelint/node`
-- `stylelint/node/pnpm` ← `stylelint/node`
-- `stylelint/node/yarn` ← `stylelint/node`
 - `trivy` — _(none)_
 - `typescript` — _(none)_
 - `typescript/bun` ← `typescript`
@@ -216,10 +192,10 @@ Who depends on each module:
 - `typescript/node/npm` ← `typescript/node`
 - `typescript/node/pnpm` ← `typescript/node`
 - `typescript/node/yarn` ← `typescript/node`
-- `uv` ← `djlint`, `jsonlint`, `sqlfluff`, `yamlfix`, `yamllint`
+- `uv` ←, `sqlfluff`, `yamlfix`, `yamllint`
 - `vault` — _(none)_
-- `winget` ← `actionlint`, `bruno-gui`, `buf`, `bun`, `cargo`, `dasel`, `docker`, `gh`, `git`, `go`, `go-junit-report`, `golangci-lint`, `hadolint`, `nodejs`, `pnpm`, `proto`, `protolint`, `pulumi`, `python`, `rumdl`, `shellcheck`, `shfmt`, `trivy`, `uv`, `vault`, `yamllint`, `yarn`, `zizmor`
+- `winget` ← `actionlint`, `bruno-gui`, `buf`, `bun`, `cargo`, `dasel`, `docker`, `gh`, `git`, `go`, `go-junit-report`, `golangci-lint`, `hadolint`, `nodejs`, `pnpm`, `proto`, `protolint`, `python`, `rumdl`, `trivy`, `uv`, `vault`, `yamllint`, `yarn`, `zizmor`
 - `yamlfix` — _(none)_
 - `yamllint` — _(none)_
-- `yarn` ← `biome/node/yarn`, `depcheck/node/yarn`, `eslint/node/yarn`, `htmlhint/node/yarn`, `knip/node/yarn`, `prettier/node/yarn`, `spectral/node/yarn`, `stylelint/node/yarn`, `typescript/node/yarn`
+- `yarn` ← `biome/node/yarn`, `depcheck/node/yarn`, `eslint/node/yarn`, `htmlhint/node/yarn`, `knip/node/yarn`, `prettier/node/yarn`, `spectral/node/yarn`, `typescript/node/yarn`
 - `zizmor` — _(none)_

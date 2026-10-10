@@ -1,9 +1,0 @@
----
-schema: taskotter.dev/taskfile-metadata/v1
-module: jsonlint
-taskfile: Taskfile.yml
-
-exported_tasks:
-  - ci
-  - install
-  - version

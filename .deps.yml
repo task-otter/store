@@ -80,16 +80,8 @@ depcheck/node/pnpm:
 depcheck/node/yarn:
   - yarn
 
-djlint:
-  - nix
-  - uv
-
 docker:
   - winget
-
-dotenv-linter:
-  - cargo
-  - nix
 
 eslint:
   - eslint/bun
@@ -161,10 +153,6 @@ htmlhint/node/pnpm:
 htmlhint/node/yarn:
   - yarn
 
-jsonlint:
-  - nix
-  - uv
-
 knip:
   - knip/bun
   - knip/node
@@ -232,23 +220,11 @@ protolint:
   - nix
   - winget
 
-pulumi:
-  - nix
-  - winget
-
 python:
   - nix
   - winget
 
 rumdl:
-  - nix
-  - winget
-
-shellcheck:
-  - nix
-  - winget
-
-shfmt:
   - nix
   - winget
 
@@ -276,27 +252,6 @@ spectral/node/yarn:
 sqlfluff:
   - nix
   - uv
-
-stylelint:
-  - stylelint/bun
-  - stylelint/node
-
-stylelint/bun:
-  - bun
-
-stylelint/node:
-  - stylelint/node/npm
-  - stylelint/node/pnpm
-  - stylelint/node/yarn
-
-stylelint/node/npm:
-  - npm
-
-stylelint/node/pnpm:
-  - pnpm
-
-stylelint/node/yarn:
-  - yarn
 
 trivy:
   - nix

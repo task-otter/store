@@ -1,8 +1,0 @@
-{
-  "name": "stylelint-smoke",
-  "private": true,
-  "devDependencies": {
-    "stylelint": "^16.0.0",
-    "stylelint-config-standard": "^36.0.0"
-  }
-}
