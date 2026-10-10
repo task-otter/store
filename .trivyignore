@@ -1,0 +1,3 @@
+# Temporary exception: unmaintained golang.org/x/crypto/openpgp.
+# Review this exception and migrate away from openpgp if used.
+GO-2026-5932

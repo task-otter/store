@@ -1,4 +1,12 @@
 ---
+# Ignore specific security findings.
+ignorefile: .trivyignore
+
+scan:
+  # Exclude test data from all security scanners.
+  skip-dirs:
+    - data-test
+
 license:
   # Approved licenses; obligations are documented in security/README.md.
   # Trivy calls this setting "ignored"; other licenses still fail CI.
