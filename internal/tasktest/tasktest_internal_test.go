@@ -59,7 +59,7 @@ func TestAssertTaskCommandDidNotTimeout(t *testing.T) {
 	ctx, cancel := context.WithDeadline(t.Context(), time.Time{})
 	t.Cleanup(cancel)
 	expectSinkFatal(t, timeoutFatalPrefix, func(sink *fatalSink) {
-		assertTaskCommandDidNotTimeout(ctx, sink, []string{taskJSONFlag})
+		assertTaskCommandDidNotTimeout(ctx.Err(), sink, []string{taskJSONFlag})
 	})
 }
 

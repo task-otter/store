@@ -12,12 +12,12 @@ import (
 	"fmt"
 	"io/fs"
 	"os"
-	"os/exec"
 	"path/filepath"
 	"slices"
 	"strings"
 	"time"
 
+	"github.com/task-otter/store/internal/taskcli"
 	yaml "go.yaml.in/yaml/v3"
 )
 
@@ -426,42 +426,36 @@ func moduleDir(tester TestingT, module string) string {
 func runTaskListJSONOutput(tester TestingT, module string) (string, error) {
 	tester.Helper()
 
-	settings := currentTaskCommandSettings()
-	ctx, cancel := context.WithTimeout(context.Background(), settings.timeout)
+	var output bytes.Buffer
 
-	defer cancel()
+	request := newTaskListJSONRequest(tester, module)
 
-	cmd := newTaskListJSONCommand(ctx, tester, module)
-	output, err := cmd.CombinedOutput()
+	request.Stdout = &output
+	request.Stderr = &output
 
-	assertTaskCommandDidNotTimeout(ctx, tester, []string{
-		taskfileFlag,
-		taskfileName,
-		taskListAllFlag,
-		taskJSONFlag,
-	})
+	err := taskcli.Run(context.Background(), request)
 
-	return string(output), err
+	assertTaskCommandDidNotTimeout(err, tester, request.Args)
+
+	if err != nil {
+		return output.String(), fmt.Errorf("run task listing: %w", err)
+	}
+
+	return output.String(), nil
 }
 
-func newTaskListJSONCommand(ctx context.Context, tester TestingT, module string) *exec.Cmd {
-	cmd := exec.CommandContext(
-		ctx,
-		taskBinary,
-		taskfileFlag,
-		taskfileName,
-		taskListAllFlag,
-		taskJSONFlag,
-	)
-
-	cmd.Dir = moduleDir(tester, module)
-	cmd.Env = os.Environ()
-
-	return cmd
+func newTaskListJSONRequest(tester TestingT, module string) *taskcli.Request {
+	return &taskcli.Request{
+		Dir:     moduleDir(tester, module),
+		Env:     os.Environ(),
+		Args:    []string{taskfileFlag, taskfileName, taskListAllFlag, taskJSONFlag},
+		Timeout: currentTaskCommandSettings().timeout,
+		Stdout:  nil, Stderr: nil,
+	}
 }
 
-func assertTaskCommandDidNotTimeout(ctx context.Context, tester TestingT, args []string) {
-	if errors.Is(ctx.Err(), context.DeadlineExceeded) {
+func assertTaskCommandDidNotTimeout(err error, tester TestingT, args []string) {
+	if errors.Is(err, context.DeadlineExceeded) {
 		tester.Fatalf("task command timed out: %s %s", taskBinary, strings.Join(args, " "))
 	}
 }

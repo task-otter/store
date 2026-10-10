@@ -14,6 +14,10 @@ const (
 	inheritedSmokeVarsTaskfile = `version: '3'
 vars:
   TARGET: '{{.TARGET | default "wrong"}}'
+  SPECIAL: '{{.SPECIAL | default "wrong"}}'
+env:
+  TARGET_VALUE: '{{.TARGET}}'
+  SPECIAL_VALUE: '{{.SPECIAL}}'
 tasks:
   parent:
     deps: [dependency]
@@ -21,15 +25,34 @@ tasks:
       - task: child
   dependency:
     cmds:
-      - test '{{.TARGET}}' = src
+      - test "$TARGET_VALUE" = src
+      - printf '%s' "$SPECIAL_VALUE"
   child:
     cmds:
-      - test '{{.TARGET}}' = src
+      - test "$TARGET_VALUE" = src
+      - printf '%s' "$SPECIAL_VALUE"
+`
+	specialSmokeValue    = "spaces ; $(echo injected) & 'quoted' = value"
+	runtimeSmokeTaskfile = `version: '3'
+tasks:
+  module:
+    cmds:
+      - test -f marker.txt
+  workdir:
+    dir: '{{.USER_WORKING_DIR}}'
+    env:
+      EXPECTED_DIR: '{{.EXPECTED_DIR}}'
+    cmds:
+      - test "$PWD" -ef "$EXPECTED_DIR"
+  confirm:
+    prompt: Confirm this action?
+    cmds:
+      - echo accepted
 `
 )
 
-// TestExecuteGoTaskInheritsSmokeVars checks overrides in nested tasks and dependencies.
-func TestExecuteGoTaskInheritsSmokeVars(t *testing.T) {
+// TestExecuteTaskCLIInheritsSmokeVars checks overrides in nested tasks and dependencies.
+func TestExecuteTaskCLIInheritsSmokeVars(t *testing.T) {
 	t.Parallel()
 
 	dir := t.TempDir()
@@ -41,20 +64,46 @@ func TestExecuteGoTaskInheritsSmokeVars(t *testing.T) {
 			fileMode,
 		),
 	)
-	requireNoErr(t, executeGoTask(&runRequest{
+
+	output := new(bytes.Buffer)
+	requireNoErr(t, executeTaskCLI(&runRequest{
 		Home: emptyString,
 
 		Dir: dir, Name: "parent", WorkDir: dir, Timeout: defaultTimeout,
-		Output: new(bytes.Buffer), Vars: map[string]string{"TARGET": "src"},
+		Output: output, Vars: map[string]string{"TARGET": "src", "SPECIAL": specialSmokeValue},
 	}))
+	requireEqual(t, output.String(), specialSmokeValue+specialSmokeValue)
 }
 
-// TestExecuteGoTaskRunsPing exercises ExecuteGoTaskRunsPing.
-func TestExecuteGoTaskRunsPing(t *testing.T) {
+// TestExecuteTaskCLIWorkingDirectories preserves module and caller directories.
+func TestExecuteTaskCLIWorkingDirectories(t *testing.T) {
+	t.Parallel()
+
+	request := runtimeSmokeRequest(t, "module")
+	requireNoErr(t, os.WriteFile(filepath.Join(request.Dir, "marker.txt"), nil, fileMode))
+	requireNoErr(t, executeTaskCLI(request))
+
+	request.Name = "workdir"
+	request.Vars = map[string]string{"EXPECTED_DIR": request.WorkDir}
+
+	requireNoErr(t, executeTaskCLI(request))
+}
+
+// TestExecuteTaskCLIDeniesPrompts overrides inherited automatic confirmation.
+func TestExecuteTaskCLIDeniesPrompts(t *testing.T) {
+	t.Setenv("TASK_ASSUME_YES", "true")
+
+	request := runtimeSmokeRequest(t, "confirm")
+	requireErr(t, executeTaskCLI(request))
+	requireSame(t, bytes.Contains(request.Output.Bytes(), []byte("accepted")), false)
+}
+
+// TestExecuteTaskCLIRunsPing exercises the installed Task CLI.
+func TestExecuteTaskCLIRunsPing(t *testing.T) {
 	t.Parallel()
 
 	dir := testdataAbs(t, testdataPingPath)
-	err := executeGoTask(&runRequest{
+	err := executeTaskCLI(&runRequest{
 		Dir:     dir,
 		Name:    testPing,
 		Timeout: defaultTimeout,
@@ -66,11 +115,11 @@ func TestExecuteGoTaskRunsPing(t *testing.T) {
 	requireNoErr(t, err)
 }
 
-// TestExecuteGoTaskSetupError exercises ExecuteGoTaskSetupError.
-func TestExecuteGoTaskSetupError(t *testing.T) {
+// TestExecuteTaskCLIMissingTaskfile checks missing Taskfiles fail.
+func TestExecuteTaskCLIMissingTaskfile(t *testing.T) {
 	t.Parallel()
 
-	err := executeGoTask(&runRequest{
+	err := executeTaskCLI(&runRequest{
 		Output: nil,
 		Vars:   nil,
 		Home:   emptyString,
@@ -83,41 +132,20 @@ func TestExecuteGoTaskSetupError(t *testing.T) {
 	requireErr(t, err)
 }
 
-// TestExecuteGoTaskUnknownTask exercises ExecuteGoTaskUnknownTask.
-func TestExecuteGoTaskUnknownTask(t *testing.T) {
+// TestExecuteTaskCLIUnknownTask checks unknown tasks fail.
+func TestExecuteTaskCLIUnknownTask(t *testing.T) {
 	t.Parallel()
 
-	err := executeGoTask(testPingRequest(t, testMissingTask))
+	err := executeTaskCLI(testPingRequest(t, testMissingTask))
 	requireErr(t, err)
 }
 
-// TestExecuteGoTaskCapturesNilOutput exercises ExecuteGoTaskCapturesNilOutput.
-func TestExecuteGoTaskCapturesNilOutput(t *testing.T) {
+// TestExecuteTaskCLICapturesNilOutput checks execution without report capture.
+func TestExecuteTaskCLICapturesNilOutput(t *testing.T) {
 	t.Parallel()
 
-	err := executeGoTask(testPingRequest(t, testPing))
+	err := executeTaskCLI(testPingRequest(t, testPing))
 	requireNoErr(t, err)
-}
-
-// TestAssignCallVarsEmpty exercises AssignCallVarsEmpty.
-func TestAssignCallVarsEmpty(t *testing.T) {
-	t.Parallel()
-
-	call := newTaskCall(testPing, nil)
-	requireSame(t, call.Vars == nil, true)
-}
-
-// TestNewTaskCallSetsVars exercises NewTaskCallSetsVars.
-func TestNewTaskCallSetsVars(t *testing.T) {
-	t.Parallel()
-
-	call := newTaskCall(testPing, map[string]string{testFOO: testBar})
-	value, found := call.Vars.Get(testFOO)
-	requireSame(t, found, true)
-
-	text, isString := value.Value.(string)
-	requireSame(t, isString, true)
-	requireEqual(t, text, testBar)
 }
 
 // TestStubSourcePing exercises StubSourcePing.
@@ -126,4 +154,19 @@ func TestStubSourcePing(t *testing.T) {
 
 	got := stubSource(t.TempDir(), testPing)
 	requireSame(t, filepath.Base(got) == testPing, true)
+}
+
+func runtimeSmokeRequest(t *testing.T, name string) *runRequest {
+	t.Helper()
+
+	dir := t.TempDir()
+	requireNoErr(
+		t,
+		os.WriteFile(filepath.Join(dir, taskfileName), []byte(runtimeSmokeTaskfile), fileMode),
+	)
+
+	return &runRequest{
+		Dir: dir, Name: name, WorkDir: t.TempDir(), Timeout: defaultTimeout,
+		Output: new(bytes.Buffer), Vars: nil, Home: emptyString,
+	}
 }

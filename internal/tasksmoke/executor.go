@@ -9,109 +9,48 @@ import (
 	"io"
 	"os"
 	"path/filepath"
-	"slices"
 
-	"github.com/go-task/task/v3"
-	"github.com/go-task/task/v3/taskfile/ast"
+	"github.com/task-otter/store/internal/taskcli"
 )
 
-func assignCallVars(call *task.Call, vars map[string]string) {
-	if len(vars) == emptyLength {
-		return
-	}
-
-	call.Vars = ast.NewVars()
-	setCallVars(call.Vars, vars)
-}
-
-func executeGoTask(request *runRequest) error {
-	executor := newConfiguredExecutor(request)
-
-	err := executor.Setup()
-	if err != nil {
-		return fmt.Errorf(errRunFormat, request.Dir, request.Name, err)
-	}
-
-	// Match CLI global overrides so dependencies and nested tasks inherit smoke vars.
-	setCallVars(executor.Taskfile.Vars, request.Vars)
-
-	runErr := runExecutorTask(executor, request)
-	if runErr != nil {
-		return fmt.Errorf("run executor task: %w", runErr)
-	}
-
-	return nil
-}
-
-func executorOptions(request *runRequest) []task.ExecutorOption {
+func configureSmokeOutput(invocation *taskcli.Request, request *runRequest) {
 	var writer io.Writer = os.Stdout
 
 	if request.Output != nil {
 		writer = io.MultiWriter(os.Stdout, request.Output)
 	}
 
-	return []task.ExecutorOption{
-		task.WithAssumeYes(false),
-		task.WithColor(false),
-		task.WithDir(request.Dir),
-		task.WithEntrypoint(filepath.Join(request.Dir, taskfileName)),
-		task.WithSilent(true),
-		task.WithStderr(writer),
-		task.WithStdout(writer),
-		task.WithTimeout(request.Timeout),
-	}
+	invocation.Stdout = writer
+	invocation.Stderr = writer
 }
 
-func newConfiguredExecutor(request *runRequest) *task.Executor {
-	executor := task.NewExecutor(executorOptions(request)...)
+func executeTaskCLI(request *runRequest) error {
+	invocation := smokeInvocation(request)
 
-	executor.UserWorkingDir = request.WorkDir
-
-	return executor
-}
-
-func newTaskCall(name string, vars map[string]string) *task.Call {
-	call := &task.Call{Task: name, Vars: nil, Silent: false, Indirect: false}
-
-	assignCallVars(call, vars)
-
-	return call
-}
-
-func runExecutorTask(executor *task.Executor, request *runRequest) error {
-	ctx, cancel := context.WithTimeout(context.Background(), request.Timeout)
-
-	defer cancel()
-
-	err := executor.Run(ctx, newTaskCall(request.Name, request.Vars))
-	if err != nil {
-		return fmt.Errorf(errRunFormat, request.Dir, request.Name, err)
+	runErr := taskcli.Run(context.Background(), invocation)
+	if runErr != nil {
+		return fmt.Errorf(errRunFormat, request.Dir, request.Name, runErr)
 	}
 
 	return nil
 }
 
-func setCallVars(vars *ast.Vars, values map[string]string) {
-	keys := make([]string, emptyLength, len(values))
-
-	for key := range values {
-		keys = append(keys, key)
+func smokeInvocation(request *runRequest) *taskcli.Request {
+	invocation := &taskcli.Request{
+		Args: nil, Stdout: nil, Stderr: nil,
+		Dir: request.WorkDir, Timeout: request.Timeout,
+		Env: append(os.Environ(), "TASK_ASSUME_YES=false"),
 	}
 
-	slices.Sort(keys)
-	setSortedCallVars(vars, values, keys)
+	invocation.Args = smokeTaskArgs(request)
+	configureSmokeOutput(invocation, request)
+
+	return invocation
 }
 
-func setSortedCallVars(vars *ast.Vars, values map[string]string, keys []string) {
-	for i := range keys {
-		key := keys[i]
-		vars.Set(key, ast.Var{
-			Live:   nil,
-			Sh:     nil,
-			Ref:    emptyString,
-			Dir:    emptyString,
-			Secret: false,
-			Value:  values[key],
-		})
-	}
+func smokeTaskArgs(request *runRequest) []string {
+	return append([]string{
+		"--taskfile", filepath.Join(request.Dir, taskfileName),
+		"--silent", "--color=false", "--yes=false", request.Name,
+	}, taskcli.VarsArgs(request.Vars)...)
 }

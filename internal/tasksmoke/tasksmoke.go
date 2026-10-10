@@ -17,7 +17,7 @@ func newEngine() *engine {
 		applyHome: applyIsolatedHome,
 		mkdirTemp: bindMkdirTemp(emptyString),
 		now:       time.Now,
-		runTask:   executeGoTask,
+		runTask:   executeTaskCLI,
 		timeout:   defaultTimeout,
 	}
 }

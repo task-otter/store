@@ -12,6 +12,7 @@ import (
 	"encoding/json"
 	"errors"
 	"fmt"
+	"io"
 	"io/fs"
 	"os"
 	"os/exec"
@@ -21,6 +22,8 @@ import (
 	"strings"
 	"time"
 
+	"github.com/task-otter/store/internal/taskcli"
+	"github.com/task-otter/store/internal/tasktest"
 	yaml "go.yaml.in/yaml/v3"
 )
 
@@ -49,11 +52,12 @@ type (
 	}
 
 	// TestT is the subset of [testing.T] used by tasktestutil helpers.
-	TestT interface {
-		Helper()
-		Fatal(args ...any)
-		Fatalf(format string, args ...any)
-		TempDir() string
+	TestT = tasktest.TestingT
+
+	taskOutput = struct {
+		stdout      *bytes.Buffer
+		stderr      *bytes.Buffer
+		errorWriter io.Writer
 	}
 
 	workingDirFunc = func() (string, error)
@@ -64,7 +68,6 @@ const (
 	constTasktestutilDefault     = "default"
 	constTasktestutilPublicTasks = "## Public Tasks"
 	defaultTaskTimeout           = 2 * time.Minute
-	taskWaitDelay                = 5 * time.Second
 	readmeTableMatchCount        = 2
 	privateFileMode              = 0o600
 	stubExecutableMode           = 0o500
@@ -72,7 +75,6 @@ const (
 	taskfileYML                  = "Taskfile.yml"
 	taskfileYAML                 = "Taskfile.yaml"
 	errTaskfileNotFound          = "could not find Taskfile.yml or Taskfile.yaml"
-	taskBinaryName               = "task"
 	errTaskTimeoutType           = "task timeout must be time.Duration, got %T"
 	underscorePrefix             = "_"
 	singleSpace                  = " "
@@ -298,11 +300,7 @@ func RunTaskTimeout(tester TestT, run any, timeoutParts ...any) CommandResult {
 
 	normalizedRun, timeout := normalizeTaskRunTimeout(tester, run, timeoutParts)
 
-	ctx, cancel := context.WithTimeout(context.Background(), timeout)
-
-	defer cancel()
-
-	return executeTaskCommand(ctx, &normalizedRun)
+	return executeTaskCommand(&normalizedRun, timeout, newTaskOutput())
 }
 
 // RunSimpleTask runs task in the given directory and returns combined output
@@ -313,19 +311,11 @@ func RunSimpleTask(tester TestT, run any, parts ...any) CommandResult {
 
 	normalizedRun := normalizeTaskRun(tester, run, parts)
 
-	ctx, cancel := context.WithTimeout(context.Background(), defaultTaskTimeout)
+	output := newTaskOutput()
 
-	defer cancel()
+	output.errorWriter = output.stdout
 
-	cmd := buildTaskCmd(ctx, &normalizedRun)
-	out, err := cmd.CombinedOutput()
-
-	return CommandResult{
-		Stdout: string(out),
-		Stderr: emptyString,
-		Err:    err,
-		Args:   normalizedRun.Args,
-	}
+	return executeTaskCommand(&normalizedRun, defaultTaskTimeout, output)
 }
 
 // IsolatedEnv returns a clean environment with a temporary HOME for tests that
@@ -412,22 +402,7 @@ func PublicTaskNamesFromTaskfile(tester TestT, taskfile any) []string {
 
 // TaskArgs converts a map of task variable assignments to "KEY=VALUE" args.
 func TaskArgs(args map[string]string) []string {
-	if len(args) == zeroIndex {
-		return nil
-	}
-
-	keys := sortedMapKeys(args)
-	slices.Sort(keys)
-
-	out := make([]string, zeroIndex, len(keys))
-
-	for i := range keys {
-		key := keys[i]
-
-		out = append(out, fmt.Sprintf("%s=%s", key, args[key]))
-	}
-
-	return out
+	return taskcli.VarsArgs(args)
 }
 
 // FormatList formats a string slice as a bulleted list.
@@ -1002,36 +977,26 @@ func buildTaskMap(tasksNode *yaml.Node) map[string]TaskNode {
 	return tasks
 }
 
-func executeTaskCommand(ctx context.Context, run *TaskRun) CommandResult {
-	cmd := buildTaskCmd(ctx, run)
-
-	var stdout, stderr bytes.Buffer
-
-	cmd.Stdout = &stdout
-	cmd.Stderr = &stderr
-	cmd.WaitDelay = taskWaitDelay
-
-	err := cmd.Run()
+func executeTaskCommand(run *TaskRun, timeout time.Duration, output *taskOutput) CommandResult {
+	err := taskcli.Run(context.Background(), &taskcli.Request{
+		Dir: run.Root, Env: run.Env, Args: run.Args, Timeout: timeout,
+		Stdout: output.stdout, Stderr: output.errorWriter,
+	})
 
 	return CommandResult{
-		Stdout: stdout.String(),
-		Stderr: stderr.String(),
+		Stdout: output.stdout.String(),
+		Stderr: output.stderr.String(),
 		Err:    err,
 		Args:   run.Args,
 	}
 }
 
-func buildTaskCmd(ctx context.Context, run *TaskRun) *exec.Cmd {
-	commandContext := exec.CommandContext
-	cmd := commandContext(ctx, taskBinaryName, run.Args...)
+func newTaskOutput() *taskOutput {
+	output := &taskOutput{stdout: new(bytes.Buffer), stderr: new(bytes.Buffer), errorWriter: nil}
 
-	cmd.Dir = run.Root
+	output.errorWriter = output.stderr
 
-	if run.Env != nil {
-		cmd.Env = run.Env
-	}
-
-	return cmd
+	return output
 }
 
 func requireNoExtraArgs(tester TestT, message string, parts []any) {
@@ -1196,16 +1161,6 @@ func isPublicTaskfileTask(name string, task TaskNode) bool {
 	}
 
 	return StringField(task, "desc") != emptyString
-}
-
-func sortedMapKeys(args map[string]string) []string {
-	keys := make([]string, zeroIndex, len(args))
-
-	for key := range args {
-		keys = append(keys, key)
-	}
-
-	return keys
 }
 
 func normalizeStub(tester TestT, dirOrStub any, parts []string) stub {

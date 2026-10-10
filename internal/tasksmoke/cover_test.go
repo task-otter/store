@@ -32,12 +32,12 @@ func TestApplyIsolatedHomeWriteError(t *testing.T) {
 	requireErr(t, applyErr)
 }
 
-// TestExecuteGoTaskCapturesOutput exercises ExecuteGoTaskCapturesOutput.
-func TestExecuteGoTaskCapturesOutput(t *testing.T) {
+// TestExecuteTaskCLICapturesOutput checks combined Task output capture.
+func TestExecuteTaskCLICapturesOutput(t *testing.T) {
 	t.Parallel()
 
 	output := new(bytes.Buffer)
-	err := executeGoTask(&runRequest{
+	err := executeTaskCLI(&runRequest{
 		Vars: nil,
 
 		Dir:     testdataAbs(t, testdataPingPath),

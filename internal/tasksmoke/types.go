@@ -97,8 +97,9 @@ type (
 	}
 
 	runRequest = struct {
-		Output  *bytes.Buffer
-		Vars    map[string]string
+		Output *bytes.Buffer
+		Vars   map[string]string
+		// Dir is the absolute module directory discovered from the repository root.
 		Dir     string
 		Home    string
 		Name    string

@@ -139,9 +139,30 @@ sync with [`.deps.yml`](.deps.yml).
 
 ## Development
 
+Install Task 3.54.0 separately before running tests or smoke checks:
+
+```sh
+go install github.com/go-task/task/v3/cmd/task@v3.54.0
+task --version
+```
+
+Put `GOBIN` (or `$(go env GOPATH)/bin` when `GOBIN` is unset) first on
+`PATH`, ahead of any older Task installation. CI uses the same version through
+the shared [setup action](.github/actions/setup-task/action.yml).
+
+Task is an external CLI dependency; the application does not import its Go
+library or install it at runtime. All Task process execution is shared in
+`internal/taskcli`.
+
 ```sh
 go test ./...
+go run ./cmd/tasksmoke --list
+go run ./cmd/tasksmoke --module go
 ```
+
+The smoke runner executes public tasks and can install their tools. It uses
+an isolated home and copied work directory, captures output, and limits each
+task to three minutes. Use `--list` to inspect selected tasks without execution.
 
 Two test layers on every Taskfile folder, both in `<module>_test.go`:
 
