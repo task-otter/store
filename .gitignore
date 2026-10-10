@@ -1,5 +1,6 @@
 .claude
 .venv/
+node_modules/
 .vault-init-keys.json
 vault-snapshot.snap
 coverage.out

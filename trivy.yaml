@@ -1,5 +1,16 @@
 ---
+vulnerability:
+  vex:
+    - security/store.openvex.json
 license:
-  # Approved license allowlist (Trivy calls this setting "ignored").
+  # Approved licenses; obligations are documented in security/README.md.
+  # Trivy calls this setting "ignored"; other licenses still fail CI.
   ignored:
+    - Apache-2.0
     - BlueOak-1.0.0
+    - BSD-2-Clause
+    - BSD-3-Clause
+    - ISC
+    - MIT
+    - MPL-2.0
+    - OFL-1.1
