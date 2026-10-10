@@ -36,12 +36,12 @@ task rumdl:ci:fix RUMDL_TARGETS=README.md
 
 ## Public Tasks
 
-| Task       | Description                                             | Key variables                                |
-| ---------- | ------------------------------------------------------- | -------------------------------------------- |
-| `ci`       | Lint Markdown files with rumdl check                    | `RUMDL_TARGETS`, `RUMDL_EXTRA_ARGS`          |
-| `ci:fix`   | Format Markdown files with rumdl fmt                    | `RUMDL_TARGETS`, `RUMDL_EXTRA_ARGS`          |
-| `install`  | Install rumdl via Nix (Unix) or cargo install (Windows) | `RUMDL_NIX_INSTALLABLE`, `RUMDL_CARGO_CRATE` |
-| `version`  | Show the active rumdl version                           | —                                            |
+| Task      | Description                                             | Key variables                                |
+| --------- | ------------------------------------------------------- | -------------------------------------------- |
+| `ci`      | Lint Markdown files with rumdl check                    | `RUMDL_TARGETS`, `RUMDL_EXTRA_ARGS`          |
+| `ci:fix`  | Format Markdown files with rumdl fmt                    | `RUMDL_TARGETS`, `RUMDL_EXTRA_ARGS`          |
+| `install` | Install rumdl via Nix (Unix) or cargo install (Windows) | `RUMDL_NIX_INSTALLABLE`, `RUMDL_CARGO_CRATE` |
+| `version` | Show the active rumdl version                           | —                                            |
 
 ## Variables
 
