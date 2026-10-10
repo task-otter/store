@@ -2,7 +2,7 @@
 
 A [TaskOtter](https://github.com/task-otter/store) module for generating Go and gRPC source files from [Protocol Buffer](https://protobuf.dev/) definitions using [protoc](https://github.com/protocolbuffers/protobuf).
 
-## What is this Taskfile?
+## What Is This Taskfile?
 
 This module generates Go and gRPC source files from `.proto` files. The `gen`
 task auto-installs `protoc`, `protoc-gen-go`, and `protoc-gen-go-grpc` via
@@ -42,7 +42,7 @@ task -t taskfiles/proto/Taskfile.yml ungen
 task -t taskfiles/proto/Taskfile.yml gen
 ```
 
-### Included in your Taskfile
+### Included in Your Taskfile
 
 ```yaml
 includes:
@@ -83,10 +83,10 @@ Pin a revision by overriding the installable, for example
 
 ## Notes
 
-- Install uses Nix on Linux and macOS (`PROTO_NIX_INSTALLABLE`). On Windows, WinGet installs protoc (`PROTO_WINGET_INSTALLABLE`), then `go:install:pkg` installs the Go plugins (`PROTO_GEN_GO_PKG`, `PROTO_GEN_GO_GRPC_PKG`).
+* Install uses Nix on Linux and macOS (`PROTO_NIX_INSTALLABLE`). On Windows, WinGet installs protoc (`PROTO_WINGET_INSTALLABLE`), then `go:install:pkg` installs the Go plugins (`PROTO_GEN_GO_PKG`, `PROTO_GEN_GO_GRPC_PKG`).
 
-- Go is provided by the included [`go`](../go/README.md) module on Windows for plugin installs.
+* Go is provided by the included [`go`](../go/README.md) module on Windows for plugin installs.
 
-- `GO_MODULE`, `PROTO_PATH`, and `PROTO_PATTERN` are declared as top-level vars
+* `GO_MODULE`, `PROTO_PATH`, and `PROTO_PATTERN` are declared as top-level vars
   here, which outrank vars supplied by an inclusion: set them on the command
   line or from the environment.

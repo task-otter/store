@@ -1,6 +1,6 @@
 # Docker Taskfile Public Tasks
 
-## What is this Taskfile?
+## What Is This Taskfile?
 
 A cross-platform Taskfile for installing Docker, managing upgrades, and running
 common container and image operations.
@@ -66,7 +66,7 @@ task docker:ps
 
 ## Notes
 
-- Windows install uses `winget:install:package` with `DOCKER_WINGET_INSTALLABLE` (default `Docker.DockerDesktop`).
+* Windows install uses `winget:install:package` with `DOCKER_WINGET_INSTALLABLE` (default `Docker.DockerDesktop`).
 
 **Linux:** `install` automatically runs `sudo usermod -aG docker $USER` after
 the engine is set up. Log out and back in for the change to take effect. The

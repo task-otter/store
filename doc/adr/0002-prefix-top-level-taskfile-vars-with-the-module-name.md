@@ -1,4 +1,4 @@
-# 2. Prefix top-level Taskfile vars with the module name
+# 2. Prefix Top-Level Taskfile Vars with the Module Name
 
 Date: 2026-08-04
 
@@ -37,16 +37,16 @@ Enforcement: `TestTopLevelVarsPrefix` in `taskfiles/vars_prefix_test.go`.
 
 ## Consequences
 
-- Public override knobs become longer but unambiguous when modules compose.
-- Renames are breaking for callers who set the old bare names on the CLI or via
+* Public override knobs become longer but unambiguous when modules compose.
+* Renames are breaking for callers who set the old bare names on the CLI or via
   `includes.vars`.
-- Cross-module conventions use distinct owned names per family (for example
+* Cross-module conventions use distinct owned names per family (for example
   `PRETTIER_EXTRA_ARGS` vs `DOCKER_EXTRA_ARGS`) instead of a shared bare API.
-- Foreign prefixes let a module reference a dependency’s install paths (for
+* Foreign prefixes let a module reference a dependency’s install paths (for
   example `GO_GLOBAL_BIN`) without inventing a duplicate owned name.
-- Task-local knobs that are never declared at top-level (for example undeclared
+* Task-local knobs that are never declared at top-level (for example undeclared
   `EXTRA_ARGS` passed into `npm:add`) stay outside this rule.
-- The parallel `{TOOL}_…_OVERRIDE` escape hatches were removed once every public
+* The parallel `{TOOL}_…_OVERRIDE` escape hatches were removed once every public
   knob lived at top-level: prefixed vars are already settable from the CLI, the
   environment, and `includes.vars`, so the second name was redundant. Modules
   that relied on it — `sqlfluff` (task-local `TARGETS` / `CONFIG` / `DIALECT` /

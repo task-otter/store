@@ -1,4 +1,4 @@
-# Module dependency tree
+# Module Dependency Tree
 
 This document reflects the module dependencies declared in [`.deps.yml`](.deps.yml).
 
@@ -8,194 +8,196 @@ This document reflects the module dependencies declared in [`.deps.yml`](.deps.y
 
 Modules with no `includes:` dependencies.
 
-- [`nix`](taskfiles/nix/README.md)
-- [`winget`](taskfiles/winget/README.md)
+* [`nix`](taskfiles/nix/README.md)
+* [`winget`](taskfiles/winget/README.md)
 
-## Forward tree
+## Forward Tree
 
 ### Depth 0
 
-- `nix` → _(none)_
-- `winget` → _(none)_
+* `nix` → _(none)_
+* `winget` → _(none)_
 
 ### Depth 1
 
-- `actionlint` → `nix`, `winget`
-- `ansible` → `nix`
-- `ansible-lint` → `nix`
-- `bruno-gui` → `nix`, `winget`
-- `buf` → `nix`, `winget`
-- `bun` → `nix`, `winget`
-- `cargo` → `nix`, `winget`
-- `docker` → `winget`
-- `go` → `nix`, `winget`
-- `hadolint` → `nix`, `winget`
-- `nodejs` → `nix`, `winget`
-- `python` → `nix`, `winget`
-- `rumdl` → `nix`, `winget`
-- `trivy` → `nix`, `winget`
-- `uv` → `nix`, `winget`
-- `zizmor` → `nix`, `winget`
+* `actionlint` → `nix`, `winget`
+* `ansible` → `nix`
+* `ansible-lint` → `nix`
+* `bruno-gui` → `nix`, `winget`
+* `buf` → `nix`, `winget`
+* `bun` → `nix`, `winget`
+* `cargo` → `nix`, `winget`
+* `docker` → `winget`
+* `go` → `nix`, `winget`
+* `hadolint` → `nix`, `winget`
+* `nodejs` → `nix`, `winget`
+* `python` → `nix`, `winget`
+* `rumdl` → `nix`, `winget`
+* `trivy` → `nix`, `winget`
+* `uv` → `nix`, `winget`
+* `zizmor` → `nix`, `winget`
 
 ### Depth 2
 
-- `adrs` → `cargo`, `nix`
-- `biome/bun` → `bun`
-- `dasel` → `go`, `nix`, `winget`
-- `depcheck/bun` → `bun`
-- `eslint/bun` → `bun`
-- `go-junit-report` → `go`, `nix`, `winget`
-- `golangci-lint` → `go`, `nix`, `winget`
-- `htmlhint/bun` → `bun`
-- `knip/bun` → `bun`
-- `npm` → `nix`, `nodejs`
-- `pnpm` → `nix`, `nodejs`, `winget`
-- `prettier/bun` → `bun`
-- `proto` → `go`, `nix`, `winget`
-- `protolint` → `go`, `nix`, `winget`
-- `spectral/bun` → `bun`
-- `sqlfluff` → `nix`, `uv`
-- `typescript/bun` → `bun`
-- `yamlfix` → `nix`, `uv`
-- `yamllint` → `nix`, `uv`, `winget`
-- `yarn` → `nix`, `nodejs`, `winget`
+* `adrs` → `cargo`, `nix`
+* `biome/bun` → `bun`
+* `dasel` → `go`, `nix`, `winget`
+* `depcheck/bun` → `bun`
+* `eslint/bun` → `bun`
+* `go-junit-report` → `go`, `nix`, `winget`
+* `golangci-lint` → `go`, `nix`, `winget`
+* `htmlhint/bun` → `bun`
+* `knip/bun` → `bun`
+* `npm` → `nix`, `nodejs`
+* `pnpm` → `nix`, `nodejs`, `winget`
+* `prettier/bun` → `bun`
+* `proto` → `go`, `nix`, `winget`
+* `protolint` → `go`, `nix`, `winget`
+* `spectral/bun` → `bun`
+* `sqlfluff` → `nix`, `uv`
+* `typescript/bun` → `bun`
+* `yamlfix` → `nix`, `uv`
+* `yamllint` → `nix`, `uv`, `winget`
+* `yarn` → `nix`, `nodejs`, `winget`
 
 ### Depth 3
 
-- `biome/node/npm` → `npm`
-- `biome/node/pnpm` → `pnpm`
-- `biome/node/yarn` → `yarn`
-- `bruno-cli` → `nix`, `npm`
-- `depcheck/node/npm` → `npm`
-- `depcheck/node/pnpm` → `pnpm`
-- `depcheck/node/yarn` → `yarn`
-- `eslint/node/npm` → `npm`
-- `eslint/node/pnpm` → `pnpm`
-- `eslint/node/yarn` → `yarn`
-- `gh` → `dasel`, `nix`, `winget`
-- `htmlhint/node/npm` → `npm`
-- `htmlhint/node/pnpm` → `pnpm`
-- `htmlhint/node/yarn` → `yarn`
-- `knip/node/npm` → `npm`
-- `knip/node/pnpm` → `pnpm`
-- `knip/node/yarn` → `yarn`
-- `prettier/node/npm` → `npm`
-- `prettier/node/pnpm` → `pnpm`
-- `prettier/node/yarn` → `yarn`
-- `spectral/node/npm` → `npm`
-- `spectral/node/pnpm` → `pnpm`
-- `spectral/node/yarn` → `yarn`
-- `typescript/node/npm` → `npm`
-- `typescript/node/pnpm` → `pnpm`
-- `typescript/node/yarn` → `yarn`
-- `vault` → `dasel`, `nix`, `winget`
+* `biome/node/npm` → `npm`
+* `biome/node/pnpm` → `pnpm`
+* `biome/node/yarn` → `yarn`
+* `bruno-cli` → `nix`, `npm`
+* `depcheck/node/npm` → `npm`
+* `depcheck/node/pnpm` → `pnpm`
+* `depcheck/node/yarn` → `yarn`
+* `eslint/node/npm` → `npm`
+* `eslint/node/pnpm` → `pnpm`
+* `eslint/node/yarn` → `yarn`
+* `gh` → `dasel`, `nix`, `winget`
+* `htmlhint/node/npm` → `npm`
+* `htmlhint/node/pnpm` → `pnpm`
+* `htmlhint/node/yarn` → `yarn`
+* `knip/node/npm` → `npm`
+* `knip/node/pnpm` → `pnpm`
+* `knip/node/yarn` → `yarn`
+* `prettier/node/npm` → `npm`
+* `prettier/node/pnpm` → `pnpm`
+* `prettier/node/yarn` → `yarn`
+* `spectral/node/npm` → `npm`
+* `spectral/node/pnpm` → `pnpm`
+* `spectral/node/yarn` → `yarn`
+* `typescript/node/npm` → `npm`
+* `typescript/node/pnpm` → `pnpm`
+* `typescript/node/yarn` → `yarn`
+* `vault` → `dasel`, `nix`, `winget`
 
 ### Depth 4
 
-- `biome/node` → `biome/node/npm`, `biome/node/pnpm`, `biome/node/yarn`
-- `depcheck/node` → `depcheck/node/npm`, `depcheck/node/pnpm`, `depcheck/node/yarn`
-- `eslint/node` → `eslint/node/npm`, `eslint/node/pnpm`, `eslint/node/yarn`
-- `git` → `gh`, `nix`, `winget`
-- `htmlhint/node` → `htmlhint/node/npm`, `htmlhint/node/pnpm`, `htmlhint/node/yarn`
-- `knip/node` → `knip/node/npm`, `knip/node/pnpm`, `knip/node/yarn`
-- `prettier/node` → `prettier/node/npm`, `prettier/node/pnpm`, `prettier/node/yarn`
-- `spectral/node` → `spectral/node/npm`, `spectral/node/pnpm`, `spectral/node/yarn`
-- `typescript/node` → `typescript/node/npm`, `typescript/node/pnpm`, `typescript/node/yarn`
+* `biome/node` → `biome/node/npm`, `biome/node/pnpm`, `biome/node/yarn`
+* `depcheck/node` → `depcheck/node/npm`, `depcheck/node/pnpm`, `depcheck/node/yarn`
+* `eslint/node` → `eslint/node/npm`, `eslint/node/pnpm`, `eslint/node/yarn`
+* `git` → `gh`, `nix`, `winget`
+* `htmlhint/node` → `htmlhint/node/npm`, `htmlhint/node/pnpm`, `htmlhint/node/yarn`
+* `knip/node` → `knip/node/npm`, `knip/node/pnpm`, `knip/node/yarn`
+* `prettier/node` → `prettier/node/npm`, `prettier/node/pnpm`, `prettier/node/yarn`
+* `spectral/node` → `spectral/node/npm`, `spectral/node/pnpm`, `spectral/node/yarn`
+* `typescript/node` → `typescript/node/npm`, `typescript/node/pnpm`, `typescript/node/yarn`
 
 ### Depth 5
 
-- `biome` → `biome/bun`, `biome/node`
-- `depcheck` → `depcheck/bun`, `depcheck/node`
-- `eslint` → `eslint/bun`, `eslint/node`
-- `htmlhint` → `htmlhint/bun`, `htmlhint/node`
-- `knip` → `knip/bun`, `knip/node`
-- `prettier` → `prettier/bun`, `prettier/node`
-- `spectral` → `spectral/bun`, `spectral/node`
-- `typescript` → `typescript/bun`, `typescript/node`
+* `biome` → `biome/bun`, `biome/node`
+* `depcheck` → `depcheck/bun`, `depcheck/node`
+* `eslint` → `eslint/bun`, `eslint/node`
+* `htmlhint` → `htmlhint/bun`, `htmlhint/node`
+* `knip` → `knip/bun`, `knip/node`
+* `prettier` → `prettier/bun`, `prettier/node`
+* `spectral` → `spectral/bun`, `spectral/node`
+* `typescript` → `typescript/bun`, `typescript/node`
 
-## Reverse tree
+## Reverse Tree
 
 Who depends on each module:
 
-- `actionlint` — _(none)_
-- `adrs` — _(none)_
-- `ansible` — _(none)_
-- `ansible-lint` — _(none)_
-- `biome` — _(none)_
-- `biome/bun` ← `biome`
-- `biome/node` ← `biome`
-- `biome/node/npm` ← `biome/node`
-- `biome/node/pnpm` ← `biome/node`
-- `biome/node/yarn` ← `biome/node`
-- `bruno-cli` — _(none)_
-- `bruno-gui` — _(none)_
-- `buf` — _(none)_
-- `bun` ← `biome/bun`, `depcheck/bun`, `eslint/bun`, `htmlhint/bun`, `knip/bun`, `prettier/bun`, `spectral/bun`, `typescript/bun`
-- `cargo` ← `adrs`
-- `dasel` ← `gh`, `vault`
-- `depcheck` — _(none)_
-- `depcheck/bun` ← `depcheck`
-- `depcheck/node` ← `depcheck`
-- `depcheck/node/npm` ← `depcheck/node`
-- `depcheck/node/pnpm` ← `depcheck/node`
-- `depcheck/node/yarn` ← `depcheck/node`
-- `docker` — _(none)_
-- `eslint` — _(none)_
-- `eslint/bun` ← `eslint`
-- `eslint/node` ← `eslint`
-- `eslint/node/npm` ← `eslint/node`
-- `eslint/node/pnpm` ← `eslint/node`
-- `eslint/node/yarn` ← `eslint/node`
-- `gh` ← `git`
-- `git` — _(none)_
-- `go` ← `dasel`, `go-junit-report`, `golangci-lint`, `proto`, `protolint`
-- `go-junit-report` — _(none)_
-- `golangci-lint` — _(none)_
-- `hadolint` — _(none)_
-- `htmlhint` — _(none)_
-- `htmlhint/bun` ← `htmlhint`
-- `htmlhint/node` ← `htmlhint`
-- `htmlhint/node/npm` ← `htmlhint/node`
-- `htmlhint/node/pnpm` ← `htmlhint/node`
-- `htmlhint/node/yarn` ← `htmlhint/node`
-- `knip` — _(none)_
-- `knip/bun` ← `knip`
-- `knip/node` ← `knip`
-- `knip/node/npm` ← `knip/node`
-- `knip/node/pnpm` ← `knip/node`
-- `knip/node/yarn` ← `knip/node`
-- `nix` ← `actionlint`, `adrs`, `ansible`, `ansible-lint`, `bruno-cli`, `bruno-gui`, `buf`, `bun`, `cargo`, `dasel`, `gh`, `git`, `go`, `go-junit-report`, `golangci-lint`, `hadolint`, `nodejs`, `npm`, `pnpm`, `proto`, `protolint`, `python`, `rumdl`, `sqlfluff`, `trivy`, `uv`, `vault`, `yamlfix`, `yamllint`, `yarn`, `zizmor`
-- `nodejs` ← `npm`, `pnpm`, `yarn`
-- `npm` ← `biome/node/npm`, `bruno-cli`, `depcheck/node/npm`, `eslint/node/npm`, `htmlhint/node/npm`, `knip/node/npm`, `prettier/node/npm`, `spectral/node/npm`, `typescript/node/npm`
-- `pnpm` ← `biome/node/pnpm`, `depcheck/node/pnpm`, `eslint/node/pnpm`, `htmlhint/node/pnpm`, `knip/node/pnpm`, `prettier/node/pnpm`, `spectral/node/pnpm`, `typescript/node/pnpm`
-- `prettier` — _(none)_
-- `prettier/bun` ← `prettier`
-- `prettier/node` ← `prettier`
-- `prettier/node/npm` ← `prettier/node`
-- `prettier/node/pnpm` ← `prettier/node`
-- `prettier/node/yarn` ← `prettier/node`
-- `proto` — _(none)_
-- `protolint` — _(none)_
-- `python` — _(none)_
-- `rumdl` — _(none)_
-- `spectral` — _(none)_
-- `spectral/bun` ← `spectral`
-- `spectral/node` ← `spectral`
-- `spectral/node/npm` ← `spectral/node`
-- `spectral/node/pnpm` ← `spectral/node`
-- `spectral/node/yarn` ← `spectral/node`
-- `sqlfluff` — _(none)_
-- `trivy` — _(none)_
-- `typescript` — _(none)_
-- `typescript/bun` ← `typescript`
-- `typescript/node` ← `typescript`
-- `typescript/node/npm` ← `typescript/node`
-- `typescript/node/pnpm` ← `typescript/node`
-- `typescript/node/yarn` ← `typescript/node`
-- `uv` ←, `sqlfluff`, `yamlfix`, `yamllint`
-- `vault` — _(none)_
-- `winget` ← `actionlint`, `bruno-gui`, `buf`, `bun`, `cargo`, `dasel`, `docker`, `gh`, `git`, `go`, `go-junit-report`, `golangci-lint`, `hadolint`, `nodejs`, `pnpm`, `proto`, `protolint`, `python`, `rumdl`, `trivy`, `uv`, `vault`, `yamllint`, `yarn`, `zizmor`
-- `yamlfix` — _(none)_
-- `yamllint` — _(none)_
-- `yarn` ← `biome/node/yarn`, `depcheck/node/yarn`, `eslint/node/yarn`, `htmlhint/node/yarn`, `knip/node/yarn`, `prettier/node/yarn`, `spectral/node/yarn`, `typescript/node/yarn`
-- `zizmor` — _(none)_
+* `actionlint` — _(none)_
+* `adrs` — _(none)_
+* `ansible` — _(none)_
+* `ansible-lint` — _(none)_
+* `biome` — _(none)_
+* `biome/bun` ← `biome`
+* `biome/node` ← `biome`
+* `biome/node/npm` ← `biome/node`
+* `biome/node/pnpm` ← `biome/node`
+* `biome/node/yarn` ← `biome/node`
+* `bruno-cli` — _(none)_
+* `bruno-gui` — _(none)_
+* `buf` — _(none)_
+* `bun` ← `biome/bun`, `depcheck/bun`, `eslint/bun`, `htmlhint/bun`, `knip/bun`, `prettier/bun`, `spectral/bun`, `typescript/bun`
+* `cargo` ← `adrs`
+* `dasel` ← `gh`, `vault`
+* `depcheck` — _(none)_
+* `depcheck/bun` ← `depcheck`
+* `depcheck/node` ← `depcheck`
+* `depcheck/node/npm` ← `depcheck/node`
+* `depcheck/node/pnpm` ← `depcheck/node`
+* `depcheck/node/yarn` ← `depcheck/node`
+* `docker` — _(none)_
+* `eslint` — _(none)_
+* `eslint/bun` ← `eslint`
+* `eslint/node` ← `eslint`
+* `eslint/node/npm` ← `eslint/node`
+* `eslint/node/pnpm` ← `eslint/node`
+* `eslint/node/yarn` ← `eslint/node`
+* `gh` ← `git`
+* `git` — _(none)_
+* `go` ← `dasel`, `go-junit-report`, `golangci-lint`, `proto`, `protolint`
+* `go-junit-report` — _(none)_
+* `golangci-lint` — _(none)_
+* `hadolint` — _(none)_
+* `htmlhint` — _(none)_
+* `htmlhint/bun` ← `htmlhint`
+* `htmlhint/node` ← `htmlhint`
+* `htmlhint/node/npm` ← `htmlhint/node`
+* `htmlhint/node/pnpm` ← `htmlhint/node`
+* `htmlhint/node/yarn` ← `htmlhint/node`
+* `knip` — _(none)_
+* `knip/bun` ← `knip`
+* `knip/node` ← `knip`
+* `knip/node/npm` ← `knip/node`
+* `knip/node/pnpm` ← `knip/node`
+* `knip/node/yarn` ← `knip/node`
+* `nix` ← `actionlint`, `adrs`, `ansible`, `ansible-lint`, `bruno-cli`, `bruno-gui`, `buf`, `bun`, `cargo`, `dasel`, `gh`, `git`, `go`, `go-junit-report`, `golangci-lint`,
+  `hadolint`, `nodejs`, `npm`, `pnpm`, `proto`, `protolint`, `python`, `rumdl`, `sqlfluff`, `trivy`, `uv`, `vault`, `yamlfix`, `yamllint`, `yarn`, `zizmor`
+* `nodejs` ← `npm`, `pnpm`, `yarn`
+* `npm` ← `biome/node/npm`, `bruno-cli`, `depcheck/node/npm`, `eslint/node/npm`, `htmlhint/node/npm`, `knip/node/npm`, `prettier/node/npm`, `spectral/node/npm`, `typescript/node/npm`
+* `pnpm` ← `biome/node/pnpm`, `depcheck/node/pnpm`, `eslint/node/pnpm`, `htmlhint/node/pnpm`, `knip/node/pnpm`, `prettier/node/pnpm`, `spectral/node/pnpm`, `typescript/node/pnpm`
+* `prettier` — _(none)_
+* `prettier/bun` ← `prettier`
+* `prettier/node` ← `prettier`
+* `prettier/node/npm` ← `prettier/node`
+* `prettier/node/pnpm` ← `prettier/node`
+* `prettier/node/yarn` ← `prettier/node`
+* `proto` — _(none)_
+* `protolint` — _(none)_
+* `python` — _(none)_
+* `rumdl` — _(none)_
+* `spectral` — _(none)_
+* `spectral/bun` ← `spectral`
+* `spectral/node` ← `spectral`
+* `spectral/node/npm` ← `spectral/node`
+* `spectral/node/pnpm` ← `spectral/node`
+* `spectral/node/yarn` ← `spectral/node`
+* `sqlfluff` — _(none)_
+* `trivy` — _(none)_
+* `typescript` — _(none)_
+* `typescript/bun` ← `typescript`
+* `typescript/node` ← `typescript`
+* `typescript/node/npm` ← `typescript/node`
+* `typescript/node/pnpm` ← `typescript/node`
+* `typescript/node/yarn` ← `typescript/node`
+* `uv` ←, `sqlfluff`, `yamlfix`, `yamllint`
+* `vault` — _(none)_
+* `winget` ← `actionlint`, `bruno-gui`, `buf`, `bun`, `cargo`, `dasel`, `docker`, `gh`, `git`, `go`, `go-junit-report`, `golangci-lint`, `hadolint`, `nodejs`, `pnpm`, `proto`,
+  `protolint`, `python`, `rumdl`, `trivy`, `uv`, `vault`, `yamllint`, `yarn`, `zizmor`
+* `yamlfix` — _(none)_
+* `yamllint` — _(none)_
+* `yarn` ← `biome/node/yarn`, `depcheck/node/yarn`, `eslint/node/yarn`, `htmlhint/node/yarn`, `knip/node/yarn`, `prettier/node/yarn`, `spectral/node/yarn`, `typescript/node/yarn`
+* `zizmor` — _(none)_

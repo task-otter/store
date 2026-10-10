@@ -1,8 +1,9 @@
-# pnpm Taskfile Public Tasks
+# Pnpm Taskfile Public Tasks
 
-## What is this Taskfile?
+## What Is This Taskfile?
 
-This Taskfile wraps common `pnpm` operations — installing dependencies, running scripts, auditing, and cleaning — behind consistent, cross-platform task commands. Node.js is provided via the [`nodejs`](../nodejs/) module (Nix profile); pnpm is installed from nixpkgs through this module's `install:tool` task.
+This Taskfile wraps common `pnpm` operations — installing dependencies, running scripts, auditing, and cleaning — behind consistent, cross-platform task commands. Node.js is
+provided via the [`nodejs`](../nodejs/) module (Nix profile); pnpm is installed from nixpkgs through this module's `install:tool` task.
 
 ## Usage
 
@@ -66,4 +67,4 @@ Project commands depend on `nodejs:install` and run `pnpm` with `NIX_LOAD` so th
 
 ## Notes
 
-- Install uses Nix on Linux and macOS (`PNPM_NIX_INSTALLABLE`) and pnpm's official PowerShell installer on Windows.
+* Install uses Nix on Linux and macOS (`PNPM_NIX_INSTALLABLE`) and pnpm's official PowerShell installer on Windows.

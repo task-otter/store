@@ -1,6 +1,6 @@
 # Trivy Taskfile Public Tasks
 
-## What is this Taskfile?
+## What Is This Taskfile?
 
 A Taskfile for installing Trivy, showing its version and running strict CI scans.
 Uses the shared Nix
@@ -64,7 +64,7 @@ Pin a Nix revision with
 `TRIVY_NIX_INSTALLABLE=github:NixOS/nixpkgs/<rev>#trivy`, or pass
 `WINGET_VERSION=<version>` to select a Windows release.
 
-## CI scans
+## CI Scans
 
 ```sh
 task trivy:ci:image TRIVY_IMAGE=registry.example.com/app:tag

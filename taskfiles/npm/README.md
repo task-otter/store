@@ -1,8 +1,9 @@
 # NPM Taskfile Public Tasks
 
-## What is this Taskfile?
+## What Is This Taskfile?
 
-This Taskfile wraps common `npm` operations — installing dependencies, running scripts, auditing, and cleaning — behind consistent, cross-platform task commands. Node.js is provided via the [`nodejs`](../nodejs/) module (Nix profile); npm ships bundled with that runtime.
+This Taskfile wraps common `npm` operations — installing dependencies, running scripts, auditing, and cleaning — behind consistent, cross-platform task commands. Node.js is
+provided via the [`nodejs`](../nodejs/) module (Nix profile); npm ships bundled with that runtime.
 
 ## Usage
 

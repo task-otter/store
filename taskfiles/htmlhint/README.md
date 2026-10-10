@@ -1,6 +1,6 @@
 # HTMLHint
 
-## What is this Taskfile?
+## What Is This Taskfile?
 
 This Taskfile wraps [HTMLHint](https://htmlhint.com/), a static analysis tool
 for HTML, with automation tasks for installing the tool and linting HTML files.
@@ -55,10 +55,10 @@ project root (where `package.json` lives).
 
 ## Notes
 
-- Requires a package-manager stack: run `task htmlhint:node:npm:install` (or
+* Requires a package-manager stack: run `task htmlhint:node:npm:install` (or
   `htmlhint:bun:install` / `htmlhint:node:yarn:install`) and it auto-installs
   HTMLHint on first use. Node.js is provisioned through the `nodejs` module
   (`nodejs:install`) on first run for node leaves; bun leaves use `bun:install`.
-- The install `status:` guard keeps repeat runs idempotent — changing `HTMLHINT_VERSION`
+* The install `status:` guard keeps repeat runs idempotent — changing `HTMLHINT_VERSION`
   triggers a reinstall.
-- HTMLHint is lint-only; it has no autofix mode.
+* HTMLHint is lint-only; it has no autofix mode.

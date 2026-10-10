@@ -1,6 +1,6 @@
 # Vault Taskfile Public Tasks
 
-## What is this Taskfile?
+## What Is This Taskfile?
 
 A Taskfile for installing the HashiCorp Vault CLI, checking server health,
 authenticating with tokens or AppRole, and reading KV secrets. Operational tasks
@@ -80,7 +80,8 @@ before dependencies install Vault and prepare the key pair.
 
 ## Notes
 
-- Install uses Nix on Linux and macOS (`VAULT_NIX_INSTALLABLE`, default `nixpkgs#vault-bin`) and WinGet on Windows (`VAULT_WINGET_INSTALLABLE`, default `Hashicorp.Vault`). Unix Nix install sets `NIXPKGS_ALLOW_UNFREE=1` and passes `--impure` to `nix:install:profile` because HashiCorp Vault is unfree in nixpkgs.
+* Install uses Nix on Linux and macOS (`VAULT_NIX_INSTALLABLE`, default `nixpkgs#vault-bin`) and WinGet on Windows (`VAULT_WINGET_INSTALLABLE`, default `Hashicorp.Vault`). Unix Nix
+  install sets `NIXPKGS_ALLOW_UNFREE=1` and passes `--impure` to `nix:install:profile` because HashiCorp Vault is unfree in nixpkgs.
 
 `token:revoke` revokes the token in `VAULT_TOKEN`. The variable must be set
 in the caller's environment before running this task.

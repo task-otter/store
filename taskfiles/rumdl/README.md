@@ -1,6 +1,6 @@
 # rumdl Taskfile
 
-## What is this Taskfile?
+## What Is This Taskfile?
 
 This Taskfile wraps [rumdl](https://github.com/rvben/rumdl), a fast Markdown
 linter and formatter written in Rust, with automation tasks for linting, fixing,
@@ -60,11 +60,10 @@ Pin a revision by overriding the installable, for example
 
 ## Notes
 
-- Unix install uses Nix (`RUMDL_NIX_INSTALLABLE`). Windows installs via
+* Unix install uses Nix (`RUMDL_NIX_INSTALLABLE`). Windows installs via
   `cargo:install:crate` (`RUMDL_CARGO_CRATE`).
-
-- `lint:fix` (rumdl check --fix) exits non-zero when unfixable violations remain,
+* `lint:fix` (rumdl check --fix) exits non-zero when unfixable violations remain,
   which suits pre-commit hooks and CI. `fmt` (rumdl fmt) uses formatter-style
   exit codes and exits zero after formatting, which suits editor integration.
-- Auto-install: every run task depends on the module's `install` task, so the
+* Auto-install: every run task depends on the module's `install` task, so the
   tool is installed on first use.

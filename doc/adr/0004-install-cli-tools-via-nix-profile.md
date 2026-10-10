@@ -1,4 +1,4 @@
-# 4. Install CLI tools via nix:install:profile
+# 4. Install CLI Tools via Nix:install:profile
 
 Date: 2026-08-31
 
@@ -21,16 +21,16 @@ need a CLI on PATH can depend on that task instead of owning an installer.
 
 Two families are not a Nix profile install:
 
-- **JS local-devDep tools** (biome, eslint, prettier, and their runtime
+* **JS local-devDep tools** (biome, eslint, prettier, and their runtime
   variants) install the linter as a project `devDependency`. Their `install` /
   `upgrade` / `{TOOL}_VERSION` stay.
-- **Project package managers** (npm, yarn, pnpm) run project install
+* **Project package managers** (npm, yarn, pnpm) run project install
   (`npm install`, and the yarn/pnpm equivalents). Node.js, yarn, and pnpm CLIs
   are installed via the Nix user profile (`nodejs`, `yarn`, `pnpm` modules).
 
 One tool cannot be replaced by `nix profile add` without changing meaning:
 
-- **docker:** the current install is Docker Desktop / get.docker.com (the
+* **docker:** the current install is Docker Desktop / get.docker.com (the
   daemon). `nixpkgs#docker` is the CLI/engine only.
 
 ADR 0002 forbids a bare top-level `NIX_INSTALLABLE` on a consuming module: the
@@ -134,19 +134,19 @@ Windows will fail. Use WSL2.
 
 ## Consequences
 
-- One installer path for CLI tools; module Taskfiles shrink to the work the
+* One installer path for CLI tools; module Taskfiles shrink to the work the
   tool does (`ci`, `fmt`, …) plus a nix include, an owned installable, and the
   two-task installer surface.
-- Auto-install remains, and `task {tool}:install` is the supported way to
+* Auto-install remains, and `task {tool}:install` is the supported way to
   install without doing any work. The installable is named once per module, in
   `install`, so a pin override reaches every task that needs the tool.
-- The surface is uniform and machine-checked: every Nix-backed module answers
+* The surface is uniform and machine-checked: every Nix-backed module answers
   `task {tool}:install` and `task {tool}:version`, and the integration suite
   fails a module that drifts from that.
-- `{TOOL}_VERSION` is gone on converted modules. Pinning moves to
+* `{TOOL}_VERSION` is gone on converted modules. Pinning moves to
   `{TOOL}_NIX_INSTALLABLE`, which satisfies ADR 0002.
-- JS and project-manager modules keep their existing install semantics.
-- docker stays on its current installer so we do not pretend a Nix profile add
+* JS and project-manager modules keep their existing install semantics.
+* docker stays on its current installer so we do not pretend a Nix profile add
   replaces Docker Desktop.
-- Native Windows users of converted modules must run under WSL2 for
+* Native Windows users of converted modules must run under WSL2 for
   auto-install.

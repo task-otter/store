@@ -1,6 +1,6 @@
 # Biome
 
-## What is this Taskfile?
+## What Is This Taskfile?
 
 This Taskfile wraps Biome for formatting, linting, combined checks, and CI. It
 installs `@biomejs/biome` locally and delegates package-manager behavior to the
@@ -49,10 +49,10 @@ Available leaves: `bun`, `node/{npm,pnpm,yarn}`.
 
 ## Variables
 
-- `BIOME_VERSION` (default empty): pinned release for `install` / `upgrade`. Empty resolves to the package manager's default.
-- `BIOME_TARGETS` (default `.`): paths passed to `biome check|lint|format`. Defaults to the current directory.
-- `BIOME_CONFIG` (default empty): adds `--config-path <path>` to Biome invocations.
-- `BIOME_EXTRA_ARGS` (default empty): appended to the underlying command. Arguments after `--` (available as `CLI_ARGS`) are also appended.
+* `BIOME_VERSION` (default empty): pinned release for `install` / `upgrade`. Empty resolves to the package manager's default.
+* `BIOME_TARGETS` (default `.`): paths passed to `biome check|lint|format`. Defaults to the current directory.
+* `BIOME_CONFIG` (default empty): adds `--config-path <path>` to Biome invocations.
+* `BIOME_EXTRA_ARGS` (default empty): appended to the underlying command. Arguments after `--` (available as `CLI_ARGS`) are also appended.
 
 ## Examples
 

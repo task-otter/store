@@ -1,4 +1,4 @@
-# 3. Run every Taskfile folder through the task CLI in tests
+# 3. Run Every Taskfile Folder Through the Task CLI in Tests
 
 Date: 2026-08-26
 
@@ -65,13 +65,13 @@ Enforcement: `TestEveryTaskfileFolderHasAnIntegrationTest` in
 
 ## Consequences
 
-- Include-tree and variant-wiring bugs fail at test time instead of at a user's
+* Include-tree and variant-wiring bugs fail at test time instead of at a user's
   first `task {tool}:{variant}:install`.
-- The full suite still runs in well under a minute, because the summary sweep is
+* The full suite still runs in well under a minute, because the summary sweep is
   scoped to the tasks a folder declares; tasks pulled in through an include are
   covered by the test of the folder that declares them.
-- A new module is not done until it has `TestModuleIntegration`; the coverage
+* A new module is not done until it has `TestModuleIntegration`; the coverage
   test names the missing folder.
-- The suite proves a module's task graph resolves and its documentation-facing
+* The suite proves a module's task graph resolves and its documentation-facing
   surface is real. It does not prove the underlying tool installs or runs — that
   remains the job of the opt-in installer flows in individual module tests.

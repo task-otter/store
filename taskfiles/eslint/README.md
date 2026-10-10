@@ -1,6 +1,6 @@
 # ESLint
 
-## What is this Taskfile?
+## What Is This Taskfile?
 
 This Taskfile wraps ESLint for JavaScript and TypeScript projects. It installs
 ESLint as a local dev dependency, runs cached checks by default, supports strict

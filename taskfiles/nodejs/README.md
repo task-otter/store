@@ -1,6 +1,6 @@
 # Node.js Taskfile
 
-## What is this module?
+## What Is This Module?
 
 Installs Node.js via Nix on Unix (`nixpkgs#nodejs` by default) and WinGet on Windows (`OpenJS.NodeJS`).
 Package managers (`npm`, `yarn`, `pnpm`) and JS tool Taskfiles depend on
@@ -32,4 +32,4 @@ Dependents auto-install Node.js via `nodejs:install`.
 
 ## Notes
 
-- Install uses Nix on Linux and macOS (`NODEJS_NIX_INSTALLABLE`) and WinGet on Windows (`NODEJS_WINGET_INSTALLABLE`, default `OpenJS.NodeJS`).
+* Install uses Nix on Linux and macOS (`NODEJS_NIX_INSTALLABLE`) and WinGet on Windows (`NODEJS_WINGET_INSTALLABLE`, default `OpenJS.NodeJS`).

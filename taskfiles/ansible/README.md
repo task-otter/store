@@ -1,6 +1,6 @@
 # Ansible Taskfile Public Tasks
 
-## What is this Taskfile?
+## What Is This Taskfile?
 
 A Taskfile for running playbooks, testing connectivity, managing Ansible Galaxy
 dependencies, and encrypting/decrypting secrets with Ansible Vault. Tasks
@@ -73,7 +73,7 @@ Pin a revision by overriding the installable, for example
 
 ## Notes
 
-- Install goes through `nix:install:profile` (Nix is installed first if missing). Native Windows is not supported; use WSL2.
+* Install goes through `nix:install:profile` (Nix is installed first if missing). Native Windows is not supported; use WSL2.
 
 **`vault:decrypt`** prompts for confirmation before decrypting to prevent
 accidental plaintext exposure. Both vault tasks prompt interactively for the

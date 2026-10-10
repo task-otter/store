@@ -1,6 +1,6 @@
 # Buf Taskfile
 
-## What is this Taskfile?
+## What Is This Taskfile?
 
 A cross-platform Taskfile for linting, formatting, breaking-change detection,
 and code generation from [Protocol Buffer](https://protobuf.dev/) definitions
@@ -87,8 +87,8 @@ Pin a revision by overriding the installable, for example
 
 ## Notes
 
-- Install uses Nix on Linux and macOS (`BUF_NIX_INSTALLABLE`) and WinGet on Windows (`BUF_WINGET_INSTALLABLE`, default `bufbuild.buf`).
+* Install uses Nix on Linux and macOS (`BUF_NIX_INSTALLABLE`) and WinGet on Windows (`BUF_WINGET_INSTALLABLE`, default `bufbuild.buf`).
 
-- The `generate` task requires a `buf.gen.yaml` file in the working tree. See the
+* The `generate` task requires a `buf.gen.yaml` file in the working tree. See the
   [buf generate docs](https://buf.build/docs/generate/tutorial) for configuration
   details.

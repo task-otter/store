@@ -1,6 +1,6 @@
 # Depcheck
 
-## What is this Taskfile?
+## What Is This Taskfile?
 
 This Taskfile wraps Depcheck for unused and missing dependency reports. It runs
 against the project root by default and uses the project's package manager for local

@@ -1,8 +1,9 @@
 # Yarn Taskfile Public Tasks
 
-## What is this Taskfile?
+## What Is This Taskfile?
 
-This Taskfile wraps common Yarn operations — installing dependencies, running scripts, auditing, and cleaning — behind consistent, cross-platform task commands. Node.js is provided via the [`nodejs`](../nodejs/) module (Nix profile); Yarn is installed from nixpkgs through this module's `install:tool` task.
+This Taskfile wraps common Yarn operations — installing dependencies, running scripts, auditing, and cleaning — behind consistent, cross-platform task commands. Node.js is provided
+via the [`nodejs`](../nodejs/) module (Nix profile); Yarn is installed from nixpkgs through this module's `install:tool` task.
 
 ## Usage
 
@@ -64,4 +65,4 @@ Project commands depend on `nodejs:install` and run `yarn` with `NIX_LOAD` so th
 
 ## Notes
 
-- Install uses Nix on Linux and macOS (`YARN_NIX_INSTALLABLE`) and WinGet on Windows (`YARN_WINGET_INSTALLABLE`, default `Yarn.Yarn`).
+* Install uses Nix on Linux and macOS (`YARN_NIX_INSTALLABLE`) and WinGet on Windows (`YARN_WINGET_INSTALLABLE`, default `Yarn.Yarn`).

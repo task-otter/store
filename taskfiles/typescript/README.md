@@ -1,6 +1,6 @@
 # TypeScript
 
-## What is this Taskfile?
+## What Is This Taskfile?
 
 This Taskfile wraps common TypeScript workflows behind consistent, cross-platform
 task commands. It covers installing TypeScript tooling, running `.ts` files with

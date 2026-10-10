@@ -1,6 +1,6 @@
-# ansible-lint Taskfile Public Tasks
+# Ansible-Lint Taskfile Public Tasks
 
-## What is this Taskfile?
+## What Is This Taskfile?
 
 A Taskfile for linting Ansible YAML files with
 [ansible-lint](https://github.com/ansible/ansible-lint). The `ci` and `ci:fix`
@@ -61,6 +61,6 @@ Pin a revision by overriding the installable, for example
 
 ## Notes
 
-- Install goes through `nix:install:profile` (Nix is installed first if missing). Native Windows is not supported; use WSL2.
-- Configure linting rules with an `.ansible-lint` file in your project root.
-- Pair with the [`ansible`](../ansible/README.md) module when you also need playbook syntax checks or execution.
+* Install goes through `nix:install:profile` (Nix is installed first if missing). Native Windows is not supported; use WSL2.
+* Configure linting rules with an `.ansible-lint` file in your project root.
+* Pair with the [`ansible`](../ansible/README.md) module when you also need playbook syntax checks or execution.

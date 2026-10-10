@@ -1,6 +1,6 @@
 # Knip
 
-## What is this Taskfile?
+## What Is This Taskfile?
 
 This Taskfile wraps Knip for unused file, export, and dependency analysis. Knip
 can report framework-specific false positives, so treat output as review input

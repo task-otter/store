@@ -12,13 +12,13 @@ Each module lives under `taskfiles/<name>/` with a `Taskfile.yml`,
 
 ## Requirements
 
-- [Task](https://taskfile.dev) 3.5+
-- Linux, macOS, or Windows (native Windows installs via the [`winget`](taskfiles/winget/README.md) module)
+* [Task](https://taskfile.dev) 3.5+
+* Linux, macOS, or Windows (native Windows installs via the [`winget`](taskfiles/winget/README.md) module)
 
 Nix itself is bootstrapped by the [`nix`](taskfiles/nix/README.md) module on
 first use. Keep the `taskfiles/` tree intact so relative `includes:` resolve.
 
-## Quick start
+## Quick Start
 
 Include a module in your Taskfile:
 
@@ -41,7 +41,7 @@ task -t taskfiles/go/Taskfile.yml verify
 
 Per-module docs and public tasks: `taskfiles/<name>/README.md`.
 
-## How install works
+## How Install Works
 
 Every Nix-backed module exposes a public `install` task and a public `version`
 task. `install` goes through
@@ -94,7 +94,7 @@ See [ADR 0004](doc/adr/0004-install-cli-tools-via-nix-profile.md).
 Each JS family is six modules (root, `bun`, `node`, and `node/{npm,pnpm,yarn}`)
 — 48 of the 82. `metadata.yml` lists the tasks a module exports.
 
-### JS variants
+### JS Variants
 
 Include the family once, then invoke the leaf that matches your runtime and
 package manager:
@@ -164,18 +164,18 @@ that call. Details: [ADR 0003](doc/adr/0003-run-every-taskfile-folder-through-th
 
 Contract tests also enforce:
 
-- Every public task appears in the module's `## Public Tasks` table and in
+* Every public task appears in the module's `## Public Tasks` table and in
   `metadata.yml`
-- Top-level Taskfile vars use an owned `{TOOL}_` prefix (or a
+* Top-level Taskfile vars use an owned `{TOOL}_` prefix (or a
   foreign/companion prefix) — [ADR 0002](doc/adr/0002-prefix-top-level-taskfile-vars-with-the-module-name.md)
-- Every Nix-backed module (one that includes `nix` and owns a
+* Every Nix-backed module (one that includes `nix` and owns a
   `{TOOL}_NIX_INSTALLABLE`) declares and exports public `install` and `version`
   tasks — [ADR 0004](doc/adr/0004-install-cli-tools-via-nix-profile.md)
 
 After adding, removing, or renaming an exported task, update `metadata.yml`
 and the module README, then run `go test ./...`.
 
-## Dependency updates
+## Dependency Updates
 
 [Dependabot](.github/dependabot.yml) checks the root Go module, root npm
 development dependencies, GitHub workflows, and composite actions every Monday

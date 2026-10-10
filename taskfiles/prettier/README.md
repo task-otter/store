@@ -1,6 +1,6 @@
 # Prettier
 
-## What is this Taskfile?
+## What Is This Taskfile?
 
 This Taskfile wraps Prettier checks and writes for JavaScript/TypeScript
 projects and workspaces. It uses the project's package manager for local binary

@@ -1,6 +1,6 @@
-# uv Taskfile Public Tasks
+# Uv Taskfile Public Tasks
 
-## What is this Taskfile?
+## What Is This Taskfile?
 
 A Taskfile for running uv Python project operations — virtual environments,
 package installation, script execution, and isolated tool management. The uv
@@ -63,8 +63,8 @@ Pin a revision by overriding the installable, for example
 
 ## Notes
 
-- Install uses Nix on Linux and macOS (`UV_NIX_INSTALLABLE`) and WinGet on Windows (`UV_WINGET_INSTALLABLE`, default `astral-sh.uv`).
-
-- Remaining uv tasks auto-install the uv binary if it is missing.
-- **`tool:install`** creates an isolated environment for each tool so their dependencies never conflict with your project. The tool's binary is shimmed into `~/.local/bin` (Unix) or `%USERPROFILE%\.local\bin` (Windows).
-- On Windows, `UV_LOAD` reloads User Path and prepends `%USERPROFILE%\.local\bin` so uv-installed tools from earlier in the same Task process are on PATH.
+* Install uses Nix on Linux and macOS (`UV_NIX_INSTALLABLE`) and WinGet on Windows (`UV_WINGET_INSTALLABLE`, default `astral-sh.uv`).
+* Remaining uv tasks auto-install the uv binary if it is missing.
+* **`tool:install`** creates an isolated environment for each tool so their dependencies never conflict with your project. The tool's binary is shimmed into `~/.local/bin` (Unix)
+  or `%USERPROFILE%\.local\bin` (Windows).
+* On Windows, `UV_LOAD` reloads User Path and prepends `%USERPROFILE%\.local\bin` so uv-installed tools from earlier in the same Task process are on PATH.

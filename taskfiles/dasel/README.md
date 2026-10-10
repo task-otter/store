@@ -1,6 +1,6 @@
 # Dasel Taskfile Public Tasks
 
-## What is this Taskfile?
+## What Is This Taskfile?
 
 A Taskfile module for [Dasel](https://daseldocs.tomwright.me/), a command-line
 tool for querying, modifying, and converting structured data. Installation
@@ -46,15 +46,14 @@ On Windows, override `DASEL_GO_PKG` to pin the Go package version (default:
 
 ## Variables
 
-| Variable                | Default         | Description                                 |
-| ----------------------- | --------------- | ------------------------------------------- |
-| `DASEL_NIX_INSTALLABLE` | `nixpkgs#dasel` | Flake installable for `nix:install:profile` |
-
-| `DASEL_GO_PKG` | `github.com/tomwright/dasel/v3/cmd/dasel@latest` | Go package for `go:install:pkg` on Windows |
+| Variable                | Default                                          | Description                                 |
+| ----------------------- | ------------------------------------------------ | ------------------------------------------- |
+| `DASEL_NIX_INSTALLABLE` | `nixpkgs#dasel`                                  | Flake installable for `nix:install:profile` |
+| `DASEL_GO_PKG`          | `github.com/tomwright/dasel/v3/cmd/dasel@latest` | Go package for `go:install:pkg` on Windows  |
 
 ## Notes
 
-- These tasks support Linux, macOS, and native Windows. Windows uses
+* These tasks support Linux, macOS, and native Windows. Windows uses
   PowerShell and reloads the Go binary directory into PATH after installation.
-- `install` skips installation when Dasel is already on PATH; `version`
+* `install` skips installation when Dasel is already on PATH; `version`
   depends on `install`.

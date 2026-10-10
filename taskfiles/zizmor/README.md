@@ -1,10 +1,11 @@
-# zizmor
+# Zizmor
 
 A [TaskOtter](https://github.com/task-otter/store) module for [zizmor](https://github.com/woodruffw/zizmor) — a security auditor for GitHub Actions workflow files.
 
-## What is this Taskfile?
+## What Is This Taskfile?
 
-This module audits GitHub Actions workflows with [zizmor](https://github.com/woodruffw/zizmor). zizmor detects expression injection, excessive permissions, use of mutable actions, and other dangerous patterns. The `ci` task auto-installs zizmor via `nix:install:profile`.
+This module audits GitHub Actions workflows with [zizmor](https://github.com/woodruffw/zizmor). zizmor detects expression injection, excessive permissions, use of mutable actions,
+and other dangerous patterns. The `ci` task auto-installs zizmor via `nix:install:profile`.
 
 ## Usage
 
@@ -23,7 +24,7 @@ Install only, without auditing:
 task -t taskfiles/zizmor/Taskfile.yml install
 ```
 
-### Included in your Taskfile
+### Included in Your Taskfile
 
 ```yaml
 includes:
@@ -61,6 +62,6 @@ Pin a revision by overriding the installable, for example
 
 ## Notes
 
-- Install uses Nix on Linux and macOS (`ZIZMOR_NIX_INSTALLABLE`) and WinGet on Windows (`ZIZMOR_WINGET_INSTALLABLE`, default `zizmor.zizmor`).
+* Install uses Nix on Linux and macOS (`ZIZMOR_NIX_INSTALLABLE`) and WinGet on Windows (`ZIZMOR_WINGET_INSTALLABLE`, default `zizmor.zizmor`).
 
-- The `ci` task auto-installs zizmor if it is not already present in `PATH`.
+* The `ci` task auto-installs zizmor if it is not already present in `PATH`.

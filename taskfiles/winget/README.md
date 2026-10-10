@@ -1,6 +1,6 @@
 # WinGet Taskfile Public Tasks
 
-## What is this Taskfile?
+## What Is This Taskfile?
 
 A Taskfile for installing, upgrading, and uninstalling packages with
 [WinGet](https://learn.microsoft.com/windows/package-manager/winget/), the
@@ -39,7 +39,7 @@ task winget:install:package WINGET_INSTALLABLE=Git.Git
 task winget:upgrade WINGET_INSTALLABLE=Git.Git
 ```
 
-### From another module
+### From Another Module
 
 ```yaml
 includes:
@@ -57,7 +57,7 @@ tasks:
           WINGET_INSTALLABLE: '{{.GO_WINGET_INSTALLABLE}}'
 ```
 
-## Auto-install behaviour
+## Auto-Install Behaviour
 
 `version`, `install:package`, `uninstall`, and `upgrade` install WinGet first
 if it is missing.

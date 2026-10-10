@@ -1,8 +1,8 @@
-# yamlfix
+# Yamlfix
 
 A [TaskOtter](https://github.com/task-otter/store) module for [yamlfix](https://github.com/lyz-code/yamlfix), a YAML formatter and auto-fixer.
 
-## What is this Taskfile?
+## What Is This Taskfile?
 
 This module formats YAML files in place. The `ci:fix` task auto-installs
 yamlfix via `nix:install:profile` on Unix or `uv:tool:install` on Windows.
@@ -24,7 +24,7 @@ Install only:
 task -t taskfiles/yamlfix/Taskfile.yml install
 ```
 
-### Included in your Taskfile
+### Included in Your Taskfile
 
 ```yaml
 includes:
@@ -60,6 +60,6 @@ Pin a revision by overriding the installable, for example
 
 ## Notes
 
-- Unix install uses Nix (`YAMLFIX_NIX_INSTALLABLE`). Windows installs via `uv:tool:install` (`YAMLFIX_UV_TOOL`).
+* Unix install uses Nix (`YAMLFIX_NIX_INSTALLABLE`). Windows installs via `uv:tool:install` (`YAMLFIX_UV_TOOL`).
 
-- `ci:fix` skips `Taskfile.yml` and `Taskfile.yaml` because Go template syntax breaks yamlfix.
+* `ci:fix` skips `Taskfile.yml` and `Taskfile.yaml` because Go template syntax breaks yamlfix.

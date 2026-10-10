@@ -1,6 +1,6 @@
-# protolint Taskfile
+# Protolint Taskfile
 
-## What is this Taskfile?
+## What Is This Taskfile?
 
 This Taskfile wraps [protolint](https://github.com/yoheimuta/protolint), a
 pluggable linter and fixer for Protocol Buffer files. The `ci` and `ci:fix`
@@ -56,5 +56,5 @@ Pin a revision by overriding the installable, for example
 
 ## Notes
 
-- Unix install uses Nix (`PROTOLINT_NIX_INSTALLABLE`). On Windows, install uses `go:install:pkg` with `PROTOLINT_GO_PKG`.
-- Go is provided by the included [`go`](../go/README.md) module. Operational tasks depend on `go:install`.
+* Unix install uses Nix (`PROTOLINT_NIX_INSTALLABLE`). On Windows, install uses `go:install:pkg` with `PROTOLINT_GO_PKG`.
+* Go is provided by the included [`go`](../go/README.md) module. Operational tasks depend on `go:install`.

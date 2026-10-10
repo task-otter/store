@@ -1,6 +1,6 @@
 # Python Taskfile Public Tasks
 
-## What is this Taskfile?
+## What Is This Taskfile?
 
 A cross-platform Taskfile for creating virtual environments, installing
 dependencies, running scripts, and verifying Python. Remaining tasks
@@ -65,6 +65,6 @@ Pin a Python version by overriding the installable, for example
 
 ## Notes
 
-- Install uses Nix on Linux and macOS (`PYTHON_NIX_INSTALLABLE`) and WinGet on Windows (`PYTHON_WINGET_INSTALLABLE`, default `Python.Python.3.12`).
+* Install uses Nix on Linux and macOS (`PYTHON_NIX_INSTALLABLE`) and WinGet on Windows (`PYTHON_WINGET_INSTALLABLE`, default `Python.Python.3.12`).
 
-- `venv`, `pip:install`, `run`, and `verify` use `python3` from PATH (after `NIX_LOAD` on Unix). `pip:install` runs `python3 -m pip`.
+* `venv`, `pip:install`, `run`, and `verify` use `python3` from PATH (after `NIX_LOAD` on Unix). `pip:install` runs `python3 -m pip`.

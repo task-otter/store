@@ -1,6 +1,6 @@
-# adrs Taskfile
+# Adrs Taskfile
 
-## What is this Taskfile?
+## What Is This Taskfile?
 
 This Taskfile wraps [adrs](https://github.com/joshrotenberg/adrs), a
 command-line tool for managing Architecture Decision Records. Remaining tasks
@@ -63,5 +63,5 @@ Pin a revision by overriding the installable, for example
 
 ## Notes
 
-- Unix install uses Nix (`ADRS_NIX_INSTALLABLE`). Windows installs via
+* Unix install uses Nix (`ADRS_NIX_INSTALLABLE`). Windows installs via
   `cargo:install:crate` (`ADRS_CARGO_CRATE`).

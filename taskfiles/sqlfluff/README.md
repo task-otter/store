@@ -1,6 +1,6 @@
-# sqlfluff Taskfile
+# Sqlfluff Taskfile
 
-## What is this Taskfile?
+## What Is This Taskfile?
 
 A cross-platform Taskfile for linting and auto-fixing SQL files and generating
 a project configuration. Remaining tasks auto-install sqlfluff via
@@ -62,7 +62,7 @@ Pin a revision by overriding the installable, for example
 
 ## Notes
 
-- Unix install uses Nix (`SQLFLUFF_NIX_INSTALLABLE`). Windows installs via `uv:tool:install` (`SQLFLUFF_UV_TOOL`).
+* Unix install uses Nix (`SQLFLUFF_NIX_INSTALLABLE`). Windows installs via `uv:tool:install` (`SQLFLUFF_UV_TOOL`).
 
 **`config:init`** writes a `.sqlfluff` file in the current directory and is
 skipped if the file already exists. To regenerate, delete `.sqlfluff` first.

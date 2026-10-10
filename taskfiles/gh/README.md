@@ -1,6 +1,6 @@
-# gh — GitHub CLI Taskfile
+# Gh — GitHub CLI Taskfile
 
-## What is this Taskfile?
+## What Is This Taskfile?
 
 A production-ready, cross-platform Taskfile for verifying, configuring, and
 operating the [GitHub CLI (`gh`)](https://cli.github.com). Operational tasks
@@ -23,7 +23,7 @@ Install only:
 task -t taskfiles/gh/Taskfile.yml install
 ```
 
-### Included (recommended)
+### Included (Recommended)
 
 ```yaml
 # Taskfile.yml
@@ -238,6 +238,6 @@ Pin a revision by overriding the installable, for example
 
 ## Notes
 
-- Install uses Nix on Linux and macOS (`GH_NIX_INSTALLABLE`) and WinGet on Windows (`GH_WINGET_INSTALLABLE`, default `GitHub.cli`).
+* Install uses Nix on Linux and macOS (`GH_NIX_INSTALLABLE`) and WinGet on Windows (`GH_WINGET_INSTALLABLE`, default `GitHub.cli`).
 
-- Operational tasks auto-install gh if it is not already present in `PATH`.
+* Operational tasks auto-install gh if it is not already present in `PATH`.

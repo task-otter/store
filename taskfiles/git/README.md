@@ -1,6 +1,6 @@
-# git — Git Taskfile
+# Git — Git Taskfile
 
-## What is this Taskfile?
+## What Is This Taskfile?
 
 A production-ready, cross-platform Taskfile for everyday git operations and GitHub-integrated
 workflows. It wraps the `git` CLI with consistent defaults and integrates with the
@@ -26,7 +26,7 @@ Install git only:
 task -t taskfiles/git/Taskfile.yml install
 ```
 
-### Included (recommended)
+### Included (Recommended)
 
 ```yaml
 # Taskfile.yml
@@ -182,6 +182,6 @@ Pin a revision by overriding the installable, for example
 
 ## Notes
 
-- Install uses Nix on Linux and macOS (`GIT_NIX_INSTALLABLE`) and WinGet on Windows (`GIT_WINGET_INSTALLABLE`, default `Git.Git`).
+* Install uses Nix on Linux and macOS (`GIT_NIX_INSTALLABLE`) and WinGet on Windows (`GIT_WINGET_INSTALLABLE`, default `Git.Git`).
 
-- Tasks that call `gh` auto-install the GitHub CLI via `gh:install`.
+* Tasks that call `gh` auto-install the GitHub CLI via `gh:install`.

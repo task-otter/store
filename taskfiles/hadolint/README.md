@@ -1,6 +1,6 @@
 # Hadolint Taskfile Public Tasks
 
-## What is this Taskfile?
+## What Is This Taskfile?
 
 A Taskfile for running [hadolint](https://github.com/hadolint/hadolint), the
 Dockerfile linter. The `ci` task auto-installs hadolint via `nix:install:profile`.
@@ -63,6 +63,6 @@ Pin a revision by overriding the installable, for example
 
 ## Notes
 
-- Install uses Nix on Linux and macOS (`HADOLINT_NIX_INSTALLABLE`) and WinGet on Windows (`HADOLINT_WINGET_INSTALLABLE`, default `hadolint.hadolint`).
+* Install uses Nix on Linux and macOS (`HADOLINT_NIX_INSTALLABLE`) and WinGet on Windows (`HADOLINT_WINGET_INSTALLABLE`, default `hadolint.hadolint`).
 
-- The `ci` task auto-installs hadolint if it is not already present in `PATH`.
+* The `ci` task auto-installs hadolint if it is not already present in `PATH`.

@@ -1,10 +1,11 @@
-# actionlint
+# Actionlint
 
 A [TaskOtter](https://github.com/task-otter/store) module for [actionlint](https://github.com/rhysd/actionlint) — a static checker for GitHub Actions workflow files.
 
-## What is this Taskfile?
+## What Is This Taskfile?
 
-This module lints GitHub Actions workflow files with [actionlint](https://github.com/rhysd/actionlint). actionlint statically checks workflows for syntax errors, type mismatches in expressions, incorrect event payloads, and more. The `ci` task auto-installs actionlint via `nix:install:profile`.
+This module lints GitHub Actions workflow files with [actionlint](https://github.com/rhysd/actionlint). actionlint statically checks workflows for syntax errors, type mismatches in
+expressions, incorrect event payloads, and more. The `ci` task auto-installs actionlint via `nix:install:profile`.
 
 ## Usage
 
@@ -22,7 +23,7 @@ Install only, without linting:
 task nix:install:profile NIX_INSTALLABLE=nixpkgs#actionlint
 ```
 
-### Included in your Taskfile
+### Included in Your Taskfile
 
 ```yaml
 includes:
@@ -58,7 +59,6 @@ Pin a revision by overriding the installable, for example
 
 ## Notes
 
-- Install uses Nix on Linux and macOS (`ACTIONLINT_NIX_INSTALLABLE`) and WinGet on Windows (`ACTIONLINT_WINGET_INSTALLABLE`, default `rhysd.actionlint`).
-
-- When `ACTIONLINT_TARGETS` is empty, actionlint automatically discovers all files under `.github/workflows/` in the current working directory.
-- The `ci` task auto-installs actionlint if it is not already present in `PATH`.
+* Install uses Nix on Linux and macOS (`ACTIONLINT_NIX_INSTALLABLE`) and WinGet on Windows (`ACTIONLINT_WINGET_INSTALLABLE`, default `rhysd.actionlint`).
+* When `ACTIONLINT_TARGETS` is empty, actionlint automatically discovers all files under `.github/workflows/` in the current working directory.
+* The `ci` task auto-installs actionlint if it is not already present in `PATH`.

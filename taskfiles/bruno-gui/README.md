@@ -1,8 +1,8 @@
-# bruno-gui
+# Bruno-Gui
 
 A [TaskOtter](https://github.com/task-otter/store) module for the [Bruno](https://www.usebruno.com/) desktop application.
 
-## What is this Taskfile?
+## What Is This Taskfile?
 
 This module launches the Bruno desktop app and shows its built-in help. The `open` and `help` tasks auto-install `bruno` via `nix:install:profile` when it is not already on `PATH`.
 
@@ -22,7 +22,7 @@ Install only, without launching the app:
 task nix:install:profile NIX_INSTALLABLE=nixpkgs#bruno
 ```
 
-### Included in your Taskfile
+### Included in Your Taskfile
 
 ```yaml
 includes:
@@ -60,6 +60,6 @@ Pin a revision by overriding the installable, for example
 
 ## Notes
 
-- Install uses Nix on Linux and macOS (`BRUNO_GUI_NIX_INSTALLABLE`) and WinGet on Windows (`BRUNO_GUI_WINGET_INSTALLABLE`, default `Bruno.Bruno`).
+* Install uses Nix on Linux and macOS (`BRUNO_GUI_NIX_INSTALLABLE`) and WinGet on Windows (`BRUNO_GUI_WINGET_INSTALLABLE`, default `Bruno.Bruno`).
 
-- On macOS and Linux, `open` launches Bruno in the background (`&`) so the task exits immediately.
+* On macOS and Linux, `open` launches Bruno in the background (`&`) so the task exits immediately.

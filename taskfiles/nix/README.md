@@ -1,6 +1,6 @@
 # Nix Taskfile Public Tasks
 
-## What is this Taskfile?
+## What Is This Taskfile?
 
 A Taskfile for installing, upgrading, and uninstalling
 [Nix](https://nix.dev/manual/nix/2.34/installation/index.html) 2.34.
@@ -46,7 +46,7 @@ task nix:install:shell NIX_INSTALLABLE=hello NIX_COMMAND=hello
 task nix:install:profile NIX_INSTALLABLE=nixpkgs#dasel
 ```
 
-## Auto-install behaviour
+## Auto-Install Behaviour
 
 `version` and `upgrade` install Nix first if it is missing.
 
@@ -143,11 +143,11 @@ volume). Confirmation is required; pass `--yes` to skip the prompt.
 **Native Windows:** Nix is not supported. Use WSL2 and run the tasks from
 inside WSL.
 
-## Experimental features
+## Experimental Features
 
 Nix 2.34 gates unstable functionality behind flags in `nix.conf`:
 
-```
+```text
 experimental-features = nix-command flakes
 ```
 
@@ -170,7 +170,7 @@ Default is `nix-command flakes` — the usual pair for `nix build`, `nix run`,
 and `nix flake`. `flakes` always enables `fetch-tree` as well.
 
 | Feature | Description |
-| ------------------------- | ------------------------------------------------------------------------- | ------- | ------------------------------- |
+| ------------------------- | ------------------------------------------------------------------------- |
 | `auto-allocate-uids` | Automatically pick UIDs for builds instead of creating `nixbld*` accounts |
 | `blake3-hashes` | Support for BLAKE3 hashes |
 | `ca-derivations` | Content-addressed derivations; skip rebuilds when outputs do not change |
@@ -188,7 +188,7 @@ and `nix flake`. `flakes` always enables `fetch-tree` as well.
 | `mounted-ssh-store` | Mounted SSH store |
 | `nix-command` | New `nix` subcommands (`nix build`, `nix run`, `nix flake`, …) |
 | `parse-toml-timestamps` | Parse timestamps in `builtins.fromTOML` |
-| `pipe-operators` | `                                                                         | >`and`< | ` operators in the Nix language |
+| `pipe-operators` | `| >`and`< |` operators in the Nix language |
 | `read-only-local-store` | `read-only` parameter in local store URIs |
 | `recursive-nix` | Allow derivation builders to call Nix |
 | `verified-fetches` | Verify git commit signatures in `builtins.fetchGit` |

@@ -1,10 +1,11 @@
-# bruno-cli
+# Bruno-Cli
 
 A [TaskOtter](https://github.com/task-otter/store) module for the [Bruno](https://www.usebruno.com/) CLI (`bru`) — run API collections from the command line.
 
-## What is this Taskfile?
+## What Is This Taskfile?
 
-This module runs Bruno API collections with `bru run` and `bru run --bail` for CI. The `run`, `ci`, and `help` tasks auto-install `bru` via Nix on Unix and `npm:install:global` on Windows when it is not already on `PATH`.
+This module runs Bruno API collections with `bru run` and `bru run --bail` for CI. The `run`, `ci`, and `help` tasks auto-install `bru` via Nix on Unix and `npm:install:global` on
+Windows when it is not already on `PATH`.
 
 ## Usage
 
@@ -23,7 +24,7 @@ Install only, without running a collection:
 task nix:install:profile NIX_INSTALLABLE=nixpkgs#bruno-cli
 ```
 
-### Included in your Taskfile
+### Included in Your Taskfile
 
 ```yaml
 includes:
@@ -61,7 +62,7 @@ task bruno-cli:ci BRUNO_CLI_COLLECTION=./api
 Pin a revision by overriding the installable, for example
 `BRUNO_CLI_NIX_INSTALLABLE=github:NixOS/nixpkgs/<rev>#bruno-cli`.
 
-## Breaking changes from `bruno:*`
+## Breaking Changes from `bruno:*`
 
 | Before                   | After                                                                    |
 | ------------------------ | ------------------------------------------------------------------------ |
@@ -73,6 +74,6 @@ Pin a revision by overriding the installable, for example
 
 ## Notes
 
-- Install uses Nix on Linux and macOS (`BRUNO_CLI_NIX_INSTALLABLE`) and npm on Windows (`BRUNO_CLI_NPM_PACKAGE`, default `@usebruno/cli`; binary `bru`).
+* Install uses Nix on Linux and macOS (`BRUNO_CLI_NIX_INSTALLABLE`) and npm on Windows (`BRUNO_CLI_NPM_PACKAGE`, default `@usebruno/cli`; binary `bru`).
 
-- Pass arguments after `--` to override collection, env, and extra flags directly.
+* Pass arguments after `--` to override collection, env, and extra flags directly.

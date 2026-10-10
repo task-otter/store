@@ -1,6 +1,6 @@
 # Go Taskfile
 
-## What is this Taskfile?
+## What Is This Taskfile?
 
 A Taskfile for running Go unit tests, benchmarks, and fuzz targets. The Go
 toolchain is installed through `nix:install:profile`.
@@ -96,8 +96,8 @@ Pin a revision by overriding the installable, for example
 
 ## Notes
 
-- Install uses Nix on Linux and macOS (`GO_NIX_INSTALLABLE`) and WinGet on Windows (`GO_WINGET_INSTALLABLE`, default `GoLang.Go`).
+* Install uses Nix on Linux and macOS (`GO_NIX_INSTALLABLE`) and WinGet on Windows (`GO_WINGET_INSTALLABLE`, default `GoLang.Go`).
 
-- `test`, `bench`, `fuzz`, `which`, `verify`, and `install:pkg` auto-install Go.
+* `test`, `bench`, `fuzz`, `which`, `verify`, and `install:pkg` auto-install Go.
 
-- On Windows, `install:pkg` prepends `$(go env GOPATH)\bin` to the User Path when missing.
+* On Windows, `install:pkg` prepends `$(go env GOPATH)\bin` to the User Path when missing.

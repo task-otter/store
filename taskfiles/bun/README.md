@@ -1,10 +1,12 @@
 # Bun Taskfile Public Tasks
 
-## What is Bun?
+## What Is Bun?
 
-Bun is an all-in-one JavaScript runtime and toolkit — a single binary that replaces Node.js, npm, a bundler, and a test runner. It is written in Zig and designed to be significantly faster than Node.js for startup, module resolution, and package installation.
+Bun is an all-in-one JavaScript runtime and toolkit — a single binary that replaces Node.js, npm, a bundler, and a test runner. It is written in Zig and designed to be
+significantly faster than Node.js for startup, module resolution, and package installation.
 
-This module installs Bun via Nix on Unix and WinGet on Windows. Tool Taskfiles that need the Bun CLI should depend on `bun:install` and invoke `bun` directly (for example `bun add -d`, `bun remove`, `bun x`).
+This module installs Bun via Nix on Unix and WinGet on Windows. Tool Taskfiles that need the Bun CLI should depend on `bun:install` and invoke `bun` directly (for example
+`bun add -d`, `bun remove`, `bun x`).
 
 ## Usage
 
@@ -54,4 +56,4 @@ Dependents auto-install Bun via `bun:install`.
 
 ## Notes
 
-- Install uses Nix on Linux and macOS (`BUN_NIX_INSTALLABLE`) and WinGet on Windows (`BUN_WINGET_INSTALLABLE`, default `Oven-sh.Bun`).
+* Install uses Nix on Linux and macOS (`BUN_NIX_INSTALLABLE`) and WinGet on Windows (`BUN_WINGET_INSTALLABLE`, default `Oven-sh.Bun`).
