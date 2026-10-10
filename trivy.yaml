@@ -2,6 +2,7 @@
 vulnerability:
   vex:
     - security/store.openvex.json
+
 license:
   # Approved licenses; obligations are documented in security/README.md.
   # Trivy calls this setting "ignored"; other licenses still fail CI.
