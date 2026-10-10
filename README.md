@@ -5,224 +5,149 @@
 [![FOSSA Status](https://app.fossa.com/api/projects/git%2Bgithub.com%2Ftask-otter%2Fstore.svg?type=shield)](https://app.fossa.com/projects/git%2Bgithub.com%2Ftask-otter%2Fstore?ref=badge_shield)
 
 Reusable, tested [Taskfile](https://taskfile.dev) modules for installing and
-running common dev tools. Clone or submodule this repo, include a module, and
-run it — the CLI is installed automatically.
-
-Each module lives under `taskfiles/<name>/` with a `Taskfile.yml`,
-`metadata.yml`, `README.md`, and Go tests. **82 modules** in total.
-
-## Requirements
-
-* [Task](https://taskfile.dev) 3.5+
-* Linux, macOS, or Windows (native Windows installs via the [`winget`](taskfiles/winget/README.md) module)
-
-Nix itself is bootstrapped by the [`nix`](taskfiles/nix/README.md) module on
-first use. Keep the `taskfiles/` tree intact so relative `includes:` resolve.
+running development tools. Include the modules you need in your project's
+Taskfile and run their tasks.
 
 ## Quick Start
 
-Include a module in your Taskfile:
-
-```yaml
-includes:
-  go: ./taskfiles/go/Taskfile.yml
-```
-
-Then run it. Work tasks auto-install the tool through the module's `install` task:
+Install [Task](https://taskfile.dev), then add this repository to your project:
 
 ```sh
+git submodule add https://github.com/task-otter/store.git taskotter
+```
+
+Create or update your project's `Taskfile.yml`:
+
+```yaml
+version: '3'
+
+includes:
+  go: ./taskotter/taskfiles/go/Taskfile.yml
+```
+
+List the available tasks and verify your Go installation:
+
+```sh
+task --list
 task go:verify
 ```
 
-Standalone, from this repo:
+The verification task installs Go if it is missing. Keep the `taskfiles/` tree
+intact: modules include shared dependencies using relative paths.
+
+To try a module directly from a clone of this repository:
 
 ```sh
+git clone https://github.com/task-otter/store.git
+cd store
 task -t taskfiles/go/Taskfile.yml verify
 ```
 
-Per-module docs and public tasks: `taskfiles/<name>/README.md`.
+## Tool Installation
 
-## How Install Works
+Modules use Nix on Linux and macOS, and WinGet on native Windows where supported.
+The [Nix module](taskfiles/nix/README.md) installs Nix on first use.
+Check each module's README for platform support, tasks, and variables;
+[Ansible](taskfiles/ansible/README.md) and
+[ansible-lint](taskfiles/ansible-lint/README.md) support Linux and macOS only.
 
-Every Nix-backed module exposes a public `install` task and a public `version`
-task. `install` goes through
-[`nix:install:profile`](taskfiles/nix/README.md), which adds a flake
-installable to `~/.nix-profile`; it is a no-op when the tool is already on
-`PATH`. On native Windows, the same modules can go through
-[`winget:install:package`](taskfiles/winget/README.md) with
-`{TOOL}_WINGET_INSTALLABLE`. Work tasks depend on `install`, so they auto-install
-on first use. Pin with `{TOOL}_NIX_INSTALLABLE`:
-
-```sh
-task go:verify GO_NIX_INSTALLABLE=github:NixOS/nixpkgs/<rev>#go
-```
-
-Install without running the work task:
+Most tool tasks install their CLI automatically when needed. You can also install
+a tool or check its version explicitly:
 
 ```sh
 task go:install
-```
-
-Check what is installed:
-
-```sh
 task go:version
 ```
 
-Install surfaces:
+Override a module's variables to choose a package. For example, replace `<rev>`
+with a nixpkgs revision to select a specific Go package:
 
-| Kind                     | Modules                                                                                                  | Install surface                                                                                            |
-| ------------------------ | -------------------------------------------------------------------------------------------------------- | ---------------------------------------------------------------------------------------------------------- |
-| Nix profile (default)    | CLI and system tools                                                                                     | public `install` / `version`; pin with `{TOOL}_NIX_INSTALLABLE`                                            |
-| WinGet (Windows)         | CLI and system tools                                                                                     | public `install:package`; pin with `{TOOL}_WINGET_INSTALLABLE`                                             |
-| Local `devDependency`    | JS lint/format families                                                                                  | `{TOOL}_VERSION` on `install` / `upgrade`                                                                  |
-| Project package managers | [`npm`](taskfiles/npm/README.md), [`pnpm`](taskfiles/pnpm/README.md), [`yarn`](taskfiles/yarn/README.md) | project `install` (`npm install`, …); the CLIs come from Nix or WinGet via `install:tool` / `version:tool` |
-| Docker daemon            | [`docker`](taskfiles/docker/README.md)                                                                   | keeps `install` / `upgrade` / `version` (Docker Desktop / get.docker.com)                                  |
+```sh
+task go:install 'GO_NIX_INSTALLABLE=github:NixOS/nixpkgs/<rev>#go'
+```
 
-See [ADR 0004](doc/adr/0004-install-cli-tools-via-nix-profile.md).
+Installation differs for a few module types:
 
-## Catalog
+* JavaScript lint and format tools install local development dependencies.
+* [npm](taskfiles/npm/README.md), [pnpm](taskfiles/pnpm/README.md), and
+  [Yarn](taskfiles/yarn/README.md) use `install` for project dependencies and
+  `install:tool` for their CLI.
+* [Docker](taskfiles/docker/README.md) manages its own installation.
 
-| Category                 | Modules                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                |
-| ------------------------ | ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------ |
-| Node runtimes            | [`nodejs`](taskfiles/nodejs/README.md), [`bun`](taskfiles/bun/README.md)                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                               |
-| Package managers         | [`npm`](taskfiles/npm/README.md), [`pnpm`](taskfiles/pnpm/README.md), [`yarn`](taskfiles/yarn/README.md)                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                               |
-| JS lint / format / check | [`biome`](taskfiles/biome/README.md), [`depcheck`](taskfiles/depcheck/README.md), [`eslint`](taskfiles/eslint/README.md), [`htmlhint`](taskfiles/htmlhint/README.md), [`knip`](taskfiles/knip/README.md), [`prettier`](taskfiles/prettier/README.md), [`spectral`](taskfiles/spectral/README.md), [`typescript`](taskfiles/typescript/README.md)                                                                                                                                                                                                                                                                                                                                                                                                                                                       |
-| Languages & runtimes     | [`go`](taskfiles/go/README.md), [`go-junit-report`](taskfiles/go-junit-report/README.md), [`golangci-lint`](taskfiles/golangci-lint/README.md), [`python`](taskfiles/python/README.md), [`uv`](taskfiles/uv/README.md), [`cargo`](taskfiles/cargo/README.md), [`proto`](taskfiles/proto/README.md), [`nix`](taskfiles/nix/README.md), [`winget`](taskfiles/winget/README.md)                                                                                                                                                                                                                                                                                                                                                                                                                           |
-| CI & infra               | [`actionlint`](taskfiles/actionlint/README.md), [`adrs`](taskfiles/adrs/README.md), [`ansible`](taskfiles/ansible/README.md), [`ansible-lint`](taskfiles/ansible-lint/README.md), [`bruno-cli`](taskfiles/bruno-cli/README.md), [`buf`](taskfiles/buf/README.md), [`dasel`](taskfiles/dasel/README.md), [`docker`](taskfiles/docker/README.md), [`gh`](taskfiles/gh/README.md), [`git`](taskfiles/git/README.md), [`hadolint`](taskfiles/hadolint/README.md), [`protolint`](taskfiles/protolint/README.md), [`rumdl`](taskfiles/rumdl/README.md), [`sqlfluff`](taskfiles/sqlfluff/README.md), [`trivy`](taskfiles/trivy/README.md), [`vault`](taskfiles/vault/README.md), [`yamlfix`](taskfiles/yamlfix/README.md), [`yamllint`](taskfiles/yamllint/README.md), [`zizmor`](taskfiles/zizmor/README.md) |
-| Desktop                  | [`bruno-gui`](taskfiles/bruno-gui/README.md)                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                           |
+## Modules
 
-Each JS family is six modules (root, `bun`, `node`, and `node/{npm,pnpm,yarn}`)
-— 48 of the 82. `metadata.yml` lists the tasks a module exports.
+Each link below lists the module's public tasks and configuration.
 
-### JS Variants
+| Category | Modules |
+| --- | --- |
+| Node runtimes | [`nodejs`](taskfiles/nodejs/README.md), [`bun`](taskfiles/bun/README.md) |
+| Package managers | [`npm`](taskfiles/npm/README.md), [`pnpm`](taskfiles/pnpm/README.md), [`yarn`](taskfiles/yarn/README.md) |
+| JS lint / format / check | [`biome`](taskfiles/biome/README.md), [`depcheck`](taskfiles/depcheck/README.md), [`eslint`](taskfiles/eslint/README.md), [`htmlhint`](taskfiles/htmlhint/README.md), [`knip`](taskfiles/knip/README.md), [`prettier`](taskfiles/prettier/README.md), [`spectral`](taskfiles/spectral/README.md), [`typescript`](taskfiles/typescript/README.md) |
+| Languages & runtimes | [`go`](taskfiles/go/README.md), [`go-junit-report`](taskfiles/go-junit-report/README.md), [`golangci-lint`](taskfiles/golangci-lint/README.md), [`python`](taskfiles/python/README.md), [`uv`](taskfiles/uv/README.md), [`cargo`](taskfiles/cargo/README.md), [`proto`](taskfiles/proto/README.md), [`nix`](taskfiles/nix/README.md), [`winget`](taskfiles/winget/README.md) |
+| CI & infra | [`actionlint`](taskfiles/actionlint/README.md), [`adrs`](taskfiles/adrs/README.md), [`ansible`](taskfiles/ansible/README.md), [`ansible-lint`](taskfiles/ansible-lint/README.md), [`bruno-cli`](taskfiles/bruno-cli/README.md), [`buf`](taskfiles/buf/README.md), [`dasel`](taskfiles/dasel/README.md), [`docker`](taskfiles/docker/README.md), [`gh`](taskfiles/gh/README.md), [`git`](taskfiles/git/README.md), [`hadolint`](taskfiles/hadolint/README.md), [`protolint`](taskfiles/protolint/README.md), [`rumdl`](taskfiles/rumdl/README.md), [`sqlfluff`](taskfiles/sqlfluff/README.md), [`trivy`](taskfiles/trivy/README.md), [`vault`](taskfiles/vault/README.md), [`yamlfix`](taskfiles/yamlfix/README.md), [`yamllint`](taskfiles/yamllint/README.md), [`zizmor`](taskfiles/zizmor/README.md) |
+| Desktop | [`bruno-gui`](taskfiles/bruno-gui/README.md) |
 
-Include the family once, then invoke the leaf that matches your runtime and
-package manager:
+### JavaScript Tools
+
+Include a tool family, then choose the runtime and package manager in the task
+name. For example, add ESLint alongside Go:
 
 ```yaml
+version: '3'
+
 includes:
-  eslint: ./taskfiles/eslint/Taskfile.yml
+  go: ./taskotter/taskfiles/go/Taskfile.yml
+  eslint: ./taskotter/taskfiles/eslint/Taskfile.yml
 ```
+
+Run the variant that matches your project:
 
 ```sh
-task eslint:bun:{task}                 # Bun runtime + Bun as package manager
-task eslint:node:{npm|pnpm|yarn}:{task}
+task eslint:bun:ci
+task eslint:node:npm:ci
+task eslint:node:pnpm:ci
+task eslint:node:yarn:ci
 ```
 
-Examples: `task eslint:node:npm:ci`, `task prettier:bun:fmt:check`,
-`task typescript:node:pnpm:build`.
+Modules compose through Taskfile `includes:`. See the
+[dependency graph](deps-tree.md) for their shared dependencies.
 
-Package-manager modules are flat and nix-backed:
+## Contributing
 
-```sh
-task npm:install
-task pnpm:install:clean
-task yarn:run SCRIPT=build
-```
-
-Node.js is installed via `nodejs:install` (Nix profile).
-
-## Dependencies
-
-Modules compose via Taskfile `includes:`. Arrows mean "depends on":
-
-```mermaid
-flowchart LR
-  eslint_npm["eslint:node:npm"] --> npm --> nodejs --> nix
-  eslint_bun["eslint:bun"] --> bun --> nix
-  git --> gh --> dasel --> nix
-```
-
-Full graph (forward and reverse): [deps-tree.md](deps-tree.md). Keep it in
-sync with [`.deps.yml`](.deps.yml).
-
-## Development
-
-Install Task 3.54.0 separately before running tests or smoke checks:
+Use the Go version declared in [go.mod](go.mod) and Task 3.54.0, matching CI:
 
 ```sh
 go install github.com/go-task/task/v3/cmd/task@v3.54.0
 task --version
+go test ./...
 ```
 
-Put `GOBIN` (or `$(go env GOPATH)/bin` when `GOBIN` is unset) first on
-`PATH`, ahead of any older Task installation. CI uses the same version through
-the shared [setup action](.github/actions/setup-task/action.yml).
+Ensure `GOBIN` (or `$(go env GOPATH)/bin` when unset) comes first on `PATH` so the
+installed Task version is used.
 
-Task is an external CLI dependency; the application does not import its Go
-library or install it at runtime. All Task process execution is shared in
-`internal/taskcli`.
+When changing a module:
+
+1. Update its `Taskfile.yml`, `metadata.yml`, and README public-task table together.
+2. Add or update its contract and integration tests, then run `go test ./...`.
+3. Update [`.deps.yml`](.deps.yml) and [deps-tree.md](deps-tree.md) if dependencies change.
+
+Preview smoke checks before running them:
 
 ```sh
-go test ./...
 go run ./cmd/tasksmoke --list
 go run ./cmd/tasksmoke --module go
 ```
 
-The smoke runner executes public tasks and can install their tools. It uses
-an isolated home and copied work directory, captures output, and limits each
-task to three minutes. Use `--list` to inspect selected tasks without execution.
+Smoke checks execute public tasks and may install tools. They use an isolated
+home and copied work directory, capture output, and limit each task to three
+minutes.
 
-Two test layers on every Taskfile folder, both in `<module>_test.go`:
-
-| Layer       | Test                         | Checks                                                                       |
-| ----------- | ---------------------------- | ---------------------------------------------------------------------------- |
-| Contract    | `TestTaskfileModuleContract` | What the module _declares_ (`Taskfile.yml`, `metadata.yml`, `README.md`)     |
-| Integration | `TestModuleIntegration`      | What the module _does_ — real `task` CLI, isolated `HOME`, nothing installed |
-
-The integration test is one call into
-[`internal/taskintegration`](internal/taskintegration):
-
-```go
-func TestModuleIntegration(t *testing.T) {
-	t.Parallel()
-	taskintegration.RunHere(t)
-}
-```
-
-`TestEveryTaskfileFolderHasAnIntegrationTest` fails if a folder ships without
-that call. Details: [ADR 0003](doc/adr/0003-run-every-taskfile-folder-through-the-task-cli-in-tests.md).
-
-Contract tests also enforce:
-
-* Every public task appears in the module's `## Public Tasks` table and in
-  `metadata.yml`
-* Top-level Taskfile vars use an owned `{TOOL}_` prefix (or a
-  foreign/companion prefix) — [ADR 0002](doc/adr/0002-prefix-top-level-taskfile-vars-with-the-module-name.md)
-* Every Nix-backed module (one that includes `nix` and owns a
-  `{TOOL}_NIX_INSTALLABLE`) declares and exports public `install` and `version`
-  tasks — [ADR 0004](doc/adr/0004-install-cli-tools-via-nix-profile.md)
-
-After adding, removing, or renaming an exported task, update `metadata.yml`
-and the module README, then run `go test ./...`.
-
-## Dependency Updates
-
-[Dependabot](.github/dependabot.yml) checks the root Go module, root npm
-development dependencies, GitHub workflows, and composite actions every Monday
-at 09:00 Africa/Cairo. Minor and patch version updates are grouped by ecosystem;
-major updates remain individual PRs for review. Each ecosystem allows up to five
-open version-update PRs, and new releases have a seven-day cooldown.
-Security updates are exempt from the cooldown and version-update PR limit.
-
-Test manifests under `data-test/` and `taskfiles/npm/` are fixtures and are not
-included in version updates. Tool versions embedded in Taskfile variables and
-Nix/WinGet install settings are maintained separately.
-
-Dependabot PRs run CI and smoke checks. CI still fails when formatting changes
-are needed, but skips creating fix PRs and uploading to Codecov because these
-steps require write or OIDC credentials. Review and merge dependency updates
-after the required checks pass.
-
-To receive security-fix PRs, enable the dependency graph, Dependabot alerts,
-and Dependabot security updates in the repository's GitHub security settings.
-The configuration file enables version updates once merged into the default
-branch; it does not enable these repository settings.
+See the architecture decisions for
+[variable naming](doc/adr/0002-prefix-top-level-taskfile-vars-with-the-module-name.md),
+[integration tests](doc/adr/0003-run-every-taskfile-folder-through-the-task-cli-in-tests.md),
+and [tool installation](doc/adr/0004-install-cli-tools-via-nix-profile.md).
+Dependency updates are configured in [Dependabot](.github/dependabot.yml).
 
 ## License
 
 [MIT](LICENSE)
-
-
-[![FOSSA Status](https://app.fossa.com/api/projects/git%2Bgithub.com%2Ftask-otter%2Fstore.svg?type=large)](https://app.fossa.com/projects/git%2Bgithub.com%2Ftask-otter%2Fstore?ref=badge_large)
