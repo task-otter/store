@@ -3,8 +3,8 @@
   "version": "0.0.0",
   "private": true,
   "devDependencies": {
-    "eslint": "^10.12.0",
-    "prettier": "^3.8.3"
+    "eslint": "^10.13.0",
+    "prettier": "^3.9.10"
   },
   "overrides": {
     "cross-spawn": {
